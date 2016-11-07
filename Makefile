@@ -23,9 +23,9 @@ LIBD    = ${LIBS}      -lyLOG
 LIBU    = ${LIBD}      -lyUNIT    -lyVAR_debug
 #*---(file lists)---------------------*#
 HEADS   = ${BASE}.h   ${BASE}_priv.h
-OBJS    = ${BASE}.os  ${BASE}_mode.os
-OBJD    = ${BASE}.o   ${BASE}_mode.o
-OBJU    = ${BASE}.o   ${BASE}_mode.o   ${UNIT}.o
+OBJS    = ${BASE}.os  ${BASE}_mode.o   ${BASE}_speed.os
+OBJD    = ${BASE}.o   ${BASE}_mode.o   ${BASE}_speed.o
+OBJU    = ${BASE}.o   ${BASE}_mode.o   ${BASE}_speed.o  ${UNIT}.o
 #*---(make variables)-----------------*#
 COPY    = cp -f
 CLEAN   = rm -f
@@ -60,6 +60,11 @@ ${BASE}_mode.o     : ${HEADS}       ${BASE}_mode.c
 	${COMP}  -fPIC  ${BASE}_mode.c                           ${INC}
 	${STRIP}        ${BASE}_mode.c      > ${BASE}_mode.cs
 	${COMP}  -fPIC  ${BASE}_mode.cs    -o ${BASE}_mode.os    ${INC}
+
+${BASE}_speed.o    : ${HEADS}       ${BASE}_speed.c
+	${COMP}  -fPIC  ${BASE}_speed.c                          ${INC}
+	${STRIP}        ${BASE}_speed.c     > ${BASE}_speed.cs
+	${COMP}  -fPIC  ${BASE}_speed.cs   -o ${BASE}_speed.os   ${INC}
 
 ${UNIT}.o          : ${HEADS} ${BASE}.unit
 	koios    ${BASE}

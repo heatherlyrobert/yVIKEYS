@@ -25,6 +25,18 @@ static char    s_cmode;                     /* current mode in stack          */
 
 
 /*===[[ STRUCTURE ]]==========================================================*/
+typedef  struct  cMODE_INFO  tMODE_INFO;
+struct cMODE_INFO {
+   char        abbr;                   /* single character abbreviation       */
+   char        major;                  /* major mode (y/n)                    */
+   char        show;                   /* show a message line (y/n)           */
+   char        three       [ 5];       /* very short name                     */
+   char        terse       [10];       /* short name                          */
+   char        desc        [50];       /* description of mode                 */
+   char        allow       [25];       /* allowed mode transitions            */
+   int         count;                  /* number of times used                */
+   char        mesg        [LEN_STR];  /* informative message for display     */
+};
 static tMODE_INFO  s_mode_info [MAX_MODES] = {
    /*-a-- -maj show --tla- ---terse----- ---description---------------------------------------- -----------------------,----- 123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789- */
    /*---(major modes)--------------------*/
@@ -224,3 +236,5 @@ MODE_message       (char *a_mesg, char *a_cmd)
 }
 
 
+
+/*============================----end-of-source---============================*/
