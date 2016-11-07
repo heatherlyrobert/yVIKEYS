@@ -36,8 +36,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.5c"
-#define YVIKEYS_VER_TXT   "successfully ported gyges/arachne MODE to here ;)"
+#define YVIKEYS_VER_NUM   "0.5d"
+#define YVIKEYS_VER_TXT   "fixed problem with yVIKEYS_ver in debugging"
 
 
 /*===[[ CONSTANTS ]]==========================================================*/
@@ -64,8 +64,10 @@
 #define     SMOD_MENUS     '\\'   /* show menu system                         */
 
 
+extern char yVIKEYS_ver     [500];
 
 /*===[[ FUNCTION PROTOTYPES ]]================================================*/
+char*       yVIKEYS_version    (void);
 /*---(mode stack)-----------*/
 char        MODE_init          (void);
 char        MODE_enter         (char  a_mode);
