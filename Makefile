@@ -23,9 +23,9 @@ LIBD    = ${LIBDIR}    -lyLOG
 LIBU    = ${LIBDIR}    -lyLOG     -lyUNIT    -lyVAR_debug
 #*---(file lists)---------------------*#
 HEADS   = ${BASE}.h   ${BASE}_priv.h
-OBJS    = ${BASE}.os  
-OBJD    = ${BASE}.o   
-OBJU    = ${BASE}.o   ${UNIT}.o
+OBJS    = ${BASE}.os  ${BASE}_mode.os
+OBJD    = ${BASE}.o   ${BASE}_mode.o
+OBJU    = ${BASE}.o   ${BASE}_mode.o   ${UNIT}.o
 #*---(make variables)-----------------*#
 COPY    = cp -f
 CLEAN   = rm -f
@@ -55,6 +55,11 @@ ${BASE}.o          : ${HEADS}       ${BASE}.c
 	${COMP}  -fPIC  ${BASE}.c                                ${INC}
 	${STRIP}        ${BASE}.c           > ${BASE}.cs
 	${COMP}  -fPIC  ${BASE}.cs         -o ${BASE}.os         ${INC}
+
+${BASE}_mode.o     : ${HEADS}       ${BASE}_mode.c
+	${COMP}  -fPIC  ${BASE}_mode.c                           ${INC}
+	${STRIP}        ${BASE}_mode.c      > ${BASE}_mode.cs
+	${COMP}  -fPIC  ${BASE}_mode.cs    -o ${BASE}_mode.os    ${INC}
 
 ${UNIT}.o          : ${HEADS} ${BASE}.unit
 	koios    ${BASE}
