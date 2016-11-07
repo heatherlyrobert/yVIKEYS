@@ -51,6 +51,8 @@ static tMODE_INFO  s_mode_info [MAX_MODES] = {
    { '-' , '-', 'y', "bad", "bad mode"  , "default message when mode is not understood"        , ""                    ,    0, "mode not understood"                                                                     },
 };
 
+
+
 static      char        s_majors       [MAX_MODES] = "";
 
 
@@ -191,7 +193,7 @@ MODE_list          (char *a_list)
 }
 
 char
-MODE_message       (void)
+MODE_message       (char *a_mesg, char *a_cmd)
 {
    /*---(locals)-----------+-----------+-*/
    int         i           = 0;
@@ -207,11 +209,17 @@ MODE_message       (void)
       x_major = MODE_prev ();
       x_minor = s_cmode;
    }
-   /*> if (s_mode_info[i].show == 'y') {                                                                               <* 
-    *>    sprintf (my.message, "[%c%c] %-3.3s : %s\n", x_major, x_minor, s_mode_info[i].three, s_mode_info[i].mesg);   <* 
-    *> } else {                                                                                                        <* 
-    *>    sprintf (my.message, "%s\n", my.c_command);                                                                  <* 
-    *> }                                                                                                               <*/
+   if (a_mesg != NULL) {
+      switch (s_cmode) {
+      case MODE_COMMAND :
+      case MODE_SEARCH  :
+         strlcpy (a_mesg, a_cmd, LEN_STR);
+         break;
+      default           :
+         sprintf (a_mesg, "[%c%c] %-3.3s : %s\n", x_major, x_minor, s_mode_info[i].three, s_mode_info[i].mesg);
+         break;
+      }
+   }
    return 0;
 }
 

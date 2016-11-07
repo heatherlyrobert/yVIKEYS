@@ -36,8 +36,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.5b"
-#define YVIKEYS_VER_TXT   "add all the common MODE functions from gyges/arachne"
+#define YVIKEYS_VER_NUM   "0.5c"
+#define YVIKEYS_VER_TXT   "successfully ported gyges/arachne MODE to here ;)"
 
 
 /*===[[ CONSTANTS ]]==========================================================*/
@@ -74,7 +74,7 @@ char        MODE_curr          (void);
 char        MODE_prev          (void);
 char        MODE_not           (char  a_mode);
 char        MODE_list          (char *a_list);
-char        MODE_message       (void);
+char        MODE_message       (char *a_mesg, char *a_cmd);
 
 
 

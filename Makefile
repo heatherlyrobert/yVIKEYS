@@ -19,8 +19,8 @@ INCS    = -I/usr/local/include
 LINK    = gcc
 LIBDIR  = -L/usr/local/lib
 LIBS    = ${LIBDIR}    
-LIBD    = ${LIBDIR}    -lyLOG
-LIBU    = ${LIBDIR}    -lyLOG     -lyUNIT    -lyVAR_debug
+LIBD    = ${LIBS}      -lyLOG
+LIBU    = ${LIBD}      -lyUNIT    -lyVAR_debug
 #*---(file lists)---------------------*#
 HEADS   = ${BASE}.h   ${BASE}_priv.h
 OBJS    = ${BASE}.os  ${BASE}_mode.os
