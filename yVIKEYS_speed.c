@@ -54,9 +54,9 @@ static tSPEED s_speed_info [MAX_SPEED] = {
    { "+0.05x"    , "super slow"       ,      0.05 ,     0.0010 ,    5000000 },
    { "+0.10x"    , "slow"             ,      0.10 ,     0.0025 ,    4500000 },
    { "+0.25x"    , "quarter"          ,      0.25 ,     0.0060 ,    5000000 },
-   { "+0.50x"    , "half"             ,      0.50 ,     0.0500 ,    2000000 },
+   { "+0.50x"    , "half"             ,      0.50 ,     0.0100 ,    5000000 },
    { "+0.75x"    , "three-quarters"   ,      0.75 ,     0.0150 ,    4500000 },
-   { "+1.00x"    , "normal"           ,      1.00 ,     0.1000 ,    2000000 },
+   { "+1.00x"    , "normal"           ,      1.00 ,     0.0250 ,    2000000 },
    { "+2.00x"    , "double"           ,      2.00 ,     0.0500 ,    2000000 },
    { "+5.00x"    , "faster"           ,      5.00 ,     0.1250 ,    2000000 },
    { "+10.0x"    , "very fast"        ,     10.00 ,     0.2500 ,    2000000 },
@@ -73,7 +73,7 @@ static tSPEED s_speed_info [MAX_SPEED] = {
 static void      o___SPEED___________________o (void) {;}
 
 char
-yVIKEYS_speed_set  (char *a_code)
+yVIKEYS_speed_set  (char *a_code, double *a_waitns)
 {
    /*---(locals)-----------+-----------+-*/
    char        rce         = -10;
@@ -98,12 +98,13 @@ yVIKEYS_speed_set  (char *a_code)
    s_index     = x_index;
    s_advance   = s_speed_info [s_index].adv_sec;
    s_waitns    = s_speed_info [s_index].wait_ns;
+   if (a_waitns != NULL)  *a_waitns = s_waitns;
    /*---(complete)-----------------------*/
-   return x_index;
+   return 0;
 }
 
 char
-yVIKEYS_speed_stop (void)
+yVIKEYS_speed_stop (double *a_waitns)
 {
    /*---(locals)-----------+-----------+-*/
    char        rce         = -10;
@@ -123,15 +124,14 @@ yVIKEYS_speed_stop (void)
    }
    /*---(set key values)-----------------*/
    s_moving    = '-';
-   s_advance   = s_speed_info [x_index].adv_sec;
    s_waitns    = s_speed_info [x_index].wait_ns;
-   /*> TICK_draw ();                                                                  <*/
+   if (a_waitns != NULL)  *a_waitns = s_waitns;
    /*---(complete)-----------------------*/
    return 0;
 }
 
 char
-yVIKEYS_speed_play (void)
+yVIKEYS_speed_play (double *a_waitns)
 {
    /*---(locals)-----------+-----------+-*/
    char        rce         = -10;
@@ -145,15 +145,15 @@ yVIKEYS_speed_play (void)
       s_advance   = s_speed_info [s_index].adv_sec;
       s_waitns    = s_speed_info [s_index].wait_ns;
    } else {
-      yVIKEYS_speed_stop ();
+      yVIKEYS_speed_stop (a_waitns);
    }
-   /*> TICK_draw ();                                                                  <*/
+   if (a_waitns != NULL)  *a_waitns = s_waitns;
    /*---(complete)-----------------------*/
    return 0;
 }
 
 char
-yVIKEYS_speed_more (void)
+yVIKEYS_speed_more (double *a_waitns)
 {
    /*---(locals)-----------+-----------+-*/
    char        rce         = -10;
@@ -168,13 +168,13 @@ yVIKEYS_speed_more (void)
    ++(s_index);
    s_advance   = s_speed_info [s_index].adv_sec;
    s_waitns    = s_speed_info [s_index].wait_ns;
-   /*> TICK_draw ();                                                                  <*/
+   if (a_waitns != NULL)  *a_waitns = s_waitns;
    /*---(complete)-----------------------*/
    return 0;
 }
 
 char
-yVIKEYS_speed_less (void)
+yVIKEYS_speed_less (double *a_waitns)
 {
    /*---(locals)-----------+-----------+-*/
    char        rce         = -10;
@@ -186,7 +186,7 @@ yVIKEYS_speed_less (void)
    --(s_index);
    s_advance   = s_speed_info [s_index].adv_sec;
    s_waitns    = s_speed_info [s_index].wait_ns;
-   /*> TICK_draw ();                                                                  <*/
+   if (a_waitns != NULL)  *a_waitns = s_waitns;
    /*---(complete)-----------------------*/
    return 0;
 }
@@ -204,7 +204,7 @@ yVIKEYS_speed_desc (char *a_text)
       return rce;
    }
    /*---(create text line)---------------*/
-   snprintf (a_text, LEN_STR, "play %s %8.3f %.3lfms (%s)", s_speed_info [s_index].code, s_advance, s_waitns / 1000000, s_speed_info [s_index].desc);
+   snprintf (a_text, LEN_STR, "%s %s %.3fa %.1lfms (%s)", (s_moving == 'y') ? "play" : "stop", s_speed_info [s_index].code, s_advance, s_waitns / 1000000, s_speed_info [s_index].desc);
    /*---(complete)-----------------------*/
    return 0;
 }
@@ -215,6 +215,9 @@ yVIKEYS_speed_adv  (double *a_pos)
    /*---(locals)-----------+-----------+-*/
    char        rce         = -10;
    /*---(defense)------------------------*/
+   --rce;  if (s_moving != 'y') {
+      return rce;
+   }
    --rce;  if (a_pos  == NULL) {
       return rce;
    }
@@ -227,23 +230,6 @@ yVIKEYS_speed_adv  (double *a_pos)
    return 0;
 }
 
-char
-yVIKEYS_speed_wait (void)
-{
-   /*---(locals)-----------+-----------+-*/
-   struct      timespec    timer;
-   /*---(wait)---------------------------*/
-   timer.tv_sec  = 0;
-   if (s_index <  0) {
-      timer.tv_nsec = s_waitns;
-   } else {
-      timer.tv_nsec = 100000000;      /* default amount  */
-   }
-   nanosleep (&timer, NULL);
-   /*> TICK_draw ();                                                                  <*/
-   /*---(complete)-----------------------*/
-   return 0;
-}
 
 
 

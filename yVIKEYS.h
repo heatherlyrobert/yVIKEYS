@@ -36,8 +36,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.5e"
-#define YVIKEYS_VER_TXT   "moved all arachne SPEED capability into yVIKEYS"
+#define YVIKEYS_VER_NUM   "0.5f"
+#define YVIKEYS_VER_TXT   "moved wait back out of yVIKEYS for performance"
 
 
 /*===[[ CONSTANTS ]]==========================================================*/
@@ -82,14 +82,13 @@ char        MODE_list          (char *a_list);
 char        MODE_message       (char *a_mesg, char *a_cmd);
 
 /*---(speed)----------------*/
-char        yVIKEYS_speed_set  (char *a_code);
-char        yVIKEYS_speed_stop (void);
-char        yVIKEYS_speed_play (void);
-char        yVIKEYS_speed_more (void);
-char        yVIKEYS_speed_less (void);
+char        yVIKEYS_speed_set  (char *a_code, double *a_waitns);
+char        yVIKEYS_speed_stop (double *a_waitns);
+char        yVIKEYS_speed_play (double *a_waitns);
+char        yVIKEYS_speed_more (double *a_waitns);
+char        yVIKEYS_speed_less (double *a_waitns);
 char        yVIKEYS_speed_desc (char   *a_text);
 char        yVIKEYS_speed_adv  (double *a_pos);
-char        yVIKEYS_speed_wait (void);
 
 
 #endif
