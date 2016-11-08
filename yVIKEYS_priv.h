@@ -12,7 +12,6 @@
 #include    <stdio.h>             /* clibc  standard input/output             */
 #include    <stdlib.h>            /* clibc  standard general purpose          */
 #include    <string.h>            /* clibc  standard string handling          */
-#include    <time.h>              /* clibc  standard time and date handling   */
 
 /*---(posix standard)--------------------*/
 

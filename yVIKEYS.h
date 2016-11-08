@@ -36,8 +36,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.5f"
-#define YVIKEYS_VER_TXT   "moved wait back out of yVIKEYS for performance"
+#define YVIKEYS_VER_NUM   "0.5g"
+#define YVIKEYS_VER_TXT   "added a simple scale program file and integrated"
 
 
 /*===[[ CONSTANTS ]]==========================================================*/
