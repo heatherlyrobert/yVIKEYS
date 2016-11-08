@@ -12,7 +12,10 @@ struct cLOCAL {
    int         logger;
 };
 static tLOCAL its;
-#define     DEBUG_VIKEYS   if (its.debug == 'y')
+#define     DEBUG_VIKEYS   if (its.debug        == 'y')
+/*> #define     DEBUG_VIMODE   if (its.debug_mode   == 'y')                           <* 
+ *> #define     DEBUG_VISPEE   if (its.debug_speed  == 'y')                           <* 
+ *> #define     DEBUG_VISCAL   if (its.debug_scale  == 'y')                           <*/
 
 
 
@@ -50,70 +53,94 @@ yVIKEYS_debug      (char a_flag)
    return 0;
 }
 
+char         /*--> process keystrokes in progress mode ---[--------[--------]-*/
+yVIKEYS_keys_line  (char a_minor, double *a_base, double a_inc, double a_min, double a_max)
+{
+   /*---(locals)-----------+-----------+-*/
+   char        rce         = -10;      /* return code for errors              */
+   char        x_minors    [LEN_STR]  = "0LlhH$_KkjJG";
+   double      x_base      = 0.0;
+   /*---(defense)------------------------*/
+   DEBUG_VIKEYS yLOG_point   ("a_base"    , a_base);
+   --rce;  if (a_base  == NULL) {
+      DEBUG_VIKEYS yLOG_note    ("base value pointer not set");
+      DEBUG_VIKEYS yLOG_exit    (__FUNCTION__);
+      return rce;
+   }
+   DEBUG_VIKEYS yLOG_double  ("a_base"    , *a_base);
+   DEBUG_VIKEYS yLOG_double  ("a_inc"     , a_inc);
+   DEBUG_VIKEYS yLOG_double  ("a_min"     , a_min);
+   DEBUG_VIKEYS yLOG_double  ("a_max"     , a_max);
+   /*---(keys)---------------------------*/
+   switch (a_minor) {
+   case '0': case '_':
+      *a_base  =  a_min;
+      break;
+   case 'H': case 'K':
+      *a_base -=  a_inc * 5;
+      break;
+   case 'h': case 'k': case '-':
+      *a_base -=  a_inc;
+      break;
+   case 'l': case 'j': case '+':
+      *a_base +=  a_inc;
+      break;
+   case 'L': case 'J':
+      *a_base +=  a_inc * 5;
+      break;
+   case '$': case 'G':
+      *a_base  =  a_max;
+      break;
+   }
+   /*---(complete)-----------------------*/
+   DEBUG_VIKEYS yLOG_exit    (__FUNCTION__);
+   return 0;
+}
 
+char         /*--> process keystrokes in progress mode ---[--------[--------]-*/
+yVIKEYS_keys_horz  (char a_minor, double *a_base, double a_inc, double a_min, double a_max)
+{
+   /*---(locals)-----------+-----------+-*/
+   char        rce         = -10;      /* return code for errors              */
+   char        x_minors    [LEN_STR]  = "0LlhH$";
+   /*---(header)-------------------------*/
+   DEBUG_VIKEYS yLOG_enter   (__FUNCTION__);
+   DEBUG_VIKEYS yLOG_char    ("a_minor"   , a_minor);
+   /*---(defense)------------------------*/
+   DEBUG_VIKEYS yLOG_info    ("x_minors"  , x_minors);
+   if (strchr (x_minors, a_minor) == 0) {
+      DEBUG_VIKEYS yLOG_note    ("not a valid a_minor movement key");
+      DEBUG_VIKEYS yLOG_exit    (__FUNCTION__);
+      return rce;
+   }
+   /*---(process)------------------------*/
+   rce = yVIKEYS_keys_line (a_minor, a_base, a_inc, a_min, a_max);
+   /*---(complete)-----------------------*/
+   DEBUG_VIKEYS yLOG_exit    (__FUNCTION__);
+   return rce;
+}
 
-/*> char         /+--> process keystrokes in progress mode ---[--------[--------]-+/                                  <* 
- *> yVIKEYS_bounds     (double a_left, double a_right, double a_top, double a_bottom, double a_close, double a_far)   <* 
- *> {                                                                                                                 <* 
- *> }                                                                                                                 <*/
-
-/*> char         /+--> process keystrokes in progress mode ---[--------[--------]-+/                            <* 
- *> yVIKEYS_basics     (char a_major, char a_minor, double *a_base, double a_inc, double a_min, double a_max)   <* 
- *> {                                                                                                           <* 
- *>    /+---(locals)-----------+-----------+-+/                                                                 <* 
- *>    char        rce         = -10;      /+ return code for errors              +/                            <* 
- *>    char        x_minors    [LEN_STR]  = "0LlhH$_KkjJG";                                                     <* 
- *>    /+---(header)-------------------------+/                                                                 <* 
- *>    DEBUG_USER   yLOG_enter   (__FUNCTION__);                                                                <* 
- *>    DEBUG_USER   yLOG_char    ("a_major"   , a_major);                                                       <* 
- *>    DEBUG_USER   yLOG_char    ("a_minor"   , a_minor);                                                       <* 
- *>    DEBUG_USER   yLOG_double  ("a_base"    , *a_base);                                                       <* 
- *>    DEBUG_USER   yLOG_double  ("a_inc"     , a_inc);                                                         <* 
- *>    DEBUG_USER   yLOG_double  ("a_min"     , a_min);                                                         <* 
- *>    DEBUG_USER   yLOG_double  ("a_max"     , a_max);                                                         <* 
- *>    /+---(defense)------------------------+/                                                                 <* 
- *>    --rce;  if (a_major != ' ') {                                                                            <* 
- *>       DEBUG_USER   yLOG_note    ("not a valid a_major prefix key");                                         <* 
- *>       DEBUG_USER   yLOG_exit    (__FUNCTION__);                                                             <* 
- *>       return rce;                                                                                           <* 
- *>    }                                                                                                        <* 
- *>    --rce;  if (strchr (x_minors, a_minor) == 0) {                                                           <* 
- *>       DEBUG_USER   yLOG_note    ("not a valid a_minor movement key");                                       <* 
- *>       DEBUG_USER   yLOG_exit    (__FUNCTION__);                                                             <* 
- *>       return rce;                                                                                           <* 
- *>    }                                                                                                        <* 
- *>                                                                                                             <* 
- *>    /+---(basic horizontal)---------------+/                                                                 <* 
- *>    switch (a_minor) {                                                                                       <* 
- *>    case '0'      : MOVE_horz ('0');       break;                                                            <* 
- *>    case 'H'      : MOVE_horz ('H');       break;                                                            <* 
- *>    case 'h'      : MOVE_horz ('h');       break;                                                            <* 
- *>    case 'l'      : MOVE_horz ('l');       break;                                                            <* 
- *>    case 'L'      : MOVE_horz ('L');       break;                                                            <* 
- *>    case '$'      : MOVE_horz ('$');       break;                                                            <* 
- *>    }                                                                                                        <* 
- *>    /+---(basic vertical)-----------------+/                                                                 <* 
- *>    switch (a_minor) {                                                                                       <* 
- *>    case '_'      : MOVE_vert ('_');       break;                                                            <* 
- *>    case 'K'      : MOVE_vert ('K');       break;                                                            <* 
- *>    case 'k'      : MOVE_vert ('k');       break;                                                            <* 
- *>    case 'j'      : MOVE_vert ('j');       break;                                                            <* 
- *>    case 'J'      : MOVE_vert ('J');       break;                                                            <* 
- *>    case 'G'      : MOVE_vert ('G');       break;                                                            <* 
- *>    }                                                                                                        <* 
- *>    /+---(special)------------------------+/                                                                 <* 
- *>    switch (a_minor) {                                                                                       <* 
- *>    case 'r'      : break;                                                                                   <* 
- *>    }                                                                                                        <* 
- *>                                                                                                             <* 
- *>    switch (a_minor) {                                                                                       <* 
- *>    case '0': my_pos  =  0.0;               break;                                                           <* 
- *>    case 'L': my_pos +=  my.p_inc * 5;      break;                                                           <* 
- *>    case 'l': my_pos +=  my.p_inc;          break;                                                           <* 
- *>    case 'h': my_pos -=  my.p_inc;          break;                                                           <* 
- *>    case 'H': my_pos -=  my.p_inc * 5;      break;                                                           <* 
- *>    case '$': my_pos  =  my.p_len;          break;                                                           <* 
- *>    }                                                                                                        <* 
- *> }                                                                                                           <*/
+char         /*--> process keystrokes in progress mode ---[--------[--------]-*/
+yVIKEYS_keys_vert  (char a_minor, double *a_base, double a_inc, double a_min, double a_max)
+{
+   /*---(locals)-----------+-----------+-*/
+   char        rce         = -10;      /* return code for errors              */
+   char        x_minors    [LEN_STR]  = "_KkjJG";
+   /*---(header)-------------------------*/
+   DEBUG_VIKEYS yLOG_enter   (__FUNCTION__);
+   DEBUG_VIKEYS yLOG_char    ("a_minor"   , a_minor);
+   /*---(defense)------------------------*/
+   DEBUG_VIKEYS yLOG_info    ("x_minors"  , x_minors);
+   if (strchr (x_minors, a_minor) == 0) {
+      DEBUG_VIKEYS yLOG_note    ("not a valid a_minor movement key");
+      DEBUG_VIKEYS yLOG_exit    (__FUNCTION__);
+      return rce;
+   }
+   /*---(process)------------------------*/
+   rce = yVIKEYS_keys_line (a_minor, a_base, a_inc, a_min, a_max);
+   /*---(complete)-----------------------*/
+   DEBUG_VIKEYS yLOG_exit    (__FUNCTION__);
+   return rce;
+}
 
 /*============================----end-of-source---============================*/

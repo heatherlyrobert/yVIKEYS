@@ -36,8 +36,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.5i"
-#define YVIKEYS_VER_TXT   "changed all MODE functions to yVIKEYS_mode"
+#define YVIKEYS_VER_NUM   "0.5j"
+#define YVIKEYS_VER_TXT   "added basic key movement functions, tested on arachne"
 
 
 /*===[[ CONSTANTS ]]==========================================================*/
@@ -97,6 +97,10 @@ char        yVIKEYS_scale_less (float  *a_inc   );
 char        yVIKEYS_scale_desc (char   *a_text  );
 char        yVIKEYS_scale_base (float  *a_multi  , char   *a_base);
 
+/*---(keys)-----------------*/
+char        yVIKEYS_keys_horz  (char a_minor, double *a_base, double a_inc, double a_min, double a_max);
+char        yVIKEYS_keys_vert  (char a_minor, double *a_base, double a_inc, double a_min, double a_max);
+char        yVIKEYS_keys_zoom  (char a_minor, double *a_base, double a_inc, double a_min, double a_max);
 
 
 #endif
