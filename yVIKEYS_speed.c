@@ -17,9 +17,6 @@
 
 
 /*===[[ FILE-WIDE VARIABLES ]]================================================*/
-static int     s_nmode;                     /* depth of current mode stack    */
-static char    s_cmode;                     /* current mode in stack          */
-/*---(progress play)---*/
 static char    s_index    = -1;             /* play speed index               */
 static char    s_moving   = '-';            /* playing (y/n)                  */
 static float   s_advance  = 0.0;            /* x-advance while moving         */

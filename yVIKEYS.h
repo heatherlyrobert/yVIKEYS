@@ -36,8 +36,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.5g"
-#define YVIKEYS_VER_TXT   "added a simple scale program file and integrated"
+#define YVIKEYS_VER_NUM   "0.5h"
+#define YVIKEYS_VER_TXT   "SCALE functions are added and tested with arachne"
 
 
 /*===[[ CONSTANTS ]]==========================================================*/
@@ -69,26 +69,34 @@ extern char yVIKEYS_ver     [500];
 /*===[[ FUNCTION PROTOTYPES ]]================================================*/
 /*---(debugging)------------*/
 char*       yVIKEYS_version    (void);
-char        yVIKEYS_debug      (char a_flag);
+char        yVIKEYS_debug      (char    a_flag  );
 
 /*---(mode stack)-----------*/
 char        MODE_init          (void);
-char        MODE_enter         (char  a_mode);
+char        MODE_enter         (char    a_mode  );
 char        MODE_return        (void);
 char        MODE_curr          (void);
 char        MODE_prev          (void);
-char        MODE_not           (char  a_mode);
-char        MODE_list          (char *a_list);
-char        MODE_message       (char *a_mesg, char *a_cmd);
+char        MODE_not           (char    a_mode  );
+char        MODE_list          (char   *a_list  );
+char        MODE_message       (char   *a_mesg   , char   *a_cmd);
 
 /*---(speed)----------------*/
-char        yVIKEYS_speed_set  (char *a_code, double *a_waitns);
+char        yVIKEYS_speed_set  (char   *a_code   , double *a_waitns);
 char        yVIKEYS_speed_stop (double *a_waitns);
 char        yVIKEYS_speed_play (double *a_waitns);
 char        yVIKEYS_speed_more (double *a_waitns);
 char        yVIKEYS_speed_less (double *a_waitns);
-char        yVIKEYS_speed_desc (char   *a_text);
-char        yVIKEYS_speed_adv  (double *a_pos);
+char        yVIKEYS_speed_desc (char   *a_text  );
+char        yVIKEYS_speed_adv  (double *a_pos   );
+
+/*---(scale)----------------*/
+char        yVIKEYS_scale_set  (char   *a_code   , float  *a_inc);
+char        yVIKEYS_scale_more (float  *a_inc   );
+char        yVIKEYS_scale_less (float  *a_inc   );
+char        yVIKEYS_scale_desc (char   *a_text  );
+char        yVIKEYS_scale_base (float  *a_multi  , char   *a_base);
+
 
 
 #endif
