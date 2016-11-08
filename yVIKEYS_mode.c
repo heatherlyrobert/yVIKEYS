@@ -75,7 +75,7 @@ static      char        s_majors       [MAX_MODES] = "";
 static void  o___MODE_STACK______o () { return; }
 
 char         /*--> prepare mode stack for use ------------[--------[--------]-*/
-MODE_init          (void)
+yVIKEYS_mode_init  (void)
 {
    /*---(locals)-----------+-----------+-*/
    int         i           = 0;
@@ -100,7 +100,7 @@ MODE_init          (void)
 }
 
 char         /*--> add a mode to the stack ---------------[--------[--------]-*/
-MODE_enter         (char a_mode)
+yVIKEYS_mode_enter (char a_mode)
 {
    /*---(locals)-----------+-----------+-*/
    char        rce         = -10;
@@ -138,7 +138,7 @@ MODE_enter         (char a_mode)
 }
 
 char
-MODE_return        (void)
+yVIKEYS_mode_exit  (void)
 {
    /*---(locals)-----------+-----------+-*/
    char        rce         = -10;
@@ -155,13 +155,13 @@ MODE_return        (void)
 }
 
 char
-MODE_curr          (void)
+yVIKEYS_mode_curr  (void)
 {
    return s_cmode;
 }
 
 char
-MODE_prev          (void)
+yVIKEYS_mode_prev  (void)
 {
    /*---(locals)-----------+-----------+-*/
    char        rce         = -10;
@@ -179,14 +179,14 @@ MODE_prev          (void)
 }
 
 char
-MODE_not           (char a_mode)
+yVIKEYS_mode_not   (char a_mode)
 {
    if (a_mode != s_modes [s_nmode - 1]) return -1;
    return 0;
 }
 
 char       /*----: list the current mode stack -------------------------------*/
-MODE_list          (char *a_list)
+yVIKEYS_mode_list  (char *a_list)
 {
    /*---(locals)-----------+-----------+-*/
    char        rce         = -10;
@@ -205,7 +205,7 @@ MODE_list          (char *a_list)
 }
 
 char
-MODE_message       (char *a_mesg, char *a_cmd)
+yVIKEYS_mode_mesg  (char *a_mesg, char *a_cmd)
 {
    /*---(locals)-----------+-----------+-*/
    int         i           = 0;
@@ -218,7 +218,7 @@ MODE_message       (char *a_mesg, char *a_cmd)
    if (s_mode_info [i].major == 'y')  {
       x_major = s_cmode;
    } else {
-      x_major = MODE_prev ();
+      x_major = yVIKEYS_mode_prev ();
       x_minor = s_cmode;
    }
    if (a_mesg != NULL) {

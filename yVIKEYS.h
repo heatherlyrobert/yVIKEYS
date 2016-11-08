@@ -36,8 +36,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.5h"
-#define YVIKEYS_VER_TXT   "SCALE functions are added and tested with arachne"
+#define YVIKEYS_VER_NUM   "0.5i"
+#define YVIKEYS_VER_TXT   "changed all MODE functions to yVIKEYS_mode"
 
 
 /*===[[ CONSTANTS ]]==========================================================*/
@@ -72,14 +72,14 @@ char*       yVIKEYS_version    (void);
 char        yVIKEYS_debug      (char    a_flag  );
 
 /*---(mode stack)-----------*/
-char        MODE_init          (void);
-char        MODE_enter         (char    a_mode  );
-char        MODE_return        (void);
-char        MODE_curr          (void);
-char        MODE_prev          (void);
-char        MODE_not           (char    a_mode  );
-char        MODE_list          (char   *a_list  );
-char        MODE_message       (char   *a_mesg   , char   *a_cmd);
+char        yVIKEYS_mode_init  (void);
+char        yVIKEYS_mode_enter (char    a_mode  );
+char        yVIKEYS_mode_exit  (void);
+char        yVIKEYS_mode_curr  (void);
+char        yVIKEYS_mode_prev  (void);
+char        yVIKEYS_mode_not   (char    a_mode  );
+char        yVIKEYS_mode_list  (char   *a_list  );
+char        yVIKEYS_mode_mesg  (char   *a_mesg   , char   *a_cmd);
 
 /*---(speed)----------------*/
 char        yVIKEYS_speed_set  (char   *a_code   , double *a_waitns);
