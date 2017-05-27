@@ -8,14 +8,15 @@
 typedef struct cLOCAL tLOCAL;
 struct cLOCAL {
    /*---(overall)-----------*/
-   char        debug;
+   char        debug_keys;
+   char        debug_mode;
+   char        debug_scale;
    int         logger;
 };
 static tLOCAL its;
-#define     DEBUG_VIKEYS   if (its.debug        == 'y')
-/*> #define     DEBUG_VIMODE   if (its.debug_mode   == 'y')                           <* 
- *> #define     DEBUG_VISPEE   if (its.debug_speed  == 'y')                           <* 
- *> #define     DEBUG_VISCAL   if (its.debug_scale  == 'y')                           <*/
+#define     DEBUG_VIKEYS   if (its.debug_keys   == 'y')
+#define     DEBUG_VIMODE   if (its.debug_mode   == 'y')
+#define     DEBUG_VISCAL   if (its.debug_scale  == 'y')
 
 
 
@@ -47,8 +48,11 @@ char         /*--> set debugging mode --------------------[ ------ [ ------ ]-*/
 yVIKEYS_debug      (char a_flag)
 {
    /*---(set debug flag)-----------------*/
-   if   (a_flag == 'y')  its.debug   = 'y';
-   else                  its.debug   = '-';
+   switch (a_flag) {
+   case 'k' :  its.debug_keys   = 'y';   break;
+   case 'm' :  its.debug_mode   = 'y';   break;
+   case 's' :  its.debug_scale  = 'y';   break;
+   }
    /*---(complete)-----------------------*/
    return 0;
 }
@@ -92,6 +96,9 @@ yVIKEYS_keys_line  (char a_minor, double *a_base, double a_inc, double a_min, do
       *a_base  =  a_max;
       break;
    }
+   /*---(check limits)-------------------*/
+   if (*a_base < a_min)  *a_base = a_min;
+   if (*a_base > a_max)  *a_base = a_max;
    /*---(complete)-----------------------*/
    DEBUG_VIKEYS yLOG_exit    (__FUNCTION__);
    return 0;

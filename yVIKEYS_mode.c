@@ -41,7 +41,7 @@ static tMODE_INFO  s_mode_info [MAX_MODES] = {
    /*-a-- -maj show --tla- ---terse----- ---description---------------------------------------- -----------------------,----- 123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789- */
    /*---(major modes)--------------------*/
    { 'G' , 'y', 'y', "GOD", "god"       , "god-mode allowing 3D omnicient viewing"             , "P"                   ,    0, "linear=LnhHJjkKIioO  rotate=PpaAYytTRrwW"                                                },
-   { 'P' , 'y', 'y', "PRG", "progress"  , "progress timeline adding time dimension"            , ""                    ,    0, "0LlhH$"},
+   { 'P' , 'y', 'y', "PRG", "progress"  , "progress timeline adding time dimension"            , ""                    ,    0, "horz=0LlhH$  vert=_KkjJG speed=<.> scale=+-"                                             },
    { 'M' , 'y', 'y', "MAP", "map"       , "map-mode providing 2D review of object collections" , "GVSI:/\"b\'$oe\\"    ,    0, "horz(a)=0HhlL$  horz(g/z)=sh,le  vert(a)=_KkjJG  vert(g/z)=tk.jb  modes=vIFV:{ret}"      },
    { 'V' , 'y', 'y', "VIS", "visual"    , "visual selection of objects for collection action"  , "\""                  ,    0, "0HhlL$_KkjJG  gz=sh,letk.jb  dxy  !: ~uU /nN oO sS"                                      },
    { 'S' , 'y', 'y', "SRC", "source"    , "linewise review of textual content"                 , "Isrte"               ,    0, "hor=0HhlL$bBeEwW  g/z=sh,le  sel=vV\"  pul=yYdDxX  put=pP  chg=rRiIaA  fnd=fnN"          },

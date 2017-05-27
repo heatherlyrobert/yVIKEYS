@@ -82,7 +82,7 @@ static tSCALE s_scale_info [MAX_SCALE] = {
 static void      o___SCALE___________________o (void) {;}
 
 char
-yVIKEYS_scale_set  (char *a_code, float *a_inc)
+yVIKEYS_scale_set  (char *a_code, double *a_inc)
 {
    char        rce         = -10;
    int         i           = 0;
@@ -107,7 +107,7 @@ yVIKEYS_scale_set  (char *a_code, float *a_inc)
 }
 
 char
-yVIKEYS_scale_less (float *a_inc)
+yVIKEYS_scale_less (double *a_inc)
 {
    char        rce         = -10;
    --rce; if (s_index >= MAX_SCALE - 1) {
@@ -125,7 +125,7 @@ yVIKEYS_scale_less (float *a_inc)
 }
 
 char
-yVIKEYS_scale_more (float *a_inc)
+yVIKEYS_scale_more (double *a_inc)
 {
    char        rce         = -10;
    --rce; if (s_index <= 0) {
@@ -152,13 +152,13 @@ yVIKEYS_scale_desc (char *a_text)
       return rce;
    }
    /*---(create text line)---------------*/
-   snprintf (a_text, LEN_STR, "timeline in %s (%s) resolution", s_scale_info [s_index].desc, s_scale_info [s_index].code);
+   snprintf (a_text, LEN_STR, "%s (%s) resolution", s_scale_info [s_index].desc, s_scale_info [s_index].code);
    /*---(complete)-----------------------*/
    return 0;
 }
 
 char
-yVIKEYS_scale_base (float *a_multi, char *a_base)
+yVIKEYS_scale_base (double *a_multi, char *a_base)
 {
    /*---(locals)-----------+-----------+-*/
    char        rce         = -10;

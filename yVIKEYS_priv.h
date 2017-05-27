@@ -22,6 +22,12 @@
 #define yVIKEYS_PRIV yes
 
 
+/*===[[ VERSION ]]========================================*/
+/* rapidly evolving version number to aid with visual change confirmation     */
+#define YVIKEYS_VER_NUM   "0.5k"
+#define YVIKEYS_VER_TXT   "moved to make_program makefile enhancement"
+
+
 /*===[[ RATIONAL LIMITS ]]====================================================*/
 /*   LEN_ is a length or size of something
  *   MIN_ is a minimum count

@@ -173,48 +173,69 @@ drawing, and presentation software, a larger object review ability is required.
 .SH PROGRESS MODE
 .B situation.  
 some applications provide the ability to view actions and output over time,
-i.e., the fourth dimension of time, e.g., video, audio, visualization, and
-simulation.  the faster and cleaner the better so its useful and powerful.
+i.e., the fourth dimension, including, video, audio, visualization, and
+simulation.
 
 .B complication.  
-application that provide progress, time, or sequences typically use timelines,
-but actions on timelines tends to be highly varied and mouse-based.  the result
-is that these interfaces tend to keep things too simple and weak.
+applications that provide progress, time, or sequences typically use timelines,
+but actions on timelines tend to be highly varied, simplistic, and mouse-based.
+the result is that these interfaces tend to keep things too simple and weak.
 
 .B answer.  
-add a new mode specifically for progress viewing and manipulation.  build it
-on the base of vi-keys normal/map mode movements, adds normal video and audio
-controls, and also adds marking, selections, and other complex interactions.
+i will add a new mode specifically for progress/timeline viewing and
+manipulation.  it will built on the base of vi-keys normal/map mode movements
+and add many advanced vi/vim functions.
 
 .B overview.  
-the new mode will also be a new window since it requires context to work
-properly.  the mode will be entered and left like a buffer/window.
+progress mode will be based on a timeline, have extended play controls, and
+all complex interactions, marking, selection, registers, and other abilities.
+this ability is critical and will be treated as such.
 
 .B invoking progress mode
-   ,p         enter progress mode
+   ,p         enter progress bar mode where it shows in addition to others
+   ,P         enter full progress mode for sequencing multiple timelines
+   ,,         back to main mode
 
 .B horizontal movement
    0          beginning
-   H          left five
-   h          left
-   l          right
-   L          right five
+   H          left/back five
+   h          left/back
+   <bs>       pause, and step frame or tiny bit backward
+   <sp>       pause, and step frame or tiny bit forward
+   l          right/fore
+   L          right/fore five
    $          ending
 
 .B vertical movement (between timelines)
    _          top-most
+   K          up five
    k          up
    j          down
+   J          down five
    G          bottom-most
+
+.B scale controls
+   +          zoom-in
+   -          zoom-out
 
 .B play and speed controls
    >          faster
    .          play/pause
    <          slower
 
-.B scale controls
-   +          zoom-in
-   -          zoom-out
+.B current bar alignment (uses the standard shcle codes)
+   ^          prefix control code for alignment
+   ^0         edge   (0.00)  extreme and unlikely
+   ^s         start  (0.05)
+   ^h         left   (0.28)
+   ^c         center (0.50)
+   ^l         rignt  (0.72)
+   ^e         end    (0.95)
+   ^$         edge   (1.00)  extreme and unlikely
+   -- ^ was vim for first character on the line (under utilized)
+
+.B special controls
+   #          write diagnostic information
 
 .B TBC (to be created)
    marks using m and '
@@ -863,7 +884,7 @@ prior knowledge of their locations.
 .B standard, universal movement keys
    h,l,k,j,o,i     six directions along three axis
    s,e,t,b,n,f     (suffixes only) start, end, top, bottom, near, far
-   a,z        (suffixes only) alpha, omega
+   a,z,u,d    (suffixes only) alpha, omega, upper-right, down-left
    c,m,.      (suffixes only) center, middle, core
 
 .B end of contiguous space
