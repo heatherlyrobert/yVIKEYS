@@ -24,8 +24,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.5k"
-#define YVIKEYS_VER_TXT   "moved to make_program makefile enhancement"
+#define YVIKEYS_VER_NUM   "0.5l"
+#define YVIKEYS_VER_TXT   "updated format message string"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
