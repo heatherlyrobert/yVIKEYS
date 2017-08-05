@@ -277,30 +277,38 @@ other keys to make room for complex interactions.
 
 .SH VISUAL SELECTION MODE
 
-.B situation.  
-being able to confidently and accurately select multiple objects for common
-treatment
+.B situation (S).  
+confidently and accurately selecting multiple objects for common treatment
+is critical for increasing speed and accuracy, reducing total effort, and
+driving complex scripting and automation.
 
+.B complication (C).  
+visual selection is normally simplistic; and, useful features are omitted or
+implemented differently in almost every application.  good for casual users,
+shit for advanced users.
 
-begin able to move data between locations in an application while editing is
-critical to increasing speed, accuracy, and reduce mistakes.  it allows the
-editor to perform advanced data movements and transformations; and, it is
-fundamental to advanced scripting.
+.B answer (A).  
+vim has a good, keyboard-centric visual selection foundation to build on;
+will add and poach various features as motivated.
 
-.B complication.  
-when provided, most applications allow access to the single, shared, generic
-desktop clipboard for cut, copy, and paste.  this fits the requirements of
-a vast majority of all users.  as a result powerful data editing requires
-cludgy supplemental areas just to store data.
+.B overview (O).  
+visual selections are a technique for interactively identifying multiple
+objects for common action or treatment.  they allow quick, accurate, and
+consistent editing and scripting.
 
-.B answer.  
-we will standardize around a keyboard-centric, simplified, vim-like model with
-multiple registers.
+.B invoking...
+   v          start visual selection mode
+   V          start visual mode with previous selection
+   <es>       return to previous mode
 
-.B overview.  
-registers are temporary holding places for data in order to facilitate
-movement between different locations in the larger data set or between
-applications.
+.B adjustments to selection...
+   [HhlL]          horizontal
+   e [SsHhclLeE]   horizontal ends and edges
+   g [SsHhclLeE]   horizontal screen positions
+   [KkjJ]          vertical
+   e [TtKkmjJbB]   vertical ends and edges
+   g [TtKkmjJbB]   vertical screen positions
+
 
 
 
@@ -327,7 +335,7 @@ a vast majority of all users.
 
 .B situation (S)
 
-.SH DATA FORMATTING
+.SH DATA FORMATTING (sub-mode)
 
 the purpose of data formatting, including, fonts, alignment, numerical
 formats, etc., is to allow users to easily and quickly consume data in order
@@ -350,6 +358,10 @@ can be learned once and added easily to any application ?
 .B answer (A)
 easy, take lessions from old-school terminal and text-based analytical tools
 like lotus 123 and visicalc to develop a new standard.
+
+.B allowed from which modes...
+   map        on a single cell
+   visual     on a range of cells
 
 .B invoking data formatting
    F          format mode
@@ -578,38 +590,37 @@ movement between different storage locations.
 
 
 
-.SH TEXT and OBJECT REGISTERS
-.B situation.  
-begin able to move data between locations in an application while editing is
-critical to increasing speed, accuracy, and reduce mistakes.  it allows the
-editor to perform advanced data movements and transformations; and, it is
-fundamental to advanced scripting.
+.SH OBJECT REGISTERS
+.B situation (S).  
+moving data between locations while editing is absolutely critical; driving
+speed, accuracy, and efficiency.  it allows advanced data movements,
+transformations, and advanced scripting.
 
-.B complication.  
-when provided, most applications allow access to the single, shared, generic
-desktop clipboard for cut, copy, and paste.  this fits the requirements of
-a vast majority of all users.  as a result powerful data editing requires
-cludgy supplemental areas just to store data.
+.B complication (C).  
+when provided, it is usually a single, shared, generic desktop clipboard for
+cut, copy, and paste. fitting most users.  this neglects all advanced uses
+and serious application.
 
-.B answer.  
-we will standardize around a keyboard-centric, simplified, vim-like model with
-multiple registers.
+.B answer (A).  
+vim does this very well.  we will standardize around a keyboard-centric,
+vim-like model with multiple registers.
 
-.B overview.  
-registers are temporary holding places for data in order to facilitate
-movement between different locations.  there are two types of registers --
-map-mode object and source-mode text registers.
+.B overview (O).  
+object registers are temporary holding places for data objects in order to
+facilitate movement, transformation, import/export, and scripting.
 
+
+.B invoking register mode
+   "          called from map or visual mode
 
 .B register list (29)
    "          unnamed, default register
    a-z        named registers, always overwrites existing data
    A-Z        named registers, appends to existing data
-   -          my vi/vim clipboard (/tmp/vi_clip.txt)
-   +          shared desktop clipboard (NOT IMPLEMENTED)
-
-.B primary and only key involved
-   "          identify the register for target/source
+   +          read from vi/vim clipboard  (~/z_gehye/vi_clip.txt)
+   -          send to vi/vim clipboard    (~/z_gehye/vi_clip.txt)
+   >          read from shared desktop clipboard (NOT IMPLEMENTED)
+   <          send to shared desktop clipboard (NOT IMPLEMENTED)
 
 .B identify register for action
    "a         select register 'a' (single action)
@@ -637,20 +648,38 @@ map-mode object and source-mode text registers.
    "!         shows current register on the status line
    "?         shows a list of all the registers with critical info
 
-.B +/- regs, writing data out for other applications
-   v          pure ascii, printable values, untrimmed, including empty cells
-   V          pure ascii, printable values, trimmed, no empty cells
-   c          comma/quote-separated, printable values, including empty cells
-   C          comma/quote-separated, source values, including empty cells
-   t          tab-delimited, printable values, including empty cells
-   T          tab-delimited, source values, including empty cells
-   s          separate lines, source values
-   S          separate lines, source values, prepended address in parens
-   f          file format style (address and source only)
-   F          file format style (full)
+.B +/- regs, reading or writing data to vi_clip.txt
+   ---examples---------------------
+   "-v        writes   format 'v' from selected area
+   "c-t       writes   format 't' from register 'c'
+   "+v        reads in format 'v' starting at current location
+   "f+c       reads in format 'c' into register 'f'
+   ---visual-----------------------
+   v          pure ascii     , printables , untrimmed , with empties
+   V          postcript/pdf  , printables , untrimmed , with empties
+   ---sources----------------------
+   s          separate lines , sources    , trimmed   , no empties
+   S          separate lines , (prepended addresses)
+   f          file format    , address and source only
+   F          file format    , complete
+   ---exchange---------------------
+   c          standard csv   , printables , trimmed   , with empties
+   C          standard csv   , sources    , trimmed   , with empties
+   t          tab-delimited  , printables , trimmed   , with empties
+   T          tab-delimited  , sources    , trimmed   , with empties
+   r          rec-delimited  , printables , untrimmed , with empties
+   R          rec-delimited  , sources    , untrimmed , with empties
+
+.B + regs, reading vi_clip.txt
+   v          columnar       , printables only
+   c or C     standard csv   , sources or printables
+   t or T     tab-delimited  , sources or printables
+   r          ascii-records  , sources or printables, no adjust
+   R          ascii-records  , sources or printables, adj columns
 
 
 
+.B who knows ???
    d          delete                 CELL_erase ()
    x          cut to register        REG_cut    ()
    y          copy to register       REG_copy   ()
@@ -674,6 +703,12 @@ map-mode object and source-mode text registers.
    "x2y       copy from register <x> into register <y>
    "-2x       delete contents of register <x>
    "#         save registers to a file
+
+
+
+
+
+
 
 .B unimplemented vim features
    :reg       to list registers (included in "?)
@@ -798,83 +833,96 @@ them to add new text, and replace mode allows them to overtype exising text.
    ze         right edge of screen                             [[ good   ]]
 
 .SH ENDS and EDGES
-.B situation.  
+.B situation (S).  
 the ability to navigate quickly from one break or discontinuity to the
 next allows creators and editors to quickly explore, identify, and manage
-transitions.  these can be as common as words, sentences, and paragraphs or
-as complex as audio or visual gaps.
+transitions.
 
-.B complication.  
+.B complication (C).  
 this is a consistently neglected feature in applications.  usually, a user
-must manually step through content to find the breaks for themselves.  or,
-rely on an pre-existing index or table of contents.
+must manually step through content, or, rely on an pre-existing index or
+table of contents.
 
-.B answer.  
-we will take the basic vi/vim ability to navigate words, sentences, and
-paragraphs, which is inherently one-dimensional, then expand it into a more
-universal command set to operated in at least two dimensions.
+.B answer (A).  
+vim has a inherently one-dimensional view of the world ;) but, we can make
+it a great foundation for a three-dimensional end and edge finding system.
 
-.B overview.  
+.B overview (O).  
 end and edge movements allow the creator and editor to quickly explore their
 full environment and move to critical breaks and transition points without
 prior knowledge of their locations.
 
 .B primary modifier key
-   e          end                                               [[ word   ]]
+   e          end/edge
 
 .B standard, universal movement keys
-   h,l,k,j,o,i     six directions along three axis
-   s,e,t,b,n,f     (suffixes only) start, end, top, bottom, near, far
-   a,z,u,d    (suffixes only) alpha, omega, upper-right, down-left
-   c,m,.      (suffixes only) center, middle, core
+   hlkjoi     six directions along three axis
+   setbnf     start, end, top, bottom, near, far
+   azud       alpha, omega, upper-right, down-left
+   cm.+       center, middle, front-back, full center
+   w          wordish
 
 .B end of contiguous space
-   eh         left edge of contiguous area                     [[ ------ ]]
-   el         right edge of contiguous area                    [[ ------ ]]
-   ek         top edge of contiguous area                      [[ ------ ]]
-   ej         bottom edge of contiguous area                   [[ ------ ]]
+   eh         left edge
+   el         right edge
+   ek         top edge
+   ej         bottom edge
+   ei         in/front/zoom edge
+   eo         out/back/zoom edge
+   ew         right edge (el) twice
 
 .B center of contiguous space
-   ec         horizontal center of contiguous area             [[ ------ ]]
-   em         vertical middle of contiguous area               [[ ------ ]]
+   ec         horizontal center
+   em         vertical middle
+   e.         zoom center
 
 .B end of line-of-sight space (vi/vim-ish)
-   eH         left edge of row/line-of-sight                   [[ ------ ]]
-   eL         right edge of row/line-of-sight                  [[ ------ ]]
-   eK         top edge of column/line-of-sight                 [[ ------ ]]
-   eJ         bottom edge of column/line-of-sight              [[ ------ ]]
+   eH         left edge
+   eL         right edge
+   eK         top edge
+   eJ         bottom edge
+   eI         in/front/zoom edge
+   eO         out/back/zoom edge
 
 .B maximum edge of used space
-   es         left edge of all used space                      [[ ------ ]]
-   ee         right edge of all used space                     [[ ------ ]]
-   et         top edge of all used space                       [[ ------ ]]
-   eb         bottom edge of all used space                    [[ ------ ]]
+   es         left edge
+   ee         right edge
+   et         top edge
+   eb         bottom edge
+   en         out/back/zoom edge
+   ef         in/front/zoom edge
 
 .B corners of used space
-   ea         top-left edge of all used space                  [[ ------ ]]
-   eo         bottom-right edge of all used space              [[ ------ ]]
-   en         top-right edge of all used space                 [[ ------ ]]
-   ef         bottom-left edge of all used space               [[ ------ ]]
+   ea         top-left edge
+   ez         bottom-right edge
+   eu         top-right edge
+   ed         bottom-left edge
 
 .B center of used space
-   e.         center/middle of all used space                  [[ ------ ]]
+   e+         center/middle of all used space
 
 .B maximum edge of all allowed space
-   eS         left edge of all space                           [[ ------ ]]
-   eE         right edge of all space                          [[ ------ ]]
-   eT         top edge of all space                            [[ ------ ]]
-   eB         bottom edge of all space                         [[ ------ ]]
+   eS         left edge
+   eE         right edge
+   eT         top edge
+   eB         bottom edge
+   eN         out/back/zoom edge
+   eF         in/front/zoom edge
 
 .B maximum corners of all allowed space
-   eA         top-left edge of all space                       [[ ------ ]]
-   eO         bottom-right edge of all space                   [[ ------ ]]
-   eN         top-right edge of all space                      [[ ------ ]]
-   eF         bottom-left edge of all space                    [[ ------ ]]
+   eA         top-left edge
+   eZ         bottom-right edge
+   eU         top-right edge
+   eD         bottom-left edge
 
 .B within one-dimensional source mode
    w, W       next word
    b, B       beginning of word
    e, E       end of word
+
+.B within video or audio type streams
+   <          left any break                                   [[ ------ ]]
+   >          right any break                                  [[ ------ ]]
    (          left small break                                 [[ ------ ]]
    )          right small break                                [[ ------ ]]
    {          left big break                                   [[ ------ ]]

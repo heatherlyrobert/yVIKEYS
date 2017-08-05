@@ -24,8 +24,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.5l"
-#define YVIKEYS_VER_TXT   "updated format message string"
+#define YVIKEYS_VER_NUM   "0.5m"
+#define YVIKEYS_VER_TXT   "allowed register sub-mode from visual mode
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
