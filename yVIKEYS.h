@@ -50,11 +50,12 @@
 #define     SMOD_ERROR     'e'    /* error reporting and actions              */
 #define     SMOD_REGISTER  '"'    /* register actions                         */
 #define     SMOD_BUFFER    ','    /* selecting buffers                        */
-#define     SMOD_WANDER    '@'    /* formula creation by pointing             */
+#define     SMOD_WANDER    'w'    /* formula creation by pointing             */
 #define     SMOD_FORMAT    '$'    /* content formatting                       */
 #define     SMOD_OBJECT    'o'    /* object formatting                        */
 #define     SMOD_MARK      '\''   /* location and object marking              */
 #define     SMOD_MENUS     '\\'   /* show menu system                         */
+#define     SMOD_MACRO     '@'    /* macro processing                         */
 
 
 extern char yVIKEYS_ver     [500];

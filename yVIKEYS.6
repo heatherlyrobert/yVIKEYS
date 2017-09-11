@@ -91,25 +91,106 @@ drawing, and presentation software, a larger object review ability is required.
    -          select mode    we will never support a mouse!
    -          ex             what i understand will be added into command
 
+.SH COMMAND LINE
+.B situation (S).  
+rapid, simple, and frequent commands belong assigned to keystrokes.  they are
+used enough to be driven into muscle memory.  vi_keys excels at exposing a
+universal standard to all applications.
 
-.SH BUFFERS/AREAS
+.B complication (C).  
+but, complicated or argument driven commands are better suited to a command
+line.  this is often a neglected, messy, non-standard affair that is crammed
+into menus and complex dialogs.
 
+.B answer (A).  
+i will standardize on a vim-like command line with relatively standard
+commands which emulate a vi/vim's version.  potentially, expanded with
+shell-like features.
+
+.B overview (O).  
+gyges provides a command line for accessing complicated, argument-driven,
+or advanced features.  the command line is assessed by typing a colon (':')
+followed by the command.
+
+.B invoking the mode
+   :          opens the command mode at the bottom of the screen
+   <cr>       executes the command and returns to the previous mode
+
+.B files and tabs...
+   :file <name>    changes the current spreadsheet name
+   :write          writes the currrent spreadsheet to file (:w)
+   :quit           exit the program
+   :rename <name>  changes the name of the current tab
+   :resize <addr>  changes the size of a tab
+
+
+.SH MACROS
+
+.B scripting language.  
+interpretive programming languages that act as rapid development environments
+to glue programs together.  examples include, bourne-shell, awk, perl, python,
+java, etc.
+
+.B extension languages.  
+interpretive programming mini-languages that allow the capabilities of
+a program to be extended beyond its original purpose.  expamples include,
+guile, lua, scheme, lisp, etc.
+
+.B macro language.  
+interpretive programming that can access all user capabilitys and exposes
+more complicated features to allow automation.  examples include, vim scripts,
+lotus 123 macros, etc.
+
+
+
+.SH FILES, BUFFERS and PANELS
+.B situation (S).  
+in any, even remotely complex program, working, editing, comparing, searching,
+and scripting multiple, related files in parallel is fundamental, critical,
+and sometimes even manditory.
+
+.B complication (C).  
+multiple file work is done in a wide variety of incompatible fashions
+and depths, depending on the context, ranging from multiple instances to
+side-by-side editing.
+
+.B answer (A).  
+i will standardize on vim buffers and windows integrated through my vim-ide
+keyboard-centric approach.
+
+.B overview (O).  
+multiple buffers and files allow advanced users to perform high-end, parallel,
+and scriptable editing, searching, and maintaining.
+
+.B invocation...
    ,          buffer         select a buffer/tab/document to focus
 
-   a          main           main action/viewing area
-   b          buffer         display of buffers available
-   c          secondary      second action/viewing area
-   d          debug          debugging
-   g          globalfind     global finding of content
-   p          progress       timeline and progress through scripts, etc
-   t          tags           tags and hints
-   q          compile        compiling/make actions and output
+.B standard buffers...
+   0-9A-Z     thirty-six (36) standard tabs and/or buffers
 
-   0-9A-E     buffers available as alternate content for 'a' and 'b' areas
+.B standard windows/panels...
+   a          main editing window
+   b          secondary editing window
+   c          context window to right
+   d          debug window
+   g          global find and search
+   p          progress bar/timeline
+   q          compilation and build
+   t          tag window to left
+   v          execution/visualization
 
-   simple actions only and all options are two keystrokes long
-   ,a         selects main window
-   ,t         selects tag window
+.B switching...
+   ,a         switch to primary editing window/panel
+   ,0         view the first buffer in current window/panel
+
+.B information...
+   ,,         display and update buffer window
+   ,?         same as ,,
+   ,!         buffer status line
+
+.B exceptions and notes...
+   :          command line/window
+   /          normal search line/window
 
 .SH PROGRESS MODE
 .B situation.  
@@ -309,6 +390,10 @@ consistent editing and scripting.
    e [TtKkmjJbB]   vertical ends and edges
    g [TtKkmjJbB]   vertical screen positions
 
+.B register actions (unnamed register)
+   y               copy
+   x, d            cut
+   p               multiple paste
 
 
 
@@ -548,6 +633,9 @@ movement between different storage locations.
    A-Z        named registers, appends to existing data
    -          my vi/vim clipboard (/tmp/vi_clip.txt)
    +          shared desktop clipboard (NOT IMPLEMENTED)
+   :          last command executed
+   /          last search executed
+   %          full qualified, absolute file name
 
 .B available from which modes
    SOURCE     source mode allows text registers at any time
@@ -610,15 +698,21 @@ object registers are temporary holding places for data objects in order to
 facilitate movement, transformation, import/export, and scripting.
 
 
-.B invoking register mode
+.B invoking object register mode
    "          called from map or visual mode
 
-.B register list (29)
-   "          unnamed, default register
+.B object register list (39)
+   /*---(named)-----------------------*/
    a-z        named registers, always overwrites existing data
    A-Z        named registers, appends to existing data
-   +          read from vi/vim clipboard  (~/z_gehye/vi_clip.txt)
-   -          send to vi/vim clipboard    (~/z_gehye/vi_clip.txt)
+   /*---(read-only)-------------------*/
+   0-9        read-only history registers (0 = newist, 9 = oldest)
+   /*---(special)---------------------*/
+   <none>     current selection or location
+   $          all content on current tab
+   "          unnamed, default register
+   +          import from vi/vim clipboard  (~/z_gehye/vi_clip.txt)
+   -          export to vi/vim clipboard    (~/z_gehye/vi_clip.txt)
    >          read from shared desktop clipboard (NOT IMPLEMENTED)
    <          send to shared desktop clipboard (NOT IMPLEMENTED)
 
@@ -627,12 +721,10 @@ facilitate movement, transformation, import/export, and scripting.
    "A         select register 'a' (single action), but in append mode
    "-         select the vi/vim sharing file
 
-.B pushing data into registers
+.B primary register actions
    y          yank/copy  content to selected register
    d          delete/cut content to selected register
    x          clear/copy content to selected register
-
-.B pulling data from registers (TEXT/SOURCE MODE)
    p  (t)     paste content from selected register after cursor
    P  (t)     paste content from selected register before cursor
 
@@ -655,27 +747,31 @@ facilitate movement, transformation, import/export, and scripting.
    "+v        reads in format 'v' starting at current location
    "f+c       reads in format 'c' into register 'f'
    ---visual-----------------------
-   v          pure ascii     , printables , untrimmed , with empties
-   V          postcript/pdf  , printables , untrimmed , with empties
+   v s        pure-columnar  , printables , untrimmed , with empties
+   V S        pure-columnar  , printables , untrimmed , with empties
    ---sources----------------------
    s          separate lines , sources    , trimmed   , no empties
    S          separate lines , (prepended addresses)
    f          file format    , address and source only
    F          file format    , complete
    ---exchange---------------------
-   c          standard csv   , printables , trimmed   , with empties
-   C          standard csv   , sources    , trimmed   , with empties
+   c          standard-csv   , printables , trimmed   , with empties
+   C          standard-csv   , sources    , trimmed   , with empties
    t          tab-delimited  , printables , trimmed   , with empties
    T          tab-delimited  , sources    , trimmed   , with empties
-   r          rec-delimited  , printables , untrimmed , with empties
-   R          rec-delimited  , sources    , untrimmed , with empties
+   r          ascii-records  , printables , untrimmed , with empties
+   R          ascii-records  , sources    , untrimmed , with empties
+   ---other------------------------
+   p          post-script
 
 .B + regs, reading vi_clip.txt
-   v          columnar       , printables only
-   c or C     standard csv   , sources or printables
-   t or T     tab-delimited  , sources or printables
+   v          pure-columnar  , printables only, no adjust
+   s          space-delimited, sources or printables, no adjust
+   c          standard-csv   , sources or printables, no adjust
+   t          tab-delimited  , sources or printables, no adjust
    r          ascii-records  , sources or printables, no adjust
-   R          ascii-records  , sources or printables, adj columns
+   V          same as v only column widths adjust (sizer only)
+   S C T R    same as s, c, t, r only column widths adjust/sizer
 
 
 
@@ -778,6 +874,7 @@ contiguous character overtype.
    2) contiguous mode will go beyond end-of-line with no issues
 
 
+.SH HORIZONTAL
 
 
 
@@ -845,7 +942,8 @@ table of contents.
 
 .B answer (A).  
 vim has a inherently one-dimensional view of the world ;) but, we can make
-it a great foundation for a three-dimensional end and edge finding system.
+it a great foundation for a three-dimensional end and edge finding system when
+combined with lotus 123 end finding.
 
 .B overview (O).  
 end and edge movements allow the creator and editor to quickly explore their
@@ -855,65 +953,66 @@ prior knowledge of their locations.
 .B primary modifier key
    e          end/edge
 
-.B standard, universal movement keys
-   hlkjoi     six directions along three axis
-   setbnf     start, end, top, bottom, near, far
-   azud       alpha, omega, upper-right, down-left
-   cm.+       center, middle, front-back, full center
-   w          wordish
+.B standard, universal movement suffix keys
+   shcle      horizontal (x)
+   tkmjb      vertical (y)
+   nopif      depth (z)
+   azud       corners
+   gqrvwxy    unused
 
-.B end of contiguous space
-   eh         left edge
-   el         right edge
-   ek         top edge
-   ej         bottom edge
-   ei         in/front/zoom edge
-   eo         out/back/zoom edge
-   ew         right edge (el) twice
+.B horizontal (x-axis)...    e + [SsHhCcLlEe]
+   eS         edge/leftmost start of all allowed space
+   eH         edge/maximum leftmost edge of any row/line
+   es         edge/maximum leftmost edge in this row/line
+   eh         next normal break to the left
+   ec         horizontal center of current block
+   eC         horizontal center of all used space
+   el         next normal break to the right
+   ee         edge/maximum rightmost edge in this row/line
+   eL         edge/maximum rightmost edge of any row/line
+   eE         edge/rightmost end of all allowed space
+
+.B vertical (y-axis)...      e + [TtKkMmJjBb]
+   eT         edge/topmost start of all allowed space
+   eK         edge/maximum topmost edge of any col/line
+   et         edge/maximum topmost edge in this col/line
+   ek         next normal break to the top
+   em         vertical center of current block
+   eM         vertical center of all used space
+   ej         next normal break to the bottom
+   eb         edge/maximum bottommost edge in this col/line
+   eJ         edge/maximum bottommost edge of any col/line
+   eB         edge/bottommost end of all allowed space
+
+.B depth (z-axis)...         e + [NnOopPiIfF]
+   eN         edge/nearest start of all allowed space
+   eO         edge/maximum nearest edge of any col/line
+   en         edge/maximum nearest edge in this col/line
+   eo         next normal break to the nearside
+   ep         depth center of current block
+   eP         depth center of all used space
+   ei         next normal break to the farside
+   ef         edge/maximum farthest edge in this col/line
+   eI         edge/maximum farthest edge of any col/line
+   eF         edge/farthest end of all allowed space
 
 .B center of contiguous space
-   ec         horizontal center
-   em         vertical middle
-   e.         zoom center
+   eC         horizontal center of all available space
+   ec         horizontal center of used space
+   eM         vertical center of all available space
+   em         vertical center of used space
+   eP         depth center of all available space
+   ep         depth center of used space
 
-.B end of line-of-sight space (vi/vim-ish)
-   eH         left edge
-   eL         right edge
-   eK         top edge
-   eJ         bottom edge
-   eI         in/front/zoom edge
-   eO         out/back/zoom edge
-
-.B maximum edge of used space
-   es         left edge
-   ee         right edge
-   et         top edge
-   eb         bottom edge
-   en         out/back/zoom edge
-   ef         in/front/zoom edge
-
-.B corners of used space
-   ea         top-left edge
-   ez         bottom-right edge
-   eu         top-right edge
-   ed         bottom-left edge
-
-.B center of used space
-   e+         center/middle of all used space
-
-.B maximum edge of all allowed space
-   eS         left edge
-   eE         right edge
-   eT         top edge
-   eB         bottom edge
-   eN         out/back/zoom edge
-   eF         in/front/zoom edge
-
-.B maximum corners of all allowed space
-   eA         top-left edge
-   eZ         bottom-right edge
-   eU         top-right edge
-   eD         bottom-left edge
+.B 2d corners...             e + [aAuUzZdD]
+   eA         top-left edge of all available space
+   ea         top-left edge of all used space
+   eU         top-right edge of all available space
+   eu         top-right edge of all used space
+   eZ         bottom-right edge of all available space
+   ez         bottom-right edge of all used space
+   eD         bottom-left edge of all available space
+   ed         bottom-left edge of all used space
 
 .B within one-dimensional source mode
    w, W       next word
@@ -949,31 +1048,44 @@ of keystrokes.
    z          scroll                                            [[ prefix ]]
 
 .B standard, universal movement keys
-   h,l,k,j    four directions
-   s,e,t,b    (suffixes only) start, end, top, bottom
-   a,o,n,f    (suffixes only) alpha, omega, near, far
-   c,m,.      (suffixes only) center, middle, core
+   hlkjoi     six directions along three axis
+   setbnf     start, end, top, bottom, near, far
+   azud       alpha, omega, upper-right, down-left
+   cm.+       center, middle, front-back, full center
+   w          wordish
 
 .B horizontal movement/scrolling
+   gS         go a full screen/page to the left
+   gH         go a half screen/page to the left
    gs (zs)    go (scroll current) left end of screen            [[ sleep  ]]
    gh (zh)    go (scroll current) left quarter of screen        [[ select ]]
    gc (zc)    go (scroll current) center of screen              [[        ]]
    gl (zl)    go (scroll current) right quarter of screen       [[        ]]
    ge (ze)    go (scroll current) right end of screen           [[ word   ]]
+   gL         go a half screen/page to the right
+   gE         go a full screen/page to the right
 
 .B vertical movement/scrolling
+   gT         go a full screen/page upwards
+   gK         go a half screen/page upwards
    gt (zt)    go (scroll current) top end of screen             [[ n.tab  ]]
    gk (zk)    go (scroll current) top quarter of screen         [[ wrap.k ]]
    gm (zm)    go (scroll current) middle of screen              [[ middle ]]
    gj (zj)    go (scroll current) bottom quarter of screen      [[ wrap.j ]]
    gb (zb)    go (scroll current) bottom end of screen          [[        ]]
+   gJ         go a half screen/page downwards
+   gB         go a full screen/page downwards
 
 .B corner movement/scrolling
    ga (za)    go (scroll current) top-left corner (alpha)       [[ ascii  ]]
-   gn (zn)    go (scroll current) top-right corner (near)       [[ next   ]]
-   go (zo)    go (scroll current) bottom-right corner (omega)   [[ byte   ]]
-   gf (zf)    go (scroll current) bottom-left corner (far)      [[ file   ]]
+   gu (zu)    go (scroll current) top-right corner (near)       [[ next   ]]
+   gz (zz)    go (scroll current) bottom-right corner (omega)   [[ byte   ]]
+   gd (zd)    go (scroll current) bottom-left corner (far)      [[ file   ]]
    g. (z.)    go (scroll current) center of screen              [[        ]]
+   gA (zA)    go half page up and left    (gK + gH)             [[        ]]
+   gU (zU)    go half page up and right   (gK + gL)             [[        ]]
+   gZ (zZ)    go half page down and right (gJ + gL)             [[        ]]
+   gD (zD)    go half page down and left  (gJ + gH)             [[        ]]
 
 .B vi/vim key collisions -- NONE of any importance
 

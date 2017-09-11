@@ -38,29 +38,30 @@ struct cMODE_INFO {
    char        mesg        [LEN_STR];  /* informative message for display     */
 };
 static tMODE_INFO  s_mode_info [MAX_MODES] = {
-   /*-a-- -maj show --tla- ---terse----- ---description---------------------------------------- -----------------------,----- 123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789- */
+   /*-a-- -maj show --tla- ---terse----- ---description---------------------------------------- ----------------------------,----- 123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789- */
    /*---(major modes)--------------------*/
-   { 'G' , 'y', 'y', "GOD", "god"       , "god-mode allowing 3D omnicient viewing"             , "P"                   ,    0, "linear=LnhHJjkKIioO  rotate=PpaAYytTRrwW"                                                },
-   { 'P' , 'y', 'y', "PRG", "progress"  , "progress timeline adding time dimension"            , ""                    ,    0, "horz=0LlhH$  vert=_KkjJG speed=<.> scale=+-"                                             },
-   { 'M' , 'y', 'y', "MAP", "map"       , "map-mode providing 2D review of object collections" , "GVSI:/\"b\'$oe\\"    ,    0, "horz(a)=0HhlL$  horz(g/z)=sh,le  vert(a)=_KkjJG  vert(g/z)=tk.jb  modes=vIFV:{ret}"      },
-   { 'V' , 'y', 'y', "VIS", "visual"    , "visual selection of objects for collection action"  , "$\""                 ,    0, "0HhlL$_KkjJG  gz=sh,letk.jb  dxy  !: ~uU /nN oO sS"                                      },
-   { 'S' , 'y', 'y', "SRC", "source"    , "linewise review of textual content"                 , "Isrte"               ,    0, "hor=0HhlL$bBeEwW  g/z=sh,le  sel=vV\"  pul=yYdDxX  put=pP  chg=rRiIaA  fnd=fnN"          },
-   { 'I' , 'y', 'y', "INP", "input"     , "linewise creation and editing of textual content"   , ""                    ,    0, ""                                                                                        },
-   { ':' , 'y', '-', "CMD", "command"   , "command line capability for advanced actions"       , ""                    ,    0, ""                                                                                        },
+   { 'G' , 'y', 'y', "GOD", "god"       , "god-mode allowing 3D omnicient viewing"             , "P"                        ,    0, "linear=LnhHJjkKIioO  rotate=PpaAYytTRrwW"                                                },
+   { 'P' , 'y', 'y', "PRG", "progress"  , "progress timeline adding time dimension"            , ""                         ,    0, "horz=0LlhH$  vert=_KkjJG speed=<.> scale=+-"                                             },
+   { 'M' , 'y', 'y', "MAP", "map"       , "map-mode providing 2D review of object collections" , "GVSI:/\"b\'$oe\\,@"       ,    0, "horz(a)=0HhlL$  horz(g/z)=sh,le  vert(a)=_KkjJG  vert(g/z)=tk.jb  modes=vIFV:{ret}"      },
+   { 'V' , 'y', 'y', "VIS", "visual"    , "visual selection of objects for collection action"  , "$\""                      ,    0, "0HhlL$_KkjJG  gz=sh,letk.jb  dxy  !: ~uU /nN oO sS"                                      },
+   { 'S' , 'y', 'y', "SRC", "source"    , "linewise review of textual content"                 , "Isrte"                    ,    0, "hor=0HhlL$bBeEwW  g/z=sh,le  sel=vV\"  pul=yYdDxX  put=pP  chg=rRiIaA  fnd=fnN"          },
+   { 'I' , 'y', 'y', "INP", "input"     , "linewise creation and editing of textual content"   , ""                         ,    0, ""                                                                                        },
+   { ':' , 'y', '-', "CMD", "command"   , "command line capability for advanced actions"       , ""                         ,    0, ""                                                                                        },
    /*---(sub-modes)----------------------*/
-   { 'e' , '-', 'y', "err", "errors"    , "display and action errors"                          , ""                    ,    0, ""                                                                                        },
-   { 's' , '-', 'y', "sel", "select"    , "visual selection within text content"               , "t"                   ,    0, "0HhlL$"                                                                                  },
-   { 'r' , '-', 'y', "rep", "replace"   , "linewise overtyping of content in source mode"      , ""                    ,    0, "type over character marked with special marker"                                          },
-   { '"' , '-', 'y', "reg", "register"  , "selecting specific registers for data movement"     , ""                    ,    0, "regs=\"a-zA-Z-+0  pull=yYxXdD  -/+=vVcCtTsSfF  push=pPrRmMaAiIoObB  mtce=#?!g"           },
-   { 't' , '-', 'y', "trg", "text reg"  , "selecting specific registers for text movement"     , ""                    ,    0, "regs=\"a-zA-Z-+0  pull=yYxXdD  -/+=vVcCtTsSfF  push=pPrRmMaAiIoObB  mtce=#?!g"           },
-   { ',' , '-', 'y', "buf", "buffer"    , "moving and selecting between buffers and windows"   , ""                    ,    0, "select=0...9  modes={ret}(esc}"                                                          },
-   { '@' , '-', 'y', "wdr", "wander"    , "formula creation by moving to target cells"         , ""                    ,    0, "modes={ret}{esc}"                                                                        },
-   { '$' , '-', 'y', "frm", "format"    , "content formatting options"                         , ""                    ,    0, "ali=<|>[{^}] num=ifgcCaA$sSpP# tec=eEbBoOxXzZrR tim=tdTD dec=0-9 str=!-=_.+'\" wid=mhHlLnNwW tal=jJkK" },
-   { 'o' , '-', 'y', "obj", "object"    , "object formatting and sizing options"               , ""                    ,    0, ""                                                                                        },
-   { '\'', '-', 'y', "mrk", "mark"      , "object and location marking"                        , ""                    ,    0, "set=a-zA-Z()  del=#*  hlp=?!@_  go='a-zA-Z()[<>]"                                        },
-   { '\\', '-', 'y', "mnu", "menus"     , "menu system"                                        , ""                    ,    0, ""                                                                                        },
+   { 'e' , '-', 'y', "err", "errors"    , "display and action errors"                          , ""                         ,    0, ""                                                                                        },
+   { 's' , '-', 'y', "sel", "select"    , "visual selection within text content"               , "t"                        ,    0, "0HhlL$"                                                                                  },
+   { 'r' , '-', 'y', "rep", "replace"   , "linewise overtyping of content in source mode"      , ""                         ,    0, "type over character marked with special marker"                                          },
+   { '"' , '-', 'y', "reg", "register"  , "selecting specific registers for data movement"     , ""                         ,    0, "regs=\"a-zA-Z-+0  pull=yYxXdD  -/+=vVcCtTsSfF  push=pPrRmMaAiIoObB  mtce=#?!g"           },
+   { 't' , '-', 'y', "trg", "text reg"  , "selecting specific registers for text movement"     , ""                         ,    0, "regs=\"a-zA-Z-+0  pull=yYxXdD  -/+=vVcCtTsSfF  push=pPrRmMaAiIoObB  mtce=#?!g"           },
+   { ',' , '-', 'y', "buf", "buffer"    , "moving and selecting between buffers and windows"   , ""                         ,    0, "select=0...9  modes={ret}(esc}"                                                          },
+   { 'w' , '-', 'y', "wdr", "wander"    , "formula creation by moving to target cells"         , ""                         ,    0, "modes={ret}{esc}"                                                                        },
+   { '$' , '-', 'y', "frm", "format"    , "content formatting options"                         , ""                         ,    0, "ali=<|>[{^}] num=ifgcCaA$sSpP# tec=eEbBoOxXzZrR tim=tdTD dec=0-9 str=!-=_.+'\" wid=mhHlLnNwW tal=jJkK" },
+   { 'o' , '-', 'y', "obj", "object"    , "object formatting and sizing options"               , ""                         ,    0, ""                                                                                        },
+   { '\'', '-', 'y', "mrk", "mark"      , "object and location marking"                        , ""                         ,    0, "set=a-zA-Z()  del=#*  hlp=?!@_  go='a-zA-Z()[<>]"                                        },
+   { '\\', '-', 'y', "mnu", "menus"     , "menu system"                                        , ""                         ,    0, ""                                                                                        },
+   { '@' , '-', 'y', "mac", "macro"     , "macro recording, execution, and maintenance"        , ""                         ,    0, "run=a-z"                                                                                 },
    /*---(done)---------------------------*/
-   { '-' , '-', 'y', "bad", "bad mode"  , "default message when mode is not understood"        , ""                    ,    0, "mode not understood"                                                                     },
+   { '-' , '-', 'y', "bad", "bad mode"  , "default message when mode is not understood"        , ""                         ,    0, "mode not understood"                                                                     },
 };
 
 
