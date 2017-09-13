@@ -124,7 +124,96 @@ followed by the command.
    :resize <addr>  changes the size of a tab
 
 
-.SH MACROS
+.SH KEYBOARD MACROS
+.SS ---basics---------------------------------------------------------
+ qa         start recording macro 'a'
+ ...        enter keystrokes ... and watch actual results on screen
+ q          stop recording and save by pressing q again
+ @a         execute macro 'a' from current position
+.SS ---overview-------------------------------------------------------
+.B definition (D).  
+keyboard macros are basic automation, repeating keystrokes as if typed, with
+no language constructs, such as, looping or conditionals.  likely meets 80%
+of automation needs.
+
+.B situation (S).  
+in any reasonably complex program, the ability to record, save, edit, and
+repeat predictable keystroke sequences is critical to efficiency, accuracy,
+mass editing, and automation.
+
+.B complication (C).  
+few applications provide any keyboard macro capability.  and then, often
+throwing it in with complex scripting.  those that have it are typically
+opaque and infrequently used.
+
+.B answer (A).  
+i will standardize "mostly" on the excellent vim keyboard macros standard but
+with easier editing, simple playback controls, and basic debugging capability
+(been hurt before).
+
+.B top five requirements (5) to get it right
+   -- must be very quick and simple to justify usage
+   -- easy keystroke recording and execution interface
+   -- multiple macros to juggle tasks
+   -- simple access and editing of existing macros
+   -- playback controls for monitoring and debugging
+.SS ---full capabilities----------------------------------------------
+
+.B named macros
+   a-z        twenty-six (26) standard macro names
+   A-Z        same twenty-six (26) macros but treated specially
+
+.B invocation of sub-mode
+   q          record a new macro in map or god mode
+   @          execute an existing macro in map or god mode
+   warning, macros must begin and end in map/god mode
+
+.B recording new macros
+   qd...q     record keystrokes ... into macro 'd'
+   qD...q     appending onto macro 'd' after existing contents
+   qdq        erase macro 'd' (no keystrokes entered)
+
+.B executing existing macros
+   @d         execute macro 'd' at the current location
+   @5d        execute macro 'd' in delay mode 5
+   @D         execute macro 'd' in playback/debug mode
+   @@         re-execute the last used macro (a-z)
+
+.B debugging and playback controls
+   .          play/pause toggle for delay mode
+   >          faster execution
+   <          slower execution
+   ·          step forward one (space)
+   ¥          terminate at current point (escape)
+   ¶          run to end at full speed (return)
+
+.B editing existing macros
+   location   in gyges, all macros are saved by name on tab Z
+   editing    edit like any other cell
+   saving     they automatically save with the spreadsheet
+   copying    can use normal copy and saving to transfer
+
+.B extra characters used inside macros (special or execution)
+   ¶          return              (\\n)
+   ¥          escape              (\\e)
+   «          backspace           (\\b)
+   »          tab                 (\\t)
+   ·          space               (\\s)
+   ¦          group separator     (\\g)
+   §          field separator     (\\f)
+   º          pause/wait 1 sec    (\\w)
+   ¿          break point         (\\p)
+   ±          stop/halt           (\\h)
+   Ð          display/refresh     (\\d)
+   ¢          control             (\\c)
+   Æ          alt                 (\\a)
+
+
+
+
+
+
+
 
 .B scripting language.  
 interpretive programming languages that act as rapid development environments
