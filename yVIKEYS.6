@@ -136,7 +136,12 @@ keyboard macros are basic automation, repeating keystrokes as if typed, with
 no language constructs, such as, looping or conditionals.  likely meets 80%
 of automation needs.
 
-.B situation (S).  
+.B why (W).  
+must provide many levels of automation, keyboard macros are a base level that
+all applications should possess.  so, make them absolutely standard, easy,
+powerful, and universal.
+
+.B value (V).  
 in any reasonably complex program, the ability to record, save, edit, and
 repeat predictable keystroke sequences is critical to efficiency, accuracy,
 mass editing, and automation.
@@ -166,6 +171,7 @@ with easier editing, simple playback controls, and basic debugging capability
 .B invocation of sub-mode
    q          record a new macro in map or god mode
    @          execute an existing macro in map or god mode
+   ¥          exits sub-mode early and forgets keys
    warning, macros must begin and end in map/god mode
 
 .B recording new macros
@@ -175,9 +181,18 @@ with easier editing, simple playback controls, and basic debugging capability
 
 .B executing existing macros
    @d         execute macro 'd' at the current location
+   @@         re-execute the last used macro (a-z)
    @5d        execute macro 'd' in delay mode 5
    @D         execute macro 'd' in playback/debug mode
-   @@         re-execute the last used macro (a-z)
+
+.B defining macros at command line
+   :macro h=...         directly input and save the macro
+   :macro H=...         append directly to the macro
+   :macro i="..."       allows ¶ (ret) and ¥ (esc)
+   :macro i=\\n\\e        also allows ¶ (ret) and ¥ (esc)
+   :macro j=\\"..        escaped quote can go anywhere
+   :macro j= "...       leading space will allow leading "
+   all leading, internal, and trailing whitespace is meaningful
 
 .B debugging and playback controls
    .          play/pause toggle for delay mode
@@ -187,7 +202,7 @@ with easier editing, simple playback controls, and basic debugging capability
    ¥          terminate at current point (escape)
    ¶          run to end at full speed (return)
 
-.B editing existing macros
+.B gyges-specific editing existing macros
    location   in gyges, all macros are saved by name on tab Z
    editing    edit like any other cell
    saving     they automatically save with the spreadsheet
@@ -205,8 +220,6 @@ with easier editing, simple playback controls, and basic debugging capability
    ¿          break point         (\\p)
    ±          stop/halt           (\\h)
    Ð          display/refresh     (\\d)
-   ¢          control             (\\c)
-   Æ          alt                 (\\a)
 
 
 
@@ -626,74 +639,73 @@ like lotus 123 and visicalc to develop a new standard.
    /*---(adjustments)------------------*/
 
 
-.SH LOCATION and OBJECT MARKS
+.SH LOCATION MARKS
+.SS ---basics---------------------------------------------------------
+ ma         mark current location/object with letter 'a'
+ 'a         return to location/object 'a'
+.SS ---overview-------------------------------------------------------
+.B definition (D).  
+marks (sometimes called bookmarks) are concise, temporary references to
+locations or objects which allow a user to quickly record their current
+position and easily return to it later.
 
-.B situation.  
-being able to quickly mark and return to locations/objects while working
-is critical for efficiency, accuracy, and confidence.  it allows an editor
-to perform advanced editing and data movements; and, is fundamental to more
-advanced and clever scripting.
+.B value (V).   
+easily marking and returning to locations/objects is critical for efficiency,
+accuracy, and confidence.  it allows advanced editing, accurate data movements,
+clever scripting.
 
-.B complication.  
-but, most users are not versed in their use, so its an underimplemented feature.
-its something that only becomes vital once you experience it.  its also a little
-cludgy when done using menus or buttons; so, the feature just disappears or
-attrophies into a single bookmark feature.
+.B complication (C).  
+most users are not versed in their use, so it is underimplemented.  when built,
+it is typically a little cludgy, using menus or buttons; so, the feature just
+attrophies over time.
 
-.B answer.  
-we will standardize around a keyboard-centric, slightly simplified, vim-like
-model.
+.B answer (A).  
+i will standardize "mostly" on the excellent vim keyboard macros standard
+and make them absolutely universal.  marks are a perfect partner to hints,
+which i learned from vimperator.
 
-.B overview.  
-marks are temporary placeholders, valid only within the application instance,
-and contained in the saved file version.  they are a rapid editing and
-reviewing tool.  for more permanent tagging, use HINTS.
-
-.B mark list (52 primary, plus current)
-   '          unnamed mark set as location from where you jumped to a mark
+.B top five requirements (5) to get it right
+   -- must be very quick and simple to justify usage
+   -- easy marking and returning user interface
+   -- must have multiple marks to allow back-and-forth actions
+   -- simple ablity to review all marks
+   -- ability to directly define and clear a mark
+.SS ---full capabilities------------------------------------------------------
+.B mark list (52 primary, plus shared, previous, and special)
    a-z        temporary location marks (never move)
-   A-Z        temporary object/cell marks (move with object)
+   A-Z        temporary object/content marks                 [TBD/NIY]
+   0-9        shared, read-only marks across files           [TBD/NIY]
+   '          unnamed, from where you jumped to a mark
+   < >        visual range, top-left and bottom-right (use with "gv")
+   [ ( ) ]    first, prev, next, and last existing mark
 
-.B primary keys involved
-   m          setting, editing, and maintaining marks
-   '          usng marks
+.B invocation of sub-mode
+   m          record a new mark in map or god mode
+   '          return to an existing mark in map or god mode
+   ¥          exits sub-mode early and forgets action
 
 .B setting marks
    ma         set location of mark 'a'
-   mA         set object of mark 'A'
+   m<         set top-left corner of future visual selection
+   m#         clear mark under cursor
 
 .B using marks
    'a         return to mark 'a'
-   ''         return to where the last mark was called (fast switching)
-   '[         first existing mark in sequence [a-zA-Z]
-   '<         next  existing mark in sequence [a-zA-Z]
-   '>         prev  existing mark in sequence [a-zA-Z]
-   ']         last  existing mark in sequence [a-zA-Z]
+   ''         return to where the last mark was called
+   '[         go to first mark in [a-zA-Z]
 
-.B deleting and clearing marks
-   m#         clear current mark
-   m*         clear all marks
-
-.B setting selections
-   m(         mark the top-left for a later selection
-   m)         mark the bottom-right for a later selection
-   using these two points, the selection can then be activated using "gv"
+.B command line
+   :mark a=0a1¶    set mark at an address
+   :mark a=¶       unset a mark
+   :mark purge¶    unset all marks
 
 .B showing and debugging all marks
-   m!         shows marks as the status line
-   m?         shows a list of all the marks, including buffer and line
-   m@         show mark visual highlighting (marks at)
-   m_         hide mark visual highlighting (marks clear)
+   m!         shows marks as the status line (:status mark)
+   m?         shows a list of all the marks
+   m_         show/hide mark visual highlighting
 
-.B unimplemented vim features
-   `          backtick added horizontal location (included in quote now)
-   :marks     to list marks (included in m?)
-   :delmarks  to delete a mark (included in m#)
-   :lockmarks to keep them from moving
-   :keepmarks to not change line numbers after delete
-   0-9        numbered marks
-   A-Z        between file marks (all marks are application instance)
-   other markes used for specialty purposes are just to complex to remember
+.B limits/warnings
+   changes to marks can not be undone (they are simple/quick)
 
 .SH TEXT REGISTERS (sub-mode TEXTREG)
 .B situation.  

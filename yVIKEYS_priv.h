@@ -24,8 +24,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.5o"
-#define YVIKEYS_VER_TXT   "updated keyboard macros documentation"
+#define YVIKEYS_VER_NUM   "0.5p"
+#define YVIKEYS_VER_TXT   "updated location mark documentation"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
