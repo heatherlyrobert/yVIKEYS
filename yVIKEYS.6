@@ -9,7 +9,7 @@ using a pure modal keyboard interface.  while it is rooted in vim, i expect
 to adapt it to every possible application.
 
 .SH SECTIONS
-   -- MAJOR MODES
+   -- modal interface and modes
    -- x/horizontal movement
    -- y/vertical movement
    -- z/zoom movmement
@@ -25,71 +25,103 @@ to adapt it to every possible application.
    -- windows/buffers
    -- file/save/open
 
-.SH MAJOR MODES and the MODAL INTERFACE
-.B situation.  
-the purpose of any editing ability is to rapidly, accurately, and confidently
-review, add, update, remove, select, and transfer content.  the faster and
-cleaner the better so the application keeps up with the editor's thoughts.
-if the application falls behind, it has failed.
+.SH MODAL INTERFACE and MODES
+.B definition (D).  
+modal interfaces provide context-specific keys, actions, and commands to
+most effectively support a users present situation, e.g., enter means ok in
+a dialog but new line in editing.
 
-.B complication.  
-nearly all modern application are built for novice, one-finger typists who use
-the application infrequently.  so, most applications resort to extensive use
-of menus and button bars.  under this pressure, all the powerful capabilities
-just wither and atrophy over time.
+.B value (V).  
+even simple, well-used applications develop thousands of reasonable actions,
+options, and commands over time.  these are almost universally grouped into
+contexts by menus, dialogs, or modes.
 
-.B answer.  
-build for technical, power users who can stomach a one-time climb up the
-vi/vim learning curve.  no mice, no menus, no buttons.  use a strictly
-keyboard-centric universal adaptation of the vi/vim interface.
+.B complication (C).  
+applications are usually built for infrequent, novice users, so, resort to
+clumsy, slow menus and button bars allowing all the powerful capabilities
+wither and atrophy over time.
 
-.B noted.  
-one of the greatest vi-editor innovations, and most reviled, is the use of
-modes to allow a fully keyboard driven interface without requiring an insane
-amount of meta-keys like used in wordperfect and emacs.
+.B answer (A).  
+build for technical, power users who can stomach a one-time, steep learning
+curve; avoid mice, menus, and buttons; and, use a keyboard-centric, universal
+adaptation of a vim-like modal interface.
 
-.B overview.  
-modes allow a context-sensitive selection of keyboard-driven commands depending
-on what needs to be accomplished.  vi-keys provides a limited set of seven (7)
-universal modes that can be used in nearly any application.
+.B main mode overview (8)
+   G   god         special 3d-style omnicient pov and review
+   O   omni        special 3d-style omnipotent manipulation
+   P   progress    manage timelines and action over time
+   M   map         special 2d-style when content is partitioned
+   V   visual      map/object based visual selection
+   S   source      normal 1d review of content (vi/vim normal mode)
+   I   input       adding content (like insert mode)
+   :   command     provides a host of complex capabilities
 
-.B traditional vi/vim modes
-   1) normal     navigation and manipulation of text
-   2) visual     for selcting text and manipulating blocks of text
-   3) select     mouse/windows visual mode
-   4) insert     inserting new text
-   5) replace    overwriting existing text
-   6) command    command line
-   7) ex         command line, but optimized for batch processing
+.B sub-mode overview (15)
+   /   search      find and manipulate data and objects
+   e   error       display and act on errors or troubles
+   s   select      source/character based visual select mode
+   r   replace     overwrite characters in source mode
+   "   register    object registers to move/transfer objects
+   t   text_reg    text registers to move/transfer text
+   ,   buffer      select a buffer/tab/document to focus
+   w   wander      allow pointing at object to ID them
+   f   format      data presentation formatting
+   o   object      object presentation formatting
+   '   mark        identify locations for return
+   @   macro       keyboard macro recording and execution
+   h   hint        provide automatic and manual labeling
+   c   char_find   linewise searching for particular characters
+   \\   menu        menu system
 
-.B new modes for broader application
-   G          god mode       special 3d style review with omnicient pov
-   M          map mode       special 2d mode when content is partitioned
+.B note
+   vim combines map/source as it is really a collection of lines
 
-.B vi-keys modes related to existing vim modes supported
-   V          visual         map/object based visual selection
-   S          source         1d review of content (like normal mode)
-   I          input          adding content (like insert mode)
-   :          command line   provides a host of complex capabilities
+.SH SPECIAL CHARACTERS
+.B definition (D).  
+special characters are those outside the ascii 7bit save range of 32-127
+which have no keyboard key.
 
-.B sub-modes for limited action
-   v          select         source/character based visual select mode
-   r          replace        overwrite characters in source mode
-   "          register       force content movement into specific registers
-   ,          buffer         select a buffer/tab/document to focus
-   f          format         data presentation formatting
-   w          wander         allow pointing at object to ID them
+.B value (V).  
+special characters can clearly represent special actions or controls, as well
+as make variables more meaningful.
 
+.B complication (C).  
+other that cut and paste, most applications do not easily support the inclusion
+of funky, non-keyboard characters.
 
-.B notes.  
-vi/vim normal mode is essentially both map/source mode since vi/vim is really
-a collection of lines.  vi/vim editing is only a single line activity as
-it normally does not do line-wrap.  but, with the advent of spreadsheets,
-drawing, and presentation software, a larger object review ability is required.
+.B answer (A).  
+i will add escaped characters into the input mode to allow the standard entry
+of some of this useful things.
 
-.B modes not implemented
-   -          select mode    we will never support a mouse!
-   -          ex             what i understand will be added into command
+.B macro/script control in the input mode
+   ¶          return              (\\n)
+   ¥          escape              (\\e)
+   «          backspace           (\\b)
+   »          tab                 (\\t)
+   ·          space               (\\s)
+   ¦          group separator     (\\g)
+   §          field separator     (\\f)
+   º          pause/wait 1 sec    (\\w)
+   ¿          break point         (\\p)
+   ±          stop/halt           (\\h)
+   ¢          display/refresh     (\\d)
+   Â          alt                 (\\a)
+   Ã          control             (\\c)
+   ¼          null                (\\0)
+
+.B greek in the input mode (upper case)
+   è          alpha               (\\A)
+   é          beta                (\\B)
+   ê          gamma               (\\G)
+   ë          delta               (\\D)
+   ï          theta               (\\T)
+   ò          lambda              (\\L)
+   ÷          pi                  (\\P)
+   ù          sigma               (\\S)
+   ü          phi                 (\\H)
+   þ          psi                 (\\I)
+   ÿ          omega               (\\O)
+
 
 .SH COMMAND LINE
 .B situation (S).  
@@ -124,44 +156,26 @@ followed by the command.
    :resize <addr>  changes the size of a tab
 
 
-.SH KEYBOARD MACROS
+.SH KEYBOARD MACROS (sub-mode)
 .SS ---basics---------------------------------------------------------
- qa         start recording macro 'a'
- ...        enter keystrokes ... and watch actual results on screen
- q          stop recording and save by pressing q again
+ qa...q     record live keystrokes ... into macro 'a'
  @a         execute macro 'a' from current position
 .SS ---overview-------------------------------------------------------
 .B definition (D).  
-keyboard macros are basic automation, repeating keystrokes as if typed, with
-no language constructs, such as, looping or conditionals.  likely meets 80%
-of automation needs.
-
-.B why (W).  
-must provide many levels of automation, keyboard macros are a base level that
-all applications should possess.  so, make them absolutely standard, easy,
-powerful, and universal.
+keyboard macros repeat keystrokes as if typed, with no extra language
+constructs.  likely meets 80% of automation needs.
 
 .B value (V).  
-in any reasonably complex program, the ability to record, save, edit, and
-repeat predictable keystroke sequences is critical to efficiency, accuracy,
-mass editing, and automation.
+the ability to record, edit, and repeat predictable keystroke sequences is
+critical to efficiency, accuracy, and automation.
 
 .B complication (C).  
-few applications provide any keyboard macro capability.  and then, often
-throwing it in with complex scripting.  those that have it are typically
-opaque and infrequently used.
+few applications provide keyboard macro capability, or, when the do, it is
+unduely slow, opaque, or complex.
 
 .B answer (A).  
-i will standardize "mostly" on the excellent vim keyboard macros standard but
-with easier editing, simple playback controls, and basic debugging capability
-(been hurt before).
-
-.B top five requirements (5) to get it right
-   -- must be very quick and simple to justify usage
-   -- easy keystroke recording and execution interface
-   -- multiple macros to juggle tasks
-   -- simple access and editing of existing macros
-   -- playback controls for monitoring and debugging
+standardize "mostly" on vim keyboard macros but with easier editing, simple
+playback, and basic debugging.
 .SS ---full capabilities----------------------------------------------
 
 .B named macros
@@ -172,16 +186,17 @@ with easier editing, simple playback controls, and basic debugging capability
    q          record a new macro in map or god mode
    @          execute an existing macro in map or god mode
    ¥          exits sub-mode early and forgets keys
-   warning, macros must begin and end in map/god mode
 
 .B recording new macros
-   qd...q     record keystrokes ... into macro 'd'
+   qd...q     record live keystrokes ... into macro 'd'
+   qd...Q     exit recording and do not save macro
    qD...q     appending onto macro 'd' after existing contents
    qdq        erase macro 'd' (no keystrokes entered)
 
 .B executing existing macros
    @d         execute macro 'd' at the current location
    @@         re-execute the last used macro (a-z)
+   5@d        execute macro 'd' five times
    @5d        execute macro 'd' in delay mode 5
    @D         execute macro 'd' in playback/debug mode
 
@@ -196,11 +211,15 @@ with easier editing, simple playback controls, and basic debugging capability
 
 .B debugging and playback controls
    .          play/pause toggle for delay mode
-   >          faster execution
-   <          slower execution
+   +          faster execution
+   -          slower execution
    ·          step forward one (space)
    ¥          terminate at current point (escape)
    ¶          run to end at full speed (return)
+
+.B special control characters
+   see SPECIAL CHARACTERS for what keys will be including in macros to
+   represent control characters or can be included to help debugging.
 
 .B gyges-specific editing existing macros
    location   in gyges, all macros are saved by name on tab Z
@@ -208,67 +227,136 @@ with easier editing, simple playback controls, and basic debugging capability
    saving     they automatically save with the spreadsheet
    copying    can use normal copy and saving to transfer
 
-.B extra characters used inside macros (special or execution)
-   ¶          return              (\\n)
-   ¥          escape              (\\e)
-   «          backspace           (\\b)
-   »          tab                 (\\t)
-   ·          space               (\\s)
-   ¦          group separator     (\\g)
-   §          field separator     (\\f)
-   º          pause/wait 1 sec    (\\w)
-   ¿          break point         (\\p)
-   ±          stop/halt           (\\h)
-   Ð          display/refresh     (\\d)
+.B limits/warnings
+   all macros must begin and end in map/god mode
+   macros may not call other macros, or themselves
 
+.SH LOCATION MARKS (sub-mode)
+.na
+.SS ---basics-----------------------------------------------------------------
+ ma          mark current location/object with letter 'a'
+ 'a          return to location/object 'a'
+.SS ---overview---------------------------------------------------------------
+.B definition (D).  
+marks (sometimes called bookmarks) are concise, temporary references to
+locations or objects which allow a user to quickly record their current
+position and easily return to it later.
 
-
-
-
-
-
-
-.B scripting language.  
-interpretive programming languages that act as rapid development environments
-to glue programs together.  examples include, bourne-shell, awk, perl, python,
-java, etc.
-
-.B extension languages.  
-interpretive programming mini-languages that allow the capabilities of
-a program to be extended beyond its original purpose.  expamples include,
-guile, lua, scheme, lisp, etc.
-
-.B macro language.  
-interpretive programming that can access all user capabilitys and exposes
-more complicated features to allow automation.  examples include, vim scripts,
-lotus 123 macros, etc.
-
-
-
-.SH FILES, BUFFERS and PANELS
-.B situation (S).  
-in any, even remotely complex program, working, editing, comparing, searching,
-and scripting multiple, related files in parallel is fundamental, critical,
-and sometimes even manditory.
+.B value (V).   
+easily marking and returning to locations/objects is critical for efficiency,
+accuracy, and confidence.  it also enables advanced editing, accurate data
+movements, clever scripting.
 
 .B complication (C).  
-multiple file work is done in a wide variety of incompatible fashions
-and depths, depending on the context, ranging from multiple instances to
-side-by-side editing.
+most users are not versed in their use, so they are underimplemented.
+when built, they are typically a little cludgy, using menus or buttons; so,
+the feature just attrophies over time.
 
 .B answer (A).  
-i will standardize on vim buffers and windows integrated through my vim-ide
-keyboard-centric approach.
+i will standardize "mostly" on the excellent vim marks interface and make
+it absolutely universal.  marks are a perfect partner to hints, which i will
+port from vimperator.
 
-.B overview (O).  
-multiple buffers and files allow advanced users to perform high-end, parallel,
-and scriptable editing, searching, and maintaining.
+.B top requirements to get it right
+   -- very easy, quick, and simple interface
+   -- large set of marks to allow advanced actions
+   -- overview, status, and highlighting to help debugging
+   -- command mode interface to define and clear marks
+   -- facility for interactively moving/adjusting marks
+.SS ---full capabilities------------------------------------------------------
+.B mark list (62 primary, plus previous and special)
+   a-z        temporary location marks (never move)
+   A-Z        temporary object/content marks (moving)        [TBD/NYI]
+   0-9        shared, read-only marks across files           [TBD/NYI]
+   '          unnamed, from where you jumped to a mark
+   * ( )      visual range, top-left, bottom-right (use '* to select)       
+   [ < > ]    first, prev, next, and last existing mark
 
-.B invocation...
-   ,          buffer         select a buffer/tab/document to focus
+.B invocation of sub-mode
+   m          record a new mark in map or god mode
+   '          return to an existing mark in map or god mode
+   ¥          exits sub-mode early and forgets action
 
-.B standard buffers...
+.B setting marks
+   ma         set location of mark 'a'
+   m(         set top-left corner of future visual selection
+   m# '#      clear mark under cursor
+   m?a        view list of all marks, then mark as 'a'
+
+.B using marks
+   'a         return to mark 'a'
+   ''         return to where the last mark was called
+   '[         go to first mark in [a-zA-Z]
+   '?a        view list of all marks, then return to mark 'a'
+   '*         enter visual mode from '( to ')
+
+.B moving marks in wander mode
+   '@         move mark under cursor
+   ...        basic horizontal and vertical keys to move mark
+   ¶          enter to stop editing, move mark, and exit mode
+
+.B command line
+   :mark a=0a1¶    set mark at an address
+   :mark a=¶       unset a mark  (go to a ('a) and delete ('#))
+   :mark clear¶    unset all lower case marks
+   :mark purge¶    unset all-all marks
+
+.B showing and debugging all marks
+   m! '!      shows marks as the status line (:status mark)
+   m_ '_      show/hide mark visual highlighting
+
+.B limits/warnings
+   changes to marks can not be undone (they are simple/quick)
+
+.SH BUFFERS and PANELS (sub-mode)
+.SS ---basics---------------------------------------------------------
+ ,a         switch to the main editing panel
+ ,0         switch file labeled 0 into the current panel
+.SS ---overview-------------------------------------------------------
+.B definition (D).  
+buffers and panels are data files/tabs and screen regions respectively.
+this sub-mode allows users to move quickly to a specific screen panel and
+choose the data to display/edit there.
+
+.B value (V).   
+easily, quickly, and clearly moving between views, panels, and data sets
+is critical for efficiency, advanced editing, clever data manipulation,
+and complex user interaction.
+
+.B complication (C).  
+most users blunder around using the mouse and then switch to the keyboard
+to do real work.  switching data sets, positions, and panels requires slow
+acting mouse and menu actions.
+
+.B answer (A).  
+i will standardize on my simple vim-ide keyboard interface and make it universal
+to all my applications while adding a greater range of file access and more
+potential panel areas.
+
+.B top five requirements (5) to get it right
+   -- must be very quick and simple to justify usage
+   -- easy user interface that can be universally used
+   -- must allow for a large number of data sets
+   -- needs to accomodate nearly all screen interface areas
+   -- automatically updating to stay current
+.SS ---full capabilities------------------------------------------------------
+
+.B invocation
+   ,          enters buffer sub-mode
+   ¥          exits sub-mode early and forgets action
+
+.B standard identifiers
    0-9A-Z     thirty-six (36) standard tabs and/or buffers
+   a-z        standard panel/work-area identifiers
+
+.B switching...
+   ,a         switch to primary editing window/panel
+   ,0         view the first buffer in current window/panel
+
+.B information...
+   ,,         display and update buffer window
+   ,?         same as ,,
+   ,!         buffer status line
 
 .B standard windows/panels...
    a          main editing window
@@ -280,187 +368,20 @@ and scriptable editing, searching, and maintaining.
    q          compilation and build
    t          tag window to left
    v          execution/visualization
-
-.B switching...
-   ,a         switch to primary editing window/panel
-   ,0         view the first buffer in current window/panel
-
-.B information...
-   ,,         display and update buffer window
-   ,?         same as ,,
-   ,!         buffer status line
-
-.B exceptions and notes...
    :          command line/window
    /          normal search line/window
 
-.SH PROGRESS MODE
-.B situation.  
-some applications provide the ability to view actions and output over time,
-i.e., the fourth dimension, including, video, audio, visualization, and
-simulation.
+.SH VISUAL SELECTION (sub-mode)
+.SS ---basics---------------------------------------------------------
+ v          enter visual selection
+ ....y      use movement keys and perform an action, like yank (y)
+.SS ---overview-------------------------------------------------------
+.B definition (D).  
+visual selection is a technique for interactively identifying multiple objects
+for common action or treatment.  it allows quick, accurate, and consistent
+editing and scripting.
 
-.B complication.  
-applications that provide progress, time, or sequences typically use timelines,
-but actions on timelines tend to be highly varied, simplistic, and mouse-based.
-the result is that these interfaces tend to keep things too simple and weak.
-
-.B answer.  
-i will add a new mode specifically for progress/timeline viewing and
-manipulation.  it will built on the base of vi-keys normal/map mode movements
-and add many advanced vi/vim functions.
-
-.B overview.  
-progress mode will be based on a timeline, have extended play controls, and
-all complex interactions, marking, selection, registers, and other abilities.
-this ability is critical and will be treated as such.
-
-.B invoking progress mode
-   ,p         enter progress bar mode where it shows in addition to others
-   ,P         enter full progress mode for sequencing multiple timelines
-   ,,         back to main mode
-
-.B horizontal movement
-   0          beginning
-   H          left/back five
-   h          left/back
-   <bs>       pause, and step frame or tiny bit backward
-   <sp>       pause, and step frame or tiny bit forward
-   l          right/fore
-   L          right/fore five
-   $          ending
-
-.B vertical movement (between timelines)
-   _          top-most
-   K          up five
-   k          up
-   j          down
-   J          down five
-   G          bottom-most
-
-.B scale controls
-   +          zoom-in
-   -          zoom-out
-
-.B play and speed controls
-   >          faster
-   .          play/pause
-   <          slower
-
-.B current bar alignment (uses the standard shcle codes)
-   ^          prefix control code for alignment
-   ^0         edge   (0.00)  extreme and unlikely
-   ^s         start  (0.05)
-   ^h         left   (0.28)
-   ^c         center (0.50)
-   ^l         rignt  (0.72)
-   ^e         end    (0.95)
-   ^$         edge   (1.00)  extreme and unlikely
-   -- ^ was vim for first character on the line (under utilized)
-
-.B special controls
-   #          write diagnostic information
-
-.B TBC (to be created)
-   marks using m and '
-   visual selections
-   registers for cut, copy, paste
-   ecgz commands for horizontal movement
-   move to a specific time
-   commands to set progress bar to stay at five positions (shcle)
-   command to heighten and shorten progress window when multiple lines used
-   grouping and ungrouping to make "blocks" of content
-
-
-
-
-
-
-
-
-
-.SH GOD MODE
-.B situation.  
-some applications provide the ability to view and/or manipulate in three or
-four (time) dimensions, e.g., modeling and robotics.  the faster and cleaner
-the better so that this three-dimensional ability becomes useful.
-
-.B complication.  
-all applications using four-dimensions use different interfaces and shortcuts.
-each one provides completely different capabilities.  and, they are all
-hampered by trying to keep it very simple.
-
-
-.B answer.  
-add a new mode specifically for four-dimensional viewing and manipulation.
-build it on the base of vi-keys normal/map mode movements, but clear out the
-other keys to make room for complex interactions.
-
-.B linear movements
-   0HhlL$
-
-.B source mode 1D vertical movements
-   _          beginning of entry
-   K          up 5 lines
-   k          up 1 line
-   j          right 1 line
-   J          right 5 lines
-   G          ending of entry
-
-
-
-
-
-
-
-
-
-
-
-
-
-.SH UNIVERSAL
-
-   :          command mode
-   <esc>      normal mode
-   v          visual mode
-   "          registers           (existing)
-   m '        marks               (existing)
-   q @        macros and scripts  (existing)
-   M ;        hints               (new)
-   c          <control>           (new)
-   \          <alt> or <menu>     (new)
-   /          search              (existing)
-   f          close search
-   *          search for current  (existing)
-   nN         continue search     (existing)
-   !          filter
-   %          matching
-   uU         undo
-   pP         paste
-   y          yank
-   dD         delete
-   xX         delete
-   aA         append/add
-   iI         insert
-   rR         replace
-
-
-.SH UNIVERSAL NEW ONES
-   ,          windows/tabs
-   t          tags
-   ?          definition/prototype/etc
-   F          data formatting (very, very useful)
-   +          enter positive numerical data
-   -          enter negative numerical data
-   =          enter a formula
-   #          enter note, comment, or string formula
-   s          quick data input
-
-
-.SH VISUAL SELECTION MODE
-
-.B situation (S).  
+.B value (V).   
 confidently and accurately selecting multiple objects for common treatment
 is critical for increasing speed and accuracy, reducing total effort, and
 driving complex scripting and automation.
@@ -468,319 +389,50 @@ driving complex scripting and automation.
 .B complication (C).  
 visual selection is normally simplistic; and, useful features are omitted or
 implemented differently in almost every application.  good for casual users,
-shit for advanced users.
+terrible for advanced users.
 
 .B answer (A).  
-vim has a good, keyboard-centric visual selection foundation to build on;
-will add and poach various features as motivated.
+i will standardize "mostly" on the excellent vim visual selection standard
+and make it absolutely universal, but will update to handle more complex
+volumetric situations.
 
-.B overview (O).  
-visual selections are a technique for interactively identifying multiple
-objects for common action or treatment.  they allow quick, accurate, and
-consistent editing and scripting.
-
+.B top five requirements (5) to get it right
+   -- must be quick and easy with simple, standard actions
+   -- multiple modes for contiguous and non-contiguous selection
+   -- should keep a history of selections that can be repeated
+   -- standard/compatible with text selection in source mode
+   -- standard/compatible with non-contiguous selection
+.SS ---full capabilities------------------------------------------------------
 .B invoking...
    v          start visual selection mode
    V          start visual mode with previous selection
-   <es>       return to previous mode
+   "av        start visual mode with register 'a' source location
+   '*         start visual mode from mark '< to mark '>
+   ¥          return to previous mode
 
 .B adjustments to selection...
-   [HhlL]          horizontal
-   e [SsHhclLeE]   horizontal ends and edges
-   g [SsHhclLeE]   horizontal screen positions
-   [KkjJ]          vertical
-   e [TtKkmjJbB]   vertical ends and edges
-   g [TtKkmjJbB]   vertical screen positions
+   all the standard MAP mode actions
+   o          opposite corner to switch start/end of selection
 
-.B register actions (unnamed register)
-   y               copy
-   x, d            cut
-   p               multiple paste
+.B included map mode actions
+   F f        format sub-mode, applying identically across selected area
+   /          search mode, but only within selected area
+   :          command mode, potentially only on selected area
+   !          filter sub-mode, selection though external filter
+   "          select a register for register actions
+   y x d p    register action using unnamed register
 
-
-
-
-
-
-
-
-.B situation (S)
-visual selection is a method of identifying a group of characters, objects, etc for
-common, special handling as a group.  most applications require that a mouse
-be used to accomplish this action.
-
-.B complication (C)
-
-
-
-
-registers provide a temporary holding place for data in order to facilitate
-movement between different locations in the larger data set or between
-applications.  when provided, most applications allow access to the single
-desttop clipboard for cut, copy, and paste.  this fits the requirements of
-a vast majority of all users.
-
-.B situation (S)
-
-.SH DATA FORMATTING (sub-mode)
-
-the purpose of data formatting, including, fonts, alignment, numerical
-formats, etc., is to allow users to easily and quickly consume data in order
-to discover useful insights, concepts, and conclusions.
-
-.B situation (S)
-most allications fall in the range of having a narrow, specific data set and
-fixed formatting; or they providing a range of custom formatting options to
-help user with complex situations.
-
-.B complication (C)
-often, formatting is viewed as the critical element rather than the icing on
-the top of great analysis and insight.  formatting often means superfluous
-presentation elements like fonts types, sizes, and colors.
-
-.B question (Q)
-how to standardize usage of both data and analysis focused formatting that
-can be learned once and added easily to any application ?
-
-.B answer (A)
-easy, take lessions from old-school terminal and text-based analytical tools
-like lotus 123 and visicalc to develop a new standard.
-
-.B allowed from which modes...
-   map        on a single cell
-   visual     on a range of cells
-
-.B invoking data formatting
-   F          format mode
-   <es>       return to normal mode
-
-.B horizontal alignment
-   <          left
-   [          left with brackets []
-   {          left, indented, with brackets []
-   >          right
-   ]          right with brackets []
-   }          right, indented, with brackets []
-   |          center
-   ^          center with brackets []
-
-.B numeric
-   /*---(normal)-----------------------*/
-   i          integer
-   r          real/float
-   ,          commas in thousands, millions
-   s          commas and sign
-   a          accounting (commas and parens for negative)
-   $          currency (commas and currency sign)
-   p          percentage (shows a tailing 'p' as '%' is problematic
-   /*---(technical)--------------------*/
-   e          exponential (E means with spaces)
-   #          technical (commas, decimal commas, signs)
-   x          hexadecimal (X means with separators every byte)
-   b          binary (B means with separators every four bits)
-   o          octal (O means with separators every byte)
-   /*---(time)-------------------------*/
-   t          time
-   d          date
-   T          timestamp
-   D          time and date
-   /*---(other)------------------------*/
-   P          point/bullet
-
-.B decimals
-   0-9        number of decimals shown
-
-.B filler for strings
-   <sp>       space filled (default)
-   -          dashes
-   =          equals
-   _          underscores
-   .          periods
-   +          pluses
-
-.B used letters
-    + ++         ++   +   +   ++++++++++ ++    + ++  +
-   ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789 ,.:;!?_ +-*/= cr bs  50
-   abcdefghijklmnopqrstuvwxyz &#|@ ~^$% '`" (){}[]<> sp es \\  49
-   ++ ++   +     ++ +++   +    ++   ++        ++++++ +  
-
-.B used letters
-   ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789 ,.:;!?_ +-*/= cr bs  50
-   abcdefghijklmnopqrstuvwxyz &#|@ ~^$% '`" (){}[]<> sp es \\  49
-
-.SH OBJECT SIZING
-
-.B invoking object sizing
-   S          sizing mode
-   <cr>       return to normal mode
-
-.B widths
-   L          smaller by five
-   l          smaller by one
-   h          bigger by one
-   H          bigger by five
-
-.B heights
-   J          smaller by five
-   j          smaller by one
-   h          bigger by one
-   H          bigger by five
-
-.B merging (not grouping)
-   M
-
-
-   /*---(fixed)------------------------*/
-   m          minimal
-   n          normal
-   N          normal+
-   w          wide
-   W          very wide
-   /*---(adjustments)------------------*/
-
-
-.SH LOCATION MARKS
+.SH OBJECT REGISTERS (sub-mode)
 .SS ---basics---------------------------------------------------------
- ma         mark current location/object with letter 'a'
- 'a         return to location/object 'a'
+ "ay        copy current visual selection to register 'a'
+ "ap        past contents of register 'a' to current position
 .SS ---overview-------------------------------------------------------
 .B definition (D).  
-marks (sometimes called bookmarks) are concise, temporary references to
-locations or objects which allow a user to quickly record their current
-position and easily return to it later.
+object registers are temporary holding places for objects and their contents
+in order to facilitate movement, transformation, duplication, import/export,
+and scripting.
 
 .B value (V).   
-easily marking and returning to locations/objects is critical for efficiency,
-accuracy, and confidence.  it allows advanced editing, accurate data movements,
-clever scripting.
-
-.B complication (C).  
-most users are not versed in their use, so it is underimplemented.  when built,
-it is typically a little cludgy, using menus or buttons; so, the feature just
-attrophies over time.
-
-.B answer (A).  
-i will standardize "mostly" on the excellent vim keyboard macros standard
-and make them absolutely universal.  marks are a perfect partner to hints,
-which i learned from vimperator.
-
-.B top five requirements (5) to get it right
-   -- must be very quick and simple to justify usage
-   -- easy marking and returning user interface
-   -- must have multiple marks to allow back-and-forth actions
-   -- simple ablity to review all marks
-   -- ability to directly define and clear a mark
-.SS ---full capabilities------------------------------------------------------
-.B mark list (52 primary, plus shared, previous, and special)
-   a-z        temporary location marks (never move)
-   A-Z        temporary object/content marks                 [TBD/NIY]
-   0-9        shared, read-only marks across files           [TBD/NIY]
-   '          unnamed, from where you jumped to a mark
-   < >        visual range, top-left and bottom-right (use with "gv")
-   [ ( ) ]    first, prev, next, and last existing mark
-
-.B invocation of sub-mode
-   m          record a new mark in map or god mode
-   '          return to an existing mark in map or god mode
-   ¥          exits sub-mode early and forgets action
-
-.B setting marks
-   ma         set location of mark 'a'
-   m<         set top-left corner of future visual selection
-   m#         clear mark under cursor
-
-.B using marks
-   'a         return to mark 'a'
-   ''         return to where the last mark was called
-   '[         go to first mark in [a-zA-Z]
-
-.B command line
-   :mark a=0a1¶    set mark at an address
-   :mark a=¶       unset a mark
-   :mark purge¶    unset all marks
-
-.B showing and debugging all marks
-   m!         shows marks as the status line (:status mark)
-   m?         shows a list of all the marks
-   m_         show/hide mark visual highlighting
-
-.B limits/warnings
-   changes to marks can not be undone (they are simple/quick)
-
-.SH TEXT REGISTERS (sub-mode TEXTREG)
-.B situation.  
-begin able to copy and move text between locations in an application while
-editing is critical to increasing speed, accuracy, and reducing mistakes.
-it allows the editor to perform advanced data movements and transformations;
-and it is fundamental to any advanced scripting.
-
-.B complication.  
-when provided, most applications allow access to the single, shared, generic
-desktop clipboard for cut, copy, and paste.  this fits the requirements of
-a vast majority of users.  but, as a result powerful data editing requires
-cludgy supplemental tools or work-arounds just to store data.
-
-.B answer.  
-we will standardize around a keyboard-centric, simplified, vim-like model with
-multiple standard registers.  this mode is called TEXTREG.
-
-.B overview.  
-text registers are temporary holding places for textual data which facilitate
-movement between different storage locations.
-
-.B register list (55)
-   "          unnamed, default register
-   a-z        named registers, always overwrites existing data
-   A-Z        named registers, appends to existing data
-   -          my vi/vim clipboard (/tmp/vi_clip.txt)
-   +          shared desktop clipboard (NOT IMPLEMENTED)
-   :          last command executed
-   /          last search executed
-   %          full qualified, absolute file name
-
-.B available from which modes
-   SOURCE     source mode allows text registers at any time
-   SELECT     select sub-mode allows registers on selected text
-
-.B primary key involved
-   "          identify the register for target/source
-
-.B identify register for action
-   "a         select register 'a' (single action)
-   "A         select register 'a' (single action), but in append mode
-   "-         select the vi/vim sharing file
-
-.B pushing data into registers
-   y, Y       yank/copy  content to selected register
-   d, D       delete/cut content to selected register
-   x, X       clear/copy content to selected register
-
-.B pulling data from registers (TEXT/SOURCE MODE)
-   p          paste register content after cursor
-   P          paste register content before cursor
-   r, R       replace text with register content starting at cursor
-
-.B maintaining registers
-   #          clear selected register, no effect on other data
-   *          clear all registers
-   g          goto beginning register position in source
-   G          goto ending register position in source
-
-.B debugging and observing
-   !          shows selected register on the status line
-
-.B showing register overview
-   "?         shows a list of all the registers with critical info
-
-
-
-
-
-
-
-
-.SH OBJECT REGISTERS
-.B situation (S).  
 moving data between locations while editing is absolutely critical; driving
 speed, accuracy, and efficiency.  it allows advanced data movements,
 transformations, and advanced scripting.
@@ -788,26 +440,28 @@ transformations, and advanced scripting.
 .B complication (C).  
 when provided, it is usually a single, shared, generic desktop clipboard for
 cut, copy, and paste. fitting most users.  this neglects all advanced uses
-and serious application.
+and automation.
 
 .B answer (A).  
-vim does this very well.  we will standardize around a keyboard-centric,
-vim-like model with multiple registers.
+i will standardize "mostly" on the excellent vim register standard, and
+make it absolutely universal while adding flexible import/export and sepated
+text registers.
 
-.B overview (O).  
-object registers are temporary holding places for data objects in order to
-facilitate movement, transformation, import/export, and scripting.
-
-
-.B invoking object register mode
+.B top five requirements (5) to get it right
+   -- must be very quick and simple to justify usage
+   -- easy user interface that can be universally used
+   -- must allow for multiple registers to be flexible
+   -- accomodate import and export of data
+   -- standard/compatible with text registers in source mode
+.SS ---full capabilities------------------------------------------------------
+.B invoking object register sub-mode
    "          called from map or visual mode
+   ¥          return to previous mode
 
 .B object register list (39)
    /*---(named)-----------------------*/
    a-z        named registers, always overwrites existing data
-   A-Z        named registers, appends to existing data
-   /*---(read-only)-------------------*/
-   0-9        read-only history registers (0 = newist, 9 = oldest)
+   A-Z        named registers, appends to existing data (not implemented)
    /*---(special)---------------------*/
    <none>     current selection or location
    $          all content on current tab
@@ -828,6 +482,11 @@ facilitate movement, transformation, import/export, and scripting.
    x          clear/copy content to selected register
    p  (t)     paste content from selected register after cursor
    P  (t)     paste content from selected register before cursor
+
+.B multiple paste
+   if a cell of data is in register and an area is selected
+   if a column of data is in register and a single row is selected
+   if a row of data is in register and a single column is selected
 
 .B pulling data from registers (TEXT/SOURCE MODE)
    p  (m)     paste content from selected register over current position
@@ -934,6 +593,392 @@ facilitate movement, transformation, import/export, and scripting.
    >a         move the current register into the new one
    ]a         append the current register to the new one
 
+
+
+
+
+.B scripting language.  
+interpretive programming languages that act as rapid development environments
+to glue programs together.  examples include, bourne-shell, awk, perl, python,
+java, etc.
+
+.B extension languages.  
+interpretive programming mini-languages that allow the capabilities of
+a program to be extended beyond its original purpose.  expamples include,
+guile, lua, scheme, lisp, etc.
+
+.B macro language.  
+interpretive programming that can access all user capabilitys and exposes
+more complicated features to allow automation.  examples include, vim scripts,
+lotus 123 macros, etc.
+
+
+.SH PROGRESS MODE
+.B situation.  
+some applications provide the ability to view actions and output over time,
+i.e., the fourth dimension, including, video, audio, visualization, and
+simulation.
+
+.B complication.  
+applications that provide progress, time, or sequences typically use timelines,
+but actions on timelines tend to be highly varied, simplistic, and mouse-based.
+the result is that these interfaces tend to keep things too simple and weak.
+
+.B answer.  
+i will add a new mode specifically for progress/timeline viewing and
+manipulation.  it will built on the base of vi-keys normal/map mode movements
+and add many advanced vi/vim functions.
+
+.B overview.  
+progress mode will be based on a timeline, have extended play controls, and
+all complex interactions, marking, selection, registers, and other abilities.
+this ability is critical and will be treated as such.
+
+.B invoking progress mode
+   ,p         enter progress bar mode where it shows in addition to others
+   ,P         enter full progress mode for sequencing multiple timelines
+   ,,         back to main mode
+
+.B horizontal movement
+   0          beginning
+   H          left/back five
+   h          left/back
+   <bs>       pause, and step frame or tiny bit backward
+   <sp>       pause, and step frame or tiny bit forward
+   l          right/fore
+   L          right/fore five
+   $          ending
+
+.B vertical movement (between timelines)
+   _          top-most
+   K          up five
+   k          up
+   j          down
+   J          down five
+   ~          bottom-most (same symbol as null lines at bottom of vim
+
+.B scale controls
+   i          zoom-in
+   o          zoom-out
+
+.B play and speed controls
+   +          faster
+   .          play/pause
+   -          slower
+
+.B current bar alignment (uses the standard shcle codes)
+   ^          prefix control code for alignment
+   ^0         edge   (0.00)  extreme and unlikely
+   ^s         start  (0.05)
+   ^h         left   (0.28)
+   ^c         center (0.50)
+   ^l         rignt  (0.72)
+   ^e         end    (0.95)
+   ^$         edge   (1.00)  extreme and unlikely
+   -- ^ was vim for first character on the line (under utilized)
+
+.B special controls
+   #          write diagnostic information
+
+.B TBC (to be created)
+   marks using m and '
+   visual selections
+   registers for cut, copy, paste
+   ecgz commands for horizontal movement
+   move to a specific time
+   commands to set progress bar to stay at five positions (shcle)
+   command to heighten and shorten progress window when multiple lines used
+   grouping and ungrouping to make "blocks" of content
+
+
+
+
+
+
+
+
+
+.SH GOD MODE
+.B situation.  
+some applications provide the ability to view and/or manipulate in three or
+four (time) dimensions, e.g., modeling and robotics.  the faster and cleaner
+the better so that this three-dimensional ability becomes useful.
+
+.B complication.  
+all applications using four-dimensions use different interfaces and shortcuts.
+each one provides completely different capabilities.  and, they are all
+hampered by trying to keep it very simple.
+
+
+.B answer.  
+add a new mode specifically for four-dimensional viewing and manipulation.
+build it on the base of vi-keys normal/map mode movements, but clear out the
+other keys to make room for complex interactions.
+
+.B linear movements
+   0HhlL$
+
+.B source mode 1D vertical movements
+   _          beginning of entry
+   K          up 5 lines
+   k          up 1 line
+   j          right 1 line
+   J          right 5 lines
+   ~          bottom-most (same symbol as null lines at bottom of vim
+
+
+
+
+
+
+
+
+
+
+
+
+
+.SH UNIVERSAL
+
+   :          command mode
+   <esc>      normal mode
+   v          visual mode
+   "          registers           (existing)
+   m '        marks               (existing)
+   q @        macros and scripts  (existing)
+   M ;        hints               (new)
+   c          <control>           (new)
+   \          <alt> or <menu>     (new)
+   /          search              (existing)
+   f          close search
+   *          search for current  (existing)
+   nN         continue search     (existing)
+   !          filter
+   %          matching
+   uU         undo
+   pP         paste
+   y          yank
+   dD         delete
+   xX         delete
+   aA         append/add
+   iI         insert
+   rR         replace
+
+
+.SH UNIVERSAL NEW ONES
+   ,          windows/tabs
+   t          tags
+   ?          definition/prototype/etc
+   F          data formatting (very, very useful)
+   +          enter positive numerical data
+   -          enter negative numerical data
+   =          enter a formula
+   #          enter note, comment, or string formula
+   s          quick data input
+
+
+
+
+
+
+
+
+registers provide a temporary holding place for data in order to facilitate
+movement between different locations in the larger data set or between
+applications.  when provided, most applications allow access to the single
+desttop clipboard for cut, copy, and paste.  this fits the requirements of
+a vast majority of all users.
+
+.B situation (S)
+
+.SH DATA FORMATTING (sub-mode)
+
+the purpose of data formatting, including, fonts, alignment, numerical
+formats, etc., is to allow users to easily and quickly consume data in order
+to discover useful insights, concepts, and conclusions.
+
+.B situation (S)
+most allications fall in the range of having a narrow, specific data set and
+fixed formatting; or they providing a range of custom formatting options to
+help user with complex situations.
+
+.B complication (C)
+often, formatting is viewed as the critical element rather than the icing on
+the top of great analysis and insight.  formatting often means superfluous
+presentation elements like fonts types, sizes, and colors.
+
+.B question (Q)
+how to standardize usage of both data and analysis focused formatting that
+can be learned once and added easily to any application ?
+
+.B answer (A)
+easy, take lessions from old-school terminal and text-based analytical tools
+like lotus 123 and visicalc to develop a new standard.
+
+.B allowed from which modes...
+   map        on a single cell
+   visual     on a range of cells
+
+.B invoking data formatting
+   F          format sub-mode
+   f          format sub-mode for a single action
+   <es>       return to normal mode
+
+.B horizontal alignment
+   <          left
+   [          left with brackets []
+   {          left, indented, with brackets []
+   >          right
+   ]          right with brackets []
+   }          right, indented, with brackets []
+   |          center
+   ^          center with brackets []
+
+.B numeric
+   /*---(normal)-----------------------*/
+   i          integer
+   r          real/float
+   ,          commas in thousands, millions
+   s          commas and sign
+   a          accounting (commas and parens for negative)
+   $          currency (commas and currency sign)
+   p          percentage (shows a tailing 'p' as '%' is problematic
+   /*---(technical)--------------------*/
+   e          exponential (E means with spaces)
+   #          technical (commas, decimal commas, signs)
+   x          hexadecimal (X means with separators every byte)
+   b          binary (B means with separators every four bits)
+   o          octal (O means with separators every byte)
+   /*---(time)-------------------------*/
+   t          time
+   d          date
+   T          timestamp
+   D          time and date
+   /*---(other)------------------------*/
+   P          point/bullet
+
+.B decimals
+   0-9        number of decimals shown
+
+.B filler for strings
+   <sp>       space filled (default)
+   -          dashes
+   =          equals
+   _          underscores
+   .          periods
+   +          pluses
+
+.B used letters
+    + ++         ++   +   +   ++++++++++ ++    + ++  +
+   ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789 ,.:;!?_ +-*/= cr bs  50
+   abcdefghijklmnopqrstuvwxyz &#|@ ~^$% '`" (){}[]<> sp es \\  49
+   ++ ++   +     ++ +++   +    ++   ++        ++++++ +  
+
+.B used letters
+   ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789 ,.:;!?_ +-*/= cr bs  50
+   abcdefghijklmnopqrstuvwxyz &#|@ ~^$% '`" (){}[]<> sp es \\  49
+
+.SH OBJECT SIZING
+
+.B invoking object sizing
+   S          sizing mode
+   <cr>       return to normal mode
+
+.B widths
+   L          smaller by five
+   l          smaller by one
+   h          bigger by one
+   H          bigger by five
+
+.B heights
+   J          smaller by five
+   j          smaller by one
+   h          bigger by one
+   H          bigger by five
+
+.B merging (not grouping)
+   M
+
+
+   /*---(fixed)------------------------*/
+   m          minimal
+   n          normal
+   N          normal+
+   w          wide
+   W          very wide
+   /*---(adjustments)------------------*/
+
+.SH TEXT REGISTERS (sub-mode TEXTREG)
+.B situation.  
+begin able to copy and move text between locations in an application while
+editing is critical to increasing speed, accuracy, and reducing mistakes.
+it allows the editor to perform advanced data movements and transformations;
+and it is fundamental to any advanced scripting.
+
+.B complication.  
+when provided, most applications allow access to the single, shared, generic
+desktop clipboard for cut, copy, and paste.  this fits the requirements of
+a vast majority of users.  but, as a result powerful data editing requires
+cludgy supplemental tools or work-arounds just to store data.
+
+.B answer.  
+we will standardize around a keyboard-centric, simplified, vim-like model with
+multiple standard registers.  this mode is called TEXTREG.
+
+.B overview.  
+text registers are temporary holding places for textual data which facilitate
+movement between different storage locations.
+
+.B register list (55)
+   "          unnamed, default register
+   a-z        named registers, always overwrites existing data
+   A-Z        named registers, appends to existing data
+   -          my vi/vim clipboard (/tmp/vi_clip.txt)
+   +          shared desktop clipboard (NOT IMPLEMENTED)
+   :          last command executed
+   /          last search executed
+   %          full qualified, absolute file name
+
+.B available from which modes
+   SOURCE     source mode allows text registers at any time
+   SELECT     select sub-mode allows registers on selected text
+
+.B primary key involved
+   "          identify the register for target/source
+
+.B identify register for action
+   "a         select register 'a' (single action)
+   "A         select register 'a' (single action), but in append mode
+   "-         select the vi/vim sharing file
+
+.B pushing data into registers
+   y, Y       yank/copy  content to selected register
+   d, D       delete/cut content to selected register
+   x, X       clear/copy content to selected register
+
+.B pulling data from registers (TEXT/SOURCE MODE)
+   p          paste register content after cursor
+   P          paste register content before cursor
+   r, R       replace text with register content starting at cursor
+
+.B maintaining registers
+   #          clear selected register, no effect on other data
+   *          clear all registers
+   g          goto beginning register position in source
+   G          goto ending register position in source
+
+.B debugging and observing
+   !          shows selected register on the status line
+
+.B showing register overview
+   "?         shows a list of all the registers with critical info
+
+
+
+
+
+
+
 .SH TEXT REPLACEMENT/OVERTYPE (sub-mode REPLACE)
 
 .B situation.  
@@ -1014,7 +1059,7 @@ them to add new text, and replace mode allows them to overtype exising text.
    k          up 1 line
    j          right 1 line
    J          right 5 lines
-   G          ending of entry
+   ~          bottom-most (same symbol as null lines at bottom of vim
 
 .B move cursor to a part of the screen (no screen movement)
    gs         left edge of field space
@@ -1029,6 +1074,23 @@ them to add new text, and replace mode allows them to overtype exising text.
    z,         middle of screen                                 [[ good   ]]
    zl         right quarter of screen                          [[ good   ]]
    ze         right edge of screen                             [[ good   ]]
+
+.SH SOURCE mode
+
+.B traditional vim character searches
+   f¢       search forward for character ¢
+   F¢       search backward for character ¢
+   t¢       search forward just before character ¢
+   T¢       search backward just after character ¢
+   ;        continue fFtT in same direction
+   ,        switch directions
+   all these characters are free in every other mode
+
+.SH INPUT mode
+
+
+
+
 
 .SH ENDS and EDGES
 .B situation (S).  
@@ -1264,7 +1326,7 @@ and 'b' (bottom).  rotation keys are 'u' (up) and 'd' (down).
    k          up 1 char/units                                  [[ ------ ]]
    j          down 1 char/units                                [[ ------ ]]
    J          down 5 char/units                                [[ !!!!!! ]]
-   G          ending of line/bounded space                     [[ good   ]]
+   ~          ending of line/bounded space                     [[ good   ]]
 
 .B move screen and cursor
    ct         up a page                                        [[ good   ]]
@@ -1432,7 +1494,7 @@ and 'a' (away).  rotation keys are 'r' (rotate) and 's' (spin).
    C          cursor till end-of-line                          [[ ------ ]]
    D          delete till end-of-line                          [[ useful ]]
    E          forwards <n> WORDS                               [[ ------ ]]
-   F          find character forwards                          [[ maybe  ]]
+   F          find character backwards                         [[ maybe  ]]
    G          cursor to line <n>                               [[ ------ ]]
    H          cursor to line <n> from top of screen            [[ ------ ]]
    I          insert before first char                         [[ useful ]]

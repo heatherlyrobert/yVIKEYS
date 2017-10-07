@@ -5,6 +5,7 @@
 /*---(headers)---------------------------*/
 #include    "yVIKEYS.h"
 #include    <yLOG.h>               /* heatherly program logger                */
+#include    <yURG.h>               /* heatherly program logger                */
 
 
 /*===[[ HEADERS ]]========================================*/
@@ -24,8 +25,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.5p"
-#define YVIKEYS_VER_TXT   "updated location mark documentation"
+#define YVIKEYS_VER_NUM   "0.5q"
+#define YVIKEYS_VER_TXT   "added repeat sub-mode"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/

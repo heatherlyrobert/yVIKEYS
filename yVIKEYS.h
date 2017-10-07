@@ -36,6 +36,7 @@
 /*===[[ CONSTANTS ]]==========================================================*/
 /*---(major modes)-----------------------*/
 #define     MODE_GOD       'G'
+#define     MODE_OMNI      'O'
 #define     MODE_PROGRESS  'P'
 #define     MODE_MAP       'M'
 #define     MODE_VISUAL    'V'
@@ -44,18 +45,21 @@
 #define     MODE_COMMAND   ':'
 #define     MODE_SEARCH    '/'
 /*---(sub-modes)--------------s----------*/
-#define     SMOD_REPLACE   'r'    /* replacing characters in source mode      */
-#define     SMOD_SELECT    's'    /* visual selection of chars in source mode */
-#define     SMOD_TEXTREG   't'    /* text register actions                    */
+#define     SMOD_REPEAT    '9'    /* accumulate multiplier                    */
 #define     SMOD_ERROR     'e'    /* error reporting and actions              */
+#define     SMOD_SELECT    's'    /* visual selection of chars in source mode */
+#define     SMOD_REPLACE   'r'    /* replacing characters in source mode      */
 #define     SMOD_REGISTER  '"'    /* register actions                         */
+#define     SMOD_TEXTREG   't'    /* text register actions                    */
 #define     SMOD_BUFFER    ','    /* selecting buffers                        */
 #define     SMOD_WANDER    'w'    /* formula creation by pointing             */
 #define     SMOD_FORMAT    '$'    /* content formatting                       */
 #define     SMOD_OBJECT    'o'    /* object formatting                        */
 #define     SMOD_MARK      '\''   /* location and object marking              */
-#define     SMOD_MENUS     '\\'   /* show menu system                         */
 #define     SMOD_MACRO     '@'    /* macro processing                         */
+#define     SMOD_HINT      'h'    /* hint labels                              */
+#define     SMOD_CHAR      'c'    /* linewise character finding               */
+#define     SMOD_MENUS     '\\'   /* show menu system                         */
 
 
 extern char yVIKEYS_ver     [500];
