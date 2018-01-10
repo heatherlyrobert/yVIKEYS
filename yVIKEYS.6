@@ -1,12 +1,72 @@
 .TH vi-keys 7 2010-Jan "linux" "heatherly custom tools manual"
+.na
 
 .SH NAME
 yVIKEYS \- interactive system usage and navigation
 
 .SH DESCRIPTION (short)
 yVIKEYS is a heatherly-specific mini-language for operating all my applications
-using a pure modal keyboard interface.  while it is rooted in vim, i expect
-to adapt it to every possible application.
+using a pure keyboard-centric modal interface.  it will help bring broad,
+familiar capability to all my applications.
+
+.SH MODES
+
+.B definition (D).  
+every system uses modes -- editing, reviewing, searching, publishing.  a mode
+is simply a work context with its own specific and unique views, keys, menus,
+actions, and commands.
+
+.B complication (C).  
+each application has its own modes and actions.  every simplifies for
+novice users, making dumb things easy and hard things nearly impossible.
+capabilities atrophy or never exist.
+
+.B answer (A).  
+standardize modes and capabilities, then build a universal, keyboard-centric
+vim-like modal interface, focused on technical, power users who can stomach
+a one-time, steep learning curve.
+
+.B mode types
+   -- main        broad abilities, free-flow interaction, long usage
+   -- sub-mode    more specific focus, linear interaction, short usage
+   -- micro-mode  tight focus, short key sequences, exit automatically
+
+.B six main modes (MODE)
+   G   god         special 3d-style omnicient pov and review
+   O   omni        special 3d-style omnipotent manipulation
+   P   progress    manage 4d timelines and action over time
+   M   map         special 2d-style when content is partitioned
+   S   source      normal review of content (vi/vim normal mode)
+   I   input       adding new or updating existing content
+
+.B sub-modes (SMOD)
+   V   visual      map/object based visual selection
+   :   command     provides a host of complex capabilities
+   /   search      find and manipulate data and objects
+   \\   menu        menu system
+   f   format      data presentation formatting
+   o   object      object presentation formatting
+   w   wander      allow pointing at object to ID them
+   s   select      source/character based visual select mode
+   r   replace     overwrite characters in source mode
+   e   error       display and act on errors or troubles
+
+.B micro modes (UMOD)
+   9   repeat      replay commands multiple times
+   "   register    object registers to move/transfer objects
+   '   mark        identify locations for return
+   @   macro       keyboard macro recording and execution
+   h   hint        provide automatic and manual labeling
+   c   char_find   linewise searching for particular characters
+   ,   buffer      select a buffer/tab/document to focus
+   t   text_reg    text registers to move/transfer text
+
+
+provide focused capability, more limited options, specific key sequences,
+and often exit automatically when done.
+
+.B note
+   vim combines map/source as it is really a collection of lines
 
 .SH SECTIONS
    -- modal interface and modes
@@ -24,57 +84,6 @@ to adapt it to every possible application.
    -- macros/scripts/repeating
    -- windows/buffers
    -- file/save/open
-
-.SH MODAL INTERFACE and MODES
-.B definition (D).  
-modal interfaces provide context-specific keys, actions, and commands to
-most effectively support a users present situation, e.g., enter means ok in
-a dialog but new line in editing.
-
-.B value (V).  
-even simple, well-used applications develop thousands of reasonable actions,
-options, and commands over time.  these are almost universally grouped into
-contexts by menus, dialogs, or modes.
-
-.B complication (C).  
-applications are usually built for infrequent, novice users, so, resort to
-clumsy, slow menus and button bars allowing all the powerful capabilities
-wither and atrophy over time.
-
-.B answer (A).  
-build for technical, power users who can stomach a one-time, steep learning
-curve; avoid mice, menus, and buttons; and, use a keyboard-centric, universal
-adaptation of a vim-like modal interface.
-
-.B main mode overview (8)
-   G   god         special 3d-style omnicient pov and review
-   O   omni        special 3d-style omnipotent manipulation
-   P   progress    manage timelines and action over time
-   M   map         special 2d-style when content is partitioned
-   V   visual      map/object based visual selection
-   S   source      normal 1d review of content (vi/vim normal mode)
-   I   input       adding content (like insert mode)
-   :   command     provides a host of complex capabilities
-
-.B sub-mode overview (15)
-   /   search      find and manipulate data and objects
-   e   error       display and act on errors or troubles
-   s   select      source/character based visual select mode
-   r   replace     overwrite characters in source mode
-   "   register    object registers to move/transfer objects
-   t   text_reg    text registers to move/transfer text
-   ,   buffer      select a buffer/tab/document to focus
-   w   wander      allow pointing at object to ID them
-   f   format      data presentation formatting
-   o   object      object presentation formatting
-   '   mark        identify locations for return
-   @   macro       keyboard macro recording and execution
-   h   hint        provide automatic and manual labeling
-   c   char_find   linewise searching for particular characters
-   \\   menu        menu system
-
-.B note
-   vim combines map/source as it is really a collection of lines
 
 .SH SPECIAL CHARACTERS
 .B definition (D).  
@@ -94,20 +103,20 @@ i will add escaped characters into the input mode to allow the standard entry
 of some of this useful things.
 
 .B macro/script control in the input mode
-   ¶          return              (\\n)
+   ¦          return              (\\n)
    ¥          escape              (\\e)
-   «          backspace           (\\b)
-   »          tab                 (\\t)
-   ·          space               (\\s)
-   ¦          group separator     (\\g)
+   ª          backspace           (\\b)
+   «          tab                 (\\t)
+   ¹          space               (\\s)
+   Â          group separator     (\\g)
    §          field separator     (\\f)
-   º          pause/wait 1 sec    (\\w)
+   ©          pause/wait 1 sec    (\\w)
    ¿          break point         (\\p)
    ±          stop/halt           (\\h)
-   ¢          display/refresh     (\\d)
-   Â          alt                 (\\a)
-   Ã          control             (\\c)
-   ¼          null                (\\0)
+   ¨          display/refresh     (\\d)
+   À          alt                 (\\a)
+   Á          control             (\\c)
+   £          null                (\\0)
 
 .B greek in the input mode (upper case)
    è          alpha               (\\A)
@@ -156,12 +165,18 @@ followed by the command.
    :resize <addr>  changes the size of a tab
 
 
-.SH KEYBOARD MACROS (sub-mode)
+
+.SH SEARCH
 .SS ---basics---------------------------------------------------------
- qa...q     record live keystrokes ... into macro 'a'
- @a         execute macro 'a' from current position
+ //....¦    perform a regular expression search of diplayed text
 .SS ---overview-------------------------------------------------------
 .B definition (D).  
+searching is the identification of various objects based on a criteria
+
+
+rapid, standard, and powerful searching in integral to efficient creation,
+editing, and review
+
 keyboard macros repeat keystrokes as if typed, with no extra language
 constructs.  likely meets 80% of automation needs.
 
@@ -176,6 +191,50 @@ unduely slow, opaque, or complex.
 .B answer (A).  
 standardize "mostly" on vim keyboard macros but with easier editing, simple
 playback, and basic debugging.
+.SS ---full capabilities----------------------------------------------
+
+.B feature ideas
+   -- use text register contents as the regex
+
+.B extended hints actions (potential, future)
+   //<mre>         source text
+   //!<text>       source text, force literal search
+   //$<text>       source text, force microsoft explorer-style search
+   //#<text>       source text, force bash shell-style search
+   //*<text>       source text, force posix extended search
+
+
+   //<ere>         search displayed text or descriptions
+   /.<literal>     search displayed text or descriptions
+   /*<literal>     search everywhere text resides
+   /=<literal>     search source formulas
+
+
+
+.SH KEYBOARD MACROS (sub-mode)
+.SS ---basics---------------------------------------------------------
+ qa...q     record live keystrokes ... into macro 'a'
+ @a         execute macro 'a' from current position
+.SS ---overview-------------------------------------------------------
+.B definition (D).  
+keyboard macros repeat keystrokes as if they are being typed in realtime,
+with no advanced language constructs.  they likely meet over 80% of all
+automation needs with little effort.
+
+.B value (V).  
+the ability to record, edit, and repeat predictable keystroke sequences
+is critical to efficiency, accuracy, and automation; and, seriously reduce
+repetitive strain on the mind and body.
+
+.B complication (C).  
+very few applications provide keyboard macro capability, or, when the do, it
+is unduely slow, opaque, or complex.  the value is simply not well understood
+in most user bases.
+
+.B answer (A).  
+i will standardize "mostly" on vim keyboard macros but with easier editing,
+simple playback, and basic debugging.  all interactive applications need
+macros built early in development.
 .SS ---full capabilities----------------------------------------------
 
 .B named macros
@@ -203,8 +262,8 @@ playback, and basic debugging.
 .B defining macros at command line
    :macro h=...         directly input and save the macro
    :macro H=...         append directly to the macro
-   :macro i="..."       allows ¶ (ret) and ¥ (esc)
-   :macro i=\\n\\e        also allows ¶ (ret) and ¥ (esc)
+   :macro i="..."       allows ¦ (ret) and ¥ (esc)
+   :macro i=\\n\\e        also allows ¦ (ret) and ¥ (esc)
    :macro j=\\"..        escaped quote can go anywhere
    :macro j= "...       leading space will allow leading "
    all leading, internal, and trailing whitespace is meaningful
@@ -213,9 +272,9 @@ playback, and basic debugging.
    .          play/pause toggle for delay mode
    +          faster execution
    -          slower execution
-   ·          step forward one (space)
+   ¹          step forward one (space)
    ¥          terminate at current point (escape)
-   ¶          run to end at full speed (return)
+   ¦          run to end at full speed (return)
 
 .B special control characters
    see SPECIAL CHARACTERS for what keys will be including in macros to
@@ -230,6 +289,84 @@ playback, and basic debugging.
 .B limits/warnings
    all macros must begin and end in map/god mode
    macros may not call other macros, or themselves
+
+.SH HINTS (sub-mode)
+.na
+.SS ---basics-----------------------------------------------------------------
+ ;;be        go to location labeled with two-letter mark "be"
+.SS ---overview---------------------------------------------------------------
+.B definition (D).  
+hints are two-letter labels, assigned by the application, that act as a
+quick mechanism to identify, access, or move to important locations, items,
+or objects without a pointing device.
+
+.B source/prototype (S).  
+firefox extension called vimperator which appears to have copied from another
+early firefox extention called "hit-a-hint".  the ability i love is called
+extended hints.
+
+.B value (V).   
+rapid idenfification of locations is critical to idenfitying, navigating,
+and accessing locations, items, or objects in an efficient, accurate, and
+confident way.
+
+.B complication (C).  
+this is an uncommon feature.  most users have never had this ability and so
+are are not versed in its use and would likely not understand the value.
+
+.B answer (A).  
+i will standardize "mostly" on the excellent vimperator extended hints
+interface and make it absolutely universal.  this is a very, very powerful
+feature if adapted everywhere.
+
+.B top requirements to get it right
+   -- very easy, quick, and simple interface
+   -- large set of hints to navigate large data sets
+   -- standard rule-sets for marks to make them universal
+
+.SS ---full capabilities------------------------------------------------------
+.B mark list (62 primary, plus previous and special)
+   aa-aZ      general location hints
+   Aa-LZ      compilier, checker, error, feedback hints
+   Ma-ZZ      global search hints
+   [ < > ]    first, prev, next, and last existing hint
+
+.B invocation of sub-mode
+   ;          identify a mark
+   ¥          exits sub-mode early and forgets action
+
+.B focusing on hints
+   ;;be       focus on hint "be"
+   ;¥  ;;¥    clear hint focus and show all hints again
+   ;¦  ;;¦    show/hide hints
+
+.B quick movements
+   ;>         go to the next hint
+   ;[         go to the first hint
+
+.B extended hints actions (potential, future)
+   ;s<cc>     save link destination
+   ;f<cc>     focus and center
+   ;e<cc>     focus and show exploded view
+   ;z<cc>     focus, zoom, and center
+   ;i<cc>     zoom in, and open
+   ;o<cc>     zoom out, and close
+   ;x<cc>     delete
+   ;y<cc>     yank
+   ;p<cc>     paste
+   ;t<cc>     open in another tab
+   ;w<cc>     open in another window
+
+.B showing and debugging all hints
+   ;?         show hint information window
+   ;!         shows hints as the status line (:status hint)
+   ;_         show/hide hints
+
+
+
+
+
+
 
 .SH LOCATION MARKS (sub-mode)
 .na
@@ -265,9 +402,9 @@ port from vimperator.
    -- facility for interactively moving/adjusting marks
 .SS ---full capabilities------------------------------------------------------
 .B mark list (62 primary, plus previous and special)
-   a-z        temporary location marks (never move)
-   A-Z        temporary object/content marks (moving)        [TBD/NYI]
-   0-9        shared, read-only marks across files           [TBD/NYI]
+   a-z        static location marks (never move)
+   A-Z        moving object/content marks (move with object)          [TBD/NYI]
+   0-9        script-only and programming marks (prevent collisions)  [TBD/NYI]
    '          unnamed, from where you jumped to a mark
    * ( )      visual range, top-left, bottom-right (use '* to select)       
    [ < > ]    first, prev, next, and last existing mark
@@ -293,13 +430,13 @@ port from vimperator.
 .B moving marks in wander mode
    '@         move mark under cursor
    ...        basic horizontal and vertical keys to move mark
-   ¶          enter to stop editing, move mark, and exit mode
+   ¦          enter to stop editing, move mark, and exit mode
 
 .B command line
-   :mark a=0a1¶    set mark at an address
-   :mark a=¶       unset a mark  (go to a ('a) and delete ('#))
-   :mark clear¶    unset all lower case marks
-   :mark purge¶    unset all-all marks
+   :mark a=0a1¦    set mark at an address
+   :mark a=¦       unset a mark  (go to a ('a) and delete ('#))
+   :mark clear¦    unset all lower case marks
+   :mark purge¦    unset all-all marks
 
 .B showing and debugging all marks
    m! '!      shows marks as the status line (:status mark)
@@ -308,7 +445,7 @@ port from vimperator.
 .B limits/warnings
    changes to marks can not be undone (they are simple/quick)
 
-.SH BUFFERS and PANELS (sub-mode)
+.SH BUFFERS (AND PANELS) SUB-MODE
 .SS ---basics---------------------------------------------------------
  ,a         switch to the main editing panel
  ,0         switch file labeled 0 into the current panel
@@ -348,14 +485,16 @@ potential panel areas.
 .B standard identifiers
    0-9A-Z     thirty-six (36) standard tabs and/or buffers
    a-z        standard panel/work-area identifiers
+   [ < > ]    first, prev, next, and last buffer
 
 .B switching...
    ,a         switch to primary editing window/panel
    ,0         view the first buffer in current window/panel
+   ']         switch to the last legal buffer/tab
 
 .B information...
-   ,,         display and update buffer window
-   ,?         same as ,,
+   ,,         for applications that can, show all buffers/files
+   ,?         update and show buffer list
    ,!         buffer status line
 
 .B standard windows/panels...

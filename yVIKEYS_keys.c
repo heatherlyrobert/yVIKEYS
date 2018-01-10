@@ -13,10 +13,10 @@ struct cLOCAL {
    char        debug_scale;
    int         logger;
 };
-static tLOCAL its;
-#define     DEBUG_VIKEYS   if (its.debug_keys   == 'y')
-#define     DEBUG_VIMODE   if (its.debug_mode   == 'y')
-#define     DEBUG_VISCAL   if (its.debug_scale  == 'y')
+static tLOCAL nits;
+#define     DEBUG_VIKEYS   if (nits.debug_keys   == 'y')
+#define     DEBUG_VIMODE   if (nits.debug_mode   == 'y')
+#define     DEBUG_VISCAL   if (nits.debug_scale  == 'y')
 
 
 
@@ -49,9 +49,9 @@ yVIKEYS_debug      (char a_flag)
 {
    /*---(set debug flag)-----------------*/
    switch (a_flag) {
-   case 'k' :  its.debug_keys   = 'y';   break;
-   case 'm' :  its.debug_mode   = 'y';   break;
-   case 's' :  its.debug_scale  = 'y';   break;
+   case 'k' :  nits.debug_keys   = 'y';   break;
+   case 'm' :  nits.debug_mode   = 'y';   break;
+   case 's' :  nits.debug_scale  = 'y';   break;
    }
    /*---(complete)-----------------------*/
    return 0;
@@ -148,6 +148,39 @@ yVIKEYS_keys_vert  (char a_minor, double *a_base, double a_inc, double a_min, do
    /*---(complete)-----------------------*/
    DEBUG_VIKEYS yLOG_exit    (__FUNCTION__);
    return rce;
+}
+
+
+
+/*====================------------------------------------====================*/
+/*===----                         unit testing                         ----===*/
+/*====================------------------------------------====================*/
+static void  o___UNIT_TEST_______o () { return; }
+
+char          yVIKEYS__unit_answer [LEN_STR];
+
+char       /*----: set up program urgents/debugging --------------------------*/
+yVIKEYS__unit_quiet    (void)
+{
+   ySTR_debug ('-');
+   nits.logger = yLOG_begin ("yVIKEYS" , yLOG_SYSTEM, yLOG_QUIET);
+   return 0;
+}
+
+char       /*----: set up program urgents/debugging --------------------------*/
+yVIKEYS__unit_loud     (void)
+{
+   ySTR_debug ('y');
+   nits.logger = yLOG_begin ("yVIKEYS" , yLOG_SYSTEM, yLOG_NOISE);
+   DEBUG_VIKEYS yLOG_info     ("yVIKEYS"    , yVIKEYS_version   ());
+   return 0;
+}
+
+char       /*----: stop logging ----------------------------------------------*/
+yVIKEYS__unit_end      (void)
+{
+   yLOG_end     ();
+   return 0;
 }
 
 /*============================----end-of-source---============================*/

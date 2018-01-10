@@ -62,43 +62,93 @@
 #define     SMOD_MENUS     '\\'   /* show menu system                         */
 
 
+/*---(mode)------------*/
+#define     MACRO_OFF          '-'      /* normal keyboard input              */
+#define     MACRO_RUN          'M'      /* macro running with redisplay       */
+#define     MACRO_DELAY        'D'      /* macro delay playback controls      */
+#define     MACRO_PLAYBACK     'P'      /* macro under playback controls      */
+#define     MACRO_RECORD       'r'      /* macro recording                    */
+/*---(conditions)------*/
+#define     IF_MACRO_OFF         if (yVIKEYS_macro_get_mode () == MACRO_OFF      ) 
+#define     IF_MACRO_RUN         if (yVIKEYS_macro_get_mode () == MACRO_RUN      ) 
+#define     IF_MACRO_NOT_RUN     if (yVIKEYS_macro_get_mode () != MACRO_RUN      ) 
+#define     IF_MACRO_DELAY       if (yVIKEYS_macro_get_mode () == MACRO_DELAY    ) 
+#define     IF_MACRO_PLAYBACK    if (yVIKEYS_macro_get_mode () == MACRO_PLAYBACK ) 
+#define     IF_MACRO_MOVING      if (yVIKEYS_macro_get_mode () == MACRO_RUN      || yVIKEYS_macro_get_mode () == MACRO_DELAY   ) 
+#define     IF_MACRO_NOT_PLAYING if (yVIKEYS_macro_get_mode () == MACRO_OFF      || yVIKEYS_macro_get_mode () == MACRO_RECORD  )
+#define     IF_MACRO_PLAYING     if (yVIKEYS_macro_get_mode () != MACRO_OFF      && yVIKEYS_macro_get_mode () != MACRO_RECORD  )
+#define     IF_MACRO_RECORDING   if (yVIKEYS_macro_get_mode () == MACRO_RECORD   ) 
+#define     IF_MACRO_ON          if (yVIKEYS_macro_get_mode () != MACRO_OFF      ) 
+/*---(setting)---------*/
+#define     SET_MACRO_OFF        yVIKEYS_macro_set_mode (MACRO_OFF);
+#define     SET_MACRO_RUN        yVIKEYS_macro_set_mode (MACRO_RUN);
+#define     SET_MACRO_PLAYBACK   yVIKEYS_macro_set_mode (MACRO_PLAYBACK);
+#define     SET_MACRO_DELAY      yVIKEYS_macro_set_mode (MACRO_DELAY);
+#define     SET_MACRO_RECORD     yVIKEYS_macro_set_mode (MACRO_RECORD);
+
+
 extern char yVIKEYS_ver     [500];
 
 /*===[[ FUNCTION PROTOTYPES ]]================================================*/
 /*---(debugging)------------*/
-char*       yVIKEYS_version    (void);
-char        yVIKEYS_debug      (char    a_flag  );
+char*       yVIKEYS_version      (void);
+char        yVIKEYS_debug        (char    a_flag  );
 
 /*---(mode stack)-----------*/
-char        yVIKEYS_mode_init  (void);
-char        yVIKEYS_mode_enter (char    a_mode  );
-char        yVIKEYS_mode_exit  (void);
-char        yVIKEYS_mode_curr  (void);
-char        yVIKEYS_mode_prev  (void);
-char        yVIKEYS_mode_not   (char    a_mode  );
-char        yVIKEYS_mode_list  (char   *a_list  );
-char        yVIKEYS_mode_mesg  (char   *a_mesg   , char   *a_cmd);
+char        yVIKEYS_mode_init    (void);
+char        yVIKEYS_mode_enter   (char    a_mode  );
+char        yVIKEYS_mode_exit    (void);
+char        yVIKEYS_mode_curr    (void);
+char        yVIKEYS_mode_prev    (void);
+char        yVIKEYS_mode_not     (char    a_mode  );
+char        yVIKEYS_mode_list    (char   *a_list  );
+char        yVIKEYS_mode_mesg    (char   *a_mesg   , char   *a_cmd);
+char        yVIKEYS_mode_change  (char a_mode, char *a_allow, char *a_mesg);
 
 /*---(speed)----------------*/
-char        yVIKEYS_speed_set  (char   *a_code   , double *a_waitns);
-char        yVIKEYS_speed_stop (double *a_waitns);
-char        yVIKEYS_speed_play (double *a_waitns);
-char        yVIKEYS_speed_more (double *a_waitns);
-char        yVIKEYS_speed_less (double *a_waitns);
-char        yVIKEYS_speed_desc (char   *a_text  );
-char        yVIKEYS_speed_adv  (double *a_pos   );
+char        yVIKEYS_speed_set    (char   *a_code   , double *a_waitns);
+char        yVIKEYS_speed_stop   (double *a_waitns);
+char        yVIKEYS_speed_play   (double *a_waitns);
+char        yVIKEYS_speed_more   (double *a_waitns);
+char        yVIKEYS_speed_less   (double *a_waitns);
+char        yVIKEYS_speed_desc   (char   *a_text  );
+char        yVIKEYS_speed_adv    (double *a_pos   );
 
 /*---(scale)----------------*/
-char        yVIKEYS_scale_set  (char   *a_code   , double *a_inc);
-char        yVIKEYS_scale_more (double *a_inc   );
-char        yVIKEYS_scale_less (double *a_inc   );
-char        yVIKEYS_scale_desc (char   *a_text  );
-char        yVIKEYS_scale_base (double *a_multi  , char   *a_base);
+char        yVIKEYS_scale_set    (char   *a_code   , double *a_inc);
+char        yVIKEYS_scale_more   (double *a_inc   );
+char        yVIKEYS_scale_less   (double *a_inc   );
+char        yVIKEYS_scale_desc   (char   *a_text  );
+char        yVIKEYS_scale_base   (double *a_multi  , char   *a_base);
 
 /*---(keys)-----------------*/
-char        yVIKEYS_keys_horz  (char a_minor, double *a_base, double a_inc, double a_min, double a_max);
-char        yVIKEYS_keys_vert  (char a_minor, double *a_base, double a_inc, double a_min, double a_max);
-char        yVIKEYS_keys_zoom  (char a_minor, double *a_base, double a_inc, double a_min, double a_max);
+char        yVIKEYS_keys_horz    (char a_minor, double *a_base, double a_inc, double a_min, double a_max);
+char        yVIKEYS_keys_vert    (char a_minor, double *a_base, double a_inc, double a_min, double a_max);
+char        yVIKEYS_keys_zoom    (char a_minor, double *a_base, double a_inc, double a_min, double a_max);
+
+/*---(macros)---------------*/
+char        yVIKEYS_macro_init      (void *a_loader, void *a_saver);
+char        yVIKEYS_macro_wrap      (void);
+char        yVIKEYS_macro_reset     (void);
+char        yVIKEYS_macro_rec_key   (char a_key);
+char        yVIKEYS_macro_rec_end   (void);
+char        yVIKEYS_macro_define    (char *a_string);
+char        yVIKEYS_macro_exec_beg  (char a_name);
+char        yVIKEYS_macro_exec_adv  (void);
+char        yVIKEYS_macro_exec_wait (void);
+char        yVIKEYS_macro_exec_key  (void);
+char        yVIKEYS_macro_exec_play (char a_key);
+char        yVIKEYS_macro_smode     (char a_major, char a_minor);
+char        yVIKEYS_macro_get_mode  ();
+char        yVIKEYS_macro_set_mode  (char a_mode);
+
+/*---(sub-modes)------------*/
+char        yVIKEYS_repeat_init     (void);
+char        yVIKEYS_repeat_umode    (char a_major, char a_minor);
+char        yVIKEYS_repeat_norm     (void);
+char        yVIKEYS_repeat_dec      (void);
+char        yVIKEYS_repeat_macro    (void);
+int         yVIKEYS_repeat_value    (void);
 
 
 #endif

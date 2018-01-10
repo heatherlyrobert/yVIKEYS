@@ -242,6 +242,31 @@ yVIKEYS_mode_mesg  (char *a_mesg, char *a_cmd)
    return 0;
 }
 
+char
+yVIKEYS_mode_change  (char a_mode, char *a_allow, char *a_mesg)
+{
+   /*---(locals)-----------+-----------+-*/
+   char        rce         = -10;
+   int         i           = 0;
+   int         x_mode      = -1;
+   /*---(find)---------------------------*/
+   for (i = 0; i < MAX_MODES; ++i) {
+      if (s_mode_info[i].abbr == '-'   )   break;
+      if (s_mode_info[i].abbr != a_mode)   continue;
+      x_mode = i;
+   }
+   --rce;  if (x_mode < 0)  return rce;
+   /*---(update)-------------------------*/
+   if (a_allow  != NULL) {
+      strlcpy (s_mode_info [x_mode].allow, a_allow, 25);
+   }
+   if (a_mesg  != NULL) {
+      strlcpy (s_mode_info [x_mode].mesg , a_mesg , LEN_STR);
+   }
+   /*---(complete)-----------------------*/
+   return 0;
+}
+
 
 
 /*============================----end-of-source---============================*/
