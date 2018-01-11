@@ -91,19 +91,19 @@ extern char yVIKEYS_ver     [500];
 
 /*===[[ FUNCTION PROTOTYPES ]]================================================*/
 /*---(debugging)------------*/
-char*       yVIKEYS_version      (void);
-char        yVIKEYS_debug        (char    a_flag  );
+char*       yVIKEYS_version        (void);
+char        yVIKEYS_debug          (char    a_flag  );
 
 /*---(mode stack)-----------*/
-char        yVIKEYS_mode_init    (void);
-char        yVIKEYS_mode_enter   (char    a_mode  );
-char        yVIKEYS_mode_exit    (void);
-char        yVIKEYS_mode_curr    (void);
-char        yVIKEYS_mode_prev    (void);
-char        yVIKEYS_mode_not     (char    a_mode  );
-char        yVIKEYS_mode_list    (char   *a_list  );
-char        yVIKEYS_mode_mesg    (char   *a_mesg   , char   *a_cmd);
-char        yVIKEYS_mode_change  (char a_mode, char *a_allow, char *a_mesg);
+char        yVIKEYS_mode_init      (void);
+char        yVIKEYS_mode_enter     (char    a_mode  );
+char        yVIKEYS_mode_exit      (void);
+char        yVIKEYS_mode_curr      (void);
+char        yVIKEYS_mode_prev      (void);
+char        yVIKEYS_mode_not       (char    a_mode  );
+char        yVIKEYS_mode_list      (char   *a_list  );
+char        yVIKEYS_mode_mesg      (char   *a_mesg   , char   *a_cmd);
+char        yVIKEYS_mode_change    (char a_mode, char *a_allow, char *a_mesg);
 
 /*---(speed)----------------*/
 char        yVIKEYS_speed_set    (char   *a_code   , double *a_waitns);
@@ -150,6 +150,16 @@ char        yVIKEYS_repeat_dec      (void);
 char        yVIKEYS_repeat_macro    (void);
 int         yVIKEYS_repeat_value    (void);
 
+/*---(commands)-------------*/
+char        yVIKEYS_cmds_init       (void);
+char        yVIKEYS_cmds_wrap       (void);
+int         yVIKEYS_cmds_find       (char *a_name);
+char        yVIKEYS_cmds_add        (char a_cat, char *a_name, char *a_abbr, char *a_terms, void *a_func, char *a_desc);
+char        yVIKEYS_cmds_start      (void);
+char        yVIKEYS_cmds_clear      (void);
+char*       yVIKEYS_cmds_curr       (void);
+char        yVIKEYS_cmds_exec       (void);
+char        yVIKEYS_cmds_mode       (char a_major, char a_minor);
 
 #endif
 /*============================----end-of-source---============================*/

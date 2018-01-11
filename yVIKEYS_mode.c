@@ -267,6 +267,22 @@ yVIKEYS_mode_change  (char a_mode, char *a_allow, char *a_mesg)
    return 0;
 }
 
+char*        /*-> unit test accessor -----------------[ light  [us.420.111.11]*/ /*-[01.0000.00#.Z]-*/ /*-[--.---.---.--]-*/
+yVIKEYS__mode_unit     (char *a_question)
+{
+   /*---(locals)-----------+-----------+-*/
+   char        x_list      [LEN_STR];
+   /*---(preprare)-----------------------*/
+   strcpy  (yVIKEYS__unit_answer, "MODE unit        : question not understood");
+   /*---(selection)----------------------*/
+   if      (strcmp (a_question, "stack"        )  == 0) {
+      yVIKEYS_mode_list (x_list);
+      snprintf (yVIKEYS__unit_answer, LEN_STR, "MODE stack       : %s", x_list);
+   }
+   /*---(complete)-----------------------*/
+   return yVIKEYS__unit_answer;
+}
+
 
 
 /*============================----end-of-source---============================*/

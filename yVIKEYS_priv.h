@@ -26,8 +26,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.5r"
-#define YVIKEYS_VER_TXT   "moved all gyges repeat and macro in, and unit tested ;)"
+#define YVIKEYS_VER_NUM   "0.5s"
+#define YVIKEYS_VER_TXT   "moved all 90p of command function from gyges; unit tested"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -61,10 +61,12 @@ typedef     signed char       schar;
 
 
 extern char yVIKEYS__unit_answer [LEN_STR];
-char*       yVIKEYS__macro_unit     (char *a_question, char a_macro);
 char        yVIKEYS__unit_quiet     (void);
 char        yVIKEYS__unit_loud      (void);
 char        yVIKEYS__unit_end       (void);
+char*       yVIKEYS__macro_unit     (char *a_question, char a_macro);
+char*       yVIKEYS__mode_unit     (char *a_question);
+char*       yVIKEYS__cmds_unit      (char *a_question, char a_index);
 
 /*---(program)--------------*/
 char        yVIKEYS__macro_clear    (char a_macro);
@@ -80,6 +82,18 @@ char        yVIKEYS__macro_rec_str  (char *a_keys);
 /*---(execute)--------------*/
 char        yVIKEYS__macro_delay    (char a_delay);
 char        yVIKEYS__macro_exec_ctl (char a_key);
+
+
+char        yVIKEYS__cmds_test      (char a_mode, char a_value);
+
+
+
+#define    ACTION_FIND     'f'
+#define    ACTION_ADD      '+'
+#define    ACTION_DEL      '-'
+
+
+
 
 #endif
 /*============================----end-of-source---============================*/
