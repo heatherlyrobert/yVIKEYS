@@ -186,7 +186,7 @@ yVIKEYS_cmds_curr       (void)
 }
 
 char
-yVIKEYS_cmds_direct     (char *a_command)
+yVIKEYS__cmds_load      (char *a_command)
 {
    yVIKEYS_cmds_clear ();
    if (a_command != NULL) {
@@ -194,6 +194,13 @@ yVIKEYS_cmds_direct     (char *a_command)
       s_clen = strllen (s_command, LEN_COMMAND);
    }
    return 0;
+}
+
+char
+yVIKEYS_cmds_direct     (char *a_command)
+{
+   yVIKEYS__cmds_load (a_command);
+   return yVIKEYS_cmds_exec ();
 }
 
 char
@@ -364,6 +371,7 @@ yVIKEYS__cmds_parse   (void)
       if (p == NULL)  break;
    }
    /*---(complete)-----------------------*/
+   DEBUG_USER   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -458,6 +466,7 @@ yVIKEYS_cmds_mode     (char a_major, char a_minor)
    }
    --rce;  if (a_major != ':') {
       DEBUG_USER   yLOG_note    ("a_major is not a colon (:)");
+      yVIKEYS_mode_exit ();
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return 0;
    }
@@ -529,7 +538,7 @@ yVIKEYS_cmds_mode     (char a_major, char a_minor)
    DEBUG_USER   yLOG_value   ("s_clen"    , s_clen);
    /*---(complete)-----------------------*/
    DEBUG_USER   yLOG_exit    (__FUNCTION__);
-   return 0;
+   return a_major;
 }
 
 

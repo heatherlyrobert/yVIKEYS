@@ -159,6 +159,7 @@ char        yVIKEYS_cmds_start      (void);
 char        yVIKEYS_cmds_clear      (void);
 char*       yVIKEYS_cmds_curr       (void);
 char        yVIKEYS_cmds_exec       (void);
+char        yVIKEYS_cmds_direct     (char *a_command);
 char        yVIKEYS_cmds_mode       (char a_major, char a_minor);
 
 #endif

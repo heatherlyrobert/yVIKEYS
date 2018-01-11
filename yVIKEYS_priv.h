@@ -26,8 +26,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.5s"
-#define YVIKEYS_VER_TXT   "moved all 90p of command function from gyges; unit tested"
+#define YVIKEYS_VER_NUM   "0.5t"
+#define YVIKEYS_VER_TXT   "gyges now uses commands from vi_keys"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -84,6 +84,7 @@ char        yVIKEYS__macro_delay    (char a_delay);
 char        yVIKEYS__macro_exec_ctl (char a_key);
 
 
+char        yVIKEYS__cmds_load      (char *a_command);
 char        yVIKEYS__cmds_test      (char a_mode, char a_value);
 
 
