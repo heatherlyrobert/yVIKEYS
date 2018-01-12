@@ -26,8 +26,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.5t"
-#define YVIKEYS_VER_TXT   "gyges now uses commands from vi_keys"
+#define YVIKEYS_VER_NUM   "0.5u"
+#define YVIKEYS_VER_TXT   "basic search capability is built and unit tested (not exec)"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -44,6 +44,8 @@
 
 typedef    struct    cSHARED    tSHARED;
 struct cSHARED {
+   /*---(debugging)-------*/
+   int         logger;
    /*---(repeating)-------*/
    char        repeat;         /* multiplier for normal keys                  */
    char        repeat_macro;   /* multiplier for macro execution              */
@@ -64,9 +66,10 @@ extern char yVIKEYS__unit_answer [LEN_STR];
 char        yVIKEYS__unit_quiet     (void);
 char        yVIKEYS__unit_loud      (void);
 char        yVIKEYS__unit_end       (void);
+char*       yVIKEYS__mode_unit      (char *a_question);
 char*       yVIKEYS__macro_unit     (char *a_question, char a_macro);
-char*       yVIKEYS__mode_unit     (char *a_question);
 char*       yVIKEYS__cmds_unit      (char *a_question, char a_index);
+char*       yVIKEYS__srch_unit      (char *a_question, char a_index);
 
 /*---(program)--------------*/
 char        yVIKEYS__macro_clear    (char a_macro);
@@ -87,6 +90,7 @@ char        yVIKEYS__macro_exec_ctl (char a_key);
 char        yVIKEYS__cmds_load      (char *a_command);
 char        yVIKEYS__cmds_test      (char a_mode, char a_value);
 
+char        yVIKEYS__srch_purge     (void);
 
 
 #define    ACTION_FIND     'f'

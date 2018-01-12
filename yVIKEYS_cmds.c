@@ -113,6 +113,183 @@ static char      s_all       [LEN_COMMAND]       = "";
 
 
 
+
+/*===[[ SEARCH ]]=============================================================*/
+#define     LEN_SEARCH     2000
+static char s_search     [LEN_SEARCH];
+static int  s_slen       = 0;
+
+
+
+#define   MAX_SRCH    2000
+void     *s_srch      [MAX_SRCH];
+int       s_nsrch     = 0;
+
+char    (*s_searcher) (char *a_search);
+
+static char s_quoted    = '-';
+static char s_escaped   = '-';
+
+
+/*====================------------------------------------====================*/
+/*===----                        search bar                            ----===*/
+/*====================------------------------------------====================*/
+static void  o___SEARCH__________o () { return; }
+
+char
+yVIKEYS_srch_init       (void *a_searcher)
+{
+   yVIKEYS_srch_clear  ();
+   yVIKEYS__srch_purge ();
+   s_searcher = a_searcher;
+   return 0;
+}
+
+char
+yVIKEYS__srch_purge     (void)
+{
+   int         i           = 0;
+   s_nsrch = 0;
+   for (i = 0; i < MAX_SRCH; ++i)  s_srch [i] = NULL;
+   return 0;
+}
+
+char
+yVIKEYS_srch_wrap    (void)
+{
+   yVIKEYS_srch_clear ();
+   yVIKEYS__srch_purge ();
+   return 0;
+}
+
+char
+yVIKEYS_srch_start   (void)
+{
+   strncpy     (s_search , "/", LEN_RECD);
+   s_slen = 1;
+   yVIKEYS__srch_purge ();
+   s_quoted  = '-';
+   s_escaped = '-';
+   return 0;
+}
+
+char
+yVIKEYS_srch_clear   (void)
+{
+   strncpy     (s_search , "" , LEN_RECD);
+   s_slen = 0;
+   yVIKEYS__srch_purge ();
+   s_quoted  = '-';
+   s_escaped = '-';
+   return 0;
+}
+
+char*
+yVIKEYS_srch_curr    (void)
+{
+   return s_search;
+}
+
+char
+yVIKEYS_srch_found   (void *a_match)
+{
+   s_srch [s_nsrch] = a_match;
+   ++s_nsrch;
+   return 0;
+}
+
+char
+yVIKEYS_srch_exec    (void)
+{
+   return 0;
+}
+
+char         /*-> process keys for searching ---------[ ------ [gc.LE5.266.I3]*/ /*-[05.0000.102.M]-*/ /*-[--.---.---.--]-*/
+yVIKEYS_srch_mode       (char a_major, char a_minor)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        x_temp      [11]        = "";
+   char        rc          =    0;
+   /*---(header)--------------------s----*/
+   DEBUG_USER   yLOG_enter   (__FUNCTION__);
+   DEBUG_USER   yLOG_value   ("a_major"   , a_major);
+   DEBUG_USER   yLOG_value   ("a_minor"   , a_minor);
+   /*---(defense)------------------------*/
+   DEBUG_USER   yLOG_char    ("mode"      , yVIKEYS_mode_curr ());
+   --rce;  if (yVIKEYS_mode_not (MODE_SEARCH )) {
+      DEBUG_USER   yLOG_note    ("not the correct mode");
+      DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   --rce;  if (a_major != '/') {
+      DEBUG_USER   yLOG_note    ("a_major is not a slash (/)");
+      yVIKEYS_mode_exit ();
+      DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(get existing len)---------------*/
+   DEBUG_USER   yLOG_info    ("s_search"  , s_search);
+   DEBUG_USER   yLOG_value   ("s_slen"    , s_slen);
+   /*---(check for special codes)--------*/
+   if (s_escaped != 'y' && a_minor == G_KEY_BSLASH) {
+      s_escaped = 'y';
+      DEBUG_USER   yLOG_note    ("begin escaped character");
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return a_major;
+   } else if (s_escaped == 'y') {
+      s_escaped = '-';
+      DEBUG_USER   yLOG_note    ("convert escaped character");
+      a_minor = strslashed (a_minor);
+   }
+   /*---(check for control keys)---------*/
+   switch (a_minor) {
+   case   G_KEY_RETURN :
+      yVIKEYS_mode_exit ();
+      rc = yVIKEYS_srch_exec ();
+      yVIKEYS_srch_clear ();
+      DEBUG_USER   yLOG_note    ("return, execute search");
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return rc;   /* return  */
+   case   G_KEY_ESCAPE :
+      yVIKEYS_mode_exit ();
+      yVIKEYS_srch_clear ();
+      DEBUG_USER   yLOG_note    ("escape, ignore search");
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
+   /*---(check for backspace)------------*/
+   if (a_minor == G_KEY_DEL || a_minor == G_KEY_BS) {
+      DEBUG_USER   yLOG_note    ("bs/del, remove character");
+      --s_slen;
+      if (s_search [s_slen] == G_KEY_DQUOTE) {
+         if (s_quoted == 'y')  s_quoted = '-';
+         else                  s_quoted = 'y';
+      }
+      if (s_slen < 1)   s_slen = 1;
+      s_search [s_slen] = '\0';
+      DEBUG_USER   yLOG_info    ("s_search"  , s_search);
+      DEBUG_USER   yLOG_value   ("s_slen"    , s_slen);
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return a_major;
+   }
+   /*---(char fixing)--------------------*/
+   a_minor = strvisible (a_minor);
+   /*---(normal characters)--------------*/
+   DEBUG_USER   yLOG_note    ("update search line");
+   snprintf (x_temp, 10, "%c", a_minor);
+   strcat   (s_search, x_temp);
+   ++s_slen;
+   DEBUG_USER   yLOG_info    ("s_search"  , s_search);
+   DEBUG_USER   yLOG_value   ("s_slen"    , s_slen);
+   /*---(complete)-----------------------*/
+   DEBUG_USER   yLOG_exit    (__FUNCTION__);
+   return a_major;
+}
+
+
+
+
 /*====================------------------------------------====================*/
 /*===----                        command line                          ----===*/
 /*====================------------------------------------====================*/
@@ -168,6 +345,8 @@ yVIKEYS_cmds_start      (void)
 {
    strlcpy     (s_command , ":", LEN_COMMAND);
    s_clen = 1;
+   s_quoted  = '-';
+   s_escaped = '-';
    return 0;
 }
 
@@ -176,6 +355,8 @@ yVIKEYS_cmds_clear      (void)
 {
    strlcpy     (s_command , "" , LEN_COMMAND);
    s_clen = 0;
+   s_quoted  = '-';
+   s_escaped = '-';
    return 0;
 }
 
@@ -450,9 +631,6 @@ yVIKEYS_cmds_mode     (char a_major, char a_minor)
    char        rce         =  -10;
    char        x_temp      [11]        = "";
    char        rc          =    0;
-   char        x_majors    [LEN_LABEL] = ": ";
-   static char x_quoted    = '-';
-   static char x_escaped   = '-';
    /*---(header)-------------------------*/
    DEBUG_USER   yLOG_enter   (__FUNCTION__);
    DEBUG_USER   yLOG_value   ("a_major"   , a_major);
@@ -461,42 +639,42 @@ yVIKEYS_cmds_mode     (char a_major, char a_minor)
    DEBUG_USER   yLOG_char    ("mode"      , yVIKEYS_mode_curr ());
    --rce;  if (yVIKEYS_mode_not (MODE_COMMAND)) {
       DEBUG_USER   yLOG_note    ("not the correct mode");
-      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    --rce;  if (a_major != ':') {
       DEBUG_USER   yLOG_note    ("a_major is not a colon (:)");
       yVIKEYS_mode_exit ();
-      DEBUG_USER   yLOG_exit    (__FUNCTION__);
-      return 0;
+      DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
    }
    /*---(get existing len)---------------*/
    DEBUG_USER   yLOG_info    ("s_command" , s_command);
    s_clen = strllen (s_command, LEN_COMMAND);
    DEBUG_USER   yLOG_value   ("s_clen"    , s_clen);
    /*---(check for quoting)--------------*/
-   if (x_escaped != 'y' && a_minor == G_KEY_DQUOTE) {
-      if (x_quoted != 'y') {
+   if (s_escaped != 'y' && a_minor == G_KEY_DQUOTE) {
+      if (s_quoted != 'y') {
          DEBUG_USER   yLOG_note    ("entering quoted string");
-         x_quoted = 'y';
+         s_quoted = 'y';
       } else {
          DEBUG_USER   yLOG_note    ("exiting quoted string");
-         x_quoted = '-';
+         s_quoted = '-';
       }
    }
    /*---(check for special codes)--------*/
-   if (x_escaped != 'y' && a_minor == G_KEY_BSLASH) {
-      x_escaped = 'y';
+   if (s_escaped != 'y' && a_minor == G_KEY_BSLASH) {
+      s_escaped = 'y';
       DEBUG_USER   yLOG_note    ("begin escaped character");
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
-      return 0;
-   } else if (x_escaped == 'y') {
-      x_escaped = '-';
+      return a_major;
+   } else if (s_escaped == 'y') {
+      s_escaped = '-';
       DEBUG_USER   yLOG_note    ("convert escaped character");
       a_minor = strslashed (a_minor);
    }
    /*---(check for control keys)---------*/
-   if (x_quoted != 'y') {
+   if (s_quoted != 'y') {
       switch (a_minor) {
       case   G_KEY_RETURN : case   G_KEY_ENTER  :
          DEBUG_USER   yLOG_note    ("return/enter, execute command");
@@ -517,15 +695,15 @@ yVIKEYS_cmds_mode     (char a_major, char a_minor)
       DEBUG_USER   yLOG_note    ("bs/del, remove character");
       --s_clen;
       if (s_command [s_clen] == G_KEY_DQUOTE) {
-         if (x_quoted == 'y')  x_quoted = '-';
-         else                  x_quoted = 'y';
+         if (s_quoted == 'y')  s_quoted = '-';
+         else                  s_quoted = 'y';
       }
-      if (s_clen < 0)   s_clen = 0;
+      if (s_clen < 1)   s_clen = 1;
       s_command [s_clen] = '\0';
       DEBUG_USER   yLOG_info    ("s_command" , s_command);
       DEBUG_USER   yLOG_value   ("s_clen"    , s_clen);
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
-      return 0;
+      return a_major;
    }
    /*---(char fixing)--------------------*/
    a_minor = strvisible (a_minor);
@@ -584,6 +762,19 @@ yVIKEYS__cmds_unit      (char *a_question, char a_index)
    }
    else if (strcmp (a_question, "command"        )   == 0) {
       snprintf (yVIKEYS__unit_answer, LEN_COMMAND, "CMDS command (%2d): %c %-12.12s %-4.4s %-4.4s %3s", a_index, s_cmds [a_index].menu, s_cmds [a_index].name, s_cmds [a_index].abbr, s_cmds [a_index].terms, (s_cmds [a_index].f.v == NULL) ? "---" : "SET");
+   }
+   /*---(complete)-----------------------*/
+   return yVIKEYS__unit_answer;
+}
+
+char*        /*-> tbd --------------------------------[ leaf   [gs.520.202.40]*/ /*-[01.0000.00#.#]-*/ /*-[--.---.---.--]-*/
+yVIKEYS__srch_unit      (char *a_question, char a_index)
+{
+   /*---(preprare)-----------------------*/
+   strlcpy  (yVIKEYS__unit_answer, "SRCH unit        : question not understood", LEN_STR);
+   /*---(dependency list)----------------*/
+   if      (strcmp (a_question, "global"         )   == 0) {
+      snprintf (yVIKEYS__unit_answer, LEN_COMMAND, "SRCH global      : %2d[%-.40s]", s_slen, s_search);
    }
    /*---(complete)-----------------------*/
    return yVIKEYS__unit_answer;
