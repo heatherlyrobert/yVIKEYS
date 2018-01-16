@@ -808,22 +808,22 @@ yVIKEYS__cmds_unit      (char *a_question, char a_index)
    strlcpy  (yVIKEYS__unit_answer, "CMDS unit        : question not understood", LEN_STR);
    /*---(dependency list)----------------*/
    if      (strcmp (a_question, "global"         )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_COMMAND, "CMDS global      : %2d %2d[%-.40s]", s_ncmd, s_clen, s_command);
+      snprintf (yVIKEYS__unit_answer, LEN_STR, "CMDS global      : %2d %2d[%-.40s]", s_ncmd, s_clen, s_command);
    }
    else if (strcmp (a_question, "menu_count"     )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_COMMAND, "CMDS menu count  : %d", s_nmenu);
+      snprintf (yVIKEYS__unit_answer, LEN_STR, "CMDS menu count  : %d", s_nmenu);
    }
    else if (strcmp (a_question, "menu"           )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_COMMAND, "CMDS menu    (%2d): %c %-12.12s %d", a_index, s_menus [a_index].abbr, s_menus [a_index].name, s_menus [a_index].count);
+      snprintf (yVIKEYS__unit_answer, LEN_STR, "CMDS menu    (%2d): %c %-12.12s %d", a_index, s_menus [a_index].abbr, s_menus [a_index].name, s_menus [a_index].count);
    }
    else if (strcmp (a_question, "term_count"     )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_COMMAND, "CMDS term count  : %d", s_nterm);
+      snprintf (yVIKEYS__unit_answer, LEN_STR, "CMDS term count  : %d", s_nterm);
    }
    else if (strcmp (a_question, "term"           )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_COMMAND, "CMDS term    (%2d): %-5.5s %-30.30s %d", a_index, s_terms [a_index].name, s_terms [a_index].disp, s_terms [a_index].count);
+      snprintf (yVIKEYS__unit_answer, LEN_STR, "CMDS term    (%2d): %-5.5s %-30.30s %d", a_index, s_terms [a_index].name, s_terms [a_index].disp, s_terms [a_index].count);
    }
    else if (strcmp (a_question, "command"        )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_COMMAND, "CMDS command (%2d): %c %-12.12s %-4.4s %-4.4s %3s", a_index, s_cmds [a_index].menu, s_cmds [a_index].name, s_cmds [a_index].abbr, s_cmds [a_index].terms, (s_cmds [a_index].f.v == NULL) ? "---" : "SET");
+      snprintf (yVIKEYS__unit_answer, LEN_STR, "CMDS command (%2d): %c %-12.12s %-4.4s %-4.4s %3s", a_index, s_cmds [a_index].menu, s_cmds [a_index].name, s_cmds [a_index].abbr, s_cmds [a_index].terms, (s_cmds [a_index].f.v == NULL) ? "---" : "SET");
    }
    /*---(complete)-----------------------*/
    return yVIKEYS__unit_answer;
@@ -836,7 +836,7 @@ yVIKEYS__srch_unit      (char *a_question, char a_index)
    strlcpy  (yVIKEYS__unit_answer, "SRCH unit        : question not understood", LEN_STR);
    /*---(dependency list)----------------*/
    if      (strcmp (a_question, "global"         )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_COMMAND, "SRCH global      : %2d[%-.40s]", s_slen, s_search);
+      snprintf (yVIKEYS__unit_answer, LEN_STR, "SRCH global      : %2d[%-.40s]", s_slen, s_search);
    }
    /*---(complete)-----------------------*/
    return yVIKEYS__unit_answer;

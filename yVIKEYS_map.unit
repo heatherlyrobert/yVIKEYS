@@ -66,7 +66,7 @@ SCRP          v21  (MACRO ) verify simple mapping linear moves                
 
    COND       v21  move back one                                                      - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.014))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      exec     v21  call the move routine                yVIKEYS__map_move           &x_index    , &x_grid     , 1           , &x_map                        i_equal     0                                                                                                    
-     echo     v21  check the new index                  - - - - - - - - - -         x_index                                                                 i_equal     15                                                                                                   
+     echo     v21  check the new index                  - - - - - - - - - -         x_index                                                                 i_equal     8                                                                                                    
      echo     v21  check the new grid postition         - - - - - - - - - -         x_grid                                                                  i_equal     1                                                                                                    
 
    COND       v21  move five greater                                                  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.014))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
@@ -76,18 +76,46 @@ SCRP          v21  (MACRO ) verify simple mapping linear moves                
 
    COND       v21  move past end                                                      - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.014))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      exec     v21  call the move routine                yVIKEYS__map_move           &x_index    , &x_grid     , 20          , &x_map                        i_equal     1                                                                                                    
-     echo     v21  check the new index                  - - - - - - - - - -         x_index                                                                 i_equal     63                                                                                                   
+     echo     v21  check the new index                  - - - - - - - - - -         x_index                                                                 i_equal     56                                                                                                   
      echo     v21  check the new grid postition         - - - - - - - - - -         x_grid                                                                  i_equal     7                                                                                                    
 
    COND       v21  move to beginning                                                  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.014))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      exec     v21  call the move routine                yVIKEYS__map_move           &x_index    , &x_grid     , 0           , &x_map                        i_equal     0                                                                                                    
-     echo     v21  check the new index                  - - - - - - - - - -         x_index                                                                 i_equal     7                                                                                                    
+     echo     v21  check the new index                  - - - - - - - - - -         x_index                                                                 i_equal     0                                                                                                    
      echo     v21  check the new grid postition         - - - - - - - - - -         x_grid                                                                  i_equal     0                                                                                                    
 
    COND       v21  move to before beginning                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.014))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      exec     v21  call the move routine                yVIKEYS__map_move           &x_index    , &x_grid     , -1          , &x_map                        i_equal     1                                                                                                    
      echo     v21  check the new index                  - - - - - - - - - -         x_index                                                                 i_equal     0                                                                                                    
      echo     v21  check the new grid postition         - - - - - - - - - -         x_grid                                                                  i_equal     0                                                                                                    
+
+   GROUP      v21  try some situations with wonky input data                          - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+
+   COND       v21  give it a grid out-of-snyc with the index (high)                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.014))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+     code     v21  set grid position                    - - - - - - - - - -         x_grid    = 5;                                                                                                                                                                               
+     exec     v21  call the move routine                yVIKEYS__map_move           &x_index    , &x_grid     , 2           , &x_map                        i_equal     0                                                                                                    
+     echo     v21  check the new index                  - - - - - - - - - -         x_index                                                                 i_equal     16                                                                                                   
+     echo     v21  check the new grid postition         - - - - - - - - - -         x_grid                                                                  i_equal     2                                                                                                    
+
+   COND       v21  give it a grid out-of-snyc with the index (low)                    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.014))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+     code     v21  set grid position                    - - - - - - - - - -         x_grid    = 0;                                                                                                                                                                               
+     exec     v21  call the move routine                yVIKEYS__map_move           &x_index    , &x_grid     , 3           , &x_map                        i_equal     0                                                                                                    
+     echo     v21  check the new index                  - - - - - - - - - -         x_index                                                                 i_equal     24                                                                                                   
+     echo     v21  check the new grid postition         - - - - - - - - - -         x_grid                                                                  i_equal     3                                                                                                    
+
+   COND       v21  give it a negative index                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.014))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+     code     v21  set index                            - - - - - - - - - -         x_index   = -100;                                                                                                                                                                            
+     code     v21  set grid position                    - - - - - - - - - -         x_grid    = 5;                                                                                                                                                                               
+     exec     v21  call the move routine                yVIKEYS__map_move           &x_index    , &x_grid     , 2           , &x_map                        i_equal     0                                                                                                    
+     echo     v21  check the new index                  - - - - - - - - - -         x_index                                                                 i_equal     16                                                                                                   
+     echo     v21  check the new grid postition         - - - - - - - - - -         x_grid                                                                  i_equal     2                                                                                                    
+
+   COND       v21  give it a massive index                                            - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.014))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+     code     v21  set index                            - - - - - - - - - -         x_index   = 1000;                                                                                                                                                                            
+     code     v21  set grid position                    - - - - - - - - - -         x_grid    = 1;                                                                                                                                                                               
+     exec     v21  call the move routine                yVIKEYS__map_move           &x_index    , &x_grid     , 1           , &x_map                        i_equal     0                                                                                                    
+     echo     v21  check the new index                  - - - - - - - - - -         x_index                                                                 i_equal     8                                                                                                    
+     echo     v21  check the new grid postition         - - - - - - - - - -         x_grid                                                                  i_equal     1                                                                                                    
 
    GROUP      v21  now move around in a non-uniform map (ascending sizes)             - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
@@ -108,7 +136,7 @@ SCRP          v21  (MACRO ) verify simple mapping linear moves                
 
    COND       v21  move back one                                                      - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.014))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      exec     v21  call the move routine                yVIKEYS__map_move           &x_index    , &x_grid     , 1           , &x_map                        i_equal     0                                                                                                    
-     echo     v21  check the new index                  - - - - - - - - - -         x_index                                                                 i_equal     2                                                                                                    
+     echo     v21  check the new index                  - - - - - - - - - -         x_index                                                                 i_equal     1                                                                                                    
      echo     v21  check the new grid postition         - - - - - - - - - -         x_grid                                                                  i_equal     1                                                                                                    
 
    COND       v21  move five greater                                                  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.014))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
@@ -118,7 +146,7 @@ SCRP          v21  (MACRO ) verify simple mapping linear moves                
 
    COND       v21  move past end                                                      - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.014))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      exec     v21  call the move routine                yVIKEYS__map_move           &x_index    , &x_grid     , 20          , &x_map                        i_equal     1                                                                                                    
-     echo     v21  check the new index                  - - - - - - - - - -         x_index                                                                 i_equal     35                                                                                                   
+     echo     v21  check the new index                  - - - - - - - - - -         x_index                                                                 i_equal     28                                                                                                   
      echo     v21  check the new grid postition         - - - - - - - - - -         x_grid                                                                  i_equal     7                                                                                                    
 
    COND       v21  move to beginning                                                  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.014))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
@@ -150,7 +178,7 @@ SCRP          v21  (MACRO ) verify simple mapping linear moves                
 
    COND       v21  move back one                                                      - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.014))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      exec     v21  call the move routine                yVIKEYS__map_move           &x_index    , &x_grid     , 1           , &x_map                        i_equal     0                                                                                                    
-     echo     v21  check the new index                  - - - - - - - - - -         x_index                                                                 i_equal     14                                                                                                   
+     echo     v21  check the new index                  - - - - - - - - - -         x_index                                                                 i_equal     8                                                                                                    
      echo     v21  check the new grid postition         - - - - - - - - - -         x_grid                                                                  i_equal     1                                                                                                    
 
    COND       v21  move five greater                                                  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.014))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
@@ -165,7 +193,7 @@ SCRP          v21  (MACRO ) verify simple mapping linear moves                
 
    COND       v21  move to beginning                                                  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.014))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      exec     v21  call the move routine                yVIKEYS__map_move           &x_index    , &x_grid     , 0           , &x_map                        i_equal     0                                                                                                    
-     echo     v21  check the new index                  - - - - - - - - - -         x_index                                                                 i_equal     7                                                                                                    
+     echo     v21  check the new index                  - - - - - - - - - -         x_index                                                                 i_equal     0                                                                                                    
      echo     v21  check the new grid postition         - - - - - - - - - -         x_grid                                                                  i_equal     0                                                                                                    
 
    COND       v21  move to before beginning                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.014))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
@@ -192,7 +220,7 @@ SCRP          v21  (MACRO ) verify simple mapping linear moves                
 
    COND       v21  move back one                                                      - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.014))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      exec     v21  call the move routine                yVIKEYS__map_move           &x_index    , &x_grid     , -2          , &x_map                        i_equal     0                                                                                                    
-     echo     v21  check the new index                  - - - - - - - - - -         x_index                                                                 i_equal     15                                                                                                   
+     echo     v21  check the new index                  - - - - - - - - - -         x_index                                                                 i_equal     8                                                                                                    
      echo     v21  check the new grid postition         - - - - - - - - - -         x_grid                                                                  i_equal     -2                                                                                                   
 
    COND       v21  move five greater                                                  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.014))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
@@ -202,12 +230,12 @@ SCRP          v21  (MACRO ) verify simple mapping linear moves                
 
    COND       v21  move past end                                                      - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.014))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      exec     v21  call the move routine                yVIKEYS__map_move           &x_index    , &x_grid     , 20          , &x_map                        i_equal     1                                                                                                    
-     echo     v21  check the new index                  - - - - - - - - - -         x_index                                                                 i_equal     55                                                                                                   
+     echo     v21  check the new index                  - - - - - - - - - -         x_index                                                                 i_equal     48                                                                                                   
      echo     v21  check the new grid postition         - - - - - - - - - -         x_grid                                                                  i_equal     3                                                                                                    
 
    COND       v21  move to beginning                                                  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.014))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      exec     v21  call the move routine                yVIKEYS__map_move           &x_index    , &x_grid     , -3          , &x_map                        i_equal     0                                                                                                    
-     echo     v21  check the new index                  - - - - - - - - - -         x_index                                                                 i_equal     7                                                                                                    
+     echo     v21  check the new index                  - - - - - - - - - -         x_index                                                                 i_equal     0                                                                                                    
      echo     v21  check the new grid postition         - - - - - - - - - -         x_grid                                                                  i_equal     -3                                                                                                   
 
    COND       v21  move to before beginning                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.014))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
@@ -271,6 +299,111 @@ SCRP          v21  (MACRO ) verify simple mapping linear moves                
 
    COND       v21  complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.017))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      exec     v21  stop testing                         yVIKEYS__unit_end                                                                                   i_equal     0                                                                                                    
+
+
+
+#23456789-12  123  123456789-123456789-123456789-12345  123456789-123456789-123456  123456789-123456789-123456789-123456789-123456789-123456789-123456789-  123456789-  123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-  -  123456789-123456789- 
+#==(verb)===  ver  ===========(description)===========  =====(function)===========  ========================(arguments)===================================  ==(test)==  ==========================(results)=================================================================  t  ========(var)======= 
+SCRP          v21  (MACRO ) verify horizontal moves                                   yVIKEYS_map_horz                                                        ((01.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+
+   COND       v21  initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+     exec     v21  start testing                        yVIKEYS__unit_quiet                                                                                 i_equal     0                                                                                                    
+     exec     v21  initialize                           yVIKEYS_map_init            NULL           , NULL                                                   i_equal     0                                                                                                    
+
+   GROUP      v21  start with the basic moves                                         - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+
+   COND       v21  set the starting conditions                                        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.014))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+     exec     v21  load a map                           yVIKEYS__map_load           'u'            , &s_colmap                                              i_equal     0                                                                                                    
+
+   COND       v21  move one greater                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.014))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+     exec     v21  call the horizontal routine          yVIKEYS_map_horz            ' '            , 'l'                                                    i_equal     ' '                                                                                                  
+     get      v21  check the horizontal position        yVIKEYS__map_unit           "horz"         , '-'                                                    s_equal     MAP horz pos     : index   8, grid   1                                                               
+
+   COND       v21  move one greater, again                                            - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.014))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+     exec     v21  call the horizontal routine          yVIKEYS_map_horz            ' '            , 'l'                                                    i_equal     ' '                                                                                                  
+     get      v21  check the horizontal position        yVIKEYS__map_unit           "horz"         , '-'                                                    s_equal     MAP horz pos     : index  16, grid   2                                                               
+
+   COND       v21  move one lesser                                                    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.014))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+     exec     v21  call the horizontal routine          yVIKEYS_map_horz            ' '            , 'h'                                                    i_equal     ' '                                                                                                  
+     get      v21  check the horizontal position        yVIKEYS__map_unit           "horz"         , '-'                                                    s_equal     MAP horz pos     : index   8, grid   1                                                               
+
+   COND       v21  move five greater                                                  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.014))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+     exec     v21  call the horizontal routine          yVIKEYS_map_horz            ' '            , 'L'                                                    i_equal     ' '                                                                                                  
+     get      v21  check the horizontal position        yVIKEYS__map_unit           "horz"         , '-'                                                    s_equal     MAP horz pos     : index  48, grid   6                                                               
+
+   COND       v21  move to beginning                                                  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.014))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+     exec     v21  call the horizontal routine          yVIKEYS_map_horz            ' '            , '0'                                                    i_equal     ' '                                                                                                  
+     get      v21  check the horizontal position        yVIKEYS__map_unit           "horz"         , '-'                                                    s_equal     MAP horz pos     : index   0, grid   0                                                               
+
+   COND       v21  try to go past beginning                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.014))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+     exec     v21  call the horizontal routine          yVIKEYS_map_horz            ' '            , 'h'                                                    i_equal     ' '                                                                                                  
+     get      v21  check the horizontal position        yVIKEYS__map_unit           "horz"         , '-'                                                    s_equal     MAP horz pos     : index   0, grid   0                                                               
+
+   COND       v21  move to end                                                        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.014))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+     exec     v21  call the horizontal routine          yVIKEYS_map_horz            ' '            , '$'                                                    i_equal     ' '                                                                                                  
+     get      v21  check the horizontal position        yVIKEYS__map_unit           "horz"         , '-'                                                    s_equal     MAP horz pos     : index  56, grid   7                                                               
+
+   COND       v21  try to go past end                                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.014))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+     exec     v21  call the horizontal routine          yVIKEYS_map_horz            ' '            , 'l'                                                    i_equal     ' '                                                                                                  
+     get      v21  check the horizontal position        yVIKEYS__map_unit           "horz"         , '-'                                                    s_equal     MAP horz pos     : index  56, grid   7                                                               
+
+   GROUP      v21  now use the goto moves                                             - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+
+   COND       v21  move to the start of the screen                                    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.014))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+     exec     v21  call the horizontal routine          yVIKEYS_map_horz            'g'            , 's'                                                    i_equal     'g'                                                                                                  
+     get      v21  check the horizontal position        yVIKEYS__map_unit           "horz"         , '-'                                                    s_equal     MAP horz pos     : index   0, grid   0                                                               
+
+   COND       v21  move to the end of the screen                                      - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.014))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+     exec     v21  call the horizontal routine          yVIKEYS_map_horz            'g'            , 'e'                                                    i_equal     'g'                                                                                                  
+     get      v21  check the horizontal position        yVIKEYS__map_unit           "horz"         , '-'                                                    s_equal     MAP horz pos     : index  56, grid   7                                                               
+
+   COND       v21  move to the center                                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.014))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+     exec     v21  call the horizontal routine          yVIKEYS_map_horz            'g'            , 'c'                                                    i_equal     'g'                                                                                                  
+     get      v21  check the horizontal position        yVIKEYS__map_unit           "horz"         , '-'                                                    s_equal     MAP horz pos     : index  32, grid   4                                                               
+
+   COND       v21  move to the left quarter                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.014))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+     exec     v21  call the horizontal routine          yVIKEYS_map_horz            'g'            , 'h'                                                    i_equal     'g'                                                                                                  
+     get      v21  check the horizontal position        yVIKEYS__map_unit           "horz"         , '-'                                                    s_equal     MAP horz pos     : index  16, grid   2                                                               
+
+   COND       v21  move to the right quarter                                          - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.014))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+     exec     v21  call the horizontal routine          yVIKEYS_map_horz            'g'            , 'l'                                                    i_equal     'g'                                                                                                  
+     get      v21  check the horizontal position        yVIKEYS__map_unit           "horz"         , '-'                                                    s_equal     MAP horz pos     : index  48, grid   6                                                               
+
+   GROUP      v21  switch to goto with smaller screen space                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+
+   COND       v21  set the starting conditions                                        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.014))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+     exec     v21  load a map                           yVIKEYS__map_load           'w'            , &s_colmap                                              i_equal     0                                                                                                    
+
+   COND       v21  move to the start of the screen                                    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.014))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+     exec     v21  call the horizontal routine          yVIKEYS_map_horz            'g'            , 's'                                                    i_equal     'g'                                                                                                  
+     get      v21  check the horizontal position        yVIKEYS__map_unit           "horz"         , '-'                                                    s_equal     MAP horz pos     : index  24, grid   3                                                               
+
+   COND       v21  move to the end of the screen                                      - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.014))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+     exec     v21  call the horizontal routine          yVIKEYS_map_horz            'g'            , 'e'                                                    i_equal     'g'                                                                                                  
+     get      v21  check the horizontal position        yVIKEYS__map_unit           "horz"         , '-'                                                    s_equal     MAP horz pos     : index  32, grid   4                                                               
+
+   COND       v21  move to the center                                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.014))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+     exec     v21  call the horizontal routine          yVIKEYS_map_horz            'g'            , 'c'                                                    i_equal     'g'                                                                                                  
+     get      v21  check the horizontal position        yVIKEYS__map_unit           "horz"         , '-'                                                    s_equal     MAP horz pos     : index  39, grid   4                                                               
+
+   COND       v21  move to the left quarter                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.014))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+     exec     v21  call the horizontal routine          yVIKEYS_map_horz            'g'            , 'h'                                                    i_equal     'g'                                                                                                  
+     get      v21  check the horizontal position        yVIKEYS__map_unit           "horz"         , '-'                                                    s_equal     MAP horz pos     : index  23, grid   2                                                               
+
+   COND       v21  move to the right quarter                                          - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.014))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+     exec     v21  call the horizontal routine          yVIKEYS_map_horz            'g'            , 'l'                                                    i_equal     'g'                                                                                                  
+     get      v21  check the horizontal position        yVIKEYS__map_unit           "horz"         , '-'                                                    s_equal     MAP horz pos     : index  48, grid   6                                                               
+
+
+
+
+   GROUP      v21  complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+
+   COND       v21  complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.017))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+     exec     v21  stop testing                         yVIKEYS__unit_end                                                                                   i_equal     0                                                                                                    
+
+
+
 
 
 

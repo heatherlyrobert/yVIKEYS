@@ -92,17 +92,28 @@ typedef  const int  cint;
 #define LEN_MAP      10000
 typedef  struct cMAPPED  tMAPPED;
 struct cMAPPED {
+   /*---(lefts)----------------*/
    int         gmin;                        /* global min, used or not        */
    int         amin;                        /* min of all used space          */
    int         lmin;                        /* min for col/row                */
    int         prev;                        /* prev change for "end"          */
-   int         beg;                         /* beginning of screen            */
+   /*---(current)--------------*/
+   int         cur;                         /* current index                  */
    int         map         [LEN_MAP];       /* full col/row map               */
-   int         end;                         /* end of screen                  */
+   /*---(rights)---------------*/
    int         next;                        /* next change for "end"          */
    int         lmax;                        /* max for col/row                */
    int         amax;                        /* max of all used space          */
    int         gmax;                        /* global max, used or not        */
+   /*---(screen)---------------*/
+   int         beg;                         /* beginning of screen            */
+   int         len;                         /* screen len                     */
+   int         end;                         /* end of screen                  */
+   /*---(grids)----------------*/
+   int         bgrid;                       /* grid at start of screen        */
+   int         cgrid;                       /* current grid position          */
+   int         egrid;                       /* grid at end of screen          */
+   /*---(done)-----------------*/
 };
 tMAPPED     s_colmap;
 tMAPPED     s_rowmap;
