@@ -62,6 +62,8 @@
 #define     SMOD_MENUS     '\\'   /* show menu system                         */
 
 
+typedef  const char cchar;
+typedef  const int  cint;
 /*---(mode)------------*/
 #define     MACRO_OFF          '-'      /* normal keyboard input              */
 #define     MACRO_RUN          'M'      /* macro running with redisplay       */
@@ -87,23 +89,57 @@
 #define     SET_MACRO_RECORD     yVIKEYS_macro_set_mode (MACRO_RECORD);
 
 
+#define LEN_MAP      10000
+typedef  struct cMAPPED  tMAPPED;
+struct cMAPPED {
+   int         gmin;                        /* global min, used or not        */
+   int         amin;                        /* min of all used space          */
+   int         lmin;                        /* min for col/row                */
+   int         prev;                        /* prev change for "end"          */
+   int         beg;                         /* beginning of screen            */
+   int         map         [LEN_MAP];       /* full col/row map               */
+   int         end;                         /* end of screen                  */
+   int         next;                        /* next change for "end"          */
+   int         lmax;                        /* max for col/row                */
+   int         amax;                        /* max of all used space          */
+   int         gmax;                        /* global max, used or not        */
+};
+tMAPPED     s_colmap;
+tMAPPED     s_rowmap;
+
+
+
 extern char yVIKEYS_ver     [500];
 
 /*===[[ FUNCTION PROTOTYPES ]]================================================*/
 /*---(debugging)------------*/
-char*       yVIKEYS_version        (void);
-char        yVIKEYS_debug          (char    a_flag  );
+char*       yVIKEYS_version           (void);
+char        yVIKEYS_debug             (char    a_flag  );
 
 /*---(mode stack)-----------*/
-char        yVIKEYS_mode_init      (void);
-char        yVIKEYS_mode_enter     (char    a_mode  );
-char        yVIKEYS_mode_exit      (void);
-char        yVIKEYS_mode_curr      (void);
-char        yVIKEYS_mode_prev      (void);
-char        yVIKEYS_mode_not       (char    a_mode  );
-char        yVIKEYS_mode_list      (char   *a_list  );
-char        yVIKEYS_mode_mesg      (char   *a_mesg   , char   *a_cmd);
-char        yVIKEYS_mode_change    (char a_mode, char *a_allow, char *a_mesg);
+char        yVIKEYS_mode_init         (void);
+char        yVIKEYS_mode_enter        (char    a_mode  );
+char        yVIKEYS_mode_exit         (void);
+char        yVIKEYS_mode_curr         (void);
+char        yVIKEYS_mode_prev         (void);
+char        yVIKEYS_mode_not          (char    a_mode  );
+char        yVIKEYS_mode_list         (char   *a_list  );
+char        yVIKEYS_mode_mesg         (char   *a_mesg   , char   *a_cmd);
+char        yVIKEYS_mode_change       (char a_mode, char *a_allow, char *a_mesg);
+/*---(view)-----------------*/
+char        yVIKEYS_view_init         (void *a_sizer, char *a_title, char *a_ver);
+char        yVIKEYS_view_resize       (cchar a_format, cchar *a_title, cint a_wide, cint a_tall, cchar a_adapt);
+char        yVIKEYS_view_text         (cchar a_part, cchar *a_text);
+char        yVIKEYS_view_corners      (cchar a_part, int *a_left, int *a_bott, int *a_wide, int *a_tall, cchar *a_text);
+char        yVIKEYS_view_title        (void);
+char        yVIKEYS_view_command      (void);
+char        yVIKEYS_view_status       (void);
+char        yVIKEYS_view_ribbon_clear (void);
+char        yVIKEYS_view_ribbon_add   (char *a_cat, char *a_name);
+char        yVIKEYS_view_ribbon       (void);
+
+/*---(map mode)-------------*/
+char        yVIKEYS_map_init          (void *a_col_mapper, void *a_row_mapper);
 
 /*---(speed)----------------*/
 char        yVIKEYS_speed_set    (char   *a_code   , double *a_waitns);
@@ -163,7 +199,7 @@ char        yVIKEYS_cmds_direct     (char *a_command);
 char        yVIKEYS_cmds_mode       (char a_major, char a_minor);
 
 /*---(search)---------------*/
-char        yVIKEYS_srch_init       (void *a_searcher);
+char        yVIKEYS_srch_init       (void *a_searcher, void *a_clearer);
 char        yVIKEYS_srch_wrap       (void);
 char        yVIKEYS_srch_start      (void);
 char        yVIKEYS_srch_clear      (void);

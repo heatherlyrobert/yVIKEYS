@@ -369,7 +369,7 @@ SCRP          v21  (CMDS  ) verify keys going into command line               
      get      v21  check the mode                       yVIKEYS__mode_unit          "stack"                                                                 s_equal     MODE stack       : modes (1) : - - - - - - -                                                         
 
    COND       v21  complete the escaped char                                          - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((02.028))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  pass a key                           yVIKEYS_cmds_mode           ':'              , 'w'                                                  i_equal     ':'                                                                                                  
+     exec     v21  pass a key                           yVIKEYS_cmds_mode           ':'              , ','                                                  i_equal     ':'                                                                                                  
      get      v21  check the current command            yVIKEYS__cmds_unit          "global"         , 0                                                    s_equal     CMDS global      :  0  4[:f¥©]                                                                       
      get      v21  check the mode                       yVIKEYS__mode_unit          "stack"                                                                 s_equal     MODE stack       : modes (1) : - - - - - - -                                                         
 
@@ -379,7 +379,7 @@ SCRP          v21  (CMDS  ) verify keys going into command line               
      get      v21  check the mode                       yVIKEYS__mode_unit          "stack"                                                                 s_equal     MODE stack       : modes (1) : - - - - - - -                                                         
 
    COND       v21  complete the escaped char                                          - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((02.030))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  pass a key                           yVIKEYS_cmds_mode           ':'              , 'f'                                                  i_equal     ':'                                                                                                  
+     exec     v21  pass a key                           yVIKEYS_cmds_mode           ':'              , '|'                                                  i_equal     ':'                                                                                                  
      get      v21  check the current command            yVIKEYS__cmds_unit          "global"         , 0                                                    s_equal     CMDS global      :  0  5[:f¥©§]                                                                      
      get      v21  check the mode                       yVIKEYS__mode_unit          "stack"                                                                 s_equal     MODE stack       : modes (1) : - - - - - - -                                                         
 
@@ -450,7 +450,7 @@ SCRP          v21  (CMDS  ) verify keys going into search bar                 
 
    COND       v21  initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((02.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      exec     v21  start testing                        yVIKEYS__unit_quiet                                                                                 i_equal     0                                                                                                    
-     exec     v21  initialize                           yVIKEYS_srch_init           NULL                                                                    i_equal     0                                                                                                    
+     exec     v21  initialize                           yVIKEYS_srch_init           NULL           , NULL                                                   i_equal     0                                                                                                    
      get      v21  check the current command            yVIKEYS__srch_unit          "global"       , 0                                                      s_equal     SRCH global      :  0[]                                                                              
      exec     v21  initialize                           yVIKEYS_mode_init                                                                                   i_equal     0                                                                                                    
 
@@ -562,7 +562,7 @@ SCRP          v21  (CMDS  ) verify keys going into search bar                 
      get      v21  check the mode                       yVIKEYS__mode_unit          "stack"                                                                 s_equal     MODE stack       : modes (1) / - - - - - - -                                                         
 
    COND       v21  enter a key                                                        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((02.005))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  pass a key                           yVIKEYS_srch_mode           '/'              , 'n'                                                  i_equal     '/'                                                                                                  
+     exec     v21  pass a key                           yVIKEYS_srch_mode           '/'              , G_KEY_RETURN                                         i_equal     '/'                                                                                                  
      get      v21  check the current command            yVIKEYS__srch_unit          "global"         , 0                                                    s_equal     SRCH global      :  2[/¦]                                                                            
      get      v21  check the mode                       yVIKEYS__mode_unit          "stack"                                                                 s_equal     MODE stack       : modes (1) / - - - - - - -                                                         
 

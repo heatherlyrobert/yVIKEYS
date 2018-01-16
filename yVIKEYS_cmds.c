@@ -113,7 +113,6 @@ static char      s_all       [LEN_COMMAND]       = "";
 
 
 
-
 /*===[[ SEARCH ]]=============================================================*/
 #define     LEN_SEARCH     2000
 static char s_search     [LEN_SEARCH];
@@ -125,10 +124,58 @@ static int  s_slen       = 0;
 void     *s_srch      [MAX_SRCH];
 int       s_nsrch     = 0;
 
-char    (*s_searcher) (char *a_search);
+char    (*s_searcher) (void *a_search);
+char    (*s_clearer ) (void *a_search);
 
 static char s_quoted    = '-';
 static char s_escaped   = '-';
+
+/*>                                                                                                                                                            <* 
+ *>                                                                                                                                                            <* 
+ *> /+===[[ LAYOUT ]]=============================================================+/                                                                           <* 
+ *> #define     MAX_LAYOUT      100                                                                                                                            <* 
+ *> typedef     struct cLAYOUT  tLAYOUT;                                                                                                                       <* 
+ *> struct cLAYOUT {                                                                                                                                           <* 
+ *>    char        cat         [LEN_LABEL];                                                                                                                    <* 
+ *>    char        opt         [LEN_LABEL];                                                                                                                    <* 
+ *>    char        title;                                                                                                                                      <* 
+ *>    char        status;                                                                                                                                     <* 
+ *>    char        command;                                                                                                                                    <* 
+ *>    char        control;                                                                                                                                    <* 
+ *>    char        player;                                                                                                                                     <* 
+ *>    char        desc        [LEN_DESC];                                                                                                                     <* 
+ *> };                                                                                                                                                         <* 
+ *> extern      tLAYOUT     g_layouts [MAX_LAYOUT];                                                                                                            <* 
+ *> tLAYOUT     s_layouts [MAX_LAYOUT] = {                                                                                                                     <* 
+ *>    /+"1234567890", "123456789012" , 12345678901234567890, 12345678901234567890, 12345678901234567890, "1234567890123456789012345678901234567890"      +/   <* 
+ *>    { "formula"   , "tiny"         , G_FORMULA_TINY      , 0                   , 0                   , "shows only contents/formula"                },      <* 
+ *>    { "formula"   , "small"        , G_FORMULA_SMALL     , 0                   , 0                   , "shows tiny plus location and version"       },      <* 
+ *>    { "formula"   , "debug"        , G_FORMULA_DEBUG     , 0                   , 0                   , "shows small plus current cell info"         },      <* 
+ *>    { "status"    , "hide"         , 0                   , G_STATUS_HIDE       , 0                   , "status line is not displayed"               },      <* 
+ *>    { "status"    , "file"         , 0                   , G_STATUS_FILE       , 0                   , "file name, control, and version"            },      <* 
+ *>    { "status"    , "tab"          , 0                   , G_STATUS_TAB        , 0                   , "tab name, type, and dimensions"             },      <* 
+ *>    { "status"    , "buffer"       , 0                   , G_STATUS_BUFFER     , 0                   , "details of current buffer"                  },      <* 
+ *>    { "status"    , "visual"       , 0                   , G_STATUS_VISUAL     , 0                   , "details of visual selection"                },      <* 
+ *>    { "status"    , "regs"         , 0                   , G_STATUS_REGS       , 0                   , "details of map register contents"           },      <* 
+ *>    { "status"    , "treg"         , 0                   , G_STATUS_TREG       , 0                   , "details of text register contents"          },      <* 
+ *>    { "status"    , "mark"         , 0                   , G_STATUS_MARK       , 0                   , "details of cell and location marks"         },      <* 
+ *>    { "status"    , "cell"         , 0                   , G_STATUS_CELL       , 0                   , "details of current cell"                    },      <* 
+ *>    { "status"    , "deps"         , 0                   , G_STATUS_DEPS       , 0                   , "details of current cell dependencies"       },      <* 
+ *>    { "status"    , "rpn"          , 0                   , G_STATUS_RPN        , 0                   , "details of current cell rpn notation"       },      <* 
+ *>    { "status"    , "keylog"       , 0                   , G_STATUS_KEYLOG     , 0                   , "key logging details for debugging"          },      <* 
+ *>    { "status"    , "history"      , 0                   , G_STATUS_HISTORY    , 0                   , "change history for debugging"               },      <* 
+ *>    { "command"   , "hide"         , 0                   , 0                   , G_COMMAND_HIDE      , "command line is not shown"                  },      <* 
+ *>    { "command"   , "show"         , 0                   , 0                   , G_COMMAND_SHOW      , "display the command line"                   },      <* 
+ *>    { "command"   , "float"        , 0                   , 0                   , G_COMMAND_FLOAT     , "display command line when required"         },      <* 
+ *>    { "layout"    , "min"          , G_FORMULA_TINY      , G_STATUS_HIDE       , G_COMMAND_HIDE      , "greatest working room available"            },      <* 
+ *>    { "layout"    , "normal"       , G_FORMULA_SMALL     , G_STATUS_FILE       , G_COMMAND_SHOW      , "normal working environment"                 },      <* 
+ *>    { "layout"    , "max"          , G_FORMULA_DEBUG     , G_STATUS_FILE       , G_COMMAND_SHOW      , "greatest supporting information"            },      <* 
+ *>    { ""          , ""             , 0                   , 0                   , 0                   , ""                                           },      <* 
+ *> };                                                                                                                                                         <* 
+ *> int         g_nlayout;                                                                                                                                     <*/
+
+
+
 
 
 /*====================------------------------------------====================*/
@@ -137,11 +184,15 @@ static char s_escaped   = '-';
 static void  o___SEARCH__________o () { return; }
 
 char
-yVIKEYS_srch_init       (void *a_searcher)
+yVIKEYS_srch_init       (void *a_searcher, void *a_clearer)
 {
+   s_nsrch    = MAX_SRCH;
+   s_searcher = NULL;
+   s_clearer  = NULL;
    yVIKEYS_srch_clear  ();
    yVIKEYS__srch_purge ();
    s_searcher = a_searcher;
+   s_clearer  = a_clearer;
    return 0;
 }
 
@@ -149,8 +200,11 @@ char
 yVIKEYS__srch_purge     (void)
 {
    int         i           = 0;
+   for (i = 0; i < s_nsrch; ++i) {
+      if (s_clearer != NULL)  s_clearer (s_srch [i]);
+      s_srch [i] = NULL;
+   }
    s_nsrch = 0;
-   for (i = 0; i < MAX_SRCH; ++i)  s_srch [i] = NULL;
    return 0;
 }
 
@@ -165,22 +219,24 @@ yVIKEYS_srch_wrap    (void)
 char
 yVIKEYS_srch_start   (void)
 {
-   strncpy     (s_search , "/", LEN_RECD);
+   strlcpy     (s_search , "/", LEN_RECD);
    s_slen = 1;
    yVIKEYS__srch_purge ();
    s_quoted  = '-';
    s_escaped = '-';
+   yVIKEYS_view_text ('c', s_search);
    return 0;
 }
 
 char
 yVIKEYS_srch_clear   (void)
 {
-   strncpy     (s_search , "" , LEN_RECD);
+   strlcpy     (s_search , "" , LEN_RECD);
    s_slen = 0;
    yVIKEYS__srch_purge ();
    s_quoted  = '-';
    s_escaped = '-';
+   yVIKEYS_view_text ('c', s_search);
    return 0;
 }
 
@@ -201,7 +257,8 @@ yVIKEYS_srch_found   (void *a_match)
 char
 yVIKEYS_srch_exec    (void)
 {
-   return 0;
+   if (s_searcher != NULL)  return s_searcher (s_search);
+   return -1;
 }
 
 char         /*-> process keys for searching ---------[ ------ [gc.LE5.266.I3]*/ /*-[05.0000.102.M]-*/ /*-[--.---.---.--]-*/
@@ -240,14 +297,13 @@ yVIKEYS_srch_mode       (char a_major, char a_minor)
    } else if (s_escaped == 'y') {
       s_escaped = '-';
       DEBUG_USER   yLOG_note    ("convert escaped character");
-      a_minor = strslashed (a_minor);
+      a_minor = chrslashed (a_minor);
    }
    /*---(check for control keys)---------*/
    switch (a_minor) {
    case   G_KEY_RETURN :
       yVIKEYS_mode_exit ();
-      rc = yVIKEYS_srch_exec ();
-      yVIKEYS_srch_clear ();
+      yVIKEYS_srch_exec  ();
       DEBUG_USER   yLOG_note    ("return, execute search");
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return rc;   /* return  */
@@ -268,17 +324,19 @@ yVIKEYS_srch_mode       (char a_major, char a_minor)
       }
       if (s_slen < 1)   s_slen = 1;
       s_search [s_slen] = '\0';
+      yVIKEYS_view_text ('c', s_search);
       DEBUG_USER   yLOG_info    ("s_search"  , s_search);
       DEBUG_USER   yLOG_value   ("s_slen"    , s_slen);
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return a_major;
    }
    /*---(char fixing)--------------------*/
-   a_minor = strvisible (a_minor);
+   a_minor = chrvisible (a_minor);
    /*---(normal characters)--------------*/
    DEBUG_USER   yLOG_note    ("update search line");
    snprintf (x_temp, 10, "%c", a_minor);
    strcat   (s_search, x_temp);
+   yVIKEYS_view_text ('c', s_search);
    ++s_slen;
    DEBUG_USER   yLOG_info    ("s_search"  , s_search);
    DEBUG_USER   yLOG_value   ("s_slen"    , s_slen);
@@ -347,6 +405,7 @@ yVIKEYS_cmds_start      (void)
    s_clen = 1;
    s_quoted  = '-';
    s_escaped = '-';
+   yVIKEYS_view_text ('c', s_command);
    return 0;
 }
 
@@ -357,6 +416,7 @@ yVIKEYS_cmds_clear      (void)
    s_clen = 0;
    s_quoted  = '-';
    s_escaped = '-';
+   yVIKEYS_view_text ('c', s_command);
    return 0;
 }
 
@@ -671,7 +731,7 @@ yVIKEYS_cmds_mode     (char a_major, char a_minor)
    } else if (s_escaped == 'y') {
       s_escaped = '-';
       DEBUG_USER   yLOG_note    ("convert escaped character");
-      a_minor = strslashed (a_minor);
+      a_minor = chrslashed (a_minor);
    }
    /*---(check for control keys)---------*/
    if (s_quoted != 'y') {
@@ -700,17 +760,19 @@ yVIKEYS_cmds_mode     (char a_major, char a_minor)
       }
       if (s_clen < 1)   s_clen = 1;
       s_command [s_clen] = '\0';
+      yVIKEYS_view_text ('c', s_command);
       DEBUG_USER   yLOG_info    ("s_command" , s_command);
       DEBUG_USER   yLOG_value   ("s_clen"    , s_clen);
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return a_major;
    }
    /*---(char fixing)--------------------*/
-   a_minor = strvisible (a_minor);
+   a_minor = chrvisible (a_minor);
    /*---(normal characters)--------------*/
    DEBUG_USER   yLOG_note    ("update command line");
    snprintf (x_temp, 10, "%c", a_minor);
    strlcat   (s_command, x_temp, LEN_COMMAND);
+   yVIKEYS_view_text ('c', s_command);
    s_clen = strllen (s_command, LEN_COMMAND);
    DEBUG_USER   yLOG_info    ("s_command" , s_command);
    DEBUG_USER   yLOG_value   ("s_clen"    , s_clen);

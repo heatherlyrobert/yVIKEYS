@@ -3,10 +3,10 @@
 
 
 /*---(headers)---------------------------*/
-#include    "yVIKEYS.h"
 #include    <yLOG.h>               /* heatherly program logger                */
 #include    <yURG.h>               /* heatherly program logger                */
 #include    <ySTR.h>               /* heatherly program logger                */
+#include    <yFONT.h>              /* heatherly program logger                */
 
 
 /*===[[ HEADERS ]]========================================*/
@@ -16,6 +16,8 @@
 #include    <string.h>            /* clibc  standard string handling          */
 
 /*---(posix standard)--------------------*/
+#include   <GL/gl.h>              /* opengl standard primary header           */
+#include   <GL/glx.h>             /* opengl standard X11 integration          */
 
 
 
@@ -26,8 +28,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.5u"
-#define YVIKEYS_VER_TXT   "basic search capability is built and unit tested (not exec)"
+#define YVIKEYS_VER_NUM   "0.6a"
+#define YVIKEYS_VER_TXT   "build early map movements based on a map/grid, some unit testing"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -70,6 +72,9 @@ char*       yVIKEYS__mode_unit      (char *a_question);
 char*       yVIKEYS__macro_unit     (char *a_question, char a_macro);
 char*       yVIKEYS__cmds_unit      (char *a_question, char a_index);
 char*       yVIKEYS__srch_unit      (char *a_question, char a_index);
+
+char        yVIKEYS__map_load       (char a_style, tMAPPED *a_map);
+char        yVIKEYS__map_move       (int *a_index, int *a_grid, int a_target, tMAPPED *a_map);
 
 /*---(program)--------------*/
 char        yVIKEYS__macro_clear    (char a_macro);

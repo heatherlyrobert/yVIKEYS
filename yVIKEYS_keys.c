@@ -3,6 +3,76 @@
 #include    "yVIKEYS.h"
 #include    "yVIKEYS_priv.h"
 
+/*
+ * yVIKEYS_keys manages a perfectly regular "grid" of cells/points/locations.
+ * the grid maps to the screen and one cell is the minimum movement.  when a
+ * user zooms, the grid is used exactly the same.
+ *
+ * once yVIKEYS_keys passes control back to the program is can map the outcome
+ * to the correct coordinate system in the application.
+ *
+ * i will initially build it aroung three use-cases...
+ *    apelles -- paint package with a purely rectangular workspace
+ *    gyges   -- adjustable column widths and row heights
+ *    arachne -- 3d space viewer
+ * in all these cases, columns are the same, top-to-bottom, and rows are same
+ * left to right.  this means, a side-to-side move on row 0, 10, 1000, or 9999
+ * results in the exact same destination column regardless of row.
+ *
+ *
+ * 
+ * i will build on the gyges model as it is working a sweet.
+ *
+ * sample column map for gyges with 8 default width columns and a little more
+ *    "1111111122222222333333334444444455555555666666667777777788888888>>>"
+ * another map if the columns are not consistent width
+ *    "1111111111112222333344445555555555555555667788999999999999999999>>>"
+ *
+ * i need a callback function called s_ender which identifies all edges and
+ * ends for a particular cell.  it should be called as soon as 'e' is pressed.
+ *
+ *
+ *
+ *
+ *
+ *
+ */
+
+#define     LEN_AXIS       1000
+
+static char s_wrapping     = '-';
+
+static int  s_cols         [LEN_AXIS];
+static int  s_ccol         = 0;
+
+
+static int  s_rows         [LEN_AXIS];
+static int  s_mrow         = 0;
+static int  s_trow         = 0;
+static int  s_crow         = 0;
+static int  s_brow         = 0;
+static int  s_xrow         = 0;
+static int  s_nrow         = 0;
+
+int
+yVIKEYS_map_ends      (char a_major, char a_minor)
+{
+}
+
+int
+yVIKEYS_map_edges     (char a_major, char a_minor)
+{
+}
+
+int
+yVIKEYS_map_gz_horz   (char a_major, char a_minor)
+{
+}
+
+int
+yVIKEYS_map_gz_vert   (char a_major, char a_minor)
+{
+}
 
 
 
