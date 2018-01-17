@@ -98,7 +98,6 @@ struct cMAPPED {
    int         lmin;                        /* min for col/row                */
    int         prev;                        /* prev change for "end"          */
    /*---(current)--------------*/
-   int         cur;                         /* current index                  */
    int         map         [LEN_MAP];       /* full col/row map               */
    /*---(rights)---------------*/
    int         next;                        /* next change for "end"          */
@@ -107,12 +106,15 @@ struct cMAPPED {
    int         gmax;                        /* global max, used or not        */
    /*---(screen)---------------*/
    int         beg;                         /* beginning of screen            */
-   int         len;                         /* screen len                     */
+   int         cur;                         /* current index                  */
    int         end;                         /* end of screen                  */
+   int         len;                         /* screen len                     */
+   int         avail;                       /* full size of screen            */
+   int         tend;                        /* true end of screen             */
    /*---(grids)----------------*/
-   int         bgrid;                       /* grid at start of screen        */
-   int         cgrid;                       /* current grid position          */
-   int         egrid;                       /* grid at end of screen          */
+   int         gbeg;                        /* grid at start of screen        */
+   int         gcur;                        /* current grid position          */
+   int         gend;                        /* grid at end of screen          */
    /*---(done)-----------------*/
 };
 tMAPPED     s_colmap;

@@ -28,8 +28,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.6b"
-#define YVIKEYS_VER_TXT   "horizontal worked in g(shcle), built up unit testing"
+#define YVIKEYS_VER_NUM   "0.6c"
+#define YVIKEYS_VER_TXT   "horizontal tested on screen realignment, and unit tested"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -73,9 +73,10 @@ char*       yVIKEYS__macro_unit     (char *a_question, char a_macro);
 char*       yVIKEYS__cmds_unit      (char *a_question, char a_index);
 char*       yVIKEYS__srch_unit      (char *a_question, char a_index);
 
-char        yVIKEYS__map_load       (char a_style, tMAPPED *a_map);
-char        yVIKEYS__map_move       (int *a_index, int *a_grid, int a_target, tMAPPED *a_map);
+char        yVIKEYS__map_load       (char a_style , tMAPPED *a_map);
+char        yVIKEYS__map_move       (int  a_target, tMAPPED *a_map);
 char*       yVIKEYS__map_unit       (char *a_question, char a_index);
+char        yVIKEYS__map_screen     (tMAPPED *a_map);
 
 /*---(program)--------------*/
 char        yVIKEYS__macro_clear    (char a_macro);

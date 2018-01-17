@@ -27,19 +27,32 @@ char
 yVIKEYS__map_clear    (tMAPPED *a_map)
 {
    int         i           =    0;
-   a_map->gmin = EMPTY_SPOT;
-   a_map->amin = EMPTY_SPOT;
-   a_map->lmin = EMPTY_SPOT;
-   a_map->prev = EMPTY_SPOT;
-   a_map->beg  = EMPTY_SPOT;
-   a_map->end  = EMPTY_SPOT;
-   a_map->next = EMPTY_SPOT;
-   a_map->lmax = EMPTY_SPOT;
-   a_map->amax = EMPTY_SPOT;
-   a_map->gmax = EMPTY_SPOT;
+   /*---(lefts)--------------------------*/
+   a_map->gmin  = EMPTY_SPOT;
+   a_map->amin  = EMPTY_SPOT;
+   a_map->lmin  = EMPTY_SPOT;
+   a_map->prev  = EMPTY_SPOT;
+   /*---(rights)-------------------------*/
+   a_map->next  = EMPTY_SPOT;
+   a_map->lmax  = EMPTY_SPOT;
+   a_map->amax  = EMPTY_SPOT;
+   a_map->gmax  = EMPTY_SPOT;
+   /*---(map)----------------------------*/
    for (i = 0; i < LEN_MAP; ++i) {
       a_map->map [i] = EMPTY_SPOT;
    }
+   /*---(indexes)------------------------*/
+   a_map->beg   = 0;
+   a_map->cur   = 0;
+   a_map->end   = 0;
+   a_map->len   = 0;
+   a_map->avail = 0;
+   a_map->tend  = 0;
+   /*---(grids)--------------------------*/
+   a_map->gbeg  = 0;
+   a_map->gcur  = 0;
+   a_map->gend  = 0;
+   /*---(complete)-----------------------*/
    return 0;
 }
 
@@ -76,14 +89,14 @@ yVIKEYS__map_load     (char a_style, tMAPPED *a_map)
       case 'u' : /* uniform size grid       */
          for (j =  0; j <  8; ++j)  a_map->map [x_spot++] = i;
          break;
-      case 'w' : /* uniform size but screen */
-         for (j =  0; j <  8; ++j)  a_map->map [x_spot++] = i;
-         break;
       case 'a' : /* ascending size grid     */
          for (j =  0; j <= i; ++j)  a_map->map [x_spot++] = i;
          break;
       case 'd' : /* descending size grid    */
          for (j =  0; j <= 7 - i; ++j)  a_map->map [x_spot++] = i;
+         break;
+      case 's' : /* small                   */
+         for (j =  0; j <  3; ++j)  a_map->map [x_spot++] = i;
          break;
       }
    }
@@ -101,30 +114,42 @@ yVIKEYS__map_load     (char a_style, tMAPPED *a_map)
          break;
       }
    }
-   a_map->gmin = 0;
-   a_map->amin = 0;
-   a_map->lmin = 0;
-   a_map->prev = 0;
-   a_map->next = x_spot - 1;;
-   a_map->lmax = x_spot - 1;;
-   a_map->amax = x_spot - 1;;
-   a_map->gmax = x_spot - 1;;
+   for (i = 0; i <= 40; ++i) {
+      switch (a_style) {
+      case 'w' :   /* get a big grid       */
+         for (j =  0; j <  4; ++j)  a_map->map [x_spot++] = i;
+         break;
+      }
+   }
+   a_map->gmin  = 0;
+   a_map->amin  = 0;
+   a_map->lmin  = 0;
+   a_map->prev  = 0;
+   a_map->next  = x_spot - 1;;
+   a_map->lmax  = x_spot - 1;;
+   a_map->amax  = x_spot - 1;;
+   a_map->gmax  = x_spot - 1;;
    switch (a_style) {
    case 'w' :
-      a_map->beg  = 24;
-      a_map->len  = 16;
-      a_map->end  = 39;
+      a_map->cur   = 44;
+      a_map->beg   = 44;
+      a_map->len   = 36;
+      a_map->end   = 79;
+      a_map->avail = 38;
+      a_map->tend  = 81;
       break;
    default  :
-      a_map->beg  = 0;
-      a_map->len  = x_spot;
-      a_map->end  = x_spot - 1;;
+      a_map->cur   = 0;
+      a_map->beg   = 0;
+      a_map->len   = x_spot;
+      a_map->end   = x_spot - 1;
+      a_map->avail = x_spot;
+      a_map->tend  = x_spot - 1;
       break;
    }
-   s_horz = 0;
-   s_ccol = 0;
-   s_vert = 0;
-   s_crow = 0;
+   a_map->gbeg  = a_map->map [a_map->beg];
+   a_map->gcur  = a_map->map [a_map->cur];
+   a_map->gend  = a_map->map [a_map->end];
    /*> yVIKEYS__map_print  (a_map);                                                   <*/
    return 0;
 }
@@ -244,73 +269,277 @@ yVIKEYS_map_fixer     (void)
 }
 
 char
-yVIKEYS__map_move     (int *a_index, int *a_grid, int a_target, tMAPPED *a_map)
+yVIKEYS__map_move     (int a_target, tMAPPED *a_map)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    int         i           =    0;
    /*---(defense)------------------------*/
-   --rce;  if (a_index  == NULL)  return rce;
-   --rce;  if (a_grid   == NULL)  return rce;
    --rce;  if (a_map    == NULL)  return rce;
    /*---(make sure index is rational)----*/
-   if (*a_index < 0)  *a_index = 0;
-   if (*a_index > a_map->gmax)  *a_index = a_map->gmax;
-   *a_grid = a_map->map [*a_index];
+   if (a_map->cur < a_map->gmin)  a_map->cur = a_map->gmin;
+   if (a_map->cur > a_map->gmax)  a_map->cur = a_map->gmax;
+   a_map->gcur = a_map->map [a_map->cur];
    /*---(shortcut)-----------------------*/
-   if (*a_grid == a_target)     return 2;
+   if (a_map->gcur == a_target)     return 2;
    /*---(check to right)-----------------*/
-   if (*a_grid <  a_target) {
+   if (a_map->gcur <  a_target) {
       /*> printf ("must search to right\n");                                          <*/
-      for (i = *a_index; i <= a_map->gmax; ++i) {
+      for (i = a_map->cur; i <= a_map->gmax; ++i) {
          /*> printf ("   checking index %4d\n", i);                                   <*/
          if (a_map->map [i] <  a_target)   continue;
-         *a_index  = i;
-         *a_grid = a_map->map [*a_index];
+         a_map->cur  = i;
+         a_map->gcur = a_map->map [a_map->cur];
          return 0;
       }
-      *a_index  = a_map->gmax;
+      a_map->cur  = a_map->gmax;
    }
    /*---(check to left)------------------*/
    else {
       /*> printf ("must search to left\n");                                           <*/
       /*---(find the right grid)---------*/
-      for (i = *a_index; i >= a_map->gmin; --i) {
+      for (i = a_map->cur; i >= a_map->gmin; --i) {
          if (a_map->map [i] >  a_target)   continue;
-         *a_index  = i;
-         *a_grid = a_map->map [*a_index];
+         a_map->cur  = i;
+         a_map->gcur = a_map->map [a_map->cur];
          /*---(get to leftmost)----------*/
-         for (i = *a_index; i >= a_map->gmin; --i) {
+         for (i = a_map->cur; i >= a_map->gmin; --i) {
             if (a_map->map [i] != a_target)   break;
-            *a_index  = i;
+            a_map->cur  = i;
          }
          return 0;
       }
-      *a_index  = a_map->gmin;
+      a_map->cur  = a_map->gmin;
    }
    /*---(get to leftmost)----------*/
-   *a_grid   = a_map->map [*a_index];
-   for (i = *a_index; i >= a_map->gmin; --i) {
-      if (a_map->map [i] != *a_grid)   break;
-      *a_index  = i;
+   a_map->gcur   = a_map->map [a_map->cur];
+   for (i = a_map->cur; i >= a_map->gmin; --i) {
+      if (a_map->map [i] != a_map->gcur)   break;
+      a_map->cur  = i;
    }
    /*---(complete)-----------------------*/
    return  1;
+}
+
+char
+yVIKEYS__map_screen_small (tMAPPED *a_map)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   int         i           =    0;
+   int         x_curr      =    0;
+   int         x_next      =    0;
+   /*---(prepare)------------------------*/
+   a_map->beg   = a_map->gmin;
+   a_map->len   = a_map->gmax - a_map->gmin + 1;
+   a_map->tend  = a_map->gmax;
+   /*---(find real end)------------------*/
+   for (i = a_map->tend; i >= a_map->gmin; --i) {
+      a_map->end   = i;
+      x_curr       = a_map->map [i    ];
+      x_next       = a_map->map [i + 1];
+      if (x_curr != x_next)   break;
+   }
+   /*---(complete)-----------------------*/
+   return 2;
+}
+
+
+char
+yVIKEYS__map_screen_beg   (tMAPPED *a_map)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   int         i           =    0;
+   int         x_curr      =    0;
+   int         x_prev      =    0;
+   int         x_next      =    0;
+   /*---(find closest beg backward)------*/
+   /*> printf ("yVIKEYS__map_screen_beg\n");                                          <*/
+   for (i = a_map->beg; i > a_map->gmin; --i) {
+      a_map->beg   = i;
+      /*> printf ("beg  = %3d\n", a_map->beg);                                        <*/
+      x_curr       = a_map->map [i    ];
+      x_prev       = a_map->map [i - 1];
+      if (x_curr != x_prev)   break;
+   }
+   /*---(prepare)------------------------*/
+   if (a_map->tend != a_map->gmax)  a_map->tend  = a_map->beg + a_map->avail - 1;
+   /*---(can not fill screen?)-----------*/
+   --rce;  if (a_map->tend > a_map->gmax)   return rce;
+   /*---(find end of last full grid)-----*/
+   for (i = a_map->tend; i >= a_map->gmin; --i) {
+      a_map->end   = i;
+      /*> printf ("tend = %3d\n", a_map->tend);                                       <*/
+      x_curr       = a_map->map [i    ];
+      x_next       = a_map->map [i + 1];
+      if (x_curr != x_next)   break;
+   }
+   /*---(complete)-----------------------*/
+   return 1;
+}
+
+char
+yVIKEYS__map_screen_end   (tMAPPED *a_map)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   int         i           =    0;
+   int         x_curr      =    0;
+   int         x_prev      =    0;
+   int         x_next      =    0;
+   /*---(find end of end)----------------*/
+   /*> printf ("yVIKEYS__map_screen_end\n");                                          <*/
+   /*> printf ("end  = %3d\n", a_map->end);                                           <*/
+   for (i = a_map->end; i <= a_map->gmax; ++i) {
+      a_map->end   = i;
+      /*> printf ("end  = %3d\n", a_map->end);                                        <*/
+      a_map->tend  = i;
+      /*> printf ("tend = %3d\n", a_map->tend);                                       <*/
+      x_curr       = a_map->map [i    ];
+      x_next       = a_map->map [i + 1];
+      if (x_curr != x_next)   break;
+   }
+   /*---(check overrun)------------------*/
+   /*> printf ("gmax = %3d\n", a_map->gmax);                                          <*/
+   /*> printf ("gmin = %3d\n", a_map->gmin);                                          <*/
+   /*---(run the final)------------------*/
+   a_map->beg   = a_map->tend - a_map->avail + 1;
+   /*---(find next beg forward)----------*/
+   for (i = a_map->beg; i < a_map->gmax; ++i) {
+      a_map->beg   = i;
+      /*> printf ("beg  = %3d\n", a_map->beg);                                        <*/
+      x_curr       = a_map->map [i    ];
+      x_prev       = a_map->map [i - 1];
+      if (x_curr != x_prev)   break;
+   }
+   /*---(handle normally)----------------*/
+   rc = yVIKEYS__map_screen_beg (a_map);
+   /*---(complete)-----------------------*/
+   return rc;
+}
+
+char
+yVIKEYS__map_screen     (tMAPPED *a_map)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   int         i           =    0;
+   int         j           =    0;
+   int         w           =    0;
+   int         x_curr      =    0;
+   int         x_next      =    0;
+   int         x_prev      =    0;
+   /*---(defense)------------------------*/
+   rce;  if (a_map == NULL)     return rce;
+   /*---(limits)-------------------------*/
+   /*> printf ("cur  = %3d\n", a_map->cur);                                           <*/
+   if (a_map->cur < a_map->gmin)  a_map->cur = a_map->gmin;
+   if (a_map->cur > a_map->gmax) {
+      a_map->cur = a_map->gmax;
+      for (i = a_map->cur; i > a_map->gmin; --i) {
+         a_map->cur   = i;
+         x_curr       = a_map->map [i    ];
+         x_prev       = a_map->map [i - 1];
+         if (x_curr != x_prev)   break;
+      }
+   }
+   /*> printf ("cur  = %3d\n", a_map->cur);                                           <*/
+   /*---(screen fits all)----------------*/
+   if (a_map->gmax - a_map->gmin <= a_map->avail) {
+      /*> printf ("processing a small\n");                                            <*/
+      rc = yVIKEYS__map_screen_small (a_map);
+      return rc;
+   }
+   /*---(from beginning)-----------------*/
+   if (a_map->cur < a_map->beg) {
+      /*> printf ("processing a left\n");                                             <*/
+      a_map->beg = a_map->cur;
+      for (i = a_map->cur; i >= a_map->gmin; --i) {
+         a_map->beg = i;
+         rc = yVIKEYS__map_screen_beg (a_map);
+         if (rc > 0) break;
+      }
+   }
+   /*---(from ending)--------------------*/
+   else if (a_map->cur > a_map->end) {
+      /*> printf ("processing a right\n");                                            <*/
+      a_map->end   = a_map->cur;
+      a_map->tend  = a_map->cur;
+      /*> printf ("end  = %3d\n", a_map->end);                                        <*/
+      rc = yVIKEYS__map_screen_end (a_map);
+   }
+   /*---(just a refresh)-----------------*/
+   else {
+      /*> printf ("processing a refresh\n");                                          <*/
+      rc = yVIKEYS__map_screen_beg (a_map);
+   }
+   /*---(align grid)---------------------*/
+   a_map->len   = a_map->end - a_map->beg + 1;
+   a_map->gbeg  = a_map->map [a_map->beg];
+   a_map->gcur  = a_map->map [a_map->cur];
+   a_map->gend  = a_map->map [a_map->end];
+   /*---(complete)-----------------------*/
+   return rc;
+}
+
+int
+yVIKEYS_map_vert      (char a_major, char a_minor)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   int         x_grid      = s_rowmap.gcur;
+   int         x_unit      =    0;
+   int         x_qtr       = s_rowmap.avail / 4;
+   char       *x_simple    = "_KkjJ~";
+   char       *x_goto      = "TKtkmjbJB";
+   /*---(simple)-------------------------*/
+   if (a_major == ' ' && strchr (x_simple, a_minor) != NULL) {
+      switch (a_minor) {
+      case '_' : x_grid -= 1000000;   break;
+      case 'K' : x_grid -= 5;         break;
+      case 'k' : x_grid -= 1;         break;
+      case 'j' : x_grid += 1;         break;
+      case 'J' : x_grid += 5;         break;
+      case '~' : x_grid += 1000000;   break;
+      }
+      yVIKEYS__map_move (x_grid, &s_rowmap);
+   }
+   /*---(gotos)--------------------------*/
+   if (a_major == 'g' && strchr (x_goto  , a_minor) != NULL) {
+      switch (a_minor) {
+      case 'T' : x_unit  = s_rowmap.beg - (x_qtr * 4); break;
+      case 'K' : x_unit  = s_rowmap.beg - (x_qtr * 2); break;
+      case 't' : x_unit  = s_rowmap.beg;               break;
+      case 'k' : x_unit  = s_rowmap.beg + (x_qtr * 1); break;
+      case 'm' : x_unit  = s_rowmap.beg + (x_qtr * 2); break;
+      case 'j' : x_unit  = s_rowmap.beg + (x_qtr * 3); break;
+      case 'b' : x_unit  = s_rowmap.end;               break;
+      case 'J' : x_unit  = s_rowmap.beg + (x_qtr * 6); break;
+      case 'B' : x_unit  = s_rowmap.beg + (x_qtr * 8); break;
+      }
+      if (x_unit < s_rowmap.gmin)  x_unit = s_rowmap.gmin;
+      if (x_unit > s_rowmap.gmax)  x_unit = s_rowmap.gmax;
+      x_grid  = s_rowmap.map [x_unit];
+      yVIKEYS__map_move (x_grid, &s_rowmap);
+   }
+   /*---(check screen)-------------------*/
+   yVIKEYS__map_screen (&s_rowmap);
+   /*---(complete)-----------------------*/
+   return a_major;
 }
 
 int
 yVIKEYS_map_horz      (char a_major, char a_minor)
 {
    /*---(locals)-----------+-----+-----+-*/
-   int         x_grid      = s_colmap.map [s_horz];
-   int         x_save      = x_grid;
-   int         x_horz      = s_horz;
-   int         i           =    0;
-   int         x_qtr       = s_colmap.len / 4;
-   int         x_beg       = s_colmap.beg;
-   int         x_end       = s_colmap.end;
+   int         x_grid      = s_colmap.gcur;
+   int         x_unit      =    0;
+   int         x_qtr       = s_colmap.avail / 4;
+   char       *x_simple    = "0HhlL$";
+   char       *x_goto      = "SHshcleLE";
    /*---(simple)-------------------------*/
-   if (a_major == ' ') {
+   if (a_major == ' ' && strchr (x_simple, a_minor) != NULL) {
       switch (a_minor) {
       case '0' : x_grid -= 1000000;   break;
       case 'H' : x_grid -= 5;         break;
@@ -319,44 +548,31 @@ yVIKEYS_map_horz      (char a_major, char a_minor)
       case 'L' : x_grid += 5;         break;
       case '$' : x_grid += 1000000;   break;
       }
+      yVIKEYS__map_move (x_grid, &s_colmap);
    }
    /*---(gotos)--------------------------*/
-   if (a_major == 'g') {
+   if (a_major == 'g' && strchr (x_goto  , a_minor) != NULL) {
       switch (a_minor) {
-      case 'S' : x_grid  = s_colmap.map [s_colmap.beg - (x_qtr * 4)]; break;
-      case 'H' : x_grid  = s_colmap.map [s_colmap.beg - (x_qtr * 2)]; break;
-      case 's' : x_grid  = s_colmap.map [s_colmap.beg];               break;
-      case 'h' : x_grid  = s_colmap.map [s_colmap.beg + (x_qtr * 1)]; break;
-      case 'c' : x_grid  = s_colmap.map [s_colmap.beg + (x_qtr * 2)]; break;
-      case 'l' : x_grid  = s_colmap.map [s_colmap.beg + (x_qtr * 3)]; break;
-      case 'e' : x_grid  = s_colmap.map [s_colmap.end];               break;
-      case 'L' : x_grid  = s_colmap.map [s_colmap.beg + (x_qtr * 6)]; break;
-      case 'E' : x_grid  = s_colmap.map [s_colmap.beg + (x_qtr * 8)]; break;
+      case 'S' : x_unit  = s_colmap.beg - (x_qtr * 4); break;
+      case 'H' : x_unit  = s_colmap.beg - (x_qtr * 2); break;
+      case 's' : x_unit  = s_colmap.beg;               break;
+      case 'h' : x_unit  = s_colmap.beg + (x_qtr * 1); break;
+      case 'c' : x_unit  = s_colmap.beg + (x_qtr * 2); break;
+      case 'l' : x_unit  = s_colmap.beg + (x_qtr * 3); break;
+      case 'e' : x_unit  = s_colmap.end;               break;
+      case 'L' : x_unit  = s_colmap.beg + (x_qtr * 6); break;
+      case 'E' : x_unit  = s_colmap.beg + (x_qtr * 8); break;
       }
+      if (x_unit < s_colmap.gmin)  x_unit = s_colmap.gmin;
+      if (x_unit > s_colmap.gmax)  x_unit = s_colmap.gmax;
+      x_grid  = s_colmap.map [x_unit];
+      yVIKEYS__map_move (x_grid, &s_colmap);
    }
-   yVIKEYS__map_move (&s_horz, &s_ccol, x_grid, &s_colmap);
-   printf ("x_horz %3d, x_save %3d    %c x_grid %10d   s_horz %3d, s_ccol %3d\n", x_horz, x_save, a_minor, x_grid, s_horz, s_ccol);
-   /*---(back to index)------------------*/
-   printf ("beg %3d, end %3d, len %3d, gtr %3d\n", s_colmap.beg, s_colmap.end, s_colmap.len, x_qtr);
+   /*---(check screen)-------------------*/
+   yVIKEYS__map_screen (&s_colmap);
    /*---(complete)-----------------------*/
    return a_major;
 }
-
-/*> int                                                                               <* 
- *> yVIKEYS_map_vert      (char a_major, char a_minor)                                <* 
- *> {                                                                                 <* 
- *>    int         x_horz      = s_crow;                                              <* 
- *>    int         x_crow      = s_crow;                                              <* 
- *>    if (a_major == ' ') {                                                          <* 
- *>       switch (a_minor) {                                                          <* 
- *>       case 'K' : x_crow -= 5;   break;                                            <* 
- *>       case 'k' : x_crow -= 1;   break;                                            <* 
- *>       case 'j' : x_crow += 1;   break;                                            <* 
- *>       case 'J' : x_crow += 5;   break;                                            <* 
- *>       }                                                                           <* 
- *>    }                                                                              <* 
- *>    return 0;                                                                      <* 
- *> }                                                                                 <*/
 
 char*        /*-> tbd --------------------------------[ leaf   [gs.520.202.40]*/ /*-[01.0000.00#.#]-*/ /*-[--.---.---.--]-*/
 yVIKEYS__map_unit       (char *a_question, char a_index)
@@ -365,7 +581,13 @@ yVIKEYS__map_unit       (char *a_question, char a_index)
    strlcpy  (yVIKEYS__unit_answer, "MAP unit         : question not understood", LEN_STR);
    /*---(dependency list)----------------*/
    if      (strcmp (a_question, "horz"           )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP horz pos     : index %3d, grid %3d", s_horz, s_ccol);
+      snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP horz pos     : index %3d, grid %3d", s_colmap.cur, s_colmap.gcur);
+   }
+   else if (strcmp (a_question, "horz_unit"      )   == 0) {
+      snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP horz units   : a %3d, b %3d, c %3d, e %3d, t %3d, l %3d", s_colmap.avail, s_colmap.beg, s_colmap.cur, s_colmap.end, s_colmap.tend, s_colmap.len);
+   }
+   else if (strcmp (a_question, "horz_grid"      )   == 0) {
+      snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP horz grids   :        b %3d, c %3d, e %3d", s_colmap.gbeg, s_colmap.gcur, s_colmap.gend);
    }
    /*---(complete)-----------------------*/
    return yVIKEYS__unit_answer;
