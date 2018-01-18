@@ -33,6 +33,17 @@ yVIKEYS_version    (void)
    return yVIKEYS_ver;
 }
 
+char
+yVIKEYS_init         (void)
+{
+   /*----(modes)-------------------------*/
+   yVIKEYS_mode_init   ();
+   yVIKEYS_mode_enter  (MODE_MAP);
+   /*----(commands)----------------------*/
+   yVIKEYS_cmds_init   ();
+   /*----(complete)----------------------*/
+   return 0;
+}
 
 
 /*====================------------------------------------====================*/
@@ -159,7 +170,7 @@ yVIKEYS_main_handle     (char a_key)
    while (1) {
       switch (yVIKEYS_mode_curr ()) {
       case MODE_GOD      : rc = yVIKEYS_______stub    (x_major , a_key);  break;
-      case MODE_MAP      : rc = yVIKEYS_______stub    (x_major , a_key);  break;
+      case MODE_MAP      : rc = yVIKEYS_map_mode      (x_major , a_key);  break;
       case MODE_SOURCE   : rc = yVIKEYS_______stub    (x_major , a_key);  break;
       case MODE_INPUT    : rc = yVIKEYS_______stub    (x_major , a_key);  break;
       case MODE_COMMAND  : rc = yVIKEYS_cmds_mode     (x_major , a_key);  break;

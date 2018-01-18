@@ -119,6 +119,9 @@ struct cMAPPED {
 };
 tMAPPED     s_colmap;
 tMAPPED     s_rowmap;
+#define     YVIKEYS_EMPTY   -666
+#define     YVIKEYS_INIT    'i'
+#define     YVIKEYS_UPDATE  'u'
 
 
 
@@ -129,9 +132,11 @@ extern char yVIKEYS_ver     [500];
 char*       yVIKEYS_version           (void);
 char        yVIKEYS_debug             (char    a_flag  );
 
+char        yVIKEYS_init              (void);
+
 /*---(mode stack)-----------*/
 char        yVIKEYS_mode_init         (void);
-char        yVIKEYS_mode_enter        (char    a_mode  );
+char        yVIKEYS_mode_enter        (char a_mode);
 char        yVIKEYS_mode_exit         (void);
 char        yVIKEYS_mode_curr         (void);
 char        yVIKEYS_mode_prev         (void);
@@ -153,6 +158,7 @@ char        yVIKEYS_view_ribbon       (void);
 
 /*---(map mode)-------------*/
 char        yVIKEYS_map_init          (void *a_col_mapper, void *a_row_mapper);
+char        yVIKEYS_map_mode          (char a_major, char a_minor);
 
 /*---(speed)----------------*/
 char        yVIKEYS_speed_set    (char   *a_code   , double *a_waitns);

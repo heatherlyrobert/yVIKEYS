@@ -17,29 +17,32 @@ static int     s_ecol    = 0;
 static int     s_acol    = 0;
 
 
-#define    EMPTY_SPOT   -666
 
-char    (*s_cmapper) (int a_horz, int a_ccol, int a_bcol, int a_ecol);
-char    (*s_rmapper) (int a_vert, int a_crow, int a_brow, int a_erow);
+char    (*s_cmapper) (char a_type);
+char    (*s_rmapper) (char a_type);
 
+static char  *s_vsimple  = "_KkjJ~";
+static char  *s_vgoto    = "TKtkmjbJB";
+static char  *s_hsimple  = "0HhlL$";
+static char  *s_hgoto    = "SHshcleLE";
 
 char
 yVIKEYS__map_clear    (tMAPPED *a_map)
 {
    int         i           =    0;
    /*---(lefts)--------------------------*/
-   a_map->gmin  = EMPTY_SPOT;
-   a_map->amin  = EMPTY_SPOT;
-   a_map->lmin  = EMPTY_SPOT;
-   a_map->prev  = EMPTY_SPOT;
+   a_map->gmin  = YVIKEYS_EMPTY;
+   a_map->amin  = YVIKEYS_EMPTY;
+   a_map->lmin  = YVIKEYS_EMPTY;
+   a_map->prev  = YVIKEYS_EMPTY;
    /*---(rights)-------------------------*/
-   a_map->next  = EMPTY_SPOT;
-   a_map->lmax  = EMPTY_SPOT;
-   a_map->amax  = EMPTY_SPOT;
-   a_map->gmax  = EMPTY_SPOT;
+   a_map->next  = YVIKEYS_EMPTY;
+   a_map->lmax  = YVIKEYS_EMPTY;
+   a_map->amax  = YVIKEYS_EMPTY;
+   a_map->gmax  = YVIKEYS_EMPTY;
    /*---(map)----------------------------*/
    for (i = 0; i < LEN_MAP; ++i) {
-      a_map->map [i] = EMPTY_SPOT;
+      a_map->map [i] = YVIKEYS_EMPTY;
    }
    /*---(indexes)------------------------*/
    a_map->beg   = 0;
@@ -63,14 +66,14 @@ yVIKEYS__map_print   (tMAPPED *a_map)
    /*---(headers)------------------------*/
    printf ("gmin amin lmin prev beg-    ");
    for (i = 0; i < LEN_MAP; ++i) {
-      if (a_map->map [i] == EMPTY_SPOT)  break;
+      if (a_map->map [i] == YVIKEYS_EMPTY)  break;
       printf ("%4d "  , i);
    }
    printf ("   end- next lmax amax gmax\n");
    /*---(content)------------------------*/
    printf ("%4d %4d %4d %4d %4d    "  , a_map->gmin, a_map->amin, a_map->lmin, a_map->prev, a_map->beg);
    for (i = 0; i < LEN_MAP; ++i) {
-      if (a_map->map [i] == EMPTY_SPOT)  break;
+      if (a_map->map [i] == YVIKEYS_EMPTY)  break;
       printf ("%4d "  , a_map->map [i]);
    }
    printf ("   %4d %4d %4d %4d %4d\n", a_map->end, a_map->next, a_map->lmax, a_map->amax, a_map->gmax);
@@ -121,6 +124,9 @@ yVIKEYS__map_load     (char a_style, tMAPPED *a_map)
          break;
       }
    }
+   if (a_style == '1') {
+      for (i = 0; i <= 100; ++i)   a_map->map [x_spot++] = i;
+   }
    a_map->gmin  = 0;
    a_map->amin  = 0;
    a_map->lmin  = 0;
@@ -137,6 +143,14 @@ yVIKEYS__map_load     (char a_style, tMAPPED *a_map)
       a_map->end   = 79;
       a_map->avail = 38;
       a_map->tend  = 81;
+      break;
+   case '1' :
+      a_map->cur   =  0;
+      a_map->beg   =  0;
+      a_map->len   = 30;
+      a_map->end   = 29;
+      a_map->avail = 30;
+      a_map->tend  = 29;
       break;
    default  :
       a_map->cur   = 0;
@@ -159,113 +173,9 @@ yVIKEYS_map_init       (void *a_col_mapper, void *a_row_mapper)
 {
    s_cmapper  = a_col_mapper;
    s_rmapper  = a_row_mapper;
+   if (s_cmapper != NULL)  s_cmapper ('i');
+   if (s_rmapper != NULL)  s_rmapper ('i');
    return 0;
-}
-
-
-/*> char         /+-> move left or right by columns ------[ ------ [ge.JA4.264.92]+/ /+-[04.0000.214.!]-+/ /+-[--.---.---.--]-+/   <* 
- *> MOVE_gz_horz       (char a_major, char a_minor)                                                                                <* 
- *> {                                                                                                                              <* 
- *>    /+---(locals)-------------------------+/                                                                                    <* 
- *>    char        rce         = -10;           /+ return code for error          +/                                               <* 
- *>    int         i           = 0;             /+ iterator -- horizontal pos     +/                                               <* 
- *>    int         x_target    = 0;                                                                                                <* 
- *>    int         x_cum       = 0;                                                                                                <* 
- *>    int         x_col       = 0;                                                                                                <* 
- *>    char        x_minors    [LEN_RECD]  = "shcle";                                                                              <* 
- *>    /+---(header)-------------------------+/                                                                                    <* 
- *>    DEBUG_USER   yLOG_enter   (__FUNCTION__);                                                                                   <* 
- *>    DEBUG_USER   yLOG_char    ("a_major"   , a_major);                                                                          <* 
- *>    DEBUG_USER   yLOG_char    ("a_minor"   , a_minor);                                                                          <* 
- *>    /+---(defense)------------------------+/                                                                                    <* 
- *>    --rce;  if (a_major != 'g' && a_major != 'z') {                                                                             <* 
- *>       DEBUG_USER   yLOG_note    ("can only process g and z family moves");                                                     <* 
- *>       DEBUG_USER   yLOG_exit    (__FUNCTION__);                                                                                <* 
- *>       return rce;                                                                                                              <* 
- *>    }                                                                                                                           <* 
- *>    --rce;  if (strchr (x_minors, a_minor) == 0) {                                                                              <* 
- *>       DEBUG_USER   yLOG_note    ("can only process g and z horizontal (shcle) moves");                                         <* 
- *>       DEBUG_USER   yLOG_exit    (__FUNCTION__);                                                                                <* 
- *>       return rce;                                                                                                              <* 
- *>    }                                                                                                                           <* 
- *>    /+---(set target)---------------------+/                                                                                    <* 
- *>    --rce;                                                                                                                      <* 
- *>    DEBUG_USER   yLOG_value   ("my.x_avail", my.x_avail);                                                                       <* 
- *>    x_target = my.x_left;                                                                                                       <* 
- *>    switch (a_minor) {                                                                                                          <* 
- *>    case 's' :  x_target +=  0;                        break;                                                                   <* 
- *>    case 'h' :  x_target += (my.x_avail / 4);          break;                                                                   <* 
- *>    case 'c' :  x_target += (my.x_avail / 2);          break;                                                                   <* 
- *>    case 'l' :  x_target += (my.x_avail / 4) * 3;      break;                                                                   <* 
- *>    case 'e' :  x_target +=  my.x_avail;               break;                                                                   <* 
- *>    }                                                                                                                           <* 
- *>    DEBUG_USER   yLOG_value   ("x_target"  , x_target);                                                                         <* 
- *>    /+---(process gotos)------------------+/                                                                                    <* 
- *>    --rce;                                                                                                                      <* 
- *>    if (a_major == 'g') {                                                                                                       <* 
- *>       DEBUG_USER   yLOG_note    ("handle a g=goto type");                                                                      <* 
- *>       switch (a_minor) {                                                                                                       <* 
- *>       case 's' :                                                                                                               <* 
- *>          CCOL = BCOL; break;                                                                                                   <* 
- *>       case 'e' :                                                                                                               <* 
- *>          CCOL = ECOL; break;                                                                                                   <* 
- *>       case 'h' : case 'c' : case 'l' :                                                                                         <* 
- *>          for (i = BCOL; i <= ECOL; ++i) {                                                                                      <* 
- *>             DEBUG_USER   yLOG_complex ("checking"  , "col %3d at %3d", i, LOC_col_xpos (CTAB, i));                             <* 
- *>             if (LOC_col_xpos (CTAB, i) <= x_target)  {                                                                         <* 
- *>                x_col = i;                                                                                                      <* 
- *>                continue;                                                                                                       <* 
- *>             }                                                                                                                  <* 
- *>             DEBUG_USER   yLOG_note    ("just passed");                                                                         <* 
- *>             break;                                                                                                             <* 
- *>          }                                                                                                                     <* 
- *>          CCOL = x_col;                                                                                                         <* 
- *>          break;                                                                                                                <* 
- *>       }                                                                                                                        <* 
- *>    }                                                                                                                           <* 
- *>    /+---(process scrolls)----------------+/                                                                                    <* 
- *>    else if (a_major == 'z') {                                                                                                  <* 
- *>       DEBUG_USER   yLOG_note    ("handle a z=scroll type");                                                                    <* 
- *>       switch (a_minor) {                                                                                                       <* 
- *>       case 's' :                                                                                                               <* 
- *>          BCOL = CCOL; break;                                                                                                   <* 
- *>       case 'e' :                                                                                                               <* 
- *>          ECOL = CCOL; break;                                                                                                   <* 
- *>       case 'h' : case 'c' : case 'l' :                                                                                         <* 
- *>          BCOL = CCOL;                                                                                                          <* 
- *>          x_cum   = x_target - (LOC_col_width (CTAB, CCOL) / 2);                                                                <* 
-*>          x_col   = 0;                                                                                                          <* 
-*>          for (i = CCOL - 1; i >= 0; --i) {                                                                                     <* 
-   *>             x_cum -= LOC_col_width (CTAB, i);                                                                                  <* 
-      *>             DEBUG_USER   yLOG_complex ("checking"  , "col %3d wid %3d cum %3d", i, LOC_col_width (CTAB, i), x_cum);            <* 
-      *>             if (x_cum > 0) {                                                                                                   <* 
-         *>                x_col = i;                                                                                                      <* 
-            *>                continue;                                                                                                       <* 
-            *>             }                                                                                                                  <* 
-            *>             DEBUG_USER   yLOG_note    ("just passed");                                                                         <* 
-            *>             break;                                                                                                             <* 
-            *>          }                                                                                                                     <* 
-            *>          BCOL = x_col;                                                                                                         <* 
-            *>       }                                                                                                                        <* 
-            *>    }                                                                                                                           <* 
-            *>    /+---(update current colunn)----------+/                                                                                    <* 
-            *>    DEBUG_USER   yLOG_value   ("my.bcol"   , BCOL);                                                                             <* 
-            *>    DEBUG_USER   yLOG_value   ("tab->ccol" , CCOL);                                                                             <* 
-            *>    DEBUG_USER   yLOG_value   ("my.ecol"   , ECOL);                                                                             <* 
-            *>    /+---(complete)-----------------------+/                                                                                    <* 
-            *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                                                                   <* 
-            *>    return 0;                                                                                                                   <* 
-            *> }                                                                                                                              <*/
-
-
-int
-yVIKEYS_map_fixer     (void)
-{
-   /*---(absolute boundaries)------------*/
-   if (s_ccol > s_colmap.gmax)   s_ccol = s_colmap.gmax;
-   if (s_ccol < s_colmap.gmin)   s_ccol = s_colmap.gmin;
-   if (s_crow > s_colmap.gmax)   s_ccol = s_colmap.gmax;
-   if (s_crow < s_colmap.gmin)   s_ccol = s_colmap.gmin;
 }
 
 char
@@ -274,29 +184,46 @@ yVIKEYS__map_move     (int a_target, tMAPPED *a_map)
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    int         i           =    0;
+   /*---(header)-------------------------*/
+   DEBUG_USER  yLOG_enter   (__FUNCTION__);
+   DEBUG_USER  yLOG_value   ("a_target"  , a_target);
+   DEBUG_USER  yLOG_point   ("a_map"     , a_map);
    /*---(defense)------------------------*/
-   --rce;  if (a_map    == NULL)  return rce;
+   --rce;  if (a_map    == NULL) {
+      DEBUG_USER  yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    /*---(make sure index is rational)----*/
+   DEBUG_USER  yLOG_value   ("cur"       , a_map->cur);
+   DEBUG_USER  yLOG_value   ("gmin"      , a_map->gmin);
+   DEBUG_USER  yLOG_value   ("gmax"      , a_map->gmax);
    if (a_map->cur < a_map->gmin)  a_map->cur = a_map->gmin;
    if (a_map->cur > a_map->gmax)  a_map->cur = a_map->gmax;
+   DEBUG_USER  yLOG_value   ("cur"       , a_map->cur);
    a_map->gcur = a_map->map [a_map->cur];
+   DEBUG_USER  yLOG_value   ("gcur"      , a_map->gcur);
    /*---(shortcut)-----------------------*/
-   if (a_map->gcur == a_target)     return 2;
+   if (a_map->gcur == a_target) {
+      DEBUG_USER  yLOG_note    ("already in position");
+      DEBUG_USER  yLOG_exit    (__FUNCTION__);
+      return 2;
+   }
    /*---(check to right)-----------------*/
    if (a_map->gcur <  a_target) {
-      /*> printf ("must search to right\n");                                          <*/
+      DEBUG_USER  yLOG_note    ("must move to right");
       for (i = a_map->cur; i <= a_map->gmax; ++i) {
-         /*> printf ("   checking index %4d\n", i);                                   <*/
          if (a_map->map [i] <  a_target)   continue;
          a_map->cur  = i;
          a_map->gcur = a_map->map [a_map->cur];
+         DEBUG_USER  yLOG_value   ("cur"       , a_map->cur);
+         DEBUG_USER  yLOG_exit    (__FUNCTION__);
          return 0;
       }
       a_map->cur  = a_map->gmax;
    }
    /*---(check to left)------------------*/
    else {
-      /*> printf ("must search to left\n");                                           <*/
+      DEBUG_USER  yLOG_note    ("must move to left");
       /*---(find the right grid)---------*/
       for (i = a_map->cur; i >= a_map->gmin; --i) {
          if (a_map->map [i] >  a_target)   continue;
@@ -306,7 +233,9 @@ yVIKEYS__map_move     (int a_target, tMAPPED *a_map)
          for (i = a_map->cur; i >= a_map->gmin; --i) {
             if (a_map->map [i] != a_target)   break;
             a_map->cur  = i;
+            DEBUG_USER  yLOG_value   ("cur"       , a_map->cur);
          }
+         DEBUG_USER  yLOG_exit    (__FUNCTION__);
          return 0;
       }
       a_map->cur  = a_map->gmin;
@@ -318,6 +247,7 @@ yVIKEYS__map_move     (int a_target, tMAPPED *a_map)
       a_map->cur  = i;
    }
    /*---(complete)-----------------------*/
+   DEBUG_USER  yLOG_exit    (__FUNCTION__);
    return  1;
 }
 
@@ -328,18 +258,16 @@ yVIKEYS__map_screen_small (tMAPPED *a_map)
    int         i           =    0;
    int         x_curr      =    0;
    int         x_next      =    0;
+   /*---(header)-------------------------*/
+   DEBUG_USER  yLOG_enter   (__FUNCTION__);
+   DEBUG_USER  yLOG_point   ("a_map"     , a_map);
    /*---(prepare)------------------------*/
    a_map->beg   = a_map->gmin;
    a_map->len   = a_map->gmax - a_map->gmin + 1;
+   a_map->end   = a_map->gmax;
    a_map->tend  = a_map->gmax;
-   /*---(find real end)------------------*/
-   for (i = a_map->tend; i >= a_map->gmin; --i) {
-      a_map->end   = i;
-      x_curr       = a_map->map [i    ];
-      x_next       = a_map->map [i + 1];
-      if (x_curr != x_next)   break;
-   }
    /*---(complete)-----------------------*/
+   DEBUG_USER  yLOG_exit    (__FUNCTION__);
    return 2;
 }
 
@@ -353,28 +281,35 @@ yVIKEYS__map_screen_beg   (tMAPPED *a_map)
    int         x_curr      =    0;
    int         x_prev      =    0;
    int         x_next      =    0;
+   int         x_tend      =    0;
+   /*---(header)-------------------------*/
+   DEBUG_USER  yLOG_enter   (__FUNCTION__);
+   DEBUG_USER  yLOG_point   ("a_map"     , a_map);
    /*---(find closest beg backward)------*/
-   /*> printf ("yVIKEYS__map_screen_beg\n");                                          <*/
    for (i = a_map->beg; i > a_map->gmin; --i) {
       a_map->beg   = i;
-      /*> printf ("beg  = %3d\n", a_map->beg);                                        <*/
       x_curr       = a_map->map [i    ];
       x_prev       = a_map->map [i - 1];
       if (x_curr != x_prev)   break;
    }
+   DEBUG_USER  yLOG_value   ("beg"       , a_map->beg);
    /*---(prepare)------------------------*/
-   if (a_map->tend != a_map->gmax)  a_map->tend  = a_map->beg + a_map->avail - 1;
+   x_tend = a_map->beg + a_map->avail - 1;
+   DEBUG_USER  yLOG_value   ("gmax"      , a_map->gmax);
+   if (x_tend <  a_map->gmax)  a_map->tend  = x_tend;
+   DEBUG_USER  yLOG_value   ("tend"      , a_map->tend);
    /*---(can not fill screen?)-----------*/
    --rce;  if (a_map->tend > a_map->gmax)   return rce;
    /*---(find end of last full grid)-----*/
    for (i = a_map->tend; i >= a_map->gmin; --i) {
       a_map->end   = i;
-      /*> printf ("tend = %3d\n", a_map->tend);                                       <*/
       x_curr       = a_map->map [i    ];
       x_next       = a_map->map [i + 1];
       if (x_curr != x_next)   break;
    }
+   DEBUG_USER  yLOG_value   ("end"       , a_map->end);
    /*---(complete)-----------------------*/
+   DEBUG_USER  yLOG_exit    (__FUNCTION__);
    return 1;
 }
 
@@ -488,13 +423,21 @@ int
 yVIKEYS_map_vert      (char a_major, char a_minor)
 {
    /*---(locals)-----------+-----+-----+-*/
-   int         x_grid      = s_rowmap.gcur;
+   int         x_grid      =    0;
    int         x_unit      =    0;
-   int         x_qtr       = s_rowmap.avail / 4;
-   char       *x_simple    = "_KkjJ~";
-   char       *x_goto      = "TKtkmjbJB";
+   float       x_qtr       =    0;
+   /*---(header)-------------------------*/
+   DEBUG_USER  yLOG_enter   (__FUNCTION__);
+   DEBUG_USER  yLOG_char    ("a_major"   , a_major);
+   DEBUG_USER  yLOG_char    ("a_minor"   , a_minor);
+   /*---(prepare)------------------------*/
+   x_grid      = s_rowmap.gcur;
+   DEBUG_USER  yLOG_value   ("x_grid"    , x_grid);
+   x_qtr       = s_rowmap.avail / 4.0;
+   DEBUG_USER  yLOG_double  ("x_qtr"     , x_qtr);
    /*---(simple)-------------------------*/
-   if (a_major == ' ' && strchr (x_simple, a_minor) != NULL) {
+   DEBUG_USER  yLOG_info    ("s_vsimple" , s_vsimple);
+   if (a_major == ' ' && strchr (s_vsimple, a_minor) != NULL) {
       switch (a_minor) {
       case '_' : x_grid -= 1000000;   break;
       case 'K' : x_grid -= 5;         break;
@@ -503,10 +446,10 @@ yVIKEYS_map_vert      (char a_major, char a_minor)
       case 'J' : x_grid += 5;         break;
       case '~' : x_grid += 1000000;   break;
       }
-      yVIKEYS__map_move (x_grid, &s_rowmap);
    }
    /*---(gotos)--------------------------*/
-   if (a_major == 'g' && strchr (x_goto  , a_minor) != NULL) {
+   DEBUG_USER  yLOG_info    ("s_vgoto"   , s_vgoto);
+   if (a_major == 'g' && strchr (s_vgoto  , a_minor) != NULL) {
       switch (a_minor) {
       case 'T' : x_unit  = s_rowmap.beg - (x_qtr * 4); break;
       case 'K' : x_unit  = s_rowmap.beg - (x_qtr * 2); break;
@@ -521,25 +464,35 @@ yVIKEYS_map_vert      (char a_major, char a_minor)
       if (x_unit < s_rowmap.gmin)  x_unit = s_rowmap.gmin;
       if (x_unit > s_rowmap.gmax)  x_unit = s_rowmap.gmax;
       x_grid  = s_rowmap.map [x_unit];
-      yVIKEYS__map_move (x_grid, &s_rowmap);
    }
    /*---(check screen)-------------------*/
+   DEBUG_USER  yLOG_value   ("x_grid new", x_grid);
+   yVIKEYS__map_move (x_grid, &s_rowmap);
    yVIKEYS__map_screen (&s_rowmap);
    /*---(complete)-----------------------*/
-   return a_major;
+   DEBUG_USER  yLOG_exit    (__FUNCTION__);
+   return G_KEY_SPACE;
 }
 
 int
 yVIKEYS_map_horz      (char a_major, char a_minor)
 {
    /*---(locals)-----------+-----+-----+-*/
-   int         x_grid      = s_colmap.gcur;
+   int         x_grid      =    0;
    int         x_unit      =    0;
-   int         x_qtr       = s_colmap.avail / 4;
-   char       *x_simple    = "0HhlL$";
-   char       *x_goto      = "SHshcleLE";
+   float       x_qtr       =    0;
+   /*---(header)-------------------------*/
+   DEBUG_USER  yLOG_enter   (__FUNCTION__);
+   DEBUG_USER  yLOG_char    ("a_major"   , a_major);
+   DEBUG_USER  yLOG_char    ("a_minor"   , a_minor);
+   /*---(prepare)------------------------*/
+   x_grid      = s_colmap.gcur;
+   DEBUG_USER  yLOG_value   ("x_grid"    , x_grid);
+   x_qtr       = s_colmap.avail / 4.0;
+   DEBUG_USER  yLOG_double  ("x_qtr"     , x_qtr);
    /*---(simple)-------------------------*/
-   if (a_major == ' ' && strchr (x_simple, a_minor) != NULL) {
+   DEBUG_USER  yLOG_info    ("s_hsimple" , s_hsimple);
+   if (a_major == ' ' && strchr (s_hsimple, a_minor) != NULL) {
       switch (a_minor) {
       case '0' : x_grid -= 1000000;   break;
       case 'H' : x_grid -= 5;         break;
@@ -548,10 +501,10 @@ yVIKEYS_map_horz      (char a_major, char a_minor)
       case 'L' : x_grid += 5;         break;
       case '$' : x_grid += 1000000;   break;
       }
-      yVIKEYS__map_move (x_grid, &s_colmap);
    }
    /*---(gotos)--------------------------*/
-   if (a_major == 'g' && strchr (x_goto  , a_minor) != NULL) {
+   DEBUG_USER  yLOG_info    ("s_hgoto"   , s_hgoto);
+   if (a_major == 'g' && strchr (s_hgoto  , a_minor) != NULL) {
       switch (a_minor) {
       case 'S' : x_unit  = s_colmap.beg - (x_qtr * 4); break;
       case 'H' : x_unit  = s_colmap.beg - (x_qtr * 2); break;
@@ -566,12 +519,334 @@ yVIKEYS_map_horz      (char a_major, char a_minor)
       if (x_unit < s_colmap.gmin)  x_unit = s_colmap.gmin;
       if (x_unit > s_colmap.gmax)  x_unit = s_colmap.gmax;
       x_grid  = s_colmap.map [x_unit];
-      yVIKEYS__map_move (x_grid, &s_colmap);
    }
    /*---(check screen)-------------------*/
+   DEBUG_USER  yLOG_value   ("x_grid new", x_grid);
+   yVIKEYS__map_move (x_grid, &s_colmap);
    yVIKEYS__map_screen (&s_colmap);
    /*---(complete)-----------------------*/
-   return a_major;
+   DEBUG_USER  yLOG_exit    (__FUNCTION__);
+   return G_KEY_SPACE;
+}
+
+char
+yVIKEYS_map_mode        (char a_major, char a_minor)
+{
+   /*---(locals)-----------+-----------+-*/
+   char        rce         = -10;
+   char        rc          = 0;
+   /*---(header)-------------------------*/
+   DEBUG_USER   yLOG_enter   (__FUNCTION__);
+   DEBUG_USER   yLOG_char    ("a_major"   , a_major);
+   DEBUG_USER   yLOG_char    ("a_minor"   , a_minor);
+   /*---(defenses)-----------------------*/
+   DEBUG_USER   yLOG_char    ("mode"      , yVIKEYS_mode_curr ());
+   --rce;  if (yVIKEYS_mode_not (MODE_MAP    )) {
+      DEBUG_USER   yLOG_note    ("not the correct mode");
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return rce;
+   }
+   /*---(space)--------------------------*/
+   if (a_minor == G_KEY_SPACE ) {
+      DEBUG_USER   yLOG_note    ("space, nothing to do");
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return G_KEY_SPACE;
+   }
+   /*---(major mode changes)-------------*/
+   /*> if (a_minor == G_KEY_RETURN) {                                                 <* 
+    *>    yVIKEYS_mode_enter  (MODE_SOURCE);                                          <* 
+    *>    EDIT_pos    ('0');                                                          <* 
+    *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                   <* 
+    *>    return  0;                                                                  <* 
+    *> }                                                                              <*/
+   /*> if (a_minor == G_KEY_ESCAPE) {                                                 <* 
+    *>    VISU_clear ();                                                              <* 
+    *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                   <* 
+    *>    return  0;                                                                  <* 
+    *> }                                                                              <*/
+   /*---(single key)---------------------*/
+   --rce;
+   if (a_major == ' ') {
+      /*---(multiplier)------------------*/
+      if (strchr ("123456789"  , a_minor) != 0) {
+         yVIKEYS_mode_enter  (SMOD_REPEAT);
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         return a_minor;
+      }
+      /*---(multikey prefixes)-----------*/
+      if (strchr ("gzced"  , a_minor) != 0) {
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         return a_minor;
+      }
+      /*---(mode switch)-----------------*/
+      switch (a_minor) {
+         /*> case 'v'      :                                                             <* 
+          *>    yVIKEYS_mode_enter  (MODE_VISUAL);                                       <* 
+          *>    VISU_start  (CTAB, CCOL, CROW, VISU_FROM);                               <* 
+          *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <* 
+          *>    return 0;                                                                <* 
+          *>    break;                                                                   <*/
+         /*> case 'V'      :                                                             <* 
+          *>    yVIKEYS_mode_enter  (MODE_VISUAL);                                       <* 
+          *>    VISU_restore ();                                                         <* 
+          *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <* 
+          *>    return 0;                                                                <* 
+          *>    break;                                                                   <*/
+      case ':'      :
+         yVIKEYS_mode_enter  (MODE_COMMAND);
+         yVIKEYS_cmds_start ();
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         return a_minor;
+         break;
+      case '/'      :
+         yVIKEYS_mode_enter  (MODE_SEARCH);
+         yVIKEYS_srch_start ();
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         return a_minor;
+         break;
+         /*> case 's'      :                                                             <* 
+          *>    EDIT_start  ("");                                                        <* 
+          *>    yVIKEYS_mode_enter  (MODE_INPUT  );                                      <* 
+          *>    MODE_input ('m', 'i');                                                   <* 
+          *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <* 
+          *>    return 'i';                                                              <* 
+          *>    break;                                                                   <*/
+         /*> case '='      :                                                             <* 
+          *>    EDIT_start  ("=");                                                       <* 
+          *>    yVIKEYS_mode_enter  (MODE_INPUT  );                                      <* 
+          *>    MODE_input ('m', 'a');                                                   <* 
+          *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <* 
+          *>    return 'a';                                                              <* 
+          *>    break;                                                                   <*/
+         /*> case '#'      :                                                             <* 
+          *>    EDIT_start  ("#");                                                       <* 
+          *>    yVIKEYS_mode_enter  (MODE_INPUT  );                                      <* 
+          *>    MODE_input ('m', 'a');                                                   <* 
+          *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <* 
+          *>    return 'a';                                                              <* 
+          *>    break;                                                                   <*/
+         /*> case '+'      :                                                             <* 
+          *>    EDIT_start  ("+");                                                       <* 
+          *>    yVIKEYS_mode_enter  (MODE_INPUT  );                                      <* 
+          *>    MODE_input ('m', 'a');                                                   <* 
+          *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <* 
+          *>    return 'a';                                                              <* 
+          *>    break;                                                                   <*/
+         /*> case '-'      :                                                             <* 
+          *>    EDIT_start  ("-");                                                       <* 
+          *>    yVIKEYS_mode_enter  (MODE_INPUT  );                                      <* 
+          *>    MODE_input ('m', 'a');                                                   <* 
+          *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <* 
+          *>    return 'a';                                                              <* 
+          *>    break;                                                                   <*/
+      }
+      /*---(submodes)--------------------*/
+      switch (a_minor) {
+         /*> case '\\'     :                                                             <* 
+          *>    DEBUG_USER   yLOG_note    ("selected menu mode");                        <* 
+          *>    yVIKEYS_mode_enter  (SMOD_MENUS  );                                      <* 
+          *>    my.menu = MENU_ROOT;                                                     <* 
+          *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <* 
+          *>    return 0;                                                                <* 
+          *>    break;                                                                   <*/
+      case '@'      :
+         IF_MACRO_OFF {
+            yVIKEYS_macro_reset  ();
+            yVIKEYS_mode_enter  (SMOD_MACRO   );
+            DEBUG_USER   yLOG_exit    (__FUNCTION__);
+            return a_minor;
+         }
+         yVIKEYS_macro_reset  ();
+         DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
+         return rce;
+         break;
+      case 'q'      :
+         IF_MACRO_OFF {
+            yVIKEYS_mode_enter  (SMOD_MACRO   );
+            DEBUG_USER   yLOG_exit    (__FUNCTION__);
+            return a_minor;
+         }
+         yVIKEYS_macro_rec_end ();
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         return G_KEY_SPACE;
+         break;
+      case 'Q'      :
+         yVIKEYS_macro_reset ();
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         return G_KEY_SPACE;
+         break;
+         /*> case 'F'      :                                                             <* 
+          *>    yVIKEYS_mode_enter  (SMOD_FORMAT  );                                     <* 
+          *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <* 
+          *>    return 0;                                                                <* 
+          *>    break;                                                                   <*/
+         /*> case ','      :                                                             <* 
+          *>    yVIKEYS_mode_enter  (SMOD_BUFFER  );                                     <* 
+          *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <* 
+          *>    return a_minor;                                                          <* 
+          *>    break;                                                                   <*/
+         /*> case '"'      :                                                             <* 
+          *>    yVIKEYS_mode_enter  (SMOD_REGISTER);                                     <* 
+          *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <* 
+          *>    return a_minor;  /+ make sure double quote goes in prev char +/          <* 
+          *>    break;                                                                   <*/
+         /*> case 'm'      :                                                             <* 
+          *> case '\''     :                                                             <* 
+          *>    yVIKEYS_mode_enter  (SMOD_MARK    );                                     <* 
+          *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <* 
+          *>    return a_minor;  /+ make sure single quote goes in prev char +/          <* 
+          *>    break;                                                                   <*/
+         /*> case 'E'      :                                                             <* 
+          *>    yVIKEYS_mode_enter  (SMOD_ERROR   );                                     <* 
+          *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <* 
+          *>    return SMOD_ERROR;  /+ make sure mode indicator goes also       +/       <* 
+          *>    break;                                                                   <*/
+      }
+      /*---(normal)----------------------*/
+      /*> if (a_minor == 6) {                                                         <* 
+       *>    rc = KEYS_gz_family  ('g', 'B');                                         <* 
+       *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <* 
+       *>    return 0;                                                                <* 
+       *> }                                                                           <*/
+      /*> if (a_minor == 2) {                                                         <* 
+       *>    rc = KEYS_gz_family  ('g', 'T');                                         <* 
+       *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <* 
+       *>    return 0;                                                                <* 
+       *> }                                                                           <*/
+      if (a_minor == 'P') {
+         yVIKEYS__map_print (&s_colmap);
+         yVIKEYS__map_print (&s_rowmap);
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         return G_KEY_SPACE;
+      }
+      if (strchr ("0HhlL$", a_minor) != 0) {
+         rc = yVIKEYS_map_horz   (a_major, a_minor);
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         return G_KEY_SPACE;
+      }
+      if (strchr ("_KkjJ~", a_minor) != 0) {
+         rc = yVIKEYS_map_vert   (a_major, a_minor);
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         return G_KEY_SPACE;
+      }
+      /*> rc = KEYS_regbasic (a_major, a_minor);                                      <* 
+       *> if (rc == 0) {                                                              <* 
+       *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <* 
+       *>    return 0;                                                                <* 
+       *> }                                                                           <*/
+      /*---(special)------------------*/
+      /*> switch (a_minor) {                                                                                    <* 
+       *> case K_CTRL_L : clear ();                       break;                                                <* 
+       *> case 'P'      : DEP_writeall (); LOC_col_map (); KEYS_pcol (); KEYS_prow (); HIST_list ();  break;    <* 
+       *>                 /+---(formatting)---------------+/                                                    <* 
+       *> case '<'      : CELL_align (CHG_INPUT, '<');               break;                                     <* 
+       *> case '|'      : CELL_align (CHG_INPUT, '|');               break;                                     <* 
+       *> case '>'      : CELL_align (CHG_INPUT, '>');               break;                                     <* 
+       *>                 /+---(selection)----------------+/                                                    <* 
+       *>                 /+> case 'v'      : VISU_start (CTAB, CCOL, CROW, VISU_FROM);   break;          <+/   <* 
+       *>                 /+> case 'V'      : VISU_start (CTAB, CCOL, CROW, VISU_CUM);    break;          <+/   <* 
+       *>                 /+> case 'y'      : REG_copy  ();                   break;                      <+/   <* 
+       *>                 /+> case 'p'      : REG_paste (G_PASTE_NORM);       break;                      <+/   <* 
+       *>                 /+---(modes and multikey)-------+/                                                    <* 
+       *> case '@'      : SEQ_calc_full ();               break;                                                <* 
+       *>                 /+> case '[' : if (escaped) { sch = ch; special = 1; } else sch = 'x'; break;   <+/   <* 
+       *>                 /+---(new stuff)----------------+/                                                    <* 
+       *> case 'u'      : HIST_undo ();                   break;                                                <* 
+       *> case 'U'      : HIST_redo ();                   break;                                                <* 
+       *>                 /+> case 'W'      : REG_bufwrite (my.reg_curr);     break;                      <+/   <* 
+       *> case '?'      : my.info_win = G_INFO_CELL;      break;                                                <* 
+       *> default       : /+ unknown problem +/                                                                 <* 
+       *>                 DEBUG_USER   yLOG_exit    (__FUNCTION__);                                             <* 
+       *>                 return rce;                                                                           <* 
+       *>                 break;                                                                                <* 
+       *> }                                                                                                     <*/
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
+   /*---(special family)------------------------*/
+   /*> --rce;                                                                         <* 
+    *> if (a_major == 'c') {                                                           <* 
+    *>    switch (a_minor) {                                                           <* 
+    *>    case 's'      : KEYS_col ("cs");                break;                      <* 
+    *>    case 'h'      : KEYS_col ("ch");                break;                      <* 
+    *>    case 'l'      : KEYS_col ("cl");                break;                      <* 
+    *>    case 'e'      : KEYS_col ("ce");                break;                      <* 
+    *>    case 't'      : KEYS_row ("ct");                break;                      <* 
+    *>    case 'b'      : KEYS_row ("cb");                break;                      <* 
+    *>    default       : return rce;                     break;                      <* 
+    *>    }                                                                           <* 
+    *>    return 0;                                                                   <* 
+    *> }                                                                              <*/
+   /*> else if (a_major == 'x') {                                                      <* 
+    *>    sch = ' ';                                                                  <* 
+    *>    ch  = 24;                                                                   <* 
+    *> }                                                                              <*/
+   /*---(goto family)--------------------*/
+   if (a_major == 'g') {
+      if (strchr (s_hgoto, a_minor) != 0) {
+         rc = yVIKEYS_map_horz   (a_major, a_minor);
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         return G_KEY_SPACE;
+      }
+      if (strchr (s_vgoto, a_minor) != 0) {
+         rc = yVIKEYS_map_vert   (a_major, a_minor);
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         return G_KEY_SPACE;
+      }
+   }
+   /*---(scroll family)------------------*/
+   /*> if (a_major == 'z') {                                                          <* 
+    *>    rc = KEYS_gz_family  (a_major, a_minor);                                    <* 
+    *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                   <* 
+    *>    return 0;                                                                   <* 
+    *> }                                                                              <*/
+   /*---(end family)---------------------*/
+   /*> if (a_major == 'e') {                                                          <* 
+    *>    rc = KEYS_e_family   (a_major, a_minor);                                    <* 
+    *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                   <* 
+    *>    return 0;                                                                   <* 
+    *> }                                                                              <*/
+   /*---(end family)---------------------*/
+   /*> if (a_major == 'c') {                                                          <* 
+    *>    rc = KEYS_c_family   (a_major, a_minor);                                    <* 
+    *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                   <* 
+    *>    return 0;                                                                   <* 
+    *> }                                                                              <*/
+   /*---(delete family)-------------------------*/
+   /*> --rce;                                                                         <* 
+    *> if (a_major == 'd') {                                                           <* 
+    *>    switch (a_minor) {                                                           <* 
+    *>    case 'd' : --NROW;          break;                                          <* 
+    *>    case 'w' : --NCOL;     break;                                               <* 
+    *>    default  : return rce;                         break;                       <* 
+    *>    }                                                                           <* 
+    *>    return 0;                                                                   <* 
+    *> }                                                                              <*/
+   /*---(complete)------------------------------*/
+   DEBUG_USER   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char
+yVIKEYS__unit_rowmap    (void)
+{
+   /*> printf ("running rowmap\n");                                                   <*/
+   yVIKEYS__map_load ('1', &s_rowmap);
+   return 0;
+}
+
+char
+yVIKEYS__unit_colmap    (void)
+{
+   /*> printf ("running colmap\n");                                                   <*/
+   yVIKEYS__map_load ('w', &s_colmap);
+   return 0;
+}
+
+char
+yVIKEYS__unit_dismap    (void)
+{
+   return 0;
 }
 
 char*        /*-> tbd --------------------------------[ leaf   [gs.520.202.40]*/ /*-[01.0000.00#.#]-*/ /*-[--.---.---.--]-*/
@@ -588,6 +863,12 @@ yVIKEYS__map_unit       (char *a_question, char a_index)
    }
    else if (strcmp (a_question, "horz_grid"      )   == 0) {
       snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP horz grids   :        b %3d, c %3d, e %3d", s_colmap.gbeg, s_colmap.gcur, s_colmap.gend);
+   }
+   else if (strcmp (a_question, "vert_unit"      )   == 0) {
+      snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP vert units   : a %3d, b %3d, c %3d, e %3d, t %3d, l %3d", s_rowmap.avail, s_rowmap.beg, s_rowmap.cur, s_rowmap.end, s_rowmap.tend, s_rowmap.len);
+   }
+   else if (strcmp (a_question, "vert_grid"      )   == 0) {
+      snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP vert grids   :        b %3d, c %3d, e %3d", s_rowmap.gbeg, s_rowmap.gcur, s_rowmap.gend);
    }
    /*---(complete)-----------------------*/
    return yVIKEYS__unit_answer;
