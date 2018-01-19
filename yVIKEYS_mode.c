@@ -143,6 +143,7 @@ struct cWIN {
    int         p_tall;                      /* height of progress window      */
    int         p_bott;                      /* bottom of progress window      */
    /*---(display)-----------*/
+   char        grid_on;                     /* show visual grid pattern       */
    char        face;
    int         font;    
    int         icons;
@@ -150,6 +151,12 @@ struct cWIN {
 };
 static tWIN   s_win;
 
+int         g_goffx   =   0;
+int         g_gsizex  =   1;
+int         g_goffy   =   0;
+int         g_gsizey  =   1;
+int         g_goffz   =   0;
+int         g_gsizez  =   1;
 
 char    (*s_sizer) (int, int);
 
@@ -430,6 +437,14 @@ yVIKEYS_view_set_ribbon  (char *a_opt)
 }
 
 char
+yVIKEYS_view_set_grid    (char *a_opt)
+{
+   if (strcmp (a_opt, "hide") == 0)  s_win.grid_on = '-';
+   if (strcmp (a_opt, "show") == 0)  s_win.grid_on = 'y';
+   return 0;
+}
+
+char
 yVIKEYS_view_set_layout  (char *a_opt)
 {
    if (strcmp (a_opt, "min") == 0) {
@@ -452,22 +467,27 @@ yVIKEYS_view_init       (void *a_sizer, char *a_title, char *a_ver)
 {
    /*---(locals)-----------+-----+-----+-*/
    int         i           =    0;
+   char        rc          =    0;
    s_sizer = NULL;
    if (a_sizer != NULL)  s_sizer = a_sizer;
-   yVIKEYS_cmds_add ('v', "layout"      , ""    , "s"    , yVIKEYS_view_set_layout   , ""                                                            );
-   yVIKEYS_cmds_add ('v', "status"      , ""    , "s"    , yVIKEYS_view_set_status   , ""                                                            );
-   yVIKEYS_cmds_add ('v', "command"     , ""    , "s"    , yVIKEYS_view_set_command , ""                                                            );
-   yVIKEYS_cmds_add ('v', "title"       , ""    , "s"    , yVIKEYS_view_set_title   , ""                                                            );
-   yVIKEYS_cmds_add ('v', "ribbon"      , ""    , "s"    , yVIKEYS_view_set_ribbon  , ""                                                            );
+   yVIKEYS_cmds_add ('v', "layout"      , ""    , "s"    , yVIKEYS_view_set_layout   , "" );
+   yVIKEYS_cmds_add ('v', "status"      , ""    , "s"    , yVIKEYS_view_set_status   , "" );
+   yVIKEYS_cmds_add ('v', "command"     , ""    , "s"    , yVIKEYS_view_set_command  , "" );
+   yVIKEYS_cmds_add ('v', "title"       , ""    , "s"    , yVIKEYS_view_set_title    , "" );
+   yVIKEYS_cmds_add ('v', "ribbon"      , ""    , "s"    , yVIKEYS_view_set_ribbon   , "" );
+   yVIKEYS_cmds_add ('v', "grid"        , ""    , "s"    , yVIKEYS_view_set_grid     , "" );
+   yVIKEYS_cmds_add ('v', "gridoff"     , ""    , "iii"  , yVIKEYS_view_set_gridoff  , "" );
+   yVIKEYS_cmds_add ('v', "gridsize"    , ""    , "iii"  , yVIKEYS_view_set_gridsize , "" );
    if (a_title != NULL)  strlcpy (s_win.t_text, a_title, LEN_DESC );
    if (a_ver   != NULL)  strlcpy (s_win.t_ver , a_ver  , LEN_LABEL);
-   s_win.t_on = 'y';
-   s_win.c_on = 'y';
-   s_win.s_on = 'y';
-   s_win.p_on = '-';
-   s_win.d_on = '-';
-   s_win.r_on = '-';
-   s_win.b_on = '-';
+   s_win.t_on    = 'y';
+   s_win.c_on    = 'y';
+   s_win.s_on    = 'y';
+   s_win.p_on    = '-';
+   s_win.d_on    = '-';
+   s_win.r_on    = '-';
+   s_win.b_on    = '-';
+   s_win.grid_on = '-';
    for (i = 0; i < LEN_LABEL; ++i)  s_win.r_icons [i] = -1;
    s_win.r_nicon = 0;
    return 0;
@@ -813,6 +833,141 @@ yVIKEYS_view_title       (void)
    } glPopMatrix   ();
    /*---(complete)-----------------------*/
    return;
+}
+
+char
+yVIKEYS_view_set_gridoff  (int a_x, int a_y, int a_z)
+{
+   if (a_x > 0) {
+      g_goffx = a_x;
+      if (a_y <= 0) g_goffy = a_x;
+      if (a_z <= 0) g_goffz = a_x;
+   }
+   /*> printf ("gridx off %3d size %3d\n", g_goffx, g_gsizex);                        <*/
+   return 0;
+}
+
+char
+yVIKEYS_view_set_gridsize (int a_x, int a_y, int a_z)
+{
+   if (a_x > 0) {
+      g_gsizex = a_x;
+      if (a_y <= 0) g_gsizey = a_x;
+      if (a_z <= 0) g_gsizez = a_x;
+   }
+   /*> printf ("gridx off %3d size %3d\n", g_goffx, g_gsizex);                        <*/
+   return 0;
+}
+
+char
+yVIKEYS_view_set_gridy (int a_off, int a_size)
+{
+   g_goffy  = a_off;
+   if (a_size > 5) g_gsizey = a_size;
+   printf ("gridy off %3d size %3d\n", g_goffy, g_gsizey);
+   return 0;
+}
+
+char          /*----: draw the saved status ----------------------------------*/
+yVIKEYS_view_cursor      (float a_mag)
+{
+   /*> if (my.touch == 'y')  return 0;                                                <*/
+   int         x_lef   = s_colmap.cur / a_mag;
+   int         x_bot   = s_rowmap.cur / a_mag;
+   int         x_rig   = x_lef + (g_gsizex / a_mag);
+   int         x_top   = x_bot + (g_gsizey / a_mag);
+   glColor4f    (1.00f, 0.00f, 0.00f, 0.2f);
+   glBegin      (GL_POLYGON); {
+      glVertex3f   (x_lef, x_bot, 25.0);
+      glVertex3f   (x_lef, x_top, 25.0);
+      glVertex3f   (x_rig, x_top, 25.0);
+      glVertex3f   (x_rig, x_bot, 25.0);
+      glVertex3f   (x_lef, x_bot, 25.0);
+   } glEnd ();
+   return 0;
+}
+
+char
+yVIKEYS_view_grid        (float a_mag)
+{
+   int         i           = 0;
+   int         x           = 0;
+   int         y           = 0;
+   int         c           = 0;
+   int         cx          = 0;
+   int         cy          = 0;
+   /*---(x grid)-------------------------*/
+   if (s_win.grid_on == '-')  return 0;
+   glPushMatrix    (); {
+      /*> glScalef      (a_mag, a_mag, a_mag);                                        <*/
+      glColor4f     (0.0, 0.3, 0.0, 0.5);
+      /*> yVIKEYS_view_color (COLOR_TXT_D);                                           <*/
+      glLineWidth   (1.5);
+      glTranslatef  (g_goffx, 0.0    , 50.0);
+      for (i = s_colmap.gmin; i <= s_colmap.gmax; i += g_gsizex) {
+         if (c % 5 ==  0) {
+            glBegin         (GL_LINES); {
+               glVertex3f  (0.0f  , s_rowmap.gmin,  0.0f);
+               glVertex3f  (0.0f  , s_rowmap.gmax,  0.0f);
+            } glEnd   ();
+         }
+         glTranslatef  (g_gsizex / a_mag, 0.0    ,  0.0);
+         ++c;
+      }
+   } glPopMatrix   ();
+   /*---(y grid)-------------------------*/
+   glPushMatrix    (); {
+      /*> glScalef      (a_mag, a_mag, a_mag);                                        <*/
+      glColor4f     (0.0, 0.3, 0.0, 0.5);
+      /*> yVIKEYS_view_color (COLOR_TXT_D);                                           <*/
+      glLineWidth   (1.5);
+      glTranslatef  (0.0, g_goffy, 50.0);
+      for (i = s_rowmap.gmin; i <= s_rowmap.gmax; i += g_gsizey) {
+         if (c % 5 ==  0) {
+            /*> glDisable     (GL_LINE_STIPPLE);                                      <*/
+            /*> glLineStipple (1, 0xFFFF);                                            <*/
+            glBegin         (GL_LINES); {
+               glVertex3f  (s_colmap.gmin, 0.0f,  0.0f);
+               glVertex3f  (s_colmap.gmax, 0.0f,  0.0f);
+            } glEnd   ();
+            glTranslatef  (0.0, g_gsizey / a_mag,  0.0);
+         } else {
+            /*> glEnable      (GL_LINE_STIPPLE);                                      <*/
+            /*> glLineStipple (1, 0x3030);                                            <*/
+            /*> glBegin         (GL_POINT); {                                         <* 
+             *>    glVertex3f  (s_colmap.gmin, 0.0f,  0.0f);                          <* 
+             *> } glEnd   ();                                                         <*/
+            glTranslatef  (0.0, g_gsizey / a_mag,  0.0);
+         }
+         ++c;
+      }
+   } glPopMatrix   ();
+   /*---(xy dots)------------------------*/
+   glPushMatrix    (); {
+      /*> glScalef      (a_mag, a_mag, a_mag);                                        <*/
+      glPointSize   (5);
+      glLineWidth   (1.5);
+      glColor4f     (0.0, 0.3, 0.0, 0.5);
+      /*> yVIKEYS_view_color (COLOR_TXT_D);                                           <*/
+      glTranslatef  (0.0, g_goffy, 50.0);
+      for (y = s_rowmap.gmin; y <= s_rowmap.gmax; y += g_gsizey) {
+         for (x = s_colmap.gmin; x <= s_colmap.gmax; x += g_gsizex) {
+            /*> glBegin         (GL_POINTS); {                                        <* 
+             *>    glVertex3f  (x / a_mag, y / a_mag,  0.0f);                         <* 
+             *> } glEnd   ();                                                         <*/
+            glBegin         (GL_LINES); {
+               glVertex3f  ((x - 5) / a_mag, y / a_mag,  0.0f);
+               glVertex3f  ((x + 5) / a_mag, y / a_mag,  0.0f);
+               glVertex3f  (x / a_mag, (y - 5) / a_mag,  0.0f);
+               glVertex3f  (x / a_mag, (y + 5) / a_mag,  0.0f);
+            } glEnd   ();
+            ++cx;
+         }
+         ++cy;
+      }
+   } glPopMatrix   ();
+   /*---(complete)-----------------------*/
+   return 0;
 }
 
 char

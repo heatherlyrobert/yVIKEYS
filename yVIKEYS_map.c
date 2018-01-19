@@ -21,6 +21,7 @@ static int     s_acol    = 0;
 char    (*s_cmapper) (char a_type);
 char    (*s_rmapper) (char a_type);
 
+static char   s_coord    = YVIKEYS_RIGHT;
 static char  *s_vsimple  = "_KkjJ~";
 static char  *s_vgoto    = "TKtkmjbJB";
 static char  *s_hsimple  = "0HhlL$";
@@ -169,8 +170,9 @@ yVIKEYS__map_load     (char a_style, tMAPPED *a_map)
 }
 
 char
-yVIKEYS_map_init       (void *a_col_mapper, void *a_row_mapper)
+yVIKEYS_map_init       (char a_coord, void *a_col_mapper, void *a_row_mapper)
 {
+   s_coord    = a_coord;
    s_cmapper  = a_col_mapper;
    s_rmapper  = a_row_mapper;
    if (s_cmapper != NULL)  s_cmapper ('i');
@@ -438,34 +440,61 @@ yVIKEYS_map_vert      (char a_major, char a_minor)
    /*---(simple)-------------------------*/
    DEBUG_USER  yLOG_info    ("s_vsimple" , s_vsimple);
    if (a_major == ' ' && strchr (s_vsimple, a_minor) != NULL) {
-      switch (a_minor) {
-      case '_' : x_grid -= 1000000;   break;
-      case 'K' : x_grid -= 5;         break;
-      case 'k' : x_grid -= 1;         break;
-      case 'j' : x_grid += 1;         break;
-      case 'J' : x_grid += 5;         break;
-      case '~' : x_grid += 1000000;   break;
+      if (s_coord == YVIKEYS_OFFICE) {
+         switch (a_minor) {
+         case '_' : x_grid -= 1000000;       break;
+         case 'K' : x_grid -= g_gsizey * 5;  break;
+         case 'k' : x_grid -= g_gsizey;      break;
+         case 'j' : x_grid += g_gsizey;      break;
+         case 'J' : x_grid += g_gsizey * 5;  break;
+         case '~' : x_grid += 1000000;       break;
+         }
+      } else {
+         switch (a_minor) {
+         case '~' : x_grid -= 1000000;       break;
+         case 'J' : x_grid -= g_gsizey * 5;  break;
+         case 'j' : x_grid -= g_gsizey;      break;
+         case 'k' : x_grid += g_gsizey;      break;
+         case 'K' : x_grid += g_gsizey * 5;  break;
+         case '_' : x_grid += 1000000;       break;
+         }
       }
    }
    /*---(gotos)--------------------------*/
    DEBUG_USER  yLOG_info    ("s_vgoto"   , s_vgoto);
    if (a_major == 'g' && strchr (s_vgoto  , a_minor) != NULL) {
-      switch (a_minor) {
-      case 'T' : x_unit  = s_rowmap.beg - (x_qtr * 4); break;
-      case 'K' : x_unit  = s_rowmap.beg - (x_qtr * 2); break;
-      case 't' : x_unit  = s_rowmap.beg;               break;
-      case 'k' : x_unit  = s_rowmap.beg + (x_qtr * 1); break;
-      case 'm' : x_unit  = s_rowmap.beg + (x_qtr * 2); break;
-      case 'j' : x_unit  = s_rowmap.beg + (x_qtr * 3); break;
-      case 'b' : x_unit  = s_rowmap.end;               break;
-      case 'J' : x_unit  = s_rowmap.beg + (x_qtr * 6); break;
-      case 'B' : x_unit  = s_rowmap.beg + (x_qtr * 8); break;
+      if (s_coord == YVIKEYS_OFFICE) {
+         switch (a_minor) {
+         case 'T' : x_unit  = s_rowmap.beg - (x_qtr * 4); break;
+         case 'K' : x_unit  = s_rowmap.beg - (x_qtr * 2); break;
+         case 't' : x_unit  = s_rowmap.beg;               break;
+         case 'k' : x_unit  = s_rowmap.beg + (x_qtr * 1); break;
+         case 'm' : x_unit  = s_rowmap.beg + (x_qtr * 2); break;
+         case 'j' : x_unit  = s_rowmap.beg + (x_qtr * 3); break;
+         case 'b' : x_unit  = s_rowmap.end;               break;
+         case 'J' : x_unit  = s_rowmap.beg + (x_qtr * 6); break;
+         case 'B' : x_unit  = s_rowmap.beg + (x_qtr * 8); break;
+         }
+      } else {
+         switch (a_minor) {
+         case 'B' : x_unit  = s_rowmap.beg - (x_qtr * 4); break;
+         case 'J' : x_unit  = s_rowmap.beg - (x_qtr * 2); break;
+         case 'b' : x_unit  = s_rowmap.beg;               break;
+         case 'j' : x_unit  = s_rowmap.beg + (x_qtr * 1); break;
+         case 'm' : x_unit  = s_rowmap.beg + (x_qtr * 2); break;
+         case 'k' : x_unit  = s_rowmap.beg + (x_qtr * 3); break;
+         case 't' : x_unit  = s_rowmap.end;               break;
+         case 'K' : x_unit  = s_rowmap.beg + (x_qtr * 6); break;
+         case 'T' : x_unit  = s_rowmap.beg + (x_qtr * 8); break;
+         }
       }
       if (x_unit < s_rowmap.gmin)  x_unit = s_rowmap.gmin;
       if (x_unit > s_rowmap.gmax)  x_unit = s_rowmap.gmax;
       x_grid  = s_rowmap.map [x_unit];
    }
    /*---(check screen)-------------------*/
+   x_grid /= g_gsizey;
+   x_grid *= g_gsizey;
    DEBUG_USER  yLOG_value   ("x_grid new", x_grid);
    yVIKEYS__map_move (x_grid, &s_rowmap);
    yVIKEYS__map_screen (&s_rowmap);
@@ -494,12 +523,12 @@ yVIKEYS_map_horz      (char a_major, char a_minor)
    DEBUG_USER  yLOG_info    ("s_hsimple" , s_hsimple);
    if (a_major == ' ' && strchr (s_hsimple, a_minor) != NULL) {
       switch (a_minor) {
-      case '0' : x_grid -= 1000000;   break;
-      case 'H' : x_grid -= 5;         break;
-      case 'h' : x_grid -= 1;         break;
-      case 'l' : x_grid += 1;         break;
-      case 'L' : x_grid += 5;         break;
-      case '$' : x_grid += 1000000;   break;
+      case '0' : x_grid -= 1000000;        break;
+      case 'H' : x_grid -= g_gsizex * 5;   break;
+      case 'h' : x_grid -= g_gsizex;       break;
+      case 'l' : x_grid += g_gsizex;       break;
+      case 'L' : x_grid += g_gsizex * 5;   break;
+      case '$' : x_grid += 1000000;        break;
       }
    }
    /*---(gotos)--------------------------*/
@@ -521,6 +550,8 @@ yVIKEYS_map_horz      (char a_major, char a_minor)
       x_grid  = s_colmap.map [x_unit];
    }
    /*---(check screen)-------------------*/
+   x_grid /= g_gsizex;
+   x_grid *= g_gsizex;
    DEBUG_USER  yLOG_value   ("x_grid new", x_grid);
    yVIKEYS__map_move (x_grid, &s_colmap);
    yVIKEYS__map_screen (&s_colmap);
@@ -719,12 +750,12 @@ yVIKEYS_map_mode        (char a_major, char a_minor)
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return G_KEY_SPACE;
       }
-      if (strchr ("0HhlL$", a_minor) != 0) {
+      if (strchr (s_hsimple, a_minor) != 0) {
          rc = yVIKEYS_map_horz   (a_major, a_minor);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return G_KEY_SPACE;
       }
-      if (strchr ("_KkjJ~", a_minor) != 0) {
+      if (strchr (s_vsimple, a_minor) != 0) {
          rc = yVIKEYS_map_vert   (a_major, a_minor);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return G_KEY_SPACE;

@@ -70,6 +70,8 @@ static tTERMS  s_terms [MAX_TERMS] = {
    { "ss"  , "char*, char*"        , 0},
    { "si"  , "char*, int"          , 0},
    { "a"   , "char*"               , 0},  /* string incudes spaces            */
+   { "ii"  , "int, int"            , 0},
+   { "iii" , "int, int, int"       , 0},
    { "-"   , ""                    , 0},
 };
 static  int s_nterm  = 0;
@@ -95,6 +97,9 @@ struct  cCOMMAND {
       char        (*v   ) (void);           /* function pointer               */
       char        (*c   ) (char);           /* function pointer               */
       char        (*cc  ) (char , char );   /* function pointer               */
+      char        (*i   ) (int);            /* function pointer               */
+      char        (*ii  ) (int, int);       /* function pointer               */
+      char        (*iii ) (int, int, int);  /* function pointer               */
       char        (*is  ) (int  , char*);   /* function pointer               */
       char        (*s   ) (char*);          /* function pointer               */
       char        (*ss  ) (char*, char*);   /* function pointer               */
@@ -550,22 +555,35 @@ yVIKEYS_cmds_add     (char a_menu, char *a_name, char *a_abbr, char *a_terms, vo
    strlcpy (s_cmds [s_ncmd].desc , a_desc , LEN_DESC );
    /*---(assign function pointer)--------*/
    switch (a_terms [0]) {
-   case   0  : s_cmds [s_ncmd].f.v   = a_func; break;
+   case   0  :
+      s_cmds [s_ncmd].f.v   = a_func; break;
    case  'c' :
-               switch (a_terms [1]) {
-               case   0  : s_cmds [s_ncmd].f.c   = a_func; break;
-               case  'c' : s_cmds [s_ncmd].f.cc  = a_func; break;
-               }
+      switch (a_terms [1]) {
+      case   0  :
+         s_cmds [s_ncmd].f.c   = a_func; break;
+      case  'c' :
+         s_cmds [s_ncmd].f.cc  = a_func; break;
+      }
    case  'i' :
-               switch (a_terms [1]) {
-               case  's' : s_cmds [s_ncmd].f.is  = a_func; break;
-               }
+      switch (a_terms [1]) {
+      case   0  :
+         s_cmds [s_ncmd].f.i   = a_func; break;
+      case  'i' :
+         switch (a_terms [2]) {
+         case   0  :
+            s_cmds [s_ncmd].f.ii  = a_func; break;
+         case  'i' :
+            s_cmds [s_ncmd].f.iii = a_func; break;
+         }
+      case  's' :
+         s_cmds [s_ncmd].f.is  = a_func; break;
+      }
    case  's' :
-               switch (a_terms [1]) {
-               case   0  : s_cmds [s_ncmd].f.s   = a_func; break;
-               case  'i' : s_cmds [s_ncmd].f.si  = a_func; break;
-               case  's' : s_cmds [s_ncmd].f.ss  = a_func; break;
-               }
+      switch (a_terms [1]) {
+      case   0  : s_cmds [s_ncmd].f.s   = a_func; break;
+      case  'i' : s_cmds [s_ncmd].f.si  = a_func; break;
+      case  's' : s_cmds [s_ncmd].f.ss  = a_func; break;
+      }
    }
    /*---(update count)-------------------*/
    ++s_ncmd;
@@ -669,6 +687,12 @@ yVIKEYS_cmds_exec     (void)
    } else if (strcmp (s_cmds [i].terms, "ss"  ) == 0) {
       DEBUG_USER   yLOG_note    ("two string args");
       rc = s_cmds [i].f.ss  (s_fields [1], s_fields [1]);
+   } else if (strcmp (s_cmds [i].terms, "ii"  ) == 0) {
+      DEBUG_USER   yLOG_note    ("two integers");
+      rc = s_cmds [i].f.ii  (atoi (s_fields [1]), atoi (s_fields [2]));
+   } else if (strcmp (s_cmds [i].terms, "iii" ) == 0) {
+      DEBUG_USER   yLOG_note    ("three integers");
+      rc = s_cmds [i].f.iii (atoi (s_fields [1]), atoi (s_fields [2]), atoi (s_fields [3]));
    } else if (strcmp (s_cmds [i].terms, "is"  ) == 0) {
       DEBUG_USER   yLOG_note    ("integer arg and string arg");
       rc = s_cmds [i].f.is  (atoi (s_fields [1]), s_fields [1]);

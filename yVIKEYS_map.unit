@@ -20,7 +20,7 @@ SCRP          v21  (MAP   ) verify simple mapping linear moves                
 
    COND       v21  initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      exec     v21  start testing                        yVIKEYS__unit_quiet                                                                                 i_equal     0                                                                                                    
-     exec     v21  initialize                           yVIKEYS_map_init            NULL           , NULL                                                   i_equal     0                                                                                                    
+     exec     v21  initialize                           yVIKEYS_map_init            YVIKEYS_OFFICE , NULL           , NULL                                  i_equal     0                                                                                                    
 
    GROUP      v21  check on sending bad data                                          - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
@@ -253,7 +253,7 @@ SCRP          v21  (MAP   ) verify screen alignments                          
 
    COND       v21  initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      exec     v21  start testing                        yVIKEYS__unit_quiet                                                                                 i_equal     0                                                                                                    
-     exec     v21  initialize                           yVIKEYS_map_init            NULL           , NULL                                                   i_equal     0                                                                                                    
+     exec     v21  initialize                           yVIKEYS_map_init            YVIKEYS_OFFICE , NULL           , NULL                                  i_equal     0                                                                                                    
 
    GROUP      v21  start with screen smaller than available                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
@@ -356,7 +356,7 @@ SCRP          v21  (MAP   ) verify horizontal moves with screen stable        
 
    COND       v21  initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      exec     v21  start testing                        yVIKEYS__unit_quiet                                                                                 i_equal     0                                                                                                    
-     exec     v21  initialize                           yVIKEYS_map_init            NULL           , NULL                                                   i_equal     0                                                                                                    
+     exec     v21  initialize                           yVIKEYS_map_init            YVIKEYS_OFFICE , NULL           , NULL                                  i_equal     0                                                                                                    
 
    GROUP      v21  start with the basic moves                                         - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
@@ -501,7 +501,7 @@ SCRP          v21  (MAP   ) check movement in map mode                        
 
    COND       v21  initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      exec     v21  start testing                        yVIKEYS__unit_quiet                                                                                 i_equal     0                                                                                                    
-     exec     v21  initialize                           yVIKEYS_map_init            yVIKEYS__unit_colmap, yVIKEYS__unit_rowmap                              i_equal     0                                                                                                    
+     exec     v21  initialize                           yVIKEYS_map_init            YVIKEYS_OFFICE , yVIKEYS__unit_colmap, yVIKEYS__unit_rowmap             i_equal     0                                                                                                    
      exec     v21  initialize                           yVIKEYS_mode_init                                                                                   i_equal     0                                                                                                    
 
    GROUP      v21  normal text entry                                                  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  

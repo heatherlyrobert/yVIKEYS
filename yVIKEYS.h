@@ -124,6 +124,9 @@ tMAPPED     s_rowmap;
 #define     YVIKEYS_UPDATE  'u'
 
 
+#define     YVIKEYS_RIGHT    'r'
+#define     YVIKEYS_OFFICE   'o'
+
 
 extern char yVIKEYS_ver     [500];
 
@@ -155,9 +158,13 @@ char        yVIKEYS_view_status       (void);
 char        yVIKEYS_view_ribbon_clear (void);
 char        yVIKEYS_view_ribbon_add   (char *a_cat, char *a_name);
 char        yVIKEYS_view_ribbon       (void);
+char        yVIKEYS_view_grid         (float a_mag);
+char        yVIKEYS_view_cursor       (float a_mag);
+char        yVIKEYS_view_set_gridoff  (int a_x, int a_y, int a_z);
+char        yVIKEYS_view_set_gridsize (int a_x, int a_y, int a_z);
 
 /*---(map mode)-------------*/
-char        yVIKEYS_map_init          (void *a_col_mapper, void *a_row_mapper);
+char        yVIKEYS_map_init          (char a_coord, void *a_col_mapper, void *a_row_mapper);
 char        yVIKEYS_map_mode          (char a_major, char a_minor);
 
 /*---(speed)----------------*/

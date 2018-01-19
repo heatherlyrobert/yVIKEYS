@@ -28,8 +28,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.6d"
-#define YVIKEYS_VER_TXT   "WOOOHOOOO, apelles is working with yVIKEYS_map_mode and mapping"
+#define YVIKEYS_VER_NUM   "0.6e"
+#define YVIKEYS_VER_TXT   "basic grid functionality is there, including display and cursor"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -55,6 +55,13 @@ struct cSHARED {
 tSHARED     its;
 
 
+
+extern int         g_goffx;
+extern int         g_gsizex;
+extern int         g_goffy;
+extern int         g_gsizey;
+extern int         g_goffz;
+extern int         g_gsizez;
 
 
 
