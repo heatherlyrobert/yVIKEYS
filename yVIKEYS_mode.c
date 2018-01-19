@@ -859,19 +859,9 @@ yVIKEYS_view_set_gridsize (int a_x, int a_y, int a_z)
    return 0;
 }
 
-char
-yVIKEYS_view_set_gridy (int a_off, int a_size)
-{
-   g_goffy  = a_off;
-   if (a_size > 5) g_gsizey = a_size;
-   printf ("gridy off %3d size %3d\n", g_goffy, g_gsizey);
-   return 0;
-}
-
 char          /*----: draw the saved status ----------------------------------*/
 yVIKEYS_view_cursor      (float a_mag)
 {
-   /*> if (my.touch == 'y')  return 0;                                                <*/
    int         x_lef   = s_colmap.cur / a_mag;
    int         x_bot   = s_rowmap.cur / a_mag;
    int         x_rig   = x_lef + (g_gsizex / a_mag);

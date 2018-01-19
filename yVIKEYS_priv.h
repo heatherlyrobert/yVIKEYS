@@ -28,8 +28,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.6e"
-#define YVIKEYS_VER_TXT   "basic grid functionality is there, including display and cursor"
+#define YVIKEYS_VER_NUM   "0.6f"
+#define YVIKEYS_VER_TXT   "solved restraining movements based on grid size"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/

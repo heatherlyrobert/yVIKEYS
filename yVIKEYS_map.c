@@ -428,6 +428,7 @@ yVIKEYS_map_vert      (char a_major, char a_minor)
    int         x_grid      =    0;
    int         x_unit      =    0;
    float       x_qtr       =    0;
+   int         x_gmax      =    0;
    /*---(header)-------------------------*/
    DEBUG_USER  yLOG_enter   (__FUNCTION__);
    DEBUG_USER  yLOG_char    ("a_major"   , a_major);
@@ -435,28 +436,30 @@ yVIKEYS_map_vert      (char a_major, char a_minor)
    /*---(prepare)------------------------*/
    x_grid      = s_rowmap.gcur;
    DEBUG_USER  yLOG_value   ("x_grid"    , x_grid);
-   x_qtr       = s_rowmap.avail / 4.0;
+   x_qtr       = (s_rowmap.avail - g_gsizey) / 4.0;
    DEBUG_USER  yLOG_double  ("x_qtr"     , x_qtr);
+   x_gmax  = s_rowmap.map [s_rowmap.gmax - g_gsizey];
+   DEBUG_USER  yLOG_value   ("x_gmax"    , x_gmax);
    /*---(simple)-------------------------*/
    DEBUG_USER  yLOG_info    ("s_vsimple" , s_vsimple);
    if (a_major == ' ' && strchr (s_vsimple, a_minor) != NULL) {
       if (s_coord == YVIKEYS_OFFICE) {
          switch (a_minor) {
-         case '_' : x_grid -= 1000000;       break;
+         case '_' : x_grid  = s_rowmap.map [s_rowmap.gmin];  break;
          case 'K' : x_grid -= g_gsizey * 5;  break;
          case 'k' : x_grid -= g_gsizey;      break;
          case 'j' : x_grid += g_gsizey;      break;
          case 'J' : x_grid += g_gsizey * 5;  break;
-         case '~' : x_grid += 1000000;       break;
+         case '~' : x_grid  = x_gmax;        break;
          }
       } else {
          switch (a_minor) {
-         case '~' : x_grid -= 1000000;       break;
+         case '~' : x_grid  = s_rowmap.map [s_rowmap.gmin];  break;
          case 'J' : x_grid -= g_gsizey * 5;  break;
          case 'j' : x_grid -= g_gsizey;      break;
          case 'k' : x_grid += g_gsizey;      break;
          case 'K' : x_grid += g_gsizey * 5;  break;
-         case '_' : x_grid += 1000000;       break;
+         case '_' : x_grid  = x_gmax;        break;
          }
       }
    }
@@ -471,7 +474,7 @@ yVIKEYS_map_vert      (char a_major, char a_minor)
          case 'k' : x_unit  = s_rowmap.beg + (x_qtr * 1); break;
          case 'm' : x_unit  = s_rowmap.beg + (x_qtr * 2); break;
          case 'j' : x_unit  = s_rowmap.beg + (x_qtr * 3); break;
-         case 'b' : x_unit  = s_rowmap.end;               break;
+         case 'b' : x_unit  = s_rowmap.beg + (x_qtr * 4); break;
          case 'J' : x_unit  = s_rowmap.beg + (x_qtr * 6); break;
          case 'B' : x_unit  = s_rowmap.beg + (x_qtr * 8); break;
          }
@@ -483,7 +486,7 @@ yVIKEYS_map_vert      (char a_major, char a_minor)
          case 'j' : x_unit  = s_rowmap.beg + (x_qtr * 1); break;
          case 'm' : x_unit  = s_rowmap.beg + (x_qtr * 2); break;
          case 'k' : x_unit  = s_rowmap.beg + (x_qtr * 3); break;
-         case 't' : x_unit  = s_rowmap.end;               break;
+         case 't' : x_unit  = s_rowmap.beg + (x_qtr * 4); break;
          case 'K' : x_unit  = s_rowmap.beg + (x_qtr * 6); break;
          case 'T' : x_unit  = s_rowmap.beg + (x_qtr * 8); break;
          }
@@ -493,6 +496,7 @@ yVIKEYS_map_vert      (char a_major, char a_minor)
       x_grid  = s_rowmap.map [x_unit];
    }
    /*---(check screen)-------------------*/
+   if (x_grid > x_gmax)  x_grid = x_gmax;
    x_grid /= g_gsizey;
    x_grid *= g_gsizey;
    DEBUG_USER  yLOG_value   ("x_grid new", x_grid);
@@ -510,6 +514,8 @@ yVIKEYS_map_horz      (char a_major, char a_minor)
    int         x_grid      =    0;
    int         x_unit      =    0;
    float       x_qtr       =    0;
+   int         x_beg       =    0;
+   int         x_gmax      =    0;
    /*---(header)-------------------------*/
    DEBUG_USER  yLOG_enter   (__FUNCTION__);
    DEBUG_USER  yLOG_char    ("a_major"   , a_major);
@@ -517,39 +523,44 @@ yVIKEYS_map_horz      (char a_major, char a_minor)
    /*---(prepare)------------------------*/
    x_grid      = s_colmap.gcur;
    DEBUG_USER  yLOG_value   ("x_grid"    , x_grid);
-   x_qtr       = s_colmap.avail / 4.0;
+   x_qtr       = (s_colmap.avail - g_gsizex) / 4.0;
    DEBUG_USER  yLOG_double  ("x_qtr"     , x_qtr);
+   x_beg       = s_colmap.beg;
+   DEBUG_USER  yLOG_double  ("x_beg"     , x_beg);
+   x_gmax  = s_colmap.map [s_colmap.gmax - g_gsizex];
+   DEBUG_USER  yLOG_value   ("x_gmax"    , x_gmax);
    /*---(simple)-------------------------*/
    DEBUG_USER  yLOG_info    ("s_hsimple" , s_hsimple);
    if (a_major == ' ' && strchr (s_hsimple, a_minor) != NULL) {
       switch (a_minor) {
-      case '0' : x_grid -= 1000000;        break;
-      case 'H' : x_grid -= g_gsizex * 5;   break;
-      case 'h' : x_grid -= g_gsizex;       break;
-      case 'l' : x_grid += g_gsizex;       break;
-      case 'L' : x_grid += g_gsizex * 5;   break;
-      case '$' : x_grid += 1000000;        break;
+      case '0' : x_grid  = s_colmap.map [s_colmap.gmin];   break;
+      case 'H' : x_grid -= g_gsizex * 5;                   break;
+      case 'h' : x_grid -= g_gsizex;                       break;
+      case 'l' : x_grid += g_gsizex;                       break;
+      case 'L' : x_grid += g_gsizex * 5;                   break;
+      case '$' : x_grid  = x_gmax;                         break;
       }
    }
    /*---(gotos)--------------------------*/
    DEBUG_USER  yLOG_info    ("s_hgoto"   , s_hgoto);
    if (a_major == 'g' && strchr (s_hgoto  , a_minor) != NULL) {
       switch (a_minor) {
-      case 'S' : x_unit  = s_colmap.beg - (x_qtr * 4); break;
-      case 'H' : x_unit  = s_colmap.beg - (x_qtr * 2); break;
-      case 's' : x_unit  = s_colmap.beg;               break;
-      case 'h' : x_unit  = s_colmap.beg + (x_qtr * 1); break;
-      case 'c' : x_unit  = s_colmap.beg + (x_qtr * 2); break;
-      case 'l' : x_unit  = s_colmap.beg + (x_qtr * 3); break;
-      case 'e' : x_unit  = s_colmap.end;               break;
-      case 'L' : x_unit  = s_colmap.beg + (x_qtr * 6); break;
-      case 'E' : x_unit  = s_colmap.beg + (x_qtr * 8); break;
+      case 'S' : x_unit  = x_beg - (x_qtr * 4);            break;
+      case 'H' : x_unit  = x_beg - (x_qtr * 2);            break;
+      case 's' : x_unit  = x_beg;                          break;
+      case 'h' : x_unit  = x_beg + (x_qtr * 1);            break;
+      case 'c' : x_unit  = x_beg + (x_qtr * 2);            break;
+      case 'l' : x_unit  = x_beg + (x_qtr * 3);            break;
+      case 'e' : x_unit  = x_beg + (x_qtr * 4);            break;
+      case 'L' : x_unit  = x_beg + (x_qtr * 6);            break;
+      case 'E' : x_unit  = x_beg + (x_qtr * 8);            break;
       }
       if (x_unit < s_colmap.gmin)  x_unit = s_colmap.gmin;
       if (x_unit > s_colmap.gmax)  x_unit = s_colmap.gmax;
       x_grid  = s_colmap.map [x_unit];
    }
    /*---(check screen)-------------------*/
+   if (x_grid > x_gmax)  x_grid = x_gmax;
    x_grid /= g_gsizex;
    x_grid *= g_gsizex;
    DEBUG_USER  yLOG_value   ("x_grid new", x_grid);
