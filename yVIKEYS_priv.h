@@ -3,6 +3,7 @@
 
 
 /*---(headers)---------------------------*/
+#include    <yX11.h>               /* heatherly program logger                */
 #include    <yLOG.h>               /* heatherly program logger                */
 #include    <yURG.h>               /* heatherly program logger                */
 #include    <ySTR.h>               /* heatherly program logger                */
@@ -28,8 +29,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.6f"
-#define YVIKEYS_VER_TXT   "solved restraining movements based on grid size"
+#define YVIKEYS_VER_NUM   "0.6g"
+#define YVIKEYS_VER_TXT   "added all screen parts to system automatically with commands"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -56,6 +57,7 @@ tSHARED     its;
 
 
 
+extern char        g_coord;
 extern int         g_goffx;
 extern int         g_gsizex;
 extern int         g_goffy;
@@ -69,6 +71,7 @@ typedef     struct timespec   tSPEC;
 typedef     unsigned char     uchar;
 typedef     signed char       schar;
 
+char        yVIKEYS_view_set         (char *a_name, char *a_opt);
 
 
 extern char yVIKEYS__unit_answer [LEN_STR];

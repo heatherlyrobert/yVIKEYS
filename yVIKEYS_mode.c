@@ -96,12 +96,43 @@ struct cWIN {
    int         t_tall;                      /* height of title line           */
    int         t_bott;                      /* bottom of title line           */
    char        t_ver       [LEN_LABEL];     /* title version info             */
-   /*---(title sizes)-------*/
+   /*---(buffer sizes)------*/
    char        b_on;                        /* buffer shown y/n               */
    int         b_wide;                      /* width  of buffer bar           */
    int         b_left;                      /* left   of buffer bar           */
    int         b_tall;                      /* height of buffer bar           */
    int         b_bott;                      /* bottom of buffer bar           */
+   /*---(formula sizes)-----*/
+   char        f_on;                        /* formula shown y/n              */
+   int         f_wide;                      /* width  of formula line         */
+   int         f_left;                      /* left   of formula line         */
+   int         f_tall;                      /* height of formula line         */
+   int         f_bott;                      /* bottom of formula line         */
+   /*---(nav sizes)---------*/
+   char        n_on;                        /* nav panel shown y/n            */
+   int         n_wide;                      /* width  of nav panel            */
+   int         n_left;                      /* left   of nav panel            */
+   int         n_tall;                      /* height of nav panel            */
+   int         n_bott;                      /* bottom of nav panel            */
+   /*---(main sizes)--------*/
+   int         m_wide;                      /* width  of main window          */
+   int         m_left;                      /* left   of main window          */
+   int         m_tall;                      /* height of main window          */
+   int         m_bott;                      /* bottom of main window          */
+   int         g_on;                        /* show grid over main y/n        */
+   /*---(progress)----------*/
+   char        p_on;                        /* show progress y/n              */
+   int         p_wide;                      /* width  of progress window      */
+   int         p_left;                      /* left   of progress window      */
+   int         p_tall;                      /* height of progress window      */
+   int         p_bott;                      /* bottom of progress window      */
+   /*---(status sizes)------*/
+   char        s_on;                        /* show status y/n                */
+   char        s_text      [LEN_DESC];      /* current text in status line    */
+   int         s_wide;                      /* width  of status line          */
+   int         s_left;                      /* left   of status line          */
+   int         s_tall;                      /* height of status line          */
+   int         s_bott;                      /* bottom of status line          */
    /*---(command sizes)-----*/
    char        c_on;                        /* show command y/n               */
    char        c_text      [LEN_DESC];      /* current text in command mode   */
@@ -110,18 +141,12 @@ struct cWIN {
    int         c_tall;                      /* height of command line         */
    int         c_bott;                      /* bottom of command line         */
    char        c_keys      [LEN_LABEL];     /* current keys feedback          */
-   /*---(status sizes)------*/
-   char        s_on;                        /* show status y/n                */
-   char        s_text      [LEN_DESC];      /* current text in status line    */
-   int         s_wide;                      /* width  of status line          */
-   int         s_left;                      /* left   of status line          */
-   int         s_tall;                      /* height of status line          */
-   int         s_bott;                      /* bottom of status line          */
-   /*---(main sizes)--------*/
-   int         m_wide;                      /* width  of main window          */
-   int         m_left;                      /* left   of main window          */
-   int         m_tall;                      /* height of main window          */
-   int         m_bott;                      /* bottom of main window          */
+   /*---(details)-----------*/
+   char        d_on;                        /* show detail y/n                */
+   int         d_wide;                      /* width  of detail window        */
+   int         d_left;                      /* left   of detail window        */
+   int         d_tall;                      /* height of detail window        */
+   int         d_bott;                      /* bottom of detail window        */
    /*---(ribbon sizes)------*/
    char        r_on;                        /* show ribbon y/n                */
    int         r_wide;                      /* width  of ribbon/button bar    */
@@ -130,26 +155,73 @@ struct cWIN {
    int         r_bott;                      /* bottom of ribbon/button bar    */
    int         r_icons     [LEN_LABEL];     /* actual icons for ribbon        */
    int         r_nicon;                     /* number of icons                */
-   /*---(details)-----------*/
-   char        d_on;                        /* show detail y/n                */
-   int         d_wide;                      /* width  of detail window        */
-   int         d_left;                      /* left   of detail window        */
-   int         d_tall;                      /* height of detail window        */
-   int         d_bott;                      /* bottom of detail window        */
-   /*---(progress)----------*/
-   char        p_on;                        /* show progress y/n              */
-   int         p_wide;                      /* width  of progress window      */
-   int         p_left;                      /* left   of progress window      */
-   int         p_tall;                      /* height of progress window      */
-   int         p_bott;                      /* bottom of progress window      */
+   /*---(version)-----------*/
+   char        v_on;                        /* show version y/n               */
+   char        v_text      [LEN_DESC];      /* current version                */
+   int         v_wide;                      /* width  of version              */
+   int         v_left;                      /* left   of version              */
+   int         v_tall;                      /* height of version              */
+   int         v_bott;                      /* bottom of version              */
+   /*---(keys)--------------*/
+   char        k_on;                        /* show keys y/n                  */
+   char        k_text      [LEN_DESC];      /* current keys                   */
+   int         k_wide;                      /* width  of key display          */
+   int         k_left;                      /* left   of key display          */
+   int         k_tall;                      /* height of key display          */
+   int         k_bott;                      /* bottom of key display          */
    /*---(display)-----------*/
-   char        grid_on;                     /* show visual grid pattern       */
    char        face;
    int         font;    
    int         icons;
    /*---(done)--------------*/
 };
 static tWIN   s_win;
+
+
+#define      MAX_PARTS         20
+typedef  struct  cPARTS     tPARTS;
+struct cPARTS {
+   char        abbr;                        /* short name of screen element   */
+   char        name        [LEN_LABEL];     /* name of screen element         */
+   char       *flag;                        /* switch                         */
+   char        desc        [LEN_DESC ];     /* explanation of element         */
+};
+static tPARTS  s_parts [MAX_PARTS] = {
+   /* -    ---name-----   ---flag------   12345678901234567890123456789012345678901234567890  */
+   { 't', "title"       , &(s_win.t_on), "left hand title bar"                                },
+   { 'b', "buffer"      , &(s_win.b_on), "buffer inventory at top"                            },
+   { 'f', "formula"     , &(s_win.f_on), "formula and source editing line at top"             },
+   { 'n', "nav"         , &(s_win.n_on), "navigation panel to display tags and other links"   },
+   { 'm', "main"        , NULL         , "main working area in the middle"                    },
+   { 'p', "progress"    , &(s_win.p_on), "time and sequencing controls about status line"     },
+   { 's', "status"      , &(s_win.s_on), "informational status bar above command line"        },
+   { 'c', "command"     , &(s_win.c_on), "command, search, and help message line at bottom"   },
+   { 'd', "details"     , &(s_win.d_on), "display area for critical details to right"         },
+   { 'r', "ribbon"      , &(s_win.r_on), "menu and icon display for navigation of commands"   },
+   { 'v', "version"     , &(s_win.v_on), "version display with debugging notice"              },
+   { 'k', "keys"        , &(s_win.k_on), "latest keyboard characters typed"                   },
+   { 'g', "grid"        , &(s_win.g_on), "overlay main drawing with a grid"                   },
+   {  0 , ""            , NULL         , ""                                                   },
+};
+static int  s_npart     = 0;
+
+#define      MAX_LAYOUT        20
+typedef struct cLAYOUT   tLAYOUT;
+struct cLAYOUT {
+   char        name        [LEN_LABEL];     /* title for layout               */
+   char        parts       [MAX_PARTS];     /* selection of elements          */
+   char        desc        [LEN_DESC ];     /* explanation of layout          */
+};
+tLAYOUT   s_layouts [MAX_LAYOUT] = {
+   /*---name------    tbfnpscdrvk    ,    12345678901234567890123456789012345678901234567890  */
+   { "min"         , "-----------"     "smallest footprint, least elements showing"           },
+   { "work"        , "t----sc--vk"     "more balanced display of common elements"             },
+   { "max"         , "tbfnpscdrvk"     "everything displays at one time"                      },
+   { ""            , "-----------"     ""                                                     },
+};
+static int  s_nlayout   = 0;
+
+
 
 int         g_goffx   =   0;
 int         g_gsizex  =   1;
@@ -158,7 +230,8 @@ int         g_gsizey  =   1;
 int         g_goffz   =   0;
 int         g_gsizez  =   1;
 
-char    (*s_sizer) (int, int);
+char    (*s_sizer ) (int, int);
+char    (*s_drawer) (float);
 
 
 #define     ICON_SET  "/usr/local/share/fonts/outline_icons.png"
@@ -397,50 +470,50 @@ yVIKEYS__mode_unit     (char *a_question)
 static void  o___VIEW____________o () { return; }
 
 char
-yVIKEYS_view_set_status  (char *a_opt)
+yVIKEYS_view_set         (char *a_name, char *a_opt)
 {
-   char    x_on    = s_win.s_on;
-   if (strcmp (a_opt, "hide") == 0)  s_win.s_on = '-';
-   if (strcmp (a_opt, "show") == 0)  s_win.s_on = 'y';
-   if (x_on != s_win.s_on)  yVIKEYS_view_resize ('r', NULL, 0, 0, '-');
-   return 0;
-}
-
-char
-yVIKEYS_view_set_command (char *a_opt)
-{
-   char    x_on    = s_win.c_on;
-   if (strcmp (a_opt, "hide") == 0)  s_win.c_on = '-';
-   if (strcmp (a_opt, "show") == 0)  s_win.c_on = 'y';
-   if (x_on != s_win.c_on)  yVIKEYS_view_resize ('r', NULL, 0, 0, '-');
-   return 0;
-}
-
-char
-yVIKEYS_view_set_title   (char *a_opt)
-{
-   char    x_on    = s_win.t_on;
-   if (strcmp (a_opt, "hide") == 0)  s_win.t_on = '-';
-   if (strcmp (a_opt, "show") == 0)  s_win.t_on = 'y';
-   if (x_on != s_win.t_on)  yVIKEYS_view_resize ('r', NULL, 0, 0, '-');
-   return 0;
-}
-
-char
-yVIKEYS_view_set_ribbon  (char *a_opt)
-{
-   char    x_on    = s_win.r_on;
-   if (strcmp (a_opt, "hide") == 0)  s_win.r_on = '-';
-   if (strcmp (a_opt, "show") == 0)  s_win.r_on = 'y';
-   if (x_on != s_win.r_on)  yVIKEYS_view_resize ('r', NULL, 0, 0, '-');
-   return 0;
-}
-
-char
-yVIKEYS_view_set_grid    (char *a_opt)
-{
-   if (strcmp (a_opt, "hide") == 0)  s_win.grid_on = '-';
-   if (strcmp (a_opt, "show") == 0)  s_win.grid_on = 'y';
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        x_on        =  '-';
+   char        i           =    0;
+   char        n           =   -1;
+   /*---(header)-------------------------*/
+   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   DEBUG_GRAF   yLOG_point   ("a_name"    , a_name);
+   --rce;  if (a_name == NULL) {
+      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_GRAF   yLOG_info    ("a_name"    , a_name);
+   DEBUG_GRAF   yLOG_point   ("a_opt"     , a_opt);
+   --rce;  if (a_opt  == NULL) {
+      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_GRAF   yLOG_info    ("a_opt"     , a_opt);
+   for (i = 0; i <= s_npart; ++i) {
+      DEBUG_GRAF   yLOG_info    ("check"     , s_parts [i].name);
+      if (s_parts [i].name [0] != a_name [0])         continue;
+      if (strcmp (s_parts [i].name, a_name) != 0)     continue;
+      n = i;
+   }
+   DEBUG_GRAF   yLOG_value   ("result"    , n);
+   --rce;  if (n < 0) {
+      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_GRAF   yLOG_char    ("current"   , *(s_parts [n].flag));
+   x_on = *(s_parts [n].flag);
+   if (strcmp (a_opt, "hide") == 0)  *(s_parts [n].flag) = '-';
+   if (strcmp (a_opt, "show") == 0)  *(s_parts [n].flag) = 'y';
+   DEBUG_GRAF   yLOG_char    ("new"       , *(s_parts [n].flag));
+   if (x_on != *(s_parts [n].flag)) {
+      DEBUG_GRAF   yLOG_note    ("must resize");
+      yVIKEYS_view_resize ('r', NULL, 0, 0, '-');
+   }
+   /*---(complete)-----------------------*/
+   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -468,28 +541,56 @@ yVIKEYS_view_init       (void *a_sizer, char *a_title, char *a_ver)
    /*---(locals)-----------+-----+-----+-*/
    int         i           =    0;
    char        rc          =    0;
+   /*---(header)----------------------*/
+   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
+   /*---(screen parts)-------------------*/
+   s_npart = 0;
+   for (i = 0; i < MAX_PARTS; ++i) {
+      if (s_parts [i].abbr == 0)  break;
+      DEBUG_GRAF   yLOG_info    ("name"      , s_parts [i].name);
+      if (s_parts [i].flag != NULL) {
+         DEBUG_GRAF   yLOG_note    ("adding view menu command to show/hide");
+         yVIKEYS_cmds_add ('v', s_parts [i].name , ""    , "Cs"   , yVIKEYS_view_set          , "" );
+      }
+      ++s_npart;
+   }
+   DEBUG_GRAF   yLOG_value   ("s_npart"   , s_npart);
+   /*---(screen layouts)-----------------*/
+   s_nlayout = 0;
+   for (i = 0; i < MAX_LAYOUT; ++i) {
+      if (s_layouts [i].name [0] == 0)  break;
+      ++s_nlayout;
+   }
+   /*---(commands)-----------------------*/
    s_sizer = NULL;
    if (a_sizer != NULL)  s_sizer = a_sizer;
-   yVIKEYS_cmds_add ('v', "layout"      , ""    , "s"    , yVIKEYS_view_set_layout   , "" );
-   yVIKEYS_cmds_add ('v', "status"      , ""    , "s"    , yVIKEYS_view_set_status   , "" );
-   yVIKEYS_cmds_add ('v', "command"     , ""    , "s"    , yVIKEYS_view_set_command  , "" );
-   yVIKEYS_cmds_add ('v', "title"       , ""    , "s"    , yVIKEYS_view_set_title    , "" );
-   yVIKEYS_cmds_add ('v', "ribbon"      , ""    , "s"    , yVIKEYS_view_set_ribbon   , "" );
-   yVIKEYS_cmds_add ('v', "grid"        , ""    , "s"    , yVIKEYS_view_set_grid     , "" );
+   /*> yVIKEYS_cmds_add ('v', "layout"      , ""    , "s"    , yVIKEYS_view_set_layout   , "" );   <* 
+    *> yVIKEYS_cmds_add ('v', "status"      , ""    , "s"    , yVIKEYS_view_set_status   , "" );   <* 
+    *> yVIKEYS_cmds_add ('v', "command"     , ""    , "s"    , yVIKEYS_view_set_command  , "" );   <* 
+    *> yVIKEYS_cmds_add ('v', "title"       , ""    , "s"    , yVIKEYS_view_set_title    , "" );   <* 
+    *> yVIKEYS_cmds_add ('v', "ribbon"      , ""    , "s"    , yVIKEYS_view_set_ribbon   , "" );   <* 
+    *> yVIKEYS_cmds_add ('v', "formula"     , ""    , "s"    , yVIKEYS_view_set_formula  , "" );   <*/
+   /*> yVIKEYS_cmds_add ('v', "grid"        , ""    , "s"    , yVIKEYS_view_set_grid     , "" );   <*/
    yVIKEYS_cmds_add ('v', "gridoff"     , ""    , "iii"  , yVIKEYS_view_set_gridoff  , "" );
    yVIKEYS_cmds_add ('v', "gridsize"    , ""    , "iii"  , yVIKEYS_view_set_gridsize , "" );
    if (a_title != NULL)  strlcpy (s_win.t_text, a_title, LEN_DESC );
    if (a_ver   != NULL)  strlcpy (s_win.t_ver , a_ver  , LEN_LABEL);
    s_win.t_on    = 'y';
+   s_win.v_on    = 'y';
    s_win.c_on    = 'y';
+   s_win.k_on    = '-';
    s_win.s_on    = 'y';
    s_win.p_on    = '-';
    s_win.d_on    = '-';
    s_win.r_on    = '-';
    s_win.b_on    = '-';
-   s_win.grid_on = '-';
+   s_win.f_on    = '-';
+   s_win.n_on    = '-';
+   s_win.g_on    = '-';
    for (i = 0; i < LEN_LABEL; ++i)  s_win.r_icons [i] = -1;
    s_win.r_nicon = 0;
+   /*---(complete)-----------------------*/
+   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -513,59 +614,84 @@ yVIKEYS_view_resize     (cchar a_format, cchar *a_title, cint a_wide, cint a_tal
    /*---(widths)-------------------------*/
    if (s_win.t_on != '-')  s_win.t_wide =  15;
    else                    s_win.t_wide =   0;
+   if (s_win.v_on != '-')  s_win.v_wide =  15;
+   else                    s_win.v_wide =   0;
    if (s_win.d_on != '-')  s_win.d_wide = 150;
    else                    s_win.d_wide =   0;
+   if (s_win.n_on != '-')  s_win.n_wide = 150;
+   else                    s_win.n_wide =   0;
    if (s_win.r_on != '-')  s_win.r_wide =  40;
    else                    s_win.r_wide =   0;
+   if (s_win.k_on != '-')  s_win.k_wide =  40;
+   else                    s_win.k_wide =   0;
    if (s_win.a_adapt == 'y') {
       s_win.m_wide = s_win.a_wide;
-      s_win.w_wide = s_win.m_wide + s_win.t_wide + s_win.d_wide + s_win.r_wide;
+      s_win.w_wide = s_win.m_wide + s_win.t_wide + s_win.n_wide + s_win.d_wide + s_win.r_wide;
    } else {
       s_win.w_wide = s_win.a_wide;
-      s_win.m_wide = s_win.w_wide - s_win.t_wide - s_win.d_wide - s_win.r_wide;
+      s_win.m_wide = s_win.w_wide - s_win.t_wide - s_win.n_wide - s_win.d_wide - s_win.r_wide;
    }
-   s_win.c_wide = s_win.s_wide = s_win.b_wide = s_win.w_wide - s_win.t_wide;
-   s_win.p_wide = s_win.m_wide + s_win.d_wide;
+   s_win.s_wide = s_win.b_wide = s_win.f_wide = s_win.w_wide - s_win.t_wide;
+   s_win.c_wide = s_win.s_wide - s_win.k_wide;
+   s_win.p_wide = s_win.m_wide + s_win.n_wide + s_win.d_wide;
    /*---(lefts)--------------------------*/
-   s_win.t_left =   0;
-   s_win.m_left = s_win.c_left = s_win.s_left = s_win.b_left = s_win.p_left = s_win.t_wide;
+   s_win.t_left = s_win.v_left =   0;
+   s_win.n_left = s_win.c_left = s_win.s_left = s_win.b_left = s_win.f_left = s_win.t_wide;
+   s_win.m_left = s_win.n_left + s_win.n_wide;
    s_win.d_left = s_win.m_left + s_win.m_wide;
    s_win.r_left = s_win.d_left + s_win.d_wide;
+   s_win.k_left = s_win.w_wide - s_win.k_wide;
    /*---(talls)--------------------------*/
+   if (s_win.v_on != '-')  s_win.v_tall =  40;
+   else                    s_win.v_tall =   0;
    if (s_win.p_on != '-')  s_win.p_tall = 100;
    else                    s_win.p_tall =   0;
    if (s_win.s_on != '-')  s_win.s_tall =  15;
    else                    s_win.s_tall =   0;
    if (s_win.c_on != '-')  s_win.c_tall =  15;
    else                    s_win.c_tall =   0;
+   if (s_win.k_on != '-')  s_win.k_tall =  15;
+   else                    s_win.k_tall =   0;
    if (s_win.b_on != '-')  s_win.b_tall =  15;
    else                    s_win.b_tall =   0;
+   if (s_win.f_on != '-')  s_win.f_tall =  15;
+   else                    s_win.f_tall =   0;
    if (s_win.a_adapt == 'y') {
       s_win.m_tall = s_win.a_tall;
-      s_win.w_tall = s_win.t_tall = s_win.m_tall + s_win.p_tall + s_win.b_tall + s_win.c_tall + s_win.s_tall;
+      s_win.w_tall = s_win.m_tall + s_win.p_tall + s_win.b_tall + s_win.c_tall + s_win.s_tall + s_win.f_tall;
    } else {
-      s_win.w_tall = s_win.t_tall = s_win.a_tall;
-      s_win.m_tall = s_win.w_tall - s_win.p_tall - s_win.c_tall - s_win.s_tall;
+      s_win.w_tall = s_win.a_tall;
+      s_win.m_tall = s_win.w_tall - s_win.p_tall - s_win.b_tall - s_win.c_tall - s_win.s_tall - s_win.f_tall;
    }
-   s_win.d_tall = s_win.r_tall = s_win.w_tall - s_win.b_tall - s_win.c_tall - s_win.s_tall;
+   s_win.t_tall = s_win.w_tall - s_win.v_tall;
+   s_win.d_tall = s_win.n_tall = s_win.r_tall = s_win.w_tall - s_win.b_tall - s_win.f_tall - s_win.c_tall - s_win.s_tall;
    /*---(bottoms)------------------------*/
-   s_win.c_bott = s_win.t_bott =  0;  
+   s_win.c_bott = s_win.t_bott = s_win.k_bott =  0;  
    s_win.s_bott = s_win.c_tall;
-   s_win.p_bott = s_win.d_bott = s_win.r_bott = s_win.s_bott + s_win.s_tall;
+   s_win.p_bott = s_win.n_bott = s_win.d_bott = s_win.r_bott = s_win.s_bott + s_win.s_tall;
    s_win.m_bott = s_win.p_bott + s_win.p_tall;
    s_win.b_bott = s_win.w_tall - s_win.b_tall;
+   s_win.f_bott = s_win.b_bott - s_win.f_tall;
+   s_win.v_bott = s_win.w_tall - s_win.v_tall;
    /*---(readout)------------------------*/
-   DEBUG_GRAF   yLOG_complex ("window"    , "bott %3d, left %3d, wide %3d, tall %3d", 0         , 0         , s_win.w_wide, s_win.w_tall);
-   DEBUG_GRAF   yLOG_complex ("title"     , "bott %3d, left %3d, wide %3d, tall %3d, on %c", s_win.t_bott, s_win.t_left, s_win.t_wide, s_win.t_tall);
-   DEBUG_GRAF   yLOG_complex ("command"   , "bott %3d, left %3d, wide %3d, tall %3d, on %c", s_win.c_bott, s_win.c_left, s_win.c_wide, s_win.c_tall, s_win.c_on);
-   DEBUG_GRAF   yLOG_complex ("status"    , "bott %3d, left %3d, wide %3d, tall %3d, on %c", s_win.s_bott, s_win.s_left, s_win.s_wide, s_win.s_tall, s_win.s_on);
-   DEBUG_GRAF   yLOG_complex ("progress"  , "bott %3d, left %3d, wide %3d, tall %3d, on %c", s_win.p_bott, s_win.p_left, s_win.p_wide, s_win.p_tall, s_win.p_on);
-   DEBUG_GRAF   yLOG_complex ("details"   , "bott %3d, left %3d, wide %3d, tall %3d, on %c", s_win.d_bott, s_win.d_left, s_win.d_wide, s_win.d_tall, s_win.d_on);
-   DEBUG_GRAF   yLOG_complex ("ribbon"    , "bott %3d, left %3d, wide %3d, tall %3d, on %c", s_win.r_bott, s_win.r_left, s_win.r_wide, s_win.r_tall, s_win.r_on);
-   DEBUG_GRAF   yLOG_complex ("buffer"    , "bott %3d, left %3d, wide %3d, tall %3d, on %c", s_win.b_bott, s_win.b_left, s_win.b_wide, s_win.b_tall, s_win.b_on);
-   DEBUG_GRAF   yLOG_complex ("main"      , "bott %3d, left %3d, wide %3d, tall %3d, -- -" , s_win.m_bott, s_win.m_left, s_win.m_wide, s_win.m_tall);
+   DEBUG_GRAF   yLOG_complex ("window"    , "bott %4d, left %4d, wide %4d, tall %4d", 0         , 0         , s_win.w_wide, s_win.w_tall);
+   DEBUG_GRAF   yLOG_complex ("title"     , "bott %4d, left %4d, wide %4d, tall %4d, on %c", s_win.t_bott, s_win.t_left, s_win.t_wide, s_win.t_tall);
+   DEBUG_GRAF   yLOG_complex ("buffer"    , "bott %4d, left %4d, wide %4d, tall %4d, on %c", s_win.b_bott, s_win.b_left, s_win.b_wide, s_win.b_tall, s_win.b_on);
+   DEBUG_GRAF   yLOG_complex ("formula"   , "bott %4d, left %4d, wide %4d, tall %4d, on %c", s_win.f_bott, s_win.f_left, s_win.f_wide, s_win.f_tall, s_win.f_on);
+   DEBUG_GRAF   yLOG_complex ("progress"  , "bott %4d, left %4d, wide %4d, tall %4d, on %c", s_win.p_bott, s_win.p_left, s_win.p_wide, s_win.p_tall, s_win.p_on);
+   DEBUG_GRAF   yLOG_complex ("status"    , "bott %4d, left %4d, wide %4d, tall %4d, on %c", s_win.s_bott, s_win.s_left, s_win.s_wide, s_win.s_tall, s_win.s_on);
+   DEBUG_GRAF   yLOG_complex ("command"   , "bott %4d, left %4d, wide %4d, tall %4d, on %c", s_win.c_bott, s_win.c_left, s_win.c_wide, s_win.c_tall, s_win.c_on);
+   DEBUG_GRAF   yLOG_complex ("nav"       , "bott %4d, left %4d, wide %4d, tall %4d, on %c", s_win.n_bott, s_win.n_left, s_win.n_wide, s_win.n_tall, s_win.n_on);
+   DEBUG_GRAF   yLOG_complex ("details"   , "bott %4d, left %4d, wide %4d, tall %4d, on %c", s_win.d_bott, s_win.d_left, s_win.d_wide, s_win.d_tall, s_win.d_on);
+   DEBUG_GRAF   yLOG_complex ("ribbon"    , "bott %4d, left %4d, wide %4d, tall %4d, on %c", s_win.r_bott, s_win.r_left, s_win.r_wide, s_win.r_tall, s_win.r_on);
+   DEBUG_GRAF   yLOG_complex ("version"   , "bott %4d, left %4d, wide %4d, tall %4d, on %c", s_win.v_bott, s_win.v_left, s_win.v_wide, s_win.v_tall, s_win.v_on);
+   DEBUG_GRAF   yLOG_complex ("keys"      , "bott %4d, left %4d, wide %4d, tall %4d, on %c", s_win.k_bott, s_win.k_left, s_win.k_wide, s_win.k_tall, s_win.k_on);
+   DEBUG_GRAF   yLOG_complex ("main"      , "bott %4d, left %4d, wide %4d, tall %4d, -- -" , s_win.m_bott, s_win.m_left, s_win.m_wide, s_win.m_tall);
    /*---(sizer)--------------------------*/
-   if (a_format != '-' && s_sizer != NULL)  return s_sizer (s_win.w_wide, s_win.w_tall);
+   if (a_format != '-' && s_sizer != NULL) {
+      DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
+      return s_sizer (s_win.w_wide, s_win.w_tall);
+   }
    /*---(complete)-----------------------*/
    DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -664,6 +790,14 @@ yVIKEYS_view_corners    (cchar a_part, int *a_left, int *a_bott, int *a_wide, in
       if (a_text != NULL)  strlcpy (a_text, ""          , LEN_DESC);
       return     s_win.b_on;
       break;
+   case 'f' :
+      if (a_left != NULL)  *a_left  = s_win.f_left;
+      if (a_bott != NULL)  *a_bott  = s_win.f_bott;
+      if (a_wide != NULL)  *a_wide  = s_win.f_wide;
+      if (a_tall != NULL)  *a_tall  = s_win.f_tall;
+      if (a_text != NULL)  strlcpy (a_text, ""          , LEN_DESC);
+      return     s_win.f_on;
+      break;
    }
    return '-';
 }
@@ -736,22 +870,11 @@ yVIKEYS_view_command    (void)
          glVertex3f  (0.0f      , 0.0f      ,  0.0f);
       } glEnd   ();
    } glPopMatrix   ();
-   glPushMatrix    (); {
-      yVIKEYS_view_color (COLOR_ACC_D);
-      glBegin         (GL_POLYGON); {
-         glVertex3f  (s_win.c_wide - 40.0, s_win.c_tall,  0.0f);
-         glVertex3f  (s_win.c_wide       , s_win.c_tall,  0.0f);
-         glVertex3f  (s_win.c_wide       , 0.0f      ,  0.0f);
-         glVertex3f  (s_win.c_wide - 40.0, 0.0f      ,  0.0f);
-      } glEnd   ();
-   } glPopMatrix   ();
    /*---(display)------------------------*/
    glPushMatrix    (); {
       yVIKEYS_view_color (COLOR_BLACK);
       glTranslatef (    3.0f,    1.0f,    0.0f);
       yFONT_print  (s_win.font,  11, YF_BOTLEF, s_win.c_text);
-      glTranslatef (s_win.c_wide - 45.0,   0.0f,    0.0f);
-      yFONT_print  (s_win.font,  11, YF_BOTLEF, s_win.c_keys);
    } glPopMatrix   ();
    /*---(complete)-----------------------*/
    return 0;
@@ -791,6 +914,119 @@ yVIKEYS_view_status     (void)
 }
 
 char
+yVIKEYS_view_buffer      (void)
+{
+   if (s_win.b_on == '-')  return 0;
+   /*---(setup view)---------------------*/
+   glViewport      (s_win.b_left, s_win.b_bott, s_win.b_wide, s_win.b_tall);
+   glMatrixMode    (GL_PROJECTION);
+   glLoadIdentity  ();
+   glOrtho         ( 0.0f, s_win.b_wide, 0.0f, s_win.b_tall,  -500.0,   500.0);
+   glMatrixMode    (GL_MODELVIEW);
+   /*---(background)---------------------*/
+   glPushMatrix    (); {
+      yVIKEYS_view_color (COLOR_BASE );
+      glBegin         (GL_POLYGON); {
+         glVertex3f  (0.0f  , s_win.b_tall,  0.0f);
+         glVertex3f  (s_win.b_wide, s_win.b_tall,  0.0f);
+         glVertex3f  (s_win.b_wide, 0.0f  ,  0.0f);
+         glVertex3f  (0.0f  , 0.0f  ,  0.0f);
+      } glEnd   ();
+   } glPopMatrix   ();
+   /*---(complete)-----------------------*/
+   return 0;
+}
+
+char
+yVIKEYS_view_formula     (void)
+{
+   if (s_win.f_on == '-')  return 0;
+   /*---(setup view)---------------------*/
+   glViewport      (s_win.f_left, s_win.f_bott, s_win.f_wide, s_win.f_tall);
+   glMatrixMode    (GL_PROJECTION);
+   glLoadIdentity  ();
+   glOrtho         ( 0.0f, s_win.f_wide, 0.0f, s_win.f_tall,  -500.0,   500.0);
+   glMatrixMode    (GL_MODELVIEW);
+   /*---(background)---------------------*/
+   glPushMatrix    (); {
+      yVIKEYS_view_color (COLOR_DARK );
+      glBegin         (GL_POLYGON); {
+         glVertex3f  (0.0f  , s_win.f_tall,  0.0f);
+         glVertex3f  (s_win.f_wide, s_win.f_tall,  0.0f);
+         glVertex3f  (s_win.f_wide, 0.0f  ,  0.0f);
+         glVertex3f  (0.0f  , 0.0f  ,  0.0f);
+      } glEnd   ();
+   } glPopMatrix   ();
+   /*---(complete)-----------------------*/
+   return 0;
+}
+
+char
+yVIKEYS_view_keys        (void)
+{
+   if (s_win.k_on == '-')  return 0;
+   /*---(setup view)---------------------*/
+   glViewport      (s_win.k_left, s_win.k_bott, s_win.k_wide, s_win.k_tall);
+   glMatrixMode    (GL_PROJECTION);
+   glLoadIdentity  ();
+   glOrtho         ( 0.0f, s_win.k_wide, 0.0f, s_win.k_tall,  -500.0,   500.0);
+   glMatrixMode    (GL_MODELVIEW);
+   /*---(background)---------------------*/
+   glPushMatrix    (); {
+      yVIKEYS_view_color (COLOR_ACC_D);
+      glBegin         (GL_POLYGON); {
+         glVertex3f  (0.0f  , s_win.k_tall,  0.0f);
+         glVertex3f  (s_win.k_wide, s_win.k_tall,  0.0f);
+         glVertex3f  (s_win.k_wide, 0.0f  ,  0.0f);
+         glVertex3f  (0.0f  , 0.0f  ,  0.0f);
+      } glEnd   ();
+   } glPopMatrix   ();
+   /*---(display)------------------------*/
+   glPushMatrix    (); {
+      yVIKEYS_view_color (COLOR_BLACK);
+      glTranslatef (2.0,   2.0f,    0.0f);
+      glColor4f    (0.00f, 0.00f, 0.00f, 1.00f);
+      glRotatef    ( 90.0, 0.0f, 0.0f, 1.0f);
+      yFONT_print  (s_win.font,  11, YF_BOTRIG, s_win.k_text);
+   } glPopMatrix   ();
+   /*---(complete)-----------------------*/
+   return 0;
+}
+
+char
+yVIKEYS_view_version     (void)
+{
+   if (s_win.v_on == '-')  return 0;
+   /*---(setup view)---------------------*/
+   glViewport      (s_win.v_left, s_win.v_bott, s_win.v_wide, s_win.v_tall);
+   glMatrixMode    (GL_PROJECTION);
+   glLoadIdentity  ();
+   glOrtho         ( 0.0f, s_win.v_wide, 0.0f, s_win.v_tall,  -500.0,   500.0);
+   glMatrixMode    (GL_MODELVIEW);
+   /*---(background)---------------------*/
+   glPushMatrix    (); {
+      if (yURG_debugmode () == 'y')  yVIKEYS_view_color (COLOR_WARN );
+      else                           yVIKEYS_view_color (COLOR_ACC_D);
+      glBegin         (GL_POLYGON); {
+         glVertex3f  (0.0f  , s_win.v_tall,  0.0f);
+         glVertex3f  (s_win.v_wide, s_win.v_tall,  0.0f);
+         glVertex3f  (s_win.v_wide, 0.0f  ,  0.0f);
+         glVertex3f  (0.0f  , 0.0f  ,  0.0f);
+      } glEnd   ();
+   } glPopMatrix   ();
+   /*---(display)------------------------*/
+   glPushMatrix    (); {
+      yVIKEYS_view_color (COLOR_BLACK);
+      glTranslatef (2.0,   2.0f,    0.0f);
+      glColor4f    (0.00f, 0.00f, 0.00f, 1.00f);
+      glRotatef    ( 90.0, 0.0f, 0.0f, 1.0f);
+      yFONT_print  (s_win.font,  11, YF_BOTRIG, s_win.v_text);
+   } glPopMatrix   ();
+   /*---(complete)-----------------------*/
+   return 0;
+}
+
+char
 yVIKEYS_view_title       (void)
 {
    /*> printf ("t %c %3d %3d %3d %3d %s\n", x_on, x_left, x_bott, x_wide, x_tall, x_text);   <*/
@@ -811,16 +1047,6 @@ yVIKEYS_view_title       (void)
          glVertex3f  (0.0f  , 0.0f  ,  0.0f);
       } glEnd   ();
    } glPopMatrix   ();
-   if (yURG_debugmode () == 'y')  yVIKEYS_view_color (COLOR_WARN );
-   else                           yVIKEYS_view_color (COLOR_ACC_D);
-   glPushMatrix    (); {
-      glBegin         (GL_POLYGON); {
-         glVertex3f  (0.0f  , s_win.t_tall       ,  0.0f);
-         glVertex3f  (s_win.t_wide, s_win.t_tall       ,  0.0f);
-         glVertex3f  (s_win.t_wide, s_win.t_tall - 40.0,  0.0f);
-         glVertex3f  (0.0f  , s_win.t_tall - 40.0,  0.0f);
-      } glEnd   ();
-   } glPopMatrix   ();
    /*---(display)------------------------*/
    glPushMatrix    (); {
       yVIKEYS_view_color (COLOR_BLACK);
@@ -828,11 +1054,9 @@ yVIKEYS_view_title       (void)
       glColor4f    (0.00f, 0.00f, 0.00f, 1.00f);
       glRotatef    ( 90.0, 0.0f, 0.0f, 1.0f);
       yFONT_print  (s_win.font,  11, YF_BOTLEF, s_win.t_text);
-      glTranslatef (s_win.t_tall -  4.0,   0.0f,    0.0f);
-      yFONT_print  (s_win.font,  11, YF_BOTRIG, s_win.t_ver);
    } glPopMatrix   ();
    /*---(complete)-----------------------*/
-   return;
+   return 0;
 }
 
 char
@@ -886,49 +1110,49 @@ yVIKEYS_view_grid        (float a_mag)
    int         c           = 0;
    int         cx          = 0;
    int         cy          = 0;
+   int         x_beg       = 0;
+   int         x_end       = 0;
+   int         x_inc       = 0;
+   /*---(defense)------------------------*/
+   if (s_win.g_on == '-')  return 0;
    /*---(x grid)-------------------------*/
-   if (s_win.grid_on == '-')  return 0;
    glPushMatrix    (); {
-      /*> glScalef      (a_mag, a_mag, a_mag);                                        <*/
+      x_beg = s_colmap.gmin;
+      x_end = s_colmap.gmax;
+      x_inc = g_gsizex;
       glColor4f     (0.0, 0.3, 0.0, 0.5);
-      /*> yVIKEYS_view_color (COLOR_TXT_D);                                           <*/
       glLineWidth   (1.5);
       glTranslatef  (g_goffx, 0.0    , 50.0);
-      for (i = s_colmap.gmin; i <= s_colmap.gmax; i += g_gsizex) {
+      c = 0;
+      for (i = x_beg; i <= x_end; i += x_inc) {
          if (c % 5 ==  0) {
             glBegin         (GL_LINES); {
                glVertex3f  (0.0f  , s_rowmap.gmin,  0.0f);
                glVertex3f  (0.0f  , s_rowmap.gmax,  0.0f);
             } glEnd   ();
          }
-         glTranslatef  (g_gsizex / a_mag, 0.0    ,  0.0);
+         glTranslatef  (x_inc / a_mag, 0.0    ,  0.0);
          ++c;
       }
    } glPopMatrix   ();
    /*---(y grid)-------------------------*/
    glPushMatrix    (); {
-      /*> glScalef      (a_mag, a_mag, a_mag);                                        <*/
+      x_beg = s_rowmap.gmin;
+      printf ("x_beg %3d, x_end %3d, x_inc %3d\n", x_beg, x_end, x_inc);
+      x_end = s_rowmap.gmax;
+      x_inc = g_gsizey;
       glColor4f     (0.0, 0.3, 0.0, 0.5);
-      /*> yVIKEYS_view_color (COLOR_TXT_D);                                           <*/
       glLineWidth   (1.5);
       glTranslatef  (0.0, g_goffy, 50.0);
-      for (i = s_rowmap.gmin; i <= s_rowmap.gmax; i += g_gsizey) {
+      c = 0;
+      for (i = x_beg; i <= x_end; i += x_inc) {
          if (c % 5 ==  0) {
-            /*> glDisable     (GL_LINE_STIPPLE);                                      <*/
-            /*> glLineStipple (1, 0xFFFF);                                            <*/
             glBegin         (GL_LINES); {
                glVertex3f  (s_colmap.gmin, 0.0f,  0.0f);
                glVertex3f  (s_colmap.gmax, 0.0f,  0.0f);
             } glEnd   ();
-            glTranslatef  (0.0, g_gsizey / a_mag,  0.0);
-         } else {
-            /*> glEnable      (GL_LINE_STIPPLE);                                      <*/
-            /*> glLineStipple (1, 0x3030);                                            <*/
-            /*> glBegin         (GL_POINT); {                                         <* 
-             *>    glVertex3f  (s_colmap.gmin, 0.0f,  0.0f);                          <* 
-             *> } glEnd   ();                                                         <*/
-            glTranslatef  (0.0, g_gsizey / a_mag,  0.0);
          }
+         glTranslatef  (0.0, x_inc / a_mag,  0.0);
          ++c;
       }
    } glPopMatrix   ();
@@ -1010,9 +1234,42 @@ yVIKEYS_view_ribbon      (void)
       }
    } glPopMatrix   ();
    /*---(complete)-----------------------*/
-   return;
+   return 0;
 }
 
+char
+yVIKEYS_view_all         (void *a_drawer, float a_mag)
+{
+   /*---(clear)--------------------------*/
+   glClear         (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+   /*---(top)----------------------------*/
+   yVIKEYS_view_buffer      ();
+   yVIKEYS_view_formula     ();
+   /*---(left)---------------------------*/
+   yVIKEYS_view_title       ();
+   yVIKEYS_view_version     ();
+   /*> yVIKEYS_view_nav         ();                                                   <*/
+   /*---(bottom)-------------------------*/
+   /*> yVIKEYS_view_progress    ();                                                   <*/
+   yVIKEYS_view_status      ();
+   yVIKEYS_view_command     ();
+   yVIKEYS_view_keys        ();
+   /*---(right)--------------------------*/
+   /*> yVIKEYS_view_details     ();                                                   <*/
+   yVIKEYS_view_ribbon      ();
+   /*---(main)---------------------------*/
+   if (a_drawer != NULL) {
+      s_drawer = a_drawer;
+      s_drawer (a_mag);
+   }
+   yVIKEYS_view_grid   (a_mag);
+   yVIKEYS_view_cursor (a_mag);
+   /*---(flush)--------------------------*/
+   glXSwapBuffers(DISP, BASE);
+   glFlush();
+   /*---(complete)-----------------------*/
+   return 0;
+}
 
 
 

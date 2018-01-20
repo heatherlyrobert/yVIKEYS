@@ -72,6 +72,7 @@ static tTERMS  s_terms [MAX_TERMS] = {
    { "a"   , "char*"               , 0},  /* string incudes spaces            */
    { "ii"  , "int, int"            , 0},
    { "iii" , "int, int, int"       , 0},
+   { "Cs"  , "char*, char*"        , 0},
    { "-"   , ""                    , 0},
 };
 static  int s_nterm  = 0;
@@ -134,52 +135,6 @@ char    (*s_clearer ) (void *a_search);
 
 static char s_quoted    = '-';
 static char s_escaped   = '-';
-
-/*>                                                                                                                                                            <* 
- *>                                                                                                                                                            <* 
- *> /+===[[ LAYOUT ]]=============================================================+/                                                                           <* 
- *> #define     MAX_LAYOUT      100                                                                                                                            <* 
- *> typedef     struct cLAYOUT  tLAYOUT;                                                                                                                       <* 
- *> struct cLAYOUT {                                                                                                                                           <* 
- *>    char        cat         [LEN_LABEL];                                                                                                                    <* 
- *>    char        opt         [LEN_LABEL];                                                                                                                    <* 
- *>    char        title;                                                                                                                                      <* 
- *>    char        status;                                                                                                                                     <* 
- *>    char        command;                                                                                                                                    <* 
- *>    char        control;                                                                                                                                    <* 
- *>    char        player;                                                                                                                                     <* 
- *>    char        desc        [LEN_DESC];                                                                                                                     <* 
- *> };                                                                                                                                                         <* 
- *> extern      tLAYOUT     g_layouts [MAX_LAYOUT];                                                                                                            <* 
- *> tLAYOUT     s_layouts [MAX_LAYOUT] = {                                                                                                                     <* 
- *>    /+"1234567890", "123456789012" , 12345678901234567890, 12345678901234567890, 12345678901234567890, "1234567890123456789012345678901234567890"      +/   <* 
- *>    { "formula"   , "tiny"         , G_FORMULA_TINY      , 0                   , 0                   , "shows only contents/formula"                },      <* 
- *>    { "formula"   , "small"        , G_FORMULA_SMALL     , 0                   , 0                   , "shows tiny plus location and version"       },      <* 
- *>    { "formula"   , "debug"        , G_FORMULA_DEBUG     , 0                   , 0                   , "shows small plus current cell info"         },      <* 
- *>    { "status"    , "hide"         , 0                   , G_STATUS_HIDE       , 0                   , "status line is not displayed"               },      <* 
- *>    { "status"    , "file"         , 0                   , G_STATUS_FILE       , 0                   , "file name, control, and version"            },      <* 
- *>    { "status"    , "tab"          , 0                   , G_STATUS_TAB        , 0                   , "tab name, type, and dimensions"             },      <* 
- *>    { "status"    , "buffer"       , 0                   , G_STATUS_BUFFER     , 0                   , "details of current buffer"                  },      <* 
- *>    { "status"    , "visual"       , 0                   , G_STATUS_VISUAL     , 0                   , "details of visual selection"                },      <* 
- *>    { "status"    , "regs"         , 0                   , G_STATUS_REGS       , 0                   , "details of map register contents"           },      <* 
- *>    { "status"    , "treg"         , 0                   , G_STATUS_TREG       , 0                   , "details of text register contents"          },      <* 
- *>    { "status"    , "mark"         , 0                   , G_STATUS_MARK       , 0                   , "details of cell and location marks"         },      <* 
- *>    { "status"    , "cell"         , 0                   , G_STATUS_CELL       , 0                   , "details of current cell"                    },      <* 
- *>    { "status"    , "deps"         , 0                   , G_STATUS_DEPS       , 0                   , "details of current cell dependencies"       },      <* 
- *>    { "status"    , "rpn"          , 0                   , G_STATUS_RPN        , 0                   , "details of current cell rpn notation"       },      <* 
- *>    { "status"    , "keylog"       , 0                   , G_STATUS_KEYLOG     , 0                   , "key logging details for debugging"          },      <* 
- *>    { "status"    , "history"      , 0                   , G_STATUS_HISTORY    , 0                   , "change history for debugging"               },      <* 
- *>    { "command"   , "hide"         , 0                   , 0                   , G_COMMAND_HIDE      , "command line is not shown"                  },      <* 
- *>    { "command"   , "show"         , 0                   , 0                   , G_COMMAND_SHOW      , "display the command line"                   },      <* 
- *>    { "command"   , "float"        , 0                   , 0                   , G_COMMAND_FLOAT     , "display command line when required"         },      <* 
- *>    { "layout"    , "min"          , G_FORMULA_TINY      , G_STATUS_HIDE       , G_COMMAND_HIDE      , "greatest working room available"            },      <* 
- *>    { "layout"    , "normal"       , G_FORMULA_SMALL     , G_STATUS_FILE       , G_COMMAND_SHOW      , "normal working environment"                 },      <* 
- *>    { "layout"    , "max"          , G_FORMULA_DEBUG     , G_STATUS_FILE       , G_COMMAND_SHOW      , "greatest supporting information"            },      <* 
- *>    { ""          , ""             , 0                   , 0                   , 0                   , ""                                           },      <* 
- *> };                                                                                                                                                         <* 
- *> int         g_nlayout;                                                                                                                                     <*/
-
-
 
 
 
@@ -584,6 +539,10 @@ yVIKEYS_cmds_add     (char a_menu, char *a_name, char *a_abbr, char *a_terms, vo
       case  'i' : s_cmds [s_ncmd].f.si  = a_func; break;
       case  's' : s_cmds [s_ncmd].f.ss  = a_func; break;
       }
+   case  'C' :
+      switch (a_terms [1]) {
+      case  's' : s_cmds [s_ncmd].f.ss  = a_func; break;
+      }
    }
    /*---(update count)-------------------*/
    ++s_ncmd;
@@ -686,7 +645,7 @@ yVIKEYS_cmds_exec     (void)
       rc = s_cmds [i].f.s   (s_all);
    } else if (strcmp (s_cmds [i].terms, "ss"  ) == 0) {
       DEBUG_USER   yLOG_note    ("two string args");
-      rc = s_cmds [i].f.ss  (s_fields [1], s_fields [1]);
+      rc = s_cmds [i].f.ss  (s_fields [1], s_fields [2]);
    } else if (strcmp (s_cmds [i].terms, "ii"  ) == 0) {
       DEBUG_USER   yLOG_note    ("two integers");
       rc = s_cmds [i].f.ii  (atoi (s_fields [1]), atoi (s_fields [2]));
@@ -696,6 +655,9 @@ yVIKEYS_cmds_exec     (void)
    } else if (strcmp (s_cmds [i].terms, "is"  ) == 0) {
       DEBUG_USER   yLOG_note    ("integer arg and string arg");
       rc = s_cmds [i].f.is  (atoi (s_fields [1]), s_fields [1]);
+   } else if (strcmp (s_cmds [i].terms, "Cs"  ) == 0) {
+      DEBUG_USER   yLOG_note    ("command name and string arg");
+      rc = s_cmds [i].f.ss  (s_fields [0], s_fields [1]);
    } else {
       DEBUG_USER   yLOG_note    ("crazy other shit, please update or fix");
       rc = -1;

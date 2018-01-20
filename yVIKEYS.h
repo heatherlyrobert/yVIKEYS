@@ -153,6 +153,10 @@ char        yVIKEYS_view_resize       (cchar a_format, cchar *a_title, cint a_wi
 char        yVIKEYS_view_text         (cchar a_part, cchar *a_text);
 char        yVIKEYS_view_corners      (cchar a_part, int *a_left, int *a_bott, int *a_wide, int *a_tall, cchar *a_text);
 char        yVIKEYS_view_title        (void);
+char        yVIKEYS_view_buffer       (void);
+char        yVIKEYS_view_formula      (void);
+char        yVIKEYS_view_keys         (void);
+char        yVIKEYS_view_version      (void);
 char        yVIKEYS_view_command      (void);
 char        yVIKEYS_view_status       (void);
 char        yVIKEYS_view_ribbon_clear (void);
@@ -162,6 +166,7 @@ char        yVIKEYS_view_grid         (float a_mag);
 char        yVIKEYS_view_cursor       (float a_mag);
 char        yVIKEYS_view_set_gridoff  (int a_x, int a_y, int a_z);
 char        yVIKEYS_view_set_gridsize (int a_x, int a_y, int a_z);
+char        yVIKEYS_view_all          (void *a_drawer, float a_mag);
 
 /*---(map mode)-------------*/
 char        yVIKEYS_map_init          (char a_coord, void *a_col_mapper, void *a_row_mapper);

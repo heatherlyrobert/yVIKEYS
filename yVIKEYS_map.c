@@ -21,7 +21,8 @@ static int     s_acol    = 0;
 char    (*s_cmapper) (char a_type);
 char    (*s_rmapper) (char a_type);
 
-static char   s_coord    = YVIKEYS_RIGHT;
+char   g_coord    = YVIKEYS_RIGHT;
+
 static char  *s_vsimple  = "_KkjJ~";
 static char  *s_vgoto    = "TKtkmjbJB";
 static char  *s_hsimple  = "0HhlL$";
@@ -172,7 +173,7 @@ yVIKEYS__map_load     (char a_style, tMAPPED *a_map)
 char
 yVIKEYS_map_init       (char a_coord, void *a_col_mapper, void *a_row_mapper)
 {
-   s_coord    = a_coord;
+   g_coord    = a_coord;
    s_cmapper  = a_col_mapper;
    s_rmapper  = a_row_mapper;
    if (s_cmapper != NULL)  s_cmapper ('i');
@@ -443,7 +444,7 @@ yVIKEYS_map_vert      (char a_major, char a_minor)
    /*---(simple)-------------------------*/
    DEBUG_USER  yLOG_info    ("s_vsimple" , s_vsimple);
    if (a_major == ' ' && strchr (s_vsimple, a_minor) != NULL) {
-      if (s_coord == YVIKEYS_OFFICE) {
+      if (g_coord == YVIKEYS_OFFICE) {
          switch (a_minor) {
          case '_' : x_grid  = s_rowmap.map [s_rowmap.gmin];  break;
          case 'K' : x_grid -= g_gsizey * 5;  break;
@@ -466,7 +467,7 @@ yVIKEYS_map_vert      (char a_major, char a_minor)
    /*---(gotos)--------------------------*/
    DEBUG_USER  yLOG_info    ("s_vgoto"   , s_vgoto);
    if (a_major == 'g' && strchr (s_vgoto  , a_minor) != NULL) {
-      if (s_coord == YVIKEYS_OFFICE) {
+      if (g_coord == YVIKEYS_OFFICE) {
          switch (a_minor) {
          case 'T' : x_unit  = s_rowmap.beg - (x_qtr * 4); break;
          case 'K' : x_unit  = s_rowmap.beg - (x_qtr * 2); break;
