@@ -29,8 +29,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.6i"
-#define YVIKEYS_VER_TXT   "fixed some subtle sizing issues in yVIKEYS__view_heights"
+#define YVIKEYS_VER_NUM   "0.6j"
+#define YVIKEYS_VER_TXT   "layout command now preserves main drawing area cooordinations"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/

@@ -154,7 +154,7 @@ char        yVIKEYS_view_wrap         (void);
 char        yVIKEYS_view_all          (float a_mag);
 
 
-char        yVIKEYS_view_main_coords  (int a_xmin, int a_xmax, int a_ymin, int a_ymax);
+char        yVIKEYS_view_coords       (int a_xmin, int a_xmax, int a_ymin, int a_ymax);
 char        yVIKEYS_view_corners      (cchar a_part, int *a_left, int *a_wide, int *a_bott, int *a_tall, cchar *a_text);
 char        yVIKEYS_view_ribbon_clear (void);
 char        yVIKEYS_view_ribbon_add   (char *a_cat, char *a_name);

@@ -176,7 +176,7 @@ static tPARTS  s_parts [MAX_PARTS] = {
    { W_RIBBON  , "ribbon"      , 'y', '-',  3, 5,  40,   0, '-', '-', 'y',  0, 0, 0, 0, '-', "", COLOR_ACC_D , yVIKEYS_view_ribbon    , "menu and icon display for navigation of commands"   },
    { W_VERSION , "version"     , 'y', 'y',  7, 1,  15,  40, '-', 't', '-',  0, 0, 0, 0, 'r', "", COLOR_ACC_D , NULL                   , "version display with debugging notice"              },
    { W_KEYS    , "keys"        , 'y', 'y',  1, 6,  40,  15, 'c', '-', '-',  0, 0, 0, 0, '-', "", COLOR_ACC_D , NULL                   , "latest keyboard characters typed"                   },
-   { W_GRID    , "grid"        , 'y', '-',  0, 0,   0,   0, '-', '-', '-',  0, 0, 0, 0, '-', "", COLOR_BASE  , NULL                   , "overlay main drawing with a grid"                   },
+   { W_GRID    , "grid"        , 'l', '-',  0, 0,   0,   0, '-', '-', '-',  0, 0, 0, 0, '-', "", COLOR_BASE  , NULL                   , "overlay main drawing with a grid"                   },
    { W_COORDS  , "coords"      , '-', '-',  0, 0,   0,   0, '-', '-', '-',  0, 0, 0, 0, '-', "", 0           , NULL                   , "actual x,y coordinates in main window"              },
    { W_WINDOW  , "window"      , '-', '-',  0, 0,   0,   0, '-', '-', '-',  0, 0, 0, 0, '-', "", 0           , NULL                   , "Full screen width and height"                       },
    { 0         , ""            , '-', '-',  0, 0,   0,   0, '-', '-', '-',  0, 0, 0, 0, '-', "", 0           , NULL                   , ""                                                   },
@@ -194,6 +194,7 @@ tLAYOUT   s_layouts [MAX_LAYOUT] = {
    /*---name------    tbfnmpscdrvk    ,    12345678901234567890123456789012345678901234567890  */
    { "min"         , "----m-------"   , "smallest footprint, least elements showing"           },
    { "work"        , "t---m-sc--vk"   , "more balanced display of common elements"             },
+   { "rob"         , "t---m-sc--v-"   , "more balanced display of common elements"             },
    { "max"         , "tbfnmpscdrvk"   , "everything displays at one time"                      },
    { ""            , "----m-------"   , ""                                                     },
 };
@@ -202,11 +203,11 @@ static int  s_nlayout   = 0;
 
 
 int         g_goffx   =   0;
-int         g_gsizex  =   1;
+int         g_gsizex  =  60;
 int         g_goffy   =   0;
-int         g_gsizey  =   1;
+int         g_gsizey  =  60;
 int         g_goffz   =   0;
-int         g_gsizez  =   1;
+int         g_gsizez  =  60;
 
 static  float  s_mag;
 
@@ -468,6 +469,7 @@ yVIKEYS_view_resize      (int a_wide, int a_tall)
 {
    if (a_wide > 50)  s_awide = a_wide;
    if (a_tall > 50)  s_atall = a_tall;
+   yVIKEYS_view_coords  (0, a_wide, 0, a_tall);
    yVIKEYS__view_resize ('r');
    return 0;
 }
@@ -486,7 +488,8 @@ yVIKEYS__view_clear      (void)
    DEBUG_GRAF_M yLOG_enter   (__FUNCTION__);
    DEBUG_GRAF_M yLOG_value   ("count"     , s_npart);
    for (n = 0; n < s_npart; ++n) {
-      if (s_parts [n].abbr != W_MAIN)  s_parts [n].on   = '-';
+      if (s_parts [n].abbr != W_MAIN  )  s_parts [n].on   = '-';
+      if (s_parts [n].abbr == W_COORDS)  continue;
       s_parts [n].left =   0;
       s_parts [n].wide =   0;
       s_parts [n].bott =   0;
@@ -665,8 +668,9 @@ yVIKEYS_view_init       (char *a_title, char *a_ver, int a_wide, int a_tall, voi
    DEBUG_GRAF   yLOG_value   ("s_awide"   , s_awide);
    DEBUG_GRAF   yLOG_value   ("s_atall"   , s_atall);
    /*---(open window)--------------------*/
-   rc = yX11_start      (a_title, 500, 300, YX_FOCUSABLE, YX_FIXED, '-');
+   rc = yX11_start      (a_title, a_wide, a_tall, YX_FOCUSABLE, YX_FIXED, '-');
    yVIKEYS__view_layout ("work");
+   yVIKEYS_view_coords  (0, a_wide, 0, a_tall);
    /*---(set text data)------------------*/
    if (a_title != NULL) {
       n = yVIKEYS__view_abbr (W_TITLE);
@@ -720,10 +724,8 @@ yVIKEYS_view_wrap       (void)
    return 0;
 }
 
-
-
 char
-yVIKEYS_view_main_coords (int a_xmin, int a_xlen, int a_ymin, int a_ylen)
+yVIKEYS_view_coords        (int a_xmin, int a_xlen, int a_ymin, int a_ylen)
 {
    char        n           =    0;
    DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
@@ -869,8 +871,10 @@ yVIKEYS_view_grid        (void)
    int         x_beg       = 0;
    int         x_end       = 0;
    int         x_inc       = 0;
+   char        n           = 0;
    /*---(defense)------------------------*/
-   if (s_win.g_on == '-')  return 0;
+   n = yVIKEYS__view_abbr (W_GRID);
+   if (s_parts [n].on == '-')  return 0;
    /*---(x grid)-------------------------*/
    glPushMatrix    (); {
       x_beg = s_colmap.gmin;
@@ -918,7 +922,6 @@ yVIKEYS_view_grid        (void)
       glPointSize   (5);
       glLineWidth   (1.5);
       glColor4f     (0.0, 0.3, 0.0, 0.5);
-      /*> yVIKEYS_view_color (COLOR_TXT_D);                                           <*/
       glTranslatef  (0.0, g_goffy, 50.0);
       for (y = s_rowmap.gmin; y <= s_rowmap.gmax; y += g_gsizey) {
          for (x = s_colmap.gmin; x <= s_colmap.gmax; x += g_gsizex) {
@@ -1010,12 +1013,15 @@ yVIKEYS_view_float      (void)
    }
    if (x_use != 'y')    return 0;
    /*---(draw)---------------------------*/
-   x_bot = s_win.m_bott + 20;
+   n = yVIKEYS__view_abbr (W_COORDS);
+   x_bot = s_parts [n].bott + 20;
    x_top = x_bot + 15;
-   x_lef = 20;
-   x_rig = s_win.m_wide - 20;
+   x_lef = s_parts [n].left + 50;
+   /*> printf ("n %2d, s_parts[n].left %4d, x_lef = %4d\n", n, s_parts [n].left, x_lef);   <*/
+   x_rig = x_lef + s_parts [n].wide - 100;
+   /*> printf ("n %2d, s_parts[n].wide %4d, x_rig = %4d\n", n, s_parts [n].wide, x_rig);   <*/
    glPushMatrix    (); {
-      yVIKEYS_view_color (COLOR_DARK );
+      yVIKEYS_view_color (COLOR_BASE );
       glBegin         (GL_POLYGON); {
          glVertex3f  (x_lef , x_top, 50.0f);
          glVertex3f  (x_rig , x_top, 50.0f);
@@ -1030,7 +1036,7 @@ yVIKEYS_view_float      (void)
          glVertex3f  (x_lef , x_bot, 50.0f);
          glVertex3f  (x_lef , x_top, 50.0f);
       } glEnd   ();
-      yVIKEYS_view_color (COLOR_TXT_L);
+      yVIKEYS_view_color (COLOR_BLACK);
       glTranslatef (x_lef + 3, x_bot,   60.0f);
       switch (yVIKEYS_mode_curr ()) {
       case MODE_COMMAND :  yFONT_print  (s_win.font,  11, YF_BOTLEF, yVIKEYS_cmds_curr ());  break;
@@ -1047,7 +1053,7 @@ yVIKEYS__view_opengl     (char a)
 {
    /*---(defense)------------------------*/
    if (s_parts [a].on  == '-')  return -2;
-   if (s_parts [a].own == '-')  return -3;
+   if (s_parts [a].own != 'y')  return -3;
    /*---(header)-------------------------*/
    DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
    /*---(setup view)---------------------*/
@@ -1106,13 +1112,13 @@ yVIKEYS_view_all         (float a_mag)
    /*---(draw each element)--------------*/
    for (n = 0; n < s_npart; ++n) {
       DEBUG_GRAF   yLOG_value   ("part"      , n);
-      if (s_parts [n].own == 'y')  rc = yVIKEYS__view_opengl (n);
+      rc = yVIKEYS__view_opengl (n);
    }
    /*---(main)---------------------------*/
    if (s_drawer != NULL) s_drawer ();
-   /*> yVIKEYS_view_float  ();                                                        <*/
    yVIKEYS_view_grid   ();
    yVIKEYS_view_cursor ();
+   yVIKEYS_view_float  ();
    /*---(flush)--------------------------*/
    glXSwapBuffers(DISP, BASE);
    glFlush();
