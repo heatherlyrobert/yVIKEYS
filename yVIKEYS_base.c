@@ -67,6 +67,8 @@ yVIKEYS__unit_loud     (void)
    ySTR_debug ('y');
    its.logger = yLOG_begin ("yVIKEYS" , yLOG_SYSTEM, yLOG_NOISE);
    yURG_name  ("user"         , YURG_ON);
+   yURG_name  ("graf"         , YURG_ON);
+   yURG_name  ("wind"         , YURG_ON);
    yURG_name  ("yvikeys"      , YURG_ON);
    yURG_name  ("yvikeys_mode" , YURG_ON);
    yURG_name  ("yvikeys_keys" , YURG_ON);
@@ -219,6 +221,8 @@ yVIKEYS_main_handle     (char a_key)
    } else if (x_savemode != yVIKEYS_mode_curr()) {
       yVIKEYS_mode_mesg (s_display, yVIKEYS_cmds_curr ());
    }
+   yVIKEYS_view_text (s_display);
+   yVIKEYS_view_keys (s_keys   );
    x_savemode = yVIKEYS_mode_curr ();
    /*---(advance macros)-----------------*/
    IF_MACRO_ON  yVIKEYS_macro_exec_adv ();

@@ -29,8 +29,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.6g"
-#define YVIKEYS_VER_TXT   "added all screen parts to system automatically with commands"
+#define YVIKEYS_VER_NUM   "0.6h"
+#define YVIKEYS_VER_TXT   "moved view to separate file, consolidated drawing"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -71,8 +71,36 @@ typedef     struct timespec   tSPEC;
 typedef     unsigned char     uchar;
 typedef     signed char       schar;
 
-char        yVIKEYS_view_set         (char *a_name, char *a_opt);
 
+/*---(normal)-------------------------*/
+#define      W_TITLE       't'
+#define      W_BUFFER      'b'
+#define      W_FORMULA     'f'
+#define      W_NAV         'n'
+#define      W_MAIN        'm'
+#define      W_PROGRESS    'p'
+#define      W_STATUS      's'
+#define      W_COMMAND     'c'
+#define      W_DETAILS     'd'
+#define      W_RIBBON      'r'
+#define      W_VERSION     'v'
+#define      W_KEYS        'k'
+/*---(specialty)----------------------*/
+#define      W_WINDOW      'W'
+#define      W_GRID        'G'
+#define      W_COORDS      'M'
+
+
+
+char        yVIKEYS__view_find      (char *a_name);
+char        yVIKEYS__view_abbr      (char  a_abbr);
+char        yVIKEYS__view_resize      (cchar a_type);
+char        yVIKEYS__view_size_clear (void);
+char        yVIKEYS__view_widths     (cint a_wide);
+char        yVIKEYS__view_heights    (cint a_tall);
+char*       yVIKEYS__view_unit      (char *a_question, char a_index);
+char        yVIKEYS_view_text         (cchar *a_text);
+char        yVIKEYS_view_keys         (cchar *a_text);
 
 extern char yVIKEYS__unit_answer [LEN_STR];
 char        yVIKEYS__unit_quiet     (void);

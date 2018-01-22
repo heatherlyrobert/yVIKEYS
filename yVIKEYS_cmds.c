@@ -184,7 +184,7 @@ yVIKEYS_srch_start   (void)
    yVIKEYS__srch_purge ();
    s_quoted  = '-';
    s_escaped = '-';
-   yVIKEYS_view_text ('c', s_search);
+   /*> yVIKEYS_view_text (s_search);                                                  <*/
    return 0;
 }
 
@@ -196,7 +196,7 @@ yVIKEYS_srch_clear   (void)
    yVIKEYS__srch_purge ();
    s_quoted  = '-';
    s_escaped = '-';
-   yVIKEYS_view_text ('c', s_search);
+   /*> yVIKEYS_view_text (s_search);                                                  <*/
    return 0;
 }
 
@@ -284,7 +284,7 @@ yVIKEYS_srch_mode       (char a_major, char a_minor)
       }
       if (s_slen < 1)   s_slen = 1;
       s_search [s_slen] = '\0';
-      yVIKEYS_view_text ('c', s_search);
+      /*> yVIKEYS_view_text (s_search);                                               <*/
       DEBUG_USER   yLOG_info    ("s_search"  , s_search);
       DEBUG_USER   yLOG_value   ("s_slen"    , s_slen);
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
@@ -296,7 +296,7 @@ yVIKEYS_srch_mode       (char a_major, char a_minor)
    DEBUG_USER   yLOG_note    ("update search line");
    snprintf (x_temp, 10, "%c", a_minor);
    strcat   (s_search, x_temp);
-   yVIKEYS_view_text ('c', s_search);
+   /*> yVIKEYS_view_text (s_search);                                                  <*/
    ++s_slen;
    DEBUG_USER   yLOG_info    ("s_search"  , s_search);
    DEBUG_USER   yLOG_value   ("s_slen"    , s_slen);
@@ -365,7 +365,7 @@ yVIKEYS_cmds_start      (void)
    s_clen = 1;
    s_quoted  = '-';
    s_escaped = '-';
-   yVIKEYS_view_text ('c', s_command);
+   /*> yVIKEYS_view_text (s_command);                                                 <*/
    return 0;
 }
 
@@ -376,7 +376,7 @@ yVIKEYS_cmds_clear      (void)
    s_clen = 0;
    s_quoted  = '-';
    s_escaped = '-';
-   yVIKEYS_view_text ('c', s_command);
+   /*> yVIKEYS_view_text (s_command);                                                 <*/
    return 0;
 }
 
@@ -746,7 +746,7 @@ yVIKEYS_cmds_mode     (char a_major, char a_minor)
       }
       if (s_clen < 1)   s_clen = 1;
       s_command [s_clen] = '\0';
-      yVIKEYS_view_text ('c', s_command);
+      /*> yVIKEYS_view_text (s_command);                                              <*/
       DEBUG_USER   yLOG_info    ("s_command" , s_command);
       DEBUG_USER   yLOG_value   ("s_clen"    , s_clen);
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
@@ -758,7 +758,7 @@ yVIKEYS_cmds_mode     (char a_major, char a_minor)
    DEBUG_USER   yLOG_note    ("update command line");
    snprintf (x_temp, 10, "%c", a_minor);
    strlcat   (s_command, x_temp, LEN_COMMAND);
-   yVIKEYS_view_text ('c', s_command);
+   /*> yVIKEYS_view_text (s_command);                                                 <*/
    s_clen = strllen (s_command, LEN_COMMAND);
    DEBUG_USER   yLOG_info    ("s_command" , s_command);
    DEBUG_USER   yLOG_value   ("s_clen"    , s_clen);
