@@ -29,8 +29,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.6h"
-#define YVIKEYS_VER_TXT   "moved view to separate file, consolidated drawing"
+#define YVIKEYS_VER_NUM   "0.6i"
+#define YVIKEYS_VER_TXT   "fixed some subtle sizing issues in yVIKEYS__view_heights"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/

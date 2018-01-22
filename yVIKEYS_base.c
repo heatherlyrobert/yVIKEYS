@@ -5,6 +5,8 @@
 
 
 
+static char  s_keylog       [10000];
+static int   s_nkeylog      = 0;
 static char  s_keys         [LEN_LABEL] = "";
 static char  s_display      [LEN_RECD ] = "";
 
@@ -91,6 +93,24 @@ yVIKEYS__unit_end      (void)
 /*====================------------------------------------====================*/
 static void  o___MAIN____________o () { return; }
 
+char         /*-> tbd --------------------------------[ ------ [gz.420.121.11]*/ /*-[01.0000.102.!]-*/ /*-[--.---.---.--]-*/
+yVIKEYS_main_record     (char a_curr)
+{
+   /*---(locals)-----------+-----------+-*/
+   char        t           [10];
+   int         x_key       =0;
+   /*---(normal)-------------------------*/
+   sprintf  (t, "%c", a_curr);
+   strlcat  (s_keylog, t, 10000);
+   ++s_nkeylog;
+   /*---(macro)--------------------------*/
+   IF_MACRO_RECORDING {
+      yVIKEYS_macro_rec_key (a_curr);
+   }
+   /*---(complete)-----------------------*/
+   return 0;
+}
+
 char         /*-> gather main loop keyboard input ----[ ------ [gc.D44.233.C7]*/ /*-[02.0000.111.R]-*/ /*-[--.---.---.--]-*/
 yVIKEYS_main_input      (char a_runmode, char a_key)
 {
@@ -133,7 +153,7 @@ yVIKEYS_main_input      (char a_runmode, char a_key)
    }
    /*---(record)-------------------------*/
    DEBUG_LOOP   yLOG_note    ("handle keystroke normally");
-   /*> KEYS_record (x_ch);                                                            <*/
+   yVIKEYS_main_record (x_ch);
    /*---(complete)-----------------------*/
    DEBUG_LOOP   yLOG_exit    (__FUNCTION__);
    return x_ch;
@@ -142,6 +162,7 @@ yVIKEYS_main_input      (char a_runmode, char a_key)
 char
 yVIKEYS_______stub      (char a_major, char a_minor)
 {
+   yVIKEYS_mode_exit ();
    return a_minor;
 }
 
@@ -149,12 +170,12 @@ char         /*-> process main loop keyboard input ---[ leaf   [gc.GD1.132.IM]*/
 yVIKEYS_main_handle     (char a_key)
 {
    /*---(locals)-----------+-----+-----+-*/
-   static char x_major     = ' ';      /* saved keystroke                     */
-   static char x_savemode  = '-';
-   char        rc          = 0;
-   int         x_repeat    = 0;
-   char        x_error     = '-';
-   char        x_nomode    = '-';
+   char        rc          = 0;             /* generic return code            */
+   static char x_major     = ' ';           /* saved keystroke from last loop */
+   static char x_savemode  = '-';           /* to identify mode changes       */
+   int         x_repeat    = 0;             /* store current repeat count     */
+   char        x_error     = '-';           /* flag error status              */
+   char        x_nomode    = '-';           /* flag illegal mode              */
    /*---(header)-------------------------*/
    DEBUG_LOOP   yLOG_enter   (__FUNCTION__);
    DEBUG_LOOP   yLOG_value   ("a_key"     , a_key);
@@ -168,8 +189,9 @@ yVIKEYS_main_handle     (char a_key)
       rc = yVIKEYS_repeat_umode (x_major, a_key);
       if (rc >  0)  x_major = ' ';
    }
-   /*---(handle keystroke)---------------*/
+   /*---(main loop)----------------------*/
    while (1) {
+      /*---(handle keystroke)------------*/
       switch (yVIKEYS_mode_curr ()) {
       case MODE_GOD      : rc = yVIKEYS_______stub    (x_major , a_key);  break;
       case MODE_MAP      : rc = yVIKEYS_map_mode      (x_major , a_key);  break;
@@ -191,7 +213,7 @@ yVIKEYS_main_handle     (char a_key)
       case SMOD_MACRO    : rc = yVIKEYS_macro_smode   (x_major , a_key);  break;
       default            : rc = -1;  x_nomode = 'y';                      break;
       }
-      /*---(translate unprintable)----------*/
+      /*---(translate unprintable)-------*/
       x_repeat = yVIKEYS_repeat_value ();
       if      (a_key == 0       )      snprintf (s_keys,   9, "%2d %c%c"  , x_repeat, x_major, G_CHAR_NULL  );
       else if (a_key == G_KEY_RETURN)  snprintf (s_keys,   9, "%2d %c%c"  , x_repeat, x_major, G_CHAR_RETURN);
@@ -202,12 +224,14 @@ yVIKEYS_main_handle     (char a_key)
       else if (a_key == G_KEY_SPACE )  snprintf (s_keys,   9, "%2d %c%c"  , x_repeat, x_major, G_CHAR_SPACE );
       else if (a_key <= G_KEY_SPACE )  snprintf (s_keys,   9, "%2d %c%02x", x_repeat, x_major, a_key);
       else                             snprintf (s_keys,   9, "%2d %c%c"  , x_repeat, x_major, a_key);
-      /*---(multiplier)---------------------*/
+      /*---(multiplier)------------------*/
       if (rc == 0 && x_repeat > 0 && yVIKEYS_mode_curr () != SMOD_REPEAT) {
          yVIKEYS_repeat_dec ();
          continue;
       }
+      /*---(multiplier)------------------*/
       break;
+      /*---(done)------------------------*/
    }
    /*---(setup for next keystroke)-------*/
    if      (rc == 0)    x_major = ' ';
@@ -223,6 +247,7 @@ yVIKEYS_main_handle     (char a_key)
    }
    yVIKEYS_view_text (s_display);
    yVIKEYS_view_keys (s_keys   );
+   /*---(save current mode)--------------*/
    x_savemode = yVIKEYS_mode_curr ();
    /*---(advance macros)-----------------*/
    IF_MACRO_ON  yVIKEYS_macro_exec_adv ();

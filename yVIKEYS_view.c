@@ -151,6 +151,7 @@ struct cPARTS {
    int         def_tall;                    /* default height                 */
    char        x_tie;                       /* tie to another field in x-axis */
    char        y_tie;                       /* tie to another field in y-axis */
+   char        under;                       /* fall below buffer/formula      */
    int         wide;                        /* screen width                   */
    int         tall;                        /* screen height                  */
    int         left;                        /* screen left                    */
@@ -162,23 +163,23 @@ struct cPARTS {
    char        desc        [LEN_DESC ];     /* explanation of element         */
 };
 static tPARTS  s_parts [MAX_PARTS] = {
-   /*----------   ---name-----   own  on   bt lr d_wi d_ta  x_t  y_t  wi ta le bo  ori  txt color         drawing-function------    12345678901234567890123456789012345678901234567890  */
-   { W_TITLE   , "title"       , 'y', 'y',  1, 1,  15,   0, '-', '-',  0, 0, 0, 0, 'r', "", COLOR_ACC_L , NULL                   , "left hand title bar"                                },
-   { W_BUFFER  , "buffer"      , 'y', '-',  6, 2,   0,  15, '-', '-',  0, 0, 0, 0, '-', "", COLOR_BASE  , NULL                   , "buffer inventory at top"                            },
-   { W_FORMULA , "formula"     , 'y', '-',  5, 2,   0,  15, '-', '-',  0, 0, 0, 0, '-', "", COLOR_DARK  , NULL                   , "formula and source editing line at top"             },
-   { W_NAV     , "nav"         , 'y', '-',  3, 2, 150,   0, '-', '-',  0, 0, 0, 0, '-', "", COLOR_BASE  , NULL                   , "navigation panel to display tags and other links"   },
-   { W_MAIN    , "main"        , '-', 'y',  4, 3,   0,   0, '-', '-',  0, 0, 0, 0, '-', "", COLOR_BASE  , NULL                   , "main working area in the middle"                    },
-   { W_PROGRESS, "progress"    , 'y', '-',  3, 3,   0, 100, '-', '-',  0, 0, 0, 0, '-', "", COLOR_BASE  , NULL                   , "time and sequencing controls about status line"     },
-   { W_STATUS  , "status"      , 'y', 'y',  2, 2,   0,  15, '-', '-',  0, 0, 0, 0, '-', "", COLOR_DARK  , NULL                   , "informational status bar above command line"        },
-   { W_COMMAND , "command"     , 'y', 'y',  1, 2,   0,  15, '-', '-',  0, 0, 0, 0, '-', "", COLOR_BASE  , NULL                   , "command, search, and help message line at bottom"   },
-   { W_DETAILS , "details"     , 'y', '-',  3, 4, 250,   0, '-', '-',  0, 0, 0, 0, '-', "", COLOR_BASE  , NULL                   , "display area for critical details to right"         },
-   { W_RIBBON  , "ribbon"      , 'y', '-',  3, 5,  40,   0, '-', '-',  0, 0, 0, 0, '-', "", COLOR_ACC_D , yVIKEYS_view_ribbon    , "menu and icon display for navigation of commands"   },
-   { W_VERSION , "version"     , 'y', 'y',  7, 1,  15,  40, '-', 't',  0, 0, 0, 0, 'r', "", COLOR_ACC_D , NULL                   , "version display with debugging notice"              },
-   { W_KEYS    , "keys"        , 'y', 'y',  1, 6,  40,  15, 'c', '-',  0, 0, 0, 0, '-', "", COLOR_ACC_D , NULL                   , "latest keyboard characters typed"                   },
-   { W_GRID    , "grid"        , 'y', '-',  0, 0,   0,   0, '-', '-',  0, 0, 0, 0, '-', "", COLOR_BASE  , NULL                   , "overlay main drawing with a grid"                   },
-   { W_COORDS  , "coords"      , '-', '-',  0, 0,   0,   0, '-', '-',  0, 0, 0, 0, '-', "", 0           , NULL                   , "actual x,y coordinates in main window"              },
-   { W_WINDOW  , "window"      , '-', '-',  0, 0,   0,   0, '-', '-',  0, 0, 0, 0, '-', "", 0           , NULL                   , "Full screen width and height"                       },
-   { 0         , ""            , '-', '-',  0, 0,   0,   0, '-', '-',  0, 0, 0, 0, '-', "", 0           , NULL                   , ""                                                   },
+   /*----------   ---name-----   own  on   bt lr d_wi d_ta  x_t  y_t  und  wi ta le bo  ori  txt color         drawing-function------    12345678901234567890123456789012345678901234567890  */
+   { W_TITLE   , "title"       , 'y', 'y',  1, 1,  15,   0, '-', '-', '-',  0, 0, 0, 0, 'r', "", COLOR_ACC_L , NULL                   , "left hand title bar"                                },
+   { W_BUFFER  , "buffer"      , 'y', '-',  6, 2,   0,  15, '-', '-', '-',  0, 0, 0, 0, '-', "", COLOR_BASE  , NULL                   , "buffer inventory at top"                            },
+   { W_FORMULA , "formula"     , 'y', '-',  5, 2,   0,  15, '-', '-', '-',  0, 0, 0, 0, '-', "", COLOR_DARK  , NULL                   , "formula and source editing line at top"             },
+   { W_NAV     , "nav"         , 'y', '-',  3, 2, 150,   0, '-', '-', 'y',  0, 0, 0, 0, '-', "", COLOR_MUTED , NULL                   , "navigation panel to display tags and other links"   },
+   { W_MAIN    , "main"        , '-', 'y',  4, 3,   0,   0, '-', '-', '-',  0, 0, 0, 0, '-', "", COLOR_BASE  , NULL                   , "main working area in the middle"                    },
+   { W_PROGRESS, "progress"    , 'y', '-',  3, 3,   0, 100, '-', '-', '-',  0, 0, 0, 0, '-', "", COLOR_WARN  , NULL                   , "time and sequencing controls about status line"     },
+   { W_STATUS  , "status"      , 'y', 'y',  2, 2,   0,  15, '-', '-', '-',  0, 0, 0, 0, '-', "", COLOR_DARK  , NULL                   , "informational status bar above command line"        },
+   { W_COMMAND , "command"     , 'y', 'y',  1, 2,   0,  15, '-', '-', '-',  0, 0, 0, 0, '-', "", COLOR_BASE  , NULL                   , "command, search, and help message line at bottom"   },
+   { W_DETAILS , "details"     , 'y', '-',  3, 4, 250,   0, '-', '-', 'y',  0, 0, 0, 0, '-', "", COLOR_MUTED , NULL                   , "display area for critical details to right"         },
+   { W_RIBBON  , "ribbon"      , 'y', '-',  3, 5,  40,   0, '-', '-', 'y',  0, 0, 0, 0, '-', "", COLOR_ACC_D , yVIKEYS_view_ribbon    , "menu and icon display for navigation of commands"   },
+   { W_VERSION , "version"     , 'y', 'y',  7, 1,  15,  40, '-', 't', '-',  0, 0, 0, 0, 'r', "", COLOR_ACC_D , NULL                   , "version display with debugging notice"              },
+   { W_KEYS    , "keys"        , 'y', 'y',  1, 6,  40,  15, 'c', '-', '-',  0, 0, 0, 0, '-', "", COLOR_ACC_D , NULL                   , "latest keyboard characters typed"                   },
+   { W_GRID    , "grid"        , 'y', '-',  0, 0,   0,   0, '-', '-', '-',  0, 0, 0, 0, '-', "", COLOR_BASE  , NULL                   , "overlay main drawing with a grid"                   },
+   { W_COORDS  , "coords"      , '-', '-',  0, 0,   0,   0, '-', '-', '-',  0, 0, 0, 0, '-', "", 0           , NULL                   , "actual x,y coordinates in main window"              },
+   { W_WINDOW  , "window"      , '-', '-',  0, 0,   0,   0, '-', '-', '-',  0, 0, 0, 0, '-', "", 0           , NULL                   , "Full screen width and height"                       },
+   { 0         , ""            , '-', '-',  0, 0,   0,   0, '-', '-', '-',  0, 0, 0, 0, '-', "", 0           , NULL                   , ""                                                   },
 };
 static int  s_npart     = 0;
 
@@ -324,7 +325,7 @@ yVIKEYS__view_widths     (cint a_wide)
             s_parts [n].wide  = s_parts [n].def_wide;
             s_parts [n].left -= s_parts [n].def_wide;
             a = yVIKEYS__view_abbr (s_parts [n].x_tie);
-            s_parts [a].wide  = cw - s_parts [n].wide;
+            s_parts [a].wide  = cw - s_parts [n].wide - s_parts [a].left;
             x_skip = 'y';
          }
          else                                       s_parts [n].wide = s_parts [n].def_wide;
@@ -365,6 +366,7 @@ yVIKEYS__view_heights    (cint a_tall)
    int         ch          =    0;          /* cumulative bottom              */
    int         a           =    0;
    char        x_skip      =  '-';
+   int         x_under     =    0;
    /*---(header)----------------------*/
    DEBUG_GRAF_M yLOG_enter   (__FUNCTION__);
    DEBUG_GRAF_M yLOG_value   ("a_tall"    , a_tall);
@@ -400,13 +402,26 @@ yVIKEYS__view_heights    (cint a_tall)
       ch += h;
    }
    DEBUG_GRAF_M yLOG_value   ("max tall"  , ch);
-   /*---(fill in widths)-----------------*/
+   /*---(fill in heights)----------------*/
    DEBUG_GRAF_M yLOG_note    ("fill in remaining");
    for (n = 0; n < s_npart; ++n) {
       if (s_parts [n].on   == '-')  continue;
       if (s_parts [n].tall != 0  )  continue;
       DEBUG_GRAF_M yLOG_info    ("name"      , s_parts [n].name);
       s_parts [n].tall = ch - s_parts [n].bott;
+   }
+   /*---(deal with unders)---------------*/
+   n = yVIKEYS__view_abbr (W_BUFFER);
+   x_under += s_parts [n].tall;
+   n = yVIKEYS__view_abbr (W_FORMULA);
+   x_under += s_parts [n].tall;
+   DEBUG_GRAF_M yLOG_value   ("x_under"   , x_under);
+   DEBUG_GRAF_M yLOG_note    ("deal with unders");
+   for (n = 0; n < s_npart; ++n) {
+      if (s_parts [n].on    == '-')  continue;
+      if (s_parts [n].under != 'y')  continue;
+      DEBUG_GRAF_M yLOG_info    ("name"      , s_parts [n].name);
+      s_parts [n].tall = s_parts [n].tall - x_under;
    }
    /*---(full)---------------------------*/
    s_ftall = ch;
@@ -471,7 +486,7 @@ yVIKEYS__view_clear      (void)
    DEBUG_GRAF_M yLOG_enter   (__FUNCTION__);
    DEBUG_GRAF_M yLOG_value   ("count"     , s_npart);
    for (n = 0; n < s_npart; ++n) {
-      s_parts [n].on   = '-';
+      if (s_parts [n].abbr != W_MAIN)  s_parts [n].on   = '-';
       s_parts [n].left =   0;
       s_parts [n].wide =   0;
       s_parts [n].bott =   0;
@@ -576,6 +591,30 @@ yVIKEYS__view_layout     (char *a_name)
    return 0;
 }
 
+char
+yVIKEYS__view_gridoff      (int a_x, int a_y, int a_z)
+{
+   if (a_x > 0) {
+      g_goffx = a_x;
+      if (a_y <= 0) g_goffy = a_x;
+      if (a_z <= 0) g_goffz = a_x;
+   }
+   /*> printf ("gridx off %3d size %3d\n", g_goffx, g_gsizex);                        <*/
+   return 0;
+}
+
+char
+yVIKEYS__view_gridsize     (int a_x, int a_y, int a_z)
+{
+   if (a_x > 0) {
+      g_gsizex = a_x;
+      if (a_y <= 0) g_gsizey = a_x;
+      if (a_z <= 0) g_gsizez = a_x;
+   }
+   /*> printf ("gridx off %3d size %3d\n", g_goffx, g_gsizex);                        <*/
+   return 0;
+}
+
 
 
 /*====================------------------------------------====================*/
@@ -617,8 +656,9 @@ yVIKEYS_view_init       (char *a_title, char *a_ver, int a_wide, int a_tall, voi
    for (i = 0; i < LEN_LABEL; ++i)  s_win.r_icons [i] = -1;
    s_win.r_nicon = 0;
    /*---(commands)-----------------------*/
-   yVIKEYS_cmds_add ('v', "gridoff"     , ""    , "iii"  , yVIKEYS_view_set_gridoff  , "" );
-   yVIKEYS_cmds_add ('v', "gridsize"    , ""    , "iii"  , yVIKEYS_view_set_gridsize , "" );
+   yVIKEYS_cmds_add ('v', "gridoff"     , ""    , "iii"  , yVIKEYS__view_gridoff      , "" );
+   yVIKEYS_cmds_add ('v', "gridsize"    , ""    , "iii"  , yVIKEYS__view_gridsize     , "" );
+   yVIKEYS_cmds_add ('v', "layout"      , ""    , "s"    , yVIKEYS__view_layout       , "" );
    /*---(key data)-----------------------*/
    s_awide   = a_wide;
    s_atall   = a_tall;
@@ -683,12 +723,16 @@ yVIKEYS_view_wrap       (void)
 
 
 char
-yVIKEYS_view_main_coords (int a_xmin, int a_xmax, int a_ymin, int a_ymax)
+yVIKEYS_view_main_coords (int a_xmin, int a_xlen, int a_ymin, int a_ylen)
 {
-   s_win.m_xmin = a_xmin;
-   s_win.m_xmax = a_xmax;
-   s_win.m_ymin = a_ymin;
-   s_win.m_ymax = a_ymax;
+   char        n           =    0;
+   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
+   n = yVIKEYS__view_abbr (W_COORDS);
+   DEBUG_GRAF   yLOG_value   ("n"         , n);
+   s_parts [n].left = a_xmin;
+   s_parts [n].wide = a_xlen;
+   s_parts [n].bott = a_ymin;
+   s_parts [n].tall = a_ylen;
    return 0;
 }
 
@@ -794,30 +838,6 @@ yVIKEYS_view_color      (char a_color)
 /*===----                        standard drawing                      ----===*/
 /*====================------------------------------------====================*/
 static void  o___DRAWING_________o () { return; }
-
-char
-yVIKEYS_view_set_gridoff  (int a_x, int a_y, int a_z)
-{
-   if (a_x > 0) {
-      g_goffx = a_x;
-      if (a_y <= 0) g_goffy = a_x;
-      if (a_z <= 0) g_goffz = a_x;
-   }
-   /*> printf ("gridx off %3d size %3d\n", g_goffx, g_gsizex);                        <*/
-   return 0;
-}
-
-char
-yVIKEYS_view_set_gridsize (int a_x, int a_y, int a_z)
-{
-   if (a_x > 0) {
-      g_gsizex = a_x;
-      if (a_y <= 0) g_gsizey = a_x;
-      if (a_z <= 0) g_gsizez = a_x;
-   }
-   /*> printf ("gridx off %3d size %3d\n", g_goffx, g_gsizex);                        <*/
-   return 0;
-}
 
 char          /*----: draw the saved status ----------------------------------*/
 yVIKEYS_view_cursor      (void)
@@ -1042,9 +1062,7 @@ yVIKEYS__view_opengl     (char a)
    /*---(background)---------------------*/
    DEBUG_GRAF   yLOG_note    ("draw background");
    glPushMatrix    (); {
-      /*> glColor4f     (1.0, 1.0, 1.0, 1.0);                                         <*/
       yVIKEYS_view_color (s_parts [a].color);
-      /*> printf ("color for %s is %c\n", s_parts [a].name, s_parts [a].color);       <*/
       if (s_parts [a].abbr == W_VERSION && yURG_debugmode () == 'y')  yVIKEYS_view_color (COLOR_WARN );
       glBegin         (GL_POLYGON); {
          glVertex3f  (0.0f            , s_parts [a].tall,  0.0f);
@@ -1062,7 +1080,7 @@ yVIKEYS__view_opengl     (char a)
             glTranslatef (s_parts [a].wide + 1,   5.0f,    0.0f);
             glRotatef    ( 90.0, 0.0f, 0.0f, 1.0f);
          } else {
-            glTranslatef (3.0f            ,   1.0f,    0.0f);
+            glTranslatef (3.0f            ,   0.0f,    0.0f);
          }
          yFONT_print  (s_win.font,  11, YF_BOTLEF, s_parts [a].text);
       } glPopMatrix   ();
