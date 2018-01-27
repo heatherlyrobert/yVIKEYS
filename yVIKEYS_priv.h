@@ -8,6 +8,7 @@
 #include    <yURG.h>               /* heatherly program logger                */
 #include    <ySTR.h>               /* heatherly program logger                */
 #include    <yFONT.h>              /* heatherly program logger                */
+#include    <yCOLOR.h>             /* heatherly color library                 */
 
 
 /*===[[ HEADERS ]]========================================*/
@@ -29,8 +30,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.6j"
-#define YVIKEYS_VER_TXT   "layout command now preserves main drawing area cooordinations"
+#define YVIKEYS_VER_NUM   "0.6k"
+#define YVIKEYS_VER_TXT   "updated layout, sizing, and added color palette from yCOLOR"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -52,6 +53,8 @@ struct cSHARED {
    /*---(repeating)-------*/
    char        repeat;         /* multiplier for normal keys                  */
    char        repeat_macro;   /* multiplier for macro execution              */
+   /*---(quit)---------------------------*/
+   char        done;                        /* flag indicating ready to quit  */
 };
 tSHARED     its;
 
@@ -72,35 +75,19 @@ typedef     unsigned char     uchar;
 typedef     signed char       schar;
 
 
-/*---(normal)-------------------------*/
-#define      W_TITLE       't'
-#define      W_BUFFER      'b'
-#define      W_FORMULA     'f'
-#define      W_NAV         'n'
-#define      W_MAIN        'm'
-#define      W_PROGRESS    'p'
-#define      W_STATUS      's'
-#define      W_COMMAND     'c'
-#define      W_DETAILS     'd'
-#define      W_RIBBON      'r'
-#define      W_VERSION     'v'
-#define      W_KEYS        'k'
-/*---(specialty)----------------------*/
-#define      W_WINDOW      'W'
-#define      W_GRID        'G'
-#define      W_COORDS      'M'
 
 
 
-char        yVIKEYS__view_find      (char *a_name);
-char        yVIKEYS__view_abbr      (char  a_abbr);
-char        yVIKEYS__view_resize      (cchar a_type);
-char        yVIKEYS__view_size_clear (void);
-char        yVIKEYS__view_widths     (cint a_wide);
-char        yVIKEYS__view_heights    (cint a_tall);
+char        yVIKEYS__view_clear     (void);
+char        yVIKEYS__view_reset     (void);
+char        yVIKEYS__view_find      (cchar *a_name);
+char        yVIKEYS__view_abbr      (cchar  a_abbr);
+
+char        yVIKEYS__view_widths    (cint a_wide, cint a_alt);
+char        yVIKEYS__view_heights   (cint a_tall);
+char        yVIKEYS__view_resize    (cchar a_type);
+
 char*       yVIKEYS__view_unit      (char *a_question, char a_index);
-char        yVIKEYS_view_text         (cchar *a_text);
-char        yVIKEYS_view_keys         (cchar *a_text);
 
 extern char yVIKEYS__unit_answer [LEN_STR];
 char        yVIKEYS__unit_quiet     (void);

@@ -60,20 +60,21 @@ struct cTERMS {
    int         count;
 };
 static tTERMS  s_terms [MAX_TERMS] = {
-   { ""    , "void"                , 0},
-   { "v"   , "void"                , 0},
-   { "c"   , "char"                , 0},
-   { "cc"  , "char, char"          , 0},
-   { "i"   , "int"                 , 0},
-   { "is"  , "int, char*"          , 0},
-   { "s"   , "char*"               , 0},
-   { "ss"  , "char*, char*"        , 0},
-   { "si"  , "char*, int"          , 0},
-   { "a"   , "char*"               , 0},  /* string incudes spaces            */
-   { "ii"  , "int, int"            , 0},
-   { "iii" , "int, int, int"       , 0},
-   { "Cs"  , "char*, char*"        , 0},
-   { "-"   , ""                    , 0},
+   { ""     , "void"                       , 0},
+   { "v"    , "void"                       , 0},
+   { "c"    , "char"                       , 0},
+   { "cc"   , "char, char"                 , 0},
+   { "i"    , "int"                        , 0},
+   { "is"   , "int, char*"                 , 0},
+   { "s"    , "char*"                      , 0},
+   { "ss"   , "char*, char*"               , 0},
+   { "si"   , "char*, int"                 , 0},
+   { "a"    , "char*"                      , 0},  /* string incudes spaces            */
+   { "ii"   , "int, int"                   , 0},
+   { "iii"  , "int, int, int"              , 0},
+   { "isss" , "int, char*, char*, char*"   , 0},
+   { "Cs"   , "char*, char*"               , 0},
+   { "-"    , ""                           , 0},
 };
 static  int s_nterm  = 0;
 
@@ -101,6 +102,7 @@ struct  cCOMMAND {
       char        (*i   ) (int);            /* function pointer               */
       char        (*ii  ) (int, int);       /* function pointer               */
       char        (*iii ) (int, int, int);  /* function pointer               */
+      char        (*isss) (int, char*, char*, char*);
       char        (*is  ) (int  , char*);   /* function pointer               */
       char        (*s   ) (char*);          /* function pointer               */
       char        (*ss  ) (char*, char*);   /* function pointer               */
@@ -184,7 +186,6 @@ yVIKEYS_srch_start   (void)
    yVIKEYS__srch_purge ();
    s_quoted  = '-';
    s_escaped = '-';
-   /*> yVIKEYS_view_text (s_search);                                                  <*/
    return 0;
 }
 
@@ -196,7 +197,6 @@ yVIKEYS_srch_clear   (void)
    yVIKEYS__srch_purge ();
    s_quoted  = '-';
    s_escaped = '-';
-   /*> yVIKEYS_view_text (s_search);                                                  <*/
    return 0;
 }
 
@@ -284,7 +284,6 @@ yVIKEYS_srch_mode       (char a_major, char a_minor)
       }
       if (s_slen < 1)   s_slen = 1;
       s_search [s_slen] = '\0';
-      /*> yVIKEYS_view_text (s_search);                                               <*/
       DEBUG_USER   yLOG_info    ("s_search"  , s_search);
       DEBUG_USER   yLOG_value   ("s_slen"    , s_slen);
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
@@ -296,7 +295,6 @@ yVIKEYS_srch_mode       (char a_major, char a_minor)
    DEBUG_USER   yLOG_note    ("update search line");
    snprintf (x_temp, 10, "%c", a_minor);
    strcat   (s_search, x_temp);
-   /*> yVIKEYS_view_text (s_search);                                                  <*/
    ++s_slen;
    DEBUG_USER   yLOG_info    ("s_search"  , s_search);
    DEBUG_USER   yLOG_value   ("s_slen"    , s_slen);
@@ -312,6 +310,10 @@ yVIKEYS_srch_mode       (char a_major, char a_minor)
 /*===----                        command line                          ----===*/
 /*====================------------------------------------====================*/
 static void  o___COMMAND_________o () { return; }
+
+char yVIKEYS_quit            (void) { if (its.done == 'y') return 1; return 0; }
+char yVIKEYS__cmds_quit      (void) { its.done = 'y'; return 0; }
+char yVIKEYS__cmds_wquit     (void) { its.done = 'y'; return 0; }
 
 char
 yVIKEYS_cmds_init       (void)
@@ -347,6 +349,12 @@ yVIKEYS_cmds_init       (void)
       s_cmds [i].desc  [0] = 0;
       s_cmds [i].disp  [0] = 0;
    }
+   /*---(other)--------------------------*/
+   its.done = '-';
+   yVIKEYS_cmds_add ('f', "quit"        , "q"   , ""     , yVIKEYS__cmds_quit   , "quit current file (if no changes), exit if the only file"    );
+   yVIKEYS_cmds_add ('f', "quitall"     , "qa"  , ""     , yVIKEYS__cmds_quit   , "quit all files (if no changes), and exit"                    );
+   yVIKEYS_cmds_add ('f', "writequit"   , "wq"  , ""     , yVIKEYS__cmds_wquit  , ""                                                            );
+   yVIKEYS_cmds_add ('f', "writequitall", "wqa" , ""     , yVIKEYS__cmds_wquit  , ""                                                            );
    /*---(complete)-----------------------*/
    return 0;
 }
@@ -365,7 +373,6 @@ yVIKEYS_cmds_start      (void)
    s_clen = 1;
    s_quoted  = '-';
    s_escaped = '-';
-   /*> yVIKEYS_view_text (s_command);                                                 <*/
    return 0;
 }
 
@@ -376,7 +383,6 @@ yVIKEYS_cmds_clear      (void)
    s_clen = 0;
    s_quoted  = '-';
    s_escaped = '-';
-   /*> yVIKEYS_view_text (s_command);                                                 <*/
    return 0;
 }
 
@@ -513,36 +519,20 @@ yVIKEYS_cmds_add     (char a_menu, char *a_name, char *a_abbr, char *a_terms, vo
    case   0  :
       s_cmds [s_ncmd].f.v   = a_func; break;
    case  'c' :
-      switch (a_terms [1]) {
-      case   0  :
-         s_cmds [s_ncmd].f.c   = a_func; break;
-      case  'c' :
-         s_cmds [s_ncmd].f.cc  = a_func; break;
-      }
+      if      (strcmp (a_terms, "c"    ) == 0)  s_cmds [s_ncmd].f.c    = a_func;
+      else if (strcmp (a_terms, "cc"   ) == 0)  s_cmds [s_ncmd].f.cc   = a_func;
    case  'i' :
-      switch (a_terms [1]) {
-      case   0  :
-         s_cmds [s_ncmd].f.i   = a_func; break;
-      case  'i' :
-         switch (a_terms [2]) {
-         case   0  :
-            s_cmds [s_ncmd].f.ii  = a_func; break;
-         case  'i' :
-            s_cmds [s_ncmd].f.iii = a_func; break;
-         }
-      case  's' :
-         s_cmds [s_ncmd].f.is  = a_func; break;
-      }
+      if      (strcmp (a_terms, "i"    ) == 0)  s_cmds [s_ncmd].f.i    = a_func;
+      else if (strcmp (a_terms, "ii"   ) == 0)  s_cmds [s_ncmd].f.ii   = a_func;
+      else if (strcmp (a_terms, "iii"  ) == 0)  s_cmds [s_ncmd].f.iii  = a_func;
+      else if (strcmp (a_terms, "is"   ) == 0)  s_cmds [s_ncmd].f.is   = a_func;
+      else if (strcmp (a_terms, "isss" ) == 0)  s_cmds [s_ncmd].f.isss = a_func;
    case  's' :
-      switch (a_terms [1]) {
-      case   0  : s_cmds [s_ncmd].f.s   = a_func; break;
-      case  'i' : s_cmds [s_ncmd].f.si  = a_func; break;
-      case  's' : s_cmds [s_ncmd].f.ss  = a_func; break;
-      }
+      if      (strcmp (a_terms, "s"    ) == 0)  s_cmds [s_ncmd].f.s    = a_func;
+      else if (strcmp (a_terms, "si"   ) == 0)  s_cmds [s_ncmd].f.si   = a_func;
+      else if (strcmp (a_terms, "ss"   ) == 0)  s_cmds [s_ncmd].f.ss   = a_func;
    case  'C' :
-      switch (a_terms [1]) {
-      case  's' : s_cmds [s_ncmd].f.ss  = a_func; break;
-      }
+      if      (strcmp (a_terms, "Cs"   ) == 0)  s_cmds [s_ncmd].f.ss   = a_func;
    }
    /*---(update count)-------------------*/
    ++s_ncmd;
@@ -646,12 +636,19 @@ yVIKEYS_cmds_exec     (void)
    } else if (strcmp (s_cmds [i].terms, "ss"  ) == 0) {
       DEBUG_USER   yLOG_note    ("two string args");
       rc = s_cmds [i].f.ss  (s_fields [1], s_fields [2]);
+   } else if (strcmp (s_cmds [i].terms, "i"   ) == 0) {
+      DEBUG_USER   yLOG_note    ("single integer");
+      /*> printf ("s_cmds [i].f.i %s %d\n", s_fields [1], atoi (s_fields [1]));       <*/
+      rc = s_cmds [i].f.i   (atoi (s_fields [1]));
    } else if (strcmp (s_cmds [i].terms, "ii"  ) == 0) {
       DEBUG_USER   yLOG_note    ("two integers");
       rc = s_cmds [i].f.ii  (atoi (s_fields [1]), atoi (s_fields [2]));
    } else if (strcmp (s_cmds [i].terms, "iii" ) == 0) {
       DEBUG_USER   yLOG_note    ("three integers");
       rc = s_cmds [i].f.iii (atoi (s_fields [1]), atoi (s_fields [2]), atoi (s_fields [3]));
+   } else if (strcmp (s_cmds [i].terms, "isss") == 0) {
+      DEBUG_USER   yLOG_note    ("integer and three strings");
+      rc = s_cmds [i].f.isss (atoi (s_fields [1]), s_fields [2], s_fields [3], s_fields [4]);
    } else if (strcmp (s_cmds [i].terms, "is"  ) == 0) {
       DEBUG_USER   yLOG_note    ("integer arg and string arg");
       rc = s_cmds [i].f.is  (atoi (s_fields [1]), s_fields [1]);
@@ -746,7 +743,6 @@ yVIKEYS_cmds_mode     (char a_major, char a_minor)
       }
       if (s_clen < 1)   s_clen = 1;
       s_command [s_clen] = '\0';
-      /*> yVIKEYS_view_text (s_command);                                              <*/
       DEBUG_USER   yLOG_info    ("s_command" , s_command);
       DEBUG_USER   yLOG_value   ("s_clen"    , s_clen);
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
@@ -758,7 +754,6 @@ yVIKEYS_cmds_mode     (char a_major, char a_minor)
    DEBUG_USER   yLOG_note    ("update command line");
    snprintf (x_temp, 10, "%c", a_minor);
    strlcat   (s_command, x_temp, LEN_COMMAND);
-   /*> yVIKEYS_view_text (s_command);                                                 <*/
    s_clen = strllen (s_command, LEN_COMMAND);
    DEBUG_USER   yLOG_info    ("s_command" , s_command);
    DEBUG_USER   yLOG_value   ("s_clen"    , s_clen);

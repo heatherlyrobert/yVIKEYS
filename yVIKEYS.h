@@ -127,6 +127,49 @@ tMAPPED     s_rowmap;
 #define     YVIKEYS_RIGHT    'r'
 #define     YVIKEYS_OFFICE   'o'
 
+#define     YVIKEYS_DEPTH    '3'
+#define     YVIKEYS_FLAT     'O'
+#define     YVIKEYS_DISABLE  'X'
+
+/*---(run as)----------*/
+#define     RUN_USER           'i'      /* running as user (ncurses/opengl)   */
+#define     RUN_TEST           '-'      /* running as test (no ncurses/opengl)*/
+
+
+
+/*---(normal)-------------------------*/
+#define      YVIKEYS_TITLE       't'
+#define      YVIKEYS_BUFFER      'b'
+#define      YVIKEYS_FORMULA     'f'
+#define      YVIKEYS_NAV         'n'
+#define      YVIKEYS_MAIN        'm'
+#define      YVIKEYS_ALT         'a'
+#define      YVIKEYS_PROGRESS    'p'
+#define      YVIKEYS_STATUS      's'
+#define      YVIKEYS_COMMAND     'c'
+#define      YVIKEYS_DETAILS     'd'
+#define      YVIKEYS_RIBBON      'r'
+#define      YVIKEYS_VERSION     'v'
+#define      YVIKEYS_KEYS        'k'
+/*---(specialty)----------------------*/
+#define      YVIKEYS_WINDOW      'W'
+#define      YVIKEYS_CURSOR      'C'
+#define      YVIKEYS_GRID        'G'
+
+
+
+#define      YVIKEYS_AUTO        'a'
+#define      YVIKEYS_CUSTOM      'c'
+#define      YVIKEYS_TOPLEF       1
+#define      YVIKEYS_TOPCEN       2
+#define      YVIKEYS_TOPRIG       3
+#define      YVIKEYS_MIDLEF       4
+#define      YVIKEYS_MIDCEN       5
+#define      YVIKEYS_MIDRIG       6
+#define      YVIKEYS_BOTLEF       7
+#define      YVIKEYS_BOTCEN       8
+#define      YVIKEYS_BOTRIG       9
+
 
 extern char yVIKEYS_ver     [500];
 
@@ -136,6 +179,7 @@ char*       yVIKEYS_version           (void);
 char        yVIKEYS_debug             (char    a_flag  );
 
 char        yVIKEYS_init              (void);
+char        yVIKEYS_quit              (void);
 
 /*---(mode stack)-----------*/
 char        yVIKEYS_mode_init         (void);
@@ -148,14 +192,22 @@ char        yVIKEYS_mode_list         (char   *a_list  );
 char        yVIKEYS_mode_mesg         (char   *a_mesg   , char   *a_cmd);
 char        yVIKEYS_mode_change       (char a_mode, char *a_allow, char *a_mesg);
 /*---(view)-----------------*/
-char        yVIKEYS_view_init         (char *a_title, char *a_ver, int a_wide, int a_tall, void *a_drawer);
-char        yVIKEYS_view_resize       (int a_wide, int a_tall);
+char        yVIKEYS_view_init         (cchar *a_title, cchar *a_ver , cint a_wide, cint a_tall, cint a_alt);
+char        yVIKEYS_view_resize       (cint   a_wide , cint   a_tall, cint a_alt);
+char        yVIKEYS_view_setup        (cchar  a_part , cchar  a_type, cchar a_anchor, cint a_xmin, cint a_xlen, cint a_ymin, cint a_ylen, cint a_zmin, cint z_len, cchar a_color, void *a_drawer);
+char        yVIKEYS_view_moderate     (cchar  a_part , cchar  a_type, cchar a_anchor, cchar a_color, void *a_drawer);
+char        yVIKEYS_view_simple       (cchar  a_part , cchar  a_color, void *a_drawer);
+char        yVIKEYS_view_palette      (cint a_deg, cchar *a_harm, cchar *a_sat, cchar *a_val);
+char        yVIKEYS_view_colors       (cint a_lef, cint a_bot, cint a_top, cint a_rig);
+
+char        yVIKEYS_view_size         (cchar  a_part , int   *a_left, int *a_wide, int *a_bott, int *a_tall, cchar *a_text);
+char        yVIKEYS_view_coords       (cchar  a_part , int   *a_xmin, int *a_xlen, int *a_ymin, int *a_ylen);
+char        yVIKEYS_view_text         (cchar  a_part , cchar *a_text);
 char        yVIKEYS_view_wrap         (void);
 char        yVIKEYS_view_all          (float a_mag);
 
+char        yVIKEYS_layout_min        (void);
 
-char        yVIKEYS_view_coords       (int a_xmin, int a_xmax, int a_ymin, int a_ymax);
-char        yVIKEYS_view_corners      (cchar a_part, int *a_left, int *a_wide, int *a_bott, int *a_tall, cchar *a_text);
 char        yVIKEYS_view_ribbon_clear (void);
 char        yVIKEYS_view_ribbon_add   (char *a_cat, char *a_name);
 char        yVIKEYS_view_set_gridoff  (int a_x, int a_y, int a_z);

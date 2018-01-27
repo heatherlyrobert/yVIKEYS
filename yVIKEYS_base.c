@@ -245,8 +245,8 @@ yVIKEYS_main_handle     (char a_key)
    } else if (x_savemode != yVIKEYS_mode_curr()) {
       yVIKEYS_mode_mesg (s_display, yVIKEYS_cmds_curr ());
    }
-   yVIKEYS_view_text (s_display);
-   yVIKEYS_view_keys (s_keys   );
+   yVIKEYS_view_text (YVIKEYS_COMMAND, s_display);
+   yVIKEYS_view_text (YVIKEYS_KEYS   , s_keys   );
    /*---(save current mode)--------------*/
    x_savemode = yVIKEYS_mode_curr ();
    /*---(advance macros)-----------------*/
