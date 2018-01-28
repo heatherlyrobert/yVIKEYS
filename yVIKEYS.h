@@ -64,6 +64,7 @@
 
 typedef  const char cchar;
 typedef  const int  cint;
+typedef  const float  cfloat;
 /*---(mode)------------*/
 #define     MACRO_OFF          '-'      /* normal keyboard input              */
 #define     MACRO_RUN          'M'      /* macro running with redisplay       */
@@ -199,6 +200,9 @@ char        yVIKEYS_view_moderate     (cchar  a_part , cchar  a_type, cchar a_an
 char        yVIKEYS_view_simple       (cchar  a_part , cchar  a_color, void *a_drawer);
 char        yVIKEYS_view_palette      (cint a_deg, cchar *a_harm, cchar *a_sat, cchar *a_val);
 char        yVIKEYS_view_colors       (cint a_lef, cint a_bot, cint a_top, cint a_rig);
+char        yVIKEYS_view_color        (cint a_color, cfloat a_alpha);
+char        yVIKEYS_view_color_adj    (cint a_base, cint a_adj, cfloat a_alpha);
+char        yVIKEYS_view_color_clear  (cint a_color);
 
 char        yVIKEYS_view_size         (cchar  a_part , int   *a_left, int *a_wide, int *a_bott, int *a_tall, cchar *a_text);
 char        yVIKEYS_view_coords       (cchar  a_part , int   *a_xmin, int *a_xlen, int *a_ymin, int *a_ylen);
@@ -207,6 +211,7 @@ char        yVIKEYS_view_wrap         (void);
 char        yVIKEYS_view_all          (float a_mag);
 
 char        yVIKEYS_layout_min        (void);
+char        yVIKEYS_view_layout       (char *a_name);
 
 char        yVIKEYS_view_ribbon_clear (void);
 char        yVIKEYS_view_ribbon_add   (char *a_cat, char *a_name);

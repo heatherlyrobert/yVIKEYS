@@ -30,8 +30,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.6k"
-#define YVIKEYS_VER_TXT   "updated layout, sizing, and added color palette from yCOLOR"
+#define YVIKEYS_VER_NUM   "0.6l"
+#define YVIKEYS_VER_TXT   "protected programs from calling yCOLOR now"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/

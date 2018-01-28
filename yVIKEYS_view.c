@@ -662,7 +662,8 @@ yVIKEYS__view_gridsize     (int a_x, int a_y, int a_z)
    return 0;
 }
 
-char yVIKEYS_layout_min (void) { yVIKEYS__view_layout ("min"); return 0; }
+char yVIKEYS_layout_min  (void) { yVIKEYS__view_layout ("min"); return 0; }
+char yVIKEYS_view_layout (char *a_name) { yVIKEYS__view_layout (a_name); return 0; }
 
 
 
@@ -706,7 +707,6 @@ yVIKEYS_view_init       (cchar *a_title, cchar *a_ver, cint a_wide, cint a_tall,
    yVIKEYS_cmds_add ('v', "gridoff"     , ""    , "iii"  , yVIKEYS__view_gridoff      , "" );
    yVIKEYS_cmds_add ('v', "gridsize"    , ""    , "iii"  , yVIKEYS__view_gridsize     , "" );
    yVIKEYS_cmds_add ('v', "layout"      , ""    , "s"    , yVIKEYS__view_layout       , "" );
-   yVIKEYS_cmds_add ('v', "palette"     , ""    , "isss" , yVIKEYS_view_palette       , "" );
    /*---(key data)-----------------------*/
    s_main_wide  = a_wide;
    s_main_tall  = a_tall;
@@ -759,6 +759,14 @@ yVIKEYS_view_init       (cchar *a_title, cchar *a_ver, cint a_wide, cint a_tall,
    /*---(process immediately)------------*/
    DEBUG_GRAF   yLOG_note    ("flush");
    glFlush       ();
+   /*---(color)--------------------------*/
+   yCOLOR_init     (YCOLOR_WHEEL );
+   yVIKEYS_cmds_add ('v', "palette"     , ""    , "isss" , yVIKEYS_view_palette       , "" );
+   yVIKEYS_cmds_add ('v', "wheel"       , ""    , "s"    , yCOLOR_wheel               , "" );
+   yVIKEYS_cmds_add ('v', "degree"      , "deg" , "i"    , yCOLOR_deg                 , "" );
+   yVIKEYS_cmds_add ('v', "harmony"     , "har" , "s"    , yCOLOR_harm                , "" );
+   yVIKEYS_cmds_add ('v', "value"       , "val" , "s"    , yCOLOR_val                 , "" );
+   yVIKEYS_cmds_add ('v', "saturation"  , "sat" , "s"    , yCOLOR_sat                 , "" );
    /*---(complete)-----------------------*/
    DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -855,6 +863,30 @@ yVIKEYS_view_moderate      (cchar a_part, cchar a_type, cchar a_anchor, cchar a_
    DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
 }
+
+char
+yVIKEYS_view_color         (cint a_color, cfloat a_alpha)
+{
+   yCOLOR_set (a_color, a_alpha);
+   return 0;
+}
+
+char
+yVIKEYS_view_color_adj     (cint a_base, cint a_adj, cfloat a_alpha)
+{
+   int         x_base      =    0;
+   x_base = a_base / 10;
+   yCOLOR_set ((x_base * 10) + a_adj, a_alpha);
+   return 0;
+}
+
+char
+yVIKEYS_view_color_clear   (cint a_color)
+{
+   yCOLOR_set_clear (a_color);
+   return 0;
+}
+
 
 char
 yVIKEYS_view_colors        (cint a_lef, cint a_bot, cint a_top, cint a_rig)
@@ -976,7 +1008,7 @@ yVIKEYS_view_setup         (cchar a_part, cchar a_type, cchar a_anchor, cint a_x
 char
 yVIKEYS_view_palette     (cint a_deg, cchar *a_harm, cchar *a_sat, cchar *a_val)
 {
-   yCOLOR_init     (YCOLOR_WHEEL );
+   /*> yCOLOR_init     (YCOLOR_WHEEL );                                               <*/
    yCOLOR_palette  (a_deg, a_harm, a_sat, a_val);
    return 0;
 }
@@ -1049,55 +1081,55 @@ yVIKEYS_view_coords        (cchar a_part, int *a_xmin, int *a_xlen, int *a_ymin,
    return 0;
 }
 
-char
-yVIKEYS_view_color      (char a_color)
-{
-   switch (a_color) {
-   case  COLOR_BASE   :
-      glColor4f (0.30f, 0.50f, 0.30f, 1.00f);       /* nice medium green          */
-      break;
-   case  COLOR_DARK   :
-      glColor4f (0.25f, 0.40f, 0.25f, 1.00f);
-      break;
-   case  COLOR_LIGHT  :
-      glColor4f (0.40f, 0.65f, 0.35f, 1.00f);
-      break;
-   case  COLOR_MUTED  :
-      glColor4f (0.30f, 0.10f, 0.00f, 0.30f);
-      break;
-   case  COLOR_ACC_L  :
-      glColor4f (1.00f, 0.60f, 0.30f, 0.30f);
-      break;
-   case  COLOR_ACC_D  :
-      glColor4f (0.70f, 0.20f, 0.10f, 0.40f);
-      break;
-   case  COLOR_ACC_O  :
-      glColor4f (0.80f, 0.30f, 0.00f, 0.30f);
-      break;
-   case  COLOR_GRID_L :
-      glColor4f (1.00f, 1.00f, 1.00f, 0.50f);
-      break;
-   case  COLOR_GRID_D :
-      glColor4f (0.00f, 0.00f, 0.00f, 0.70f);
-      break;
-   case  COLOR_TXT_D  :
-      glColor4f (0.20f, 0.20f, 0.20f, 1.00f);
-      break;
-   case  COLOR_TXT_L  :
-      glColor4f (0.00f, 0.00f, 0.00f, 0.70f);
-      break;
-   case  COLOR_BLACK  :
-      glColor4f (0.00f, 0.00f, 0.00f, 1.00f);
-      break;
-   case  COLOR_WARN   :
-      glColor4f (0.50f, 0.00f, 0.00f, 1.00f);
-      break;
-   case  COLOR_CURSOR :
-      glColor4f    (1.00f, 0.00f, 0.00f, 0.2f);
-      break;
-   }
-   return 0;
-}
+/*> char                                                                                   <* 
+ *> yVIKEYS_view_color      (char a_color)                                                 <* 
+ *> {                                                                                      <* 
+ *>    switch (a_color) {                                                                  <* 
+ *>    case  COLOR_BASE   :                                                                <* 
+ *>       glColor4f (0.30f, 0.50f, 0.30f, 1.00f);       /+ nice medium green          +/   <* 
+ *>       break;                                                                           <* 
+ *>    case  COLOR_DARK   :                                                                <* 
+ *>       glColor4f (0.25f, 0.40f, 0.25f, 1.00f);                                          <* 
+ *>       break;                                                                           <* 
+ *>    case  COLOR_LIGHT  :                                                                <* 
+ *>       glColor4f (0.40f, 0.65f, 0.35f, 1.00f);                                          <* 
+ *>       break;                                                                           <* 
+ *>    case  COLOR_MUTED  :                                                                <* 
+ *>       glColor4f (0.30f, 0.10f, 0.00f, 0.30f);                                          <* 
+ *>       break;                                                                           <* 
+ *>    case  COLOR_ACC_L  :                                                                <* 
+ *>       glColor4f (1.00f, 0.60f, 0.30f, 0.30f);                                          <* 
+ *>       break;                                                                           <* 
+ *>    case  COLOR_ACC_D  :                                                                <* 
+ *>       glColor4f (0.70f, 0.20f, 0.10f, 0.40f);                                          <* 
+ *>       break;                                                                           <* 
+ *>    case  COLOR_ACC_O  :                                                                <* 
+ *>       glColor4f (0.80f, 0.30f, 0.00f, 0.30f);                                          <* 
+ *>       break;                                                                           <* 
+ *>    case  COLOR_GRID_L :                                                                <* 
+ *>       glColor4f (1.00f, 1.00f, 1.00f, 0.50f);                                          <* 
+ *>       break;                                                                           <* 
+ *>    case  COLOR_GRID_D :                                                                <* 
+ *>       glColor4f (0.00f, 0.00f, 0.00f, 0.70f);                                          <* 
+ *>       break;                                                                           <* 
+ *>    case  COLOR_TXT_D  :                                                                <* 
+ *>       glColor4f (0.20f, 0.20f, 0.20f, 1.00f);                                          <* 
+ *>       break;                                                                           <* 
+ *>    case  COLOR_TXT_L  :                                                                <* 
+ *>       glColor4f (0.00f, 0.00f, 0.00f, 0.70f);                                          <* 
+ *>       break;                                                                           <* 
+ *>    case  COLOR_BLACK  :                                                                <* 
+ *>       glColor4f (0.00f, 0.00f, 0.00f, 1.00f);                                          <* 
+ *>       break;                                                                           <* 
+ *>    case  COLOR_WARN   :                                                                <* 
+ *>       glColor4f (0.50f, 0.00f, 0.00f, 1.00f);                                          <* 
+ *>       break;                                                                           <* 
+ *>    case  COLOR_CURSOR :                                                                <* 
+ *>       glColor4f    (1.00f, 0.00f, 0.00f, 0.2f);                                        <* 
+ *>       break;                                                                           <* 
+ *>    }                                                                                   <* 
+ *>    return 0;                                                                           <* 
+ *> }                                                                                      <*/
 
 
 
@@ -1117,7 +1149,7 @@ yVIKEYS_view_cursor      (void)
    /*---(defense)------------------------*/
    n = yVIKEYS__view_abbr (YVIKEYS_CURSOR);
    if (s_parts [n].on == '-')  return 0;
-   yVIKEYS_view_color (COLOR_CURSOR);
+   glColor4f    (1.00f, 0.00f, 0.00f, 0.2f);
    glBegin      (GL_POLYGON); {
       glVertex3f   (x_lef, x_bot, 25.0);
       glVertex3f   (x_lef, x_top, 25.0);
@@ -1234,32 +1266,17 @@ yVIKEYS_view_ribbon      (void)
    /*---(locals)-----------+-----+-----+-*/
    int         i           =    0;
    int         x_side      =   35;
-   /*> printf ("t %c %3d %3d %3d %3d %s\n", x_on, x_left, x_bott, x_wide, x_tall, x_text);   <*/
-   /*> /+---(setup view)---------------------+/                                       <* 
-    *> glViewport      (s_win.r_left, s_win.r_bott, s_win.r_wide, s_win.r_tall);      <* 
-    *> glMatrixMode    (GL_PROJECTION);                                               <* 
-    *> glLoadIdentity  ();                                                            <* 
-    *> glOrtho         ( 0.0f, s_win.r_wide, 0.0f, s_win.r_tall,  -500.0,   500.0);   <* 
-    *> glMatrixMode    (GL_MODELVIEW);                                                <* 
-    *> /+---(draw back)----------------------+/                                       <* 
-    *> glPushMatrix    (); {                                                          <* 
-    *>    yVIKEYS_view_color (COLOR_ACC_D);                                           <* 
-    *>    glBegin         (GL_POLYGON); {                                             <* 
-    *>       glVertex3f  (0.0f      , s_win.r_tall,  0.0f);                           <* 
-    *>       glVertex3f  (s_win.r_wide, s_win.r_tall,  0.0f);                         <* 
-    *>       glVertex3f  (s_win.r_wide, 0.0f      ,  0.0f);                           <* 
-    *>       glVertex3f  (0.0f      , 0.0f      ,  0.0f);                             <* 
-    *>    } glEnd   ();                                                               <* 
-    *> } glPopMatrix   ();                                                            <*/
+   int         n           =     0;
    /*---(draw icons)---------------------*/
-   /*> glPushMatrix    (); {                                                          <* 
-    *>    yVIKEYS_view_color (COLOR_BLACK);                                           <* 
-    *>    glTranslatef  (2, s_win.r_tall - 3, 10.0);                                  <* 
-    *>    for (i = 0; i < s_win.r_nicon; ++i) {                                       <* 
-    *>       yFONT_iconno (s_win.r_icons [i], x_side);                                <* 
-    *>       glTranslatef  (0, -x_side,  0.0);                                        <* 
-    *>    }                                                                           <* 
-    *> } glPopMatrix   ();                                                            <*/
+   n    = yVIKEYS__view_abbr   (YVIKEYS_RIBBON);
+   glPushMatrix    (); {
+      yVIKEYS_view_color_adj (s_parts [n].color, YCOLOR_MIN, 1.0);
+      glTranslatef  (2, - 3, 10.0);
+      for (i = 0; i < s_win.r_nicon; ++i) {
+         yFONT_iconno (s_win.r_icons [i], x_side);
+         glTranslatef  (0, -x_side,  0.0);
+      }
+   } glPopMatrix   ();
    /*---(complete)-----------------------*/
    return 0;
 }
@@ -1290,14 +1307,14 @@ yVIKEYS_view_float      (void)
    x_rig = x_lef + x_len - 100;
    /*> printf ("n %2d, s_parts[n].wide %4d, x_rig = %4d\n", n, s_parts [n].wide, x_rig);   <*/
    glPushMatrix    (); {
-      yCOLOR_set (s_parts [n].color, 1.0);
+      yVIKEYS_view_color (s_parts [n].color, 1.0);
       glBegin         (GL_POLYGON); {
          glVertex3f  (x_lef , x_top, 50.0f);
          glVertex3f  (x_rig , x_top, 50.0f);
          glVertex3f  (x_rig , x_bot, 50.0f);
          glVertex3f  (x_lef , x_bot, 50.0f);
       } glEnd   ();
-      yVIKEYS_view_color (COLOR_BLACK);
+      yVIKEYS_view_color_adj (s_parts [n].color, YCOLOR_MIN, 1.0);
       glLineWidth  ( 2);
       glBegin(GL_LINE_STRIP); {
          glVertex3f  (x_lef , x_top, 50.0f);
@@ -1306,7 +1323,6 @@ yVIKEYS_view_float      (void)
          glVertex3f  (x_lef , x_bot, 50.0f);
          glVertex3f  (x_lef , x_top, 50.0f);
       } glEnd   ();
-      yVIKEYS_view_color (COLOR_BLACK);
       glTranslatef (x_lef + 3, x_bot,   60.0f);
       switch (yVIKEYS_mode_curr ()) {
       case MODE_COMMAND :  yFONT_print  (s_win.font,  11, YF_BOTLEF, yVIKEYS_cmds_curr ());  break;
@@ -1343,9 +1359,8 @@ yVIKEYS__view_opengl     (char a)
    /*---(background)---------------------*/
    DEBUG_GRAF   yLOG_note    ("draw background");
    glPushMatrix    (); {
-      /*> yVIKEYS_view_color (s_parts [a].color);                                     <*/
-      yCOLOR_set (s_parts [a].color, 1.0);
-      if (s_parts [a].abbr == YVIKEYS_VERSION && yURG_debugmode () == 'y')  yVIKEYS_view_color (COLOR_WARN );
+      yVIKEYS_view_color (s_parts [a].color, 1.0);
+      if (s_parts [a].abbr == YVIKEYS_VERSION && yURG_debugmode () == 'y')  yVIKEYS_view_color_adj (s_parts [a].color, YCOLOR_ACC, 1.0);
       glBegin         (GL_POLYGON); {
          glVertex3f  (s_parts [a].xmin, y_max           , -100.0f);
          glVertex3f  (x_max           , y_max           , -100.0f);
@@ -1357,7 +1372,6 @@ yVIKEYS__view_opengl     (char a)
    DEBUG_GRAF   yLOG_note    ("draw text");
    if (s_parts [a].text != NULL && strlen (s_parts [a].text) > 0) {
       glPushMatrix    (); {
-         yVIKEYS_view_color (COLOR_BLACK);
          if (s_parts [a].orient == 'r') {
             /*> glTranslatef (x_max + 1,   5.0f,    0.0f);                            <*/
             glTranslatef (1.0f     ,   5.0f,    0.0f);
@@ -1365,6 +1379,7 @@ yVIKEYS__view_opengl     (char a)
          } else {
             glTranslatef (3.0f            ,   0.0f,    0.0f);
          }
+         yVIKEYS_view_color_adj (s_parts [a].color, YCOLOR_MIN, 1.0);
          yFONT_print  (s_win.font,  11, YF_BOTLEF, s_parts [a].text);
       } glPopMatrix   ();
    }
