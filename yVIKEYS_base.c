@@ -42,8 +42,14 @@ yVIKEYS_init         (void)
    yVIKEYS_mode_init   ();
    yVIKEYS_mode_enter  (MODE_MAP);
    /*----(commands)----------------------*/
-   yVIKEYS_cmds_init   ();
+   CMDS_init           ();
    /*----(complete)----------------------*/
+   return 0;
+}
+
+char
+yVIKEYS_wrap         (void)
+{
    return 0;
 }
 
@@ -197,8 +203,8 @@ yVIKEYS_main_handle     (char a_key)
       case MODE_MAP      : rc = yVIKEYS_map_mode      (x_major , a_key);  break;
       case MODE_SOURCE   : rc = yVIKEYS_______stub    (x_major , a_key);  break;
       case MODE_INPUT    : rc = yVIKEYS_______stub    (x_major , a_key);  break;
-      case MODE_COMMAND  : rc = yVIKEYS_cmds_mode     (x_major , a_key);  break;
-      case MODE_SEARCH   : rc = yVIKEYS_srch_mode     (x_major , a_key);  break;
+      case MODE_COMMAND  : rc = CMDS_mode             (x_major , a_key);  break;
+      case MODE_SEARCH   : rc = SRCH_mode             (x_major , a_key);  break;
       case MODE_VISUAL   : rc = yVIKEYS_______stub    (x_major , a_key);  break;
       case SMOD_ERROR    : rc = yVIKEYS_______stub    (x_major , a_key);  break;
       case SMOD_SELECT   : rc = yVIKEYS_______stub    (x_major , a_key);  break;
@@ -239,11 +245,11 @@ yVIKEYS_main_handle     (char a_key)
    else               { x_major = ' ';  x_error = 'y';  yVIKEYS_repeat_init (); }
    /*---(setup status line)--------------*/
    if        (yVIKEYS_mode_curr() == MODE_COMMAND) {
-      yVIKEYS_mode_mesg (s_display, yVIKEYS_cmds_curr ());
+      yVIKEYS_mode_mesg (s_display, CMDS_curr ());
    } else if (yVIKEYS_mode_curr() == MODE_SEARCH ) {
-      yVIKEYS_mode_mesg (s_display, yVIKEYS_srch_curr ());
+      yVIKEYS_mode_mesg (s_display, SRCH_curr ());
    } else if (x_savemode != yVIKEYS_mode_curr()) {
-      yVIKEYS_mode_mesg (s_display, yVIKEYS_cmds_curr ());
+      yVIKEYS_mode_mesg (s_display, CMDS_curr ());
    }
    yVIKEYS_view_text (YVIKEYS_COMMAND, s_display);
    yVIKEYS_view_text (YVIKEYS_KEYS   , s_keys   );

@@ -30,8 +30,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.6l"
-#define YVIKEYS_VER_TXT   "protected programs from calling yCOLOR now"
+#define YVIKEYS_VER_NUM   "0.6m"
+#define YVIKEYS_VER_TXT   "cleaned up cmds and view function names, and overlay added"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -78,16 +78,19 @@ typedef     signed char       schar;
 
 
 
-char        yVIKEYS__view_clear     (void);
-char        yVIKEYS__view_reset     (void);
-char        yVIKEYS__view_find      (cchar *a_name);
-char        yVIKEYS__view_abbr      (cchar  a_abbr);
+char        VIEW__reset             (void);
+char        VIEW__find              (cchar *a_name);
+char        VIEW__abbr              (cchar  a_abbr);
 
-char        yVIKEYS__view_widths    (cint a_wide, cint a_alt);
-char        yVIKEYS__view_heights   (cint a_tall);
-char        yVIKEYS__view_resize    (cchar a_type);
+char        VIEW__widths            (cint a_wide, cint a_alt);
+char        VIEW__heights           (cint a_tall);
+char        VIEW__resize            (cchar a_type);
+char        VIEW__grid_offset       (int a_x, int a_y, int a_z);
+char        VIEW__grid_size         (int a_x, int a_y, int a_z);
 
-char*       yVIKEYS__view_unit      (char *a_question, char a_index);
+char*       VIEW__unit              (char *a_question, char a_index);
+
+
 
 extern char yVIKEYS__unit_answer [LEN_STR];
 char        yVIKEYS__unit_quiet     (void);
@@ -95,8 +98,6 @@ char        yVIKEYS__unit_loud      (void);
 char        yVIKEYS__unit_end       (void);
 char*       yVIKEYS__mode_unit      (char *a_question);
 char*       yVIKEYS__macro_unit     (char *a_question, char a_macro);
-char*       yVIKEYS__cmds_unit      (char *a_question, char a_index);
-char*       yVIKEYS__srch_unit      (char *a_question, char a_index);
 
 char        yVIKEYS__map_load       (char a_style , tMAPPED *a_map);
 char        yVIKEYS__map_move       (int  a_target, tMAPPED *a_map);
@@ -119,12 +120,25 @@ char        yVIKEYS__macro_rec_str  (char *a_keys);
 /*---(execute)--------------*/
 char        yVIKEYS__macro_delay    (char a_delay);
 char        yVIKEYS__macro_exec_ctl (char a_key);
-
-
-char        yVIKEYS__cmds_load      (char *a_command);
-char        yVIKEYS__cmds_test      (char a_mode, char a_value);
-
-char        yVIKEYS__srch_purge     (void);
+/*---(commands)-------------*/
+char        CMDS_init               (void);
+char        CMDS__load              (char *a_command);
+char        CMDS__test              (char a_mode, char a_value);
+char*       CMDS__unit              (char *a_question, char a_index);
+char        CMDS_start              (void);
+int         CMDS__find              (char *a_name);
+char        CMDS__clear             (void);
+char*       CMDS_curr               (void);
+char        CMDS__exec              (void);
+char        CMDS_mode               (char a_major, char a_minor);
+/*---(search)---------------*/
+char        SRCH__purge             (void);
+char        SRCH_start              (void);
+char        SRCH__clear             (void);
+char*       SRCH_curr               (void);
+char        SRCH__exec              (void);
+char        SRCH_mode               (char a_major, char a_minor);
+char*       SRCH__unit              (char *a_question, char a_index);
 
 
 #define    ACTION_FIND     'f'

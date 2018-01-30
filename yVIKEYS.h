@@ -156,6 +156,8 @@ tMAPPED     s_rowmap;
 #define      YVIKEYS_WINDOW      'W'
 #define      YVIKEYS_CURSOR      'C'
 #define      YVIKEYS_GRID        'G'
+#define      YVIKEYS_OVERLAY     'O'
+#define      YVIKEYS_FLOAT       'F'
 
 
 
@@ -181,6 +183,7 @@ char        yVIKEYS_debug             (char    a_flag  );
 
 char        yVIKEYS_init              (void);
 char        yVIKEYS_quit              (void);
+char        yVIKEYS_wrap              (void);
 
 /*---(mode stack)-----------*/
 char        yVIKEYS_mode_init         (void);
@@ -205,18 +208,14 @@ char        yVIKEYS_view_color_adj    (cint a_base, cint a_adj, cfloat a_alpha);
 char        yVIKEYS_view_color_clear  (cint a_color);
 
 char        yVIKEYS_view_size         (cchar  a_part , int   *a_left, int *a_wide, int *a_bott, int *a_tall, cchar *a_text);
+char        yVIKEYS_view_bounds       (cchar  a_part , int   *a_xmin, int *a_xmax, int *a_ymin, int *a_ymax);
 char        yVIKEYS_view_coords       (cchar  a_part , int   *a_xmin, int *a_xlen, int *a_ymin, int *a_ylen);
 char        yVIKEYS_view_text         (cchar  a_part , cchar *a_text);
 char        yVIKEYS_view_wrap         (void);
 char        yVIKEYS_view_all          (float a_mag);
 
-char        yVIKEYS_layout_min        (void);
-char        yVIKEYS_view_layout       (char *a_name);
-
 char        yVIKEYS_view_ribbon_clear (void);
-char        yVIKEYS_view_ribbon_add   (char *a_cat, char *a_name);
-char        yVIKEYS_view_set_gridoff  (int a_x, int a_y, int a_z);
-char        yVIKEYS_view_set_gridsize (int a_x, int a_y, int a_z);
+char        yVIKEYS_view_ribbon       (char *a_cat, char *a_name);
 
 /*---(map mode)-------------*/
 char        yVIKEYS_map_init          (char a_coord, void *a_col_mapper, void *a_row_mapper);
@@ -268,26 +267,13 @@ char        yVIKEYS_repeat_macro    (void);
 int         yVIKEYS_repeat_value    (void);
 
 /*---(commands)-------------*/
-char        yVIKEYS_cmds_init       (void);
-char        yVIKEYS_cmds_wrap       (void);
-int         yVIKEYS_cmds_find       (char *a_name);
 char        yVIKEYS_cmds_add        (char a_cat, char *a_name, char *a_abbr, char *a_terms, void *a_func, char *a_desc);
-char        yVIKEYS_cmds_start      (void);
-char        yVIKEYS_cmds_clear      (void);
-char*       yVIKEYS_cmds_curr       (void);
-char        yVIKEYS_cmds_exec       (void);
 char        yVIKEYS_cmds_direct     (char *a_command);
-char        yVIKEYS_cmds_mode       (char a_major, char a_minor);
 
 /*---(search)---------------*/
 char        yVIKEYS_srch_init       (void *a_searcher, void *a_clearer);
-char        yVIKEYS_srch_wrap       (void);
-char        yVIKEYS_srch_start      (void);
-char        yVIKEYS_srch_clear      (void);
-char*       yVIKEYS_srch_curr       (void);
-char        yVIKEYS_srch_exec       (void);
+char        yVIKEYS_srch_found      (void *a_match);
 char        yVIKEYS_srch_direct     (char *a_search);
-char        yVIKEYS_srch_mode       (char a_major, char a_minor);
 
 
 

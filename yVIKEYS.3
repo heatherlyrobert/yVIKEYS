@@ -9,6 +9,9 @@ yVIKEYS is a heatherly-specific mini-language for operating all my applications
 using a pure modal keyboard interface.  while it is rooted in vim, i expect
 to adapt it to every possible application.
 
+
+
+
 .SH KEYBOARD MACROS (sub-mode)
 .nf
 .BI "char yVIKEYS_macro_init      (void *" "a_loader" ", void *" "a_saver" ");"
@@ -29,14 +32,55 @@ to adapt it to every possible application.
 .SH MODE
 .B setup.  
 when you begin the program, you must initialize the mode system.
-   yVIKEYS_mode_init  (MODE_MAP);
+   yVIKEYS_mode_init  ();
+   yVIKEYS_mode_enter (MODE_MAP);
 
 
 
+.SH COMMANDS
+no actions, besides calling yVIKEYS_init, are required for commands to
+function properly.  but, there are only two public functions associated with
+the command line to add functionality.
 
+.B yVIKEYS_cmds_add, 
+temporarily adds a new command to the system, only accessable by this program
+instance.  it has six arguments...
+   char   cat        standard menu reference
+   char*  name       full name of command
+   char*  abbr       shortened form of command (if useful)
+   char*  terms      description of function argument types
+   void*  func       function which implements command
+   char*  desc       generally available description
+
+.B yVIKEYS_cmds_direct, 
+executes a command without any interactive user input -- useful, simple,
+supports batch use.  only one argument...
+   char*  command    command line as it would have been typed (:)
+
+
+.SH SEARCH
+
+.B yVIKEYS_srch_init, 
+
+.B yVIKEYS_srch_found, 
+external programs feed each search result to this function to enable moving
+directly between results.  only one argument...
+   void*  match      pointer to result
+
+.B yVIKEYS_srch_direct, 
+executes a search without any interactive user input -- useful, simple,
+supports batch use.  only one argument...
+   char*  search     search line as it would have been typed (/)
 
 
 .SH VIEW
+
+
+.B yVIKEYS_view_init (cchar*, cchar*, cint, cint, cint)
+
+init prepares the view environment for use and takes five arguments.  the first
+two are the title and version number.  the next two are the width and height
+of the main window.  the final arg is the width of the alt-view window.
 
 .SH AUTHOR
 jelloshrike at gmail dot com

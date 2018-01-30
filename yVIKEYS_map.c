@@ -637,13 +637,13 @@ yVIKEYS_map_mode        (char a_major, char a_minor)
           *>    break;                                                                   <*/
       case ':'      :
          yVIKEYS_mode_enter  (MODE_COMMAND);
-         yVIKEYS_cmds_start ();
+         CMDS_start ();
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return a_minor;
          break;
       case '/'      :
          yVIKEYS_mode_enter  (MODE_SEARCH);
-         yVIKEYS_srch_start ();
+         SRCH_start ();
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return a_minor;
          break;

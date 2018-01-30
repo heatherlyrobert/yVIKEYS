@@ -151,15 +151,15 @@ yVIKEYS_srch_init       (void *a_searcher, void *a_clearer)
    s_nsrch    = MAX_SRCH;
    s_searcher = NULL;
    s_clearer  = NULL;
-   yVIKEYS_srch_clear  ();
-   yVIKEYS__srch_purge ();
+   SRCH__clear  ();
+   SRCH__purge ();
    s_searcher = a_searcher;
    s_clearer  = a_clearer;
    return 0;
 }
 
 char
-yVIKEYS__srch_purge     (void)
+SRCH__purge             (void)
 {
    int         i           = 0;
    for (i = 0; i < s_nsrch; ++i) {
@@ -171,37 +171,29 @@ yVIKEYS__srch_purge     (void)
 }
 
 char
-yVIKEYS_srch_wrap    (void)
-{
-   yVIKEYS_srch_clear ();
-   yVIKEYS__srch_purge ();
-   return 0;
-}
-
-char
-yVIKEYS_srch_start   (void)
+SRCH_start           (void)
 {
    strlcpy     (s_search , "/", LEN_RECD);
    s_slen = 1;
-   yVIKEYS__srch_purge ();
+   SRCH__purge  ();
    s_quoted  = '-';
    s_escaped = '-';
    return 0;
 }
 
 char
-yVIKEYS_srch_clear   (void)
+SRCH__clear          (void)
 {
    strlcpy     (s_search , "" , LEN_RECD);
    s_slen = 0;
-   yVIKEYS__srch_purge ();
+   SRCH__purge  ();
    s_quoted  = '-';
    s_escaped = '-';
    return 0;
 }
 
 char*
-yVIKEYS_srch_curr    (void)
+SRCH_curr            (void)
 {
    return s_search;
 }
@@ -215,14 +207,14 @@ yVIKEYS_srch_found   (void *a_match)
 }
 
 char
-yVIKEYS_srch_exec    (void)
+SRCH__exec           (void)
 {
    if (s_searcher != NULL)  return s_searcher (s_search);
    return -1;
 }
 
 char         /*-> process keys for searching ---------[ ------ [gc.LE5.266.I3]*/ /*-[05.0000.102.M]-*/ /*-[--.---.---.--]-*/
-yVIKEYS_srch_mode       (char a_major, char a_minor)
+SRCH_mode               (char a_major, char a_minor)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -263,13 +255,13 @@ yVIKEYS_srch_mode       (char a_major, char a_minor)
    switch (a_minor) {
    case   G_KEY_RETURN :
       yVIKEYS_mode_exit ();
-      yVIKEYS_srch_exec  ();
+      SRCH__exec        ();
       DEBUG_USER   yLOG_note    ("return, execute search");
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return rc;   /* return  */
    case   G_KEY_ESCAPE :
       yVIKEYS_mode_exit ();
-      yVIKEYS_srch_clear ();
+      SRCH__clear ();
       DEBUG_USER   yLOG_note    ("escape, ignore search");
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return 0;
@@ -305,18 +297,53 @@ yVIKEYS_srch_mode       (char a_major, char a_minor)
 
 
 
-
 /*====================------------------------------------====================*/
-/*===----                        command line                          ----===*/
+/*===----                       helpers                                ----===*/
 /*====================------------------------------------====================*/
-static void  o___COMMAND_________o () { return; }
+static void  o___CMDS_UTIL_______o () { return; }
 
 char yVIKEYS_quit            (void) { if (its.done == 'y') return 1; return 0; }
-char yVIKEYS__cmds_quit      (void) { its.done = 'y'; return 0; }
-char yVIKEYS__cmds_wquit     (void) { its.done = 'y'; return 0; }
+char CMDS__quit              (void) { its.done = 'y'; return 0; }
+char CMDS__writequit         (void) { its.done = 'y'; return 0; }
+
+int
+CMDS__find           (char *a_name)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        i           =    0;
+   int         x_len       =    0;
+   /*---(defense)------------------------*/
+   --rce;  if (a_name  == NULL)                         return rce;
+   x_len  = strllen (a_name, LEN_LABEL);
+   --rce;  if (x_len   <  1)                            return rce;
+   /*---(find)---------------------------*/
+   for (i = 0; i < s_ncmd; ++i) {
+      /*---(check abbr)------------------*/
+      if (s_cmds [i].alen == x_len) {
+         if (s_cmds [i].abbr [0] == a_name [0]) {
+            if (strcmp (s_cmds [i].abbr, a_name) == 0)  return i;
+         }
+      }
+      /*---(check name)------------------*/
+      if (s_cmds [i].len  == x_len) {
+         if (s_cmds [i].name [0] == a_name [0]) {
+            if (strcmp (s_cmds [i].name, a_name) == 0)  return i;
+         }
+      }
+   }
+   /*---(complete)-----------------------*/
+   return -1;
+}
+
+
+/*====================------------------------------------====================*/
+/*===----                       program level                          ----===*/
+/*====================------------------------------------====================*/
+static void  o___CMDS_PROG_______o () { return; }
 
 char
-yVIKEYS_cmds_init       (void)
+CMDS_init               (void)
 {
    int i = 0;
    /*---(menus)--------------------------*/
@@ -351,67 +378,16 @@ yVIKEYS_cmds_init       (void)
    }
    /*---(other)--------------------------*/
    its.done = '-';
-   yVIKEYS_cmds_add ('f', "quit"        , "q"   , ""     , yVIKEYS__cmds_quit   , "quit current file (if no changes), exit if the only file"    );
-   yVIKEYS_cmds_add ('f', "quitall"     , "qa"  , ""     , yVIKEYS__cmds_quit   , "quit all files (if no changes), and exit"                    );
-   yVIKEYS_cmds_add ('f', "writequit"   , "wq"  , ""     , yVIKEYS__cmds_wquit  , ""                                                            );
-   yVIKEYS_cmds_add ('f', "writequitall", "wqa" , ""     , yVIKEYS__cmds_wquit  , ""                                                            );
+   yVIKEYS_cmds_add ('f', "quit"        , "q"   , ""     , CMDS__quit           , "quit current file (if no changes), exit if the only file"    );
+   yVIKEYS_cmds_add ('f', "quitall"     , "qa"  , ""     , CMDS__quit           , "quit all files (if no changes), and exit"                    );
+   yVIKEYS_cmds_add ('f', "writequit"   , "wq"  , ""     , CMDS__writequit      , ""                                                            );
+   yVIKEYS_cmds_add ('f', "writequitall", "wqa" , ""     , CMDS__writequit      , ""                                                            );
    /*---(complete)-----------------------*/
    return 0;
 }
 
 char
-yVIKEYS_cmds_wrap       (void)
-{
-   yVIKEYS_cmds_init ();
-   return 0;
-}
-
-char
-yVIKEYS_cmds_start      (void)
-{
-   strlcpy     (s_command , ":", LEN_COMMAND);
-   s_clen = 1;
-   s_quoted  = '-';
-   s_escaped = '-';
-   return 0;
-}
-
-char
-yVIKEYS_cmds_clear      (void)
-{
-   strlcpy     (s_command , "" , LEN_COMMAND);
-   s_clen = 0;
-   s_quoted  = '-';
-   s_escaped = '-';
-   return 0;
-}
-
-char*
-yVIKEYS_cmds_curr       (void)
-{
-   return s_command;
-}
-
-char
-yVIKEYS__cmds_load      (char *a_command)
-{
-   yVIKEYS_cmds_clear ();
-   if (a_command != NULL) {
-      strlcpy (s_command , a_command , LEN_COMMAND);
-      s_clen = strllen (s_command, LEN_COMMAND);
-   }
-   return 0;
-}
-
-char
-yVIKEYS_cmds_direct     (char *a_command)
-{
-   yVIKEYS__cmds_load (a_command);
-   return yVIKEYS_cmds_exec ();
-}
-
-char
-yVIKEYS_cmds_menu    (char a_menu, char a_action)
+CMDS__menu           (char a_menu, char a_action)
 {
    /*---(locals)-----------+-----+-----+-*/
    int         i           =    0;
@@ -432,7 +408,7 @@ yVIKEYS_cmds_menu    (char a_menu, char a_action)
 }
 
 char
-yVIKEYS_cmds_term    (char *a_terms, char a_action)
+CMDS__terms          (char *a_terms, char a_action)
 {
    /*---(locals)-----------+-----+-----+-*/
    int         i           =    0;
@@ -454,36 +430,6 @@ yVIKEYS_cmds_term    (char *a_terms, char a_action)
    return -3;
 }
 
-int
-yVIKEYS_cmds_find    (char *a_name)
-{
-   /*---(locals)-----------+-----+-----+-*/
-   char        rce         =  -10;
-   char        i           =    0;
-   int         x_len       =    0;
-   /*---(defense)------------------------*/
-   --rce;  if (a_name  == NULL)                         return rce;
-   x_len  = strllen (a_name, LEN_LABEL);
-   --rce;  if (x_len   <  1)                            return rce;
-   /*---(find)---------------------------*/
-   for (i = 0; i < s_ncmd; ++i) {
-      /*---(check abbr)------------------*/
-      if (s_cmds [i].alen == x_len) {
-         if (s_cmds [i].abbr [0] == a_name [0]) {
-            if (strcmp (s_cmds [i].abbr, a_name) == 0)  return i;
-         }
-      }
-      /*---(check name)------------------*/
-      if (s_cmds [i].len  == x_len) {
-         if (s_cmds [i].name [0] == a_name [0]) {
-            if (strcmp (s_cmds [i].name, a_name) == 0)  return i;
-         }
-      }
-   }
-   /*---(complete)-----------------------*/
-   return -1;
-}
-
 char
 yVIKEYS_cmds_add     (char a_menu, char *a_name, char *a_abbr, char *a_terms, void *a_func, char *a_desc)
 {
@@ -491,18 +437,18 @@ yVIKEYS_cmds_add     (char a_menu, char *a_name, char *a_abbr, char *a_terms, vo
    char        rce         =  -10;
    char        x_dup       =    0;
    /*---(defense)------------------------*/
-   --rce;  if (yVIKEYS_cmds_menu  (a_menu, ACTION_FIND) < 0)  return rce;
+   --rce;  if (CMDS__menu  (a_menu, ACTION_FIND) < 0)         return rce;
    --rce;  if (a_name  == NULL)                               return rce;
    --rce;  if (strllen (a_name, LEN_LABEL) <  1)              return rce;
    --rce;  if (a_abbr  == NULL)                               return rce;
    --rce;  if (strllen (a_abbr, LEN_LABEL) >  4)              return rce;
    --rce;  if (a_terms == NULL)                               return rce;
-   --rce;  if (yVIKEYS_cmds_term (a_terms, ACTION_FIND) < 0)  return rce;
+   --rce;  if (CMDS__terms (a_terms, ACTION_FIND) < 0)        return rce;
    --rce;  if (a_func  == NULL)                               return rce;
    /*---(check for dup)------------------*/
-   x_dup = yVIKEYS_cmds_find (a_name);
+   x_dup = CMDS__find (a_name);
    --rce;  if (x_dup >= 0)                                    return rce;
-   x_dup = yVIKEYS_cmds_find (a_abbr);
+   x_dup = CMDS__find (a_abbr);
    --rce;  if (x_dup >= 0)                                    return rce;
    /*---(add data)-----------------------*/
    s_cmds [s_ncmd].menu  = a_menu;
@@ -540,8 +486,48 @@ yVIKEYS_cmds_add     (char a_menu, char *a_name, char *a_abbr, char *a_terms, vo
    return 0;
 }
 
+
+
+/*====================------------------------------------====================*/
+/*===----                       entering a command                     ----===*/
+/*====================------------------------------------====================*/
+static void  o___CMDS_ENTRY______o () { return; }
+
+char
+CMDS_start              (void)
+{
+   strlcpy     (s_command , ":", LEN_COMMAND);
+   s_clen = 1;
+   s_quoted  = '-';
+   s_escaped = '-';
+   return 0;
+}
+
+char
+CMDS__clear             (void)
+{
+   strlcpy     (s_command , "" , LEN_COMMAND);
+   s_clen = 0;
+   s_quoted  = '-';
+   s_escaped = '-';
+   return 0;
+}
+
+char*
+CMDS_curr               (void)
+{
+   return s_command;
+}
+
+
+
+/*====================------------------------------------====================*/
+/*===----                        running a command                     ----===*/
+/*====================------------------------------------====================*/
+static void  o___CMDS_RUN________o () { return; }
+
 char         /*-> tbd --------------------------------[ ------ [ge.#M5.1C#.#7]*/ /*-[03.0000.013.L]-*/ /*-[--.---.---.--]-*/
-yVIKEYS__cmds_parse   (void)
+CMDS__parse           (void)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -584,7 +570,7 @@ yVIKEYS__cmds_parse   (void)
 }
 
 char         /*-> tbd --------------------------------[ ------ [ge.#M5.1C#.#7]*/ /*-[03.0000.013.L]-*/ /*-[--.---.---.--]-*/
-yVIKEYS_cmds_exec     (void)
+CMDS__exec            (void)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -602,7 +588,7 @@ yVIKEYS_cmds_exec     (void)
       return rc;
    }
    /*---(parse)-------------------------*/
-   rc = yVIKEYS__cmds_parse ();
+   rc = CMDS__parse ();
    DEBUG_USER   yLOG_value   ("rc"        , rc);
    --rce;  if (rc < 0) {
       DEBUG_USER   yLOG_note    ("could not parse");
@@ -610,7 +596,7 @@ yVIKEYS_cmds_exec     (void)
       return rce;
    }
    /*---(find)---------------------------*/
-   i = yVIKEYS_cmds_find (s_fields [0]);
+   i = CMDS__find (s_fields [0]);
    DEBUG_USER   yLOG_value   ("i"         , i);
    --rce;  if (i < 0) {
       DEBUG_USER   yLOG_note    ("command not found");
@@ -667,8 +653,33 @@ yVIKEYS_cmds_exec     (void)
    return rc;
 }
 
+char
+CMDS__load              (char *a_command)
+{
+   CMDS__clear ();
+   if (a_command != NULL) {
+      strlcpy (s_command , a_command , LEN_COMMAND);
+      s_clen = strllen (s_command, LEN_COMMAND);
+   }
+   return 0;
+}
+
+char
+yVIKEYS_cmds_direct     (char *a_command)
+{
+   CMDS__load (a_command);
+   return CMDS__exec ();
+}
+
+
+
+/*====================------------------------------------====================*/
+/*===----                         processing keys                      ----===*/
+/*====================------------------------------------====================*/
+static void  o___CMDS_MODE_______o () { return; }
+
 char         /*-> process keys for input/append ------[ ------ [gc.LE5.266.I3]*/ /*-[05.0000.102.M]-*/ /*-[--.---.---.--]-*/
-yVIKEYS_cmds_mode     (char a_major, char a_minor)
+CMDS_mode             (char a_major, char a_minor)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -722,13 +733,13 @@ yVIKEYS_cmds_mode     (char a_major, char a_minor)
       case   G_KEY_RETURN : case   G_KEY_ENTER  :
          DEBUG_USER   yLOG_note    ("return/enter, execute command");
          yVIKEYS_mode_exit ();
-         rc = yVIKEYS_cmds_exec ();
+         rc = CMDS__exec ();
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return rc;   /* return  */
       case   G_KEY_ESCAPE :
          DEBUG_USER   yLOG_note    ("escape, ignore command");
          yVIKEYS_mode_exit ();
-         yVIKEYS_cmds_clear ();
+         CMDS__clear ();
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return 0;
       }
@@ -770,7 +781,7 @@ yVIKEYS_cmds_mode     (char a_major, char a_minor)
 static void  o___UNIT_TEST_______o () { return; }
 
 char
-yVIKEYS__cmds_test      (char a_mode, char a_value)
+CMDS__test              (char a_mode, char a_value)
 {
    switch (a_mode) {
    case '+' : a_value += 1;  break;
@@ -783,7 +794,7 @@ yVIKEYS__cmds_test      (char a_mode, char a_value)
 }
 
 char*        /*-> tbd --------------------------------[ leaf   [gs.520.202.40]*/ /*-[01.0000.00#.#]-*/ /*-[--.---.---.--]-*/
-yVIKEYS__cmds_unit      (char *a_question, char a_index)
+CMDS__unit              (char *a_question, char a_index)
 {
    /*---(preprare)-----------------------*/
    strlcpy  (yVIKEYS__unit_answer, "CMDS unit        : question not understood", LEN_STR);
@@ -811,7 +822,7 @@ yVIKEYS__cmds_unit      (char *a_question, char a_index)
 }
 
 char*        /*-> tbd --------------------------------[ leaf   [gs.520.202.40]*/ /*-[01.0000.00#.#]-*/ /*-[--.---.---.--]-*/
-yVIKEYS__srch_unit      (char *a_question, char a_index)
+SRCH__unit              (char *a_question, char a_index)
 {
    /*---(preprare)-----------------------*/
    strlcpy  (yVIKEYS__unit_answer, "SRCH unit        : question not understood", LEN_STR);
