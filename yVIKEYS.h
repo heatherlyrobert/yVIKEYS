@@ -62,32 +62,11 @@
 #define     SMOD_MENUS     '\\'   /* show menu system                         */
 
 
-typedef  const char cchar;
-typedef  const int  cint;
-typedef  const float  cfloat;
-/*---(mode)------------*/
-#define     MACRO_OFF          '-'      /* normal keyboard input              */
-#define     MACRO_RUN          'M'      /* macro running with redisplay       */
-#define     MACRO_DELAY        'D'      /* macro delay playback controls      */
-#define     MACRO_PLAYBACK     'P'      /* macro under playback controls      */
-#define     MACRO_RECORD       'r'      /* macro recording                    */
-/*---(conditions)------*/
-#define     IF_MACRO_OFF         if (yVIKEYS_macro_get_mode () == MACRO_OFF      ) 
-#define     IF_MACRO_RUN         if (yVIKEYS_macro_get_mode () == MACRO_RUN      ) 
-#define     IF_MACRO_NOT_RUN     if (yVIKEYS_macro_get_mode () != MACRO_RUN      ) 
-#define     IF_MACRO_DELAY       if (yVIKEYS_macro_get_mode () == MACRO_DELAY    ) 
-#define     IF_MACRO_PLAYBACK    if (yVIKEYS_macro_get_mode () == MACRO_PLAYBACK ) 
-#define     IF_MACRO_MOVING      if (yVIKEYS_macro_get_mode () == MACRO_RUN      || yVIKEYS_macro_get_mode () == MACRO_DELAY   ) 
-#define     IF_MACRO_NOT_PLAYING if (yVIKEYS_macro_get_mode () == MACRO_OFF      || yVIKEYS_macro_get_mode () == MACRO_RECORD  )
-#define     IF_MACRO_PLAYING     if (yVIKEYS_macro_get_mode () != MACRO_OFF      && yVIKEYS_macro_get_mode () != MACRO_RECORD  )
-#define     IF_MACRO_RECORDING   if (yVIKEYS_macro_get_mode () == MACRO_RECORD   ) 
-#define     IF_MACRO_ON          if (yVIKEYS_macro_get_mode () != MACRO_OFF      ) 
-/*---(setting)---------*/
-#define     SET_MACRO_OFF        yVIKEYS_macro_set_mode (MACRO_OFF);
-#define     SET_MACRO_RUN        yVIKEYS_macro_set_mode (MACRO_RUN);
-#define     SET_MACRO_PLAYBACK   yVIKEYS_macro_set_mode (MACRO_PLAYBACK);
-#define     SET_MACRO_DELAY      yVIKEYS_macro_set_mode (MACRO_DELAY);
-#define     SET_MACRO_RECORD     yVIKEYS_macro_set_mode (MACRO_RECORD);
+typedef  const unsigned char  cuchar;
+typedef  unsigned char        uchar;
+typedef  const char           cchar;
+typedef  const int            cint;
+typedef  const float          cfloat;
 
 
 #define LEN_MAP      10000
@@ -118,8 +97,9 @@ struct cMAPPED {
    int         gend;                        /* grid at end of screen          */
    /*---(done)-----------------*/
 };
-tMAPPED     s_colmap;
-tMAPPED     s_rowmap;
+tMAPPED     s_xmap;
+tMAPPED     x_ymap;
+tMAPPED     x_zmap;
 #define     YVIKEYS_EMPTY   -666
 #define     YVIKEYS_INIT    'i'
 #define     YVIKEYS_UPDATE  'u'
@@ -157,6 +137,7 @@ tMAPPED     s_rowmap;
 #define      YVIKEYS_CURSOR      'C'
 #define      YVIKEYS_GRID        'G'
 #define      YVIKEYS_OVERLAY     'O'
+#define      YVIKEYS_LAYERS      'L'
 #define      YVIKEYS_FLOAT       'F'
 
 
@@ -183,18 +164,12 @@ char        yVIKEYS_debug             (char    a_flag  );
 
 char        yVIKEYS_init              (void);
 char        yVIKEYS_quit              (void);
+char        yVIKEYS_error             (void);
 char        yVIKEYS_wrap              (void);
 
-/*---(mode stack)-----------*/
-char        yVIKEYS_mode_init         (void);
-char        yVIKEYS_mode_enter        (char a_mode);
-char        yVIKEYS_mode_exit         (void);
-char        yVIKEYS_mode_curr         (void);
-char        yVIKEYS_mode_prev         (void);
-char        yVIKEYS_mode_not          (char    a_mode  );
-char        yVIKEYS_mode_list         (char   *a_list  );
-char        yVIKEYS_mode_mesg         (char   *a_mesg   , char   *a_cmd);
-char        yVIKEYS_mode_change       (char a_mode, char *a_allow, char *a_mesg);
+uchar       yVIKEYS_main_input        (char  a_runmode, uchar a_key);
+uchar       yVIKEYS_main_handle       (uchar a_key);
+
 /*---(view)-----------------*/
 char        yVIKEYS_view_init         (cchar *a_title, cchar *a_ver , cint a_wide, cint a_tall, cint a_alt);
 char        yVIKEYS_view_resize       (cint   a_wide , cint   a_tall, cint a_alt);
@@ -214,12 +189,15 @@ char        yVIKEYS_view_text         (cchar  a_part , cchar *a_text);
 char        yVIKEYS_view_wrap         (void);
 char        yVIKEYS_view_all          (float a_mag);
 
+char        yVIKEYS_layer_add         (char *a_name, void *a_drawer);
+
 char        yVIKEYS_view_ribbon_clear (void);
 char        yVIKEYS_view_ribbon       (char *a_cat, char *a_name);
 
 /*---(map mode)-------------*/
-char        yVIKEYS_map_init          (char a_coord, void *a_col_mapper, void *a_row_mapper);
-char        yVIKEYS_map_mode          (char a_major, char a_minor);
+char        yVIKEYS_map_config        (char a_coord, void *a_xmapper, void *a_ymapper, void *a_zmapper);
+
+char        yVIKEYS_mode_change       (char a_mode, char *a_allow, char *a_mesg);
 
 /*---(speed)----------------*/
 char        yVIKEYS_speed_set    (char   *a_code   , double *a_waitns);
@@ -243,35 +221,14 @@ char        yVIKEYS_keys_vert    (char a_minor, double *a_base, double a_inc, do
 char        yVIKEYS_keys_zoom    (char a_minor, double *a_base, double a_inc, double a_min, double a_max);
 
 /*---(macros)---------------*/
-char        yVIKEYS_macro_init      (void *a_loader, void *a_saver);
-char        yVIKEYS_macro_wrap      (void);
-char        yVIKEYS_macro_reset     (void);
-char        yVIKEYS_macro_rec_key   (char a_key);
-char        yVIKEYS_macro_rec_end   (void);
-char        yVIKEYS_macro_define    (char *a_string);
-char        yVIKEYS_macro_exec_beg  (char a_name);
-char        yVIKEYS_macro_exec_adv  (void);
-char        yVIKEYS_macro_exec_wait (void);
-char        yVIKEYS_macro_exec_key  (void);
-char        yVIKEYS_macro_exec_play (char a_key);
-char        yVIKEYS_macro_smode     (char a_major, char a_minor);
-char        yVIKEYS_macro_get_mode  ();
-char        yVIKEYS_macro_set_mode  (char a_mode);
-
-/*---(sub-modes)------------*/
-char        yVIKEYS_repeat_init     (void);
-char        yVIKEYS_repeat_umode    (char a_major, char a_minor);
-char        yVIKEYS_repeat_norm     (void);
-char        yVIKEYS_repeat_dec      (void);
-char        yVIKEYS_repeat_macro    (void);
-int         yVIKEYS_repeat_value    (void);
+char        yVIKEYS_macro_config    (void *a_loader, void *a_saver);
 
 /*---(commands)-------------*/
 char        yVIKEYS_cmds_add        (char a_cat, char *a_name, char *a_abbr, char *a_terms, void *a_func, char *a_desc);
 char        yVIKEYS_cmds_direct     (char *a_command);
 
 /*---(search)---------------*/
-char        yVIKEYS_srch_init       (void *a_searcher, void *a_clearer);
+char        yVIKEYS_srch_config     (void *a_searcher, void *a_clearer);
 char        yVIKEYS_srch_found      (void *a_match);
 char        yVIKEYS_srch_direct     (char *a_search);
 

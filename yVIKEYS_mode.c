@@ -86,7 +86,7 @@ static      char        s_majors       [MAX_MODES] = "";
 static void  o___MODE_STACK______o () { return; }
 
 char         /*--> prepare mode stack for use ------------[--------[--------]-*/
-yVIKEYS_mode_init  (void)
+MODE_init          (void)
 {
    /*---(locals)-----------+-----------+-*/
    int         i           = 0;
@@ -106,12 +106,14 @@ yVIKEYS_mode_init  (void)
    /*---(clear controls)-----------------*/
    s_nmode =  0;
    s_cmode = '-';
+   /*---(go to default mode)-------------*/
+   MODE_enter (MODE_MAP);
    /*---(complete)-----------------------*/
    return 0;
 }
 
 char         /*--> add a mode to the stack ---------------[--------[--------]-*/
-yVIKEYS_mode_enter (char a_mode)
+MODE_enter         (char a_mode)
 {
    /*---(locals)-----------+-----------+-*/
    char        rce         = -10;
@@ -149,7 +151,7 @@ yVIKEYS_mode_enter (char a_mode)
 }
 
 char
-yVIKEYS_mode_exit  (void)
+MODE_exit          (void)
 {
    /*---(locals)-----------+-----------+-*/
    char        rce         = -10;
@@ -166,13 +168,13 @@ yVIKEYS_mode_exit  (void)
 }
 
 char
-yVIKEYS_mode_curr  (void)
+MODE_curr          (void)
 {
    return s_cmode;
 }
 
 char
-yVIKEYS_mode_prev  (void)
+MODE_prev          (void)
 {
    /*---(locals)-----------+-----------+-*/
    char        rce         = -10;
@@ -190,14 +192,14 @@ yVIKEYS_mode_prev  (void)
 }
 
 char
-yVIKEYS_mode_not   (char a_mode)
+MODE_not           (char a_mode)
 {
    if (a_mode != s_modes [s_nmode - 1]) return -1;
    return 0;
 }
 
 char       /*----: list the current mode stack -------------------------------*/
-yVIKEYS_mode_list  (char *a_list)
+MODE_status        (char *a_list)
 {
    /*---(locals)-----------+-----------+-*/
    char        rce         = -10;
@@ -216,7 +218,7 @@ yVIKEYS_mode_list  (char *a_list)
 }
 
 char
-yVIKEYS_mode_mesg  (char *a_mesg, char *a_cmd)
+MODE_message       (char *a_mesg, char *a_cmd)
 {
    /*---(locals)-----------+-----------+-*/
    int         i           = 0;
@@ -229,7 +231,7 @@ yVIKEYS_mode_mesg  (char *a_mesg, char *a_cmd)
    if (s_mode_info [i].major == 'y')  {
       x_major = s_cmode;
    } else {
-      x_major = yVIKEYS_mode_prev ();
+      x_major = MODE_prev  ();
       x_minor = s_cmode;
    }
    if (a_mesg != NULL) {
@@ -271,8 +273,82 @@ yVIKEYS_mode_change  (char a_mode, char *a_allow, char *a_mesg)
    return 0;
 }
 
+
+
+/*====================------------------------------------====================*/
+/*===----                        repeat keys                           ----===*/
+/*====================------------------------------------====================*/
+static void  o___REPEAT__________o () { return; }
+
+static   int   s_repeat   = 0;
+
+char
+REPEAT_reset            (void)
+{
+   s_repeat       = 0;
+   MACRO_zero ();
+   return 0;
+}
+
+char         /*-> accumulate multiplier --------------[ ------ [ge.A43.214.63]*/ /*-[01.0000.102.!]-*/ /*-[--.---.---.--]-*/
+REPEAT_umode            (uchar a_major, uchar a_minor)
+{
+   /*---(locals)-----------+-----------+-*/
+   char        rce         = -10;
+   /*---(header)-------------------------*/
+   DEBUG_USER   yLOG_enter   (__FUNCTION__);
+   DEBUG_USER   yLOG_char    ("a_major"   , a_major);
+   DEBUG_USER   yLOG_char    ("a_minor"   , a_minor);
+   /*---(defenses)-----------------------*/
+   DEBUG_USER   yLOG_char    ("mode"      , MODE_curr ());
+   --rce;  if (MODE_not (SMOD_REPEAT )) {
+      DEBUG_USER   yLOG_note    ("not the correct mode");
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return rce;
+   }
+   /*---(major mode changes)-------------*/
+   if (a_minor == G_KEY_RETURN || a_minor == G_KEY_ESCAPE) {
+      MODE_exit  ();
+      s_repeat = 0;
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return  0;
+   }
+   /*---(check for major)-----------------------*/
+   if (s_repeat ==  0 && strchr ("123456789", a_major) != NULL) {
+      DEBUG_USER   yLOG_note    ("assign starting repeat");
+      s_repeat  = a_major - '0';
+   }
+   /*---(check for minor)-----------------------*/
+   if (strchr ("0123456789",  a_minor) != NULL) {
+      DEBUG_USER   yLOG_note    ("increment repeat");
+      s_repeat *= 10;
+      s_repeat += a_minor - '0';
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
+   /*---(pass through)-------------------*/
+   --s_repeat;
+   if (s_repeat <  0) s_repeat =  0;
+   /*> if (s_repeat > 99) s_repeat = 99;                                              <*/
+   /*---(complete)-----------------------*/
+   MODE_exit  ();
+   DEBUG_USER   yLOG_exit    (__FUNCTION__);
+   return a_minor;
+}
+
+char REPEAT_normal      (void) { if (s_repeat < 1) return 0; else return 1; } 
+char REPEAT_decrement   (void) { if (s_repeat > 0)  --s_repeat; }
+int  REPEAT_count       (void) { return s_repeat; }
+
+
+
+/*====================------------------------------------====================*/
+/*===----                        unit testing                          ----===*/
+/*====================------------------------------------====================*/
+static void  o___UNIT_TEST_______o () { return; }
+
 char*        /*-> unit test accessor -----------------[ light  [us.420.111.11]*/ /*-[01.0000.00#.Z]-*/ /*-[--.---.---.--]-*/
-yVIKEYS__mode_unit     (char *a_question)
+MODE__unit             (char *a_question)
 {
    /*---(locals)-----------+-----------+-*/
    char        x_list      [LEN_STR];
@@ -280,8 +356,21 @@ yVIKEYS__mode_unit     (char *a_question)
    strcpy  (yVIKEYS__unit_answer, "MODE unit        : question not understood");
    /*---(selection)----------------------*/
    if      (strcmp (a_question, "stack"        )  == 0) {
-      yVIKEYS_mode_list (x_list);
+      MODE_status (x_list);
       snprintf (yVIKEYS__unit_answer, LEN_STR, "MODE stack       : %s", x_list);
+   }
+   /*---(complete)-----------------------*/
+   return yVIKEYS__unit_answer;
+}
+
+char*        /*-> unit test accessor -----------------[ light  [us.420.111.11]*/ /*-[01.0000.00#.Z]-*/ /*-[--.---.---.--]-*/
+REPEAT__unit           (char *a_question)
+{
+   /*---(preprare)-----------------------*/
+   strcpy  (yVIKEYS__unit_answer, "REPEAT unit      : question not understood");
+   /*---(selection)----------------------*/
+   if      (strcmp (a_question, "count"        )  == 0) {
+      snprintf (yVIKEYS__unit_answer, LEN_STR, "REPEAT count     : %d", s_repeat);
    }
    /*---(complete)-----------------------*/
    return yVIKEYS__unit_answer;

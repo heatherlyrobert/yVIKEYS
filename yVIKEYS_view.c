@@ -24,6 +24,8 @@ char  VIEW__ribbon             (void);
 char  VIEW__grid               (void);
 char  VIEW__cursor             (void);
 char  VIEW__float              (void);
+char  VIEW__layer_show         (void);
+char  VIEW__layer_set          (char *a_name);
 
 
 
@@ -100,6 +102,7 @@ struct cPARTS {
    int         bott;                        /* screen bottom                  */
    /*---(for std elements)-----*/
    char        orient;                      /* orientation of text            */
+   char        (*source) (char*);           /* content source                 */
    char        text        [LEN_STR ];      /* optional text                  */
    /*---(special drawing)------*/
    char        (*drawer) (void);            /* drawing function               */
@@ -118,26 +121,27 @@ struct cPARTS {
    /*---(done)-----------------*/
 };
 static tPARTS  s_parts [MAX_PARTS] = {
-   /*---abbr---------   ---name-----   ---own-----  on    bt lr d_wi d_ta  x_t  y_t  und  wi ta le bo   ori  txt  drawing-function------   type---------  ---mgmt-------  ---anchor-----  ---color------- xm xl ym yl zm zl    12345678901234567890123456789012345678901234567890  */
-   { YVIKEYS_TITLE   , "title"       , OWN_FULLY  , 'y',   1, 1,  15,   0, '-', '-', '-',  0, 0, 0, 0,  'r', "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_BOTRIG, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "left hand title bar"                                },
-   { YVIKEYS_BUFFER  , "buffer"      , OWN_FULLY  , '-',   6, 2,   0,  15, '-', '-', '-',  0, 0, 0, 0,  '-', "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_BOTLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "buffer inventory at top"                            },
-   { YVIKEYS_FORMULA , "formula"     , OWN_FULLY  , '-',   5, 2,   0,  15, '-', '-', '-',  0, 0, 0, 0,  '-', "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_BOTLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "formula and source editing line at top"             },
-   { YVIKEYS_NAV     , "nav"         , OWN_PARTLY , '-',   3, 2, 150,   0, '-', '-', 'y',  0, 0, 0, 0,  '-', "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_TOPLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "navigation panel to display tags and other links"   },
-   { YVIKEYS_ALT     , "alt"         , OWN_LITTLE , '-',   4, 4,   0,   0, '-', '-', '-',  0, 0, 0, 0,  '-', "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_MIDCEN, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "alternate working area or view"                     },
-   { YVIKEYS_PROGRESS, "progress"    , OWN_PARTLY , '-',   3, 3,   0, 100, '-', '-', '-',  0, 0, 0, 0,  '-', "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_MIDLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "time and sequencing controls about status line"     },
-   { YVIKEYS_STATUS  , "status"      , OWN_FULLY  , 'y',   2, 2,   0,  15, '-', '-', '-',  0, 0, 0, 0,  '-', "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_BOTLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "informational status bar above command line"        },
-   { YVIKEYS_COMMAND , "command"     , OWN_FULLY  , 'y',   1, 2,   0,  15, '-', '-', '-',  0, 0, 0, 0,  '-', "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_BOTLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "command, search, and help message line at bottom"   },
-   { YVIKEYS_DETAILS , "details"     , OWN_PARTLY , '-',   3, 5, 250,   0, '-', '-', 'y',  0, 0, 0, 0,  '-', "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_TOPLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "display area for critical details to right"         },
-   { YVIKEYS_RIBBON  , "ribbon"      , OWN_FULLY  , '-',   3, 6,  40,   0, '-', '-', 'y',  0, 0, 0, 0,  '-', "",  VIEW__ribbon           , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_TOPLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "menu and icon display for navigation of commands"   },
-   { YVIKEYS_VERSION , "version"     , OWN_FULLY  , 'y',   7, 1,  15,  40, '-', 't', '-',  0, 0, 0, 0,  'r', "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_BOTRIG, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "version display with debugging notice"              },
-   { YVIKEYS_KEYS    , "keys"        , OWN_FULLY  , 'y',   1, 7,  40,  15, 'c', '-', '-',  0, 0, 0, 0,  '-', "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_BOTLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "latest keyboard characters typed"                   },
-   { YVIKEYS_GRID    , "grid"        , OWN_OVERLAY, '-',   0, 0,   0,   0, '-', '-', '-',  0, 0, 0, 0,  '-', "",  VIEW__grid             , YVIKEYS_FLAT , YVIKEYS_AUTO  , 0             , 0              , 0, 0, 0, 0, 0, 0,  "overlay main drawing with a grid"                   },
-   { YVIKEYS_CURSOR  , "cursor"      , OWN_OVERLAY, '-',   0, 0,   0,   0, '-', '-', '-',  0, 0, 0, 0,  '-', "",  VIEW__cursor           , YVIKEYS_FLAT , YVIKEYS_AUTO  , 0             , 0              , 0, 0, 0, 0, 0, 0,  "cursor display on screen"                           },
-   { YVIKEYS_OVERLAY , "overlay"     , OWN_OVERLAY, '-',   0, 0,   0,   0, '-', '-', '-',  0, 0, 0, 0,  '-', "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_MIDCEN, YCOLOR_CLEAR   , 0, 0, 0, 0, 0, 0,  "shown over the working screen"                      },
-   { YVIKEYS_FLOAT   , "float"       , OWN_OVERLAY, '-',   0, 0,   0,   0, '-', '-', '-',  0, 0, 0, 0,  '-', "",  VIEW__float            , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_MIDCEN, YCOLOR_CLEAR   , 0, 0, 0, 0, 0, 0,  "shown over the working screen"                      },
-   { YVIKEYS_WINDOW  , "window"      , OWN_DATA   , '-',   0, 0,   0,   0, '-', '-', '-',  0, 0, 0, 0,  '-', "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , 0             , 0              , 0, 0, 0, 0, 0, 0,  "full screen width and height"                       },
-   { YVIKEYS_MAIN    , "main"        , OWN_MAIN   , 'y',   4, 3,   0,   0, '-', '-', '-',  0, 0, 0, 0,  '-', "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_MIDCEN, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "main working area in the middle"                    },
-   { 0               , ""            , 0          , '-',   0, 0,   0,   0, '-', '-', '-',  0, 0, 0, 0,  '-', "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , 0             , 0              , 0, 0, 0, 0, 0, 0,  ""                                                   },
+   /*---abbr---------   ---name-----   ---own-----  on    bt lr d_wi d_ta  x_t  y_t  und  wi ta le bo   ori  source, txt  drawing-function------   type---------  ---mgmt-------  ---anchor-----  ---color------- xm xl ym yl zm zl    12345678901234567890123456789012345678901234567890  */
+   { YVIKEYS_TITLE   , "title"       , OWN_FULLY  , 'y',   1, 1,  15,   0, '-', '-', '-',  0, 0, 0, 0,  'r', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_BOTRIG, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "left hand title bar"                                },
+   { YVIKEYS_BUFFER  , "buffer"      , OWN_FULLY  , '-',   6, 2,   0,  15, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_BOTLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "buffer inventory at top"                            },
+   { YVIKEYS_FORMULA , "formula"     , OWN_FULLY  , '-',   5, 2,   0,  15, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_BOTLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "formula and source editing line at top"             },
+   { YVIKEYS_NAV     , "nav"         , OWN_PARTLY , '-',   3, 2, 150,   0, '-', '-', 'y',  0, 0, 0, 0,  '-', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_TOPLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "navigation panel to display tags and other links"   },
+   { YVIKEYS_ALT     , "alt"         , OWN_LITTLE , '-',   4, 4,   0,   0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_MIDCEN, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "alternate working area or view"                     },
+   { YVIKEYS_PROGRESS, "progress"    , OWN_PARTLY , '-',   3, 3,   0, 100, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_MIDLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "time and sequencing controls about status line"     },
+   { YVIKEYS_STATUS  , "status"      , OWN_FULLY  , 'y',   2, 2,   0,  15, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_BOTLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "informational status bar above command line"        },
+   { YVIKEYS_COMMAND , "command"     , OWN_FULLY  , 'y',   1, 2,   0,  15, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_BOTLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "command, search, and help message line at bottom"   },
+   { YVIKEYS_DETAILS , "details"     , OWN_PARTLY , '-',   3, 5, 250,   0, '-', '-', 'y',  0, 0, 0, 0,  '-', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_TOPLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "display area for critical details to right"         },
+   { YVIKEYS_RIBBON  , "ribbon"      , OWN_FULLY  , '-',   3, 6,  40,   0, '-', '-', 'y',  0, 0, 0, 0,  '-', NULL  , "",  VIEW__ribbon           , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_TOPLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "menu and icon display for navigation of commands"   },
+   { YVIKEYS_VERSION , "version"     , OWN_FULLY  , 'y',   7, 1,  15,  40, '-', 't', '-',  0, 0, 0, 0,  'r', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_BOTRIG, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "version display with debugging notice"              },
+   { YVIKEYS_KEYS    , "keys"        , OWN_FULLY  , 'y',   1, 7,  40,  15, 'c', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_BOTLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "latest keyboard characters typed"                   },
+   { YVIKEYS_GRID    , "grid"        , OWN_OVERLAY, '-',   0, 0,   0,   0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  VIEW__grid             , YVIKEYS_FLAT , YVIKEYS_AUTO  , 0             , 0              , 0, 0, 0, 0, 0, 0,  "overlay main drawing with a grid"                   },
+   { YVIKEYS_CURSOR  , "cursor"      , OWN_OVERLAY, '-',   0, 0,   0,   0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  VIEW__cursor           , YVIKEYS_FLAT , YVIKEYS_AUTO  , 0             , 0              , 0, 0, 0, 0, 0, 0,  "cursor display on screen"                           },
+   { YVIKEYS_OVERLAY , "overlay"     , OWN_OVERLAY, '-',   0, 0,   0,   0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_MIDCEN, YCOLOR_CLEAR   , 0, 0, 0, 0, 0, 0,  "shown over the working screen"                      },
+   { YVIKEYS_LAYERS  , "layers"      , OWN_OVERLAY, '-',   0, 0,   0,   0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  VIEW__layer_show       , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_MIDCEN, YCOLOR_CLEAR   , 0, 0, 0, 0, 0, 0,  "displays all selected laysers over working"         },
+   { YVIKEYS_FLOAT   , "float"       , OWN_OVERLAY, '-',   0, 0,   0,   0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  VIEW__float            , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_MIDCEN, YCOLOR_CLEAR   , 0, 0, 0, 0, 0, 0,  "shown over the working screen"                      },
+   { YVIKEYS_WINDOW  , "window"      , OWN_DATA   , '-',   0, 0,   0,   0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , 0             , 0              , 0, 0, 0, 0, 0, 0,  "full screen width and height"                       },
+   { YVIKEYS_MAIN    , "main"        , OWN_MAIN   , 'y',   4, 3,   0,   0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_MIDCEN, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "main working area in the middle"                    },
+   { 0               , ""            , 0          , '-',   0, 0,   0,   0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , 0             , 0              , 0, 0, 0, 0, 0, 0,  ""                                                   },
 };
 static int  s_npart     = 0;
 
@@ -159,6 +163,31 @@ tLAYOUT   s_layouts [MAX_LAYOUT] = {
 };
 static int  s_nlayout   = 0;
 
+
+#define      MAX_OPTION     200
+typedef  struct  cOPTION    tOPTION;
+struct cOPTION  {
+   char        part;
+   char        opt         [LEN_LABEL];
+   void       *source;
+   char        desc        [LEN_DESC ];
+};
+tOPTION  s_options [MAX_OPTION ] = {
+   { YVIKEYS_STATUS  , "mode"         , MODE_status      , "display the mode stack"      },
+   { NULL            , ""             , NULL             , ""                            },
+};
+static int  s_noption  = 0;
+
+
+#define      MAX_LAYERS    200
+typedef struct cLAYER  tLAYER;
+struct cLAYER {
+   char        name        [LEN_LABEL];
+   char        on;
+   char        (*drawer) (void);
+};
+tLAYER  s_layers [MAX_LAYERS];
+static int s_nlayer     = 0;
 
 
 int         g_goffx   =   0;
@@ -378,7 +407,7 @@ VIEW__heights            (cint a_tall)
          DEBUG_GRAF_M yLOG_value   ("ch"        , ch);
          /*---(set width)----------------*/
          x_skip = '-';
-         if      (s_parts [n].on     == '-'   )     s_parts [n].tall = 0;
+         if      (s_parts [n].on     == '-'   )           s_parts [n].tall = 0;
          else if (s_parts [n].abbr   == YVIKEYS_MAIN)     s_parts [n].tall = a_tall;
          else if (s_parts [n].abbr   == YVIKEYS_ALT )     s_parts [n].tall = a_tall;
          else if (s_parts [n].y_tie  != '-'   ) {
@@ -388,7 +417,7 @@ VIEW__heights            (cint a_tall)
             s_parts [a].tall  = ch - s_parts [n].tall;
             x_skip = 'y';
          }
-         else                                       s_parts [n].tall = s_parts [n].def_tall;
+         else                                             s_parts [n].tall = s_parts [n].def_tall;
          /*---(greatest at level)--------*/
          if (s_parts [n].tall > h && x_skip == '-')   h = s_parts [n].tall;
          /*---(report out)---------------*/
@@ -546,6 +575,48 @@ yVIKEYS_view_resize      (cint a_wide, cint a_tall, cint a_alt)
 static void  o___LAYOUT__________o () { return; }
 
 char
+yVIKEYS_view_option      (char *a_part, char *a_opt, void *a_source, char *a_desc)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        x_on        =  '-';
+   char        i           =    0;
+   char        n           =   -1;
+   char        a           =   -1;
+   /*---(header)-------------------------*/
+   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   n = VIEW__find (a_part);
+   --rce;  if (n < 0) {
+      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_GRAF   yLOG_info    ("a_part"    , a_part);
+   DEBUG_GRAF   yLOG_info    ("name"      , s_parts [n].name);
+   DEBUG_GRAF   yLOG_char    ("abbr"      , s_parts [n].abbr);
+   --rce;  if (a_opt == NULL) {
+      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_GRAF   yLOG_info    ("a_opt"     , a_opt);
+   --rce;  if (a_source == NULL) {
+      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_GRAF   yLOG_point   ("a_source"  , a_source);
+   /*---(add)----------------------------*/
+   s_options [s_noption].part   = s_parts [n].abbr;
+   strlcpy (s_options [s_noption].opt, a_opt, LEN_LABEL);
+   s_options [s_noption].source = a_source;
+   if (a_desc != NULL)  strlcpy (s_options [s_noption].desc, a_desc, LEN_LABEL);
+   ++s_noption;
+   DEBUG_GRAF   yLOG_value   ("s_noption" , s_noption);
+   /*---(complete)-----------------------*/
+   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char
 VIEW__switch             (char *a_name, char *a_opt)
 {
    /*---(locals)-----------+-----+-----+-*/
@@ -566,12 +637,29 @@ VIEW__switch             (char *a_name, char *a_opt)
       DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
+   --rce;  if (a_opt == NULL) {
+      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_GRAF   yLOG_info    ("a_opt"     , a_opt);
    /*---(set the flag)-------------------*/
    DEBUG_GRAF   yLOG_char    ("current"   , s_parts [n].on);
    x_on = s_parts [n].on;
-   if (strcmp (a_opt, "hide") == 0)  s_parts [n].on = '-';
-   if (strcmp (a_opt, "show") == 0)  s_parts [n].on = 'y';
+   if      (strcmp (a_opt, "hide") == 0)  s_parts [n].on = '-';
+   else if (strcmp (a_opt, "show") == 0)  s_parts [n].on = 'y';
+   else {
+      for (i = 0; i < s_noption; ++i) {
+         if (s_options [i].part == NULL)                   break;
+         if (s_options [i].part != s_parts [n].abbr)       continue;
+         if (s_options [i].opt  [0] != a_opt  [0])         continue;
+         if (strcmp (s_options [i].opt , a_opt ) != NULL)  continue;
+         s_parts [n].on     = 'y';
+         s_parts [n].source = s_options [i].source;
+         break;
+      }
+   }
    DEBUG_GRAF   yLOG_char    ("new"       , s_parts [n].on);
+   DEBUG_GRAF   yLOG_point   ("source"    , s_parts [n].source);
    /*---(handle linkages)----------------*/
    if (s_parts [n].abbr == YVIKEYS_TITLE   && s_parts [n].on == '-') {
       a = VIEW__abbr (YVIKEYS_VERSION);
@@ -687,7 +775,8 @@ yVIKEYS_view_init       (cchar *a_title, cchar *a_ver, cint a_wide, cint a_tall,
    for (i = 0; i < MAX_PARTS; ++i) {
       if (s_parts [i].abbr == 0)  break;
       DEBUG_GRAF   yLOG_info    ("name"      , s_parts [i].name);
-      if (strchr (OWN_HIDE, s_parts [i].own) != NULL) {
+      if (s_parts [i].abbr == YVIKEYS_LAYERS) ;
+      else if (strchr (OWN_HIDE, s_parts [i].own) != NULL) {
          DEBUG_GRAF   yLOG_note    ("adding view menu command to show/hide");
          yVIKEYS_cmds_add ('v', s_parts [i].name , ""    , "Cs"   , VIEW__switch               , "" );
       }
@@ -701,6 +790,12 @@ yVIKEYS_view_init       (cchar *a_title, cchar *a_ver, cint a_wide, cint a_tall,
       if (s_layouts [i].name [0] == 0)  break;
       ++s_nlayout;
    }
+   /*---(part options)-------------------*/
+   s_noption = 0;
+   for (i = 0; i < MAX_OPTION; ++i) {
+      if (s_options [i].part == 0)  break;
+      ++s_noption;
+   }
    /*---(ribbon)-------------------------*/
    for (i = 0; i < LEN_LABEL; ++i)  s_win.r_icons [i] = -1;
    s_win.r_nicon = 0;
@@ -708,6 +803,7 @@ yVIKEYS_view_init       (cchar *a_title, cchar *a_ver, cint a_wide, cint a_tall,
    yVIKEYS_cmds_add ('v', "gridoff"     , ""    , "iii"  , VIEW__grid_offset          , "" );
    yVIKEYS_cmds_add ('v', "gridsize"    , ""    , "iii"  , VIEW__grid_size            , "" );
    yVIKEYS_cmds_add ('v', "layout"      , ""    , "s"    , VIEW__layout               , "" );
+   yVIKEYS_cmds_add ('v', "layer"       , ""    , "s"    , VIEW__layer_set            , "" );
    /*---(key data)-----------------------*/
    s_main_wide  = a_wide;
    s_main_tall  = a_tall;
@@ -728,7 +824,7 @@ yVIKEYS_view_init       (cchar *a_title, cchar *a_ver, cint a_wide, cint a_tall,
       strlcpy (s_parts [n].text, a_ver  , LEN_DESC );
    }
    n = VIEW__abbr (YVIKEYS_COMMAND);
-   yVIKEYS_mode_mesg (s_parts [n].text, CMDS_curr ());
+   MODE_message (s_parts [n].text, CMDS_curr ());
    /*---(color)--------------------------*/
    DEBUG_GRAF   yLOG_note    ("clearing");
    glClearColor    (1.0f, 1.0f, 1.0f, 1.0f);
@@ -1158,8 +1254,8 @@ static void  o___DRAWING_________o () { return; }
 char          /*----: draw the saved status ----------------------------------*/
 VIEW__cursor             (void)
 {
-   int         x_lef   = s_colmap.cur / s_mag;
-   int         x_bot   = s_rowmap.cur / s_mag;
+   int         x_lef   = s_xmap.cur / s_mag;
+   int         x_bot   = x_ymap.cur / s_mag;
    int         x_rig   = x_lef + (g_gsizex / s_mag);
    int         x_top   = x_bot + (g_gsizey / s_mag);
    char        n           = 0;
@@ -1195,8 +1291,8 @@ VIEW__grid               (void)
    if (s_parts [n].on == '-')  return 0;
    /*---(x grid)-------------------------*/
    glPushMatrix    (); {
-      x_beg = s_colmap.gmin;
-      x_end = s_colmap.gmax;
+      x_beg = s_xmap.gmin;
+      x_end = s_xmap.gmax;
       x_inc = g_gsizex;
       glColor4f     (0.0, 0.3, 0.0, 0.5);
       glLineWidth   (1.5);
@@ -1205,8 +1301,8 @@ VIEW__grid               (void)
       for (i = x_beg; i <= x_end; i += x_inc) {
          if (c % 5 ==  0) {
             glBegin         (GL_LINES); {
-               glVertex3f  (0.0f  , s_rowmap.gmin,  0.0f);
-               glVertex3f  (0.0f  , s_rowmap.gmax,  0.0f);
+               glVertex3f  (0.0f  , x_ymap.gmin,  0.0f);
+               glVertex3f  (0.0f  , x_ymap.gmax,  0.0f);
             } glEnd   ();
          }
          glTranslatef  (x_inc / s_mag, 0.0    ,  0.0);
@@ -1215,9 +1311,9 @@ VIEW__grid               (void)
    } glPopMatrix   ();
    /*---(y grid)-------------------------*/
    glPushMatrix    (); {
-      x_beg = s_rowmap.gmin;
+      x_beg = x_ymap.gmin;
       /*> printf ("x_beg %3d, x_end %3d, x_inc %3d\n", x_beg, x_end, x_inc);          <*/
-      x_end = s_rowmap.gmax;
+      x_end = x_ymap.gmax;
       x_inc = g_gsizey;
       glColor4f     (0.0, 0.3, 0.0, 0.5);
       glLineWidth   (1.5);
@@ -1226,8 +1322,8 @@ VIEW__grid               (void)
       for (i = x_beg; i <= x_end; i += x_inc) {
          if (c % 5 ==  0) {
             glBegin         (GL_LINES); {
-               glVertex3f  (s_colmap.gmin, 0.0f,  0.0f);
-               glVertex3f  (s_colmap.gmax, 0.0f,  0.0f);
+               glVertex3f  (s_xmap.gmin, 0.0f,  0.0f);
+               glVertex3f  (s_xmap.gmax, 0.0f,  0.0f);
             } glEnd   ();
          }
          glTranslatef  (0.0, x_inc / s_mag,  0.0);
@@ -1241,8 +1337,8 @@ VIEW__grid               (void)
       glLineWidth   (1.5);
       glColor4f     (0.0, 0.3, 0.0, 0.5);
       glTranslatef  (0.0, g_goffy, 50.0);
-      for (y = s_rowmap.gmin; y <= s_rowmap.gmax; y += g_gsizey) {
-         for (x = s_colmap.gmin; x <= s_colmap.gmax; x += g_gsizex) {
+      for (y = x_ymap.gmin; y <= x_ymap.gmax; y += g_gsizey) {
+         for (x = s_xmap.gmin; x <= s_xmap.gmax; x += g_gsizex) {
             /*> glBegin         (GL_POINTS); {                                        <* 
              *>    glVertex3f  (x / s_mag, y / s_mag,  0.0f);                         <* 
              *> } glEnd   ();                                                         <*/
@@ -1311,7 +1407,7 @@ VIEW__float             (void)
    int         x_len       =     0;
    int         n           =     0;
    /*---(defense)------------------------*/
-   if (yVIKEYS_mode_curr() == MODE_COMMAND || yVIKEYS_mode_curr() == MODE_SEARCH) {
+   if (MODE_curr () == MODE_COMMAND || MODE_curr () == MODE_SEARCH) {
       n    = VIEW__abbr   (YVIKEYS_COMMAND);
       if (s_parts [n].on == '-')  x_use = 'y';
    }
@@ -1342,12 +1438,164 @@ VIEW__float             (void)
          glVertex3f  (x_lef , x_top, 50.0f);
       } glEnd   ();
       glTranslatef (x_lef + 3, x_bot,   60.0f);
-      switch (yVIKEYS_mode_curr ()) {
+      switch (MODE_curr ()) {
       case MODE_COMMAND :  yFONT_print  (s_win.font,  11, YF_BOTLEF, CMDS_curr ());  break;
       case MODE_SEARCH  :  yFONT_print  (s_win.font,  11, YF_BOTLEF, SRCH_curr ());  break;
       }
    } glPopMatrix   ();
    /*---(complete)-----------------------*/
+   return 0;
+}
+
+char
+VIEW__layer_list         (void)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        i           =    0;
+   /*---(find the screen part)-----------*/
+   printf ("\n\nlayer inventory...\n");
+   for (i = 0; i < s_nlayer; ++i) {
+      printf ("  i %2d, on %c, name %-12.12s, drawer %p\n", i, s_layers [i].on, s_layers [i].name, s_layers [i].drawer);
+   }
+   /*---(complete)-----------------------*/
+   return 0;
+}
+
+char
+yVIKEYS_layer_add           (char *a_name, void *a_drawer)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   /*---(header)-------------------------*/
+   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   DEBUG_GRAF   yLOG_point   ("a_name"    , a_name);
+   --rce;  if (a_name == NULL) {
+      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_GRAF   yLOG_info    ("a_name"    , a_name);
+   DEBUG_GRAF   yLOG_point   ("a_drawer"  , a_drawer);
+   --rce;  if (a_drawer == NULL) {
+      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(add)----------------------------*/
+   strlcpy (s_layers [s_nlayer].name, a_name, LEN_LABEL);
+   s_layers [s_nlayer].drawer = a_drawer;
+   s_layers [s_nlayer].on     = '-';
+   ++s_nlayer;
+   VIEW__layer_list ();
+   /*---(complete)-----------------------*/
+   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+int
+VIEW__layer_find         (char *a_name)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        i           =    0;
+   char        n           =   -1;
+   /*---(header)-------------------------*/
+   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   DEBUG_GRAF   yLOG_point   ("a_name"    , a_name);
+   --rce;  if (a_name == NULL) {
+      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_GRAF   yLOG_info    ("a_name"    , a_name);
+   /*---(find the screen part)-----------*/
+   for (i = 0; i < s_nlayer; ++i) {
+      DEBUG_GRAF   yLOG_info    ("check"     , s_layers [i].name);
+      if (s_layers [i].name [0] != a_name [0])         continue;
+      if (strcmp (s_layers [i].name, a_name) != 0)     continue;
+      n = i;
+   }
+   DEBUG_GRAF   yLOG_value   ("result"    , n);
+   --rce;  if (n < 0) {
+      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(complete)-----------------------*/
+   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
+   return n;
+}
+
+char
+VIEW__layer_set          (char *a_name)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        x_on        =  '-';
+   char        i           =    0;
+   char        n           =   -1;
+   char        a           =   -1;
+   /*---(header)-------------------------*/
+   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   n = VIEW__abbr (YVIKEYS_LAYERS);
+   --rce;  if (n < 0) {
+      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   --rce;  if (a_name == NULL) {
+      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_GRAF   yLOG_info    ("a_name"    , a_name);
+   /*---(set the flag)-------------------*/
+   DEBUG_GRAF   yLOG_char    ("current"   , s_parts [n].on);
+   x_on = s_parts [n].on;
+   if      (strcmp (a_name, "hide") == 0)  s_parts [n].on = '-';
+   else if (strcmp (a_name, "show") == 0)  s_parts [n].on = 'y';
+   else {
+      for (i = 0; i < s_nlayer; ++i) {
+         DEBUG_GRAF   yLOG_info    ("layer"     , s_layers [i].name);
+         /*---(handle mass)--------------*/
+         if (strcmp ("none", a_name) == 0) {
+            DEBUG_GRAF   yLOG_note    ("turn all off");
+            s_parts [n].on  = '-';
+            s_layers [i].on = '-';
+            continue;
+         }
+         if (strcmp ("all" , a_name) == 0) {
+            DEBUG_GRAF   yLOG_note    ("turn all on");
+            s_parts [n].on  = 'y';
+            s_layers [i].on = 'y';
+            continue;
+         }
+         /*---(handle individual)--------*/
+         if (s_layers [i].name [0] != a_name  [0])         continue;
+         if (strcmp (s_layers [i].name, a_name) != 0)      continue;
+         DEBUG_GRAF   yLOG_note    ("select this one");
+         if (s_layers [i].on == 'y')  s_layers [i].on    = '-';
+         else  {
+            s_parts [n].on  = 'y';
+            s_layers [i].on = 'y';
+         }
+         break;
+      }
+   }
+   DEBUG_GRAF   yLOG_char    ("new"       , s_parts [n].on);
+   /*---(complete)-----------------------*/
+   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char
+VIEW__layer_show         (void)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        i           =    0;
+   /*> printf ("start VIEW__layer_show\n");                                           <*/
+   for (i = 0; i < s_nlayer; ++i) {
+      /*> printf ("check i %2d, on %c, name %-12.12s, drawer %p\n", i, s_layers [i].on, s_layers [i].name, s_layers [i].drawer);   <*/
+      if (s_layers [i].on != 'y'     )  continue;
+      if (s_layers [i].drawer != NULL)  s_layers [i].drawer ();
+   }
    return 0;
 }
 
@@ -1365,6 +1613,10 @@ VIEW__opengl             (char a)
    x_max = s_parts [a].xmin + s_parts [a].xlen;
    y_max = s_parts [a].ymin + s_parts [a].ylen;
    z_max = s_parts [a].zmin + s_parts [a].zlen;
+   if (s_parts [a].source != NULL)  {
+      s_parts [a].source (s_parts [a].text);
+      /*> printf ("source %p, s_parts [a].txt %s\n", s_parts [a].source, s_parts [a].text);   <*/
+   }
    /*---(setup view)---------------------*/
    DEBUG_GRAF   yLOG_value   ("a"         , a);
    DEBUG_GRAF   yLOG_complex (s_parts [a].name, "bott %4d, left %4d, wide %4d, tall %4d, on %c", s_parts [a].bott, s_parts [a].left, s_parts [a].wide, s_parts [a].tall, s_parts [a].on);
@@ -1439,6 +1691,7 @@ yVIKEYS_view_all         (float a_mag)
       if (s_parts [n].on     == '-')                      continue;
       if (s_parts [n].type   == YVIKEYS_DISABLE)          continue;
       if (s_parts [n].drawer != NULL)  s_parts [n].drawer ();
+      if (s_parts [n].source != NULL)  s_parts [n].source (NULL);
    }
    /*---(flush)--------------------------*/
    glXSwapBuffers(DISP, BASE);

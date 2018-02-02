@@ -38,21 +38,11 @@
  *
  */
 
-#define     LEN_AXIS       1000
 
 static char s_wrapping     = '-';
 
-static int  s_cols         [LEN_AXIS];
-static int  s_ccol         = 0;
 
 
-static int  s_rows         [LEN_AXIS];
-static int  s_mrow         = 0;
-static int  s_trow         = 0;
-static int  s_crow         = 0;
-static int  s_brow         = 0;
-static int  s_xrow         = 0;
-static int  s_nrow         = 0;
 
 int
 yVIKEYS_map_ends      (char a_major, char a_minor)

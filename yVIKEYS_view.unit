@@ -19,7 +19,7 @@ PREP          v21  include the prototype headers                              
 SCRP          v21  (VIEW  ) finding and setting screen parts                          VIEW__find, VIEW__abbr                                                  ((01.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  start testing                        yVIKEYS__unit_quiet                                                                                 i_equal     0                                                                                                    
+     exec     v21  start testing                        BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  initialize view                      yVIKEYS_view_init           "test"         , "3.2a"    ,  500,  300,    0                           i_equal     0                                                                                                    
 
    GROUP      v21  search for screen parts by name                                    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
@@ -55,7 +55,7 @@ SCRP          v21  (VIEW  ) finding and setting screen parts                  
    GROUP      v21  complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.017))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  stop testing                         yVIKEYS__unit_end                                                                                   i_equal     0                                                                                                    
+     exec     v21  stop testing                         BASE__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -64,7 +64,7 @@ SCRP          v21  (VIEW  ) finding and setting screen parts                  
 SCRP          v21  (MODE  ) setting screen sizes                                      VIEW__layout, __heights, __widths, __reset, __switch                    ((01.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  start testing                        yVIKEYS__unit_quiet                                                                                 i_equal     0                                                                                                    
+     exec     v21  start testing                        BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  initialize view                      yVIKEYS_view_init           "test"         , "3.2a"    ,  500,  300,    0                           i_equal     0                                                                                                    
 
    GROUP      v21  start with work layout                                             - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
@@ -223,7 +223,7 @@ SCRP          v21  (MODE  ) setting screen sizes                              
    GROUP      v21  complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.017))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  stop testing                         yVIKEYS__unit_end                                                                                   i_equal     0                                                                                                    
+     exec     v21  stop testing                         BASE__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 

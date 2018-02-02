@@ -4,32 +4,26 @@
 #include    "yVIKEYS_priv.h"
 
 
-/*---(horizontal)---------------------*/
-static int     s_horz    =    0;
-static int     s_ccol    =    0;
-/*---(vertical)-----------------------*/
-static int     s_vert    =    0;
-static int     s_crow    =    0;
+
+char    (*s_xmapper) (char a_type);
+char    (*s_ymapper) (char a_type);
+char    (*s_zmapper) (char a_type);
 
 
-static int     s_bcol    = 0;
-static int     s_ecol    = 0;
-static int     s_acol    = 0;
-
-
-
-char    (*s_cmapper) (char a_type);
-char    (*s_rmapper) (char a_type);
 
 char   g_coord    = YVIKEYS_RIGHT;
+
+
 
 static char  *s_vsimple  = "_KkjJ~";
 static char  *s_vgoto    = "TKtkmjbJB";
 static char  *s_hsimple  = "0HhlL$";
 static char  *s_hgoto    = "SHshcleLE";
 
+
+
 char
-yVIKEYS__map_clear    (tMAPPED *a_map)
+MAP__clear           (tMAPPED *a_map)
 {
    int         i           =    0;
    /*---(lefts)--------------------------*/
@@ -62,7 +56,7 @@ yVIKEYS__map_clear    (tMAPPED *a_map)
 }
 
 char
-yVIKEYS__map_print   (tMAPPED *a_map)
+MAP__print           (tMAPPED *a_map)
 {
    int         i           =    0;
    /*---(headers)------------------------*/
@@ -83,12 +77,12 @@ yVIKEYS__map_print   (tMAPPED *a_map)
 }
 
 char
-yVIKEYS__map_load     (char a_style, tMAPPED *a_map)
+MAP__load             (char a_style, tMAPPED *a_map)
 {
    int         i           =    0;
    int         j           =    0;
    int         x_spot      =    0;
-   yVIKEYS__map_clear  (a_map);
+   MAP__clear  (a_map);
    for (i = 0; i < 8; ++i) {
       switch (a_style) {
       case 'u' : /* uniform size grid       */
@@ -166,23 +160,35 @@ yVIKEYS__map_load     (char a_style, tMAPPED *a_map)
    a_map->gbeg  = a_map->map [a_map->beg];
    a_map->gcur  = a_map->map [a_map->cur];
    a_map->gend  = a_map->map [a_map->end];
-   /*> yVIKEYS__map_print  (a_map);                                                   <*/
+   /*> MAP__print  (a_map);                                                   <*/
    return 0;
 }
 
 char
-yVIKEYS_map_init       (char a_coord, void *a_col_mapper, void *a_row_mapper)
+yVIKEYS_map_config     (char a_coord, void *a_xmapper, void *a_ymapper, void *a_zmapper)
 {
    g_coord    = a_coord;
-   s_cmapper  = a_col_mapper;
-   s_rmapper  = a_row_mapper;
-   if (s_cmapper != NULL)  s_cmapper ('i');
-   if (s_rmapper != NULL)  s_rmapper ('i');
+   s_xmapper  = a_xmapper;
+   s_ymapper  = a_ymapper;
+   s_zmapper  = a_zmapper;
+   if (s_xmapper != NULL)  s_xmapper ('i');
+   if (s_ymapper != NULL)  s_ymapper ('i');
+   if (s_zmapper != NULL)  s_zmapper ('i');
    return 0;
 }
 
 char
-yVIKEYS__map_move     (int a_target, tMAPPED *a_map)
+MAP_init               (void)
+{
+   g_coord    = YVIKEYS_OFFICE;
+   s_xmapper  = NULL;
+   s_ymapper  = NULL;
+   s_zmapper  = NULL;
+   return 0;
+}
+
+char
+MAP__move             (int a_target, tMAPPED *a_map)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -255,7 +261,7 @@ yVIKEYS__map_move     (int a_target, tMAPPED *a_map)
 }
 
 char
-yVIKEYS__map_screen_small (tMAPPED *a_map)
+MAP__screen_small         (tMAPPED *a_map)
 {
    /*---(locals)-----------+-----+-----+-*/
    int         i           =    0;
@@ -276,7 +282,7 @@ yVIKEYS__map_screen_small (tMAPPED *a_map)
 
 
 char
-yVIKEYS__map_screen_beg   (tMAPPED *a_map)
+MAP__screen_beg           (tMAPPED *a_map)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -317,7 +323,7 @@ yVIKEYS__map_screen_beg   (tMAPPED *a_map)
 }
 
 char
-yVIKEYS__map_screen_end   (tMAPPED *a_map)
+MAP__screen_end           (tMAPPED *a_map)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -327,7 +333,7 @@ yVIKEYS__map_screen_end   (tMAPPED *a_map)
    int         x_prev      =    0;
    int         x_next      =    0;
    /*---(find end of end)----------------*/
-   /*> printf ("yVIKEYS__map_screen_end\n");                                          <*/
+   /*> printf ("MAP__screen_end\n");                                          <*/
    /*> printf ("end  = %3d\n", a_map->end);                                           <*/
    for (i = a_map->end; i <= a_map->gmax; ++i) {
       a_map->end   = i;
@@ -352,13 +358,13 @@ yVIKEYS__map_screen_end   (tMAPPED *a_map)
       if (x_curr != x_prev)   break;
    }
    /*---(handle normally)----------------*/
-   rc = yVIKEYS__map_screen_beg (a_map);
+   rc = MAP__screen_beg (a_map);
    /*---(complete)-----------------------*/
    return rc;
 }
 
 char
-yVIKEYS__map_screen     (tMAPPED *a_map)
+MAP__screen             (tMAPPED *a_map)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -387,7 +393,7 @@ yVIKEYS__map_screen     (tMAPPED *a_map)
    /*---(screen fits all)----------------*/
    if (a_map->gmax - a_map->gmin <= a_map->avail) {
       /*> printf ("processing a small\n");                                            <*/
-      rc = yVIKEYS__map_screen_small (a_map);
+      rc = MAP__screen_small (a_map);
       return rc;
    }
    /*---(from beginning)-----------------*/
@@ -396,7 +402,7 @@ yVIKEYS__map_screen     (tMAPPED *a_map)
       a_map->beg = a_map->cur;
       for (i = a_map->cur; i >= a_map->gmin; --i) {
          a_map->beg = i;
-         rc = yVIKEYS__map_screen_beg (a_map);
+         rc = MAP__screen_beg (a_map);
          if (rc > 0) break;
       }
    }
@@ -406,12 +412,12 @@ yVIKEYS__map_screen     (tMAPPED *a_map)
       a_map->end   = a_map->cur;
       a_map->tend  = a_map->cur;
       /*> printf ("end  = %3d\n", a_map->end);                                        <*/
-      rc = yVIKEYS__map_screen_end (a_map);
+      rc = MAP__screen_end (a_map);
    }
    /*---(just a refresh)-----------------*/
    else {
       /*> printf ("processing a refresh\n");                                          <*/
-      rc = yVIKEYS__map_screen_beg (a_map);
+      rc = MAP__screen_beg (a_map);
    }
    /*---(align grid)---------------------*/
    a_map->len   = a_map->end - a_map->beg + 1;
@@ -423,7 +429,7 @@ yVIKEYS__map_screen     (tMAPPED *a_map)
 }
 
 int
-yVIKEYS_map_vert      (char a_major, char a_minor)
+MAP__vert             (char a_major, char a_minor)
 {
    /*---(locals)-----------+-----+-----+-*/
    int         x_grid      =    0;
@@ -435,18 +441,18 @@ yVIKEYS_map_vert      (char a_major, char a_minor)
    DEBUG_USER  yLOG_char    ("a_major"   , a_major);
    DEBUG_USER  yLOG_char    ("a_minor"   , a_minor);
    /*---(prepare)------------------------*/
-   x_grid      = s_rowmap.gcur;
+   x_grid      = x_ymap.gcur;
    DEBUG_USER  yLOG_value   ("x_grid"    , x_grid);
-   x_qtr       = (s_rowmap.avail - g_gsizey) / 4.0;
+   x_qtr       = (x_ymap.avail - g_gsizey) / 4.0;
    DEBUG_USER  yLOG_double  ("x_qtr"     , x_qtr);
-   x_gmax  = s_rowmap.map [s_rowmap.gmax - g_gsizey];
+   x_gmax  = x_ymap.map [x_ymap.gmax - g_gsizey];
    DEBUG_USER  yLOG_value   ("x_gmax"    , x_gmax);
    /*---(simple)-------------------------*/
    DEBUG_USER  yLOG_info    ("s_vsimple" , s_vsimple);
    if (a_major == ' ' && strchr (s_vsimple, a_minor) != NULL) {
       if (g_coord == YVIKEYS_OFFICE) {
          switch (a_minor) {
-         case '_' : x_grid  = s_rowmap.map [s_rowmap.gmin];  break;
+         case '_' : x_grid  = x_ymap.map [x_ymap.gmin];  break;
          case 'K' : x_grid -= g_gsizey * 5;  break;
          case 'k' : x_grid -= g_gsizey;      break;
          case 'j' : x_grid += g_gsizey;      break;
@@ -455,7 +461,7 @@ yVIKEYS_map_vert      (char a_major, char a_minor)
          }
       } else {
          switch (a_minor) {
-         case '~' : x_grid  = s_rowmap.map [s_rowmap.gmin];  break;
+         case '~' : x_grid  = x_ymap.map [x_ymap.gmin];  break;
          case 'J' : x_grid -= g_gsizey * 5;  break;
          case 'j' : x_grid -= g_gsizey;      break;
          case 'k' : x_grid += g_gsizey;      break;
@@ -469,47 +475,47 @@ yVIKEYS_map_vert      (char a_major, char a_minor)
    if (a_major == 'g' && strchr (s_vgoto  , a_minor) != NULL) {
       if (g_coord == YVIKEYS_OFFICE) {
          switch (a_minor) {
-         case 'T' : x_unit  = s_rowmap.beg - (x_qtr * 4); break;
-         case 'K' : x_unit  = s_rowmap.beg - (x_qtr * 2); break;
-         case 't' : x_unit  = s_rowmap.beg;               break;
-         case 'k' : x_unit  = s_rowmap.beg + (x_qtr * 1); break;
-         case 'm' : x_unit  = s_rowmap.beg + (x_qtr * 2); break;
-         case 'j' : x_unit  = s_rowmap.beg + (x_qtr * 3); break;
-         case 'b' : x_unit  = s_rowmap.beg + (x_qtr * 4); break;
-         case 'J' : x_unit  = s_rowmap.beg + (x_qtr * 6); break;
-         case 'B' : x_unit  = s_rowmap.beg + (x_qtr * 8); break;
+         case 'T' : x_unit  = x_ymap.beg - (x_qtr * 4); break;
+         case 'K' : x_unit  = x_ymap.beg - (x_qtr * 2); break;
+         case 't' : x_unit  = x_ymap.beg;               break;
+         case 'k' : x_unit  = x_ymap.beg + (x_qtr * 1); break;
+         case 'm' : x_unit  = x_ymap.beg + (x_qtr * 2); break;
+         case 'j' : x_unit  = x_ymap.beg + (x_qtr * 3); break;
+         case 'b' : x_unit  = x_ymap.beg + (x_qtr * 4); break;
+         case 'J' : x_unit  = x_ymap.beg + (x_qtr * 6); break;
+         case 'B' : x_unit  = x_ymap.beg + (x_qtr * 8); break;
          }
       } else {
          switch (a_minor) {
-         case 'B' : x_unit  = s_rowmap.beg - (x_qtr * 4); break;
-         case 'J' : x_unit  = s_rowmap.beg - (x_qtr * 2); break;
-         case 'b' : x_unit  = s_rowmap.beg;               break;
-         case 'j' : x_unit  = s_rowmap.beg + (x_qtr * 1); break;
-         case 'm' : x_unit  = s_rowmap.beg + (x_qtr * 2); break;
-         case 'k' : x_unit  = s_rowmap.beg + (x_qtr * 3); break;
-         case 't' : x_unit  = s_rowmap.beg + (x_qtr * 4); break;
-         case 'K' : x_unit  = s_rowmap.beg + (x_qtr * 6); break;
-         case 'T' : x_unit  = s_rowmap.beg + (x_qtr * 8); break;
+         case 'B' : x_unit  = x_ymap.beg - (x_qtr * 4); break;
+         case 'J' : x_unit  = x_ymap.beg - (x_qtr * 2); break;
+         case 'b' : x_unit  = x_ymap.beg;               break;
+         case 'j' : x_unit  = x_ymap.beg + (x_qtr * 1); break;
+         case 'm' : x_unit  = x_ymap.beg + (x_qtr * 2); break;
+         case 'k' : x_unit  = x_ymap.beg + (x_qtr * 3); break;
+         case 't' : x_unit  = x_ymap.beg + (x_qtr * 4); break;
+         case 'K' : x_unit  = x_ymap.beg + (x_qtr * 6); break;
+         case 'T' : x_unit  = x_ymap.beg + (x_qtr * 8); break;
          }
       }
-      if (x_unit < s_rowmap.gmin)  x_unit = s_rowmap.gmin;
-      if (x_unit > s_rowmap.gmax)  x_unit = s_rowmap.gmax;
-      x_grid  = s_rowmap.map [x_unit];
+      if (x_unit < x_ymap.gmin)  x_unit = x_ymap.gmin;
+      if (x_unit > x_ymap.gmax)  x_unit = x_ymap.gmax;
+      x_grid  = x_ymap.map [x_unit];
    }
    /*---(check screen)-------------------*/
    if (x_grid > x_gmax)  x_grid = x_gmax;
    x_grid /= g_gsizey;
    x_grid *= g_gsizey;
    DEBUG_USER  yLOG_value   ("x_grid new", x_grid);
-   yVIKEYS__map_move (x_grid, &s_rowmap);
-   yVIKEYS__map_screen (&s_rowmap);
+   MAP__move   (x_grid, &x_ymap);
+   MAP__screen (&x_ymap);
    /*---(complete)-----------------------*/
    DEBUG_USER  yLOG_exit    (__FUNCTION__);
    return G_KEY_SPACE;
 }
 
 int
-yVIKEYS_map_horz      (char a_major, char a_minor)
+MAP__horz             (char a_major, char a_minor)
 {
    /*---(locals)-----------+-----+-----+-*/
    int         x_grid      =    0;
@@ -522,19 +528,19 @@ yVIKEYS_map_horz      (char a_major, char a_minor)
    DEBUG_USER  yLOG_char    ("a_major"   , a_major);
    DEBUG_USER  yLOG_char    ("a_minor"   , a_minor);
    /*---(prepare)------------------------*/
-   x_grid      = s_colmap.gcur;
+   x_grid      = s_xmap.gcur;
    DEBUG_USER  yLOG_value   ("x_grid"    , x_grid);
-   x_qtr       = (s_colmap.avail - g_gsizex) / 4.0;
+   x_qtr       = (s_xmap.avail - g_gsizex) / 4.0;
    DEBUG_USER  yLOG_double  ("x_qtr"     , x_qtr);
-   x_beg       = s_colmap.beg;
+   x_beg       = s_xmap.beg;
    DEBUG_USER  yLOG_double  ("x_beg"     , x_beg);
-   x_gmax  = s_colmap.map [s_colmap.gmax - g_gsizex];
+   x_gmax  = s_xmap.map [s_xmap.gmax - g_gsizex];
    DEBUG_USER  yLOG_value   ("x_gmax"    , x_gmax);
    /*---(simple)-------------------------*/
    DEBUG_USER  yLOG_info    ("s_hsimple" , s_hsimple);
    if (a_major == ' ' && strchr (s_hsimple, a_minor) != NULL) {
       switch (a_minor) {
-      case '0' : x_grid  = s_colmap.map [s_colmap.gmin];   break;
+      case '0' : x_grid  = s_xmap.map [s_xmap.gmin];   break;
       case 'H' : x_grid -= g_gsizex * 5;                   break;
       case 'h' : x_grid -= g_gsizex;                       break;
       case 'l' : x_grid += g_gsizex;                       break;
@@ -556,24 +562,24 @@ yVIKEYS_map_horz      (char a_major, char a_minor)
       case 'L' : x_unit  = x_beg + (x_qtr * 6);            break;
       case 'E' : x_unit  = x_beg + (x_qtr * 8);            break;
       }
-      if (x_unit < s_colmap.gmin)  x_unit = s_colmap.gmin;
-      if (x_unit > s_colmap.gmax)  x_unit = s_colmap.gmax;
-      x_grid  = s_colmap.map [x_unit];
+      if (x_unit < s_xmap.gmin)  x_unit = s_xmap.gmin;
+      if (x_unit > s_xmap.gmax)  x_unit = s_xmap.gmax;
+      x_grid  = s_xmap.map [x_unit];
    }
    /*---(check screen)-------------------*/
    if (x_grid > x_gmax)  x_grid = x_gmax;
    x_grid /= g_gsizex;
    x_grid *= g_gsizex;
    DEBUG_USER  yLOG_value   ("x_grid new", x_grid);
-   yVIKEYS__map_move (x_grid, &s_colmap);
-   yVIKEYS__map_screen (&s_colmap);
+   MAP__move   (x_grid, &s_xmap);
+   MAP__screen (&s_xmap);
    /*---(complete)-----------------------*/
    DEBUG_USER  yLOG_exit    (__FUNCTION__);
    return G_KEY_SPACE;
 }
 
 char
-yVIKEYS_map_mode        (char a_major, char a_minor)
+MAP_mode                (char a_major, char a_minor)
 {
    /*---(locals)-----------+-----------+-*/
    char        rce         = -10;
@@ -583,8 +589,8 @@ yVIKEYS_map_mode        (char a_major, char a_minor)
    DEBUG_USER   yLOG_char    ("a_major"   , a_major);
    DEBUG_USER   yLOG_char    ("a_minor"   , a_minor);
    /*---(defenses)-----------------------*/
-   DEBUG_USER   yLOG_char    ("mode"      , yVIKEYS_mode_curr ());
-   --rce;  if (yVIKEYS_mode_not (MODE_MAP    )) {
+   DEBUG_USER   yLOG_char    ("mode"      , MODE_curr ());
+   --rce;  if (MODE_not (MODE_MAP    )) {
       DEBUG_USER   yLOG_note    ("not the correct mode");
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return rce;
@@ -597,7 +603,7 @@ yVIKEYS_map_mode        (char a_major, char a_minor)
    }
    /*---(major mode changes)-------------*/
    /*> if (a_minor == G_KEY_RETURN) {                                                 <* 
-    *>    yVIKEYS_mode_enter  (MODE_SOURCE);                                          <* 
+    *>    MODE_enter  (MODE_SOURCE);                                          <* 
     *>    EDIT_pos    ('0');                                                          <* 
     *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                   <* 
     *>    return  0;                                                                  <* 
@@ -612,7 +618,7 @@ yVIKEYS_map_mode        (char a_major, char a_minor)
    if (a_major == ' ') {
       /*---(multiplier)------------------*/
       if (strchr ("123456789"  , a_minor) != 0) {
-         yVIKEYS_mode_enter  (SMOD_REPEAT);
+         MODE_enter  (SMOD_REPEAT);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return a_minor;
       }
@@ -624,60 +630,60 @@ yVIKEYS_map_mode        (char a_major, char a_minor)
       /*---(mode switch)-----------------*/
       switch (a_minor) {
          /*> case 'v'      :                                                             <* 
-          *>    yVIKEYS_mode_enter  (MODE_VISUAL);                                       <* 
+          *>    MODE_enter  (MODE_VISUAL);                                       <* 
           *>    VISU_start  (CTAB, CCOL, CROW, VISU_FROM);                               <* 
           *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <* 
           *>    return 0;                                                                <* 
           *>    break;                                                                   <*/
          /*> case 'V'      :                                                             <* 
-          *>    yVIKEYS_mode_enter  (MODE_VISUAL);                                       <* 
+          *>    MODE_enter  (MODE_VISUAL);                                       <* 
           *>    VISU_restore ();                                                         <* 
           *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <* 
           *>    return 0;                                                                <* 
           *>    break;                                                                   <*/
       case ':'      :
-         yVIKEYS_mode_enter  (MODE_COMMAND);
+         MODE_enter  (MODE_COMMAND);
          CMDS_start ();
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return a_minor;
          break;
       case '/'      :
-         yVIKEYS_mode_enter  (MODE_SEARCH);
+         MODE_enter  (MODE_SEARCH);
          SRCH_start ();
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return a_minor;
          break;
          /*> case 's'      :                                                             <* 
           *>    EDIT_start  ("");                                                        <* 
-          *>    yVIKEYS_mode_enter  (MODE_INPUT  );                                      <* 
+          *>    MODE_enter  (MODE_INPUT  );                                      <* 
           *>    MODE_input ('m', 'i');                                                   <* 
           *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <* 
           *>    return 'i';                                                              <* 
           *>    break;                                                                   <*/
          /*> case '='      :                                                             <* 
           *>    EDIT_start  ("=");                                                       <* 
-          *>    yVIKEYS_mode_enter  (MODE_INPUT  );                                      <* 
+          *>    MODE_enter  (MODE_INPUT  );                                      <* 
           *>    MODE_input ('m', 'a');                                                   <* 
           *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <* 
           *>    return 'a';                                                              <* 
           *>    break;                                                                   <*/
          /*> case '#'      :                                                             <* 
           *>    EDIT_start  ("#");                                                       <* 
-          *>    yVIKEYS_mode_enter  (MODE_INPUT  );                                      <* 
+          *>    MODE_enter  (MODE_INPUT  );                                      <* 
           *>    MODE_input ('m', 'a');                                                   <* 
           *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <* 
           *>    return 'a';                                                              <* 
           *>    break;                                                                   <*/
          /*> case '+'      :                                                             <* 
           *>    EDIT_start  ("+");                                                       <* 
-          *>    yVIKEYS_mode_enter  (MODE_INPUT  );                                      <* 
+          *>    MODE_enter  (MODE_INPUT  );                                      <* 
           *>    MODE_input ('m', 'a');                                                   <* 
           *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <* 
           *>    return 'a';                                                              <* 
           *>    break;                                                                   <*/
          /*> case '-'      :                                                             <* 
           *>    EDIT_start  ("-");                                                       <* 
-          *>    yVIKEYS_mode_enter  (MODE_INPUT  );                                      <* 
+          *>    MODE_enter  (MODE_INPUT  );                                      <* 
           *>    MODE_input ('m', 'a');                                                   <* 
           *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <* 
           *>    return 'a';                                                              <* 
@@ -687,60 +693,60 @@ yVIKEYS_map_mode        (char a_major, char a_minor)
       switch (a_minor) {
          /*> case '\\'     :                                                             <* 
           *>    DEBUG_USER   yLOG_note    ("selected menu mode");                        <* 
-          *>    yVIKEYS_mode_enter  (SMOD_MENUS  );                                      <* 
+          *>    MODE_enter  (SMOD_MENUS  );                                      <* 
           *>    my.menu = MENU_ROOT;                                                     <* 
           *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <* 
           *>    return 0;                                                                <* 
           *>    break;                                                                   <*/
       case '@'      :
          IF_MACRO_OFF {
-            yVIKEYS_macro_reset  ();
-            yVIKEYS_mode_enter  (SMOD_MACRO   );
+            MACRO_reset  ();
+            MODE_enter  (SMOD_MACRO   );
             DEBUG_USER   yLOG_exit    (__FUNCTION__);
             return a_minor;
          }
-         yVIKEYS_macro_reset  ();
+         MACRO_reset  ();
          DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
          return rce;
          break;
       case 'q'      :
          IF_MACRO_OFF {
-            yVIKEYS_mode_enter  (SMOD_MACRO   );
+            MODE_enter  (SMOD_MACRO   );
             DEBUG_USER   yLOG_exit    (__FUNCTION__);
             return a_minor;
          }
-         yVIKEYS_macro_rec_end ();
+         MACRO_rec_end ();
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return G_KEY_SPACE;
          break;
       case 'Q'      :
-         yVIKEYS_macro_reset ();
+         MACRO_reset ();
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return G_KEY_SPACE;
          break;
          /*> case 'F'      :                                                             <* 
-          *>    yVIKEYS_mode_enter  (SMOD_FORMAT  );                                     <* 
+          *>    MODE_enter  (SMOD_FORMAT  );                                     <* 
           *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <* 
           *>    return 0;                                                                <* 
           *>    break;                                                                   <*/
          /*> case ','      :                                                             <* 
-          *>    yVIKEYS_mode_enter  (SMOD_BUFFER  );                                     <* 
+          *>    MODE_enter  (SMOD_BUFFER  );                                     <* 
           *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <* 
           *>    return a_minor;                                                          <* 
           *>    break;                                                                   <*/
          /*> case '"'      :                                                             <* 
-          *>    yVIKEYS_mode_enter  (SMOD_REGISTER);                                     <* 
+          *>    MODE_enter  (SMOD_REGISTER);                                     <* 
           *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <* 
           *>    return a_minor;  /+ make sure double quote goes in prev char +/          <* 
           *>    break;                                                                   <*/
          /*> case 'm'      :                                                             <* 
           *> case '\''     :                                                             <* 
-          *>    yVIKEYS_mode_enter  (SMOD_MARK    );                                     <* 
+          *>    MODE_enter  (SMOD_MARK    );                                     <* 
           *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <* 
           *>    return a_minor;  /+ make sure single quote goes in prev char +/          <* 
           *>    break;                                                                   <*/
          /*> case 'E'      :                                                             <* 
-          *>    yVIKEYS_mode_enter  (SMOD_ERROR   );                                     <* 
+          *>    MODE_enter  (SMOD_ERROR   );                                     <* 
           *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <* 
           *>    return SMOD_ERROR;  /+ make sure mode indicator goes also       +/       <* 
           *>    break;                                                                   <*/
@@ -757,18 +763,18 @@ yVIKEYS_map_mode        (char a_major, char a_minor)
        *>    return 0;                                                                <* 
        *> }                                                                           <*/
       if (a_minor == 'P') {
-         yVIKEYS__map_print (&s_colmap);
-         yVIKEYS__map_print (&s_rowmap);
+         MAP__print (&s_xmap);
+         MAP__print (&x_ymap);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return G_KEY_SPACE;
       }
       if (strchr (s_hsimple, a_minor) != 0) {
-         rc = yVIKEYS_map_horz   (a_major, a_minor);
+         rc = MAP__horz   (a_major, a_minor);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return G_KEY_SPACE;
       }
       if (strchr (s_vsimple, a_minor) != 0) {
-         rc = yVIKEYS_map_vert   (a_major, a_minor);
+         rc = MAP__vert   (a_major, a_minor);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return G_KEY_SPACE;
       }
@@ -827,12 +833,12 @@ yVIKEYS_map_mode        (char a_major, char a_minor)
    /*---(goto family)--------------------*/
    if (a_major == 'g') {
       if (strchr (s_hgoto, a_minor) != 0) {
-         rc = yVIKEYS_map_horz   (a_major, a_minor);
+         rc = MAP__horz   (a_major, a_minor);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return G_KEY_SPACE;
       }
       if (strchr (s_vgoto, a_minor) != 0) {
-         rc = yVIKEYS_map_vert   (a_major, a_minor);
+         rc = MAP__vert   (a_major, a_minor);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return G_KEY_SPACE;
       }
@@ -871,47 +877,47 @@ yVIKEYS_map_mode        (char a_major, char a_minor)
 }
 
 char
-yVIKEYS__unit_rowmap    (void)
+MAP__unit_ymap          (void)
 {
    /*> printf ("running rowmap\n");                                                   <*/
-   yVIKEYS__map_load ('1', &s_rowmap);
+   MAP__load ('1', &x_ymap);
    return 0;
 }
 
 char
-yVIKEYS__unit_colmap    (void)
+MAP__unit_xmap          (void)
 {
    /*> printf ("running colmap\n");                                                   <*/
-   yVIKEYS__map_load ('w', &s_colmap);
+   MAP__load ('w', &s_xmap);
    return 0;
 }
 
 char
-yVIKEYS__unit_dismap    (void)
+MAP__unit_zmap          (void)
 {
    return 0;
 }
 
 char*        /*-> tbd --------------------------------[ leaf   [gs.520.202.40]*/ /*-[01.0000.00#.#]-*/ /*-[--.---.---.--]-*/
-yVIKEYS__map_unit       (char *a_question, char a_index)
+MAP__unit               (char *a_question, char a_index)
 {
    /*---(preprare)-----------------------*/
    strlcpy  (yVIKEYS__unit_answer, "MAP unit         : question not understood", LEN_STR);
    /*---(dependency list)----------------*/
    if      (strcmp (a_question, "horz"           )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP horz pos     : index %3d, grid %3d", s_colmap.cur, s_colmap.gcur);
+      snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP horz pos     : index %3d, grid %3d", s_xmap.cur, s_xmap.gcur);
    }
    else if (strcmp (a_question, "horz_unit"      )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP horz units   : a %3d, b %3d, c %3d, e %3d, t %3d, l %3d", s_colmap.avail, s_colmap.beg, s_colmap.cur, s_colmap.end, s_colmap.tend, s_colmap.len);
+      snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP horz units   : a %3d, b %3d, c %3d, e %3d, t %3d, l %3d", s_xmap.avail, s_xmap.beg, s_xmap.cur, s_xmap.end, s_xmap.tend, s_xmap.len);
    }
    else if (strcmp (a_question, "horz_grid"      )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP horz grids   :        b %3d, c %3d, e %3d", s_colmap.gbeg, s_colmap.gcur, s_colmap.gend);
+      snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP horz grids   :        b %3d, c %3d, e %3d", s_xmap.gbeg, s_xmap.gcur, s_xmap.gend);
    }
    else if (strcmp (a_question, "vert_unit"      )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP vert units   : a %3d, b %3d, c %3d, e %3d, t %3d, l %3d", s_rowmap.avail, s_rowmap.beg, s_rowmap.cur, s_rowmap.end, s_rowmap.tend, s_rowmap.len);
+      snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP vert units   : a %3d, b %3d, c %3d, e %3d, t %3d, l %3d", x_ymap.avail, x_ymap.beg, x_ymap.cur, x_ymap.end, x_ymap.tend, x_ymap.len);
    }
    else if (strcmp (a_question, "vert_grid"      )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP vert grids   :        b %3d, c %3d, e %3d", s_rowmap.gbeg, s_rowmap.gcur, s_rowmap.gend);
+      snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP vert grids   :        b %3d, c %3d, e %3d", x_ymap.gbeg, x_ymap.gcur, x_ymap.gend);
    }
    /*---(complete)-----------------------*/
    return yVIKEYS__unit_answer;

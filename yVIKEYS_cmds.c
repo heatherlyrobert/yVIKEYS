@@ -30,6 +30,7 @@ static tMENU  s_menus [MAX_MENU] = {
    { 't', "tools"     , "spelling, error checks, macros, controls"     , 0},
    { 'b', "buffers"   , ""                                             , 0},
    { 'a', "audit"     , ""                                             , 0},
+   { 'c', "config"    , ""                                             , 0},
    { ' ', ""          , ""                                             , 0},
 };
 static  int s_nmenu  = 0;
@@ -146,13 +147,19 @@ static char s_escaped   = '-';
 static void  o___SEARCH__________o () { return; }
 
 char
-yVIKEYS_srch_init       (void *a_searcher, void *a_clearer)
+SRCH_init               (void)
 {
    s_nsrch    = MAX_SRCH;
    s_searcher = NULL;
    s_clearer  = NULL;
    SRCH__clear  ();
    SRCH__purge ();
+   return 0;
+}
+
+char
+yVIKEYS_srch_config     (void *a_searcher, void *a_clearer)
+{
    s_searcher = a_searcher;
    s_clearer  = a_clearer;
    return 0;
@@ -225,15 +232,15 @@ SRCH_mode               (char a_major, char a_minor)
    DEBUG_USER   yLOG_value   ("a_major"   , a_major);
    DEBUG_USER   yLOG_value   ("a_minor"   , a_minor);
    /*---(defense)------------------------*/
-   DEBUG_USER   yLOG_char    ("mode"      , yVIKEYS_mode_curr ());
-   --rce;  if (yVIKEYS_mode_not (MODE_SEARCH )) {
+   DEBUG_USER   yLOG_char    ("mode"      , MODE_curr ());
+   --rce;  if (MODE_not (MODE_SEARCH )) {
       DEBUG_USER   yLOG_note    ("not the correct mode");
       DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    --rce;  if (a_major != '/') {
       DEBUG_USER   yLOG_note    ("a_major is not a slash (/)");
-      yVIKEYS_mode_exit ();
+      MODE_exit  ();
       DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
@@ -254,13 +261,13 @@ SRCH_mode               (char a_major, char a_minor)
    /*---(check for control keys)---------*/
    switch (a_minor) {
    case   G_KEY_RETURN :
-      yVIKEYS_mode_exit ();
+      MODE_exit  ();
       SRCH__exec        ();
       DEBUG_USER   yLOG_note    ("return, execute search");
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return rc;   /* return  */
    case   G_KEY_ESCAPE :
-      yVIKEYS_mode_exit ();
+      MODE_exit  ();
       SRCH__clear ();
       DEBUG_USER   yLOG_note    ("escape, ignore search");
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
@@ -302,9 +309,8 @@ SRCH_mode               (char a_major, char a_minor)
 /*====================------------------------------------====================*/
 static void  o___CMDS_UTIL_______o () { return; }
 
-char yVIKEYS_quit            (void) { if (its.done == 'y') return 1; return 0; }
-char CMDS__quit              (void) { its.done = 'y'; return 0; }
-char CMDS__writequit         (void) { its.done = 'y'; return 0; }
+char CMDS__quit              (void) { myVIKEYS.done = 'y'; return 0; }
+char CMDS__writequit         (void) { myVIKEYS.done = 'y'; return 0; }
 
 int
 CMDS__find           (char *a_name)
@@ -377,7 +383,7 @@ CMDS_init               (void)
       s_cmds [i].disp  [0] = 0;
    }
    /*---(other)--------------------------*/
-   its.done = '-';
+   myVIKEYS.done = '-';
    yVIKEYS_cmds_add ('f', "quit"        , "q"   , ""     , CMDS__quit           , "quit current file (if no changes), exit if the only file"    );
    yVIKEYS_cmds_add ('f', "quitall"     , "qa"  , ""     , CMDS__quit           , "quit all files (if no changes), and exit"                    );
    yVIKEYS_cmds_add ('f', "writequit"   , "wq"  , ""     , CMDS__writequit      , ""                                                            );
@@ -690,15 +696,15 @@ CMDS_mode             (char a_major, char a_minor)
    DEBUG_USER   yLOG_value   ("a_major"   , a_major);
    DEBUG_USER   yLOG_value   ("a_minor"   , a_minor);
    /*---(defense)------------------------*/
-   DEBUG_USER   yLOG_char    ("mode"      , yVIKEYS_mode_curr ());
-   --rce;  if (yVIKEYS_mode_not (MODE_COMMAND)) {
+   DEBUG_USER   yLOG_char    ("mode"      , MODE_curr ());
+   --rce;  if (MODE_not (MODE_COMMAND)) {
       DEBUG_USER   yLOG_note    ("not the correct mode");
       DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    --rce;  if (a_major != ':') {
       DEBUG_USER   yLOG_note    ("a_major is not a colon (:)");
-      yVIKEYS_mode_exit ();
+      MODE_exit  ();
       DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
@@ -732,13 +738,14 @@ CMDS_mode             (char a_major, char a_minor)
       switch (a_minor) {
       case   G_KEY_RETURN : case   G_KEY_ENTER  :
          DEBUG_USER   yLOG_note    ("return/enter, execute command");
-         yVIKEYS_mode_exit ();
+         MODE_exit  ();
          rc = CMDS__exec ();
+         CMDS__clear ();
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return rc;   /* return  */
       case   G_KEY_ESCAPE :
          DEBUG_USER   yLOG_note    ("escape, ignore command");
-         yVIKEYS_mode_exit ();
+         MODE_exit  ();
          CMDS__clear ();
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return 0;
