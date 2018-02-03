@@ -30,8 +30,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.7a"
-#define YVIKEYS_VER_TXT   "overlays and layers are working now for gregg"
+#define YVIKEYS_VER_NUM   "0.7b"
+#define YVIKEYS_VER_TXT   "mapper is now working with gregg (strange/challenging)"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/

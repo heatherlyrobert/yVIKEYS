@@ -5,9 +5,7 @@
 
 
 
-char    (*s_xmapper) (char a_type);
-char    (*s_ymapper) (char a_type);
-char    (*s_zmapper) (char a_type);
+char    (*s_mapper) (char a_type);
 
 
 
@@ -60,19 +58,23 @@ MAP__print           (tMAPPED *a_map)
 {
    int         i           =    0;
    /*---(headers)------------------------*/
-   printf ("gmin amin lmin prev beg-    ");
-   for (i = 0; i < LEN_MAP; ++i) {
-      if (a_map->map [i] == YVIKEYS_EMPTY)  break;
-      printf ("%4d "  , i);
-   }
-   printf ("   end- next lmax amax gmax\n");
+   printf ("gmin amin lmin prev    ");
+   /*> for (i = 0; i < LEN_MAP; ++i) {                                                <* 
+    *>    if (a_map->map [i] == YVIKEYS_EMPTY)  break;                                <* 
+    *>    printf ("%4d "  , i);                                                       <* 
+    *> }                                                                              <* 
+    *> printf ("   ");                                                                <*/
+   printf ("next lmax amax gmax    aval beg- cur- end- len- tend\n");
    /*---(content)------------------------*/
-   printf ("%4d %4d %4d %4d %4d    "  , a_map->gmin, a_map->amin, a_map->lmin, a_map->prev, a_map->beg);
-   for (i = 0; i < LEN_MAP; ++i) {
-      if (a_map->map [i] == YVIKEYS_EMPTY)  break;
-      printf ("%4d "  , a_map->map [i]);
-   }
-   printf ("   %4d %4d %4d %4d %4d\n", a_map->end, a_map->next, a_map->lmax, a_map->amax, a_map->gmax);
+   printf ("%4d %4d %4d %4d    "         , a_map->gmin , a_map->amin , a_map->lmin , a_map->prev );
+   /*> for (i = 0; i < LEN_MAP; ++i) {                                                <* 
+    *>    if (a_map->map [i] == YVIKEYS_EMPTY)  break;                                <* 
+    *>    printf ("%4d "  , a_map->map [i]);                                          <* 
+    *> }                                                                              <* 
+    *> printf ("   ");                                                                <*/
+   /*---(end)----------------------------*/
+   printf ("%4d %4d %4d %4d"              , a_map->next , a_map->lmax , a_map->amax , a_map->gmax );
+   printf ("   %4d %4d %4d %4d %4d %4d\n", a_map->avail, a_map->beg  , a_map->cur  , a_map->end  , a_map->len  , a_map->tend );
    return 0;
 }
 
@@ -165,15 +167,11 @@ MAP__load             (char a_style, tMAPPED *a_map)
 }
 
 char
-yVIKEYS_map_config     (char a_coord, void *a_xmapper, void *a_ymapper, void *a_zmapper)
+yVIKEYS_map_config     (char a_coord, void *a_mapper)
 {
    g_coord    = a_coord;
-   s_xmapper  = a_xmapper;
-   s_ymapper  = a_ymapper;
-   s_zmapper  = a_zmapper;
-   if (s_xmapper != NULL)  s_xmapper ('i');
-   if (s_ymapper != NULL)  s_ymapper ('i');
-   if (s_zmapper != NULL)  s_zmapper ('i');
+   s_mapper   = a_mapper;
+   if (s_mapper != NULL)  s_mapper (YVIKEYS_INIT);
    return 0;
 }
 
@@ -181,9 +179,10 @@ char
 MAP_init               (void)
 {
    g_coord    = YVIKEYS_OFFICE;
-   s_xmapper  = NULL;
-   s_ymapper  = NULL;
-   s_zmapper  = NULL;
+   s_mapper   = NULL;
+   MAP__clear (&g_xmap);
+   MAP__clear (&g_ymap);
+   MAP__clear (&g_zmap);
    return 0;
 }
 
@@ -441,18 +440,18 @@ MAP__vert             (char a_major, char a_minor)
    DEBUG_USER  yLOG_char    ("a_major"   , a_major);
    DEBUG_USER  yLOG_char    ("a_minor"   , a_minor);
    /*---(prepare)------------------------*/
-   x_grid      = x_ymap.gcur;
+   x_grid      = g_ymap.gcur;
    DEBUG_USER  yLOG_value   ("x_grid"    , x_grid);
-   x_qtr       = (x_ymap.avail - g_gsizey) / 4.0;
+   x_qtr       = (g_ymap.avail - g_gsizey) / 4.0;
    DEBUG_USER  yLOG_double  ("x_qtr"     , x_qtr);
-   x_gmax  = x_ymap.map [x_ymap.gmax - g_gsizey];
+   x_gmax  = g_ymap.map [g_ymap.gmax - g_gsizey];
    DEBUG_USER  yLOG_value   ("x_gmax"    , x_gmax);
    /*---(simple)-------------------------*/
    DEBUG_USER  yLOG_info    ("s_vsimple" , s_vsimple);
    if (a_major == ' ' && strchr (s_vsimple, a_minor) != NULL) {
       if (g_coord == YVIKEYS_OFFICE) {
          switch (a_minor) {
-         case '_' : x_grid  = x_ymap.map [x_ymap.gmin];  break;
+         case '_' : x_grid  = g_ymap.map [g_ymap.gmin];  break;
          case 'K' : x_grid -= g_gsizey * 5;  break;
          case 'k' : x_grid -= g_gsizey;      break;
          case 'j' : x_grid += g_gsizey;      break;
@@ -461,7 +460,7 @@ MAP__vert             (char a_major, char a_minor)
          }
       } else {
          switch (a_minor) {
-         case '~' : x_grid  = x_ymap.map [x_ymap.gmin];  break;
+         case '~' : x_grid  = g_ymap.map [g_ymap.gmin];  break;
          case 'J' : x_grid -= g_gsizey * 5;  break;
          case 'j' : x_grid -= g_gsizey;      break;
          case 'k' : x_grid += g_gsizey;      break;
@@ -475,40 +474,45 @@ MAP__vert             (char a_major, char a_minor)
    if (a_major == 'g' && strchr (s_vgoto  , a_minor) != NULL) {
       if (g_coord == YVIKEYS_OFFICE) {
          switch (a_minor) {
-         case 'T' : x_unit  = x_ymap.beg - (x_qtr * 4); break;
-         case 'K' : x_unit  = x_ymap.beg - (x_qtr * 2); break;
-         case 't' : x_unit  = x_ymap.beg;               break;
-         case 'k' : x_unit  = x_ymap.beg + (x_qtr * 1); break;
-         case 'm' : x_unit  = x_ymap.beg + (x_qtr * 2); break;
-         case 'j' : x_unit  = x_ymap.beg + (x_qtr * 3); break;
-         case 'b' : x_unit  = x_ymap.beg + (x_qtr * 4); break;
-         case 'J' : x_unit  = x_ymap.beg + (x_qtr * 6); break;
-         case 'B' : x_unit  = x_ymap.beg + (x_qtr * 8); break;
+         case 'T' : x_unit  = g_ymap.beg - (x_qtr * 4); break;
+         case 'K' : x_unit  = g_ymap.beg - (x_qtr * 2); break;
+         case 't' : x_unit  = g_ymap.beg;               break;
+         case 'k' : x_unit  = g_ymap.beg + (x_qtr * 1); break;
+         case 'm' : x_unit  = g_ymap.beg + (x_qtr * 2); break;
+         case 'j' : x_unit  = g_ymap.beg + (x_qtr * 3); break;
+         case 'b' : x_unit  = g_ymap.beg + (x_qtr * 4); break;
+         case 'J' : x_unit  = g_ymap.beg + (x_qtr * 6); break;
+         case 'B' : x_unit  = g_ymap.beg + (x_qtr * 8); break;
          }
       } else {
          switch (a_minor) {
-         case 'B' : x_unit  = x_ymap.beg - (x_qtr * 4); break;
-         case 'J' : x_unit  = x_ymap.beg - (x_qtr * 2); break;
-         case 'b' : x_unit  = x_ymap.beg;               break;
-         case 'j' : x_unit  = x_ymap.beg + (x_qtr * 1); break;
-         case 'm' : x_unit  = x_ymap.beg + (x_qtr * 2); break;
-         case 'k' : x_unit  = x_ymap.beg + (x_qtr * 3); break;
-         case 't' : x_unit  = x_ymap.beg + (x_qtr * 4); break;
-         case 'K' : x_unit  = x_ymap.beg + (x_qtr * 6); break;
-         case 'T' : x_unit  = x_ymap.beg + (x_qtr * 8); break;
+         case 'B' : x_unit  = g_ymap.beg - (x_qtr * 4); break;
+         case 'J' : x_unit  = g_ymap.beg - (x_qtr * 2); break;
+         case 'b' : x_unit  = g_ymap.beg;               break;
+         case 'j' : x_unit  = g_ymap.beg + (x_qtr * 1); break;
+         case 'm' : x_unit  = g_ymap.beg + (x_qtr * 2); break;
+         case 'k' : x_unit  = g_ymap.beg + (x_qtr * 3); break;
+         case 't' : x_unit  = g_ymap.beg + (x_qtr * 4); break;
+         case 'K' : x_unit  = g_ymap.beg + (x_qtr * 6); break;
+         case 'T' : x_unit  = g_ymap.beg + (x_qtr * 8); break;
          }
       }
-      if (x_unit < x_ymap.gmin)  x_unit = x_ymap.gmin;
-      if (x_unit > x_ymap.gmax)  x_unit = x_ymap.gmax;
-      x_grid  = x_ymap.map [x_unit];
+      if (x_unit < g_ymap.gmin)  x_unit = g_ymap.gmin;
+      if (x_unit > g_ymap.gmax)  x_unit = g_ymap.gmax;
+      x_grid  = g_ymap.map [x_unit];
    }
    /*---(check screen)-------------------*/
    if (x_grid > x_gmax)  x_grid = x_gmax;
    x_grid /= g_gsizey;
    x_grid *= g_gsizey;
    DEBUG_USER  yLOG_value   ("x_grid new", x_grid);
-   MAP__move   (x_grid, &x_ymap);
-   MAP__screen (&x_ymap);
+   MAP__move   (x_grid, &g_ymap);
+   MAP__screen (&g_ymap);
+   if (s_mapper != NULL) {
+      s_mapper (YVIKEYS_UPDATE);
+      MAP__print (&g_xmap);
+      MAP__print (&g_ymap);
+   }
    /*---(complete)-----------------------*/
    DEBUG_USER  yLOG_exit    (__FUNCTION__);
    return G_KEY_SPACE;
@@ -528,19 +532,19 @@ MAP__horz             (char a_major, char a_minor)
    DEBUG_USER  yLOG_char    ("a_major"   , a_major);
    DEBUG_USER  yLOG_char    ("a_minor"   , a_minor);
    /*---(prepare)------------------------*/
-   x_grid      = s_xmap.gcur;
+   x_grid      = g_xmap.gcur;
    DEBUG_USER  yLOG_value   ("x_grid"    , x_grid);
-   x_qtr       = (s_xmap.avail - g_gsizex) / 4.0;
+   x_qtr       = (g_xmap.avail - g_gsizex) / 4.0;
    DEBUG_USER  yLOG_double  ("x_qtr"     , x_qtr);
-   x_beg       = s_xmap.beg;
+   x_beg       = g_xmap.beg;
    DEBUG_USER  yLOG_double  ("x_beg"     , x_beg);
-   x_gmax  = s_xmap.map [s_xmap.gmax - g_gsizex];
+   x_gmax  = g_xmap.map [g_xmap.gmax - g_gsizex];
    DEBUG_USER  yLOG_value   ("x_gmax"    , x_gmax);
    /*---(simple)-------------------------*/
    DEBUG_USER  yLOG_info    ("s_hsimple" , s_hsimple);
    if (a_major == ' ' && strchr (s_hsimple, a_minor) != NULL) {
       switch (a_minor) {
-      case '0' : x_grid  = s_xmap.map [s_xmap.gmin];   break;
+      case '0' : x_grid  = g_xmap.map [g_xmap.gmin];   break;
       case 'H' : x_grid -= g_gsizex * 5;                   break;
       case 'h' : x_grid -= g_gsizex;                       break;
       case 'l' : x_grid += g_gsizex;                       break;
@@ -562,17 +566,22 @@ MAP__horz             (char a_major, char a_minor)
       case 'L' : x_unit  = x_beg + (x_qtr * 6);            break;
       case 'E' : x_unit  = x_beg + (x_qtr * 8);            break;
       }
-      if (x_unit < s_xmap.gmin)  x_unit = s_xmap.gmin;
-      if (x_unit > s_xmap.gmax)  x_unit = s_xmap.gmax;
-      x_grid  = s_xmap.map [x_unit];
+      if (x_unit < g_xmap.gmin)  x_unit = g_xmap.gmin;
+      if (x_unit > g_xmap.gmax)  x_unit = g_xmap.gmax;
+      x_grid  = g_xmap.map [x_unit];
    }
    /*---(check screen)-------------------*/
    if (x_grid > x_gmax)  x_grid = x_gmax;
    x_grid /= g_gsizex;
    x_grid *= g_gsizex;
    DEBUG_USER  yLOG_value   ("x_grid new", x_grid);
-   MAP__move   (x_grid, &s_xmap);
-   MAP__screen (&s_xmap);
+   MAP__move   (x_grid, &g_xmap);
+   MAP__screen (&g_xmap);
+   if (s_mapper != NULL) {
+      s_mapper (YVIKEYS_UPDATE);
+      MAP__print (&g_xmap);
+      MAP__print (&g_ymap);
+   }
    /*---(complete)-----------------------*/
    DEBUG_USER  yLOG_exit    (__FUNCTION__);
    return G_KEY_SPACE;
@@ -763,8 +772,8 @@ MAP_mode                (char a_major, char a_minor)
        *>    return 0;                                                                <* 
        *> }                                                                           <*/
       if (a_minor == 'P') {
-         MAP__print (&s_xmap);
-         MAP__print (&x_ymap);
+         MAP__print (&g_xmap);
+         MAP__print (&g_ymap);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return G_KEY_SPACE;
       }
@@ -880,7 +889,7 @@ char
 MAP__unit_ymap          (void)
 {
    /*> printf ("running rowmap\n");                                                   <*/
-   MAP__load ('1', &x_ymap);
+   MAP__load ('1', &g_ymap);
    return 0;
 }
 
@@ -888,7 +897,7 @@ char
 MAP__unit_xmap          (void)
 {
    /*> printf ("running colmap\n");                                                   <*/
-   MAP__load ('w', &s_xmap);
+   MAP__load ('w', &g_xmap);
    return 0;
 }
 
@@ -905,19 +914,19 @@ MAP__unit               (char *a_question, char a_index)
    strlcpy  (yVIKEYS__unit_answer, "MAP unit         : question not understood", LEN_STR);
    /*---(dependency list)----------------*/
    if      (strcmp (a_question, "horz"           )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP horz pos     : index %3d, grid %3d", s_xmap.cur, s_xmap.gcur);
+      snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP horz pos     : index %3d, grid %3d", g_xmap.cur, g_xmap.gcur);
    }
    else if (strcmp (a_question, "horz_unit"      )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP horz units   : a %3d, b %3d, c %3d, e %3d, t %3d, l %3d", s_xmap.avail, s_xmap.beg, s_xmap.cur, s_xmap.end, s_xmap.tend, s_xmap.len);
+      snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP horz units   : a %3d, b %3d, c %3d, e %3d, t %3d, l %3d", g_xmap.avail, g_xmap.beg, g_xmap.cur, g_xmap.end, g_xmap.tend, g_xmap.len);
    }
    else if (strcmp (a_question, "horz_grid"      )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP horz grids   :        b %3d, c %3d, e %3d", s_xmap.gbeg, s_xmap.gcur, s_xmap.gend);
+      snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP horz grids   :        b %3d, c %3d, e %3d", g_xmap.gbeg, g_xmap.gcur, g_xmap.gend);
    }
    else if (strcmp (a_question, "vert_unit"      )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP vert units   : a %3d, b %3d, c %3d, e %3d, t %3d, l %3d", x_ymap.avail, x_ymap.beg, x_ymap.cur, x_ymap.end, x_ymap.tend, x_ymap.len);
+      snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP vert units   : a %3d, b %3d, c %3d, e %3d, t %3d, l %3d", g_ymap.avail, g_ymap.beg, g_ymap.cur, g_ymap.end, g_ymap.tend, g_ymap.len);
    }
    else if (strcmp (a_question, "vert_grid"      )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP vert grids   :        b %3d, c %3d, e %3d", x_ymap.gbeg, x_ymap.gcur, x_ymap.gend);
+      snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP vert grids   :        b %3d, c %3d, e %3d", g_ymap.gbeg, g_ymap.gcur, g_ymap.gend);
    }
    /*---(complete)-----------------------*/
    return yVIKEYS__unit_answer;

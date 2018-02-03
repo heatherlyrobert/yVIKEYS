@@ -97,9 +97,9 @@ struct cMAPPED {
    int         gend;                        /* grid at end of screen          */
    /*---(done)-----------------*/
 };
-tMAPPED     s_xmap;
-tMAPPED     x_ymap;
-tMAPPED     x_zmap;
+tMAPPED     g_xmap;
+tMAPPED     g_ymap;
+tMAPPED     g_zmap;
 #define     YVIKEYS_EMPTY   -666
 #define     YVIKEYS_INIT    'i'
 #define     YVIKEYS_UPDATE  'u'
@@ -139,6 +139,7 @@ tMAPPED     x_zmap;
 #define      YVIKEYS_OVERLAY     'O'
 #define      YVIKEYS_LAYERS      'L'
 #define      YVIKEYS_FLOAT       'F'
+#define      YVIKEYS_BACK        'B'
 
 
 
@@ -189,13 +190,13 @@ char        yVIKEYS_view_text         (cchar  a_part , cchar *a_text);
 char        yVIKEYS_view_wrap         (void);
 char        yVIKEYS_view_all          (float a_mag);
 
-char        yVIKEYS_layer_add         (char *a_name, void *a_drawer);
+char        yVIKEYS_layer_add         (char *a_name, void *a_drawer, char *a_desc);
 
 char        yVIKEYS_view_ribbon_clear (void);
 char        yVIKEYS_view_ribbon       (char *a_cat, char *a_name);
 
 /*---(map mode)-------------*/
-char        yVIKEYS_map_config        (char a_coord, void *a_xmapper, void *a_ymapper, void *a_zmapper);
+char        yVIKEYS_map_config        (char a_coord, void *a_mapper);
 
 char        yVIKEYS_mode_change       (char a_mode, char *a_allow, char *a_mesg);
 

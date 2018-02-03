@@ -69,6 +69,7 @@ static tWIN   s_win;
 #define      OWN_PARTLY       'p'   /* change hiding, color, and drawing      */
 #define      OWN_LITTLE       's'   /* change anything and everything         */
 #define      OWN_MAIN         'm'   /* change anything and everything         */
+#define      OWN_UNDERLAY     'u'   /* drawn before main                      */
 #define      OWN_OVERLAY      'o'   /* drawn after everything else            */
 #define      OWN_DATA         '-'   /* just a data holder                     */
 
@@ -182,11 +183,18 @@ static int  s_noption  = 0;
 #define      MAX_LAYERS    200
 typedef struct cLAYER  tLAYER;
 struct cLAYER {
+   char        real;
    char        name        [LEN_LABEL];
    char        on;
    char        (*drawer) (void);
+   char        desc        [LEN_DESC ];
 };
-tLAYER  s_layers [MAX_LAYERS];
+tLAYER  s_layers [MAX_LAYERS] = {
+   { '-', "show"        , '-', NULL, "show layers on display"                  },
+   { '-', "hide"        , '-', NULL, "do not show layers on display"           },
+   { '-', "all"         , '-', NULL, "select all all layers for display"       },
+   { '-', "none"        , '-', NULL, "unselect all layers for display"         },
+};
 static int s_nlayer     = 0;
 
 
@@ -1254,8 +1262,8 @@ static void  o___DRAWING_________o () { return; }
 char          /*----: draw the saved status ----------------------------------*/
 VIEW__cursor             (void)
 {
-   int         x_lef   = s_xmap.cur / s_mag;
-   int         x_bot   = x_ymap.cur / s_mag;
+   int         x_lef   = g_xmap.cur / s_mag;
+   int         x_bot   = g_ymap.cur / s_mag;
    int         x_rig   = x_lef + (g_gsizex / s_mag);
    int         x_top   = x_bot + (g_gsizey / s_mag);
    char        n           = 0;
@@ -1291,8 +1299,8 @@ VIEW__grid               (void)
    if (s_parts [n].on == '-')  return 0;
    /*---(x grid)-------------------------*/
    glPushMatrix    (); {
-      x_beg = s_xmap.gmin;
-      x_end = s_xmap.gmax;
+      x_beg = g_xmap.gmin;
+      x_end = g_xmap.gmax;
       x_inc = g_gsizex;
       glColor4f     (0.0, 0.3, 0.0, 0.5);
       glLineWidth   (1.5);
@@ -1301,8 +1309,8 @@ VIEW__grid               (void)
       for (i = x_beg; i <= x_end; i += x_inc) {
          if (c % 5 ==  0) {
             glBegin         (GL_LINES); {
-               glVertex3f  (0.0f  , x_ymap.gmin,  0.0f);
-               glVertex3f  (0.0f  , x_ymap.gmax,  0.0f);
+               glVertex3f  (0.0f  , g_ymap.gmin,  0.0f);
+               glVertex3f  (0.0f  , g_ymap.gmax,  0.0f);
             } glEnd   ();
          }
          glTranslatef  (x_inc / s_mag, 0.0    ,  0.0);
@@ -1311,9 +1319,9 @@ VIEW__grid               (void)
    } glPopMatrix   ();
    /*---(y grid)-------------------------*/
    glPushMatrix    (); {
-      x_beg = x_ymap.gmin;
+      x_beg = g_ymap.gmin;
       /*> printf ("x_beg %3d, x_end %3d, x_inc %3d\n", x_beg, x_end, x_inc);          <*/
-      x_end = x_ymap.gmax;
+      x_end = g_ymap.gmax;
       x_inc = g_gsizey;
       glColor4f     (0.0, 0.3, 0.0, 0.5);
       glLineWidth   (1.5);
@@ -1322,8 +1330,8 @@ VIEW__grid               (void)
       for (i = x_beg; i <= x_end; i += x_inc) {
          if (c % 5 ==  0) {
             glBegin         (GL_LINES); {
-               glVertex3f  (s_xmap.gmin, 0.0f,  0.0f);
-               glVertex3f  (s_xmap.gmax, 0.0f,  0.0f);
+               glVertex3f  (g_xmap.gmin, 0.0f,  0.0f);
+               glVertex3f  (g_xmap.gmax, 0.0f,  0.0f);
             } glEnd   ();
          }
          glTranslatef  (0.0, x_inc / s_mag,  0.0);
@@ -1337,8 +1345,8 @@ VIEW__grid               (void)
       glLineWidth   (1.5);
       glColor4f     (0.0, 0.3, 0.0, 0.5);
       glTranslatef  (0.0, g_goffy, 50.0);
-      for (y = x_ymap.gmin; y <= x_ymap.gmax; y += g_gsizey) {
-         for (x = s_xmap.gmin; x <= s_xmap.gmax; x += g_gsizex) {
+      for (y = g_ymap.gmin; y <= g_ymap.gmax; y += g_gsizey) {
+         for (x = g_xmap.gmin; x <= g_xmap.gmax; x += g_gsizex) {
             /*> glBegin         (GL_POINTS); {                                        <* 
              *>    glVertex3f  (x / s_mag, y / s_mag,  0.0f);                         <* 
              *> } glEnd   ();                                                         <*/
@@ -1461,36 +1469,6 @@ VIEW__layer_list         (void)
    return 0;
 }
 
-char
-yVIKEYS_layer_add           (char *a_name, void *a_drawer)
-{
-   /*---(locals)-----------+-----+-----+-*/
-   char        rce         =  -10;
-   /*---(header)-------------------------*/
-   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
-   /*---(defense)------------------------*/
-   DEBUG_GRAF   yLOG_point   ("a_name"    , a_name);
-   --rce;  if (a_name == NULL) {
-      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   DEBUG_GRAF   yLOG_info    ("a_name"    , a_name);
-   DEBUG_GRAF   yLOG_point   ("a_drawer"  , a_drawer);
-   --rce;  if (a_drawer == NULL) {
-      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   /*---(add)----------------------------*/
-   strlcpy (s_layers [s_nlayer].name, a_name, LEN_LABEL);
-   s_layers [s_nlayer].drawer = a_drawer;
-   s_layers [s_nlayer].on     = '-';
-   ++s_nlayer;
-   VIEW__layer_list ();
-   /*---(complete)-----------------------*/
-   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
-   return 0;
-}
-
 int
 VIEW__layer_find         (char *a_name)
 {
@@ -1525,6 +1503,46 @@ VIEW__layer_find         (char *a_name)
 }
 
 char
+yVIKEYS_layer_add           (char *a_name, void *a_drawer, char *a_desc)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   int         n           =   -1;
+   /*---(header)-------------------------*/
+   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   DEBUG_GRAF   yLOG_point   ("a_name"    , a_name);
+   --rce;  if (a_name == NULL) {
+      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_GRAF   yLOG_info    ("a_name"    , a_name);
+   DEBUG_GRAF   yLOG_point   ("a_drawer"  , a_drawer);
+   --rce;  if (a_drawer == NULL) {
+      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(check for dup)------------------*/
+   n = VIEW__layer_find (a_name);
+   DEBUG_GRAF   yLOG_value   ("n"         , n);
+   --rce;  if (n >= 0) {
+      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(add)----------------------------*/
+   s_layers [s_nlayer].real   = 'y';
+   strlcpy (s_layers [s_nlayer].name, a_name, LEN_LABEL);
+   s_layers [s_nlayer].on     = '-';
+   s_layers [s_nlayer].drawer = a_drawer;
+   if (a_desc != NULL)  strlcpy (s_layers [s_nlayer].desc, a_desc, LEN_DESC);
+   ++s_nlayer;
+   /*> VIEW__layer_list ();                                                           <*/
+   /*---(complete)-----------------------*/
+   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char
 VIEW__layer_set          (char *a_name)
 {
    /*---(locals)-----------+-----+-----+-*/
@@ -1549,8 +1567,8 @@ VIEW__layer_set          (char *a_name)
    /*---(set the flag)-------------------*/
    DEBUG_GRAF   yLOG_char    ("current"   , s_parts [n].on);
    x_on = s_parts [n].on;
-   if      (strcmp (a_name, "hide") == 0)  s_parts [n].on = '-';
-   else if (strcmp (a_name, "show") == 0)  s_parts [n].on = 'y';
+   if      (strcmp (a_name, "hide") == 0)  { s_parts [n].on = '-'; a = 0; }
+   else if (strcmp (a_name, "show") == 0)  { s_parts [n].on = 'y'; a = 0; }
    else {
       for (i = 0; i < s_nlayer; ++i) {
          DEBUG_GRAF   yLOG_info    ("layer"     , s_layers [i].name);
@@ -1558,18 +1576,22 @@ VIEW__layer_set          (char *a_name)
          if (strcmp ("none", a_name) == 0) {
             DEBUG_GRAF   yLOG_note    ("turn all off");
             s_parts [n].on  = '-';
-            s_layers [i].on = '-';
+            if (s_layers [i].real == 'y') s_layers [i].on = '-';
+            a = i;
             continue;
          }
          if (strcmp ("all" , a_name) == 0) {
             DEBUG_GRAF   yLOG_note    ("turn all on");
             s_parts [n].on  = 'y';
-            s_layers [i].on = 'y';
+            if (s_layers [i].real == 'y') s_layers [i].on = 'y';
+            a = i;
             continue;
          }
          /*---(handle individual)--------*/
+         if (s_layers [i].real == '-')                     continue;
          if (s_layers [i].name [0] != a_name  [0])         continue;
          if (strcmp (s_layers [i].name, a_name) != 0)      continue;
+         a = i;
          DEBUG_GRAF   yLOG_note    ("select this one");
          if (s_layers [i].on == 'y')  s_layers [i].on    = '-';
          else  {
@@ -1578,6 +1600,11 @@ VIEW__layer_set          (char *a_name)
          }
          break;
       }
+   }
+   --rce;  if (a < 0) {
+      DEBUG_GRAF   yLOG_note    ("no layer found");
+      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
    }
    DEBUG_GRAF   yLOG_char    ("new"       , s_parts [n].on);
    /*---(complete)-----------------------*/
@@ -1630,6 +1657,7 @@ VIEW__opengl             (char a)
    glPushMatrix    (); {
       yVIKEYS_view_color (s_parts [a].color, 1.0);
       if (s_parts [a].abbr == YVIKEYS_VERSION && yURG_debugmode () == 'y')  yVIKEYS_view_color_adj (s_parts [a].color, YCOLOR_ACC, 1.0);
+      if (s_parts [a].abbr == YVIKEYS_STATUS  && yVIKEYS_error  ())         yVIKEYS_view_color_adj (s_parts [a].color, YCOLOR_ACC, 1.0);
       glBegin         (GL_POLYGON); {
          glVertex3f  (s_parts [a].xmin, y_max           , -100.0f);
          glVertex3f  (x_max           , y_max           , -100.0f);
