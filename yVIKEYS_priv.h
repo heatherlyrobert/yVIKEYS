@@ -20,6 +20,7 @@
 /*---(posix standard)--------------------*/
 #include   <GL/gl.h>              /* opengl standard primary header           */
 #include   <GL/glx.h>             /* opengl standard X11 integration          */
+#include    <ncurses.h>      /* CURSES : mvprintw, refresh, getch, ...        */
 
 
 
@@ -30,8 +31,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.7c"
-#define YVIKEYS_VER_TXT   "full rework and complete unit testing of resizing for ncurses"
+#define YVIKEYS_VER_NUM   "0.7d"
+#define YVIKEYS_VER_TXT   "tentatively added ncurses capability to drawing"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/

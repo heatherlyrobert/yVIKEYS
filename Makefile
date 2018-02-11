@@ -6,9 +6,9 @@
 # basename of executable, header, and all code files
 NAME_BASE  = yVIKEYS
 # additional standard and outside libraries
-LIB_STD    = 
+LIB_STD    = -lGL -lncurses
 # all heatherly libraries used, debug versions whenever available
-LIB_MINE   = -lySTR_debug -lyFONT_debug -lyCOLOR_debug -lyX11_debug -lGL
+LIB_MINE   = -lySTR_debug -lyFONT_debug -lyCOLOR_debug -lyX11_debug
 # directory for production code, no trailing slash
 INST_DIR   = 
 

@@ -30,6 +30,7 @@ char  VIEW__layer_set          (char *a_name);
 
 
 
+static char   s_testmode   = '-';
 static char   s_env        = YVIKEYS_OPENGL;
 static int    s_orig_wide  = 0;
 static int    s_orig_tall  = 0;
@@ -39,6 +40,8 @@ static int    s_alt_wide   = 0;
 static int    s_full_wide  = 0;
 static int    s_full_tall  = 0;
 
+
+static char   s_empty       [500] = "                                                                                                                                                                                                                                                                                                            ";
 
 
 /*===[[ LAYOUT ]]=============================================================*/
@@ -762,15 +765,19 @@ VIEW__resize             (cchar a_type)
    /*---(header)----------------------*/
    DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
    DEBUG_GRAF   yLOG_char    ("a_type"    , a_type);
+   /*---(size window)--------------------*/
+   if (a_type == 'r' && s_env == YVIKEYS_CURSES) {
+      if (s_testmode != 'y')  getmaxyx (stdscr, s_orig_wide, s_orig_tall);
+   }
    /*---(widths)-------------------------*/
    DEBUG_GRAF   yLOG_value   ("orig_wide" , s_orig_wide);
-   VIEW__widths             (s_orig_wide, s_alt_wide);
+   VIEW__widths   (s_orig_wide, s_alt_wide);
    DEBUG_GRAF   yLOG_value   ("main_wide" , s_main_wide);
    DEBUG_GRAF   yLOG_value   ("alt_wide"  , s_alt_wide);
    DEBUG_GRAF   yLOG_value   ("full_wide" , s_full_wide);
    /*---(heights)------------------------*/
    DEBUG_GRAF   yLOG_value   ("orig_tall" , s_orig_tall);
-   VIEW__heights            (s_orig_tall);
+   VIEW__heights  (s_orig_tall);
    DEBUG_GRAF   yLOG_value   ("main_tall" , s_main_tall);
    DEBUG_GRAF   yLOG_value   ("full_tall" , s_full_tall);
    /*---(display)------------------------*/
@@ -780,7 +787,9 @@ VIEW__resize             (cchar a_type)
       DEBUG_GRAF   yLOG_complex (s_parts [n].name, "xmin %4d, xlen %4d, ymin %4d, ylen %4d, zmin %4d, zlen %4d", s_parts [n].xmin, s_parts [n].xlen, s_parts [n].ymin, s_parts [n].ylen, s_parts [n].zmin, s_parts [n].zlen);
    }
    /*---(size window)--------------------*/
-   if (a_type == 'r')   yX11_resize (s_full_wide, s_full_tall);
+   if (a_type == 'r' && s_env == YVIKEYS_OPENGL) {
+      yX11_resize (s_full_wide, s_full_tall);
+   }
    /*---(complete)-----------------------*/
    DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -797,9 +806,9 @@ yVIKEYS_view_resize      (cint a_wide, cint a_tall, cint a_alt)
    DEBUG_GRAF   yLOG_value   ("a_tall"    , a_tall);
    DEBUG_GRAF   yLOG_value   ("a_alt"     , a_alt);
    /*---(update globals)-----------------*/
-   if (a_wide > 50)   s_orig_wide = a_wide;
-   if (a_tall > 50)   s_orig_tall = a_tall;
-   if (a_alt  > 50)   s_alt_wide  = a_alt;
+   if (a_wide > 10)   s_orig_wide = a_wide;
+   if (a_tall > 10)   s_orig_tall = a_tall;
+   if (a_alt  > 10)   s_alt_wide  = a_alt;
    VIEW__resize ('r');
    /*---(complete)-----------------------*/
    DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
@@ -1000,6 +1009,74 @@ VIEW__grid_size            (int a_x, int a_y, int a_z)
 static void  o___PROGRAM_________o () { return; }
 
 char
+VIEW__init_opengl       (char *a_title)
+{
+   /*---(header)----------------------*/
+   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
+   /*---(start window)----------------*/
+   yX11_start (a_title, s_orig_wide, s_orig_tall, YX_FOCUSABLE, YX_FIXED, '-');
+   /*---(color)--------------------------*/
+   DEBUG_GRAF   yLOG_note    ("clearing");
+   glClearColor    (1.0f, 1.0f, 1.0f, 1.0f);
+   glClearDepth    (1.0f);
+   /*---(textures)-----------------------*/
+   DEBUG_GRAF   yLOG_note    ("textures");
+   glEnable        (GL_TEXTURE_2D);    /* NEW */
+   /*---(blending)-----------------------*/
+   DEBUG_GRAF   yLOG_note    ("blending");
+   glShadeModel    (GL_SMOOTH);
+   glEnable        (GL_DEPTH_TEST);
+   glEnable        (GL_ALPHA_TEST);
+   glAlphaFunc     (GL_GEQUAL, 0.0125);
+   glEnable        (GL_BLEND);
+   glBlendFunc     (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+   glDepthFunc     (GL_LEQUAL);
+   /*---(anti-aliasing)------------------*/
+   DEBUG_GRAF   yLOG_note    ("anti-aliasing");
+   glHint          (GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+   /*---(special polygon antialiasing)----------*/
+   DEBUG_GRAF   yLOG_note    ("polygon");
+   glEnable        (GL_POLYGON_SMOOTH);
+   glPolygonMode   (GL_FRONT_AND_BACK, GL_FILL);
+   glHint          (GL_POLYGON_SMOOTH_HINT, GL_NICEST);
+   /*---(simple defaulting)--------------*/
+   DEBUG_GRAF   yLOG_note    ("sizes");
+   glLineWidth     (0.50f);
+   /*---(process immediately)------------*/
+   DEBUG_GRAF   yLOG_note    ("flush");
+   glFlush         ();
+   /*---(color options)------------------*/
+   yCOLOR_init     (YCOLOR_WHEEL );
+   yVIKEYS_cmds_add ('v', "palette"     , ""    , "isss" , yCOLOR_palette             , "" );
+   yVIKEYS_cmds_add ('v', "wheel"       , ""    , "s"    , yCOLOR_wheel               , "" );
+   yVIKEYS_cmds_add ('v', "degree"      , "deg" , "i"    , yCOLOR_deg                 , "" );
+   yVIKEYS_cmds_add ('v', "harmony"     , "har" , "s"    , yCOLOR_harm                , "" );
+   yVIKEYS_cmds_add ('v', "value"       , "val" , "s"    , yCOLOR_val                 , "" );
+   yVIKEYS_cmds_add ('v', "saturation"  , "sat" , "s"    , yCOLOR_sat                 , "" );
+   /*---(complete)-----------------------*/
+   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char
+VIEW__init_curses       (void)
+{
+   /*---(header)----------------------*/
+   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
+   /*---(setup ncurses)---------------*/
+   initscr  ();     /* fire up ncurses with a default screen (stdscr)         */
+   raw      ();     /* read key-by-key rather than waiting for \n (raw mode)  */
+   noecho   ();     /* don't automatically echo keypresses to the screen      */
+   ESCDELAY = 0;    /* so escape responds immediately                         */
+   getmaxyx (stdscr, s_orig_wide, s_orig_tall);
+   clear    ();
+   touchwin (stdscr);
+   /*---(complete)-----------------------*/
+   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char
 yVIKEYS_view_init       (cchar *a_title, cchar *a_ver, cchar a_env, cint a_wide, cint a_tall, cint a_alt)
 {
    /*---(locals)-----------+-----+-----+-*/
@@ -1059,7 +1136,15 @@ yVIKEYS_view_init       (cchar *a_title, cchar *a_ver, cchar a_env, cint a_wide,
    DEBUG_GRAF   yLOG_value   ("orig_tall" , s_orig_tall);
    DEBUG_GRAF   yLOG_value   ("alt_wide"  , s_alt_wide);
    /*---(open window)--------------------*/
-   rc = yX11_start      (a_title, a_wide, a_tall, YX_FOCUSABLE, YX_FIXED, '-');
+   if (strcmp ("unit_test", a_title) == 0)  s_testmode = 'y';
+   switch (s_env) {
+   case YVIKEYS_OPENGL :
+      VIEW__init_opengl (a_title);
+      break;
+   case YVIKEYS_CURSES :  
+      if (s_testmode != 'y')  VIEW__init_curses ();
+      break;
+   }
    VIEW__layout ("work");
    /*---(set text data)------------------*/
    if (a_title != NULL) {
@@ -1072,44 +1157,6 @@ yVIKEYS_view_init       (cchar *a_title, cchar *a_ver, cchar a_env, cint a_wide,
    }
    n = VIEW__abbr (YVIKEYS_COMMAND);
    MODE_message (s_parts [n].text, CMDS_curr ());
-   /*---(color)--------------------------*/
-   DEBUG_GRAF   yLOG_note    ("clearing");
-   glClearColor    (1.0f, 1.0f, 1.0f, 1.0f);
-   glClearDepth    (1.0f);
-   /*---(textures)-----------------------*/
-   DEBUG_GRAF   yLOG_note    ("textures");
-   glEnable        (GL_TEXTURE_2D);    /* NEW */
-   /*---(blending)-----------------------*/
-   DEBUG_GRAF   yLOG_note    ("blending");
-   glShadeModel    (GL_SMOOTH);
-   glEnable        (GL_DEPTH_TEST);
-   glEnable        (GL_ALPHA_TEST);
-   glAlphaFunc     (GL_GEQUAL, 0.0125);
-   glEnable        (GL_BLEND);
-   glBlendFunc     (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-   glDepthFunc     (GL_LEQUAL);
-   /*---(anti-aliasing)------------------*/
-   DEBUG_GRAF   yLOG_note    ("anti-aliasing");
-   glHint          (GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-   /*---(special polygon antialiasing)----------*/
-   DEBUG_GRAF   yLOG_note    ("polygon");
-   glEnable        (GL_POLYGON_SMOOTH);
-   glPolygonMode   (GL_FRONT_AND_BACK, GL_FILL);
-   glHint          (GL_POLYGON_SMOOTH_HINT, GL_NICEST);
-   /*---(simple defaulting)--------------*/
-   DEBUG_GRAF   yLOG_note    ("sizes");
-   glLineWidth     (0.50f);
-   /*---(process immediately)------------*/
-   DEBUG_GRAF   yLOG_note    ("flush");
-   glFlush       ();
-   /*---(color)--------------------------*/
-   yCOLOR_init     (YCOLOR_WHEEL );
-   yVIKEYS_cmds_add ('v', "palette"     , ""    , "isss" , yCOLOR_palette             , "" );
-   yVIKEYS_cmds_add ('v', "wheel"       , ""    , "s"    , yCOLOR_wheel               , "" );
-   yVIKEYS_cmds_add ('v', "degree"      , "deg" , "i"    , yCOLOR_deg                 , "" );
-   yVIKEYS_cmds_add ('v', "harmony"     , "har" , "s"    , yCOLOR_harm                , "" );
-   yVIKEYS_cmds_add ('v', "value"       , "val" , "s"    , yCOLOR_val                 , "" );
-   yVIKEYS_cmds_add ('v', "saturation"  , "sat" , "s"    , yCOLOR_sat                 , "" );
    /*---(complete)-----------------------*/
    DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -1351,7 +1398,10 @@ yVIKEYS_view_setup         (cchar a_part, cchar a_type, cchar a_anchor, cint a_x
 char
 yVIKEYS_view_wrap       (void)
 {
-   yX11_end     ();
+   switch (s_env) {
+   case YVIKEYS_OPENGL :  yX11_end  ();  break;
+   case YVIKEYS_CURSES :  endwin    ();  break;
+   }
    return 0;
 }
 
@@ -1441,56 +1491,6 @@ yVIKEYS_view_coords        (cchar a_part, int *a_xmin, int *a_xlen, int *a_ymin,
    return 0;
 }
 
-/*> char                                                                                   <* 
- *> yVIKEYS_view_color      (char a_color)                                                 <* 
- *> {                                                                                      <* 
- *>    switch (a_color) {                                                                  <* 
- *>    case  COLOR_BASE   :                                                                <* 
- *>       glColor4f (0.30f, 0.50f, 0.30f, 1.00f);       /+ nice medium green          +/   <* 
- *>       break;                                                                           <* 
- *>    case  COLOR_DARK   :                                                                <* 
- *>       glColor4f (0.25f, 0.40f, 0.25f, 1.00f);                                          <* 
- *>       break;                                                                           <* 
- *>    case  COLOR_LIGHT  :                                                                <* 
- *>       glColor4f (0.40f, 0.65f, 0.35f, 1.00f);                                          <* 
- *>       break;                                                                           <* 
- *>    case  COLOR_MUTED  :                                                                <* 
- *>       glColor4f (0.30f, 0.10f, 0.00f, 0.30f);                                          <* 
- *>       break;                                                                           <* 
- *>    case  COLOR_ACC_L  :                                                                <* 
- *>       glColor4f (1.00f, 0.60f, 0.30f, 0.30f);                                          <* 
- *>       break;                                                                           <* 
- *>    case  COLOR_ACC_D  :                                                                <* 
- *>       glColor4f (0.70f, 0.20f, 0.10f, 0.40f);                                          <* 
- *>       break;                                                                           <* 
- *>    case  COLOR_ACC_O  :                                                                <* 
- *>       glColor4f (0.80f, 0.30f, 0.00f, 0.30f);                                          <* 
- *>       break;                                                                           <* 
- *>    case  COLOR_GRID_L :                                                                <* 
- *>       glColor4f (1.00f, 1.00f, 1.00f, 0.50f);                                          <* 
- *>       break;                                                                           <* 
- *>    case  COLOR_GRID_D :                                                                <* 
- *>       glColor4f (0.00f, 0.00f, 0.00f, 0.70f);                                          <* 
- *>       break;                                                                           <* 
- *>    case  COLOR_TXT_D  :                                                                <* 
- *>       glColor4f (0.20f, 0.20f, 0.20f, 1.00f);                                          <* 
- *>       break;                                                                           <* 
- *>    case  COLOR_TXT_L  :                                                                <* 
- *>       glColor4f (0.00f, 0.00f, 0.00f, 0.70f);                                          <* 
- *>       break;                                                                           <* 
- *>    case  COLOR_BLACK  :                                                                <* 
- *>       glColor4f (0.00f, 0.00f, 0.00f, 1.00f);                                          <* 
- *>       break;                                                                           <* 
- *>    case  COLOR_WARN   :                                                                <* 
- *>       glColor4f (0.50f, 0.00f, 0.00f, 1.00f);                                          <* 
- *>       break;                                                                           <* 
- *>    case  COLOR_CURSOR :                                                                <* 
- *>       glColor4f    (1.00f, 0.00f, 0.00f, 0.2f);                                        <* 
- *>       break;                                                                           <* 
- *>    }                                                                                   <* 
- *>    return 0;                                                                           <* 
- *> }                                                                                      <*/
-
 
 
 /*====================------------------------------------====================*/
@@ -1507,6 +1507,7 @@ VIEW__cursor             (void)
    int         x_top   = x_bot + (g_gsizey / s_mag);
    char        n           = 0;
    /*---(defense)------------------------*/
+   if (s_env == YVIKEYS_CURSES)   return 0;
    n = VIEW__abbr (YVIKEYS_CURSOR);
    if (s_parts [n].on == '-')  return 0;
    glColor4f    (1.00f, 0.00f, 0.00f, 0.2f);
@@ -1533,6 +1534,7 @@ VIEW__grid_zoom          (void)
    int         y_bot       = 0;
    int         y_tall      = 0;
    /*---(defense)------------------------*/
+   if (s_env == YVIKEYS_CURSES)   return 0;
    n = VIEW__abbr (YVIKEYS_GRID);
    if (s_parts [n].on == '-')  return 0;
    /*---(prepare)------------------------*/
@@ -1589,6 +1591,7 @@ VIEW__grid_normal        (void)
    int         y_inc       = 1;
    int         y_cnt       = 0;
    /*---(defense)------------------------*/
+   if (s_env == YVIKEYS_CURSES)   return 0;
    n = VIEW__abbr (YVIKEYS_GRID);
    if (s_parts [n].on == '-')  return 0;
    /*---(prepare)------------------------*/
@@ -1662,6 +1665,7 @@ VIEW__ribbon             (void)
    int         x_side      =   35;
    int         n           =     0;
    /*---(draw icons)---------------------*/
+   if (s_env == YVIKEYS_CURSES)   return 0;
    n    = VIEW__abbr   (YVIKEYS_RIBBON);
    if (s_parts [n].on == '-')  return 0;
    glPushMatrix    (); {
@@ -1701,29 +1705,31 @@ VIEW__float             (void)
    /*> printf ("n %2d, s_parts[n].left %4d, x_lef = %4d\n", n, s_parts [n].left, x_lef);   <*/
    x_rig = x_lef + x_len - 100;
    /*> printf ("n %2d, s_parts[n].wide %4d, x_rig = %4d\n", n, s_parts [n].wide, x_rig);   <*/
-   glPushMatrix    (); {
-      yVIKEYS_view_color (s_parts [n].color, 1.0);
-      glBegin         (GL_POLYGON); {
-         glVertex3f  (x_lef , x_top, 50.0f);
-         glVertex3f  (x_rig , x_top, 50.0f);
-         glVertex3f  (x_rig , x_bot, 50.0f);
-         glVertex3f  (x_lef , x_bot, 50.0f);
-      } glEnd   ();
-      yVIKEYS_view_color_adj (s_parts [n].color, YCOLOR_MIN, 1.0);
-      glLineWidth  ( 2);
-      glBegin(GL_LINE_STRIP); {
-         glVertex3f  (x_lef , x_top, 50.0f);
-         glVertex3f  (x_rig , x_top, 50.0f);
-         glVertex3f  (x_rig , x_bot, 50.0f);
-         glVertex3f  (x_lef , x_bot, 50.0f);
-         glVertex3f  (x_lef , x_top, 50.0f);
-      } glEnd   ();
-      glTranslatef (x_lef + 3, x_bot,   60.0f);
-      switch (MODE_curr ()) {
-      case MODE_COMMAND :  yFONT_print  (s_win.font,  11, YF_BOTLEF, CMDS_curr ());  break;
-      case MODE_SEARCH  :  yFONT_print  (s_win.font,  11, YF_BOTLEF, SRCH_curr ());  break;
-      }
-   } glPopMatrix   ();
+   if (s_env == YVIKEYS_OPENGL) {
+      glPushMatrix    (); {
+         yVIKEYS_view_color (s_parts [n].color, 1.0);
+         glBegin         (GL_POLYGON); {
+            glVertex3f  (x_lef , x_top, 50.0f);
+            glVertex3f  (x_rig , x_top, 50.0f);
+            glVertex3f  (x_rig , x_bot, 50.0f);
+            glVertex3f  (x_lef , x_bot, 50.0f);
+         } glEnd   ();
+         yVIKEYS_view_color_adj (s_parts [n].color, YCOLOR_MIN, 1.0);
+         glLineWidth  ( 2);
+         glBegin(GL_LINE_STRIP); {
+            glVertex3f  (x_lef , x_top, 50.0f);
+            glVertex3f  (x_rig , x_top, 50.0f);
+            glVertex3f  (x_rig , x_bot, 50.0f);
+            glVertex3f  (x_lef , x_bot, 50.0f);
+            glVertex3f  (x_lef , x_top, 50.0f);
+         } glEnd   ();
+         glTranslatef (x_lef + 3, x_bot,   60.0f);
+         switch (MODE_curr ()) {
+         case MODE_COMMAND :  yFONT_print  (s_win.font,  11, YF_BOTLEF, CMDS_curr ());  break;
+         case MODE_SEARCH  :  yFONT_print  (s_win.font,  11, YF_BOTLEF, SRCH_curr ());  break;
+         }
+      } glPopMatrix   ();
+   }
    /*---(complete)-----------------------*/
    return 0;
 }
@@ -1920,39 +1926,48 @@ VIEW__opengl             (char a)
    /*---(setup view)---------------------*/
    DEBUG_GRAF   yLOG_value   ("a"         , a);
    DEBUG_GRAF   yLOG_complex (s_parts [a].name, "bott %4d, left %4d, wide %4d, tall %4d, on %c", s_parts [a].bott, s_parts [a].left, s_parts [a].wide, s_parts [a].tall, s_parts [a].on);
-   glViewport      (s_parts [a].left, s_parts [a].bott, s_parts [a].wide, s_parts [a].tall);
-   glMatrixMode    (GL_PROJECTION);
-   glLoadIdentity  ();
-   glOrtho         (s_parts [a].xmin, x_max, s_parts [a].ymin, y_max, s_parts [a].zmin, z_max);
-   glMatrixMode    (GL_MODELVIEW);
-   /*---(background)---------------------*/
-   DEBUG_GRAF   yLOG_note    ("draw background");
-   glPushMatrix    (); {
-      yVIKEYS_view_color (s_parts [a].color, 1.0);
-      if (s_parts [a].abbr == YVIKEYS_VERSION && yURG_debugmode () == 'y')  yVIKEYS_view_color_adj (s_parts [a].color, YCOLOR_ACC, 1.0);
-      if (s_parts [a].abbr == YVIKEYS_STATUS  && yVIKEYS_error  ())         yVIKEYS_view_color_adj (s_parts [a].color, YCOLOR_ACC, 1.0);
-      glBegin         (GL_POLYGON); {
-         glVertex3f  (s_parts [a].xmin, y_max           , -100.0f);
-         glVertex3f  (x_max           , y_max           , -100.0f);
-         glVertex3f  (x_max           , s_parts [a].ymin, -100.0f);
-         glVertex3f  (s_parts [a].xmin, s_parts [a].ymin, -100.0f);
-      } glEnd   ();
-   } glPopMatrix   ();
-   /*---(display text)-------------------*/
-   DEBUG_GRAF   yLOG_note    ("draw text");
-   if (s_parts [a].text != NULL && strlen (s_parts [a].text) > 0) {
+   if (s_env == YVIKEYS_OPENGL) {
+      glViewport      (s_parts [a].left, s_parts [a].bott, s_parts [a].wide, s_parts [a].tall);
+      glMatrixMode    (GL_PROJECTION);
+      glLoadIdentity  ();
+      glOrtho         (s_parts [a].xmin, x_max, s_parts [a].ymin, y_max, s_parts [a].zmin, z_max);
+      glMatrixMode    (GL_MODELVIEW);
+      /*---(background)---------------------*/
+      DEBUG_GRAF   yLOG_note    ("draw background");
       glPushMatrix    (); {
-         if (s_parts [a].orient == 'r') {
-            /*> glTranslatef (x_max + 1,   5.0f,    0.0f);                            <*/
-            glTranslatef (-1.0f, 5.0f, 0.0f);
-            glRotatef    ( 90.0, 0.0f, 0.0f, 1.0f);
-         } else {
-            glTranslatef ( 3.0f, 1.0f, 0.0f);
-         }
-         yVIKEYS_view_color_adj (s_parts [a].color, YCOLOR_MIN, 0.8);
-         /*> yFONT_print  (s_win.font,  11, YF_BOTLEF, s_parts [a].text);             <*/
-         yFONT_print  (1         ,   9, YF_BOTLEF, s_parts [a].text);
+         yVIKEYS_view_color (s_parts [a].color, 1.0);
+         if (s_parts [a].abbr == YVIKEYS_VERSION && yURG_debugmode () == 'y')  yVIKEYS_view_color_adj (s_parts [a].color, YCOLOR_ACC, 1.0);
+         if (s_parts [a].abbr == YVIKEYS_STATUS  && yVIKEYS_error  ())         yVIKEYS_view_color_adj (s_parts [a].color, YCOLOR_ACC, 1.0);
+         glBegin         (GL_POLYGON); {
+            glVertex3f  (s_parts [a].xmin, y_max           , -100.0f);
+            glVertex3f  (x_max           , y_max           , -100.0f);
+            glVertex3f  (x_max           , s_parts [a].ymin, -100.0f);
+            glVertex3f  (s_parts [a].xmin, s_parts [a].ymin, -100.0f);
+         } glEnd   ();
       } glPopMatrix   ();
+   } else if (s_env == YVIKEYS_CURSES) {
+      ;;  /* not sure if i need to clear yet  */
+   }
+   /*---(display text)-------------------*/
+   if (s_parts [a].text != NULL && strlen (s_parts [a].text) > 0) {
+      DEBUG_GRAF   yLOG_note    ("draw text");
+      if (s_env == YVIKEYS_OPENGL) {
+         glPushMatrix    (); {
+            if (s_parts [a].orient == 'r') {
+               glTranslatef (-1.0f, 5.0f, 0.0f);
+               glRotatef    ( 90.0, 0.0f, 0.0f, 1.0f);
+            } else {
+               glTranslatef ( 3.0f, 1.0f, 0.0f);
+            }
+            yVIKEYS_view_color_adj (s_parts [a].color, YCOLOR_MIN, 0.8);
+            /*> yFONT_print  (s_win.font,  11, YF_BOTLEF, s_parts [a].text);             <*/
+            yFONT_print  (1         ,   9, YF_BOTLEF, s_parts [a].text);
+         } glPopMatrix   ();
+      } else if (s_env == YVIKEYS_CURSES) {
+         /*  set color --------------*/
+         mvprintw (s_orig_tall - s_parts [a].bott, s_parts [a].left, "%*.*s", s_parts [a].wide, s_parts [a].wide, s_parts [a].text);
+         /*  clear color ------------*/
+      }
    }
    /*---(complete)-----------------------*/
    DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
@@ -1970,8 +1985,14 @@ yVIKEYS_view_all         (float a_mag)
    /*---(clear)--------------------------*/
    s_mag = a_mag;
    DEBUG_GRAF   yLOG_double  ("s_mag"     , s_mag);
-   glClearColor    (1.0f, 1.0f, 1.0f, 1.0f);
-   glClear         (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+   switch (s_env) {
+   case YVIKEYS_OPENGL :
+      glClearColor    (1.0f, 1.0f, 1.0f, 1.0f);
+      glClear         (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+      break;
+   case YVIKEYS_CURSES :
+      break;
+   }
    /*---(draw each element)--------------*/
    for (n = 0; n < s_npart; ++n) {
       DEBUG_GRAF   yLOG_info    ("part"      , s_parts [n].name);
@@ -1996,8 +2017,15 @@ yVIKEYS_view_all         (float a_mag)
       if (s_parts [n].source != NULL)  s_parts [n].source (NULL);
    }
    /*---(flush)--------------------------*/
-   glXSwapBuffers(DISP, BASE);
-   glFlush();
+   switch (s_env) {
+   case YVIKEYS_OPENGL :
+      glXSwapBuffers(DISP, BASE);
+      glFlush();
+      break;
+   case YVIKEYS_CURSES :
+      refresh ();
+      break;
+   }
    /*---(complete)-----------------------*/
    DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;

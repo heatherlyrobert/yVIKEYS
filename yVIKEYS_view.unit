@@ -20,7 +20,7 @@ SCRP          v21  (VIEW  ) finding and setting screen parts                  
 
    COND       v21  initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      exec     v21  start testing                        BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
-     exec     v21  initialize view                      yVIKEYS_view_init           "test"         , "3.2a"    , YVIKEYS_OPENGL ,  500,  300,    0          i_equal     0                                                                                                    
+     exec     v21  initialize view                      yVIKEYS_view_init           "unit_test"    , "3.2a"    , YVIKEYS_OPENGL ,  500,  300,    0          i_equal     0                                                                                                    
 
    GROUP      v21  search for screen parts by name                                    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
@@ -65,7 +65,7 @@ SCRP          v21  (MODE  ) setting opengl screen sizes                       
 
    COND       v21  initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      exec     v21  start testing                        BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
-     exec     v21  initialize view                      yVIKEYS_view_init           "test"         , "3.2a"    , YVIKEYS_OPENGL ,  500,  300,    0          i_equal     0                                                                                                    
+     exec     v21  initialize view                      yVIKEYS_view_init           "unit_test"    , "3.2a"    , YVIKEYS_OPENGL ,  500,  300,    0          i_equal     0                                                                                                    
 
    GROUP      v21  start with work layout                                             - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
@@ -241,7 +241,7 @@ SCRP          v21  (MODE  ) setting opengl screen sizes                       
 
    COND       v21  initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      exec     v21  start testing                        BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
-     exec     v21  initialize view                      yVIKEYS_view_init           "test"         , "3.2a"    , YVIKEYS_CURSES ,  107,   72,    0          i_equal     0                                                                                                    
+     exec     v21  initialize view                      yVIKEYS_view_init           "unit_test"    , "3.2a"    , YVIKEYS_CURSES ,  107,   72,    0          i_equal     0                                                                                                    
 
    GROUP      v21  start with work layout                                             - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
