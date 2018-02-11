@@ -510,8 +510,8 @@ MAP__vert             (char a_major, char a_minor)
    MAP__screen (&g_ymap);
    if (s_mapper != NULL) {
       s_mapper (YVIKEYS_UPDATE);
-      MAP__print (&g_xmap);
-      MAP__print (&g_ymap);
+      /*> MAP__print (&g_xmap);                                                       <*/
+      /*> MAP__print (&g_ymap);                                                       <*/
    }
    /*---(complete)-----------------------*/
    DEBUG_USER  yLOG_exit    (__FUNCTION__);
@@ -579,8 +579,8 @@ MAP__horz             (char a_major, char a_minor)
    MAP__screen (&g_xmap);
    if (s_mapper != NULL) {
       s_mapper (YVIKEYS_UPDATE);
-      MAP__print (&g_xmap);
-      MAP__print (&g_ymap);
+      /*> MAP__print (&g_xmap);                                                       <*/
+      /*> MAP__print (&g_ymap);                                                       <*/
    }
    /*---(complete)-----------------------*/
    DEBUG_USER  yLOG_exit    (__FUNCTION__);

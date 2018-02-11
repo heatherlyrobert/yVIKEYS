@@ -30,8 +30,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.7b"
-#define YVIKEYS_VER_TXT   "mapper is now working with gregg (strange/challenging)"
+#define YVIKEYS_VER_NUM   "0.7c"
+#define YVIKEYS_VER_TXT   "full rework and complete unit testing of resizing for ncurses"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -114,6 +114,7 @@ char*       VIEW__unit              (char *a_question, char a_index);
 
 
 extern char yVIKEYS__unit_answer [LEN_STR];
+char        BASE_key_status         (char *a_msg);
 char        BASE__unit_quiet        (void);
 char        BASE__unit_loud         (void);
 char        BASE__unit_end          (void);

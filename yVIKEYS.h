@@ -156,6 +156,9 @@ tMAPPED     g_zmap;
 #define      YVIKEYS_BOTRIG       9
 
 
+#define      YVIKEYS_OPENGL      'g'
+#define      YVIKEYS_CURSES      'c'
+
 extern char yVIKEYS_ver     [500];
 
 /*===[[ FUNCTION PROTOTYPES ]]================================================*/
@@ -172,7 +175,7 @@ uchar       yVIKEYS_main_input        (char  a_runmode, uchar a_key);
 uchar       yVIKEYS_main_handle       (uchar a_key);
 
 /*---(view)-----------------*/
-char        yVIKEYS_view_init         (cchar *a_title, cchar *a_ver , cint a_wide, cint a_tall, cint a_alt);
+char        yVIKEYS_view_init         (cchar *a_title, cchar *a_ver, cchar a_env, cint a_wide, cint a_tall, cint a_alt);
 char        yVIKEYS_view_resize       (cint   a_wide , cint   a_tall, cint a_alt);
 char        yVIKEYS_view_setup        (cchar  a_part , cchar  a_type, cchar a_anchor, cint a_xmin, cint a_xlen, cint a_ymin, cint a_ylen, cint a_zmin, cint z_len, cchar a_color, void *a_drawer);
 char        yVIKEYS_view_moderate     (cchar  a_part , cchar  a_type, cchar a_anchor, cchar a_color, void *a_drawer);
@@ -190,6 +193,7 @@ char        yVIKEYS_view_text         (cchar  a_part , cchar *a_text);
 char        yVIKEYS_view_wrap         (void);
 char        yVIKEYS_view_all          (float a_mag);
 
+char        yVIKEYS_view_option       (char a_part, char *a_opt, void *a_source, char *a_desc);
 char        yVIKEYS_layer_add         (char *a_name, void *a_drawer, char *a_desc);
 
 char        yVIKEYS_view_ribbon_clear (void);

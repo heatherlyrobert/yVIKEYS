@@ -108,19 +108,36 @@ static void  o___MAIN____________o () { return; }
 char yVIKEYS_quit            (void) { if (myVIKEYS.done    == 'y') return 1; return 0; }
 char yVIKEYS_error           (void) { if (myVIKEYS.trouble != '-') return 1; return 0; }
 
+char         /*-> tbd --------------------------------[ leaf   [gz.430.151.10]*/ /*-[00.0000.104.!]-*/ /*-[--.---.---.--]-*/
+BASE_key_status    (char *a_msg)
+{
+   /*---(locals)-----------+-----------+-*/
+   char        t           [LEN_RECD];
+   int         x_key       = 0;
+   int         x_len       = 0;             /* string length                  */
+   int         i           = 0;             /* iterator -- keys               */
+   int         x_start     = 0;             /* iterator -- keys               */
+   x_len = strlen (s_keylog) - 1;
+   x_start = x_len - (20 * 5);
+   if (x_start < 0) x_start = 0;
+   snprintf (a_msg, 500, "keys (%4d) %-100.100s", s_nkeylog, s_keylog + x_start);
+   return 0;
+}
+
 char         /*-> tbd --------------------------------[ ------ [gz.420.121.11]*/ /*-[01.0000.102.!]-*/ /*-[--.---.---.--]-*/
-BASE__key_logger        (uchar a_curr)
+BASE__key_logger        (uchar a_key)
 {
    /*---(locals)-----------+-----------+-*/
    char        t           [10];
    int         x_key       =0;
    /*---(normal)-------------------------*/
-   sprintf  (t, "%c", a_curr);
+   x_key = chrvisible (a_key);
+   sprintf  (t, "%c", x_key);
    strlcat  (s_keylog, t, 10000);
    ++s_nkeylog;
    /*---(macro)--------------------------*/
    IF_MACRO_RECORDING {
-      MACRO_rec_key (a_curr);
+      MACRO_rec_key (x_key);
    }
    /*---(complete)-----------------------*/
    return 0;
@@ -198,6 +215,11 @@ yVIKEYS_main_handle     (uchar a_key)
    /*---(header)-------------------------*/
    DEBUG_LOOP   yLOG_enter   (__FUNCTION__);
    DEBUG_LOOP   yLOG_value   ("a_key"     , a_key);
+   /*---(defense)------------------------*/
+   if (a_key == 0) {
+      DEBUG_LOOP   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
    /*---(prepare)------------------------*/
    myVIKEYS.trouble = '-';
    x_key = chrworking (a_key);
