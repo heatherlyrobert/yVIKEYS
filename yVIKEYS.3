@@ -9,6 +9,106 @@ yVIKEYS is a heatherly-specific mini-language for operating all my applications
 using a pure modal keyboard interface.  while it is rooted in vim, i expect
 to adapt it to every possible application.
 
+.SH PREPARATION....
+
+.SS PROG_init.  
+before any argument handling, the yVIKEYS library should be initialized with a
+call to yVIKEYS_init.
+
+.B yVIKEYS_init.  
+this action will take care of a majority of the standard setup and preparation.
+
+.B yVIKEYS_macro_config.  
+optional.  provides local macro storage and retrieval functions.
+
+.B yVIKEYS_srch_config.  
+provides local searching and marking functions to tailor search.
+
+.SS DRAW_init.  
+before drawing begins, it is critical to configure the parts, sizes,
+coordinates, and drawing functions involved.
+
+.B yVIKEYS_view_init.  
+sets the window title, program version, drawing environment (opengl or
+ncurses), and window sizes.
+
+.B yVIKEYS_view_setup, _moderate, simple.  
+used for each custom window part to set the corrdinate system, color, and
+drawing function.
+
+.B yVIKEYS_view_option.  
+adds options to support screen parts, such as the status, formula, overlays,
+grids, etc.
+
+.B yVIKEYS_layer_add.  
+adds specific main window elements as individual layers so they can be selected
+or hidden as desired.
+
+.B yVIKEYS_view_ribbon.  
+adds specific icons to the ribbon bar for interactive, opengl, touch screen use.
+
+.B yVIKEYS_cmds_direct (":palette .....").  
+establishes a beautiful color scheme including all accents and variations
+available for drawing.
+
+.B yVIKEYS_view_colors.  
+assigns palette colors to the support windows such as status, ribbon, buffer,
+and title.
+
+.B yVIKEYS_cmds_direct (":layout .....").  
+sets the base combination of screen parts to display when the program begins.
+
+.B yVIKEYS_cmds_direct (":..... hide/show/...").  
+turns individual elements on and off, and allows specific options to be chosen.
+
+.B yVIKEYS_map_config.  
+passes the function to be used to map the screen to keyboard keys so yVIKEYS
+can function.
+
+.SS PROG_final.  
+after all program and drawing initiation, this is where the final actions take
+place.
+
+.B yVIKEYS_cmds_add.  
+add new commands accessable from the command line to expand the programs
+abilities.
+
+.SH MAIN LOOP....
+
+.B yVIKEYS_main_input.  
+handles consolidating and recording keyboard input from the user and/or macros.
+
+.B yVIKEYS_main_handle.  
+dispatches keys to various handler routines using the standard modal interface.
+
+.B yVIKEYS_quit.  
+identifies if program exit has been requested from the command line, i.e., quit.
+
+.B yVIKEYS_view_all.  
+coordinates all window drawing from automatic support elements to call-backs
+for the main window.
+
+
+.SH DRAWING ROUTINES....
+
+.B yVIKEYS_view_size.  
+retrieve the latest window sizes for the current screen part.
+
+.B yVIKEYS_view_bounds.  
+retrieve the latest min and max's for the current screen part.
+
+.B yVIKEYS_view_coords.  
+retrieve the latest coordinates for the current screen part.
+
+.B yVIKEYS_view_color and _color_adj.  
+choose a particular color for drawing from within the estabished palette.
+
+.SH COMPLETE....
+
+.SS PROG_end.  
+after program completion, it is quite simple to shut the library down.
+
+.B yVIKEYS_wrap.  
 
 
 

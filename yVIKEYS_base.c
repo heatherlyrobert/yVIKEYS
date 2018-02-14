@@ -54,6 +54,7 @@ yVIKEYS_init         (void)
 char
 yVIKEYS_wrap         (void)
 {
+   VIEW_wrap ();
    return 0;
 }
 

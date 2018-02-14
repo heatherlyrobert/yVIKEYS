@@ -72,6 +72,8 @@ typedef  const float          cfloat;
 #define LEN_MAP      10000
 typedef  struct cMAPPED  tMAPPED;
 struct cMAPPED {
+   /*---(identity)-------------*/
+   char        which;                       /* x, y, z, or t                  */
    /*---(lefts)----------------*/
    int         gmin;                        /* global min, used or not        */
    int         amin;                        /* min of all used space          */
@@ -100,6 +102,13 @@ struct cMAPPED {
 tMAPPED     g_xmap;
 tMAPPED     g_ymap;
 tMAPPED     g_zmap;
+tMAPPED     g_tmap;
+
+#define     YVIKEYS_XMAP     'x'
+#define     YVIKEYS_YMAP     'y'
+#define     YVIKEYS_ZMAP     'z'
+#define     YVIKEYS_TMAP     't'
+
 #define     YVIKEYS_EMPTY   -666
 #define     YVIKEYS_INIT    'i'
 #define     YVIKEYS_UPDATE  'u'
@@ -140,6 +149,8 @@ tMAPPED     g_zmap;
 #define      YVIKEYS_LAYERS      'L'
 #define      YVIKEYS_FLOAT       'F'
 #define      YVIKEYS_BACK        'B'
+#define      YVIKEYS_XAXIS       'X'
+#define      YVIKEYS_YAXIS       'Y'
 
 
 
@@ -175,7 +186,7 @@ uchar       yVIKEYS_main_input        (char  a_runmode, uchar a_key);
 uchar       yVIKEYS_main_handle       (uchar a_key);
 
 /*---(view)-----------------*/
-char        yVIKEYS_view_init         (cchar *a_title, cchar *a_ver, cchar a_env, cint a_wide, cint a_tall, cint a_alt);
+char        yVIKEYS_view_config       (cchar *a_title, cchar *a_ver, cchar a_env, cint a_wide, cint a_tall, cint a_alt);
 char        yVIKEYS_view_resize       (cint   a_wide , cint   a_tall, cint a_alt);
 char        yVIKEYS_view_setup        (cchar  a_part , cchar  a_type, cchar a_anchor, cint a_xmin, cint a_xlen, cint a_ymin, cint a_ylen, cint a_zmin, cint z_len, cchar a_color, void *a_drawer);
 char        yVIKEYS_view_moderate     (cchar  a_part , cchar  a_type, cchar a_anchor, cchar a_color, void *a_drawer);
@@ -190,7 +201,6 @@ char        yVIKEYS_view_size         (cchar  a_part , int   *a_left, int *a_wid
 char        yVIKEYS_view_bounds       (cchar  a_part , int   *a_xmin, int *a_xmax, int *a_ymin, int *a_ymax);
 char        yVIKEYS_view_coords       (cchar  a_part , int   *a_xmin, int *a_xlen, int *a_ymin, int *a_ylen);
 char        yVIKEYS_view_text         (cchar  a_part , cchar *a_text);
-char        yVIKEYS_view_wrap         (void);
 char        yVIKEYS_view_all          (float a_mag);
 
 char        yVIKEYS_view_option       (char a_part, char *a_opt, void *a_source, char *a_desc);

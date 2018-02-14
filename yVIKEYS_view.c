@@ -88,7 +88,7 @@ static tWIN   s_win;
 #define      OWN_MODERATE     "msp"
 #define      OWN_SIMPLE       "po"
 
-#define      MAX_PARTS         20
+#define      MAX_PARTS         50
 typedef  struct  cPARTS     tPARTS;
 struct cPARTS {
    /*---(main)-----------------*/
@@ -131,24 +131,26 @@ struct cPARTS {
 static tPARTS  s_parts [MAX_PARTS] = {
    /*---abbr---------   ---name-----   ---own-----  on    bt lr dw dt  x_t  y_t  und  wi ta le bo   ori  source, txt  drawing-function------   type---------  ---mgmt-------  ---anchor-----  ---color------- xm xl ym yl zm zl    12345678901234567890123456789012345678901234567890  */
    { YVIKEYS_TITLE   , "title"       , OWN_FULLY  , 'y',   1, 1, 0, 0, '-', '-', '-',  0, 0, 0, 0,  'r', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_BOTRIG, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "left hand title bar"                                },
-   { YVIKEYS_BUFFER  , "buffer"      , OWN_FULLY  , '-',   6, 2, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_BOTLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "buffer inventory at top"                            },
-   { YVIKEYS_FORMULA , "formula"     , OWN_FULLY  , '-',   5, 2, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_BOTLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "formula and source editing line at top"             },
+   { YVIKEYS_BUFFER  , "buffer"      , OWN_FULLY  , '-',   7, 2, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_BOTLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "buffer inventory at top"                            },
+   { YVIKEYS_FORMULA , "formula"     , OWN_FULLY  , '-',   6, 2, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_BOTLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "formula and source editing line at top"             },
    { YVIKEYS_NAV     , "nav"         , OWN_PARTLY , '-',   3, 2, 0, 0, '-', '-', 'y',  0, 0, 0, 0,  '-', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_TOPLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "navigation panel to display tags and other links"   },
-   { YVIKEYS_ALT     , "alt"         , OWN_LITTLE , '-',   4, 4, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_MIDCEN, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "alternate working area or view"                     },
-   { YVIKEYS_PROGRESS, "progress"    , OWN_PARTLY , '-',   3, 3, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_MIDLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "time and sequencing controls about status line"     },
+   { YVIKEYS_ALT     , "alt"         , OWN_LITTLE , '-',   4, 5, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_MIDCEN, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "alternate working area or view"                     },
+   { YVIKEYS_PROGRESS, "progress"    , OWN_PARTLY , '-',   3, 3, 0, 0, '/', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_MIDLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "time and sequencing controls about status line"     },
    { YVIKEYS_STATUS  , "status"      , OWN_FULLY  , 'y',   2, 2, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_BOTLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "informational status bar above command line"        },
    { YVIKEYS_COMMAND , "command"     , OWN_FULLY  , 'y',   1, 2, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_BOTLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "command, search, and help message line at bottom"   },
-   { YVIKEYS_DETAILS , "details"     , OWN_PARTLY , '-',   3, 5, 0, 0, '-', '-', 'y',  0, 0, 0, 0,  '-', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_TOPLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "display area for critical details to right"         },
-   { YVIKEYS_RIBBON  , "ribbon"      , OWN_FULLY  , '-',   3, 6, 0, 0, '-', '-', 'y',  0, 0, 0, 0,  '-', NULL  , "",  VIEW__ribbon           , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_TOPLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "menu and icon display for navigation of commands"   },
-   { YVIKEYS_VERSION , "version"     , OWN_FULLY  , 'y',   7, 1, 0, 0, '-', 't', '-',  0, 0, 0, 0,  'r', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_BOTRIG, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "version display with debugging notice"              },
-   { YVIKEYS_KEYS    , "keys"        , OWN_FULLY  , 'y',   1, 7, 0, 0, 'c', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_BOTLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "latest keyboard characters typed"                   },
+   { YVIKEYS_DETAILS , "details"     , OWN_PARTLY , '-',   3, 6, 0, 0, '-', '-', 'y',  0, 0, 0, 0,  '-', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_TOPLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "display area for critical details to right"         },
+   { YVIKEYS_RIBBON  , "ribbon"      , OWN_FULLY  , '-',   3, 7, 0, 0, '-', '-', 'y',  0, 0, 0, 0,  '-', NULL  , "",  VIEW__ribbon           , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_TOPLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "menu and icon display for navigation of commands"   },
+   { YVIKEYS_VERSION , "version"     , OWN_FULLY  , 'y',   8, 1, 0, 0, '-', 't', '-',  0, 0, 0, 0,  'r', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_BOTRIG, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "version display with debugging notice"              },
+   { YVIKEYS_KEYS    , "keys"        , OWN_FULLY  , 'y',   1, 8, 0, 0, 'c', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_BOTLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "latest keyboard characters typed"                   },
    { YVIKEYS_GRID    , "grid"        , OWN_OVERLAY, '-',   0, 0, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , 0             , 0              , 0, 0, 0, 0, 0, 0,  "overlay main drawing with a grid"                   },
    { YVIKEYS_CURSOR  , "cursor"      , OWN_OVERLAY, '-',   0, 0, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  VIEW__cursor           , YVIKEYS_FLAT , YVIKEYS_AUTO  , 0             , 0              , 0, 0, 0, 0, 0, 0,  "cursor display on screen"                           },
+   { YVIKEYS_XAXIS   , "xaxis"       , OWN_PARTLY , '-',   5, 3, 0, 0, '/', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_BOTLEF, 0              , 0, 0, 0, 0, 0, 0,  "show the x-axis labels above the main screen"       },
+   { YVIKEYS_YAXIS   , "yaxis"       , OWN_PARTLY , '-',   4, 3, 0, 0, '-', '/', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_TOPLEF, 0              , 0, 0, 0, 0, 0, 0,  "show the y-axis labels left of the main screen"     },
    { YVIKEYS_OVERLAY , "overlay"     , OWN_OVERLAY, '-',   0, 0, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_MIDCEN, YCOLOR_CLEAR   , 0, 0, 0, 0, 0, 0,  "shown over the working screen"                      },
    { YVIKEYS_LAYERS  , "layers"      , OWN_OVERLAY, '-',   0, 0, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  VIEW__layer_show       , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_MIDCEN, YCOLOR_CLEAR   , 0, 0, 0, 0, 0, 0,  "displays all selected laysers over working"         },
    { YVIKEYS_FLOAT   , "float"       , OWN_OVERLAY, '-',   0, 0, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  VIEW__float            , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_MIDCEN, YCOLOR_CLEAR   , 0, 0, 0, 0, 0, 0,  "shown over the working screen"                      },
    { YVIKEYS_WINDOW  , "window"      , OWN_DATA   , '-',   0, 0, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , 0             , 0              , 0, 0, 0, 0, 0, 0,  "full screen width and height"                       },
-   { YVIKEYS_MAIN    , "main"        , OWN_MAIN   , 'y',   4, 3, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_MIDCEN, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "main working area in the middle"                    },
+   { YVIKEYS_MAIN    , "main"        , OWN_MAIN   , 'y',   4, 4, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_MIDCEN, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "main working area in the middle"                    },
    { 0               , ""            , 0          , '-',   0, 0, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , 0             , 0              , 0, 0, 0, 0, 0, 0,  ""                                                   },
 };
 static int  s_npart     = 0;
@@ -161,13 +163,14 @@ struct cLAYOUT {
    char        desc        [LEN_DESC ];     /* explanation of layout          */
 };
 tLAYOUT   s_layouts [MAX_LAYOUT] = {
-   /*---name------    tbfnmapscdrvk    ,    12345678901234567890123456789012345678901234567890  */
-   { "min"         , "----m--------"   , "smallest footprint, least elements showing"           },
-   { "work"        , "t---m--sc--vk"   , "more balanced display of common elements"             },
-   { "rob"         , "t---m--sc--v-"   , "more balanced display of common elements"             },
-   { "max"         , "tbfnm-pscdrvk"   , "everything displays at one time"                      },
-   { "ycolor"      , "tbfnmapsc-rvk"   , "more balanced display of common elements"             },
-   { ""            , "----m--------"   , ""                                                     },
+   /*---name------    tbfnmapscdrvkxy  ,    12345678901234567890123456789012345678901234567890  */
+   { "min"         , "----m----------" , "smallest footprint, least elements showing"           },
+   { "work"        , "t---m--sc--vk--" , "more balanced display of common elements"             },
+   { "rob"         , "t---m--sc--v---" , "more balanced display of common elements"             },
+   { "max"         , "tbfnm-pscdrvk--" , "everything displays at one time"                      },
+   { "ycolor"      , "tbfnmapsc-rvk--" , "more balanced display of common elements"             },
+   { "gyges"       , "--f-m--sc----xy" , "prepared for gyges spreadsheet"                       },
+   { ""            , "----m----------" , ""                                                     },
 };
 static int  s_nlayout   = 0;
 
@@ -207,11 +210,11 @@ static int s_nlayer     = 0;
 
 
 int         g_goffx   =   0;
-int         g_gsizex  =  60;
+int         g_gsizex  =   1;
 int         g_goffy   =   0;
-int         g_gsizey  =  60;
+int         g_gsizey  =   1;
 int         g_goffz   =   0;
-int         g_gsizez  =  60;
+int         g_gsizez  =   1;
 
 static  float  s_mag;
 
@@ -362,6 +365,8 @@ VIEW_defaults            (cchar a_env)
          case YVIKEYS_KEYS    : p->on = 'y';  p->def_wide =  40;  p->def_tall =  15;  break;
          case YVIKEYS_GRID    : p->on = '-';                      break;
          case YVIKEYS_CURSOR  : p->on = '-';                      break;
+         case YVIKEYS_XAXIS   : p->on = '-';  p->def_tall =  15;  break;
+         case YVIKEYS_YAXIS   : p->on = '-';  p->def_wide =  30;  break;
          case YVIKEYS_OVERLAY : p->on = '-';                      break;
          case YVIKEYS_LAYERS  : p->on = '-';                      break;
          case YVIKEYS_FLOAT   : p->on = '-';                      break;
@@ -390,6 +395,8 @@ VIEW_defaults            (cchar a_env)
          case YVIKEYS_KEYS    : p->on = 'y';  p->def_wide =   5;  p->def_tall =   1;  break;
          case YVIKEYS_GRID    : p->on = '-';                      break;
          case YVIKEYS_CURSOR  : p->on = '-';                      break;
+         case YVIKEYS_XAXIS   : p->on = '-';  p->def_tall =   1;  break;
+         case YVIKEYS_YAXIS   : p->on = '-';  p->def_wide =   4;  break;
          case YVIKEYS_OVERLAY : p->on = '-';                      break;
          case YVIKEYS_LAYERS  : p->on = '-';                      break;
          case YVIKEYS_FLOAT   : p->on = '-';                      break;
@@ -412,6 +419,7 @@ VIEW__widths_wide        (cint a_wide, cint a_alt)
    int         n           =    0;          /* current part                   */
    int         w           =    0;          /* widest at level                */
    int         x_cum       =    0;          /* cumulative width               */
+   int         x_yaxis     =    0;
    /*---(header)-------------------------*/
    DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
    DEBUG_GRAF   yLOG_value   ("a_wide"    , a_wide);
@@ -428,6 +436,8 @@ VIEW__widths_wide        (cint a_wide, cint a_alt)
          /*---(find greatest)------------*/
          if (s_parts [n].x_tie == '-'  && s_parts [n].wide > w)   w = s_parts [n].wide;
          DEBUG_GRAF   yLOG_complex ("fixed"     , "%c %-12.12s %3d wide (cum = %3d)", s_parts [n].abbr, s_parts [n].name, s_parts [n].wide, x_cum);
+         /*---(save)---------------------*/
+         if (s_parts [n].abbr == YVIKEYS_YAXIS   )  x_yaxis += s_parts [n].wide;
          /*---(done)---------------------*/
       }
       x_cum += w;
@@ -442,10 +452,11 @@ VIEW__widths_wide        (cint a_wide, cint a_alt)
          if (s_parts [n].on != 'y')  continue;
          /*---(set)----------------------*/
          switch (s_parts [n].abbr) {
-         case YVIKEYS_MAIN     : s_parts [n].wide = s_main_wide = a_wide;    break;
-         case YVIKEYS_ALT      : s_parts [n].wide = s_alt_wide  = a_alt;     break;
-         case YVIKEYS_PROGRESS : s_parts [n].wide = a_wide + a_alt;          break;
-         default               : continue;                                   break;
+         case YVIKEYS_MAIN     : s_parts [n].wide = s_main_wide = a_wide;     break;
+         case YVIKEYS_ALT      : s_parts [n].wide = s_alt_wide  = a_alt;      break;
+         case YVIKEYS_PROGRESS : s_parts [n].wide = a_wide + a_alt;           break;
+         case YVIKEYS_XAXIS    : s_parts [n].wide = a_wide + a_alt + x_yaxis; break;
+         default               : continue;                                    break;
          }
          DEBUG_GRAF   yLOG_complex ("opengl"    , "%c %-12.12s %3d wide", s_parts [n].abbr, s_parts [n].name, s_parts [n].wide);
          /*---(done)---------------------*/
@@ -459,8 +470,9 @@ VIEW__widths_wide        (cint a_wide, cint a_alt)
          switch (s_parts [n].abbr) {
          case YVIKEYS_MAIN     : s_parts [n].wide = s_main_wide = a_wide - x_cum - a_alt;  break;
          case YVIKEYS_ALT      : s_parts [n].wide = s_alt_wide  = a_alt;                   break;
-         case YVIKEYS_PROGRESS : s_parts [n].wide = a_wide - x_cum;          break;
-         default               : continue;                                   break;
+         case YVIKEYS_PROGRESS : s_parts [n].wide = a_wide - x_cum;           break;
+         case YVIKEYS_XAXIS    : s_parts [n].wide = a_wide - x_cum + x_yaxis; break;
+         default               : continue;                                    break;
          }
          DEBUG_GRAF   yLOG_complex ("curses"    , "%c %-12.12s %3d wide", s_parts [n].abbr, s_parts [n].name, s_parts [n].wide);
          /*---(done)---------------------*/
@@ -496,13 +508,13 @@ VIEW__widths_left        (void)
          x_skip = '-';
          if (s_parts [n].x_tie  != '-'   ) {
             a = VIEW__abbr (s_parts [n].x_tie);
-            if (s_parts [n].on  == 'y')  {
+            if (a >= 0 && s_parts [n].on  == 'y')  {
                s_parts [a].wide  = s_full_wide - s_parts [a].left - s_parts [n].wide;
                s_parts [n].left  = s_full_wide - s_parts [n].wide;
+               DEBUG_GRAF   yLOG_complex ("alternate" , "%c %-12.12s %3d left (cum %3d)", s_parts [a].abbr, s_parts [a].name, s_parts [a].left, x_cum);
             }
-            x_skip = 'y';
-            DEBUG_GRAF   yLOG_complex ("alternate" , "%c %-12.12s %3d left (cum %3d)", s_parts [a].abbr, s_parts [a].name, s_parts [a].left, x_cum);
          }
+         if (s_parts [n].x_tie != '-')  x_skip = 'y';
          /*---(greatest at level)--------*/
          if (s_parts [n].wide > w && x_skip == '-')   w = s_parts [n].wide;
          DEBUG_GRAF   yLOG_complex ("left"      , "%c %-12.12s %3d left (cum %3d)", s_parts [n].abbr, s_parts [n].name, s_parts [n].left, x_cum);
@@ -553,6 +565,7 @@ VIEW__heights_tall       (cint a_tall)
    int         h           =    0;          /* widest at level                */
    int         x_cum       =    0;          /* cumulative width               */
    int         x_prog      =    0;
+   int         x_xaxis     =    0;
    char        x_skip      =  '-';
    /*---(header)-------------------------*/
    DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
@@ -573,7 +586,8 @@ VIEW__heights_tall       (cint a_tall)
          if (x_skip == '-'  && s_parts [n].tall > h)   h = s_parts [n].tall;
          DEBUG_GRAF   yLOG_complex ("fixed"     , "%c %-12.12s %3d tall (cum = %3d)", s_parts [n].abbr, s_parts [n].name, s_parts [n].tall, x_cum);
          /*---(save)---------------------*/
-         if (s_parts [n].abbr == YVIKEYS_PROGRESS)  x_prog = s_parts [n].tall;
+         if (s_parts [n].abbr == YVIKEYS_PROGRESS)  x_prog  = s_parts [n].tall;
+         if (s_parts [n].abbr == YVIKEYS_XAXIS   )  x_xaxis = s_parts [n].tall;
          /*---(done)---------------------*/
       }
       x_cum += h;
@@ -588,12 +602,13 @@ VIEW__heights_tall       (cint a_tall)
          if (s_parts [n].on != 'y')  continue;
          /*---(set)----------------------*/
          switch (s_parts [n].abbr) {
-         case YVIKEYS_MAIN     : s_parts [n].tall = s_main_tall = a_tall;    break;
-         case YVIKEYS_ALT      : s_parts [n].tall = a_tall;                  break;
+         case YVIKEYS_MAIN     : s_parts [n].tall = s_main_tall = a_tall;      break;
+         case YVIKEYS_ALT      : s_parts [n].tall = a_tall;                    break;
          case YVIKEYS_NAV      :
          case YVIKEYS_DETAILS  :
-         case YVIKEYS_RIBBON   : s_parts [n].tall = a_tall + x_prog;         break;
-         default               : continue;                                   break;
+         case YVIKEYS_RIBBON   : s_parts [n].tall = a_tall + x_prog + x_xaxis; break;
+         case YVIKEYS_YAXIS    : s_parts [n].tall = a_tall;                    break;
+         default               : continue;                                     break;
          }
          DEBUG_GRAF   yLOG_complex ("opengl"    , "%c %-12.12s %3d tall", s_parts [n].abbr, s_parts [n].name, s_parts [n].tall);
          /*---(done)---------------------*/
@@ -610,6 +625,7 @@ VIEW__heights_tall       (cint a_tall)
          case YVIKEYS_NAV      :
          case YVIKEYS_DETAILS  :
          case YVIKEYS_RIBBON   : s_parts [n].tall = a_tall - x_cum + x_prog;       break;
+         case YVIKEYS_YAXIS    : s_parts [n].tall = a_tall - x_cum;            break;
          default               : continue;                                         break;
          }
          DEBUG_GRAF   yLOG_complex ("curses"    , "%c %-12.12s %3d tall", s_parts [n].abbr, s_parts [n].name, s_parts [n].tall);
@@ -646,7 +662,7 @@ VIEW__heights_bott       (void)
          x_skip = '-';
          if (s_parts [n].y_tie  != '-'   ) {
             a = VIEW__abbr (s_parts [n].y_tie);
-            if (s_parts [n].on  == 'y')  {
+            if (a >= 0 && s_parts [n].on  == 'y')  {
                s_parts [a].tall  = s_full_tall - s_parts [a].bott - s_parts [n].tall;
                s_parts [n].bott  = s_full_tall - s_parts [n].tall;
                DEBUG_GRAF   yLOG_complex ("alternate" , "%c %-12.12s %3d bott (cum %3d)", s_parts [a].abbr, s_parts [a].name, s_parts [a].bott, x_cum);
@@ -1077,7 +1093,7 @@ VIEW__init_curses       (void)
 }
 
 char
-yVIKEYS_view_init       (cchar *a_title, cchar *a_ver, cchar a_env, cint a_wide, cint a_tall, cint a_alt)
+yVIKEYS_view_config     (cchar *a_title, cchar *a_ver, cchar a_env, cint a_wide, cint a_tall, cint a_alt)
 {
    /*---(locals)-----------+-----+-----+-*/
    int         i           =    0;
@@ -1396,7 +1412,7 @@ yVIKEYS_view_setup         (cchar a_part, cchar a_type, cchar a_anchor, cint a_x
 }
 
 char
-yVIKEYS_view_wrap       (void)
+VIEW_wrap               (void)
 {
    switch (s_env) {
    case YVIKEYS_OPENGL :  yX11_end  ();  break;

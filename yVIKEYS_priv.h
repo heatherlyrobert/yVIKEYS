@@ -31,8 +31,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.7d"
-#define YVIKEYS_VER_TXT   "tentatively added ncurses capability to drawing"
+#define YVIKEYS_VER_NUM   "0.7e"
+#define YVIKEYS_VER_TXT   "fixed view sizing, added axis, and updated mapping"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -103,6 +103,7 @@ typedef     signed char       schar;
 char        VIEW__reset             (void);
 char        VIEW__find              (cchar *a_name);
 char        VIEW__abbr              (cchar  a_abbr);
+char        VIEW_wrap                 (void);
 
 char        VIEW__widths            (cint a_wide, cint a_alt);
 char        VIEW__heights           (cint a_tall);
@@ -142,7 +143,7 @@ char        REPEAT_decrement        (void);
 int         REPEAT_count            (void);
 
 char        MAP_init                (void);
-char        MAP__load               (char a_style , tMAPPED *a_map);
+char        MAP__load               (char a_style, tMAPPED *a_map, char a_which);
 char        MAP__screen             (tMAPPED *a_map);
 char        MAP__move               (int  a_target, tMAPPED *a_map);
 char        MAP_mode                (char a_major, char a_minor);
