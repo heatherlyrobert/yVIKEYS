@@ -111,7 +111,7 @@ struct cPARTS {
    /*---(for std elements)-----*/
    char        orient;                      /* orientation of text            */
    char        (*source) (char*);           /* content source                 */
-   char        text        [LEN_STR ];      /* optional text                  */
+   char        text        [2000    ];      /* optional text                  */
    /*---(special drawing)------*/
    char        (*drawer) (void);            /* drawing function               */
    char        type;                        /* ortho vs 3d                    */
@@ -234,7 +234,7 @@ VIEW__purge              (void)
    for (n = 0; n < s_npart; ++n) {
       s_parts [n].left   = s_parts [n].wide   = 0;
       s_parts [n].bott   = s_parts [n].tall   = 0;
-      strlcpy (s_parts [n].text, "", LEN_LABEL);
+      strlcpy (s_parts [n].text, "", LEN_STR);
       s_parts [n].type   = YVIKEYS_FLAT;
       s_parts [n].color  = YCOLOR_GRY;
       s_parts [n].xmin   = s_parts [n].xlen   = 0;
@@ -255,7 +255,7 @@ VIEW__reset              (void)
       if (s_parts [n].abbr != YVIKEYS_MAIN  )  s_parts [n].on   = '-';
       s_parts [n].left   = s_parts [n].wide   =   0;
       s_parts [n].bott   = s_parts [n].tall   =   0;
-      /*> strlcpy (s_parts [n].text, "", LEN_LABEL);                                  <*/
+      /*> strlcpy (s_parts [n].text, "", LEN_STR);                                  <*/
       DEBUG_GRAF_M yLOG_complex (s_parts [n].name, "bott %4d, left %4d, wide %4d, tall %4d, on %c", s_parts [n].bott, s_parts [n].left, s_parts [n].wide, s_parts [n].tall, s_parts [n].on);
    }
    DEBUG_GRAF_M yLOG_exit    (__FUNCTION__);
@@ -346,6 +346,10 @@ VIEW_defaults            (cchar a_env)
    DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
    DEBUG_GRAF   yLOG_char    ("a_env"     , a_env);
    s_env = a_env;
+   /*---(drawers)------------------------*/
+   for (n = 0; n < s_npart; ++n) {
+      s_parts [n].drawer = NULL;
+   }
    /*---(setup opengl)-------------------*/
    if (a_env == YVIKEYS_OPENGL) {
       for (n = 0; n < s_npart; ++n) {
@@ -360,16 +364,16 @@ VIEW_defaults            (cchar a_env)
          case YVIKEYS_STATUS  : p->on = 'y';  p->def_tall =  15;  break;
          case YVIKEYS_COMMAND : p->on = 'y';  p->def_tall =  15;  break;
          case YVIKEYS_DETAILS : p->on = '-';  p->def_wide = 250;  break;
-         case YVIKEYS_RIBBON  : p->on = '-';  p->def_wide =  40;  break;
-         case YVIKEYS_VERSION : p->on = 'y';  p->def_wide =  15;  p->def_tall =  40;  break;
-         case YVIKEYS_KEYS    : p->on = 'y';  p->def_wide =  40;  p->def_tall =  15;  break;
+         case YVIKEYS_RIBBON  : p->on = '-';  p->def_wide =  40;  p->drawer = VIEW__ribbon;     break;
+         case YVIKEYS_VERSION : p->on = 'y';  p->def_wide =  15;  p->def_tall =  40;            break;
+         case YVIKEYS_KEYS    : p->on = 'y';  p->def_wide =  40;  p->def_tall =  15;            break;
          case YVIKEYS_GRID    : p->on = '-';                      break;
-         case YVIKEYS_CURSOR  : p->on = '-';                      break;
+         case YVIKEYS_CURSOR  : p->on = '-';                      p->drawer = VIEW__cursor;     break;
          case YVIKEYS_XAXIS   : p->on = '-';  p->def_tall =  15;  break;
          case YVIKEYS_YAXIS   : p->on = '-';  p->def_wide =  30;  break;
          case YVIKEYS_OVERLAY : p->on = '-';                      break;
-         case YVIKEYS_LAYERS  : p->on = '-';                      break;
-         case YVIKEYS_FLOAT   : p->on = '-';                      break;
+         case YVIKEYS_LAYERS  : p->on = '-';                      p->drawer = VIEW__layer_show; break;
+         case YVIKEYS_FLOAT   : p->on = '-';                      p->drawer = VIEW__float;      break;
          case YVIKEYS_WINDOW  : p->on = '-';                      break;
          case YVIKEYS_MAIN    : p->on = 'y';                      break;
          }
@@ -682,6 +686,28 @@ VIEW__heights_bott       (void)
    return 0;
 }
 
+char         /*-> flip bottoms for ncurses -----------[ ------ [gz.742.001.01]*/ /*-[00.0000.112.!]-*/ /*-[--.---.---.--]-*/
+VIEW__heights_flip       (void)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   int         n           =    0;          /* current part                   */
+   int         x_tall      =    0;
+   /*---(header)-------------------------*/
+   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
+   if (s_env == YVIKEYS_OPENGL) {
+      DEBUG_GRAF   yLOG_note    ("not required for opengl");
+      DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
+   /*---(display)------------------------*/
+   for (n = 0; n < s_npart; ++n) {
+      s_parts [n].bott = s_full_tall - s_parts [n].bott - 1;
+   }
+   /*---(complete)-----------------------*/
+   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
 char         /*-> resize widths based on layout ------[ ------ [gz.742.001.01]*/ /*-[00.0000.112.!]-*/ /*-[--.---.---.--]-*/
 VIEW__heights            (cint a_tall)
 {
@@ -707,6 +733,8 @@ VIEW__heights            (cint a_tall)
    DEBUG_GRAF   yLOG_value   ("full_wide" , s_full_tall);
    n = VIEW__abbr (YVIKEYS_WINDOW);
    s_parts [n].tall = s_full_tall;
+   /*---(flip ncurses)-------------------*/
+   VIEW__heights_flip  ();
    /*---(complete)-----------------------*/
    DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -783,7 +811,7 @@ VIEW__resize             (cchar a_type)
    DEBUG_GRAF   yLOG_char    ("a_type"    , a_type);
    /*---(size window)--------------------*/
    if (a_type == 'r' && s_env == YVIKEYS_CURSES) {
-      if (s_testmode != 'y')  getmaxyx (stdscr, s_orig_wide, s_orig_tall);
+      if (s_testmode != 'y')  getmaxyx (stdscr, s_orig_tall, s_orig_wide);
    }
    /*---(widths)-------------------------*/
    DEBUG_GRAF   yLOG_value   ("orig_wide" , s_orig_wide);
@@ -1084,6 +1112,7 @@ VIEW__init_curses       (void)
    raw      ();     /* read key-by-key rather than waiting for \n (raw mode)  */
    noecho   ();     /* don't automatically echo keypresses to the screen      */
    ESCDELAY = 0;    /* so escape responds immediately                         */
+   nodelay  (stdscr, TRUE);
    getmaxyx (stdscr, s_orig_wide, s_orig_tall);
    clear    ();
    touchwin (stdscr);
@@ -1165,11 +1194,11 @@ yVIKEYS_view_config     (cchar *a_title, cchar *a_ver, cchar a_env, cint a_wide,
    /*---(set text data)------------------*/
    if (a_title != NULL) {
       n = VIEW__abbr (YVIKEYS_TITLE);
-      strlcpy (s_parts [n].text, a_title, LEN_DESC );
+      strlcpy (s_parts [n].text, a_title, LEN_STR  );
    }
    if (a_ver   != NULL) {
       n = VIEW__abbr (YVIKEYS_VERSION);
-      strlcpy (s_parts [n].text, a_ver  , LEN_DESC );
+      strlcpy (s_parts [n].text, a_ver  , LEN_STR  );
    }
    n = VIEW__abbr (YVIKEYS_COMMAND);
    MODE_message (s_parts [n].text, CMDS_curr ());
@@ -1208,7 +1237,7 @@ yVIKEYS_view_simple        (cchar a_part, cchar a_color, void *a_drawer)
    DEBUG_GRAF   yLOG_value   ("color"     , s_parts [n].color);
    /*---(save drawer)--------------------*/
    DEBUG_GRAF   yLOG_point   ("a_drawer"  , a_drawer);
-   if (a_drawer != NULL)              s_parts [n].drawer = a_drawer;
+   if (a_drawer != NULL)     s_parts [n].drawer = a_drawer;
    DEBUG_GRAF   yLOG_point   ("drawer"    , s_parts [n].drawer);
    /*---(finish up)----------------------*/
    s_parts [n].mgmt   = YVIKEYS_AUTO;
@@ -1261,10 +1290,36 @@ yVIKEYS_view_moderate      (cchar a_part, cchar a_type, cchar a_anchor, cchar a_
    DEBUG_GRAF   yLOG_value   ("color"     , s_parts [n].color);
    /*---(save drawer)--------------------*/
    DEBUG_GRAF   yLOG_point   ("a_drawer"  , a_drawer);
-   if (a_drawer != NULL)              s_parts [n].drawer = a_drawer;
+   if (a_drawer != NULL)     s_parts [n].drawer = a_drawer;
    DEBUG_GRAF   yLOG_point   ("drawer"    , s_parts [n].drawer);
    /*---(finish up)----------------------*/
    s_parts [n].mgmt   = YVIKEYS_AUTO;
+   /*---(complete)-----------------------*/
+   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char
+yVIKEYS_view_defsize       (cchar a_part, cint a_wide, cint a_tall)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        n           =    0;
+   /*---(header)-------------------------*/
+   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
+   /*---(identify part)------------------*/
+   DEBUG_GRAF   yLOG_char    ("a_part"    , a_part);
+   n = VIEW__abbr (a_part);
+   DEBUG_GRAF   yLOG_value   ("n"         , n);
+   if (n < 0) {
+      DEBUG_GRAF   yLOG_note    ("deal with a missing element");
+      DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
+      return n;
+   }
+   DEBUG_GRAF   yLOG_info    ("name"      , s_parts [n].name);
+   /*---(size)---------------------------*/
+   if (a_wide > 0)  s_parts [n].def_wide = a_wide;
+   if (a_tall > 0)  s_parts [n].def_tall = a_tall;
+   VIEW__resize ('r');
    /*---(complete)-----------------------*/
    DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -1310,6 +1365,10 @@ yVIKEYS_view_colors        (cint a_lef, cint a_bot, cint a_top, cint a_rig)
    n = VIEW__abbr (YVIKEYS_STATUS  );
    s_parts [n].color = a_bot + 5;
    n = VIEW__abbr (YVIKEYS_KEYS    );
+   s_parts [n].color = a_bot + 5;
+   n = VIEW__abbr (YVIKEYS_XAXIS   );
+   s_parts [n].color = a_bot + 5;
+   n = VIEW__abbr (YVIKEYS_YAXIS   );
    s_parts [n].color = a_bot + 5;
    /*---(top)----------------------------*/
    n = VIEW__abbr (YVIKEYS_BUFFER  );
@@ -1427,7 +1486,7 @@ yVIKEYS_view_text       (cchar a_part, cchar *a_text)
    int         n           =    0;
    n = VIEW__abbr (a_part);
    if (n < 0)  return -1;
-   strlcpy (s_parts [n].text, a_text, LEN_DESC);
+   strlcpy (s_parts [n].text, a_text, LEN_STR);
    return 0;
 }
 
@@ -1452,7 +1511,7 @@ yVIKEYS_view_size       (cchar a_part, int *a_left, int *a_wide, int *a_bott, in
    if (a_bott != NULL)  *a_bott  = s_parts [n].bott;
    if (a_wide != NULL)  *a_wide  = s_parts [n].wide;
    if (a_tall != NULL)  *a_tall  = s_parts [n].tall;
-   if (a_text != NULL)  strlcpy (a_text, s_parts [n].text, LEN_DESC);
+   if (a_text != NULL)  strlcpy (a_text, s_parts [n].text, LEN_STR);
    DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return s_parts [n].on;
 }
@@ -1981,7 +2040,8 @@ VIEW__opengl             (char a)
          } glPopMatrix   ();
       } else if (s_env == YVIKEYS_CURSES) {
          /*  set color --------------*/
-         mvprintw (s_orig_tall - s_parts [a].bott, s_parts [a].left, "%*.*s", s_parts [a].wide, s_parts [a].wide, s_parts [a].text);
+         mvprintw (s_parts [a].bott, s_parts [a].left, "%-*.*s", s_parts [a].wide, s_parts [a].wide, s_parts [a].text);
+         /*> mvprintw (s_parts [a].bott, s_parts [a].left, "%-*.*s", s_parts [a].wide, s_parts [a].wide, s_parts [a].name);   <*/
          /*  clear color ------------*/
       }
    }
@@ -2014,18 +2074,21 @@ yVIKEYS_view_all         (float a_mag)
       DEBUG_GRAF   yLOG_info    ("part"      , s_parts [n].name);
       DEBUG_GRAF   yLOG_char    ("own"       , s_parts [n].own);
       DEBUG_GRAF   yLOG_char    ("on"        , s_parts [n].on);
+      DEBUG_GRAF   yLOG_value   ("bott"      , s_parts [n].bott);
+      DEBUG_GRAF   yLOG_value   ("tall"      , s_parts [n].tall);
       if (strchr (OWN_SETUP, s_parts [n].own) == NULL)  continue;
       if (s_parts [n].on   == '-')                      continue;
       if (s_parts [n].type == YVIKEYS_DISABLE)          continue;
       rc = VIEW__opengl (n);
       if (s_parts [n].drawer != NULL)  s_parts [n].drawer ();
    }
-   /*---(main)---------------------------*/
+   /*---(on top of main)-----------------*/
    for (n = 0; n < s_npart; ++n) {
       DEBUG_GRAF   yLOG_info    ("part"      , s_parts [n].name);
       DEBUG_GRAF   yLOG_char    ("own"       , s_parts [n].own);
       DEBUG_GRAF   yLOG_char    ("on"        , s_parts [n].on);
-      DEBUG_GRAF   yLOG_point   ("drawer"    , s_parts [n].drawer);
+      DEBUG_GRAF   yLOG_value   ("bott"      , s_parts [n].bott);
+      DEBUG_GRAF   yLOG_value   ("tall"      , s_parts [n].tall);
       if (s_parts [n].own    != OWN_OVERLAY)              continue;
       if (s_parts [n].on     == '-')                      continue;
       if (s_parts [n].type   == YVIKEYS_DISABLE)          continue;

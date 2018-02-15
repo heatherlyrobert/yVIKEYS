@@ -156,6 +156,7 @@ yVIKEYS_main_input      (char a_runmode, uchar a_key)
    DEBUG_LOOP   yLOG_value   ("a_key"     , a_key);
    /*---(defense)------------------------*/
    if (a_key == 0) {
+      DEBUG_LOOP   yLOG_exit    (__FUNCTION__);
       return a_key;
    }
    /*---(normal)-------------------------*/

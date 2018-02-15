@@ -191,6 +191,7 @@ char        yVIKEYS_view_resize       (cint   a_wide , cint   a_tall, cint a_alt
 char        yVIKEYS_view_setup        (cchar  a_part , cchar  a_type, cchar a_anchor, cint a_xmin, cint a_xlen, cint a_ymin, cint a_ylen, cint a_zmin, cint z_len, cchar a_color, void *a_drawer);
 char        yVIKEYS_view_moderate     (cchar  a_part , cchar  a_type, cchar a_anchor, cchar a_color, void *a_drawer);
 char        yVIKEYS_view_simple       (cchar  a_part , cchar  a_color, void *a_drawer);
+char        yVIKEYS_view_defsize       (cchar a_part, cint a_wide, cint a_tall);
 char        yVIKEYS_view_palette      (cint a_deg, cchar *a_harm, cchar *a_sat, cchar *a_val);
 char        yVIKEYS_view_colors       (cint a_lef, cint a_bot, cint a_top, cint a_rig);
 char        yVIKEYS_view_color        (cint a_color, cfloat a_alpha);

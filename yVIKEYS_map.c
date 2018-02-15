@@ -61,7 +61,7 @@ MAP__print           (tMAPPED *a_map)
 {
    int         i           =    0;
    /*---(headers)------------------------*/
-   printf ("gmin amin lmin prev    ");
+   printf ("-  gmin amin lmin prev    ");
    /*> for (i = 0; i < LEN_MAP; ++i) {                                                <* 
     *>    if (a_map->map [i] == YVIKEYS_EMPTY)  break;                                <* 
     *>    printf ("%4d "  , i);                                                       <* 
@@ -69,6 +69,7 @@ MAP__print           (tMAPPED *a_map)
     *> printf ("   ");                                                                <*/
    printf ("next lmax amax gmax    aval beg- cur- end- len- tend\n");
    /*---(content)------------------------*/
+   printf ("%c  "                        , a_map->which);
    printf ("%4d %4d %4d %4d    "         , a_map->gmin , a_map->amin , a_map->lmin , a_map->prev );
    /*> for (i = 0; i < LEN_MAP; ++i) {                                                <* 
     *>    if (a_map->map [i] == YVIKEYS_EMPTY)  break;                                <* 
@@ -187,6 +188,8 @@ MAP_init               (void)
    MAP__clear (&g_ymap, YVIKEYS_YMAP);
    MAP__clear (&g_zmap, YVIKEYS_ZMAP);
    MAP__clear (&g_tmap, YVIKEYS_TMAP);
+   /*> MAP__print (&g_xmap);                                                          <*/
+   /*> MAP__print (&g_ymap);                                                          <*/
    return 0;
 }
 
@@ -256,6 +259,7 @@ MAP__move             (int a_target, tMAPPED *a_map)
       DEBUG_USER  yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
+   /*> MAP__print  (a_map);                                                           <*/
    /*---(make sure index is rational)----*/
    DEBUG_USER  yLOG_value   ("cur"       , a_map->cur);
    DEBUG_USER  yLOG_value   ("gmin"      , a_map->gmin);
@@ -309,6 +313,7 @@ MAP__move             (int a_target, tMAPPED *a_map)
       if (a_map->map [i] != a_map->gcur)   break;
       a_map->cur  = i;
    }
+   /*> MAP__print  (a_map);                                                           <*/
    /*---(complete)-----------------------*/
    DEBUG_USER  yLOG_exit    (__FUNCTION__);
    return  1;
@@ -572,9 +577,9 @@ MAP__vert             (char a_major, char a_minor)
    MAP__screen (&g_ymap);
    if (s_mapper != NULL) {
       s_mapper (YVIKEYS_UPDATE);
-      /*> MAP__print (&g_xmap);                                                       <*/
-      /*> MAP__print (&g_ymap);                                                       <*/
    }
+   /*> MAP__print (&g_xmap);                                                          <*/
+   /*> MAP__print (&g_ymap);                                                          <*/
    /*---(complete)-----------------------*/
    DEBUG_USER  yLOG_exit    (__FUNCTION__);
    return G_KEY_SPACE;
@@ -620,8 +625,8 @@ MAP__horz             (char a_major, char a_minor)
    }
    /*---(gotos)--------------------------*/
    DEBUG_USER  yLOG_info    ("s_hgoto"   , s_hgoto);
-   DEBUG_USER  yLOG_note    ("execute goto move");
    if (a_major == 'g' && strchr (s_hgoto  , a_minor) != NULL) {
+      DEBUG_USER  yLOG_note    ("execute goto move");
       switch (a_minor) {
       case 'S' : x_unit  = x_beg - (x_qtr * 4);            break;
       case 'H' : x_unit  = x_beg - (x_qtr * 2);            break;
@@ -846,8 +851,8 @@ MAP_mode                (char a_major, char a_minor)
        *>    return 0;                                                                <* 
        *> }                                                                           <*/
       if (a_minor == 'P') {
-         MAP__print (&g_xmap);
-         MAP__print (&g_ymap);
+         /*> MAP__print (&g_xmap);                                                    <*/
+         /*> MAP__print (&g_ymap);                                                    <*/
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return G_KEY_SPACE;
       }

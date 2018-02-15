@@ -31,8 +31,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.7e"
-#define YVIKEYS_VER_TXT   "fixed view sizing, added axis, and updated mapping"
+#define YVIKEYS_VER_NUM   "0.7f"
+#define YVIKEYS_VER_TXT   "achieved very rough display of gyges row, col, status, and command"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/

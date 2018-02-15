@@ -241,7 +241,7 @@ MODE_message       (char *a_mesg, char *a_cmd)
          strlcpy (a_mesg, a_cmd, LEN_STR);
          break;
       default           :
-         sprintf (a_mesg, "[%c%c] %-3.3s : %s\n", x_major, x_minor, s_mode_info[i].three, s_mode_info[i].mesg);
+         snprintf (a_mesg, LEN_STR, "[%c%c] %-3.3s : %s\n", x_major, x_minor, s_mode_info[i].three, s_mode_info[i].mesg);
          break;
       }
    }
