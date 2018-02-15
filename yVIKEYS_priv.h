@@ -31,8 +31,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.7f"
-#define YVIKEYS_VER_TXT   "achieved very rough display of gyges row, col, status, and command"
+#define YVIKEYS_VER_NUM   "0.7g"
+#define YVIKEYS_VER_TXT   "ncurses colors moved to yCOLOR, gyges shows main area correctly"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -147,6 +147,9 @@ char        MAP__load               (char a_style, tMAPPED *a_map, char a_which)
 char        MAP__screen             (tMAPPED *a_map);
 char        MAP__move               (int  a_target, tMAPPED *a_map);
 char        MAP_mode                (char a_major, char a_minor);
+char        MAP_xstatus             (char *a_list);
+char        MAP_ystatus             (char *a_list);
+char        MAP_status              (char *a_list);
 char*       MAP__unit               (char *a_question, char a_index);
 char        MAP__unit_ymap          (void);
 char        MAP__unit_xmap          (void);

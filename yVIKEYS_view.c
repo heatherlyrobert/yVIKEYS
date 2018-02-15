@@ -185,6 +185,8 @@ struct cOPTION  {
 };
 tOPTION  s_options [MAX_OPTION ] = {
    { YVIKEYS_STATUS  , "mode"         , MODE_status      , "display the mode stack"      },
+   { YVIKEYS_STATUS  , "xmap"         , MAP_xstatus      , "x-axis position details"     },
+   { YVIKEYS_STATUS  , "ymap"         , MAP_ystatus      , "y-axis position details"     },
    { YVIKEYS_STATUS  , "keys"         , BASE_key_status  , "displays keystroke history"  },
    { NULL            , ""             , NULL             , ""                            },
 };
@@ -1116,6 +1118,9 @@ VIEW__init_curses       (void)
    getmaxyx (stdscr, s_orig_wide, s_orig_tall);
    clear    ();
    touchwin (stdscr);
+   start_color ();
+   use_default_colors();
+   yCOLOR_curs_init  ();
    /*---(complete)-----------------------*/
    DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -1187,7 +1192,7 @@ yVIKEYS_view_config     (cchar *a_title, cchar *a_ver, cchar a_env, cint a_wide,
       VIEW__init_opengl (a_title);
       break;
    case YVIKEYS_CURSES :  
-      if (s_testmode != 'y')  VIEW__init_curses ();
+      if (s_testmode != 'y') VIEW__init_curses ();
       break;
    }
    VIEW__layout ("work");
@@ -2040,7 +2045,17 @@ VIEW__opengl             (char a)
          } glPopMatrix   ();
       } else if (s_env == YVIKEYS_CURSES) {
          /*  set color --------------*/
+         switch (s_parts [a].abbr) {
+         case YVIKEYS_COMMAND  :
+            yCOLOR_curs ("command" );
+            break;
+         case YVIKEYS_STATUS   :
+            if (yVIKEYS_error  () == 'y')  yCOLOR_curs ("error"   );
+            else                           yCOLOR_curs ("status"  );
+            break;
+         }
          mvprintw (s_parts [a].bott, s_parts [a].left, "%-*.*s", s_parts [a].wide, s_parts [a].wide, s_parts [a].text);
+         attrset  (0);
          /*> mvprintw (s_parts [a].bott, s_parts [a].left, "%-*.*s", s_parts [a].wide, s_parts [a].wide, s_parts [a].name);   <*/
          /*  clear color ------------*/
       }

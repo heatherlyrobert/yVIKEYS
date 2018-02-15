@@ -964,6 +964,36 @@ MAP_mode                (char a_major, char a_minor)
    return 0;
 }
 
+char       /*----: give current position info --------------------------------*/
+MAP_xstatus        (char *a_list)
+{
+   /*---(locals)-----------+-----------+-*/
+   char        rce         = -10;
+   /*---(defenses)-----------------------*/
+   --rce;  if (a_list  == NULL)  return rce;
+   /*---(walk the list)------------------*/
+   sprintf (a_list, "x_axis,  map %4da %4db %4dc %4de %4dt %4dl,  grid %3db %3dc %3de",
+         g_xmap.avail, g_xmap.beg  , g_xmap.cur  , g_xmap.end  , g_xmap.tend , g_xmap.len  ,
+         g_xmap.gbeg , g_xmap.gcur , g_xmap.gend );
+   /*---(complete)-----------------------*/
+   return 0;
+}
+
+char       /*----: give current position info --------------------------------*/
+MAP_ystatus        (char *a_list)
+{
+   /*---(locals)-----------+-----------+-*/
+   char        rce         = -10;
+   /*---(defenses)-----------------------*/
+   --rce;  if (a_list  == NULL)  return rce;
+   /*---(walk the list)------------------*/
+   sprintf (a_list, "y_axis,  map %4da %4db %4dc %4de %4dt %4dl,  grid %3db %3dc %3de",
+         g_ymap.avail, g_ymap.beg  , g_ymap.cur  , g_ymap.end  , g_ymap.tend , g_ymap.len  ,
+         g_ymap.gbeg , g_ymap.gcur , g_ymap.gend );
+   /*---(complete)-----------------------*/
+   return 0;
+}
+
 char
 MAP__unit_ymap          (void)
 {
