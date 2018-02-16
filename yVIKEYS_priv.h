@@ -31,8 +31,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.7g"
-#define YVIKEYS_VER_TXT   "ncurses colors moved to yCOLOR, gyges shows main area correctly"
+#define YVIKEYS_VER_NUM   "0.7h"
+#define YVIKEYS_VER_TXT   "added a better ncurses refresh capability"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/

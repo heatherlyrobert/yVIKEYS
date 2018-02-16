@@ -667,6 +667,15 @@ MAP__horz             (char a_major, char a_minor)
 }
 
 char
+yVIKEYS_map_refresh     (void)
+{
+   MAP__vert (' ', 'r');
+   MAP__horz (' ', 'r');
+   clear     ();
+   return 0;
+}
+
+char
 MAP_mode                (char a_major, char a_minor)
 {
    /*---(locals)-----------+-----------+-*/

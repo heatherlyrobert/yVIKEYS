@@ -856,6 +856,7 @@ yVIKEYS_view_resize      (cint a_wide, cint a_tall, cint a_alt)
    if (a_tall > 10)   s_orig_tall = a_tall;
    if (a_alt  > 10)   s_alt_wide  = a_alt;
    VIEW__resize ('r');
+   if (s_env == YVIKEYS_CURSES)   yVIKEYS_map_refresh ();
    /*---(complete)-----------------------*/
    DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -1988,10 +1989,12 @@ VIEW__layer_show         (void)
 char
 VIEW__opengl             (char a)
 {
-   /*---(locals)-----------+-----------+-*/
+   /*---(locals)-----------+-----+-----+-*/
    int         x_max;
    int         y_max;
    int         z_max;
+   int         i           =    0;
+   int         x_len       =    0;
    /*---(header)-------------------------*/
    DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
    DEBUG_GRAF   yLOG_info    ("name"      , s_parts [a].name);
@@ -2046,15 +2049,43 @@ VIEW__opengl             (char a)
       } else if (s_env == YVIKEYS_CURSES) {
          /*  set color --------------*/
          switch (s_parts [a].abbr) {
+         case YVIKEYS_TITLE    :
+         case YVIKEYS_VERSION  :
+            yCOLOR_curs ("status" );
+            break;
          case YVIKEYS_COMMAND  :
             yCOLOR_curs ("command" );
             break;
          case YVIKEYS_STATUS   :
-            if (yVIKEYS_error  () == 'y')  yCOLOR_curs ("error"   );
-            else                           yCOLOR_curs ("status"  );
+            if (yVIKEYS_error () == 'y')  yCOLOR_curs ("error"   );
+            else                          yCOLOR_curs ("status"  );
             break;
          }
-         mvprintw (s_parts [a].bott, s_parts [a].left, "%-*.*s", s_parts [a].wide, s_parts [a].wide, s_parts [a].text);
+         if (s_parts [a].orient == 'r') {
+            x_len = strlen (s_parts [a].text);
+            for (i = 0; i < x_len; ++i) {
+               mvprintw (s_parts [a].bott - i, s_parts [a].left, "%c", s_parts [a].text [x_len - i - 1]);
+            }
+            for (i = x_len; i < s_parts [a].tall; ++i) {
+               mvprintw (s_parts [a].bott - i, s_parts [a].left, " ");
+            }
+         } else {
+            if (s_parts [a].abbr == YVIKEYS_FORMULA) {
+               yCOLOR_curs ("h_current");
+               mvprintw (s_parts [a].bott, s_parts [a].left + 0, "%4d", strlen (s_parts [a].text));
+               attrset  (0);
+               yCOLOR_curs ("h_used" );
+               mvprintw (s_parts [a].bott, s_parts [a].left + 4, " ");
+               attrset  (0);
+               yCOLOR_curs ("map"    );
+               mvprintw (s_parts [a].bott, s_parts [a].left + 5, "%-*.*s", s_parts [a].wide - 6, s_parts [a].wide - 6, s_parts [a].text);
+               attrset  (0);
+               yCOLOR_curs ("h_used" );
+               mvprintw (s_parts [a].bott, s_parts [a].left + s_parts [a].wide - 1, " ");
+            } else {
+               mvprintw (s_parts [a].bott, s_parts [a].left, "%-*.*s", s_parts [a].wide, s_parts [a].wide, s_parts [a].text);
+            }
+         }
          attrset  (0);
          /*> mvprintw (s_parts [a].bott, s_parts [a].left, "%-*.*s", s_parts [a].wide, s_parts [a].wide, s_parts [a].name);   <*/
          /*  clear color ------------*/
@@ -2082,6 +2113,7 @@ yVIKEYS_view_all         (float a_mag)
       glClear         (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       break;
    case YVIKEYS_CURSES :
+      /*> clear  ();                                                                  <*/
       break;
    }
    /*---(draw each element)--------------*/
