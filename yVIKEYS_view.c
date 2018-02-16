@@ -836,6 +836,11 @@ VIEW__resize             (cchar a_type)
    if (a_type == 'r' && s_env == YVIKEYS_OPENGL) {
       yX11_resize (s_full_wide, s_full_tall);
    }
+   /*---(update map)---------------------*/
+   n = VIEW__abbr (YVIKEYS_MAIN);
+   g_xmap.avail = s_parts [n].wide;
+   g_ymap.avail = s_parts [n].tall;
+   yVIKEYS_map_refresh ();
    /*---(complete)-----------------------*/
    DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -856,7 +861,6 @@ yVIKEYS_view_resize      (cint a_wide, cint a_tall, cint a_alt)
    if (a_tall > 10)   s_orig_tall = a_tall;
    if (a_alt  > 10)   s_alt_wide  = a_alt;
    VIEW__resize ('r');
-   if (s_env == YVIKEYS_CURSES)   yVIKEYS_map_refresh ();
    /*---(complete)-----------------------*/
    DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;

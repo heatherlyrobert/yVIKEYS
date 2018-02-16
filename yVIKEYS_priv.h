@@ -31,8 +31,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.7h"
-#define YVIKEYS_VER_TXT   "added a better ncurses refresh capability"
+#define YVIKEYS_VER_NUM   "0.7i"
+#define YVIKEYS_VER_TXT   "added updating of map to allow smooth element hide/show"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
