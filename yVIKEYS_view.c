@@ -2036,6 +2036,7 @@ VIEW__opengl             (char a)
       ;;  /* not sure if i need to clear yet  */
    }
    /*---(display text)-------------------*/
+   if (s_parts [a].abbr == YVIKEYS_FORMULA) SRC_formula ();
    if (s_parts [a].text != NULL && strlen (s_parts [a].text) > 0) {
       DEBUG_GRAF   yLOG_note    ("draw text");
       if (s_env == YVIKEYS_OPENGL) {
@@ -2065,8 +2066,8 @@ VIEW__opengl             (char a)
             else                          yCOLOR_curs ("status"  );
             break;
          }
+         x_len = strlen (s_parts [a].text);
          if (s_parts [a].orient == 'r') {
-            x_len = strlen (s_parts [a].text);
             for (i = 0; i < x_len; ++i) {
                mvprintw (s_parts [a].bott - i, s_parts [a].left, "%c", s_parts [a].text [x_len - i - 1]);
             }
@@ -2074,21 +2075,7 @@ VIEW__opengl             (char a)
                mvprintw (s_parts [a].bott - i, s_parts [a].left, " ");
             }
          } else {
-            if (s_parts [a].abbr == YVIKEYS_FORMULA) {
-               yCOLOR_curs ("h_current");
-               mvprintw (s_parts [a].bott, s_parts [a].left + 0, "%4d", strlen (s_parts [a].text));
-               attrset  (0);
-               yCOLOR_curs ("h_used" );
-               mvprintw (s_parts [a].bott, s_parts [a].left + 4, " ");
-               attrset  (0);
-               yCOLOR_curs ("map"    );
-               mvprintw (s_parts [a].bott, s_parts [a].left + 5, "%-*.*s", s_parts [a].wide - 6, s_parts [a].wide - 6, s_parts [a].text);
-               attrset  (0);
-               yCOLOR_curs ("h_used" );
-               mvprintw (s_parts [a].bott, s_parts [a].left + s_parts [a].wide - 1, " ");
-            } else {
                mvprintw (s_parts [a].bott, s_parts [a].left, "%-*.*s", s_parts [a].wide, s_parts [a].wide, s_parts [a].text);
-            }
          }
          attrset  (0);
          /*> mvprintw (s_parts [a].bott, s_parts [a].left, "%-*.*s", s_parts [a].wide, s_parts [a].wide, s_parts [a].name);   <*/

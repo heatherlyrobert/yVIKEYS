@@ -31,8 +31,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.7i"
-#define YVIKEYS_VER_TXT   "added updating of map to allow smooth element hide/show"
+#define YVIKEYS_VER_NUM   "0.7j"
+#define YVIKEYS_VER_TXT   "moved simple formula display into a source mode file"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -154,6 +154,7 @@ char*       MAP__unit               (char *a_question, char a_index);
 char        MAP__unit_ymap          (void);
 char        MAP__unit_xmap          (void);
 
+char        SRC_formula             (void);
 
 
 /*---(program)--------------*/

@@ -689,6 +689,7 @@ MAP_mode                (char a_major, char a_minor)
    DEBUG_USER   yLOG_char    ("mode"      , MODE_curr ());
    --rce;  if (MODE_not (MODE_MAP    )) {
       DEBUG_USER   yLOG_note    ("not the correct mode");
+      MODE_exit  ();
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return rce;
    }
@@ -1002,6 +1003,10 @@ MAP_ystatus        (char *a_list)
    /*---(complete)-----------------------*/
    return 0;
 }
+
+
+
+
 
 char
 MAP__unit_ymap          (void)
