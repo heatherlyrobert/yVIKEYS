@@ -12,11 +12,14 @@ char    (*s_mapper) (char a_type);
 char   g_coord    = YVIKEYS_RIGHT;
 
 
+char   g_vsimple [LEN_DESC ]   = "_KkjJ~";
+char   g_vgoto   [LEN_DESC ]   = "TKtkmjbJB";
+char   g_vscroll [LEN_DESC ]   = "  tkmjb  ";
+char   g_hsimple [LEN_DESC ]   = "0HhlL$";
+char   g_hgoto   [LEN_DESC ]   = "SHshcleLE";
+char   g_hscroll [LEN_DESC ]   = "  shcle  ";
+char   g_multi   [LEN_DESC ]   = "cdegz";
 
-static char  *s_vsimple  = "_KkjJ~";
-static char  *s_vgoto    = "TKtkmjbJB";
-static char  *s_hsimple  = "0HhlL$";
-static char  *s_hgoto    = "SHshcleLE";
 
 
 
@@ -507,8 +510,8 @@ MAP__vert             (char a_major, char a_minor)
    x_gmax  = g_ymap.map [g_ymap.gmax - g_gsizey];
    DEBUG_USER  yLOG_value   ("x_gmax"    , x_gmax);
    /*---(simple)-------------------------*/
-   DEBUG_USER  yLOG_info    ("s_vsimple" , s_vsimple);
-   if (a_major == ' ' && strchr (s_vsimple, a_minor) != NULL) {
+   DEBUG_USER  yLOG_info    ("g_vsimple" , g_vsimple);
+   if (a_major == ' ' && strchr (g_vsimple, a_minor) != NULL) {
       if (g_coord == YVIKEYS_OFFICE) {
          switch (a_minor) {
          case '_' : x_grid  = g_ymap.map [g_ymap.gmin];  break;
@@ -530,8 +533,8 @@ MAP__vert             (char a_major, char a_minor)
       }
    }
    /*---(gotos)--------------------------*/
-   DEBUG_USER  yLOG_info    ("s_vgoto"   , s_vgoto);
-   if (a_major == 'g' && strchr (s_vgoto  , a_minor) != NULL) {
+   DEBUG_USER  yLOG_info    ("g_vgoto"   , g_vgoto);
+   if (a_major == 'g' && strchr (g_vgoto  , a_minor) != NULL) {
       if (g_coord == YVIKEYS_OFFICE) {
          switch (a_minor) {
          case 'T' : x_unit  = g_ymap.beg - (x_qtr * 4); break;
@@ -610,8 +613,8 @@ MAP__horz             (char a_major, char a_minor)
    x_gmax  = g_xmap.map [g_xmap.gmax - g_gsizex];
    DEBUG_USER  yLOG_value   ("x_gmax"    , x_gmax);
    /*---(simple)-------------------------*/
-   DEBUG_USER  yLOG_info    ("s_hsimple" , s_hsimple);
-   if (a_major == ' ' && strchr (s_hsimple, a_minor) != NULL) {
+   DEBUG_USER  yLOG_info    ("g_hsimple" , g_hsimple);
+   if (a_major == ' ' && strchr (g_hsimple, a_minor) != NULL) {
       DEBUG_USER  yLOG_note    ("execute simple move");
       switch (a_minor) {
       case '0' : x_grid  = g_xmap.map [g_xmap.gmin];   break;
@@ -624,8 +627,8 @@ MAP__horz             (char a_major, char a_minor)
       DEBUG_USER  yLOG_value   ("x_grid"    , x_grid);
    }
    /*---(gotos)--------------------------*/
-   DEBUG_USER  yLOG_info    ("s_hgoto"   , s_hgoto);
-   if (a_major == 'g' && strchr (s_hgoto  , a_minor) != NULL) {
+   DEBUG_USER  yLOG_info    ("g_hgoto"   , g_hgoto);
+   if (a_major == 'g' && strchr (g_hgoto  , a_minor) != NULL) {
       DEBUG_USER  yLOG_note    ("execute goto move");
       switch (a_minor) {
       case 'S' : x_unit  = x_beg - (x_qtr * 4);            break;
@@ -700,12 +703,12 @@ MAP_mode                (char a_major, char a_minor)
       return G_KEY_SPACE;
    }
    /*---(major mode changes)-------------*/
-   /*> if (a_minor == G_KEY_RETURN) {                                                 <* 
-    *>    MODE_enter  (MODE_SOURCE);                                          <* 
-    *>    EDIT_pos    ('0');                                                          <* 
-    *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                   <* 
-    *>    return  0;                                                                  <* 
-    *> }                                                                              <*/
+   if (a_minor == G_KEY_RETURN || a_minor == G_KEY_ENTER) {
+      MODE_enter  (MODE_SOURCE);
+      /*> EDIT_pos    ('0');                                                          <*/
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return  0;
+   }
    /*> if (a_minor == G_KEY_ESCAPE) {                                                 <* 
     *>    VISU_clear ();                                                              <* 
     *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                   <* 
@@ -866,12 +869,12 @@ MAP_mode                (char a_major, char a_minor)
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return G_KEY_SPACE;
       }
-      if (strchr (s_hsimple, a_minor) != 0) {
+      if (strchr (g_hsimple, a_minor) != 0) {
          rc = MAP__horz   (a_major, a_minor);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return G_KEY_SPACE;
       }
-      if (strchr (s_vsimple, a_minor) != 0) {
+      if (strchr (g_vsimple, a_minor) != 0) {
          rc = MAP__vert   (a_major, a_minor);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return G_KEY_SPACE;
@@ -930,12 +933,12 @@ MAP_mode                (char a_major, char a_minor)
     *> }                                                                              <*/
    /*---(goto family)--------------------*/
    if (a_major == 'g') {
-      if (strchr (s_hgoto, a_minor) != 0) {
+      if (strchr (g_hgoto, a_minor) != 0) {
          rc = MAP__horz   (a_major, a_minor);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return G_KEY_SPACE;
       }
-      if (strchr (s_vgoto, a_minor) != 0) {
+      if (strchr (g_vgoto, a_minor) != 0) {
          rc = MAP__vert   (a_major, a_minor);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return G_KEY_SPACE;

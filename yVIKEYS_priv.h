@@ -31,8 +31,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.7j"
-#define YVIKEYS_VER_TXT   "moved simple formula display into a source mode file"
+#define YVIKEYS_VER_NUM   "0.7k"
+#define YVIKEYS_VER_TXT   "simple current position and movement in source mode"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -90,6 +90,14 @@ extern int         g_gsizey;
 extern int         g_goffz;
 extern int         g_gsizez;
 
+
+extern char  g_vsimple   [LEN_DESC ];
+extern char  g_vgoto     [LEN_DESC ];
+extern char  g_vscroll   [LEN_DESC ];
+extern char  g_hsimple   [LEN_DESC ];
+extern char  g_hgoto     [LEN_DESC ];
+extern char  g_hscroll   [LEN_DESC ];
+extern char  g_multi     [LEN_DESC ];
 
 
 typedef     struct timespec   tSPEC;
@@ -154,6 +162,7 @@ char*       MAP__unit               (char *a_question, char a_index);
 char        MAP__unit_ymap          (void);
 char        MAP__unit_xmap          (void);
 
+char        SRC_init                (void);
 char        SRC_formula             (void);
 
 

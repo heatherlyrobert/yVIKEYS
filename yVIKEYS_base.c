@@ -41,6 +41,7 @@ yVIKEYS_init         (void)
    /*----(modes)-------------------------*/
    MODE_init    ();
    MAP_init     ();
+   SRC_init     ();
    SRCH_init    ();
    CMDS_init    ();
    MACRO_init   ();
@@ -236,7 +237,7 @@ yVIKEYS_main_handle     (uchar a_key)
       switch (MODE_curr ()) {
       case MODE_GOD      : rc = BASE__________stub    (x_major , x_key);  break;
       case MODE_MAP      : rc = MAP_mode              (x_major , x_key);  break;
-      case MODE_SOURCE   : rc = BASE__________stub    (x_major , x_key);  break;
+      case MODE_SOURCE   : rc = SRC_mode              (x_major , x_key);  break;
       case MODE_INPUT    : rc = BASE__________stub    (x_major , x_key);  break;
       case MODE_COMMAND  : rc = CMDS_mode             (x_major , x_key);  break;
       case MODE_SEARCH   : rc = SRCH_mode             (x_major , x_key);  break;
