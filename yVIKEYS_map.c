@@ -12,13 +12,16 @@ char    (*s_mapper) (char a_type);
 char   g_coord    = YVIKEYS_RIGHT;
 
 
-char   g_vsimple [LEN_DESC ]   = "_KkjJ~";
-char   g_vgoto   [LEN_DESC ]   = "TKtkmjbJB";
-char   g_vscroll [LEN_DESC ]   = "  tkmjb  ";
-char   g_hsimple [LEN_DESC ]   = "0HhlL$";
-char   g_hgoto   [LEN_DESC ]   = "SHshcleLE";
-char   g_hscroll [LEN_DESC ]   = "  shcle  ";
-char   g_multi   [LEN_DESC ]   = "cdegz";
+char   g_vsimple   [LEN_DESC ]   = "_KkjJ~";
+char   g_vgoto     [LEN_DESC ]   = "TKtkmjbJB";
+char   g_vscroll   [LEN_DESC ]   = "  tkmjb  ";
+char   g_hsimple   [LEN_DESC ]   = "0HhlL$";
+char   g_hgoto     [LEN_DESC ]   = "SHshcleLE";
+char   g_hscroll   [LEN_DESC ]   = "  shcle  ";
+char   g_hword     [LEN_DESC ]   = "wbeWBE";
+char   g_multimap  [LEN_DESC ]   = "cegz";
+char   g_multisrc  [LEN_DESC ]   = "cgz";
+char   g_repeat    [LEN_DESC ]   = "123456789";
 
 
 
@@ -185,6 +188,8 @@ yVIKEYS_map_config     (char a_coord, void *a_mapper)
 char
 MAP_init               (void)
 {
+   /*---(header)-------------------------*/
+   DEBUG_PROG   yLOG_enter   (__FUNCTION__);
    g_coord    = YVIKEYS_OFFICE;
    s_mapper   = NULL;
    MAP__clear (&g_xmap, YVIKEYS_XMAP);
@@ -193,6 +198,7 @@ MAP_init               (void)
    MAP__clear (&g_tmap, YVIKEYS_TMAP);
    /*> MAP__print (&g_xmap);                                                          <*/
    /*> MAP__print (&g_ymap);                                                          <*/
+   DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -717,8 +723,8 @@ MAP_mode                (char a_major, char a_minor)
    /*---(single key)---------------------*/
    --rce;
    if (a_major == ' ') {
-      /*---(multiplier)------------------*/
-      if (strchr ("123456789"  , a_minor) != 0) {
+      /*---(repeat)----------------------*/
+      if (strchr (g_repeat, a_minor) != 0) {
          MODE_enter  (SMOD_REPEAT);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return a_minor;

@@ -188,6 +188,9 @@ tOPTION  s_options [MAX_OPTION ] = {
    { YVIKEYS_STATUS  , "xmap"         , MAP_xstatus      , "x-axis position details"     },
    { YVIKEYS_STATUS  , "ymap"         , MAP_ystatus      , "y-axis position details"     },
    { YVIKEYS_STATUS  , "keys"         , BASE_key_status  , "displays keystroke history"  },
+   { YVIKEYS_STATUS  , "treg"         , TREG_status      , "displays contents of treg"   },
+   { YVIKEYS_STATUS  , "words"        , SRC_words_status , "displays word breaks"        },
+   { YVIKEYS_STATUS  , "select"       , SRC_select_status, "displays selection status"   },
    { NULL            , ""             , NULL             , ""                            },
 };
 static int  s_noption  = 0;
@@ -2062,8 +2065,8 @@ VIEW__opengl             (char a)
             yCOLOR_curs ("command" );
             break;
          case YVIKEYS_STATUS   :
-            if (yVIKEYS_error () == 'y')  yCOLOR_curs ("error"   );
-            else                          yCOLOR_curs ("status"  );
+            if (yVIKEYS_error ())  yCOLOR_curs ("warn"    );
+            else                   yCOLOR_curs ("status"  );
             break;
          }
          x_len = strlen (s_parts [a].text);

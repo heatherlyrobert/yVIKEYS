@@ -149,11 +149,14 @@ static void  o___SEARCH__________o () { return; }
 char
 SRCH_init               (void)
 {
+   /*---(header)-------------------------*/
+   DEBUG_PROG   yLOG_enter   (__FUNCTION__);
    s_nsrch    = MAX_SRCH;
    s_searcher = NULL;
    s_clearer  = NULL;
    SRCH__clear  ();
    SRCH__purge ();
+   DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 

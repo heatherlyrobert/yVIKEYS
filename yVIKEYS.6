@@ -68,6 +68,19 @@ and often exit automatically when done.
 .B note
    vim combines map/source as it is really a collection of lines
 
+.SH MAJOR FUCKING DIFFERENCES
+vi/vim is amazing and its hard to justify any changes to such a tried and true
+system.  its worked well for generations of programmers.  how could anyone
+know better or improve it without "full" knowledge.  and, then, once you have
+full ability, why change it.  hahahahaha.
+
+first, multi-key sequences can be dangerous.  they were developed to keep
+screen refresh traffic down.  awesome, but this is not the most important
+thing anymore.  it is hard to visualize the impact of complex 'd' or 'c'
+keys, so i think it would be better to insist these complex keys go through
+selection first.  it adds a key ('v'), but then you can properly see the
+anticipated change.
+
 .SH SECTIONS
    -- modal interface and modes
    -- x/horizontal movement
@@ -616,11 +629,15 @@ text registers.
    "-         select the vi/vim sharing file
 
 .B primary register actions
-   y          yank/copy  content to selected register
-   d          delete/cut content to selected register
-   x          clear/copy content to selected register
-   p  (t)     paste content from selected register after cursor
-   P  (t)     paste content from selected register before cursor
+   a A        append after
+   i I        insert before  ("ai inserts register before)
+   o O        over/under
+   y Y        yank/copy  content to selected register
+   d D        delete/cut content to selected register
+   x X        clear content without making a copy
+   r R        replace content (char-by-char)
+   s S        substitute content (delete then insert)
+   p P        paste content from selected register after cursor
 
 .B multiple paste
    if a cell of data is in register and an area is selected
@@ -1091,9 +1108,11 @@ movement between different storage locations.
    "-         select the vi/vim sharing file
 
 .B pushing data into registers
-   y, Y       yank/copy  content to selected register
-   d, D       delete/cut content to selected register
-   x, X       clear/copy content to selected register
+   y          yank/copy  content to selected register
+   d          delete/cut content to selected register
+   x          clear/copy content to selected register
+   p          paste register content after cursor
+   P          paste register content before cursor
 
 .B pulling data from registers (TEXT/SOURCE MODE)
    p          paste register content after cursor

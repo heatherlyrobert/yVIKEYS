@@ -38,10 +38,13 @@ yVIKEYS_version    (void)
 char
 yVIKEYS_init         (void)
 {
+   /*---(header)-------------------------*/
+   DEBUG_PROG   yLOG_enter   (__FUNCTION__);
    /*----(modes)-------------------------*/
    MODE_init    ();
    MAP_init     ();
    SRC_init     ();
+   TREG_init    ();
    SRCH_init    ();
    CMDS_init    ();
    MACRO_init   ();
@@ -49,6 +52,7 @@ yVIKEYS_init         (void)
    myVIKEYS.done      = '-';
    myVIKEYS.trouble   = '-';
    /*----(complete)----------------------*/
+   DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -96,6 +100,7 @@ BASE__unit_loud        (void)
 char       /*----: stop logging ----------------------------------------------*/
 BASE__unit_end         (void)
 {
+   yVIKEYS_wrap ();
    yLOG_end     ();
    return 0;
 }
@@ -244,7 +249,7 @@ yVIKEYS_main_handle     (uchar a_key)
       case MODE_VISUAL   : rc = BASE__________stub    (x_major , x_key);  break;
       case SMOD_ERROR    : rc = BASE__________stub    (x_major , x_key);  break;
       case SMOD_SELECT   : rc = BASE__________stub    (x_major , x_key);  break;
-      case SMOD_TEXTREG  : rc = BASE__________stub    (x_major , x_key);  break;
+      case SMOD_TEXTREG  : rc = TREG_mode             (x_major , x_key);  break;
       case SMOD_REPLACE  : rc = BASE__________stub    (x_major , x_key);  break;
       case SMOD_FORMAT   : rc = BASE__________stub    (x_major , x_key);  break;
       case SMOD_BUFFER   : rc = BASE__________stub    (x_major , x_key);  break;

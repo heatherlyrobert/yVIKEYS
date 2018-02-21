@@ -31,8 +31,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.7k"
-#define YVIKEYS_VER_TXT   "simple current position and movement in source mode"
+#define YVIKEYS_VER_NUM   "0.7l"
+#define YVIKEYS_VER_TXT   "created a nice text selection ability"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -97,7 +97,10 @@ extern char  g_vscroll   [LEN_DESC ];
 extern char  g_hsimple   [LEN_DESC ];
 extern char  g_hgoto     [LEN_DESC ];
 extern char  g_hscroll   [LEN_DESC ];
-extern char  g_multi     [LEN_DESC ];
+extern char  g_hword     [LEN_DESC ];
+extern char  g_multimap  [LEN_DESC ];
+extern char  g_multisrc  [LEN_DESC ];
+extern char  g_repeat    [LEN_DESC ];
 
 
 typedef     struct timespec   tSPEC;
@@ -164,6 +167,12 @@ char        MAP__unit_xmap          (void);
 
 char        SRC_init                (void);
 char        SRC_formula             (void);
+char        SRC_select_status       (char *a_list);
+char*       SRC__unit               (char *a_question, char a_reg);
+char        SRC_words_status        (char *a_list);
+char        TREG_init               (void);
+char        TREG_mode               (int a_major, int a_minor);
+char        TREG_status             (char *a_list);
 
 
 /*---(program)--------------*/

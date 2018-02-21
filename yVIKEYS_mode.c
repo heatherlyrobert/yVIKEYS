@@ -46,7 +46,7 @@ static tMODE_INFO  s_mode_info [MAX_MODES] = {
    { 'O' , 'y', 'y', "OMN", "omni"      , "omnipotent 3D manipulation mode"                    , "P"                        ,    0, "linear=LnhHJjkKIioO  rotate=PpaAYytTRrwW"                                                },
    { 'P' , 'y', 'y', "PRG", "progress"  , "progress timeline adding time dimension"            , ""                         ,    0, "horz=0LlhH$  vert=_KkjJG speed=<.> scale=+-"                                             },
    { 'M' , 'y', 'y', "MAP", "map"       , "map-mode providing 2D review of object collections" , "GVSI:/\"b\'$oe\\,@9"      ,    0, "horz(a)=0HhlL$  horz(g/z)=sh,le  vert(a)=_KkjJG  vert(g/z)=tk.jb  modes=vIFV:{ret}"      },
-   { 'S' , 'y', 'y', "SRC", "source"    , "linewise review of textual content"                 , "Isrte"                    ,    0, "hor=0HhlL$bBeEwW  g/z=sh,le  sel=vV\"  pul=yYdDxX  put=pP  chg=rRiIaA  fnd=fnN"          },
+   { 'S' , 'y', 'y', "SRC", "source"    , "linewise review of textual content"                 , "Isrte9"                   ,    0, "hor=0HhlL$bBeEwW  g/z=sh,le  sel=vV\"  pul=yYdDxX  put=pP  chg=rRiIaA  fnd=fnN"          },
    { 'I' , 'y', 'y', "INP", "input"     , "linewise creation and editing of textual content"   , ""                         ,    0, ""                                                                                        },
    { ':' , 'y', '-', "CMD", "command"   , "command line capability for advanced actions"       , ""                         ,    0, ""                                                                                        },
    { '/' , 'y', '-', "SCH", "search"    , "search mode to find data and objects"               , ""                         ,    0, ""                                                                                        },
@@ -91,6 +91,8 @@ MODE_init          (void)
    /*---(locals)-----------+-----------+-*/
    int         i           = 0;
    char        t           [5]         = "";
+   /*---(header)-------------------------*/
+   DEBUG_PROG   yLOG_enter   (__FUNCTION__);
    /*---(prepare)------------------------*/
    strlcpy (s_majors, "", MAX_MODES);
    /*---(identify majors)----------------*/
@@ -109,6 +111,7 @@ MODE_init          (void)
    /*---(go to default mode)-------------*/
    MODE_enter (MODE_MAP);
    /*---(complete)-----------------------*/
+   DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
