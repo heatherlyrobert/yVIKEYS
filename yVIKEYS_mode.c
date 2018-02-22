@@ -347,7 +347,7 @@ REPEAT_umode            (uchar a_major, uchar a_minor)
 char REPEAT_normal      (void) { if (s_repeat < 1) return 0; else return 1; } 
 char REPEAT_decrement   (void) { if (s_repeat > 0)  --s_repeat; }
 int  REPEAT_count       (void) { return s_repeat; }
-int  REPEAT_use         (void) { int a = s_repeat + 1; s_repeat = 0; return a; }
+int  REPEAT_use         (void) { int a = s_repeat; s_repeat = 0; return a; }
 
 
 

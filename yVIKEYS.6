@@ -1218,45 +1218,20 @@ source mode allows the user to review, move, and delete text; input mode allows
 them to add new text, and replace mode allows them to overtype exising text.
 
 .B source mode horizontal movements
-   0          beginning of line
-   H          left 5 characters
-   h          left 1 character
-   l          right 1 character
-   L          right 5 characters
-   $          ending of line
+   0HhlL$        horizontal
+   g SHshcleLE   goto horizontal
+   z shcle       scroll horizontal
 
-.B source mode 1D vertical movements
-   _          beginning of entry
-   K          up 5 lines
-   k          up 1 line
-   j          right 1 line
-   J          right 5 lines
-   ~          bottom-most (same symbol as null lines at bottom of vim
-
-.B move cursor to a part of the screen (no screen movement)
-   gs         left edge of field space
-   gh         left quarter of field space
-   g,         middle of field space
-   gl         right quarter of field space
-   ge         right edge of field space
-
-.B scroll cursor position to a new screen position (no cursor movement)
-   zs         left edge of screen                              [[ good   ]]
-   zh         left quarter of screen                           [[ good   ]]
-   z,         middle of screen                                 [[ good   ]]
-   zl         right quarter of screen                          [[ good   ]]
-   ze         right edge of screen                             [[ good   ]]
 
 .SH SOURCE mode
 
-.B traditional vim character searches
+.B character searches
+   #        search forward for current character
    f¢       search forward for character ¢
    F¢       search backward for character ¢
-   t¢       search forward just before character ¢
-   T¢       search backward just after character ¢
-   ;        continue fFtT in same direction
-   ,        switch directions
-   all these characters are free in every other mode
+   n        next match forward
+   N        next match backward
+   found character is saved between searches for quick reuse
 
 .SH INPUT mode
 

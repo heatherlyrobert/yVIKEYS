@@ -752,7 +752,7 @@ MAP_mode                (char a_major, char a_minor)
       case ':'      :
          x_grid = REPEAT_use ();
          if (x_grid > 0) {
-            MAP__move   (x_grid - 1, &g_ymap);
+            MAP__move   (x_grid, &g_ymap);
             MAP__screen (&g_ymap);
             if (s_mapper != NULL) s_mapper (YVIKEYS_UPDATE);
             rc     = 0;
@@ -896,7 +896,7 @@ MAP_mode                (char a_major, char a_minor)
       }
       /*---(column movement)-------------*/
       if (a_minor == '|') {
-         MAP__move   (REPEAT_use () - 1, &g_xmap);
+         MAP__move   (REPEAT_use (), &g_xmap);
          MAP__screen (&g_xmap);
          if (s_mapper != NULL) s_mapper (YVIKEYS_UPDATE);
          rc     = 0;

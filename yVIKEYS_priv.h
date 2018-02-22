@@ -31,8 +31,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.7q"
-#define YVIKEYS_VER_TXT   "row movements with colon : symbol workng in map mode"
+#define YVIKEYS_VER_NUM   "0.7r"
+#define YVIKEYS_VER_TXT   "source mode character finding with fF#nN keys working and unit tested"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
