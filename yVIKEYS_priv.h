@@ -31,8 +31,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.7m"
-#define YVIKEYS_VER_TXT   "added gyges replace and input modes, plus unit tests"
+#define YVIKEYS_VER_NUM   "0.7n"
+#define YVIKEYS_VER_TXT   "fixed VIEW_wraw segfault and curses error on window height"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/

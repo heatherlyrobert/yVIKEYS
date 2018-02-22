@@ -367,8 +367,8 @@ MACRO__rec_str          (char *a_keys)
    /*---(update pos/char)----------------*/
    s_macro_pos = s_macro_len - 2;
    if (s_macro_pos < 0)  s_macro_char = 0;
-   else                   s_macro_char = s_macro_keys [s_macro_pos];
-   printf ("s_macro_keys <<%s>>\n", s_macro_keys);
+   else                  s_macro_char = s_macro_keys [s_macro_pos];
+   /*> printf ("s_macro_keys <<%s>>\n", s_macro_keys);                                <*/
    /*---(complete)-----------------------*/
    return 0;
 }

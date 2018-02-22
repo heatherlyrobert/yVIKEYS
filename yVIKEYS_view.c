@@ -30,9 +30,8 @@ char  VIEW__layer_set          (char *a_name);
 
 
 
-static char   s_viewing    = '-';
 static char   s_testmode   = '-';
-static char   s_env        = YVIKEYS_OPENGL;
+static char   s_env        = YVIKEYS_NONE;
 static int    s_orig_wide  = 0;
 static int    s_orig_tall  = 0;
 static int    s_main_wide  = 0;
@@ -707,7 +706,11 @@ VIEW__heights_flip       (void)
    }
    /*---(display)------------------------*/
    for (n = 0; n < s_npart; ++n) {
+      DEBUG_GRAF   yLOG_complex (s_parts [n].name, "bott %4d, left %4d, wide %4d, tall %4d, on %c", s_parts [n].bott, s_parts [n].left, s_parts [n].wide, s_parts [n].tall, s_parts [n].on);
       s_parts [n].bott = s_full_tall - s_parts [n].bott - 1;
+      DEBUG_GRAF   yLOG_complex (s_parts [n].name, "bott %4d, left %4d, wide %4d, tall %4d, on %c", s_parts [n].bott, s_parts [n].left, s_parts [n].wide, s_parts [n].tall, s_parts [n].on);
+      if (s_parts [n].bott < 0)  s_parts [n].bott = 0;
+      DEBUG_GRAF   yLOG_complex (s_parts [n].name, "bott %4d, left %4d, wide %4d, tall %4d, on %c", s_parts [n].bott, s_parts [n].left, s_parts [n].wide, s_parts [n].tall, s_parts [n].on);
    }
    /*---(complete)-----------------------*/
    DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
@@ -739,6 +742,7 @@ VIEW__heights            (cint a_tall)
    DEBUG_GRAF   yLOG_value   ("full_wide" , s_full_tall);
    n = VIEW__abbr (YVIKEYS_WINDOW);
    s_parts [n].tall = s_full_tall;
+   s_parts [n].bott = 0;
    /*---(flip ncurses)-------------------*/
    VIEW__heights_flip  ();
    /*---(complete)-----------------------*/
@@ -1216,8 +1220,6 @@ yVIKEYS_view_config     (cchar *a_title, cchar *a_ver, cchar a_env, cint a_wide,
    }
    n = VIEW__abbr (YVIKEYS_COMMAND);
    MODE_message (s_parts [n].text, CMDS_curr ());
-   /*---(mark as open)-------------------*/
-   s_viewing = 'y';
    /*---(complete)-----------------------*/
    DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -1489,7 +1491,6 @@ yVIKEYS_view_setup         (cchar a_part, cchar a_type, cchar a_anchor, cint a_x
 char
 VIEW_wrap               (void)
 {
-   if (s_viewing != 'y')  return 0;
    switch (s_env) {
    case YVIKEYS_OPENGL :  yX11_end  ();  break;
    case YVIKEYS_CURSES :  endwin    ();  break;

@@ -167,8 +167,11 @@ tMAPPED     g_tmap;
 #define      YVIKEYS_BOTRIG       9
 
 
+#define      YVIKEYS_NONE        '-'
 #define      YVIKEYS_OPENGL      'g'
 #define      YVIKEYS_CURSES      'c'
+
+
 
 extern char yVIKEYS_ver     [500];
 
