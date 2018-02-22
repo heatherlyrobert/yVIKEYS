@@ -31,8 +31,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.7o"
-#define YVIKEYS_VER_TXT   "repeat had a main loop, multiple digit flaw that is now fixed"
+#define YVIKEYS_VER_NUM   "0.7p"
+#define YVIKEYS_VER_TXT   "column movements with pipe | symbol workng in map and source modes"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/

@@ -885,6 +885,13 @@ MAP_mode                (char a_major, char a_minor)
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return G_KEY_SPACE;
       }
+      /*---(column movement)-------------*/
+      if (a_minor == '|') {
+         MAP__move   (REPEAT_use () - 1, &g_xmap);
+         MAP__screen (&g_xmap);
+         if (s_mapper != NULL) s_mapper (YVIKEYS_UPDATE);
+         rc     = 0;
+      }
       /*> rc = KEYS_regbasic (a_major, a_minor);                                      <* 
        *> if (rc == 0) {                                                              <* 
        *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <* 
