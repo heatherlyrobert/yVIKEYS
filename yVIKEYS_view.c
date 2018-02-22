@@ -30,6 +30,7 @@ char  VIEW__layer_set          (char *a_name);
 
 
 
+static char   s_viewing    = '-';
 static char   s_testmode   = '-';
 static char   s_env        = YVIKEYS_OPENGL;
 static int    s_orig_wide  = 0;
@@ -1215,6 +1216,8 @@ yVIKEYS_view_config     (cchar *a_title, cchar *a_ver, cchar a_env, cint a_wide,
    }
    n = VIEW__abbr (YVIKEYS_COMMAND);
    MODE_message (s_parts [n].text, CMDS_curr ());
+   /*---(mark as open)-------------------*/
+   s_viewing = 'y';
    /*---(complete)-----------------------*/
    DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -1486,6 +1489,7 @@ yVIKEYS_view_setup         (cchar a_part, cchar a_type, cchar a_anchor, cint a_x
 char
 VIEW_wrap               (void)
 {
+   if (s_viewing != 'y')  return 0;
    switch (s_env) {
    case YVIKEYS_OPENGL :  yX11_end  ();  break;
    case YVIKEYS_CURSES :  endwin    ();  break;

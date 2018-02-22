@@ -85,13 +85,14 @@ BASE__unit_loud        (void)
 {
    ySTR_debug ('y');
    myVIKEYS.logger = yLOG_begin ("yVIKEYS" , yLOG_SYSTEM, yLOG_NOISE);
-   yURG_name  ("user"         , YURG_ON);
-   yURG_name  ("graf"         , YURG_ON);
-   yURG_name  ("wind"         , YURG_ON);
-   yURG_name  ("yvikeys"      , YURG_ON);
-   yURG_name  ("yvikeys_mode" , YURG_ON);
-   yURG_name  ("yvikeys_keys" , YURG_ON);
-   yURG_name  ("yvikeys_scale", YURG_ON);
+   yURG_name  ("kitchen"      , YURG_ON);
+   /*> yURG_name  ("user"         , YURG_ON);                                         <* 
+    *> yURG_name  ("graf"         , YURG_ON);                                         <* 
+    *> yURG_name  ("wind"         , YURG_ON);                                         <* 
+    *> yURG_name  ("yvikeys"      , YURG_ON);                                         <* 
+    *> yURG_name  ("yvikeys_mode" , YURG_ON);                                         <* 
+    *> yURG_name  ("yvikeys_keys" , YURG_ON);                                         <* 
+    *> yURG_name  ("yvikeys_scale", YURG_ON);                                         <*/
    DEBUG_YVIKEYS yLOG_info     ("yVIKEYS"    , yVIKEYS_version   ());
    yVIKEYS_init ();
    return 0;
@@ -243,14 +244,14 @@ yVIKEYS_main_handle     (uchar a_key)
       case MODE_GOD      : rc = BASE__________stub    (x_major , x_key);  break;
       case MODE_MAP      : rc = MAP_mode              (x_major , x_key);  break;
       case MODE_SOURCE   : rc = SRC_mode              (x_major , x_key);  break;
-      case MODE_INPUT    : rc = BASE__________stub    (x_major , x_key);  break;
+      case MODE_INPUT    : rc = INPT_mode             (x_major , x_key);  break;
       case MODE_COMMAND  : rc = CMDS_mode             (x_major , x_key);  break;
       case MODE_SEARCH   : rc = SRCH_mode             (x_major , x_key);  break;
       case MODE_VISUAL   : rc = BASE__________stub    (x_major , x_key);  break;
       case SMOD_ERROR    : rc = BASE__________stub    (x_major , x_key);  break;
       case SMOD_SELECT   : rc = BASE__________stub    (x_major , x_key);  break;
-      case SMOD_TEXTREG  : rc = TREG_mode             (x_major , x_key);  break;
-      case SMOD_REPLACE  : rc = BASE__________stub    (x_major , x_key);  break;
+      case SMOD_TEXTREG  : rc = TREG_smode            (x_major , x_key);  break;
+      case SMOD_REPLACE  : rc = REPL_smode            (x_major , x_key);  break;
       case SMOD_FORMAT   : rc = BASE__________stub    (x_major , x_key);  break;
       case SMOD_BUFFER   : rc = BASE__________stub    (x_major , x_key);  break;
       case SMOD_WANDER   : rc = BASE__________stub    (x_major , x_key);  break;

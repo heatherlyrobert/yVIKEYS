@@ -69,6 +69,9 @@ and often exit automatically when done.
    vim combines map/source as it is really a collection of lines
 
 .SH MAJOR FUCKING DIFFERENCES
+.b summary...
+   -- 'd' and 'c' multikey combinations are gone
+
 vi/vim is amazing and its hard to justify any changes to such a tried and true
 system.  its worked well for generations of programmers.  how could anyone
 know better or improve it without "full" knowledge.  and, then, once you have
@@ -80,6 +83,10 @@ thing anymore.  it is hard to visualize the impact of complex 'd' or 'c'
 keys, so i think it would be better to insist these complex keys go through
 selection first.  it adds a key ('v'), but then you can properly see the
 anticipated change.
+
+
+
+
 
 .SH SECTIONS
    -- modal interface and modes
@@ -628,12 +635,19 @@ text registers.
    "A         select register 'a' (single action), but in append mode
    "-         select the vi/vim sharing file
 
-.B primary register actions
+.B most basic register actions (work without register reference)
+   y          yank/copy  to register
+   d          delete/cut to register
+   x          clear/copy to register
+   p          paste after current position
+   P          paste before current position
+
+
    a A        append after
    i I        insert before  ("ai inserts register before)
    o O        over/under
-   y Y        yank/copy  content to selected register
-   d D        delete/cut content to selected register
+   y Y        yank/copy to selected register, cursor stays at end
+   d D        delete/cut to selected register, cursor stays at beg
    x X        clear content without making a copy
    r R        replace content (char-by-char)
    s S        substitute content (delete then insert)

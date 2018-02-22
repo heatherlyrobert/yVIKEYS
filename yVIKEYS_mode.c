@@ -311,6 +311,7 @@ REPEAT_umode            (uchar a_major, uchar a_minor)
    }
    /*---(major mode changes)-------------*/
    if (a_minor == G_KEY_RETURN || a_minor == G_KEY_ESCAPE) {
+      DEBUG_USER   yLOG_note    ("aborting repeat");
       MODE_exit  ();
       s_repeat = 0;
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
@@ -330,6 +331,7 @@ REPEAT_umode            (uchar a_major, uchar a_minor)
       return 0;
    }
    /*---(pass through)-------------------*/
+   DEBUG_USER   yLOG_note    ("prepare repeat for use");
    --s_repeat;
    if (s_repeat <  0) s_repeat =  0;
    /*> if (s_repeat > 99) s_repeat = 99;                                              <*/
@@ -342,6 +344,7 @@ REPEAT_umode            (uchar a_major, uchar a_minor)
 char REPEAT_normal      (void) { if (s_repeat < 1) return 0; else return 1; } 
 char REPEAT_decrement   (void) { if (s_repeat > 0)  --s_repeat; }
 int  REPEAT_count       (void) { return s_repeat; }
+int  REPEAT_use         (void) { int a = s_repeat + 1; s_repeat = 0; return a; }
 
 
 

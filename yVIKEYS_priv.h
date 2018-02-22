@@ -31,8 +31,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.7l"
-#define YVIKEYS_VER_TXT   "created a nice text selection ability"
+#define YVIKEYS_VER_NUM   "0.7m"
+#define YVIKEYS_VER_TXT   "added gyges replace and input modes, plus unit tests"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -152,6 +152,7 @@ char        REPEAT_umode            (uchar a_major, uchar a_minor);
 char        REPEAT_normal           (void);
 char        REPEAT_decrement        (void);
 int         REPEAT_count            (void);
+int         REPEAT_use              (void);
 
 char        MAP_init                (void);
 char        MAP__load               (char a_style, tMAPPED *a_map, char a_which);
@@ -171,8 +172,10 @@ char        SRC_select_status       (char *a_list);
 char*       SRC__unit               (char *a_question, char a_reg);
 char        SRC_words_status        (char *a_list);
 char        TREG_init               (void);
-char        TREG_mode               (int a_major, int a_minor);
+char        TREG_smode              (int a_major, int a_minor);
 char        TREG_status             (char *a_list);
+char        REPL_smode              (int a_major, int a_minor);
+char        INPT_mode               (int  a_major, int  a_minor);
 
 
 /*---(program)--------------*/
