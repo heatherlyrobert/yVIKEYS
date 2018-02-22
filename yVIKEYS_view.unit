@@ -248,7 +248,7 @@ SCRP          v21  (MODE  ) setting opengl screen sizes                       
 SCRP          v21  (MODE  ) setting curses screen sizes                               VIEW__layout, __heights, __widths, __reset, __switch                    ((01.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  start testing                        BASE__unit_loud                                                                                     i_equal     0                                                                                                    
+     exec     v21  start testing                        BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  initialize view                      yVIKEYS_view_config         "unit_test"    , "3.2a"    , YVIKEYS_CURSES ,  107,   72,    0          i_equal     0                                                                                                    
 
    GROUP      v21  start with work layout                                             - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  

@@ -321,17 +321,20 @@ REPEAT_umode            (uchar a_major, uchar a_minor)
    if (s_repeat ==  0 && strchr ("123456789", a_major) != NULL) {
       DEBUG_USER   yLOG_note    ("assign starting repeat");
       s_repeat  = a_major - '0';
+      DEBUG_USER   yLOG_value   ("s_repeat"  , s_repeat);
    }
    /*---(check for minor)-----------------------*/
    if (strchr ("0123456789",  a_minor) != NULL) {
       DEBUG_USER   yLOG_note    ("increment repeat");
       s_repeat *= 10;
       s_repeat += a_minor - '0';
+      DEBUG_USER   yLOG_value   ("s_repeat"  , s_repeat);
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return 0;
    }
    /*---(pass through)-------------------*/
    DEBUG_USER   yLOG_note    ("prepare repeat for use");
+   DEBUG_USER   yLOG_value   ("s_repeat"  , s_repeat);
    --s_repeat;
    if (s_repeat <  0) s_repeat =  0;
    /*> if (s_repeat > 99) s_repeat = 99;                                              <*/

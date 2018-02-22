@@ -259,6 +259,7 @@ yVIKEYS_main_handle     (uchar a_key)
       case SMOD_MARK     : rc = BASE__________stub    (x_major , x_key);  break;
       case SMOD_MENUS    : rc = BASE__________stub    (x_major , x_key);  break;
       case SMOD_MACRO    : rc = MACRO_smode           (x_major , x_key);  break;
+      case SMOD_REPEAT   :                                                break;
       default            : rc = -1;  x_nomode = 'y';                      break;
       }
       /*---(translate unprintable)-------*/
@@ -274,8 +275,9 @@ yVIKEYS_main_handle     (uchar a_key)
       else if (x_key <= G_KEY_SPACE )  snprintf (s_keys,   9, "%2d %c%02x", x_repeat, x_major, x_key);
       else                             snprintf (s_keys,   9, "%2d %c%c"  , x_repeat, x_major, x_key);
       /*---(multiplier)------------------*/
-      if (rc == ' ' && x_repeat > 0 && MODE_curr () != SMOD_REPEAT) {
+      if (rc >= 0 && x_repeat > 0 && MODE_curr () != SMOD_REPEAT) {
          REPEAT_decrement ();
+         if (rc > 0)  x_major = rc;
          continue;
       }
       /*---(multiplier)------------------*/

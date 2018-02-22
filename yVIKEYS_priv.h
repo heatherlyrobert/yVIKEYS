@@ -31,8 +31,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.7n"
-#define YVIKEYS_VER_TXT   "fixed VIEW_wraw segfault and curses error on window height"
+#define YVIKEYS_VER_NUM   "0.7o"
+#define YVIKEYS_VER_TXT   "repeat had a main loop, multiple digit flaw that is now fixed"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
