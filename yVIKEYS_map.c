@@ -687,9 +687,10 @@ yVIKEYS_map_refresh     (void)
 char
 MAP_mode                (char a_major, char a_minor)
 {
-   /*---(locals)-----------+-----------+-*/
-   char        rce         = -10;
-   char        rc          = 0;
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   char        x_grid      =    0;
    /*---(header)-------------------------*/
    DEBUG_USER   yLOG_enter   (__FUNCTION__);
    DEBUG_USER   yLOG_char    ("a_major"   , a_major);
@@ -749,10 +750,18 @@ MAP_mode                (char a_major, char a_minor)
           *>    return 0;                                                                <* 
           *>    break;                                                                   <*/
       case ':'      :
-         MODE_enter  (MODE_COMMAND);
-         CMDS_start ();
-         DEBUG_USER   yLOG_exit    (__FUNCTION__);
-         return a_minor;
+         x_grid = REPEAT_use ();
+         if (x_grid > 0) {
+            MAP__move   (x_grid - 1, &g_ymap);
+            MAP__screen (&g_ymap);
+            if (s_mapper != NULL) s_mapper (YVIKEYS_UPDATE);
+            rc     = 0;
+         } else {
+            MODE_enter  (MODE_COMMAND);
+            CMDS_start ();
+            DEBUG_USER   yLOG_exit    (__FUNCTION__);
+            return a_minor;
+         }
          break;
       case '/'      :
          MODE_enter  (MODE_SEARCH);

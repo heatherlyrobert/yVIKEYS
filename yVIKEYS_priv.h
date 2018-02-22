@@ -31,8 +31,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.7p"
-#define YVIKEYS_VER_TXT   "column movements with pipe | symbol workng in map and source modes"
+#define YVIKEYS_VER_NUM   "0.7q"
+#define YVIKEYS_VER_TXT   "row movements with colon : symbol workng in map mode"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
