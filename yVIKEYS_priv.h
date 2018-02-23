@@ -31,8 +31,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.7r"
-#define YVIKEYS_VER_TXT   "source mode character finding with fF#nN keys working and unit tested"
+#define YVIKEYS_VER_NUM   "0.7s"
+#define YVIKEYS_VER_TXT   "input mode now has basic unit testing in place"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
