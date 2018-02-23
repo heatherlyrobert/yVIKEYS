@@ -691,6 +691,7 @@ MAP_mode                (char a_major, char a_minor)
    char        rce         =  -10;
    char        rc          =    0;
    char        x_grid      =    0;
+   char        t           [5];
    /*---(header)-------------------------*/
    DEBUG_USER   yLOG_enter   (__FUNCTION__);
    DEBUG_USER   yLOG_char    ("a_major"   , a_major);
@@ -769,41 +770,23 @@ MAP_mode                (char a_major, char a_minor)
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return a_minor;
          break;
-         /*> case 's'      :                                                             <* 
-          *>    EDIT_start  ("");                                                        <* 
-          *>    MODE_enter  (MODE_INPUT  );                                      <* 
-          *>    MODE_input ('m', 'i');                                                   <* 
-          *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <* 
-          *>    return 'i';                                                              <* 
-          *>    break;                                                                   <*/
-         /*> case '='      :                                                             <* 
-          *>    EDIT_start  ("=");                                                       <* 
-          *>    MODE_enter  (MODE_INPUT  );                                      <* 
-          *>    MODE_input ('m', 'a');                                                   <* 
-          *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <* 
-          *>    return 'a';                                                              <* 
-          *>    break;                                                                   <*/
-         /*> case '#'      :                                                             <* 
-          *>    EDIT_start  ("#");                                                       <* 
-          *>    MODE_enter  (MODE_INPUT  );                                      <* 
-          *>    MODE_input ('m', 'a');                                                   <* 
-          *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <* 
-          *>    return 'a';                                                              <* 
-          *>    break;                                                                   <*/
-         /*> case '+'      :                                                             <* 
-          *>    EDIT_start  ("+");                                                       <* 
-          *>    MODE_enter  (MODE_INPUT  );                                      <* 
-          *>    MODE_input ('m', 'a');                                                   <* 
-          *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <* 
-          *>    return 'a';                                                              <* 
-          *>    break;                                                                   <*/
-         /*> case '-'      :                                                             <* 
-          *>    EDIT_start  ("-");                                                       <* 
-          *>    MODE_enter  (MODE_INPUT  );                                      <* 
-          *>    MODE_input ('m', 'a');                                                   <* 
-          *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <* 
-          *>    return 'a';                                                              <* 
-          *>    break;                                                                   <*/
+      case 's'      :
+         SRC_start   ("");
+         MODE_enter  (MODE_SOURCE );
+         MODE_enter  (MODE_INPUT  );
+         INPT_mode   ('m', 'i');
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         return 'i';
+         break;
+      case '='      : case '+'      : case '-'      : case '#'      :
+         sprintf     (t, "%c", a_minor);
+         SRC_start   (t);
+         MODE_enter  (MODE_SOURCE );
+         MODE_enter  (MODE_INPUT  );
+         INPT_mode   ('m', 'a');
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         return 'a';
+         break;
       }
       /*---(submodes)--------------------*/
       switch (a_minor) {

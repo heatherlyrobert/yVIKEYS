@@ -56,6 +56,18 @@ char         SRC_done           (void);
 char         TREG_reset         (void);
 
 char
+SRC_accept              (void)
+{
+   s_npos  = s_bpos  = s_cpos  = s_epos  = 0;
+   s_root  = s_bsel  = s_esel  = 0;
+   s_live  = SELC_NOT;
+   s_ctreg = s_wtreg = '"';
+   if (s_saver != NULL)  s_saver (s_contents);
+   strlcpy (s_original, s_contents, LEN_RECD);
+   return 0;
+}
+
+char
 SRC_reset               (void)
 {
    s_npos  = s_bpos  = s_cpos  = s_epos  = 0;
@@ -351,6 +363,20 @@ yVIKEYS_source          (char *a_label, char *a_contents)
    return 0;
 }
 
+char         /*-> prepare contents for new edit ------[ leaf   [gz.311.101.00]*/ /*-[00.0000.203.!]-*/ /*-[--.---.---.--]-*/
+SRC_start          (char *a_prefix)
+{
+   DEBUG_USER   yLOG_enter   (__FUNCTION__);
+   strlcpy (s_contents, a_prefix , LEN_RECD);
+   s_npos = strllen (s_contents, LEN_RECD);
+   s_bpos = s_cpos = 0;
+   s_epos = s_npos;
+   SRC_done ();
+   /*---(complete)-----------------------*/
+   DEBUG_USER   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
 char         /*-> tbd --------------------------------[ ------ [ge.DB2.162.62]*/ /*-[01.0000.403.!]-*/ /*-[--.---.---.--]-*/
 SRC_simple         (char a_major, char a_minor)
 {
@@ -375,7 +401,7 @@ SRC_simple         (char a_major, char a_minor)
    SRC_prepare ();
    /*---(horizontal moves)---------------*/
    switch (a_minor) {
-   case '0' : s_cpos = 0;                     break;
+   case '0' : s_cpos  = 0;                    break;
    case 'H' : s_cpos -= 5;                    break;
    case 'h' : --s_cpos;                       break;
    case 'l' : ++s_cpos;                       break;
@@ -596,8 +622,7 @@ SRC_mode      (char a_major, char a_minor)
       return 0;
    case G_KEY_RETURN :
       DEBUG_USER   yLOG_note    ("enter, means save and return to previous mode");
-      if (s_saver != NULL)  s_saver (s_contents);
-      SRC_reset  ();
+      SRC_accept ();
       SRC_done   ();
       MODE_exit  ();
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
@@ -1104,6 +1129,11 @@ REPL_smode    (int a_major, int a_minor)
       x_append = '-';
       SRC_done   ();
       MODE_exit ();
+      DEBUG_USER   yLOG_value   ("mode"     , MODE_curr ());
+      if (a_minor == G_KEY_RETURN && MODE_curr () == MODE_SOURCE) {
+         DEBUG_USER   yLOG_note    ("fast path back to map mode");
+         SRC_mode (' ', a_minor);
+      }
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return 0;
    }
@@ -1229,11 +1259,12 @@ INPT_mode          (int  a_major, int  a_minor)
       for (i = s_cpos; i <= s_npos; ++i)  s_contents[i] = s_contents[i + 1];
       if (a_major == 'a')  --(s_cpos);
       SRC_done   ();
-      if (a_minor == G_KEY_RETURN && MODE_prev () == MODE_MAP) {
-         if (s_saver != NULL)  s_saver (s_contents);
-      }
-      SRC_done  ();
       MODE_exit ();
+      DEBUG_USER   yLOG_value   ("mode"     , MODE_curr ());
+      if (a_minor == G_KEY_RETURN && MODE_curr () == MODE_SOURCE) {
+         DEBUG_USER   yLOG_note    ("fast path back to map mode");
+         SRC_mode (' ', a_minor);
+      }
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return 0;
    }

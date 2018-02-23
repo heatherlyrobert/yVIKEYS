@@ -31,8 +31,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.7s"
-#define YVIKEYS_VER_TXT   "input mode now has basic unit testing in place"
+#define YVIKEYS_VER_NUM   "0.7t"
+#define YVIKEYS_VER_TXT   "fast path for input and replace mode to accept changes (unit tested)"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -171,6 +171,7 @@ char        SRC_formula             (void);
 char        SRC_select_status       (char *a_list);
 char*       SRC__unit               (char *a_question, char a_reg);
 char        SRC_words_status        (char *a_list);
+char        SRC_start               (char *a_prefix);
 char        TREG_init               (void);
 char        TREG_smode              (int a_major, int a_minor);
 char        TREG_status             (char *a_list);
