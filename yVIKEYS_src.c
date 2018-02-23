@@ -106,8 +106,13 @@ SRC_formula                (void)
    char        x_beg       =     0;
    char        x_end       =     0;
    char        x_len       =     0;
+   char        x_on        =   '-';
    /*---(get sizes)----------------------*/
-   yVIKEYS_view_size     (YVIKEYS_FORMULA, &x_left, &s_wide, &x_bott, NULL, NULL);
+   x_on = yVIKEYS_view_size     (YVIKEYS_FORMULA, &x_left, &s_wide, &x_bott, NULL, NULL);
+   if (x_on != 'y') {
+      if (MODE_curr () == MODE_MAP)  return 0;
+      yVIKEYS_view_size     (YVIKEYS_FLOAT  , &x_left, &s_wide, &x_bott, NULL, NULL);
+   }
    s_apos = s_wide - 6;
    /*---(length)-------------------------*/
    attrset     (0);

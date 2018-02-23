@@ -31,8 +31,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.7t"
-#define YVIKEYS_VER_TXT   "fast path for input and replace mode to accept changes (unit tested)"
+#define YVIKEYS_VER_NUM   "0.7u"
+#define YVIKEYS_VER_TXT   "made ncurses float work for command, search, and formula"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/

@@ -257,10 +257,11 @@ VIEW__reset              (void)
    DEBUG_GRAF_M yLOG_enter   (__FUNCTION__);
    DEBUG_GRAF_M yLOG_value   ("count"     , s_npart);
    for (n = 0; n < s_npart; ++n) {
-      if (s_parts [n].abbr != YVIKEYS_MAIN  )  s_parts [n].on   = '-';
+      s_parts [n].on   = '-';
+      if (s_parts [n].abbr == YVIKEYS_MAIN  )  s_parts [n].on   = 'y';
+      if (s_parts [n].abbr == YVIKEYS_FLOAT )  s_parts [n].on   = 'y';
       s_parts [n].left   = s_parts [n].wide   =   0;
       s_parts [n].bott   = s_parts [n].tall   =   0;
-      /*> strlcpy (s_parts [n].text, "", LEN_STR);                                  <*/
       DEBUG_GRAF_M yLOG_complex (s_parts [n].name, "bott %4d, left %4d, wide %4d, tall %4d, on %c", s_parts [n].bott, s_parts [n].left, s_parts [n].wide, s_parts [n].tall, s_parts [n].on);
    }
    DEBUG_GRAF_M yLOG_exit    (__FUNCTION__);
@@ -378,7 +379,7 @@ VIEW_defaults            (cchar a_env)
          case YVIKEYS_YAXIS   : p->on = '-';  p->def_wide =  30;  break;
          case YVIKEYS_OVERLAY : p->on = '-';                      break;
          case YVIKEYS_LAYERS  : p->on = '-';                      p->drawer = VIEW__layer_show; break;
-         case YVIKEYS_FLOAT   : p->on = '-';                      p->drawer = VIEW__float;      break;
+         case YVIKEYS_FLOAT   : p->on = 'y';  p->def_tall =  15;  p->drawer = VIEW__float;      break;
          case YVIKEYS_WINDOW  : p->on = '-';                      break;
          case YVIKEYS_MAIN    : p->on = 'y';                      break;
          }
@@ -408,7 +409,7 @@ VIEW_defaults            (cchar a_env)
          case YVIKEYS_YAXIS   : p->on = '-';  p->def_wide =   4;  break;
          case YVIKEYS_OVERLAY : p->on = '-';                      break;
          case YVIKEYS_LAYERS  : p->on = '-';                      break;
-         case YVIKEYS_FLOAT   : p->on = '-';                      break;
+         case YVIKEYS_FLOAT   : p->on = 'y';  p->def_tall =   1;  p->drawer = VIEW__float;      break;
          case YVIKEYS_WINDOW  : p->on = '-';                      break;
          case YVIKEYS_MAIN    : p->on = 'y';                      break;
          }
@@ -462,6 +463,7 @@ VIEW__widths_wide        (cint a_wide, cint a_alt)
          /*---(set)----------------------*/
          switch (s_parts [n].abbr) {
          case YVIKEYS_MAIN     : s_parts [n].wide = s_main_wide = a_wide;     break;
+         case YVIKEYS_FLOAT    : s_parts [n].wide = a_wide - 40;              break;
          case YVIKEYS_ALT      : s_parts [n].wide = s_alt_wide  = a_alt;      break;
          case YVIKEYS_PROGRESS : s_parts [n].wide = a_wide + a_alt;           break;
          case YVIKEYS_XAXIS    : s_parts [n].wide = a_wide + a_alt + x_yaxis; break;
@@ -478,6 +480,7 @@ VIEW__widths_wide        (cint a_wide, cint a_alt)
          /*---(set)----------------------*/
          switch (s_parts [n].abbr) {
          case YVIKEYS_MAIN     : s_parts [n].wide = s_main_wide = a_wide - x_cum - a_alt;  break;
+         case YVIKEYS_FLOAT    : s_parts [n].wide = a_wide - x_cum - a_alt - 4;            break;
          case YVIKEYS_ALT      : s_parts [n].wide = s_alt_wide  = a_alt;                   break;
          case YVIKEYS_PROGRESS : s_parts [n].wide = a_wide - x_cum;           break;
          case YVIKEYS_XAXIS    : s_parts [n].wide = a_wide - x_cum + x_yaxis; break;
@@ -531,6 +534,12 @@ VIEW__widths_left        (void)
       }
       x_cum += w;
    }
+   /*---(floater)------------------------*/
+   n = VIEW__abbr (YVIKEYS_MAIN  );
+   x_cum = s_parts [n].left;
+   n = VIEW__abbr (YVIKEYS_FLOAT );
+   if (s_env == YVIKEYS_OPENGL )  s_parts [n].left = x_cum + 20;
+   if (s_env == YVIKEYS_CURSES )  s_parts [n].left = x_cum +  2;
    /*---(complete)-----------------------*/
    DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -686,6 +695,12 @@ VIEW__heights_bott       (void)
       }
       x_cum += h;
    }
+   /*---(floater)------------------------*/
+   n = VIEW__abbr (YVIKEYS_MAIN  );
+   x_cum = s_parts [n].bott;
+   n = VIEW__abbr (YVIKEYS_FLOAT );
+   if (s_env == YVIKEYS_OPENGL )  s_parts [n].bott = x_cum + 60;
+   if (s_env == YVIKEYS_CURSES )  s_parts [n].bott = x_cum +  6;
    /*---(complete)-----------------------*/
    DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -1784,21 +1799,30 @@ VIEW__float             (void)
    int         x_rig       =     0;
    int         x_len       =     0;
    int         n           =     0;
+   /*---(header)-------------------------*/
+   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
+   DEBUG_GRAF   yLOG_char    ("mode_curr" , MODE_curr ());
    /*---(defense)------------------------*/
    if (MODE_curr () == MODE_COMMAND || MODE_curr () == MODE_SEARCH) {
+      DEBUG_GRAF   yLOG_note    ("command/search mode");
       n    = VIEW__abbr   (YVIKEYS_COMMAND);
       if (s_parts [n].on == '-')  x_use = 'y';
+   } else {
+      DEBUG_GRAF   yLOG_note    ("other mode");
+      n    = VIEW__abbr   (YVIKEYS_FORMULA);
+      if (s_parts [n].on == '-')  x_use = 'y';
    }
-   if (x_use != 'y')    return 0;
+   DEBUG_GRAF   yLOG_char    ("x_use"     , x_use);
+   if (x_use != 'y') {
+      DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
    /*---(draw)---------------------------*/
-   yVIKEYS_view_coords  (YVIKEYS_MAIN, &x_lef, &x_len, &x_bot, NULL);
-   x_bot += 20;
-   x_top = x_bot + 15;
-   x_lef = x_lef + 50;
-   /*> printf ("n %2d, s_parts[n].left %4d, x_lef = %4d\n", n, s_parts [n].left, x_lef);   <*/
-   x_rig = x_lef + x_len - 100;
-   /*> printf ("n %2d, s_parts[n].wide %4d, x_rig = %4d\n", n, s_parts [n].wide, x_rig);   <*/
+   n    = VIEW__abbr    (YVIKEYS_FLOAT  );
+   yVIKEYS_view_coords  (YVIKEYS_FLOAT, &x_lef, &x_len, &x_bot, NULL);
+   x_rig = x_lef + x_len;
    if (s_env == YVIKEYS_OPENGL) {
+      DEBUG_GRAF   yLOG_note    ("opengl environment");
       glPushMatrix    (); {
          yVIKEYS_view_color (s_parts [n].color, 1.0);
          glBegin         (GL_POLYGON); {
@@ -1822,8 +1846,26 @@ VIEW__float             (void)
          case MODE_SEARCH  :  yFONT_print  (s_win.font,  11, YF_BOTLEF, SRCH_curr ());  break;
          }
       } glPopMatrix   ();
+   } else {
+      DEBUG_GRAF   yLOG_note    ("curses environment");
+      /*  set color --------------*/
+      switch (MODE_curr ()) {
+      case MODE_COMMAND     :
+         yCOLOR_curs ("status" );
+         mvprintw (s_parts [n].bott, s_parts [n].left, "%-*.*s", s_parts [n].wide, s_parts [n].wide, CMDS_curr ());
+         break;
+      case MODE_SEARCH      :
+         yCOLOR_curs ("status" );
+         mvprintw (s_parts [n].bott, s_parts [n].left, "%-*.*s", s_parts [n].wide, s_parts [n].wide, SRCH_curr ());
+         break;
+      default               :
+         SRC_formula ();
+         break;
+      }
+      attrset  (0);
    }
    /*---(complete)-----------------------*/
+   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -2083,7 +2125,7 @@ VIEW__opengl             (char a)
                mvprintw (s_parts [a].bott - i, s_parts [a].left, " ");
             }
          } else {
-               mvprintw (s_parts [a].bott, s_parts [a].left, "%-*.*s", s_parts [a].wide, s_parts [a].wide, s_parts [a].text);
+            mvprintw (s_parts [a].bott, s_parts [a].left, "%-*.*s", s_parts [a].wide, s_parts [a].wide, s_parts [a].text);
          }
          attrset  (0);
          /*> mvprintw (s_parts [a].bott, s_parts [a].left, "%-*.*s", s_parts [a].wide, s_parts [a].wide, s_parts [a].name);   <*/
@@ -2101,6 +2143,7 @@ yVIKEYS_view_all         (float a_mag)
    /*---(locals)-----------+-----+-----+-*/
    int         rc          =    0;
    int         n           =    0;
+   int         x_cur, y_cur;
    /*---(header)-------------------------*/
    DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
    /*---(clear)--------------------------*/
@@ -2116,6 +2159,7 @@ yVIKEYS_view_all         (float a_mag)
       break;
    }
    /*---(draw each element)--------------*/
+   DEBUG_GRAF   yLOG_note    ("independent screen elements");
    for (n = 0; n < s_npart; ++n) {
       DEBUG_GRAF   yLOG_info    ("part"      , s_parts [n].name);
       DEBUG_GRAF   yLOG_char    ("own"       , s_parts [n].own);
@@ -2128,7 +2172,9 @@ yVIKEYS_view_all         (float a_mag)
       rc = VIEW__opengl (n);
       if (s_parts [n].drawer != NULL)  s_parts [n].drawer ();
    }
+   if (s_env == YVIKEYS_CURSES)  getyx (stdscr, y_cur, x_cur);
    /*---(on top of main)-----------------*/
+   DEBUG_GRAF   yLOG_note    ("overlay screen elements");
    for (n = 0; n < s_npart; ++n) {
       DEBUG_GRAF   yLOG_info    ("part"      , s_parts [n].name);
       DEBUG_GRAF   yLOG_char    ("own"       , s_parts [n].own);
@@ -2142,12 +2188,14 @@ yVIKEYS_view_all         (float a_mag)
       if (s_parts [n].source != NULL)  s_parts [n].source (NULL);
    }
    /*---(flush)--------------------------*/
+   DEBUG_GRAF   yLOG_note    ("flush and show");
    switch (s_env) {
    case YVIKEYS_OPENGL :
       glXSwapBuffers(DISP, BASE);
       glFlush();
       break;
    case YVIKEYS_CURSES :
+      /*> mvprintw (y_cur, x_cur, "");                                                <*/
       refresh ();
       break;
    }
