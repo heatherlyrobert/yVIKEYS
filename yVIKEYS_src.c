@@ -4,7 +4,7 @@
 #include    "yVIKEYS_priv.h"
 
 
-static char  s_label       [LEN_RECD]  = "";
+static char  s_label       [LEN_RECD]  = "-";
 static char  s_original    [LEN_RECD]  = "";
 static char  s_contents    [LEN_RECD]  = "";
 static int   s_wide    = 0;
@@ -55,6 +55,8 @@ static char    (*s_saver) (char *a_contents);
 char         SRC_done           (void);
 char         TREG_reset         (void);
 
+char* SRC_label    (void) { return s_label; }
+
 char
 SRC_accept              (void)
 {
@@ -84,6 +86,8 @@ SRC_init                (void)
    /*---(header)-------------------------*/
    DEBUG_PROG   yLOG_enter   (__FUNCTION__);
    s_saver  = NULL;
+   strlcpy (s_original, "-", LEN_RECD );
+   strlcpy (s_label   , "-", LEN_LABEL);
    SRC_reset ();
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -356,7 +360,7 @@ SRC_done           (void)
 char
 yVIKEYS_source          (char *a_label, char *a_contents)
 {
-   if (a_label    == NULL)  strlcpy (s_label   , ""        , LEN_RECD);
+   if (a_label    == NULL)  strlcpy (s_label   , "-"       , LEN_RECD);
    else                     strlcpy (s_label   , a_label   , LEN_RECD);
    if (a_contents == NULL)  strlcpy (s_original, ""        , LEN_RECD);
    else                     strlcpy (s_original, a_contents, LEN_RECD);
@@ -873,7 +877,7 @@ TREG_copy          (void)
    s_tregs [x_index].len    = x_len;
    s_tregs [x_index].bpos   = s_bsel;
    s_tregs [x_index].epos   = s_esel;
-   strlcpy (s_tregs [x_index].label, s_label, 10);
+   strlcpy (s_tregs [x_index].label, s_label, LEN_LABEL);
    s_tregs [x_index].source = TREG_USER;
    /*---(complete)-----------------------*/
    return 0;
@@ -1316,6 +1320,9 @@ SRC__unit               (char *a_question, char a_reg)
    }
    else if (strcmp (a_question, "contents"       )   == 0) {
       snprintf (yVIKEYS__unit_answer, LEN_STR, "SRC contents     : %3d:%-.40s:", s_npos, s_contents);
+   }
+   else if (strcmp (a_question, "label"          )   == 0) {
+      snprintf (yVIKEYS__unit_answer, LEN_STR, "SRC label        : %s", s_label);
    }
    else if (strcmp (a_question, "selection"      )   == 0) {
       snprintf (yVIKEYS__unit_answer, LEN_STR, "SRC selection    :   %cl, %3dr, %3db, %3dc, %3de", s_live, s_root, s_bsel, s_cpos, s_esel);

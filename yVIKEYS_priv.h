@@ -31,8 +31,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.7u"
-#define YVIKEYS_VER_TXT   "made ncurses float work for command, search, and formula"
+#define YVIKEYS_VER_NUM   "0.7v"
+#define YVIKEYS_VER_TXT   "most detailed mark functions ported and unit tested"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -54,6 +54,16 @@ struct cSHARED {
    /*---(global flags-----*/
    char        done;                        /* flag indicating ready to quit  */
    char        trouble;                     /* flag indicating error        0 */
+   /*---(marks)-----------*/
+   char        mark_show;      /* show temporary marks (y/n)                    */
+   /*---(file hanndling)--*/
+   char        f_loc       [LEN_RECD];      /* specific file location         */
+   char        f_name      [LEN_RECD];      /* full file name                 */
+   char        f_title     [LEN_RECD];      /* specific file base name        */
+   int         f_lines;                     /* file line number               */
+   char        f_recd      [LEN_RECD];      /* current file record            */
+   char        f_type      [LEN_RECD];      /* current record verb            */
+   char        f_vers;                      /* current record version         */
 };
 tSHARED     myVIKEYS;
 
@@ -166,6 +176,7 @@ char*       MAP__unit               (char *a_question, char a_index);
 char        MAP__unit_ymap          (void);
 char        MAP__unit_xmap          (void);
 
+char*       SRC_label               (void);
 char        SRC_init                (void);
 char        SRC_formula             (void);
 char        SRC_select_status       (char *a_list);
@@ -177,6 +188,26 @@ char        TREG_smode              (int a_major, int a_minor);
 char        TREG_status             (char *a_list);
 char        REPL_smode              (int a_major, int a_minor);
 char        INPT_mode               (int  a_major, int  a_minor);
+
+
+
+char        MARK_init               (void);
+char        MARK__valid             (char a_mark);
+char        MARK__check             (char *a_label);
+char        MARK__find              (char *a_label);
+char        MARK__which             (void);
+char        MARK__set               (char a_mark);
+char        MARK__unset             (char a_mark);
+char        MARK__return            (char a_mark);
+char        HINT__unit_jumper       (char *a_label);
+char*       MARK__unit              (char *a_question, char a_mark);
+char        MARK__write             (char a_mark);
+char        MARK_writeall           (FILE *a_file);
+char        MARK_read               (char a_mark, char *a_label);
+char        MARK_direct             (char *a_string);
+char        MARK__list              (char *a_list);
+char        MARK__listplus          (char *a_list);
+char        MARK_status             (char *a_status);
 
 
 /*---(program)--------------*/
