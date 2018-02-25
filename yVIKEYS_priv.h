@@ -31,8 +31,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.7v"
-#define YVIKEYS_VER_TXT   "most detailed mark functions ported and unit tested"
+#define YVIKEYS_VER_NUM   "0.7w"
+#define YVIKEYS_VER_TXT   "marks working, including callbacks to host program"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -54,6 +54,7 @@ struct cSHARED {
    /*---(global flags-----*/
    char        done;                        /* flag indicating ready to quit  */
    char        trouble;                     /* flag indicating error        0 */
+   char        redraw;
    /*---(marks)-----------*/
    char        mark_show;      /* show temporary marks (y/n)                    */
    /*---(file hanndling)--*/
@@ -168,6 +169,7 @@ char        MAP_init                (void);
 char        MAP__load               (char a_style, tMAPPED *a_map, char a_which);
 char        MAP__screen             (tMAPPED *a_map);
 char        MAP__move               (int  a_target, tMAPPED *a_map);
+char        MAP_jump                (int a_x, int a_y, int a_z);
 char        MAP_mode                (char a_major, char a_minor);
 char        MAP_xstatus             (char *a_list);
 char        MAP_ystatus             (char *a_list);
@@ -176,19 +178,20 @@ char*       MAP__unit               (char *a_question, char a_index);
 char        MAP__unit_ymap          (void);
 char        MAP__unit_xmap          (void);
 
-char*       SRC_label               (void);
-char        SRC_init                (void);
-char        SRC_formula             (void);
-char        SRC_select_status       (char *a_list);
-char*       SRC__unit               (char *a_question, char a_reg);
-char        SRC_words_status        (char *a_list);
-char        SRC_start               (char *a_prefix);
-char        TREG_init               (void);
-char        TREG_smode              (int a_major, int a_minor);
-char        TREG_status             (char *a_list);
-char        REPL_smode              (int a_major, int a_minor);
-char        INPT_mode               (int  a_major, int  a_minor);
+char*       SOURCE_label            (void);
+char        SOURCE_init             (void);
+char        SOURCE_formula          (void);
+char        SOURCE_status_select    (char *a_list);
+char*       SOURCE__unit            (char *a_question, char a_reg);
+char        SOURCE_status_words     (char *a_list);
+char        SOURCE_start            (char *a_prefix);
+char        TEXTREG_init            (void);
+char        TEXTREG_smode           (int a_major, int a_minor);
+char        TEXTREG_status          (char *a_list);
+char        REPLACE_smode           (int a_major, int a_minor);
+char        INPUT_mode              (int  a_major, int  a_minor);
 
+char        WANDER_smode            (int  a_major, int  a_minor);
 
 
 char        MARK_init               (void);
@@ -199,7 +202,7 @@ char        MARK__which             (void);
 char        MARK__set               (char a_mark);
 char        MARK__unset             (char a_mark);
 char        MARK__return            (char a_mark);
-char        HINT__unit_jumper       (char *a_label);
+char        HINT__unit_jumper       (char *a_label, int *a_x, int *a_y, int *a_z);
 char*       MARK__unit              (char *a_question, char a_mark);
 char        MARK__write             (char a_mark);
 char        MARK_writeall           (FILE *a_file);
@@ -208,6 +211,7 @@ char        MARK_direct             (char *a_string);
 char        MARK__list              (char *a_list);
 char        MARK__listplus          (char *a_list);
 char        MARK_status             (char *a_status);
+char        MARK_smode              (int a_major, int a_minor);
 
 
 /*---(program)--------------*/

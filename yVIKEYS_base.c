@@ -43,8 +43,9 @@ yVIKEYS_init         (void)
    /*----(modes)-------------------------*/
    MODE_init    ();
    MAP_init     ();
-   SRC_init     ();
-   TREG_init    ();
+   SOURCE_init  ();
+   TEXTREG_init ();
+   MARK_init    ();
    SRCH_init    ();
    CMDS_init    ();
    MACRO_init   ();
@@ -243,20 +244,20 @@ yVIKEYS_main_handle     (uchar a_key)
       switch (MODE_curr ()) {
       case MODE_GOD      : rc = BASE__________stub    (x_major , x_key);  break;
       case MODE_MAP      : rc = MAP_mode              (x_major , x_key);  break;
-      case MODE_SOURCE   : rc = SRC_mode              (x_major , x_key);  break;
-      case MODE_INPUT    : rc = INPT_mode             (x_major , x_key);  break;
+      case MODE_SOURCE   : rc = SOURCE_mode           (x_major , x_key);  break;
+      case MODE_INPUT    : rc = INPUT_mode            (x_major , x_key);  break;
       case MODE_COMMAND  : rc = CMDS_mode             (x_major , x_key);  break;
       case MODE_SEARCH   : rc = SRCH_mode             (x_major , x_key);  break;
       case MODE_VISUAL   : rc = BASE__________stub    (x_major , x_key);  break;
       case SMOD_ERROR    : rc = BASE__________stub    (x_major , x_key);  break;
       case SMOD_SELECT   : rc = BASE__________stub    (x_major , x_key);  break;
-      case SMOD_TEXTREG  : rc = TREG_smode            (x_major , x_key);  break;
-      case SMOD_REPLACE  : rc = REPL_smode            (x_major , x_key);  break;
+      case SMOD_TEXTREG  : rc = TEXTREG_smode         (x_major , x_key);  break;
+      case SMOD_REPLACE  : rc = REPLACE_smode         (x_major , x_key);  break;
       case SMOD_FORMAT   : rc = BASE__________stub    (x_major , x_key);  break;
       case SMOD_BUFFER   : rc = BASE__________stub    (x_major , x_key);  break;
       case SMOD_WANDER   : rc = BASE__________stub    (x_major , x_key);  break;
       case SMOD_REGISTER : rc = BASE__________stub    (x_major , x_key);  break;
-      case SMOD_MARK     : rc = BASE__________stub    (x_major , x_key);  break;
+      case SMOD_MARK     : rc = MARK_smode            (x_major , x_key);  break;
       case SMOD_MENUS    : rc = BASE__________stub    (x_major , x_key);  break;
       case SMOD_MACRO    : rc = MACRO_smode           (x_major , x_key);  break;
       case SMOD_REPEAT   :                                                break;

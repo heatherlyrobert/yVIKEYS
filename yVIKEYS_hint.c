@@ -44,19 +44,29 @@ char         MARK__next            (void);
 /*====================------------------------------------====================*/
 static void  o___CALLBACK________o () { return; }
 
-static char    (*s_jumper) (char *a_label);
+static char    (*s_locator) (char *a_label, int *a_x, int *a_y, int *a_z);
 
 char         /*-> callback for direct movement -------[ shoot  [gz.311.001.01]*/ /*-[00.0000.102.4]-*/ /*-[--.---.---.--]-*/
-yVIKEYS_hint_config     (void *a_jumper)
+yVIKEYS_hint_config     (void *a_locator)
 {
-   s_jumper = a_jumper;
+   s_locator = a_locator;
    return 0;
 }
 
 char
 HINT__return            (char *a_label)
 {
-   if (s_jumper != NULL)   s_jumper (a_label);
+   int         x, y, z;
+   /*---(header)-------------------------*/
+   DEBUG_MARK   yLOG_enter   (__FUNCTION__);
+   DEBUG_MARK   yLOG_info    ("a_label"   , a_label);
+   if (s_locator != NULL)   s_locator (a_label, &x, &y, &z);
+   DEBUG_MARK   yLOG_value   ("x"         , x);
+   DEBUG_MARK   yLOG_value   ("y"         , y);
+   DEBUG_MARK   yLOG_value   ("z"         , z);
+   MAP_jump (x, y, z);
+   /*---(header)-------------------------*/
+   DEBUG_MARK   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -76,6 +86,7 @@ MARK_init            (void)
    MARK__purge  ('*');
    /*---(globals)------------------------*/
    myVIKEYS.mark_show = '-';
+   yVIKEYS_cmds_add ('e', "mark"        , ""    , "s"    , MARK_direct                , "" );
    /*---(complete)-----------------------*/
    DEBUG_MARK   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -204,9 +215,9 @@ MARK__history         (void)
    /*---(header)-------------------------*/
    DEBUG_MARK   yLOG_enter   (__FUNCTION__);
    /*---(cycle history)------------------*/
-   strlcpy (s_mark_pprev , s_mark_prev , LEN_LABEL);
-   strlcpy (s_mark_prev  , s_mark_curr , LEN_LABEL);
-   strlcpy (s_mark_curr  , SRC_label (), LEN_LABEL);
+   strlcpy (s_mark_pprev , s_mark_prev    , LEN_LABEL);
+   strlcpy (s_mark_prev  , s_mark_curr    , LEN_LABEL);
+   strlcpy (s_mark_curr  , SOURCE_label (), LEN_LABEL);
    DEBUG_MARK   yLOG_info    ("mark_pprev", s_mark_pprev);
    DEBUG_MARK   yLOG_info    ("mark_prev" , s_mark_prev);
    DEBUG_MARK   yLOG_info    ("mark_curr" , s_mark_curr);
@@ -249,14 +260,14 @@ MARK__set             (char a_mark)
    }
    /*---(check label)--------------------*/
    DEBUG_MARK   yLOG_note    ("check label");
-   rc = MARK__check (SRC_label ());
+   rc = MARK__check (SOURCE_label ());
    --rce;  if (rc < 0) {
       DEBUG_MARK   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(mark label)---------------------*/
    DEBUG_MARK   yLOG_note    ("save current position");
-   strlcpy (s_mark_info [x_index].label, SRC_label (), LEN_LABEL);
+   strlcpy (s_mark_info [x_index].label, SOURCE_label (), LEN_LABEL);
    s_mark_info [x_index].source = MARK_USER;
    /*---(set history)--------------------*/
    MARK__history ();
@@ -359,7 +370,7 @@ MARK__which        (void)
    int         i           = 0;
    int         x_len       = 0;
    char        x_label     [LEN_LABEL];
-   strlcpy (x_label, SRC_label(), LEN_LABEL);
+   strlcpy (x_label, SOURCE_label (), LEN_LABEL);
    x_len = strlen (S_MARK_LIST);
    for (i = 1; i < x_len; ++i) {
       if (s_mark_info [i].source == MARK_NONE)          continue;
@@ -519,42 +530,6 @@ MARK__next          (void)
 /*===----                      location marks                          ----===*/
 /*====================------------------------------------====================*/
 static void  o___MARK_INFO_______o () { return; }
-
-/*> char         /+-> tbd --------------------------------[ ------ [ge.833.434.32]+/ /+-[01.0000.014.!]-+/ /+-[--.---.---.--]-+/   <* 
- *> MARK_address         (char a_mark, short *a_tab, short *a_col, short *a_row)                                                   <* 
- *> {                                                                                                                              <* 
- *>    /+---(locals)-----------+-----------+-+/                                                                                    <* 
- *>    char        rce         = -10;                                                                                              <* 
- *>    char        rc          =   0;                                                                                              <* 
- *>    int         x_index     =   0;                                                                                              <* 
- *>    /+---(header)-------------------------+/                                                                                    <* 
- *>    DEBUG_MARK   yLOG_enter   (__FUNCTION__);                                                                                   <* 
- *>    DEBUG_MARK   yLOG_value   ("a_mark"    , a_mark);                                                                           <* 
- *>    /+---(check mark)---------------------+/                                                                                    <* 
- *>    x_index = MARK__valid (a_mark);                                                                                             <* 
- *>    --rce;  if (x_index < 0) {                                                                                                  <* 
- *>       DEBUG_MARK   yLOG_exitr   (__FUNCTION__, rce);                                                                           <* 
- *>       return rce;                                                                                                              <* 
- *>    }                                                                                                                           <* 
- *>    DEBUG_MARK   yLOG_value   ("a_mark"    , a_mark);                                                                           <* 
- *>    DEBUG_MARK   yLOG_value   ("x_index"   , x_index);                                                                          <* 
- *>    /+---(check address)------------------+/                                                                                    <* 
- *>    --rce;  if (s_mark_info [x_index].tab < 0) {                                                                                <* 
- *>       DEBUG_MARK   yLOG_note    ("address not set");                                                                           <* 
- *>       DEBUG_MARK   yLOG_exitr   (__FUNCTION__, rce);                                                                           <* 
- *>       return rce;                                                                                                              <* 
- *>    }                                                                                                                           <* 
- *>    /+---(parse)--------------------------+/                                                                                    <* 
- *>    rc = LOC_parse  (s_mark_info [x_index].label, a_tab, a_col, a_row, NULL);                                                   <* 
- *>    DEBUG_MARK   yLOG_value   ("rc"        , rc);                                                                               <* 
- *>    --rce;  if (rc < 0) {                                                                                                       <* 
- *>       DEBUG_MARK   yLOG_exitr   (__FUNCTION__, rce);                                                                           <* 
- *>       return rce;                                                                                                              <* 
- *>    }                                                                                                                           <* 
- *>    /+---(complete)-----------------------+/                                                                                    <* 
- *>    DEBUG_MARK   yLOG_exit    (__FUNCTION__);                                                                                   <* 
- *>    return 0;                                                                                                                   <* 
- *> }                                                                                                                              <*/
 
 /*> char         /+-> tbd --------------------------------[ ------ [ge.833.224.31]+/ /+-[01.0000.114.!]-+/ /+-[--.---.---.--]-+/   <* 
  *> MARK_entry           (char a_mark, char *a_entry)                                                                              <* 
@@ -873,152 +848,152 @@ MARK_direct          (char *a_string)
 /*====================------------------------------------====================*/
 static void  o___MODE____________o () { return; }
 
-/*> char         /+-> process keys for marks -------------[ leaf   [ge.UD8.24#.JA]+/ /+-[03.0000.102.E]-+/ /+-[--.---.---.--]-+/   <* 
- *> MARK_submode       (char a_major, char a_minor)                                                                                <* 
- *> {                                                                                                                              <* 
- *>    /+---(locals)-----------+-----+-----+-+/                                                                                    <* 
- *>    char        rce         =  -10;                                                                                             <* 
- *>    char        rc          =    0;                                                                                             <* 
- *>    char       *x_majors    = "m'@";                                                                                            <* 
- *>    static char x_prev      =  '-';                                                                                             <* 
- *>    /+---(header)-------------------------+/                                                                                    <* 
- *>    DEBUG_USER   yLOG_enter   (__FUNCTION__);                                                                                   <* 
- *>    DEBUG_USER   yLOG_char    ("a_major"   , a_major);                                                                          <* 
- *>    DEBUG_USER   yLOG_char    ("a_minor"   , a_minor);                                                                          <* 
- *>    DEBUG_USER   yLOG_char    ("x_prev"    , x_prev);                                                                           <* 
- *>    /+---(defenses)-----------------------+/                                                                                    <* 
- *>    DEBUG_USER   yLOG_char    ("mode"      , MODE_curr ());                                                                     <* 
- *>    --rce;  if (MODE_not (SMOD_MARK   )) {                                                                                      <* 
- *>       DEBUG_USER   yLOG_note    ("not the correct mode");                                                                      <* 
- *>       DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);                                                                           <* 
- *>       return rce;                                                                                                              <* 
- *>    }                                                                                                                           <* 
- *>    /+---(exit mode)----------------------+/                                                                                    <* 
- *>    if (a_minor == G_KEY_ESCAPE) {                                                                                              <* 
- *>       DEBUG_USER   yLOG_note    ("escape means leave");                                                                        <* 
- *>       MODE_exit ();                                                                                                            <* 
- *>       DEBUG_USER   yLOG_exit    (__FUNCTION__);                                                                                <* 
- *>       return  0;                                                                                                               <* 
- *>    }                                                                                                                           <* 
- *>    /+---(major check)--------------------+/                                                                                    <* 
- *>    DEBUG_USER   yLOG_char    ("x_majors"  , x_majors);                                                                         <* 
- *>    --rce;  if (strchr (x_majors, a_major) == NULL) {                                                                           <* 
- *>       DEBUG_USER   yLOG_note    ("major not valid");                                                                           <* 
- *>       DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);                                                                           <* 
- *>       return rce;                                                                                                              <* 
- *>    }                                                                                                                           <* 
- *>    /+---(mode change)--------------------+/                                                                                    <* 
- *>    if (a_minor == '*') {                                                                                                       <* 
- *>       DEBUG_USER   yLOG_note    ("enter visual mode from < to >");                                                             <* 
- *>       MODE_exit ();                                                                                                            <* 
- *>       MODE_enter  (MODE_VISUAL);                                                                                               <* 
- *>       rc = VISU_mark    ();                                                                                                    <* 
- *>       if (rc < 0) {                                                                                                            <* 
- *>          MODE_exit ();                                                                                                         <* 
- *>          DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);                                                                        <* 
- *>          return rce;                                                                                                           <* 
- *>       }                                                                                                                        <* 
- *>       MARK__return  ('>');                                                                                                     <* 
- *>       DEBUG_USER   yLOG_exit    (__FUNCTION__);                                                                                <* 
- *>       return 0;                                                                                                                <* 
- *>    }                                                                                                                           <* 
- *>    /+---(common quick)-------------------+/                                                                                    <* 
- *>    --rce;  if (strchr("#_!", a_minor) != NULL) {                                                                               <* 
- *>       switch (a_minor) {                                                                                                       <* 
- *>       case '#' :                                                                                                               <* 
- *>          DEBUG_USER   yLOG_note    ("unset mark under cursor");                                                                <* 
- *>          rc = MARK_which ();                                                                                                   <* 
- *>          if (rc < 0) {                                                                                                         <* 
- *>             MODE_exit ();                                                                                                      <* 
- *>             DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);                                                                     <* 
- *>             return rce;                                                                                                        <* 
- *>          }                                                                                                                     <* 
- *>          MARK__unset (rc);                                                                                                     <* 
- *>          break;                                                                                                                <* 
- *>       case '_' :                                                                                                               <* 
- *>          DEBUG_USER   yLOG_note    ("toggle mark show and hide");                                                              <* 
- *>          if (my.mark_show == 'y')   my.mark_show = '-';                                                                        <* 
- *>          else                       my.mark_show = 'y';                                                                        <* 
- *>          break;                                                                                                                <* 
- *>       case '!' :                                                                                                               <* 
- *>          DEBUG_USER   yLOG_note    ("use mark status bar");                                                                    <* 
- *>          my.layout_status = G_STATUS_MARK;                                                                                     <* 
- *>          break;                                                                                                                <* 
- *>       }                                                                                                                        <* 
- *>       MODE_exit ();                                                                                                            <* 
- *>       DEBUG_USER   yLOG_exit    (__FUNCTION__);                                                                                <* 
- *>       return  0;                                                                                                               <* 
- *>    }                                                                                                                           <* 
- *>    /+---(common complex)-----------------+/                                                                                    <* 
- *>    --rce;  if (strchr("?@", a_minor) != NULL) {                                                                                <* 
- *>       switch (a_minor) {                                                                                                       <* 
- *>       case '?' :                                                                                                               <* 
- *>          DEBUG_USER   yLOG_note    ("show mark info window");                                                                  <* 
- *>          my.info_win      = G_INFO_MARK;                                                                                       <* 
- *>          return a_major;                                                                                                       <* 
- *>          break;                                                                                                                <* 
- *>       case '@' :                                                                                                               <* 
- *>          DEBUG_USER   yLOG_note    ("enter edit/wander feature");                                                              <* 
- *>          rc = MARK_which ();                                                                                                   <* 
- *>          if (rc < 0) {                                                                                                         <* 
- *>             MODE_exit ();                                                                                                      <* 
- *>             DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);                                                                     <* 
- *>             return rce;                                                                                                        <* 
- *>          }                                                                                                                     <* 
- *>          x_prev = rc;                                                                                                          <* 
- *>          return a_minor;                                                                                                       <* 
- *>          break;                                                                                                                <* 
- *>       }                                                                                                                        <* 
- *>    }                                                                                                                           <* 
- *>    /+---(check for setting)--------------+/                                                                                    <* 
- *>    --rce;  if (a_major == 'm') {                                                                                               <* 
- *>       DEBUG_USER   yLOG_note    ("handling mark (m)");                                                                         <* 
- *>       rc = MARK__set (a_minor);                                                                                                <* 
- *>       DEBUG_USER   yLOG_value   ("rc"        , rc);                                                                            <* 
- *>       if (rc < 0) {                                                                                                            <* 
- *>          MODE_exit ();                                                                                                         <* 
- *>          DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);                                                                        <* 
- *>          return rce;                                                                                                           <* 
- *>       }                                                                                                                        <* 
- *>       x_prev = a_minor;                                                                                                        <* 
- *>       MODE_exit ();                                                                                                            <* 
- *>       DEBUG_USER   yLOG_exit    (__FUNCTION__);                                                                                <* 
- *>       return 0;                                                                                                                <* 
- *>    }                                                                                                                           <* 
- *>    /+---(check for returning)------------+/                                                                                    <* 
- *>    --rce;  if (a_major == '\'') {                                                                                              <* 
- *>       DEBUG_USER   yLOG_note    ("handling return (')");                                                                       <* 
- *>       rc = MARK__return (a_minor);                                                                                             <* 
- *>       DEBUG_USER   yLOG_value   ("rc"        , rc);                                                                            <* 
- *>       if (rc < 0)  {                                                                                                           <* 
- *>          MODE_exit ();                                                                                                         <* 
- *>          DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);                                                                        <* 
- *>          return rce;                                                                                                           <* 
- *>       }                                                                                                                        <* 
- *>       x_prev = a_minor;                                                                                                        <* 
- *>       MODE_exit ();                                                                                                            <* 
- *>       DEBUG_USER   yLOG_exit    (__FUNCTION__);                                                                                <* 
- *>       return 0;                                                                                                                <* 
- *>    }                                                                                                                           <* 
- *>    /+---(check for wander)---------------+/                                                                                    <* 
- *>    --rce;  if (a_major == '@') {                                                                                               <* 
- *>       DEBUG_USER   yLOG_note    ("handling wander (@)");                                                                       <* 
- *>       if (a_minor == G_KEY_RETURN) {                                                                                           <* 
- *>          MARK__set (x_prev);                                                                                                   <* 
- *>          MODE_exit ();                                                                                                         <* 
- *>          DEBUG_USER   yLOG_exit    (__FUNCTION__);                                                                             <* 
- *>          return 0;                                                                                                             <* 
- *>       }                                                                                                                        <* 
- *>       KEYS_basics (' ', a_minor);                                                                                              <* 
- *>       DEBUG_USER   yLOG_exit    (__FUNCTION__);                                                                                <* 
- *>       return a_major;                                                                                                          <* 
- *>    }                                                                                                                           <* 
- *>    /+---(failure)------------------------+/                                                                                    <* 
- *>    --rce;                                                                                                                      <* 
- *>    MODE_exit ();                                                                                                               <* 
- *>    DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);                                                                              <* 
- *>    return rce;                                                                                                                 <* 
- *> }                                                                                                                              <*/
+char         /*-> process keys for marks -------------[ leaf   [ge.UD8.24#.JA]*/ /*-[03.0000.102.E]-*/ /*-[--.---.---.--]-*/
+MARK_smode         (int a_major, int a_minor)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   char       *x_majors    = "m'@";
+   static char x_prev      =  '-';
+   /*---(header)-------------------------*/
+   DEBUG_USER   yLOG_enter   (__FUNCTION__);
+   DEBUG_USER   yLOG_char    ("a_major"   , a_major);
+   DEBUG_USER   yLOG_char    ("a_minor"   , a_minor);
+   DEBUG_USER   yLOG_char    ("x_prev"    , x_prev);
+   /*---(defenses)-----------------------*/
+   DEBUG_USER   yLOG_char    ("mode"      , MODE_curr ());
+   --rce;  if (MODE_not (SMOD_MARK   )) {
+      DEBUG_USER   yLOG_note    ("not the correct mode");
+      DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(exit mode)----------------------*/
+   if (a_minor == G_KEY_ESCAPE) {
+      DEBUG_USER   yLOG_note    ("escape means leave");
+      MODE_exit ();
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return  0;
+   }
+   /*---(major check)--------------------*/
+   DEBUG_USER   yLOG_char    ("x_majors"  , x_majors);
+   --rce;  if (strchr (x_majors, a_major) == NULL) {
+      DEBUG_USER   yLOG_note    ("major not valid");
+      DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(mode change)--------------------*/
+   /*> if (a_minor == '*') {                                                          <* 
+    *>    DEBUG_USER   yLOG_note    ("enter visual mode from < to >");                <* 
+    *>    MODE_exit ();                                                               <* 
+    *>    MODE_enter  (MODE_VISUAL);                                                  <* 
+    *>    rc = VISU_mark    ();                                                       <* 
+    *>    if (rc < 0) {                                                               <* 
+    *>       MODE_exit ();                                                            <* 
+    *>       DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);                           <* 
+    *>       return rce;                                                              <* 
+    *>    }                                                                           <* 
+    *>    MARK__return  ('>');                                                        <* 
+    *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                   <* 
+    *>    return 0;                                                                   <* 
+    *> }                                                                              <*/
+   /*---(common quick)-------------------*/
+   --rce;  if (strchr("#_!", a_minor) != NULL) {
+      switch (a_minor) {
+      case '#' :
+         DEBUG_USER   yLOG_note    ("unset mark under cursor");
+         rc = MARK__which ();
+         if (rc < 0) {
+            MODE_exit ();
+            DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
+            return rce;
+         }
+         MARK__unset (rc);
+         break;
+      case '_' :
+         DEBUG_USER   yLOG_note    ("toggle mark show and hide");
+         if (myVIKEYS.mark_show == 'y')   myVIKEYS.mark_show = '-';
+         else                             myVIKEYS.mark_show = 'y';
+         break;
+      case '!' :
+         DEBUG_USER   yLOG_note    ("use mark status bar");
+         yVIKEYS_cmds_direct (":status mark");
+         break;
+      }
+      MODE_exit ();
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return  0;
+   }
+   /*---(common complex)-----------------*/
+   --rce;  if (strchr("?@", a_minor) != NULL) {
+      switch (a_minor) {
+      case '?' :
+         DEBUG_USER   yLOG_note    ("show mark info window");
+         /*> my.info_win      = G_INFO_MARK;                                          <*/
+         return a_major;
+         break;
+      case '@' :
+         DEBUG_USER   yLOG_note    ("enter edit/wander feature");
+         rc = MARK__which ();
+         if (rc < 0) {
+            MODE_exit ();
+            DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
+            return rce;
+         }
+         x_prev = rc;
+         return a_minor;
+         break;
+      }
+   }
+   /*---(check for setting)--------------*/
+   --rce;  if (a_major == 'm') {
+      DEBUG_USER   yLOG_note    ("handling mark (m)");
+      rc = MARK__set (a_minor);
+      DEBUG_USER   yLOG_value   ("rc"        , rc);
+      if (rc < 0) {
+         MODE_exit ();
+         DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
+         return rce;
+      }
+      x_prev = a_minor;
+      MODE_exit ();
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
+   /*---(check for returning)------------*/
+   --rce;  if (a_major == '\'') {
+      DEBUG_USER   yLOG_note    ("handling return (')");
+      rc = MARK__return (a_minor);
+      DEBUG_USER   yLOG_value   ("rc"        , rc);
+      if (rc < 0)  {
+         MODE_exit ();
+         DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
+         return rce;
+      }
+      x_prev = a_minor;
+      MODE_exit ();
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
+   /*---(check for wander)---------------*/
+   /*> --rce;  if (a_major == '@') {                                                  <* 
+    *>    DEBUG_USER   yLOG_note    ("handling wander (@)");                          <* 
+    *>    if (a_minor == G_KEY_RETURN) {                                              <* 
+    *>       MARK__set (x_prev);                                                      <* 
+    *>       MODE_exit ();                                                            <* 
+    *>       DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <* 
+    *>       return 0;                                                                <* 
+    *>    }                                                                           <* 
+    *>    KEYS_basics (' ', a_minor);                                                 <* 
+    *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                   <* 
+    *>    return a_major;                                                             <* 
+    *> }                                                                              <*/
+   /*---(failure)------------------------*/
+   --rce;
+   MODE_exit ();
+   DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
+   return rce;
+}
 
 
 
@@ -1028,9 +1003,12 @@ static void  o___MODE____________o () { return; }
 static void  o___UNIT_TEST_______o () { return; }
 
 char
-HINT__unit_jumper  (char *a_label)
+HINT__unit_jumper  (char *a_label, int *a_x, int *a_y, int *a_z)
 {
    yVIKEYS_source (a_label, "testing");
+   *a_x = -1;
+   *a_y = -1;
+   *a_z = -1;
    return 0;
 }
 

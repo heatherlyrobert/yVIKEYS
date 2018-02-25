@@ -184,14 +184,14 @@ struct cOPTION  {
    char        desc        [LEN_DESC ];
 };
 tOPTION  s_options [MAX_OPTION ] = {
-   { YVIKEYS_STATUS  , "mode"         , MODE_status      , "display the mode stack"      },
-   { YVIKEYS_STATUS  , "xmap"         , MAP_xstatus      , "x-axis position details"     },
-   { YVIKEYS_STATUS  , "ymap"         , MAP_ystatus      , "y-axis position details"     },
-   { YVIKEYS_STATUS  , "keys"         , BASE_key_status  , "displays keystroke history"  },
-   { YVIKEYS_STATUS  , "treg"         , TREG_status      , "displays contents of treg"   },
-   { YVIKEYS_STATUS  , "words"        , SRC_words_status , "displays word breaks"        },
-   { YVIKEYS_STATUS  , "select"       , SRC_select_status, "displays selection status"   },
-   { NULL            , ""             , NULL             , ""                            },
+   { YVIKEYS_STATUS  , "mode"         , MODE_status         , "display the mode stack"      },
+   { YVIKEYS_STATUS  , "xmap"         , MAP_xstatus         , "x-axis position details"     },
+   { YVIKEYS_STATUS  , "ymap"         , MAP_ystatus         , "y-axis position details"     },
+   { YVIKEYS_STATUS  , "keys"         , BASE_key_status     , "displays keystroke history"  },
+   { YVIKEYS_STATUS  , "treg"         , TEXTREG_status      , "displays contents of treg"   },
+   { YVIKEYS_STATUS  , "words"        , SOURCE_status_words , "displays word breaks"        },
+   { YVIKEYS_STATUS  , "select"       , SOURCE_status_select, "displays selection status"   },
+   { NULL            , ""             , NULL                , ""                            },
 };
 static int  s_noption  = 0;
 
@@ -1859,7 +1859,7 @@ VIEW__float             (void)
          mvprintw (s_parts [n].bott, s_parts [n].left, "%-*.*s", s_parts [n].wide, s_parts [n].wide, SRCH_curr ());
          break;
       default               :
-         SRC_formula ();
+         SOURCE_formula ();
          break;
       }
       attrset  (0);
@@ -2086,7 +2086,7 @@ VIEW__opengl             (char a)
       ;;  /* not sure if i need to clear yet  */
    }
    /*---(display text)-------------------*/
-   if (s_parts [a].abbr == YVIKEYS_FORMULA) SRC_formula ();
+   if (s_parts [a].abbr == YVIKEYS_FORMULA)   SOURCE_formula ();
    if (s_parts [a].text != NULL && strlen (s_parts [a].text) > 0) {
       DEBUG_GRAF   yLOG_note    ("draw text");
       if (s_env == YVIKEYS_OPENGL) {
@@ -2155,7 +2155,7 @@ yVIKEYS_view_all         (float a_mag)
       glClear         (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       break;
    case YVIKEYS_CURSES :
-      /*> clear  ();                                                                  <*/
+      if (myVIKEYS.redraw == 'y')  clear  ();
       break;
    }
    /*---(draw each element)--------------*/
@@ -2197,6 +2197,7 @@ yVIKEYS_view_all         (float a_mag)
    case YVIKEYS_CURSES :
       /*> mvprintw (y_cur, x_cur, "");                                                <*/
       refresh ();
+      myVIKEYS.redraw = '-';
       break;
    }
    /*---(complete)-----------------------*/

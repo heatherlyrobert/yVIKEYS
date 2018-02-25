@@ -221,7 +221,7 @@ char        yVIKEYS_src_config        (void *a_saver);
 char        yVIKEYS_source            (char *a_label, char *a_contents);
 
 
-char        yVIKEYS_hint_config       (void *a_jumper);
+char        yVIKEYS_hint_config       (void *a_locator);
 
 char        yVIKEYS_mode_change       (char a_mode, char *a_allow, char *a_mesg);
 
