@@ -80,6 +80,9 @@ static tTERMS  s_terms [MAX_TERMS] = {
 static  int s_nterm  = 0;
 
 
+static char s_quoted    = '-';
+static char s_escaped   = '-';
+
 
 /*===[[ COMMANDS ]]===========================================================*/
 #define     LEN_COMMAND    2000
@@ -127,17 +130,31 @@ static char      s_all       [LEN_COMMAND]       = "";
 static char s_search     [LEN_SEARCH];
 static int  s_slen       = 0;
 
+#define   MAX_PASS     200
+typedef struct cPASSES   tPASSES;
+struct cPASSES {
+   char        search       [LEN_SEARCH];
+   int         found;
+};
+static tPASSES   s_passes    [MAX_PASS];
+static int       s_npass     = 0;
 
 
 #define   MAX_SRCH    2000
-void     *s_srch      [MAX_SRCH];
-int       s_nsrch     = 0;
+typedef   struct   cSRCH   tSRCH;
+struct cSRCH {
+   int         pass;
+   char        label       [LEN_LABEL];
+   char        source;
+};
+static tSRCH     s_srch      [MAX_SRCH];
+static int       s_nsrch     = 0;
 
-char    (*s_searcher) (void *a_search);
-char    (*s_clearer ) (void *a_search);
+char    (*s_searcher) (char *a_search);
+char    (*s_clearer ) (char *a_label );
 
-static char s_quoted    = '-';
-static char s_escaped   = '-';
+#define     SRCH_NONE     '-'
+#define     SRCH_USED     'a'
 
 
 
@@ -149,6 +166,7 @@ static void  o___SEARCH__________o () { return; }
 char
 SRCH_init               (void)
 {
+   int         i           = 0;
    /*---(header)-------------------------*/
    DEBUG_PROG   yLOG_enter   (__FUNCTION__);
    s_nsrch    = MAX_SRCH;
@@ -156,6 +174,10 @@ SRCH_init               (void)
    s_clearer  = NULL;
    SRCH__clear  ();
    SRCH__purge ();
+   for (i = 0; i < MAX_PASS; ++i) {
+      strlcpy (s_passes [i].search, "-", LEN_RECD);
+      s_passes [i].found = -1;
+   }
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
 }
@@ -173,8 +195,10 @@ SRCH__purge             (void)
 {
    int         i           = 0;
    for (i = 0; i < s_nsrch; ++i) {
-      if (s_clearer != NULL)  s_clearer (s_srch [i]);
-      s_srch [i] = NULL;
+      if (s_clearer != NULL)  s_clearer (s_srch [i].label);
+      s_srch [i].pass   = -1;
+      strlcpy (s_srch [i].label, "-", LEN_LABEL);
+      s_srch [i].source = SRCH_NONE;
    }
    s_nsrch = 0;
    return 0;
@@ -185,7 +209,6 @@ SRCH_start           (void)
 {
    strlcpy     (s_search , "/", LEN_RECD);
    s_slen = 1;
-   SRCH__purge  ();
    s_quoted  = '-';
    s_escaped = '-';
    return 0;
@@ -196,7 +219,6 @@ SRCH__clear          (void)
 {
    strlcpy     (s_search , "" , LEN_RECD);
    s_slen = 0;
-   SRCH__purge  ();
    s_quoted  = '-';
    s_escaped = '-';
    return 0;
@@ -209,22 +231,48 @@ SRCH_curr            (void)
 }
 
 char
-yVIKEYS_srch_found   (void *a_match)
+yVIKEYS_srch_found   (char *a_label)
 {
-   s_srch [s_nsrch] = a_match;
+   s_srch [s_nsrch].pass   = s_npass;
+   strlcpy (s_srch [s_nsrch].label, a_label, LEN_LABEL);
+   s_srch [s_nsrch].source = SRCH_USED;
    ++s_nsrch;
+   ++s_passes [s_npass].found;
    return 0;
 }
 
 char
 SRCH__exec           (void)
 {
+   SRCH__purge  ();
+   if (s_slen == 1) return 0;
+   strlcpy (s_passes [s_npass].search, s_search, LEN_RECD);
+   s_passes [s_npass].found = 0;
+   ++s_npass;
    if (s_searcher != NULL)  return s_searcher (s_search);
    return -1;
 }
 
+char
+SRCH__load              (char *a_search)
+{
+   SRCH__clear ();
+   if (a_search != NULL) {
+      strlcpy (s_search, a_search, LEN_SEARCH);
+      s_clen = strllen (s_search, LEN_SEARCH);
+   }
+   return 0;
+}
+
+char
+yVIKEYS_srch_direct     (char *a_search)
+{
+   SRCH__load (a_search);
+   return SRCH__exec ();
+}
+
 char         /*-> process keys for searching ---------[ ------ [gc.LE5.266.I3]*/ /*-[05.0000.102.M]-*/ /*-[--.---.---.--]-*/
-SRCH_mode               (char a_major, char a_minor)
+SRCH_mode               (int a_major, int a_minor)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -232,8 +280,8 @@ SRCH_mode               (char a_major, char a_minor)
    char        rc          =    0;
    /*---(header)--------------------s----*/
    DEBUG_USER   yLOG_enter   (__FUNCTION__);
-   DEBUG_USER   yLOG_value   ("a_major"   , a_major);
-   DEBUG_USER   yLOG_value   ("a_minor"   , a_minor);
+   DEBUG_USER   yLOG_char    ("a_major"   , a_major);
+   DEBUG_USER   yLOG_char    ("a_minor"   , chrvisible (a_minor));
    /*---(defense)------------------------*/
    DEBUG_USER   yLOG_char    ("mode"      , MODE_curr ());
    --rce;  if (MODE_not (MODE_SEARCH )) {
@@ -304,6 +352,7 @@ SRCH_mode               (char a_major, char a_minor)
    DEBUG_USER   yLOG_exit    (__FUNCTION__);
    return a_major;
 }
+
 
 
 

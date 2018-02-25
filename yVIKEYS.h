@@ -41,9 +41,10 @@
 #define     MODE_MAP       'M'
 #define     MODE_VISUAL    'V'
 #define     MODE_SOURCE    'S'
-#define     MODE_INPUT     'I'
 #define     MODE_COMMAND   ':'
 #define     MODE_SEARCH    '/'
+#define     MODES_ONELINE  "S:/"
+#define     MODES_EDITING  "S:/trIw"
 /*---(sub-modes)--------------s----------*/
 #define     SMOD_REPEAT    '9'    /* accumulate multiplier                    */
 #define     SMOD_ERROR     'e'    /* error reporting and actions              */
@@ -51,6 +52,7 @@
 #define     SMOD_REPLACE   'r'    /* replacing characters in source mode      */
 #define     SMOD_REGISTER  '"'    /* register actions                         */
 #define     SMOD_TEXTREG   't'    /* text register actions                    */
+#define     SMOD_INPUT     'i'    /* direct input of text                     */
 #define     SMOD_BUFFER    ','    /* selecting buffers                        */
 #define     SMOD_WANDER    'w'    /* formula creation by pointing             */
 #define     SMOD_FORMAT    '$'    /* content formatting                       */
@@ -255,7 +257,7 @@ char        yVIKEYS_cmds_direct     (char *a_command);
 
 /*---(search)---------------*/
 char        yVIKEYS_srch_config     (void *a_searcher, void *a_clearer);
-char        yVIKEYS_srch_found      (void *a_match);
+char        yVIKEYS_srch_found      (char *a_label );
 char        yVIKEYS_srch_direct     (char *a_search);
 
 

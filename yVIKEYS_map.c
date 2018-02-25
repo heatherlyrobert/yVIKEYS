@@ -811,32 +811,24 @@ MAP_mode                (char a_major, char a_minor)
             MAP_reposition  ();
             rc     = 0;
          } else {
-            MODE_enter  (MODE_COMMAND);
-            CMDS_start ();
+            SOURCE_start   (":");
             DEBUG_USER   yLOG_exit    (__FUNCTION__);
-            return a_minor;
+            return 'a';
          }
          break;
       case '/'      :
-         MODE_enter  (MODE_SEARCH);
-         SRCH_start ();
+         SOURCE_start   ("/");
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
-         return a_minor;
+         return 'a';
          break;
       case 's'      :
          SOURCE_start   ("");
-         MODE_enter  (MODE_SOURCE );
-         MODE_enter  (MODE_INPUT  );
-         INPUT_mode  ('m', 'i');
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
-         return 'i';
+         return 'a';
          break;
       case '='      : case '+'      : case '-'      : case '#'      :
          sprintf     (t, "%c", a_minor);
          SOURCE_start   (t);
-         MODE_enter  (MODE_SOURCE );
-         MODE_enter  (MODE_INPUT  );
-         INPUT_mode  ('m', 'a');
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return 'a';
          break;

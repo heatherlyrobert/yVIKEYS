@@ -31,8 +31,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.7w"
-#define YVIKEYS_VER_TXT   "marks working, including callbacks to host program"
+#define YVIKEYS_VER_NUM   "0.8a"
+#define YVIKEYS_VER_TXT   "command/search now use source, input, replace, and textreg !!!"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -180,16 +180,19 @@ char        MAP__unit_xmap          (void);
 
 char*       SOURCE_label            (void);
 char        SOURCE_init             (void);
+char        SOURCE_other            (char a_type);
 char        SOURCE_formula          (void);
+char        SOURCE_command          (void);
 char        SOURCE_status_select    (char *a_list);
 char*       SOURCE__unit            (char *a_question, char a_reg);
 char        SOURCE_status_words     (char *a_list);
 char        SOURCE_start            (char *a_prefix);
 char        TEXTREG_init            (void);
-char        TEXTREG_smode           (int a_major, int a_minor);
 char        TEXTREG_status          (char *a_list);
+char        SOURCE_mode             (int a_major, int a_minor);
+char        TEXTREG_smode           (int a_major, int a_minor);
 char        REPLACE_smode           (int a_major, int a_minor);
-char        INPUT_mode              (int  a_major, int  a_minor);
+char        INPUT_smode             (int  a_major, int  a_minor);
 
 char        WANDER_smode            (int  a_major, int  a_minor);
 
@@ -263,7 +266,7 @@ char        SRCH_start              (void);
 char        SRCH__clear             (void);
 char*       SRCH_curr               (void);
 char        SRCH__exec              (void);
-char        SRCH_mode               (char a_major, char a_minor);
+char        SRCH_mode               (int a_major, int a_minor);
 char*       SRCH__unit              (char *a_question, char a_index);
 
 

@@ -1859,7 +1859,7 @@ VIEW__float             (void)
          mvprintw (s_parts [n].bott, s_parts [n].left, "%-*.*s", s_parts [n].wide, s_parts [n].wide, SRCH_curr ());
          break;
       default               :
-         SOURCE_formula ();
+         SOURCE_formula  ();
          break;
       }
       attrset  (0);
@@ -2086,8 +2086,9 @@ VIEW__opengl             (char a)
       ;;  /* not sure if i need to clear yet  */
    }
    /*---(display text)-------------------*/
-   if (s_parts [a].abbr == YVIKEYS_FORMULA)   SOURCE_formula ();
-   if (s_parts [a].text != NULL && strlen (s_parts [a].text) > 0) {
+   if      (s_parts [a].abbr == YVIKEYS_FORMULA)   SOURCE_formula  ();
+   else if (s_parts [a].abbr == YVIKEYS_COMMAND)   SOURCE_command  ();
+   else if (s_parts [a].text != NULL && strlen (s_parts [a].text) > 0) {
       DEBUG_GRAF   yLOG_note    ("draw text");
       if (s_env == YVIKEYS_OPENGL) {
          glPushMatrix    (); {

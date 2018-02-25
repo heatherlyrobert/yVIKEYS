@@ -245,9 +245,9 @@ yVIKEYS_main_handle     (uchar a_key)
       case MODE_GOD      : rc = BASE__________stub    (x_major , x_key);  break;
       case MODE_MAP      : rc = MAP_mode              (x_major , x_key);  break;
       case MODE_SOURCE   : rc = SOURCE_mode           (x_major , x_key);  break;
-      case MODE_INPUT    : rc = INPUT_mode            (x_major , x_key);  break;
-      case MODE_COMMAND  : rc = CMDS_mode             (x_major , x_key);  break;
-      case MODE_SEARCH   : rc = SRCH_mode             (x_major , x_key);  break;
+      case SMOD_INPUT    : rc = INPUT_smode           (x_major , x_key);  break;
+      case MODE_COMMAND  : rc = SOURCE_mode           (x_major , x_key);  break;
+      case MODE_SEARCH   : rc = SOURCE_mode           (x_major , x_key);  break;
       case MODE_VISUAL   : rc = BASE__________stub    (x_major , x_key);  break;
       case SMOD_ERROR    : rc = BASE__________stub    (x_major , x_key);  break;
       case SMOD_SELECT   : rc = BASE__________stub    (x_major , x_key);  break;
