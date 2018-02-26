@@ -289,15 +289,6 @@ yVIKEYS_main_handle     (uchar a_key)
    if      (rc == 0)    x_major = ' ';
    else if (rc >  0)    x_major = rc;
    else               { x_major = ' ';  myVIKEYS.trouble = 'y';  REPEAT_reset (); }
-   /*---(setup status line)--------------*/
-   if        (MODE_curr() == MODE_COMMAND) {
-      MODE_message (s_display, CMDS_curr ());
-   } else if (MODE_curr() == MODE_SEARCH ) {
-      MODE_message (s_display, SRCH_curr ());
-   } else if (x_savemode != MODE_curr()) {
-      MODE_message (s_display, CMDS_curr ());
-   }
-   yVIKEYS_view_text (YVIKEYS_COMMAND, s_display);
    yVIKEYS_view_text (YVIKEYS_KEYS   , s_keys   );
    /*---(save current mode)--------------*/
    x_savemode = MODE_curr ();

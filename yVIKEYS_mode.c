@@ -16,6 +16,7 @@
 #define     MAX_STACK   50
 
 
+static char    s_message  [LEN_RECD];
 
 
 
@@ -220,15 +221,15 @@ MODE_status        (char *a_list)
    return 0;
 }
 
-char
-MODE_message       (char *a_mesg, char *a_cmd)
+char*
+MODE_message       (void)
 {
    /*---(locals)-----------+-----------+-*/
    int         i           = 0;
    char        x_major     = ' ';
    char        x_minor     = ' ';
    for (i = 0; i < MAX_MODES; ++i) {
-      if (s_mode_info[i].abbr == '-'   )  break;
+      if (s_mode_info[i].abbr == '-'   )   break;
       if (s_mode_info[i].abbr == s_cmode)  break;
    }
    if (s_mode_info [i].major == 'y')  {
@@ -237,18 +238,8 @@ MODE_message       (char *a_mesg, char *a_cmd)
       x_major = MODE_prev  ();
       x_minor = s_cmode;
    }
-   if (a_mesg != NULL) {
-      switch (s_cmode) {
-      case MODE_COMMAND :
-      case MODE_SEARCH  :
-         strlcpy (a_mesg, a_cmd, LEN_STR);
-         break;
-      default           :
-         snprintf (a_mesg, LEN_STR, "[%c%c] %-3.3s : %s\n", x_major, x_minor, s_mode_info[i].three, s_mode_info[i].mesg);
-         break;
-      }
-   }
-   return 0;
+   snprintf (s_message, LEN_RECD, "[%c%c] %-3.3s : %s\n", x_major, x_minor, s_mode_info[i].three, s_mode_info[i].mesg);
+   return s_message;
 }
 
 char

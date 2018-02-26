@@ -1234,7 +1234,7 @@ yVIKEYS_view_config     (cchar *a_title, cchar *a_ver, cchar a_env, cint a_wide,
       strlcpy (s_parts [n].text, a_ver  , LEN_STR  );
    }
    n = VIEW__abbr (YVIKEYS_COMMAND);
-   MODE_message (s_parts [n].text, CMDS_curr ());
+   MODE_message ();
    /*---(complete)-----------------------*/
    DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;

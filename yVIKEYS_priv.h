@@ -31,8 +31,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.8a"
-#define YVIKEYS_VER_TXT   "command/search now use source, input, replace, and textreg !!!"
+#define YVIKEYS_VER_NUM   "0.8b"
+#define YVIKEYS_VER_TXT   "better color for text selection and added text registers 0-9"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -155,7 +155,7 @@ char        MODE_curr                 (void);
 char        MODE_prev                 (void);
 char        MODE_not                  (char  a_mode);
 char        MODE_status               (char *a_list);
-char        MODE_message              (char *a_mesg, char *a_cmd);
+char*       MODE_message              (void);
 char*       MODE__unit                (char *a_question);
 /*---(repeat)---------------*/
 char        REPEAT_reset            (void);

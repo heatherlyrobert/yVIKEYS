@@ -71,7 +71,7 @@ static char             s_wtreg  = '"';
 #define     TREG_FILE     'f'
 #define     TREG_IMPORT   'i'
 
-static char    s_tregnames     [MAX_TREG] = "\"abcdefghijklmnopqrstuvwxyz+-";
+static char    s_tregnames     [MAX_TREG] = "\"abcdefghijklmnopqrstuvwxyz0123456789+-";
 
 static char    (*s_saver) (char *a_contents);
 
@@ -587,7 +587,7 @@ SOURCE_command             (void)
       }
    } else {
       yCOLOR_curs ("command");
-      mvprintw (x_bott, x_left, "%-*.*s", s_cmd.wide, s_cmd.wide, " ");
+      mvprintw (x_bott, x_left, "%-*.*s", s_cmd.wide, s_cmd.wide, MODE_message ());
       attrset (0);
       return 0;
    }
