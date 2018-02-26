@@ -31,8 +31,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.8b"
-#define YVIKEYS_VER_TXT   "better color for text selection and added text registers 0-9"
+#define YVIKEYS_VER_NUM   "0.8c"
+#define YVIKEYS_VER_TXT   "centered title display in ncurses mode"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/

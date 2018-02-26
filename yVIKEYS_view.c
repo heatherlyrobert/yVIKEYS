@@ -2049,6 +2049,7 @@ VIEW__opengl             (char a)
    int         z_max;
    int         i           =    0;
    int         x_len       =    0;
+   int         x_beg       =    0;
    /*---(header)-------------------------*/
    DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
    DEBUG_GRAF   yLOG_info    ("name"      , s_parts [a].name);
@@ -2118,12 +2119,13 @@ VIEW__opengl             (char a)
             break;
          }
          x_len = strlen (s_parts [a].text);
+         x_beg = (s_parts [a].tall - x_len) / 2;
          if (s_parts [a].orient == 'r') {
-            for (i = 0; i < x_len; ++i) {
-               mvprintw (s_parts [a].bott - i, s_parts [a].left, "%c", s_parts [a].text [x_len - i - 1]);
+            for (i = 0; i < s_parts [a].tall; ++i) {
+               mvprintw (s_parts [a].bott - i, s_parts [a].left, "%s", " ");
             }
-            for (i = x_len; i < s_parts [a].tall; ++i) {
-               mvprintw (s_parts [a].bott - i, s_parts [a].left, " ");
+            for (i = 0; i < x_len; ++i) {
+               mvprintw (s_parts [a].bott - i - x_beg, s_parts [a].left, "%c", s_parts [a].text [x_len - i - 1]);
             }
          } else {
             mvprintw (s_parts [a].bott, s_parts [a].left, "%-*.*s", s_parts [a].wide, s_parts [a].wide, s_parts [a].text);
