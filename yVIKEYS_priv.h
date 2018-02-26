@@ -31,8 +31,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.8c"
-#define YVIKEYS_VER_TXT   "centered title display in ncurses mode"
+#define YVIKEYS_VER_NUM   "0.8d"
+#define YVIKEYS_VER_TXT   "combined formula and command ncurses display to simplify"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -57,6 +57,10 @@ struct cSHARED {
    char        redraw;
    /*---(marks)-----------*/
    char        mark_show;      /* show temporary marks (y/n)                    */
+   /*---(font)------------*/
+   int         font;
+   int         point;
+   int         font_scale;
    /*---(file hanndling)--*/
    char        f_loc       [LEN_RECD];      /* specific file location         */
    char        f_name      [LEN_RECD];      /* full file name                 */

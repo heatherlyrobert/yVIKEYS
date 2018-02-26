@@ -64,8 +64,8 @@ struct cWIN {
    int         r_icons     [LEN_LABEL];     /* actual icons for ribbon        */
    int         r_nicon;                     /* number of icons                */
    /*---(display)-----------*/
-   char        face;
-   int         font;    
+   /*> char        face;                                                              <*/
+   /*> int         font;                                                              <*/
    int         icons;
    /*---(done)--------------*/
 };
@@ -129,29 +129,29 @@ struct cPARTS {
    /*---(done)-----------------*/
 };
 static tPARTS  s_parts [MAX_PARTS] = {
-   /*---abbr---------   ---name-----   ---own-----  on    bt lr dw dt  x_t  y_t  und  wi ta le bo   ori  source, txt  drawing-function------   type---------  ---mgmt-------  ---anchor-----  ---color------- xm xl ym yl zm zl    12345678901234567890123456789012345678901234567890  */
-   { YVIKEYS_TITLE   , "title"       , OWN_FULLY  , 'y',   1, 1, 0, 0, '-', '-', '-',  0, 0, 0, 0,  'r', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_BOTRIG, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "left hand title bar"                                },
-   { YVIKEYS_BUFFER  , "buffer"      , OWN_FULLY  , '-',   7, 2, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_BOTLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "buffer inventory at top"                            },
-   { YVIKEYS_FORMULA , "formula"     , OWN_FULLY  , '-',   6, 2, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_BOTLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "formula and source editing line at top"             },
-   { YVIKEYS_NAV     , "nav"         , OWN_PARTLY , '-',   3, 2, 0, 0, '-', '-', 'y',  0, 0, 0, 0,  '-', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_TOPLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "navigation panel to display tags and other links"   },
-   { YVIKEYS_ALT     , "alt"         , OWN_LITTLE , '-',   4, 5, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_MIDCEN, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "alternate working area or view"                     },
-   { YVIKEYS_PROGRESS, "progress"    , OWN_PARTLY , '-',   3, 3, 0, 0, '/', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_MIDLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "time and sequencing controls about status line"     },
-   { YVIKEYS_STATUS  , "status"      , OWN_FULLY  , 'y',   2, 2, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_BOTLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "informational status bar above command line"        },
-   { YVIKEYS_COMMAND , "command"     , OWN_FULLY  , 'y',   1, 2, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_BOTLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "command, search, and help message line at bottom"   },
-   { YVIKEYS_DETAILS , "details"     , OWN_PARTLY , '-',   3, 6, 0, 0, '-', '-', 'y',  0, 0, 0, 0,  '-', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_TOPLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "display area for critical details to right"         },
-   { YVIKEYS_RIBBON  , "ribbon"      , OWN_FULLY  , '-',   3, 7, 0, 0, '-', '-', 'y',  0, 0, 0, 0,  '-', NULL  , "",  VIEW__ribbon           , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_TOPLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "menu and icon display for navigation of commands"   },
-   { YVIKEYS_VERSION , "version"     , OWN_FULLY  , 'y',   8, 1, 0, 0, '-', 't', '-',  0, 0, 0, 0,  'r', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_BOTRIG, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "version display with debugging notice"              },
-   { YVIKEYS_KEYS    , "keys"        , OWN_FULLY  , 'y',   1, 8, 0, 0, 'c', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_BOTLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "latest keyboard characters typed"                   },
-   { YVIKEYS_GRID    , "grid"        , OWN_OVERLAY, '-',   0, 0, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , 0             , 0              , 0, 0, 0, 0, 0, 0,  "overlay main drawing with a grid"                   },
-   { YVIKEYS_CURSOR  , "cursor"      , OWN_OVERLAY, '-',   0, 0, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  VIEW__cursor           , YVIKEYS_FLAT , YVIKEYS_AUTO  , 0             , 0              , 0, 0, 0, 0, 0, 0,  "cursor display on screen"                           },
-   { YVIKEYS_XAXIS   , "xaxis"       , OWN_PARTLY , '-',   5, 3, 0, 0, '/', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_BOTLEF, 0              , 0, 0, 0, 0, 0, 0,  "show the x-axis labels above the main screen"       },
-   { YVIKEYS_YAXIS   , "yaxis"       , OWN_PARTLY , '-',   4, 3, 0, 0, '-', '/', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_TOPLEF, 0              , 0, 0, 0, 0, 0, 0,  "show the y-axis labels left of the main screen"     },
-   { YVIKEYS_OVERLAY , "overlay"     , OWN_OVERLAY, '-',   0, 0, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_MIDCEN, YCOLOR_CLEAR   , 0, 0, 0, 0, 0, 0,  "shown over the working screen"                      },
-   { YVIKEYS_LAYERS  , "layers"      , OWN_OVERLAY, '-',   0, 0, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  VIEW__layer_show       , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_MIDCEN, YCOLOR_CLEAR   , 0, 0, 0, 0, 0, 0,  "displays all selected laysers over working"         },
-   { YVIKEYS_FLOAT   , "float"       , OWN_OVERLAY, '-',   0, 0, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  VIEW__float            , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_MIDCEN, YCOLOR_CLEAR   , 0, 0, 0, 0, 0, 0,  "shown over the working screen"                      },
-   { YVIKEYS_WINDOW  , "window"      , OWN_DATA   , '-',   0, 0, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , 0             , 0              , 0, 0, 0, 0, 0, 0,  "full screen width and height"                       },
-   { YVIKEYS_MAIN    , "main"        , OWN_MAIN   , 'y',   4, 4, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_MIDCEN, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "main working area in the middle"                    },
-   { 0               , ""            , 0          , '-',   0, 0, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL                   , YVIKEYS_FLAT , YVIKEYS_AUTO  , 0             , 0              , 0, 0, 0, 0, 0, 0,  ""                                                   },
+   /*---abbr---------   ---name-----   ---own-----  on    bt lr dw dt  x_t  y_t  und  wi ta le bo   ori  source, txt  drawer  type---------  ---mgmt-------  ---anchor-----  ---color------- xm xl ym yl zm zl    12345678901234567890123456789012345678901234567890  */
+   { YVIKEYS_TITLE   , "title"       , OWN_FULLY  , 'y',   1, 1, 0, 0, '-', '-', '-',  0, 0, 0, 0,  'r', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_BOTRIG, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "left hand title bar"                                },
+   { YVIKEYS_BUFFER  , "buffer"      , OWN_FULLY  , '-',   7, 2, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_BOTLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "buffer inventory at top"                            },
+   { YVIKEYS_FORMULA , "formula"     , OWN_FULLY  , '-',   6, 2, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_BOTLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "formula and source editing line at top"             },
+   { YVIKEYS_NAV     , "nav"         , OWN_PARTLY , '-',   3, 2, 0, 0, '-', '-', 'y',  0, 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_TOPLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "navigation panel to display tags and other links"   },
+   { YVIKEYS_ALT     , "alt"         , OWN_LITTLE , '-',   4, 5, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_MIDCEN, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "alternate working area or view"                     },
+   { YVIKEYS_PROGRESS, "progress"    , OWN_PARTLY , '-',   3, 3, 0, 0, '/', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_MIDLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "time and sequencing controls about status line"     },
+   { YVIKEYS_STATUS  , "status"      , OWN_FULLY  , 'y',   2, 2, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_BOTLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "informational status bar above command line"        },
+   { YVIKEYS_COMMAND , "command"     , OWN_FULLY  , 'y',   1, 2, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_BOTLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "command, search, and help message line at bottom"   },
+   { YVIKEYS_DETAILS , "details"     , OWN_PARTLY , '-',   3, 6, 0, 0, '-', '-', 'y',  0, 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_TOPLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "display area for critical details to right"         },
+   { YVIKEYS_RIBBON  , "ribbon"      , OWN_FULLY  , '-',   3, 7, 0, 0, '-', '-', 'y',  0, 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_TOPLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "menu and icon display for navigation of commands"   },
+   { YVIKEYS_VERSION , "version"     , OWN_FULLY  , 'y',   8, 1, 0, 0, '-', 't', '-',  0, 0, 0, 0,  'r', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_BOTRIG, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "version display with debugging notice"              },
+   { YVIKEYS_KEYS    , "keys"        , OWN_FULLY  , 'y',   1, 8, 0, 0, 'c', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_BOTLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "latest keyboard characters typed"                   },
+   { YVIKEYS_GRID    , "grid"        , OWN_OVERLAY, '-',   0, 0, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , 0             , 0              , 0, 0, 0, 0, 0, 0,  "overlay main drawing with a grid"                   },
+   { YVIKEYS_CURSOR  , "cursor"      , OWN_OVERLAY, '-',   0, 0, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , 0             , 0              , 0, 0, 0, 0, 0, 0,  "cursor display on screen"                           },
+   { YVIKEYS_XAXIS   , "xaxis"       , OWN_PARTLY , '-',   5, 3, 0, 0, '/', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_BOTLEF, 0              , 0, 0, 0, 0, 0, 0,  "show the x-axis labels above the main screen"       },
+   { YVIKEYS_YAXIS   , "yaxis"       , OWN_PARTLY , '-',   4, 3, 0, 0, '-', '/', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_TOPLEF, 0              , 0, 0, 0, 0, 0, 0,  "show the y-axis labels left of the main screen"     },
+   { YVIKEYS_OVERLAY , "overlay"     , OWN_OVERLAY, '-',   0, 0, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_MIDCEN, YCOLOR_CLEAR   , 0, 0, 0, 0, 0, 0,  "shown over the working screen"                      },
+   { YVIKEYS_LAYERS  , "layers"      , OWN_OVERLAY, '-',   0, 0, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_MIDCEN, YCOLOR_CLEAR   , 0, 0, 0, 0, 0, 0,  "displays all selected laysers over working"         },
+   { YVIKEYS_FLOAT   , "float"       , OWN_OVERLAY, '-',   0, 0, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_MIDCEN, YCOLOR_CLEAR   , 0, 0, 0, 0, 0, 0,  "shown over the working screen"                      },
+   { YVIKEYS_WINDOW  , "window"      , OWN_DATA   , '-',   0, 0, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , 0             , 0              , 0, 0, 0, 0, 0, 0,  "full screen width and height"                       },
+   { YVIKEYS_MAIN    , "main"        , OWN_MAIN   , 'y',   4, 4, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_MIDCEN, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "main working area in the middle"                    },
+   { 0               , ""            , 0          , '-',   0, 0, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , 0             , 0              , 0, 0, 0, 0, 0, 0,  ""                                                   },
 };
 static int  s_npart     = 0;
 
@@ -363,12 +363,12 @@ VIEW_defaults            (cchar a_env)
          switch (s_parts [n].abbr) {
          case YVIKEYS_TITLE   : p->on = 'y';  p->def_wide =  15;  break;
          case YVIKEYS_BUFFER  : p->on = '-';  p->def_tall =  15;  break;
-         case YVIKEYS_FORMULA : p->on = '-';  p->def_tall =  15;  break;
+         case YVIKEYS_FORMULA : p->on = '-';  p->def_tall =  15;  p->drawer = SOURCE_formula;  break;
          case YVIKEYS_NAV     : p->on = '-';  p->def_wide = 150;  break;
          case YVIKEYS_ALT     : p->on = '-';                      break;
          case YVIKEYS_PROGRESS: p->on = '-';  p->def_tall = 100;  break;
          case YVIKEYS_STATUS  : p->on = 'y';  p->def_tall =  15;  break;
-         case YVIKEYS_COMMAND : p->on = 'y';  p->def_tall =  15;  break;
+         case YVIKEYS_COMMAND : p->on = 'y';  p->def_tall =  15;  p->drawer = SOURCE_command;   break;
          case YVIKEYS_DETAILS : p->on = '-';  p->def_wide = 250;  break;
          case YVIKEYS_RIBBON  : p->on = '-';  p->def_wide =  40;  p->drawer = VIEW__ribbon;     break;
          case YVIKEYS_VERSION : p->on = 'y';  p->def_wide =  15;  p->def_tall =  40;            break;
@@ -393,12 +393,12 @@ VIEW_defaults            (cchar a_env)
          switch (s_parts [n].abbr) {
          case YVIKEYS_TITLE   : p->on = 'y';  p->def_wide =   1;  break;
          case YVIKEYS_BUFFER  : p->on = '-';  p->def_tall =   1;  break;
-         case YVIKEYS_FORMULA : p->on = '-';  p->def_tall =   1;  break;
+         case YVIKEYS_FORMULA : p->on = '-';  p->def_tall =   1;  p->drawer = SOURCE_formula;  break;
          case YVIKEYS_NAV     : p->on = '-';  p->def_wide =  20;  break;
          case YVIKEYS_ALT     : p->on = '-';                      break;
          case YVIKEYS_PROGRESS: p->on = '-';  p->def_tall =  10;  break;
          case YVIKEYS_STATUS  : p->on = 'y';  p->def_tall =   1;  break;
-         case YVIKEYS_COMMAND : p->on = 'y';  p->def_tall =   1;  break;
+         case YVIKEYS_COMMAND : p->on = 'y';  p->def_tall =   1;  p->drawer = SOURCE_command;  break;
          case YVIKEYS_DETAILS : p->on = '-';  p->def_wide =  20;  break;
          case YVIKEYS_RIBBON  : p->on = '-';  p->def_wide =   5;  break;
          case YVIKEYS_VERSION : p->on = 'y';  p->def_wide =   1;  p->def_tall =   5;  break;
@@ -1218,6 +1218,7 @@ yVIKEYS_view_config     (cchar *a_title, cchar *a_ver, cchar a_env, cint a_wide,
    switch (s_env) {
    case YVIKEYS_OPENGL :
       VIEW__init_opengl (a_title);
+      myVIKEYS.font_scale = yFONT_width (myVIKEYS.font, myVIKEYS.point);
       break;
    case YVIKEYS_CURSES :  
       if (s_testmode != 'y') VIEW__init_curses ();
@@ -1842,27 +1843,10 @@ VIEW__float             (void)
          } glEnd   ();
          glTranslatef (x_lef + 3, x_bot,   60.0f);
          switch (MODE_curr ()) {
-         case MODE_COMMAND :  yFONT_print  (s_win.font,  11, YF_BOTLEF, CMDS_curr ());  break;
-         case MODE_SEARCH  :  yFONT_print  (s_win.font,  11, YF_BOTLEF, SRCH_curr ());  break;
+         case MODE_COMMAND :  yFONT_print  (myVIKEYS.font, myVIKEYS.point, YF_BOTLEF, CMDS_curr ());  break;
+         case MODE_SEARCH  :  yFONT_print  (myVIKEYS.font, myVIKEYS.point, YF_BOTLEF, SRCH_curr ());  break;
          }
       } glPopMatrix   ();
-   } else {
-      DEBUG_GRAF   yLOG_note    ("curses environment");
-      /*  set color --------------*/
-      switch (MODE_curr ()) {
-      case MODE_COMMAND     :
-         yCOLOR_curs ("status" );
-         mvprintw (s_parts [n].bott, s_parts [n].left, "%-*.*s", s_parts [n].wide, s_parts [n].wide, CMDS_curr ());
-         break;
-      case MODE_SEARCH      :
-         yCOLOR_curs ("status" );
-         mvprintw (s_parts [n].bott, s_parts [n].left, "%-*.*s", s_parts [n].wide, s_parts [n].wide, SRCH_curr ());
-         break;
-      default               :
-         SOURCE_formula  ();
-         break;
-      }
-      attrset  (0);
    }
    /*---(complete)-----------------------*/
    DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
@@ -2087,9 +2071,7 @@ VIEW__opengl             (char a)
       ;;  /* not sure if i need to clear yet  */
    }
    /*---(display text)-------------------*/
-   if      (s_parts [a].abbr == YVIKEYS_FORMULA)   SOURCE_formula  ();
-   else if (s_parts [a].abbr == YVIKEYS_COMMAND)   SOURCE_command  ();
-   else if (s_parts [a].text != NULL && strlen (s_parts [a].text) > 0) {
+   if (s_parts [a].text != NULL && strlen (s_parts [a].text) > 0) {
       DEBUG_GRAF   yLOG_note    ("draw text");
       if (s_env == YVIKEYS_OPENGL) {
          glPushMatrix    (); {
@@ -2100,7 +2082,6 @@ VIEW__opengl             (char a)
                glTranslatef ( 3.0f, 1.0f, 0.0f);
             }
             yVIKEYS_view_color_adj (s_parts [a].color, YCOLOR_MIN, 0.8);
-            /*> yFONT_print  (s_win.font,  11, YF_BOTLEF, s_parts [a].text);             <*/
             yFONT_print  (1         ,   9, YF_BOTLEF, s_parts [a].text);
          } glPopMatrix   ();
       } else if (s_env == YVIKEYS_CURSES) {
@@ -2169,6 +2150,7 @@ yVIKEYS_view_all         (float a_mag)
       DEBUG_GRAF   yLOG_char    ("on"        , s_parts [n].on);
       DEBUG_GRAF   yLOG_value   ("bott"      , s_parts [n].bott);
       DEBUG_GRAF   yLOG_value   ("tall"      , s_parts [n].tall);
+      DEBUG_GRAF   yLOG_point   ("drawer"    , s_parts [n].drawer);
       if (strchr (OWN_SETUP, s_parts [n].own) == NULL)  continue;
       if (s_parts [n].on   == '-')                      continue;
       if (s_parts [n].type == YVIKEYS_DISABLE)          continue;
@@ -2184,6 +2166,7 @@ yVIKEYS_view_all         (float a_mag)
       DEBUG_GRAF   yLOG_char    ("on"        , s_parts [n].on);
       DEBUG_GRAF   yLOG_value   ("bott"      , s_parts [n].bott);
       DEBUG_GRAF   yLOG_value   ("tall"      , s_parts [n].tall);
+      DEBUG_GRAF   yLOG_point   ("drawer"    , s_parts [n].drawer);
       if (s_parts [n].own    != OWN_OVERLAY)              continue;
       if (s_parts [n].on     == '-')                      continue;
       if (s_parts [n].type   == YVIKEYS_DISABLE)          continue;

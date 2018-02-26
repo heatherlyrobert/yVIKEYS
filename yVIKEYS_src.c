@@ -480,30 +480,33 @@ SOURCE_other            (char a_type)
 static void  o___DRAWING_________o () { return; }
 
 char
-SOURCE_formula             (void)
+SOURCE__color           (char a_display)
 {
    /*---(locals)-----------+------+----+-*/
-   int         x_left, x_bott;
-   char        c           =   ' ';
-   char        x_edit      =   ' ';
-   char        x_beg       =     0;
-   char        x_end       =     0;
-   char        x_len       =     0;
-   char        x_on        =   '-';
-   /*---(get sizes)----------------------*/
-   x_on = yVIKEYS_view_size     (YVIKEYS_FORMULA, &x_left, &s_src.wide, &x_bott, NULL, NULL);
-   if (x_on != 'y') {
-      if (MODE_prev () != MODE_SOURCE)                   return 0;
-      if (strchr (MODES_EDITING, MODE_curr ()) == NULL)  return 0;
-      yVIKEYS_view_size     (YVIKEYS_FLOAT  , &x_left, &s_src.wide, &x_bott, NULL, NULL);
-   }
-   s_src.apos = s_src.wide - 6;
-   /*---(base color)---------------------*/
+   char        x_edit      =   '-';
+   /*---(clear existing)-----------------*/
    attrset     (0);
-   if (MODE_curr () == MODE_SOURCE) {
-      yCOLOR_curs ("source" );
+   /*---(fast-track formula)-------------*/
+   if (a_display == YVIKEYS_FORMULA) {
+      if (MODE_curr () != MODE_SOURCE && MODE_prev () != MODE_SOURCE)  {
+         yCOLOR_curs ("map"    );
+         return x_edit;
+      }
+   }
+   /*---(fast-track command)-------------*/
+   if (a_display == YVIKEYS_COMMAND) {
+      if (strchr (":/", MODE_curr ()) == NULL && strchr (":/", MODE_prev ()) == NULL) {
+         yCOLOR_curs ("command");
+         return x_edit;
+      }
+   }
+   /*---(check focused)------------------*/
+   if (strchr (MODES_ONELINE, MODE_curr ()) != NULL)  {
       x_edit = 'y';
-   } else if (MODE_prev () == MODE_SOURCE) {
+      yCOLOR_curs ("source" );
+   }
+   /*---(check editing)------------------*/
+   else if (strchr (MODES_ONELINE, MODE_prev ()) != NULL)  {
       x_edit = 'y';
       switch (MODE_curr ()) {
       case SMOD_TEXTREG:   yCOLOR_curs ("textreg");  break;
@@ -512,48 +515,151 @@ SOURCE_formula             (void)
       case SMOD_WANDER :   yCOLOR_curs ("wander" );  break;
       default          :   yCOLOR_curs ("map"    );  break;
       }
-   } else {
-      yCOLOR_curs ("map"    );
    }
-   /*---(length)-------------------------*/
-   mvprintw (x_bott, x_left, "%4d", s_src.npos);
+   /*---(just a safety)------------------*/
+   else {
+      yCOLOR_curs ("error"  );
+   }
+   /*---(complete)-----------------------*/
+   return x_edit;
+}
+
+
+/*> if (MODE_curr () == MODE_SOURCE) {                                             <* 
+ *>    yCOLOR_curs ("source" );                                                    <* 
+ *>    x_edit = 'y';                                                               <* 
+ *>    else if (strchr (":/", MODE_curr ()) != NULL)  {                            <* 
+ *>    yCOLOR_curs ("source" );                                                    <* 
+ *>    x_edit = 'y';                                                               <* 
+ *> } else if (MODE_prev () == MODE_SOURCE) {                                      <* 
+ *>    x_edit = 'y';                                                               <* 
+ *>    switch (MODE_curr ()) {                                                     <* 
+ *>    case SMOD_TEXTREG:   yCOLOR_curs ("textreg");  break;                       <* 
+ *>    case SMOD_REPLACE:   yCOLOR_curs ("replace");  break;                       <* 
+ *>    case SMOD_INPUT  :   yCOLOR_curs ("input"  );  break;                       <* 
+ *>    case SMOD_WANDER :   yCOLOR_curs ("wander" );  break;                       <* 
+ *>    default          :   yCOLOR_curs ("map"    );  break;                       <* 
+ *>    }                                                                           <* 
+ *> } else {                                                                       <* 
+ *>    yCOLOR_curs ("map"    );                                                    <* 
+ *> }                                                                              <*/
+
+/*> attrset     (0);                                                                   <* 
+ *> } else if (strchr (":/", MODE_prev ()) != NULL) {                                  <* 
+ *>    x_edit = 'y';                                                                   <* 
+ *>    switch (MODE_curr ()) {                                                         <* 
+ *>    case SMOD_TEXTREG:   yCOLOR_curs ("source" );  break;                           <* 
+ *>    case SMOD_REPLACE:   yCOLOR_curs ("replace");  break;                           <* 
+ *>    case SMOD_INPUT  :   yCOLOR_curs ("input"  );  break;                           <* 
+ *>    case SMOD_WANDER :   yCOLOR_curs ("wander" );  break;                           <* 
+ *>    default          :   yCOLOR_curs ("command");  break;                           <* 
+ *>    }                                                                               <* 
+ *> } else {                                                                           <* 
+ *>    yCOLOR_curs ("command");                                                        <* 
+ *>    mvprintw (x_bott, x_left, "%-*.*s", s_cmd.wide, s_cmd.wide, MODE_message ());   <* 
+ *>    attrset (0);                                                                    <* 
+ *>    return 0;                                                                       <* 
+ *> }                                                                                  <* 
+ *> }                                                                                  <*/
+
+
+char
+SOURCE__curses          (char a_display, int a_left, int a_bott, char a_edit)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   tEDIT      *x_cur       = NULL;
+   char        x_beg       =    0;
+   char        x_end       =    0;
+   char        x_len       =    0;
+   char        c           =  ' ';
+   /*---(prepare)------------------------*/
+   switch (a_display) {
+   case YVIKEYS_COMMAND : x_cur = &s_cmd;  break;
+   case YVIKEYS_FORMULA : x_cur = &s_src;  break;
+   default              : return 0;        break;
+   }
+   /*---(fast path for command)----------*/
+   if (a_display == YVIKEYS_COMMAND && x_cur->npos == 0) {
+      mvprintw (a_bott, a_left, "%-*.*s", x_cur->wide, x_cur->wide, MODE_message ());
+      return 0;
+   }
    /*---(base content)-------------------*/
-   if (s_src.npos == 0)  mvprintw (x_bott, x_left + 5, "%-*.*s", s_src.apos, s_src.apos, " ");
-   else                  mvprintw (x_bott, x_left + 5, "%-*.*s", s_src.apos, s_src.apos, s_src.contents + s_src.bpos);
+   if (x_cur->npos == 0) mvprintw (a_bott, a_left, "   %c %-*.*s ", G_CHAR_NULL, x_cur->apos, x_cur->apos, " ");
+   else                  mvprintw (a_bott, a_left, "%4d %-*.*s ", x_cur->npos, x_cur->apos, x_cur->apos, x_cur->contents + x_cur->bpos);
    /*---(selection)----------------------*/
-   if (x_edit == 'y' && s_live == SELC_YES && s_src.npos > 0) {
+   if (a_edit == 'y' && s_live == SELC_YES && x_cur->npos > 0) {
       x_beg = s_bsel;
       x_end = s_esel;
-      if (x_beg < s_src.bpos)  x_beg = s_src.bpos;
-      if (x_end > s_src.epos)  x_end = s_src.epos;
+      if (x_beg < x_cur->bpos)  x_beg = x_cur->bpos;
+      if (x_end > x_cur->epos)  x_end = x_cur->epos;
       x_len = x_end - x_beg + 1;
       attrset  (0);
       yCOLOR_curs ("select" );
-      mvprintw (x_bott, x_left + 5 + x_beg - s_src.bpos, "%-*.*s", x_len, x_len, s_src.contents + x_beg);
+      mvprintw (a_bott, a_left + 5 + x_beg - x_cur->bpos, "%-*.*s", x_len, x_len, x_cur->contents + x_beg);
    }
    /*---(current)------------------------*/
-   if (x_edit == 'y' && s_src.npos > 0) {
+   if (a_edit == 'y' && x_cur->npos > 0) {
       attrset  (0);
       yCOLOR_curs ("map"    );
-      mvprintw (x_bott, x_left + 5 + s_src.cpos - s_src.bpos, "%c", s_src.contents [s_src.cpos]);
+      mvprintw (a_bott, a_left + 5 + x_cur->cpos - x_cur->bpos, "%c", x_cur->contents [x_cur->cpos]);
    }
    /*---(markers)------------------------*/
    attrset  (0);
    yCOLOR_curs ("h_used");
-   if      (s_src.npos == 0)                c = ' ';
-   else if (s_src.bpos > 0)                 c = '<';
-   else                                     c = ']';
-   mvprintw (x_bott, x_left + 4, "%c", c);
-   if      (s_src.npos == 0)                c = ' ';
-   else if (s_src.epos != s_src.npos - 1)   c = '>';
-   else                                     c = '[';
-   mvprintw (x_bott, x_left + s_src.wide - 1, "%c", c);
+   if (x_cur->npos != 0) {
+      if (x_cur->bpos >  0)   c = '<';
+      else                    c = ']';
+      mvprintw (a_bott, a_left + 4, "%c", c);
+   }
+   if (x_cur->npos != 0) {
+      if (x_cur->epos != x_cur->npos - 1) c = '>';
+      else                                c = '[';
+      mvprintw (a_bott, a_left + x_cur->wide - 1, "%c", c);
+   }
+   /*---(complete)-----------------------*/
+   return 0;
+}
+
+char
+SOURCE_formula             (void)
+{
+   /*---(locals)-----------+------+----+-*/
+   int         x_left      =     0;
+   int         x_bott      =     0;
+   char        x_edit      =   ' ';
+   char        x_on        =   '-';
+   /*---(get sizes)----------------------*/
+   x_on = yVIKEYS_view_size     (YVIKEYS_FORMULA, &x_left, &s_src.wide, &x_bott, NULL, NULL);
+   s_src.apos = s_src.wide - 6;
+   if (x_on != 'y')  return 0;
+   /*---(display)------------------------*/
+   x_edit = SOURCE__color (YVIKEYS_FORMULA);
+   SOURCE__curses (YVIKEYS_FORMULA, x_left, x_bott, x_edit);
    /*---(complete)-----------------------*/
    return 0;
 }
 
 char
 SOURCE_command             (void)
+{
+   /*---(locals)-----------+------+----+-*/
+   int         x_left      =     0;
+   int         x_bott      =     0;
+   char        x_edit      =   ' ';
+   char        x_on        =   '-';
+   /*---(get sizes)----------------------*/
+   x_on = yVIKEYS_view_size     (YVIKEYS_COMMAND, &x_left, &s_cmd.wide, &x_bott, NULL, NULL);
+   s_cmd.apos = s_cmd.wide - 6;
+   if (x_on != 'y')  return 0;
+   /*---(display)------------------------*/
+   x_edit = SOURCE__color (YVIKEYS_COMMAND);
+   SOURCE__curses (YVIKEYS_COMMAND, x_left, x_bott, x_edit);
+   /*---(complete)-----------------------*/
+   return 0;
+}
+
+char
+SOURCE_command_OLD         (void)
 {
    /*---(locals)-----------+------+----+-*/
    int         x_left, x_bott;
@@ -563,6 +669,7 @@ SOURCE_command             (void)
    char        x_end       =     0;
    char        x_len       =     0;
    char        x_on        =   '-';
+   DEBUG_GRAF   yLOG_note    ("running SOURCE_command");
    /*---(get sizes)----------------------*/
    x_on = yVIKEYS_view_size     (YVIKEYS_COMMAND, &x_left, &s_cmd.wide, &x_bott, NULL, NULL);
    if (x_on != 'y') {
