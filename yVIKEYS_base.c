@@ -268,6 +268,7 @@ yVIKEYS_main_handle     (uchar a_key)
       /*> printf ("rc %3d, repeat %2d, major %c, minor %c\n", rc, x_repeat, x_major, x_key);   <*/
       if      (x_key == 0       )      snprintf (s_keys,   9, "%2d %c%c"  , x_repeat, x_major, G_CHAR_NULL  );
       else if (x_key == G_KEY_RETURN)  snprintf (s_keys,   9, "%2d %c%c"  , x_repeat, x_major, G_CHAR_RETURN);
+      else if (x_key == G_KEY_ENTER )  snprintf (s_keys,   9, "%2d %c%c"  , x_repeat, x_major, G_CHAR_RETURN);
       else if (x_key == G_KEY_ESCAPE)  snprintf (s_keys,   9, "%2d %c%c"  , x_repeat, x_major, G_CHAR_ESCAPE);
       else if (x_key == G_KEY_TAB   )  snprintf (s_keys,   9, "%2d %c%c"  , x_repeat, x_major, G_CHAR_TAB   );
       else if (x_key == G_KEY_BS    )  snprintf (s_keys,   9, "%2d %c%c"  , x_repeat, x_major, G_CHAR_BS    );

@@ -311,7 +311,7 @@ SRCH_mode               (int a_major, int a_minor)
    }
    /*---(check for control keys)---------*/
    switch (a_minor) {
-   case   G_KEY_RETURN :
+   case   G_KEY_RETURN : case   G_KEY_ENTER  :
       MODE_exit  ();
       SRCH__exec        ();
       DEBUG_USER   yLOG_note    ("return, execute search");

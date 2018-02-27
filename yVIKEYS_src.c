@@ -85,33 +85,43 @@ static void  o___SUPPORT_________o () { return; }
 char         /*-> accept all source changes ----------[ shoot  [gz.210.001.01]*/ /*-[00.0000.102.4]-*/ /*-[--.---.---.--]-*/
 SOURCE__accept          (void)
 {
+   switch (MODE_curr ()) {
+   case MODE_SOURCE  :
+      if (s_saver != NULL && s_cur->npos > 0) {
+         if (strcmp (s_cur->original, s_cur->contents) != 0)
+            s_saver (s_cur->contents);
+      }
+      break;
+   case MODE_COMMAND :
+      yVIKEYS_cmds_direct (s_cur->contents);
+      strlcpy (s_cur->contents, "", LEN_RECD);
+      break;
+   case MODE_SEARCH  :
+      yVIKEYS_srch_direct (s_cur->contents);
+      strlcpy (s_cur->contents, "", LEN_RECD);
+      break;
+   }
+   strlcpy (s_cur->original, s_cur->contents, LEN_RECD);
    s_cur->npos  = s_cur->bpos  = s_cur->cpos  = s_cur->epos  = 0;
    s_root  = s_bsel  = s_esel  = 0;
    s_live  = SELC_NOT;
    s_ctreg = s_wtreg = '"';
-   switch (MODE_curr ()) {
-   case MODE_SOURCE  :
-      if (s_saver != NULL)  s_saver (s_cur->contents);
-      break;
-   case MODE_COMMAND :
-      yVIKEYS_cmds_direct (s_cur->contents);
-      break;
-   case MODE_SEARCH  :
-      yVIKEYS_srch_direct (s_cur->contents);
-      break;
-   }
-   strlcpy (s_cur->original, s_cur->contents, LEN_RECD);
    return 0;
 }
 
 char         /*-> reject all source changes ----------[ shoot  [gz.210.001.01]*/ /*-[00.0000.102.4]-*/ /*-[--.---.---.--]-*/
 SOURCE__reset           (void)
 {
+   switch (MODE_curr ()) {
+   case MODE_COMMAND :
+   case MODE_SEARCH  :
+      strlcpy (s_cur->original, "", LEN_RECD);
+      break;
+   }
    s_cur->npos  = s_cur->bpos  = s_cur->cpos  = s_cur->epos  = 0;
    s_root  = s_bsel  = s_esel  = 0;
    s_live  = SELC_NOT;
    s_ctreg = s_wtreg = '"';
-   strlcpy (s_cur->contents, s_cur->original, LEN_RECD);
    return 0;
 }
 
@@ -119,17 +129,17 @@ char         /*-> prepare for source mode move -------[ leaf   [gz.412.001.00]*/
 SOURCE__prep            (void)
 {
    /*---(prepare)------------------------*/
-   DEBUG_USER   yLOG_enter   (__FUNCTION__);
-   DEBUG_USER   yLOG_info    ("contents"  , s_cur->contents);
+   DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
+   DEBUG_EDIT   yLOG_info    ("contents"  , s_cur->contents);
    s_cur->npos     = strlen (s_cur->contents);
    /*---(display debugging)--------------*/
-   DEBUG_USER   yLOG_value   ("npos"     , s_cur->npos);
-   DEBUG_USER   yLOG_value   ("apos"     , s_cur->apos);
-   DEBUG_USER   yLOG_value   ("bpos"     , s_cur->bpos);
-   DEBUG_USER   yLOG_value   ("cpos"     , s_cur->cpos);
-   DEBUG_USER   yLOG_value   ("epos"     , s_cur->epos);
+   DEBUG_EDIT   yLOG_value   ("npos"     , s_cur->npos);
+   DEBUG_EDIT   yLOG_value   ("apos"     , s_cur->apos);
+   DEBUG_EDIT   yLOG_value   ("bpos"     , s_cur->bpos);
+   DEBUG_EDIT   yLOG_value   ("cpos"     , s_cur->cpos);
+   DEBUG_EDIT   yLOG_value   ("epos"     , s_cur->epos);
    /*---(complete)-----------------------*/
-   DEBUG_USER   yLOG_exit    (__FUNCTION__);
+   DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -144,20 +154,20 @@ SOURCE__words          (void)
    int         x_not       =    0;
    int         x_yes       =    0;
    /*---(prepare)------------------------*/
-   DEBUG_USER   yLOG_enter   (__FUNCTION__);
-   DEBUG_USER   yLOG_value   ("s_npos"    , s_cur->npos);
-   DEBUG_USER   yLOG_info    ("s_contents", s_cur->contents);
+   DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
+   DEBUG_EDIT   yLOG_value   ("s_npos"    , s_cur->npos);
+   DEBUG_EDIT   yLOG_info    ("s_contents", s_cur->contents);
    for (i = 0; i < s_cur->npos; ++i)   s_cur->words [i] = s_cur->contents [i];
    s_cur->words [s_cur->npos] = 0;
    if (strchr (x_word, s_cur->contents [0]) != NULL)  s_cur->words [0] = '<';
    while (x_pos < s_cur->npos) {
       /*---(skip leading non-words)---------*/
       x_not = 0;
-      DEBUG_USER   yLOG_note    ("non-words.............");
+      DEBUG_EDIT   yLOG_note    ("non-words.............");
       for (x_pos = x_pos; x_pos < s_cur->npos; ++x_pos) {
          if (s_cur->contents [x_pos] == '\0')  break;
-         DEBUG_USER   yLOG_value   ("x_pos"     , x_pos);
-         DEBUG_USER   yLOG_value   ("s_contents", s_cur->contents [x_pos]);
+         DEBUG_EDIT   yLOG_value   ("x_pos"     , x_pos);
+         DEBUG_EDIT   yLOG_value   ("s_contents", s_cur->contents [x_pos]);
          if (strchr (x_word, s_cur->contents [x_pos]) == NULL) {
             ++x_not;
             continue;
@@ -167,16 +177,16 @@ SOURCE__words          (void)
       if (x_pos >= s_cur->npos)             break;
       if (s_cur->contents [x_pos] == '\0')  break;
       if (x_not > 0)  {
-         DEBUG_USER   yLOG_value   ("beg"       , x_pos);
+         DEBUG_EDIT   yLOG_value   ("beg"       , x_pos);
          s_cur->words [x_pos] = '<';
       }
       /*---(skip words-chars)--------------*/
       x_yes = 0;
-      DEBUG_USER   yLOG_note    ("words.................");
+      DEBUG_EDIT   yLOG_note    ("words.................");
       for (x_pos = x_pos; x_pos < s_cur->npos; ++x_pos) {
          if (s_cur->contents [x_pos] == '\0')  break;
-         DEBUG_USER   yLOG_value   ("x_pos"     , x_pos);
-         DEBUG_USER   yLOG_value   ("s_contents", s_cur->contents [x_pos]);
+         DEBUG_EDIT   yLOG_value   ("x_pos"     , x_pos);
+         DEBUG_EDIT   yLOG_value   ("s_contents", s_cur->contents [x_pos]);
          if (strchr (x_word, s_cur->contents [x_pos]) != NULL) {
             ++x_yes;
             continue;
@@ -184,19 +194,19 @@ SOURCE__words          (void)
          break;
       }
       if (s_cur->contents [x_pos] == '\0') {
-         DEBUG_USER   yLOG_value   ("end"       , x_pos);
+         DEBUG_EDIT   yLOG_value   ("end"       , x_pos);
          if (x_yes > 0)  s_cur->words [x_pos - 1] = '>';
          break;
       }
       if (x_pos >= s_cur->npos)             break;
       if (x_yes > 0) {
-         DEBUG_USER   yLOG_value   ("end"       , x_pos);
+         DEBUG_EDIT   yLOG_value   ("end"       , x_pos);
          if (s_cur->words [x_pos - 1] == '<')  s_cur->words [x_pos - 1] = 'B';
          else                             s_cur->words [x_pos - 1] = '>';
       }
    }
    s_cur->words [s_cur->npos] = 0;
-   DEBUG_USER   yLOG_exit    (__FUNCTION__);
+   DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -204,17 +214,17 @@ char         /*-> complete a source mode move --------[ leaf   [gz.E45.001.A0]*/
 SOURCE__done            (void)
 {
    /*---(prepare)------------------------*/
-   DEBUG_USER   yLOG_enter   (__FUNCTION__);
-   DEBUG_USER   yLOG_info    ("s_contents", s_cur->contents);
+   DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
+   DEBUG_EDIT   yLOG_info    ("s_contents", s_cur->contents);
    s_cur->npos     = strlen (s_cur->contents);
    /*---(display debugging)--------------*/
-   DEBUG_USER   yLOG_value   ("s_npos"   , s_cur->npos);
-   DEBUG_USER   yLOG_value   ("s_apos"   , s_cur->apos);
-   DEBUG_USER   yLOG_value   ("s_bpos"   , s_cur->bpos);
-   DEBUG_USER   yLOG_value   ("s_cpos"   , s_cur->cpos);
-   DEBUG_USER   yLOG_value   ("s_epos"   , s_cur->epos);
+   DEBUG_EDIT   yLOG_value   ("s_npos"   , s_cur->npos);
+   DEBUG_EDIT   yLOG_value   ("s_apos"   , s_cur->apos);
+   DEBUG_EDIT   yLOG_value   ("s_bpos"   , s_cur->bpos);
+   DEBUG_EDIT   yLOG_value   ("s_cpos"   , s_cur->cpos);
+   DEBUG_EDIT   yLOG_value   ("s_epos"   , s_cur->epos);
    /*---(check over/underrun)---------*/
-   DEBUG_USER   yLOG_note    ("correct s_npos over/underruns");
+   DEBUG_EDIT   yLOG_note    ("correct s_npos over/underruns");
    if (s_cur->npos  >= LEN_RECD) {
       s_cur->npos = LEN_RECD - 1;
       s_cur->contents [s_cur->npos] = '\0';
@@ -223,39 +233,39 @@ SOURCE__done            (void)
       s_cur->npos = 0;
    }
    /*---(check min/max)---------------*/
-   DEBUG_USER   yLOG_note    ("correct min/max limits");
+   DEBUG_EDIT   yLOG_note    ("correct min/max limits");
    if (s_cur->cpos >=  s_cur->npos)     s_cur->cpos = s_cur->npos - 1;
    if (s_cur->cpos <   0      )    s_cur->cpos = 0;
    if (s_cur->bpos <   0      )    s_cur->bpos = 0;
    /*---(small strings)---------------*/
    if (s_cur->npos == 0) {
-      DEBUG_USER   yLOG_note    ("check and handle small string");
+      DEBUG_EDIT   yLOG_note    ("check and handle small string");
       s_cur->cpos = s_cur->bpos = s_cur->epos = 0;
    }
    /*---(small strings)---------------*/
    else if (s_cur->npos <= s_cur->apos) {
-      DEBUG_USER   yLOG_note    ("check and handle small string");
+      DEBUG_EDIT   yLOG_note    ("check and handle small string");
       s_cur->bpos = 0;
       s_cur->epos = s_cur->npos - 1;
    }
    /*---(long strings)----------------*/
    else {
-      DEBUG_USER   yLOG_note    ("check and handle long string");
+      DEBUG_EDIT   yLOG_note    ("check and handle long string");
       s_cur->epos = s_cur->bpos + s_cur->apos - 1;
       /*---(check off left side)------*/
-      DEBUG_USER   yLOG_note    ("check off left side of screen");
+      DEBUG_EDIT   yLOG_note    ("check off left side of screen");
       if (s_cur->cpos <   s_cur->bpos)  {
          s_cur->bpos = s_cur->cpos;
          s_cur->epos = s_cur->bpos + s_cur->apos - 1;
       }
       /*---(check off right side)-----*/
-      DEBUG_USER   yLOG_note    ("check off right side of screen");
+      DEBUG_EDIT   yLOG_note    ("check off right side of screen");
       if (s_cur->cpos >   s_cur->epos)  {
          s_cur->epos = s_cur->cpos;
          s_cur->bpos = s_cur->epos - s_cur->apos + 1;
       }
       /*---(check scrolling-----------*/
-      DEBUG_USER   yLOG_note    ("make sure right is locked to end");
+      DEBUG_EDIT   yLOG_note    ("make sure right is locked to end");
       if (s_cur->epos >=  s_cur->npos)  {
          s_cur->epos = s_cur->npos - 1;
          s_cur->bpos = s_cur->epos - s_cur->apos + 1;
@@ -274,13 +284,13 @@ SOURCE__done            (void)
    /*---(update word breaks)-------------*/
    SOURCE__words ();
    /*---(display debugging)--------------*/
-   DEBUG_USER   yLOG_value   ("s_npos"   , s_cur->npos);
-   DEBUG_USER   yLOG_value   ("s_apos"   , s_cur->apos);
-   DEBUG_USER   yLOG_value   ("s_bpos"   , s_cur->bpos);
-   DEBUG_USER   yLOG_value   ("s_cpos"   , s_cur->cpos);
-   DEBUG_USER   yLOG_value   ("s_epos"   , s_cur->epos);
+   DEBUG_EDIT   yLOG_value   ("s_npos"   , s_cur->npos);
+   DEBUG_EDIT   yLOG_value   ("s_apos"   , s_cur->apos);
+   DEBUG_EDIT   yLOG_value   ("s_bpos"   , s_cur->bpos);
+   DEBUG_EDIT   yLOG_value   ("s_cpos"   , s_cur->cpos);
+   DEBUG_EDIT   yLOG_value   ("s_epos"   , s_cur->epos);
    /*---(complete)--------------------*/
-   DEBUG_USER   yLOG_exit    (__FUNCTION__);
+   DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -484,254 +494,265 @@ SOURCE__color           (char a_display)
 {
    /*---(locals)-----------+------+----+-*/
    char        x_edit      =   '-';
-   /*---(clear existing)-----------------*/
-   attrset     (0);
+   char        x_code      =   '-';
    /*---(fast-track formula)-------------*/
    if (a_display == YVIKEYS_FORMULA) {
       if (MODE_curr () != MODE_SOURCE && MODE_prev () != MODE_SOURCE)  {
-         yCOLOR_curs ("map"    );
-         return x_edit;
+         x_code = 'm';
       }
    }
    /*---(fast-track command)-------------*/
    if (a_display == YVIKEYS_COMMAND) {
       if (strchr (":/", MODE_curr ()) == NULL && strchr (":/", MODE_prev ()) == NULL) {
-         yCOLOR_curs ("command");
-         return x_edit;
+         x_code = 'c';
       }
    }
    /*---(check focused)------------------*/
-   if (strchr (MODES_ONELINE, MODE_curr ()) != NULL)  {
+   if (x_code == '-' && strchr (MODES_ONELINE, MODE_curr ()) != NULL)  {
       x_edit = 'y';
-      yCOLOR_curs ("source" );
+      x_code = 's';
    }
    /*---(check editing)------------------*/
-   else if (strchr (MODES_ONELINE, MODE_prev ()) != NULL)  {
+   else if (x_code == '-' && strchr (MODES_ONELINE, MODE_prev ()) != NULL)  {
       x_edit = 'y';
       switch (MODE_curr ()) {
-      case SMOD_TEXTREG:   yCOLOR_curs ("textreg");  break;
-      case SMOD_REPLACE:   yCOLOR_curs ("replace");  break;
-      case SMOD_INPUT  :   yCOLOR_curs ("input"  );  break;
-      case SMOD_WANDER :   yCOLOR_curs ("wander" );  break;
-      default          :   yCOLOR_curs ("map"    );  break;
+      case SMOD_TEXTREG : x_code = 't';  break;
+      case SMOD_REPLACE : x_code = 'r';  break;
+      case SMOD_INPUT   : x_code = 'i';  break;
+      case SMOD_WANDER  : x_code = 'w';  break;
+      default           : x_code = '-';  break;
       }
    }
    /*---(just a safety)------------------*/
-   else {
-      yCOLOR_curs ("error"  );
+   else if (x_code == '-') {
+      x_code = 'e';
    }
+   /*---(set curses color)---------------*/
+   attrset     (0);
+   if (myVIKEYS.env == YVIKEYS_CURSES) {
+      switch (x_code) {
+      case  'm' :  yCOLOR_curs ("map"    );  break;
+      case  's' :  yCOLOR_curs ("source" );  break;
+      case  'c' :  yCOLOR_curs ("command");  break;
+      case  't' :  yCOLOR_curs ("textreg");  break;
+      case  'r' :  yCOLOR_curs ("replace");  break;
+      case  'i' :  yCOLOR_curs ("input"  );  break;
+      case  'w' :  yCOLOR_curs ("wander" );  break;
+      case  'e' :  yCOLOR_curs ("error"  );  break;
+      default   :  yCOLOR_curs ("map"    );  break;
+      }
+   }
+   /*---(set opengl color)---------------*/
+   else {
+      switch (x_code) {
+      case  'm' :  glColor4f   (0.5, 0.5, 0.5, 1.0);  break;
+      case  'c' :  glColor4f   (0.5, 0.5, 0.5, 1.0);  break;
+      case  's' :  glColor4f   (0.0, 1.0, 0.0, 1.0);  break;
+      case  't' :  glColor4f   (0.0, 1.0, 1.0, 1.0);  break;
+      case  'r' :  glColor4f   (1.0, 0.0, 1.0, 1.0);  break;
+      case  'i' :  glColor4f   (0.0, 0.0, 1.0, 1.0);  break;
+      case  'w' :  glColor4f   (1.0, 0.0, 0.0, 1.0);  break;
+      case  'e' :  glColor4f   (1.0, 0.0, 0.0, 1.0);  break;
+      default   :  glColor4f   (0.5, 0.5, 0.5, 1.0);  break;
+      }
+   }
+
    /*---(complete)-----------------------*/
    return x_edit;
 }
 
-
-/*> if (MODE_curr () == MODE_SOURCE) {                                             <* 
- *>    yCOLOR_curs ("source" );                                                    <* 
- *>    x_edit = 'y';                                                               <* 
- *>    else if (strchr (":/", MODE_curr ()) != NULL)  {                            <* 
- *>    yCOLOR_curs ("source" );                                                    <* 
- *>    x_edit = 'y';                                                               <* 
- *> } else if (MODE_prev () == MODE_SOURCE) {                                      <* 
- *>    x_edit = 'y';                                                               <* 
- *>    switch (MODE_curr ()) {                                                     <* 
- *>    case SMOD_TEXTREG:   yCOLOR_curs ("textreg");  break;                       <* 
- *>    case SMOD_REPLACE:   yCOLOR_curs ("replace");  break;                       <* 
- *>    case SMOD_INPUT  :   yCOLOR_curs ("input"  );  break;                       <* 
- *>    case SMOD_WANDER :   yCOLOR_curs ("wander" );  break;                       <* 
- *>    default          :   yCOLOR_curs ("map"    );  break;                       <* 
- *>    }                                                                           <* 
- *> } else {                                                                       <* 
- *>    yCOLOR_curs ("map"    );                                                    <* 
- *> }                                                                              <*/
-
-/*> attrset     (0);                                                                   <* 
- *> } else if (strchr (":/", MODE_prev ()) != NULL) {                                  <* 
- *>    x_edit = 'y';                                                                   <* 
- *>    switch (MODE_curr ()) {                                                         <* 
- *>    case SMOD_TEXTREG:   yCOLOR_curs ("source" );  break;                           <* 
- *>    case SMOD_REPLACE:   yCOLOR_curs ("replace");  break;                           <* 
- *>    case SMOD_INPUT  :   yCOLOR_curs ("input"  );  break;                           <* 
- *>    case SMOD_WANDER :   yCOLOR_curs ("wander" );  break;                           <* 
- *>    default          :   yCOLOR_curs ("command");  break;                           <* 
- *>    }                                                                               <* 
- *> } else {                                                                           <* 
- *>    yCOLOR_curs ("command");                                                        <* 
- *>    mvprintw (x_bott, x_left, "%-*.*s", s_cmd.wide, s_cmd.wide, MODE_message ());   <* 
- *>    attrset (0);                                                                    <* 
- *>    return 0;                                                                       <* 
- *> }                                                                                  <* 
- *> }                                                                                  <*/
-
-
 char
-SOURCE__curses          (char a_display, int a_left, int a_bott, char a_edit)
+SOURCE__opengl          (tEDIT *a_cur, int a_left, int a_wide, int a_bott, int a_tall, char a_edit)
 {
    /*---(locals)-----------+-----+-----+-*/
-   tEDIT      *x_cur       = NULL;
+   char        t           [LEN_RECD];
+   char        c1          =  ' ';
+   char        c2          =  ' ';
+   float       x_beg       =    0;
+   float       x_end       =    0;
+   /*---(color)--------------------------*/
+   /*> yVIKEYS_view_color (YCOLOR_WARNING, 1.0);                                      <*/
+   /*> glColor4f   (1.0, 0.0, 0.0, 1.0);                                              <*/
+   /*---(fast path for command)----------*/
+   if (a_cur->type == EDIT_CMDS && a_edit != 'y') {
+      glPushMatrix    (); {
+         glTranslatef ( 0.0f, 1.0f, 0.0f);
+         glColor4f   (0.0, 0.0, 0.0, 1.0);
+         yFONT_print (myVIKEYS.font, myVIKEYS.point, YF_BOTLEF, MODE_message ());
+      } glPopMatrix   ();
+      return 0;
+   }
+   /*---(background)---------------------*/
+   DEBUG_EDIT   yLOG_note    ("draw background");
+   glPushMatrix    (); {
+      glBegin         (GL_POLYGON); {
+         glVertex3f  (0     , a_tall, -50.0f);
+         glVertex3f  (a_wide, a_tall, -50.0f);
+         glVertex3f  (a_wide, 0     , -50.0f);
+         glVertex3f  (0     , 0     , -50.0f);
+      } glEnd   ();
+   } glPopMatrix   ();
+   /*---(select)-------------------------*/
+   /*---(selection)----------------------*/
+   if (a_edit == 'y' && s_live == SELC_YES && a_cur->npos > 0) {
+      x_beg = s_bsel;
+      x_end = s_esel;
+      if (x_beg < a_cur->bpos)  x_beg = a_cur->bpos;
+      if (x_end > a_cur->epos)  x_end = a_cur->epos;
+      x_beg += 5;
+      x_end += 6;
+      x_beg *= myVIKEYS.font_scale;
+      x_end *= myVIKEYS.font_scale;
+      glColor4f   (0.8, 0.8, 0.8, 1.0);
+      glPushMatrix    (); {
+         glBegin         (GL_POLYGON); {
+            glVertex3f  (x_beg , a_tall, -40.0f);
+            glVertex3f  (x_end , a_tall, -40.0f);
+            glVertex3f  (x_end , 0     , -40.0f);
+            glVertex3f  (x_beg , 0     , -40.0f);
+         } glEnd   ();
+      } glPopMatrix   ();
+   }
+   /*---(current)------------------------*/
+   if (a_edit == 'y' && a_cur->npos > 0) {
+      x_beg = (a_cur->cpos + 5) * myVIKEYS.font_scale;
+      x_end = (a_cur->cpos + 6) * myVIKEYS.font_scale;
+      glColor4f   (0.8, 0.8, 0.0, 1.0);
+      glPushMatrix    (); {
+         glBegin         (GL_POLYGON); {
+            glVertex3f  (x_beg , a_tall, -30.0f);
+            glVertex3f  (x_end , a_tall, -30.0f);
+            glVertex3f  (x_end , 0     , -30.0f);
+            glVertex3f  (x_beg , 0     , -30.0f);
+         } glEnd   ();
+      } glPopMatrix   ();
+   }
+   /*---(markers)------------------------*/
+   if (a_cur->npos != 0) {
+      if (a_cur->bpos >  0)   c1 = '<';
+      else                    c1 = ']';
+   }
+   if (a_cur->npos != 0) {
+      if (a_cur->epos != a_cur->npos - 1) c2 = '>';
+      else                                c2 = '[';
+   }
+   /*---(text)---------------------------*/
+   /*> if (a_cur->npos == 0) sprintf (t, "   %c", G_CHAR_NULL);                                                                              <* 
+    *> else                  sprintf (t, "%4d%c%-*.*s%c"  , a_cur->npos, c1, a_cur->apos, a_cur->apos, a_cur->contents + a_cur->bpos, c2);   <*/
+   if (a_cur->npos == 0) sprintf (t, "   %c", G_CHAR_NULL);
+   else                  sprintf (t, "%4d%c%-*.*s%c"  , a_cur->cpos, c1, a_cur->apos, a_cur->apos, a_cur->contents + a_cur->bpos, c2);
+   glPushMatrix    (); {
+      glTranslatef ( 0.0f, 1.0f, 0.0f);
+      glColor4f   (0.0, 0.0, 0.0, 1.0);
+      yFONT_print (myVIKEYS.font, myVIKEYS.point, YF_BOTLEF, t);
+   } glPopMatrix   ();
+   /*---(complete)-----------------------*/
+   return 0;
+}
+
+char
+SOURCE__curses          (tEDIT *a_cur, int a_left, int a_bott, char a_edit)
+{
+   /*---(locals)-----------+-----+-----+-*/
    char        x_beg       =    0;
    char        x_end       =    0;
    char        x_len       =    0;
    char        c           =  ' ';
-   /*---(prepare)------------------------*/
-   switch (a_display) {
-   case YVIKEYS_COMMAND : x_cur = &s_cmd;  break;
-   case YVIKEYS_FORMULA : x_cur = &s_src;  break;
-   default              : return 0;        break;
-   }
    /*---(fast path for command)----------*/
-   if (a_display == YVIKEYS_COMMAND && x_cur->npos == 0) {
-      mvprintw (a_bott, a_left, "%-*.*s", x_cur->wide, x_cur->wide, MODE_message ());
+   if (a_cur->type == EDIT_CMDS && a_edit != 'y') {
+      mvprintw (a_bott, a_left, "%-*.*s", a_cur->wide, a_cur->wide, MODE_message ());
       return 0;
    }
    /*---(base content)-------------------*/
-   if (x_cur->npos == 0) mvprintw (a_bott, a_left, "   %c %-*.*s ", G_CHAR_NULL, x_cur->apos, x_cur->apos, " ");
-   else                  mvprintw (a_bott, a_left, "%4d %-*.*s ", x_cur->npos, x_cur->apos, x_cur->apos, x_cur->contents + x_cur->bpos);
+   if (a_cur->npos == 0) mvprintw (a_bott, a_left, "   %c %-*.*s ", G_CHAR_NULL, a_cur->apos, a_cur->apos, " ");
+   else                  mvprintw (a_bott, a_left, "%4d %-*.*s ", a_cur->npos, a_cur->apos, a_cur->apos, a_cur->contents + a_cur->bpos);
    /*---(selection)----------------------*/
-   if (a_edit == 'y' && s_live == SELC_YES && x_cur->npos > 0) {
+   if (a_edit == 'y' && s_live == SELC_YES && a_cur->npos > 0) {
       x_beg = s_bsel;
       x_end = s_esel;
-      if (x_beg < x_cur->bpos)  x_beg = x_cur->bpos;
-      if (x_end > x_cur->epos)  x_end = x_cur->epos;
+      if (x_beg < a_cur->bpos)  x_beg = a_cur->bpos;
+      if (x_end > a_cur->epos)  x_end = a_cur->epos;
       x_len = x_end - x_beg + 1;
       attrset  (0);
       yCOLOR_curs ("select" );
-      mvprintw (a_bott, a_left + 5 + x_beg - x_cur->bpos, "%-*.*s", x_len, x_len, x_cur->contents + x_beg);
+      mvprintw (a_bott, a_left + 5 + x_beg - a_cur->bpos, "%-*.*s", x_len, x_len, a_cur->contents + x_beg);
    }
    /*---(current)------------------------*/
-   if (a_edit == 'y' && x_cur->npos > 0) {
+   if (a_edit == 'y' && a_cur->npos > 0) {
       attrset  (0);
       yCOLOR_curs ("map"    );
-      mvprintw (a_bott, a_left + 5 + x_cur->cpos - x_cur->bpos, "%c", x_cur->contents [x_cur->cpos]);
+      mvprintw (a_bott, a_left + 5 + a_cur->cpos - a_cur->bpos, "%c", a_cur->contents [a_cur->cpos]);
    }
    /*---(markers)------------------------*/
    attrset  (0);
    yCOLOR_curs ("h_used");
-   if (x_cur->npos != 0) {
-      if (x_cur->bpos >  0)   c = '<';
+   if (a_cur->npos != 0) {
+      if (a_cur->bpos >  0)   c = '<';
       else                    c = ']';
       mvprintw (a_bott, a_left + 4, "%c", c);
    }
-   if (x_cur->npos != 0) {
-      if (x_cur->epos != x_cur->npos - 1) c = '>';
+   if (a_cur->npos != 0) {
+      if (a_cur->epos != a_cur->npos - 1) c = '>';
       else                                c = '[';
-      mvprintw (a_bott, a_left + x_cur->wide - 1, "%c", c);
+      mvprintw (a_bott, a_left + a_cur->wide - 1, "%c", c);
    }
    /*---(complete)-----------------------*/
+   return 0;
+}
+
+char
+SOURCE_display             (tEDIT *a_cur, char a_mode)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   int         x_left      =    0;
+   int         x_wide      =    0;
+   int         x_bott      =    0;
+   int         x_tall      =    0;
+   char        x_edit      =  ' ';
+   char        x_on        =  '-';
+   /*---(header)-------------------------*/
+   DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
+   /*---(get sizes)----------------------*/
+   x_on = yVIKEYS_view_size     (a_mode, &x_left, &x_wide, &x_bott, &x_tall, NULL);
+   if (myVIKEYS.env == YVIKEYS_CURSES)  a_cur->wide = x_wide;
+   else                                 a_cur->wide = x_wide / myVIKEYS.font_scale;
+   a_cur->apos = a_cur->wide - 6;
+   DEBUG_EDIT   yLOG_char    ("on"        , x_on);
+   DEBUG_EDIT   yLOG_value   ("wide"      , a_cur->wide);
+   DEBUG_EDIT   yLOG_value   ("apos"      , a_cur->apos);
+   /*---(defense)------------------------*/
+   if (x_on != 'y')  return 0;
+   /*---(display)------------------------*/
+   x_edit = SOURCE__color (a_mode);
+   if (myVIKEYS.env == YVIKEYS_CURSES) {
+      SOURCE__curses (a_cur, x_left, x_bott, x_edit);
+   } else {
+      SOURCE__opengl (a_cur, x_left, x_wide, x_bott, x_tall, x_edit);
+   }
+   /*---(complete)-----------------------*/
+   DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
 char
 SOURCE_formula             (void)
 {
-   /*---(locals)-----------+------+----+-*/
-   int         x_left      =     0;
-   int         x_bott      =     0;
-   char        x_edit      =   ' ';
-   char        x_on        =   '-';
-   /*---(get sizes)----------------------*/
-   x_on = yVIKEYS_view_size     (YVIKEYS_FORMULA, &x_left, &s_src.wide, &x_bott, NULL, NULL);
-   s_src.apos = s_src.wide - 6;
-   if (x_on != 'y')  return 0;
-   /*---(display)------------------------*/
-   x_edit = SOURCE__color (YVIKEYS_FORMULA);
-   SOURCE__curses (YVIKEYS_FORMULA, x_left, x_bott, x_edit);
-   /*---(complete)-----------------------*/
+   tEDIT      *x_cur       = NULL;
+   DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
+   x_cur  = &s_src;
+   SOURCE_display (x_cur, YVIKEYS_FORMULA);
+   DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
 char
 SOURCE_command             (void)
 {
-   /*---(locals)-----------+------+----+-*/
-   int         x_left      =     0;
-   int         x_bott      =     0;
-   char        x_edit      =   ' ';
-   char        x_on        =   '-';
-   /*---(get sizes)----------------------*/
-   x_on = yVIKEYS_view_size     (YVIKEYS_COMMAND, &x_left, &s_cmd.wide, &x_bott, NULL, NULL);
-   s_cmd.apos = s_cmd.wide - 6;
-   if (x_on != 'y')  return 0;
-   /*---(display)------------------------*/
-   x_edit = SOURCE__color (YVIKEYS_COMMAND);
-   SOURCE__curses (YVIKEYS_COMMAND, x_left, x_bott, x_edit);
-   /*---(complete)-----------------------*/
-   return 0;
-}
-
-char
-SOURCE_command_OLD         (void)
-{
-   /*---(locals)-----------+------+----+-*/
-   int         x_left, x_bott;
-   char        c           =   ' ';
-   char        x_edit      =   ' ';
-   char        x_beg       =     0;
-   char        x_end       =     0;
-   char        x_len       =     0;
-   char        x_on        =   '-';
-   DEBUG_GRAF   yLOG_note    ("running SOURCE_command");
-   /*---(get sizes)----------------------*/
-   x_on = yVIKEYS_view_size     (YVIKEYS_COMMAND, &x_left, &s_cmd.wide, &x_bott, NULL, NULL);
-   if (x_on != 'y') {
-      if (strchr (":/", MODE_prev ()) == NULL)           return 0;
-      if (strchr (MODES_EDITING, MODE_curr ()) == NULL)  return 0;
-      yVIKEYS_view_size     (YVIKEYS_FLOAT  , &x_left, &s_cmd.wide, &x_bott, NULL, NULL);
-   }
-   s_cmd.apos = s_cmd.wide - 4;
-   /*---(base color)---------------------*/
-   attrset     (0);
-   if (strchr (":/", MODE_curr ()) != NULL)  {
-      yCOLOR_curs ("source" );
-      x_edit = 'y';
-   } else if (strchr (":/", MODE_prev ()) != NULL) {
-      x_edit = 'y';
-      switch (MODE_curr ()) {
-      case SMOD_TEXTREG:   yCOLOR_curs ("source" );  break;
-      case SMOD_REPLACE:   yCOLOR_curs ("replace");  break;
-      case SMOD_INPUT  :   yCOLOR_curs ("input"  );  break;
-      case SMOD_WANDER :   yCOLOR_curs ("wander" );  break;
-      default          :   yCOLOR_curs ("command");  break;
-      }
-   } else {
-      yCOLOR_curs ("command");
-      mvprintw (x_bott, x_left, "%-*.*s", s_cmd.wide, s_cmd.wide, MODE_message ());
-      attrset (0);
-      return 0;
-   }
-   /*---(length)-------------------------*/
-   mvprintw (x_bott, x_left, "%4d", s_cmd.npos);
-   /*---(base content)-------------------*/
-   if (s_cmd.npos == 0)  mvprintw (x_bott, x_left + 5, "%-*.*s", s_cmd.apos, s_cmd.apos, " ");
-   else                  mvprintw (x_bott, x_left + 5, "%-*.*s", s_cmd.apos, s_cmd.apos, s_cmd.contents + s_cmd.bpos);
-   /*---(selection)----------------------*/
-   if (x_edit == 'y' && s_live == SELC_YES && s_cmd.npos > 0) {
-      x_beg = s_bsel;
-      x_end = s_esel;
-      if (x_beg < s_cmd.bpos)  x_beg = s_cmd.bpos;
-      if (x_end > s_cmd.epos)  x_end = s_cmd.epos;
-      x_len = x_end - x_beg + 1;
-      attrset  (0);
-      yCOLOR_curs ("select" );
-      mvprintw (x_bott, x_left + 5 + x_beg - s_cmd.bpos, "%-*.*s", x_len, x_len, s_cmd.contents + x_beg);
-   }
-   /*---(current)------------------------*/
-   if (x_edit == 'y' && s_cmd.npos > 0) {
-      attrset  (0);
-      yCOLOR_curs ("map"    );
-      mvprintw (x_bott, x_left + 5 + s_cmd.cpos - s_cmd.bpos, "%c", s_cmd.contents [s_cmd.cpos]);
-   }
-   /*---(markers)------------------------*/
-   attrset  (0);
-   yCOLOR_curs ("h_used");
-   if      (s_cmd.npos == 0)                c = ' ';
-   else if (s_cmd.bpos > 0)                 c = '<';
-   else                                     c = ']';
-   mvprintw (x_bott, x_left + 4, "%c", c);
-   if      (s_cmd.npos == 0)                c = ' ';
-   else if (s_cmd.epos != s_cmd.npos - 1)   c = '>';
-   else                                     c = '[';
-   mvprintw (x_bott, x_left + s_cmd.wide - 1, "%c", c);
-   /*---(complete)-----------------------*/
+   tEDIT      *x_cur       = NULL;
+   DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
+   x_cur  = &s_cmd;
+   SOURCE_display (x_cur, YVIKEYS_COMMAND);
+   DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -802,18 +823,18 @@ SOURCE__simple          (int a_major, int a_minor)
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    /*---(header)-------------------------*/
-   DEBUG_USER  yLOG_enter   (__FUNCTION__);
-   DEBUG_USER  yLOG_char    ("a_minor"   , a_minor);
+   DEBUG_EDIT  yLOG_enter   (__FUNCTION__);
+   DEBUG_EDIT  yLOG_char    ("a_minor"   , a_minor);
    /*---(defense)------------------------*/
    --rce;  if (a_major != ' ') {
-      DEBUG_USER   yLOG_note    ("a_major was not empty");
-      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      DEBUG_EDIT   yLOG_note    ("a_major was not empty");
+      DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
       return rce;
    }
-   DEBUG_USER  yLOG_info    ("g_hsimple" , g_hsimple);
+   DEBUG_EDIT  yLOG_info    ("g_hsimple" , g_hsimple);
    --rce;  if (strchr (g_hsimple, a_minor) == 0) {
-      DEBUG_USER   yLOG_note    ("a_minor was not a valid option");
-      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      DEBUG_EDIT   yLOG_note    ("a_minor was not a valid option");
+      DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
       return rce;
    }
    /*---(prepare)------------------------*/
@@ -830,7 +851,7 @@ SOURCE__simple          (int a_major, int a_minor)
    /*---(wrapup)-------------------------*/
    SOURCE__done  ();
    /*---(complete)--------------------*/
-   DEBUG_USER  yLOG_exit    (__FUNCTION__);
+   DEBUG_EDIT  yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -841,18 +862,18 @@ SOURCE__goto       (int a_major, int a_minor)
    char        rce         =  -10;
    int         x_qtr       =    0;
    /*---(header)-------------------------*/
-   DEBUG_USER  yLOG_enter   (__FUNCTION__);
-   DEBUG_USER  yLOG_char    ("a_minor"   , a_minor);
+   DEBUG_EDIT  yLOG_enter   (__FUNCTION__);
+   DEBUG_EDIT  yLOG_char    ("a_minor"   , a_minor);
    /*---(defense)------------------------*/
    --rce;  if (a_major != 'g') {
-      DEBUG_USER   yLOG_note    ("a_major was not g (goto)");
-      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      DEBUG_EDIT   yLOG_note    ("a_major was not g (goto)");
+      DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
       return rce;
    }
-   DEBUG_USER  yLOG_info    ("g_hgoto"  , g_hgoto);
+   DEBUG_EDIT  yLOG_info    ("g_hgoto"  , g_hgoto);
    --rce;  if (strchr (g_hgoto, a_minor) == 0) {
-      DEBUG_USER   yLOG_note    ("a_minor was not a valid option");
-      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      DEBUG_EDIT   yLOG_note    ("a_minor was not a valid option");
+      DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
       return rce;
    }
    /*---(prepare)------------------------*/
@@ -873,7 +894,7 @@ SOURCE__goto       (int a_major, int a_minor)
    /*---(wrapup)-------------------------*/
    SOURCE__done  ();
    /*---(complete)--------------------*/
-   DEBUG_USER  yLOG_exit    (__FUNCTION__);
+   DEBUG_EDIT  yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -884,18 +905,18 @@ SOURCE__scroll     (char a_major, char a_minor)
    char        rce         =  -10;
    int         x_qtr       =    0;
    /*---(header)-------------------------*/
-   DEBUG_USER  yLOG_enter   (__FUNCTION__);
-   DEBUG_USER  yLOG_char    ("a_minor"   , a_minor);
+   DEBUG_EDIT  yLOG_enter   (__FUNCTION__);
+   DEBUG_EDIT  yLOG_char    ("a_minor"   , a_minor);
    /*---(defense)------------------------*/
    --rce;  if (a_major != 'z') {
-      DEBUG_USER   yLOG_note    ("a_major was not z (scroll)");
-      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      DEBUG_EDIT   yLOG_note    ("a_major was not z (scroll)");
+      DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
       return rce;
    }
-   DEBUG_USER  yLOG_info    ("g_hscroll" , g_hscroll);
+   DEBUG_EDIT  yLOG_info    ("g_hscroll" , g_hscroll);
    --rce;  if (strchr (g_hscroll, a_minor) == 0) {
-      DEBUG_USER   yLOG_note    ("a_minor was not a valid option");
-      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      DEBUG_EDIT   yLOG_note    ("a_minor was not a valid option");
+      DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
       return rce;
    }
    /*---(prepare)------------------------*/
@@ -912,7 +933,7 @@ SOURCE__scroll     (char a_major, char a_minor)
    /*---(wrapup)-------------------------*/
    SOURCE__done  ();
    /*---(complete)--------------------*/
-   DEBUG_USER  yLOG_exit    (__FUNCTION__);
+   DEBUG_EDIT  yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -927,13 +948,13 @@ SOURCE__word            (int a_major, int a_minor)
    int         x_not       =    0;
    int         x_yes       =    0;
    /*---(header)-------------------------*/
-   DEBUG_USER  yLOG_enter   (__FUNCTION__);
-   DEBUG_USER  yLOG_char    ("a_minor"   , a_minor);
+   DEBUG_EDIT  yLOG_enter   (__FUNCTION__);
+   DEBUG_EDIT  yLOG_char    ("a_minor"   , a_minor);
    /*---(defense)------------------------*/
-   DEBUG_USER  yLOG_info    ("g_hword"   , g_hword);
+   DEBUG_EDIT  yLOG_info    ("g_hword"   , g_hword);
    --rce;  if (strchr (g_hword, a_minor) == 0) {
-      DEBUG_USER   yLOG_note    ("a_minor was not a valid option");
-      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      DEBUG_EDIT   yLOG_note    ("a_minor was not a valid option");
+      DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
       return rce;
    }
    /*---(prepare)------------------------*/
@@ -965,7 +986,7 @@ SOURCE__word            (int a_major, int a_minor)
    /*---(wrapup)-------------------------*/
    SOURCE__done  ();
    /*---(complete)--------------------*/
-   DEBUG_USER  yLOG_exit    (__FUNCTION__);
+   DEBUG_EDIT  yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -1179,7 +1200,7 @@ SOURCE_mode             (int a_major, int a_minor)
       MODE_exit  ();
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return 0;
-   case G_KEY_RETURN :
+   case G_KEY_RETURN : case G_KEY_ENTER  :
       DEBUG_USER   yLOG_note    ("enter, means save and return to previous mode");
       SOURCE__accept ();
       SOURCE__done   ();
@@ -1479,7 +1500,7 @@ REPLACE_smode    (int a_major, int a_minor)
       DEBUG_USER   yLOG_char    ("a_minor"   , a_minor);
    }
    /*---(mode changes)-------------------*/
-   if (a_minor == G_KEY_ESCAPE || a_minor == G_KEY_RETURN) {
+   if (a_minor == G_KEY_ESCAPE || a_minor == G_KEY_RETURN || a_minor == G_KEY_ENTER ) {
       DEBUG_USER   yLOG_note    ("escape/return, return to source mode");
       if (x_append == 'y') {
          s_cur->contents [s_cur->cpos] = '\0';
@@ -1491,7 +1512,7 @@ REPLACE_smode    (int a_major, int a_minor)
       SOURCE__done   ();
       MODE_exit ();
       DEBUG_USER   yLOG_value   ("mode"     , MODE_curr ());
-      if (a_minor == G_KEY_RETURN && strchr (MODES_ONELINE, MODE_curr ()) != NULL) {
+      if ((a_minor == G_KEY_RETURN || a_minor == G_KEY_ENTER) && strchr (MODES_ONELINE, MODE_curr ()) != NULL) {
          DEBUG_USER   yLOG_note    ("fast path back to map mode");
          SOURCE_mode (' ', a_minor);
       }
@@ -1615,14 +1636,14 @@ INPUT_smode             (int  a_major, int  a_minor)
       a_minor = chrslashed (a_minor);
    }
    /*---(mode changes)-------------------*/
-   if (a_minor == G_KEY_ESCAPE || a_minor == G_KEY_RETURN) {
+   if (a_minor == G_KEY_ESCAPE || a_minor == G_KEY_RETURN || a_minor == G_KEY_ENTER ) {
       DEBUG_USER   yLOG_note    ("escape/return, return to source mode");
       for (i = s_cur->cpos; i <= s_cur->npos; ++i)  s_cur->contents[i] = s_cur->contents[i + 1];
       if (a_major == 'a')  --(s_cur->cpos);
       SOURCE__done   ();
       MODE_exit ();
       DEBUG_USER   yLOG_value   ("mode"     , MODE_curr ());
-      if (a_minor == G_KEY_RETURN && strchr (MODES_ONELINE, MODE_curr ()) != NULL) {
+      if ((a_minor == G_KEY_RETURN || a_minor == G_KEY_ENTER) && strchr (MODES_ONELINE, MODE_curr ()) != NULL) {
          DEBUG_USER   yLOG_note    ("fast path back to map mode");
          SOURCE_mode (' ', a_minor);
       }

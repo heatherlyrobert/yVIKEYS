@@ -30,8 +30,6 @@ char  VIEW__layer_set          (char *a_name);
 
 
 
-static char   s_testmode   = '-';
-static char   s_env        = YVIKEYS_NONE;
 static int    s_orig_wide  = 0;
 static int    s_orig_tall  = 0;
 static int    s_main_wide  = 0;
@@ -351,7 +349,7 @@ VIEW_defaults            (cchar a_env)
    /*---(header)----------------------*/
    DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
    DEBUG_GRAF   yLOG_char    ("a_env"     , a_env);
-   s_env = a_env;
+   myVIKEYS.env = a_env;
    /*---(drawers)------------------------*/
    for (n = 0; n < s_npart; ++n) {
       s_parts [n].drawer = NULL;
@@ -454,8 +452,8 @@ VIEW__widths_wide        (cint a_wide, cint a_alt)
    }
    DEBUG_GRAF   yLOG_value   ("x_cum"     , x_cum);
    /*---(variable widths)----------------*/
-   DEBUG_GRAF   yLOG_char    ("s_env"     , s_env);
-   if (s_env == YVIKEYS_OPENGL) {
+   DEBUG_GRAF   yLOG_char    ("s_env"     , myVIKEYS.env);
+   if (myVIKEYS.env == YVIKEYS_OPENGL) {
       s_full_wide = x_cum + a_wide + a_alt;
       for (n = 0; n < s_npart; ++n) {
          /*---(filter)-------------------*/
@@ -538,8 +536,8 @@ VIEW__widths_left        (void)
    n = VIEW__abbr (YVIKEYS_MAIN  );
    x_cum = s_parts [n].left;
    n = VIEW__abbr (YVIKEYS_FLOAT );
-   if (s_env == YVIKEYS_OPENGL )  s_parts [n].left = x_cum + 20;
-   if (s_env == YVIKEYS_CURSES )  s_parts [n].left = x_cum +  2;
+   if (myVIKEYS.env == YVIKEYS_OPENGL )  s_parts [n].left = x_cum + 20;
+   if (myVIKEYS.env == YVIKEYS_CURSES )  s_parts [n].left = x_cum +  2;
    /*---(complete)-----------------------*/
    DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -612,8 +610,8 @@ VIEW__heights_tall       (cint a_tall)
    }
    DEBUG_GRAF   yLOG_value   ("x_cum"     , x_cum);
    /*---(variable heights)---------------*/
-   DEBUG_GRAF   yLOG_char    ("s_env"     , s_env);
-   if (s_env == YVIKEYS_OPENGL) {
+   DEBUG_GRAF   yLOG_char    ("s_env"     , myVIKEYS.env);
+   if (myVIKEYS.env == YVIKEYS_OPENGL) {
       s_full_tall = x_cum + a_tall;
       for (n = 0; n < s_npart; ++n) {
          /*---(filter)-------------------*/
@@ -699,8 +697,8 @@ VIEW__heights_bott       (void)
    n = VIEW__abbr (YVIKEYS_MAIN  );
    x_cum = s_parts [n].bott;
    n = VIEW__abbr (YVIKEYS_FLOAT );
-   if (s_env == YVIKEYS_OPENGL )  s_parts [n].bott = x_cum + 60;
-   if (s_env == YVIKEYS_CURSES )  s_parts [n].bott = x_cum +  6;
+   if (myVIKEYS.env == YVIKEYS_OPENGL )  s_parts [n].bott = x_cum + 60;
+   if (myVIKEYS.env == YVIKEYS_CURSES )  s_parts [n].bott = x_cum +  6;
    /*---(complete)-----------------------*/
    DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -714,7 +712,7 @@ VIEW__heights_flip       (void)
    int         x_tall      =    0;
    /*---(header)-------------------------*/
    DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
-   if (s_env == YVIKEYS_OPENGL) {
+   if (myVIKEYS.env == YVIKEYS_OPENGL) {
       DEBUG_GRAF   yLOG_note    ("not required for opengl");
       DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
       return 0;
@@ -835,8 +833,8 @@ VIEW__resize             (cchar a_type)
    DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
    DEBUG_GRAF   yLOG_char    ("a_type"    , a_type);
    /*---(size window)--------------------*/
-   if (a_type == 'r' && s_env == YVIKEYS_CURSES) {
-      if (s_testmode != 'y')  getmaxyx (stdscr, s_orig_tall, s_orig_wide);
+   if (a_type == 'r' && myVIKEYS.env == YVIKEYS_CURSES) {
+      getmaxyx (stdscr, s_orig_tall, s_orig_wide);
    }
    /*---(widths)-------------------------*/
    DEBUG_GRAF   yLOG_value   ("orig_wide" , s_orig_wide);
@@ -856,9 +854,10 @@ VIEW__resize             (cchar a_type)
       DEBUG_GRAF   yLOG_complex (s_parts [n].name, "xmin %4d, xlen %4d, ymin %4d, ylen %4d, zmin %4d, zlen %4d", s_parts [n].xmin, s_parts [n].xlen, s_parts [n].ymin, s_parts [n].ylen, s_parts [n].zmin, s_parts [n].zlen);
    }
    /*---(size window)--------------------*/
-   if (a_type == 'r' && s_env == YVIKEYS_OPENGL) {
+   if (a_type == 'r' && myVIKEYS.env == YVIKEYS_OPENGL) {
       yX11_resize (s_full_wide, s_full_tall);
    }
+   myVIKEYS.redraw = 'y';
    /*---(update map)---------------------*/
    n = VIEW__abbr (YVIKEYS_MAIN);
    g_xmap.avail = s_parts [n].wide;
@@ -994,6 +993,7 @@ VIEW__switch             (char *a_name, char *a_opt)
    if (x_on != s_parts [n].on) {
       DEBUG_GRAF   yLOG_note    ("must resize");
       VIEW__resize ('r');
+      myVIKEYS.redraw = 'y';
    }
    /*---(complete)-----------------------*/
    DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
@@ -1155,6 +1155,17 @@ VIEW__init_curses       (void)
 }
 
 char
+yVIKEYS_view_font       (cchar a_fixed)
+{
+   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
+   myVIKEYS.font       = a_fixed;
+   myVIKEYS.font_scale = yFONT_width (myVIKEYS.font, myVIKEYS.point);
+   DEBUG_GRAF   yLOG_double  ("font_scale", myVIKEYS.font_scale);
+   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char
 yVIKEYS_view_config     (cchar *a_title, cchar *a_ver, cchar a_env, cint a_wide, cint a_tall, cint a_alt)
 {
    /*---(locals)-----------+-----+-----+-*/
@@ -1214,16 +1225,17 @@ yVIKEYS_view_config     (cchar *a_title, cchar *a_ver, cchar a_env, cint a_wide,
    DEBUG_GRAF   yLOG_value   ("orig_tall" , s_orig_tall);
    DEBUG_GRAF   yLOG_value   ("alt_wide"  , s_alt_wide);
    /*---(open window)--------------------*/
-   if (strcmp ("unit_test", a_title) == 0)  s_testmode = 'y';
-   switch (s_env) {
+   switch (myVIKEYS.env) {
    case YVIKEYS_OPENGL :
       VIEW__init_opengl (a_title);
-      myVIKEYS.font_scale = yFONT_width (myVIKEYS.font, myVIKEYS.point);
       break;
    case YVIKEYS_CURSES :  
-      if (s_testmode != 'y') VIEW__init_curses ();
+      VIEW__init_curses ();
       break;
    }
+   myVIKEYS.font       =  0;
+   myVIKEYS.point      =  9;
+   myVIKEYS.font_scale = 0.0;
    VIEW__layout ("work");
    /*---(set text data)------------------*/
    if (a_title != NULL) {
@@ -1507,7 +1519,7 @@ yVIKEYS_view_setup         (cchar a_part, cchar a_type, cchar a_anchor, cint a_x
 char
 VIEW_wrap               (void)
 {
-   switch (s_env) {
+   switch (myVIKEYS.env) {
    case YVIKEYS_OPENGL :  yX11_end  ();  break;
    case YVIKEYS_CURSES :  endwin    ();  break;
    }
@@ -1616,7 +1628,7 @@ VIEW__cursor             (void)
    int         x_top   = x_bot + (g_gsizey / s_mag);
    char        n           = 0;
    /*---(defense)------------------------*/
-   if (s_env == YVIKEYS_CURSES)   return 0;
+   if (myVIKEYS.env == YVIKEYS_CURSES)   return 0;
    n = VIEW__abbr (YVIKEYS_CURSOR);
    if (s_parts [n].on == '-')  return 0;
    glColor4f    (1.00f, 0.00f, 0.00f, 0.2f);
@@ -1643,7 +1655,7 @@ VIEW__grid_zoom          (void)
    int         y_bot       = 0;
    int         y_tall      = 0;
    /*---(defense)------------------------*/
-   if (s_env == YVIKEYS_CURSES)   return 0;
+   if (myVIKEYS.env == YVIKEYS_CURSES)   return 0;
    n = VIEW__abbr (YVIKEYS_GRID);
    if (s_parts [n].on == '-')  return 0;
    /*---(prepare)------------------------*/
@@ -1700,7 +1712,7 @@ VIEW__grid_normal        (void)
    int         y_inc       = 1;
    int         y_cnt       = 0;
    /*---(defense)------------------------*/
-   if (s_env == YVIKEYS_CURSES)   return 0;
+   if (myVIKEYS.env == YVIKEYS_CURSES)   return 0;
    n = VIEW__abbr (YVIKEYS_GRID);
    if (s_parts [n].on == '-')  return 0;
    /*---(prepare)------------------------*/
@@ -1774,7 +1786,7 @@ VIEW__ribbon             (void)
    int         x_side      =   35;
    int         n           =     0;
    /*---(draw icons)---------------------*/
-   if (s_env == YVIKEYS_CURSES)   return 0;
+   if (myVIKEYS.env == YVIKEYS_CURSES)   return 0;
    n    = VIEW__abbr   (YVIKEYS_RIBBON);
    if (s_parts [n].on == '-')  return 0;
    glPushMatrix    (); {
@@ -1822,7 +1834,7 @@ VIEW__float             (void)
    n    = VIEW__abbr    (YVIKEYS_FLOAT  );
    yVIKEYS_view_coords  (YVIKEYS_FLOAT, &x_lef, &x_len, &x_bot, NULL);
    x_rig = x_lef + x_len;
-   if (s_env == YVIKEYS_OPENGL) {
+   if (myVIKEYS.env == YVIKEYS_OPENGL) {
       DEBUG_GRAF   yLOG_note    ("opengl environment");
       glPushMatrix    (); {
          yVIKEYS_view_color (s_parts [n].color, 1.0);
@@ -2048,7 +2060,7 @@ VIEW__opengl             (char a)
    /*---(setup view)---------------------*/
    DEBUG_GRAF   yLOG_value   ("a"         , a);
    DEBUG_GRAF   yLOG_complex (s_parts [a].name, "bott %4d, left %4d, wide %4d, tall %4d, on %c", s_parts [a].bott, s_parts [a].left, s_parts [a].wide, s_parts [a].tall, s_parts [a].on);
-   if (s_env == YVIKEYS_OPENGL) {
+   if (myVIKEYS.env == YVIKEYS_OPENGL) {
       glViewport      (s_parts [a].left, s_parts [a].bott, s_parts [a].wide, s_parts [a].tall);
       glMatrixMode    (GL_PROJECTION);
       glLoadIdentity  ();
@@ -2067,13 +2079,13 @@ VIEW__opengl             (char a)
             glVertex3f  (s_parts [a].xmin, s_parts [a].ymin, -100.0f);
          } glEnd   ();
       } glPopMatrix   ();
-   } else if (s_env == YVIKEYS_CURSES) {
+   } else if (myVIKEYS.env == YVIKEYS_CURSES) {
       ;;  /* not sure if i need to clear yet  */
    }
    /*---(display text)-------------------*/
    if (s_parts [a].text != NULL && strlen (s_parts [a].text) > 0) {
       DEBUG_GRAF   yLOG_note    ("draw text");
-      if (s_env == YVIKEYS_OPENGL) {
+      if (myVIKEYS.env == YVIKEYS_OPENGL) {
          glPushMatrix    (); {
             if (s_parts [a].orient == 'r') {
                glTranslatef (-1.0f, 5.0f, 0.0f);
@@ -2082,9 +2094,9 @@ VIEW__opengl             (char a)
                glTranslatef ( 3.0f, 1.0f, 0.0f);
             }
             yVIKEYS_view_color_adj (s_parts [a].color, YCOLOR_MIN, 0.8);
-            yFONT_print  (1         ,   9, YF_BOTLEF, s_parts [a].text);
+            yFONT_print  (myVIKEYS.font, myVIKEYS.point, YF_BOTLEF, s_parts [a].text);
          } glPopMatrix   ();
-      } else if (s_env == YVIKEYS_CURSES) {
+      } else if (myVIKEYS.env == YVIKEYS_CURSES) {
          /*  set color --------------*/
          switch (s_parts [a].abbr) {
          case YVIKEYS_TITLE    :
@@ -2133,8 +2145,12 @@ yVIKEYS_view_all         (float a_mag)
    /*---(clear)--------------------------*/
    s_mag = a_mag;
    DEBUG_GRAF   yLOG_double  ("s_mag"     , s_mag);
-   switch (s_env) {
+   switch (myVIKEYS.env) {
    case YVIKEYS_OPENGL :
+      if (myVIKEYS.font_scale <= 0.20) {
+         myVIKEYS.font_scale = yFONT_width (myVIKEYS.font, myVIKEYS.point);
+         DEBUG_GRAF   yLOG_double  ("font_scale", myVIKEYS.font_scale);
+      }
       glClearColor    (1.0f, 1.0f, 1.0f, 1.0f);
       glClear         (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       break;
@@ -2157,7 +2173,7 @@ yVIKEYS_view_all         (float a_mag)
       rc = VIEW__opengl (n);
       if (s_parts [n].drawer != NULL)  s_parts [n].drawer ();
    }
-   if (s_env == YVIKEYS_CURSES)  getyx (stdscr, y_cur, x_cur);
+   if (myVIKEYS.env == YVIKEYS_CURSES)  getyx (stdscr, y_cur, x_cur);
    /*---(on top of main)-----------------*/
    DEBUG_GRAF   yLOG_note    ("overlay screen elements");
    for (n = 0; n < s_npart; ++n) {
@@ -2175,7 +2191,7 @@ yVIKEYS_view_all         (float a_mag)
    }
    /*---(flush)--------------------------*/
    DEBUG_GRAF   yLOG_note    ("flush and show");
-   switch (s_env) {
+   switch (myVIKEYS.env) {
    case YVIKEYS_OPENGL :
       glXSwapBuffers(DISP, BASE);
       glFlush();

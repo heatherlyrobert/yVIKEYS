@@ -301,7 +301,7 @@ REPEAT_umode            (uchar a_major, uchar a_minor)
       return rce;
    }
    /*---(major mode changes)-------------*/
-   if (a_minor == G_KEY_RETURN || a_minor == G_KEY_ESCAPE) {
+   if (a_minor == G_KEY_RETURN || a_minor == G_KEY_ENTER || a_minor == G_KEY_ESCAPE) {
       DEBUG_USER   yLOG_note    ("aborting repeat");
       MODE_exit  ();
       s_repeat = 0;

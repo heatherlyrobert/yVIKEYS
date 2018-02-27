@@ -329,6 +329,7 @@ MACRO_rec_key           (char a_key)
    IF_MACRO_RECORDING {
       switch (a_key) {
       case G_KEY_RETURN  :  a_key  = G_CHAR_RETURN;  break;  /* return char           */
+      case G_KEY_ENTER   :  a_key  = G_CHAR_RETURN;  break;  /* return char           */
       case G_KEY_ESCAPE  :  a_key  = G_CHAR_ESCAPE;  break;  /* escape char           */
       case G_KEY_TAB     :  a_key  = G_CHAR_TAB;     break;  /* tab char              */
       case G_KEY_BS      :  a_key  = G_CHAR_BS;      break;  /* backspace char        */
@@ -634,7 +635,7 @@ MACRO_exec_player       (char a_key)
       DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
       return -1;
       break;
-   case G_KEY_RETURN :
+   case G_KEY_RETURN : case G_KEY_ENTER  :
       DEBUG_SCRP   yLOG_note    ("return");
       SET_MACRO_RUN;
       DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
@@ -676,7 +677,7 @@ MACRO_smode             (char a_major, char a_minor)
       return rce;
    }
    /*---(mode changes)-------------------*/
-   if (a_minor == G_KEY_ESCAPE || a_minor == G_KEY_RETURN) {
+   if (a_minor == G_KEY_ESCAPE || a_minor == G_KEY_RETURN || a_minor == G_KEY_ENTER ) {
       DEBUG_USER   yLOG_note    ("escape/return, nothing to do");
       MODE_exit  ();
       MACRO_reset       ();

@@ -31,8 +31,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.8d"
-#define YVIKEYS_VER_TXT   "combined formula and command ncurses display to simplify"
+#define YVIKEYS_VER_NUM   "0.8e"
+#define YVIKEYS_VER_TXT   "adapted formula and command to show in opengl"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -58,9 +58,10 @@ struct cSHARED {
    /*---(marks)-----------*/
    char        mark_show;      /* show temporary marks (y/n)                    */
    /*---(font)------------*/
-   int         font;
-   int         point;
-   int         font_scale;
+   char        env;                         /* opengl vs ncurses              */
+   int         font;                        /* yFONT font identifier          */
+   int         point;                       /* yFONT font point to use        */
+   float       font_scale;                  /* width of char in opengl coords */
    /*---(file hanndling)--*/
    char        f_loc       [LEN_RECD];      /* specific file location         */
    char        f_name      [LEN_RECD];      /* full file name                 */
