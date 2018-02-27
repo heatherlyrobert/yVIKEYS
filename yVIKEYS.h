@@ -48,11 +48,15 @@
 /*---(sub-modes)--------------s----------*/
 #define     SMOD_REPEAT    '9'    /* accumulate multiplier                    */
 #define     SMOD_ERROR     'e'    /* error reporting and actions              */
-#define     SMOD_SELECT    's'    /* visual selection of chars in source mode */
+
 #define     SMOD_REPLACE   'r'    /* replacing characters in source mode      */
 #define     SMOD_REGISTER  '"'    /* register actions                         */
 #define     SMOD_TEXTREG   't'    /* text register actions                    */
 #define     SMOD_INPUT     'i'    /* direct input of text                     */
+
+#define     SMOD_MUNDO     'm'    /* incremental map change undo/redo         */
+#define     SMOD_SUNDO     's'    /* incremental text change undo/redo        */
+
 #define     SMOD_BUFFER    ','    /* selecting buffers                        */
 #define     SMOD_WANDER    'w'    /* formula creation by pointing             */
 #define     SMOD_FORMAT    '$'    /* content formatting                       */

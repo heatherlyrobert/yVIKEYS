@@ -31,8 +31,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.8e"
-#define YVIKEYS_VER_TXT   "adapted formula and command to show in opengl"
+#define YVIKEYS_VER_NUM   "0.8f"
+#define YVIKEYS_VER_TXT   "very simple source text undo/redo for clears"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -183,6 +183,9 @@ char*       MAP__unit               (char *a_question, char a_index);
 char        MAP__unit_ymap          (void);
 char        MAP__unit_xmap          (void);
 
+char        SUNDO_status            (char *a_list);
+char        SUNDO__redo             (void);
+char        SUNDO__undo             (void);
 char*       SOURCE_label            (void);
 char        SOURCE_init             (void);
 char        SOURCE_other            (char a_type);

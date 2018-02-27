@@ -77,6 +77,154 @@ static char    (*s_saver) (char *a_contents);
 
 
 
+#define     MAX_SUNDO      1000
+typedef struct cSUNDO  tSUNDO;
+struct cSUNDO {
+   int         seq;
+   char        action;
+   int         cpos;
+   uchar       before;
+   uchar       after;
+};
+static tSUNDO s_sundos  [MAX_SUNDO];
+
+static int    s_nsundo    =  0;
+static int    s_csundo    = -1;
+static int    s_nseq      = -1;
+
+
+
+/*====================------------------------------------====================*/
+/*===----                        undo and redo                         ----===*/
+/*====================------------------------------------====================*/
+static void  o___UNDO_REDO_______o () { return; }
+
+char
+SUNDO_status            (char *a_list)
+{
+   char        rce         =  -10;
+   int         i           =    0;
+   int         x_beg       =    0;
+   int         x_end       =    0;
+   char        t           [LEN_LABEL];
+   /*---(defenses)--------------------*/
+   --rce;  if (a_list  == NULL) return rce;
+   /*---(fast path)-------------------*/
+   if (s_nsundo == 0) {
+      sprintf (a_list, "%3dn, %3dc", s_nsundo, s_csundo);
+      return 0;
+   }
+   /*---(prepare)---------------------*/
+   x_end = s_nsundo;
+   x_beg = x_end - 10;
+   if (x_beg < 0)  x_beg = 0;
+   /*---(write line)------------------*/
+   sprintf (a_list, "%3dn, %3dc, ", s_nsundo, s_csundo);
+   for (i = x_beg; i < x_end; ++i) {
+      sprintf (t, "%d%c%d%c%c,", s_sundos [i].seq, s_sundos [i].action, s_sundos [i].cpos, chrvisible (s_sundos [i].before), s_sundos [i].after);
+      strlcat (a_list, t, LEN_RECD);
+   }
+   /*---(complete)--------------------*/
+   return 0;
+}
+
+char
+SUNDO__purge            (void)
+{
+   int         i           =    0;
+   for (i = 0; i < MAX_SUNDO; ++i) {
+      s_sundos [i].seq    = -1;
+      s_sundos [i].action = '-';
+      s_sundos [i].cpos   = -1;
+      s_sundos [i].before = '-';
+      s_sundos [i].after  = '-';
+   }
+   s_nsundo =  0;
+   s_csundo = -1;
+   s_nseq   = -1;
+   return 0;
+}
+
+char
+SUNDO__beg              (char *a_function)
+{
+   return 0;
+}
+
+char
+SUNDO__end              (char *a_function)
+{
+   ++s_nseq;
+}
+
+char
+SUNDO__add              (char a_action, int a_pos, char a_before, char a_after)
+{
+   s_csundo = s_nsundo;
+   s_sundos [s_csundo].seq    = s_nseq;
+   s_sundos [s_csundo].action = a_action;
+   s_sundos [s_csundo].cpos   = a_pos;
+   s_sundos [s_csundo].before = chrvisible (a_before);
+   s_sundos [s_csundo].after  = chrvisible (a_after);
+   ++s_nsundo;
+   return 0;
+}
+
+char
+SUNDO__undo             (void)
+{
+   char        rce         =  -10;
+   DEBUG_EDIT   yLOG_senter  (__FUNCTION__);
+   DEBUG_EDIT   yLOG_sint    (s_nsundo);
+   DEBUG_EDIT   yLOG_sint    (s_csundo);
+   --rce;  if (s_nsundo <= 0) {
+      DEBUG_EDIT   yLOG_snote   ("stack too small");
+      DEBUG_EDIT   yLOG_sexitr  (__FUNCTION__, rce);
+      return rce;
+   }
+   --rce;  if (s_csundo <  0) {
+      DEBUG_EDIT   yLOG_snote   ("current too small");
+      DEBUG_EDIT   yLOG_sexitr  (__FUNCTION__, rce);
+      return rce;
+   }
+   s_cur->cpos = s_sundos [s_csundo].cpos;
+   DEBUG_EDIT   yLOG_value   ("cpos"      , s_cur->cpos);
+   s_cur->contents [s_cur->cpos] = chrworking (s_sundos [s_csundo].before);
+   DEBUG_EDIT   yLOG_schar   (s_sundos [s_csundo].after);
+   --s_csundo;
+   DEBUG_EDIT   yLOG_sint    (s_csundo);
+   DEBUG_EDIT   yLOG_sexit   (__FUNCTION__);
+   return 0;
+}
+
+char
+SUNDO__redo             (void)
+{
+   char        rce         =  -10;
+   DEBUG_EDIT   yLOG_senter  (__FUNCTION__);
+   DEBUG_EDIT   yLOG_sint    (s_nsundo);
+   DEBUG_EDIT   yLOG_sint    (s_csundo);
+   --rce;  if (s_csundo < -1) {
+      DEBUG_EDIT   yLOG_snote   ("current too small");
+      DEBUG_EDIT   yLOG_sexitr  (__FUNCTION__, rce);
+      return rce;
+   }
+   --rce;  if (s_csundo >= s_nsundo - 1) {
+      DEBUG_EDIT   yLOG_snote   ("current is too big");
+      DEBUG_EDIT   yLOG_sexitr  (__FUNCTION__, rce);
+      return rce;
+   }
+   ++s_csundo;
+   DEBUG_EDIT   yLOG_sint    (s_csundo);
+   s_cur->cpos = s_sundos [s_csundo].cpos;
+   DEBUG_EDIT   yLOG_value   ("cpos"      , s_cur->cpos);
+   s_cur->contents [s_cur->cpos] = chrworking (s_sundos [s_csundo].after);
+   DEBUG_EDIT   yLOG_schar   (s_sundos [s_csundo].after);
+   DEBUG_EDIT   yLOG_sexit   (__FUNCTION__);
+   return 0;
+}
+
+
 /*====================------------------------------------====================*/
 /*===----                       support functions                      ----===*/
 /*====================------------------------------------====================*/
@@ -106,6 +254,7 @@ SOURCE__accept          (void)
    s_root  = s_bsel  = s_esel  = 0;
    s_live  = SELC_NOT;
    s_ctreg = s_wtreg = '"';
+   SUNDO__purge ();
    return 0;
 }
 
@@ -118,10 +267,12 @@ SOURCE__reset           (void)
       strlcpy (s_cur->original, "", LEN_RECD);
       break;
    }
+   strlcpy (s_cur->contents, s_cur->original, LEN_RECD);
    s_cur->npos  = s_cur->bpos  = s_cur->cpos  = s_cur->epos  = 0;
    s_root  = s_bsel  = s_esel  = 0;
    s_live  = SELC_NOT;
    s_ctreg = s_wtreg = '"';
+   SUNDO__purge ();
    return 0;
 }
 
@@ -495,25 +646,34 @@ SOURCE__color           (char a_display)
    /*---(locals)-----------+------+----+-*/
    char        x_edit      =   '-';
    char        x_code      =   '-';
+   /*---(header)-------------------------*/
+   DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
+   DEBUG_EDIT   yLOG_char    ("a_display" , a_display);
+   DEBUG_EDIT   yLOG_char    ("MODE_curr" , MODE_curr ());
+   DEBUG_EDIT   yLOG_char    ("MODE_prev" , MODE_prev ());
    /*---(fast-track formula)-------------*/
    if (a_display == YVIKEYS_FORMULA) {
       if (MODE_curr () != MODE_SOURCE && MODE_prev () != MODE_SOURCE)  {
+         DEBUG_EDIT   yLOG_note    ("formula fast track");
          x_code = 'm';
       }
    }
    /*---(fast-track command)-------------*/
    if (a_display == YVIKEYS_COMMAND) {
       if (strchr (":/", MODE_curr ()) == NULL && strchr (":/", MODE_prev ()) == NULL) {
+         DEBUG_EDIT   yLOG_note    ("command fast track");
          x_code = 'c';
       }
    }
    /*---(check focused)------------------*/
    if (x_code == '-' && strchr (MODES_ONELINE, MODE_curr ()) != NULL)  {
+      DEBUG_EDIT   yLOG_note    ("current source mode");
       x_edit = 'y';
       x_code = 's';
    }
    /*---(check editing)------------------*/
    else if (x_code == '-' && strchr (MODES_ONELINE, MODE_prev ()) != NULL)  {
+      DEBUG_EDIT   yLOG_note    ("sub-mode editing");
       x_edit = 'y';
       switch (MODE_curr ()) {
       case SMOD_TEXTREG : x_code = 't';  break;
@@ -525,11 +685,13 @@ SOURCE__color           (char a_display)
    }
    /*---(just a safety)------------------*/
    else if (x_code == '-') {
+      DEBUG_EDIT   yLOG_note    ("catch for mistakes");
       x_code = 'e';
    }
    /*---(set curses color)---------------*/
    attrset     (0);
    if (myVIKEYS.env == YVIKEYS_CURSES) {
+      DEBUG_EDIT   yLOG_note    ("assign a ncurses color");
       switch (x_code) {
       case  'm' :  yCOLOR_curs ("map"    );  break;
       case  's' :  yCOLOR_curs ("source" );  break;
@@ -544,6 +706,7 @@ SOURCE__color           (char a_display)
    }
    /*---(set opengl color)---------------*/
    else {
+      DEBUG_EDIT   yLOG_note    ("assign a opengl color");
       switch (x_code) {
       case  'm' :  glColor4f   (0.5, 0.5, 0.5, 1.0);  break;
       case  'c' :  glColor4f   (0.5, 0.5, 0.5, 1.0);  break;
@@ -558,6 +721,8 @@ SOURCE__color           (char a_display)
    }
 
    /*---(complete)-----------------------*/
+   DEBUG_EDIT   yLOG_char    ("x_edit"    , x_edit);
+   DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
    return x_edit;
 }
 
@@ -570,20 +735,20 @@ SOURCE__opengl          (tEDIT *a_cur, int a_left, int a_wide, int a_bott, int a
    char        c2          =  ' ';
    float       x_beg       =    0;
    float       x_end       =    0;
-   /*---(color)--------------------------*/
-   /*> yVIKEYS_view_color (YCOLOR_WARNING, 1.0);                                      <*/
-   /*> glColor4f   (1.0, 0.0, 0.0, 1.0);                                              <*/
+   /*---(header)-------------------------*/
+   DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
    /*---(fast path for command)----------*/
    if (a_cur->type == EDIT_CMDS && a_edit != 'y') {
+      DEBUG_EDIT   yLOG_note    ("fast path to display mode message");
       glPushMatrix    (); {
          glTranslatef ( 0.0f, 1.0f, 0.0f);
          glColor4f   (0.0, 0.0, 0.0, 1.0);
          yFONT_print (myVIKEYS.font, myVIKEYS.point, YF_BOTLEF, MODE_message ());
       } glPopMatrix   ();
+      DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
       return 0;
    }
    /*---(background)---------------------*/
-   DEBUG_EDIT   yLOG_note    ("draw background");
    glPushMatrix    (); {
       glBegin         (GL_POLYGON); {
          glVertex3f  (0     , a_tall, -50.0f);
@@ -592,7 +757,6 @@ SOURCE__opengl          (tEDIT *a_cur, int a_left, int a_wide, int a_bott, int a
          glVertex3f  (0     , 0     , -50.0f);
       } glEnd   ();
    } glPopMatrix   ();
-   /*---(select)-------------------------*/
    /*---(selection)----------------------*/
    if (a_edit == 'y' && s_live == SELC_YES && a_cur->npos > 0) {
       x_beg = s_bsel;
@@ -647,6 +811,7 @@ SOURCE__opengl          (tEDIT *a_cur, int a_left, int a_wide, int a_bott, int a
       yFONT_print (myVIKEYS.font, myVIKEYS.point, YF_BOTLEF, t);
    } glPopMatrix   ();
    /*---(complete)-----------------------*/
+   DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -658,9 +823,12 @@ SOURCE__curses          (tEDIT *a_cur, int a_left, int a_bott, char a_edit)
    char        x_end       =    0;
    char        x_len       =    0;
    char        c           =  ' ';
+   /*---(header)-------------------------*/
+   DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
    /*---(fast path for command)----------*/
    if (a_cur->type == EDIT_CMDS && a_edit != 'y') {
       mvprintw (a_bott, a_left, "%-*.*s", a_cur->wide, a_cur->wide, MODE_message ());
+      DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
       return 0;
    }
    /*---(base content)-------------------*/
@@ -697,6 +865,7 @@ SOURCE__curses          (tEDIT *a_cur, int a_left, int a_bott, char a_edit)
       mvprintw (a_bott, a_left + a_cur->wide - 1, "%c", c);
    }
    /*---(complete)-----------------------*/
+   DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -720,10 +889,17 @@ SOURCE_display             (tEDIT *a_cur, char a_mode)
    DEBUG_EDIT   yLOG_char    ("on"        , x_on);
    DEBUG_EDIT   yLOG_value   ("wide"      , a_cur->wide);
    DEBUG_EDIT   yLOG_value   ("apos"      , a_cur->apos);
+   DEBUG_EDIT   yLOG_info    ("contents"  , a_cur->contents);
+   DEBUG_EDIT   yLOG_value   ("npos"      , a_cur->npos);
+   DEBUG_EDIT   yLOG_char    ("type"      , a_cur->type);
    /*---(defense)------------------------*/
-   if (x_on != 'y')  return 0;
+   if (x_on != 'y') {
+      DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
    /*---(display)------------------------*/
    x_edit = SOURCE__color (a_mode);
+   DEBUG_EDIT   yLOG_char    ("x_edit"    , x_edit);
    if (myVIKEYS.env == YVIKEYS_CURSES) {
       SOURCE__curses (a_cur, x_left, x_bott, x_edit);
    } else {
@@ -1024,17 +1200,20 @@ SOURCE__charfind        (uchar a_ch)
 static void  o___ACTIONS_________o () { return; }
 
 char         /*-> process keys for register actions --[ ------ [gz.320.011.02]*/ /*-[01.0000.113.!]-*/ /*-[--.---.---.--]-*/
-TEXTREG__clear        (char a_dir)
+TEXTREG__clear        (char a_action)
 {
    /*---(locals)-----------+-----------+-*/
    int         i           =   0;
    /*---(clear)--------------------------*/
+   SUNDO__beg (__FUNCTION__);
    for (i = s_bsel; i <= s_esel; ++i) {
+      SUNDO__add (a_action, i, s_cur->contents [i], ' ');
       s_cur->contents [i] = ' ';
    }
+   SUNDO__end (__FUNCTION__);
    /*---(reposition)---------------------*/
-   if (a_dir == 'x')  s_cur->cpos += s_esel - s_bsel + 1;
-   else               s_cur->cpos == s_bsel - 1;
+   if (a_action == 'x')  s_cur->cpos = s_esel + 1;
+   else                  s_cur->cpos = s_bsel - 1;
    /*---(complete)-----------------------*/
    return 0;
 }
@@ -1178,7 +1357,7 @@ SOURCE_mode             (int a_major, int a_minor)
    --rce;  if (strchr (MODES_ONELINE, MODE_curr ()) == NULL ) {
       DEBUG_USER   yLOG_note    ("not an acceptable mode");
       MODE_exit  ();
-      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(universal)----------------------*/
@@ -1275,7 +1454,7 @@ SOURCE_mode             (int a_major, int a_minor)
          break;
       }
       /*---(cut/copy/paste)--------------*/
-      if (strchr ("yxdpP", a_minor) != 0) {
+      if (strchr ("yxXdpP", a_minor) != 0) {
          DEBUG_USER   yLOG_note    ("switch to a text register mode");
          s_ctreg = '"';
          MODE_enter (SMOD_TEXTREG);
@@ -1289,11 +1468,21 @@ SOURCE_mode             (int a_major, int a_minor)
       if (strchr (g_hword, a_minor) != 0) {
          rc = SOURCE__word    (a_major, a_minor);
       }
-      /*---(column movement)-------------*/
-      if (a_minor == '|') {
+      /*---(other stuff)-----------------*/
+      switch (a_minor) {
+      case '|' :
          s_cur->cpos = REPEAT_use ();
          rc     = 0;
          SOURCE__done ();
+         break;
+      case 'u' :
+         rc = SUNDO__undo ();
+         SOURCE__done ();
+         break;
+      case 'U' :
+         rc = SUNDO__redo ();
+         SOURCE__done ();
+         break;
       }
    }
    /*---(multi-key)----------------------*/
@@ -1312,6 +1501,7 @@ SOURCE_mode             (int a_major, int a_minor)
    }
    /*---(complete)-----------------------*/
    if (rc < 0) {
+      DEBUG_USER   yLOG_note    ("return code is negative");
       DEBUG_USER   yLOG_exitr   (__FUNCTION__, rc);
       return rc;
    }
@@ -1392,7 +1582,7 @@ TEXTREG_smode           (int a_major, int a_minor)
          TEXTREG__copy   ();
          MODE_exit   ();
          break;
-      case  'x' :
+      case  'x' : case  'X' :
          DEBUG_USER   yLOG_note    ("clear selection text");
          TEXTREG__copy   ();
          TEXTREG__clear  (a_minor);
@@ -1687,6 +1877,7 @@ SOURCE__unit            (char *a_question, char a_reg)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        x_index     =    0;
+   char        t           [LEN_RECD];
    /*---(preprare)-----------------------*/
    strlcpy  (yVIKEYS__unit_answer, "SRC unit         : question not understood", LEN_STR);
    x_index = TEXTREG__index (a_reg);
@@ -1712,6 +1903,10 @@ SOURCE__unit            (char *a_question, char a_reg)
    }
    else if (strcmp (a_question, "textreg"        )   == 0) {
       snprintf (yVIKEYS__unit_answer, LEN_STR, "SRC textreg      : %2d %3d:%-20.20s: %3d %3d %c %s", x_index, s_tregs [x_index].len, s_tregs [x_index].data, s_tregs [x_index].bpos, s_tregs [x_index].epos, s_tregs [x_index].source, s_tregs [x_index].label);
+   }
+   else if (strcmp (a_question, "undo"           )   == 0) {
+      SUNDO_status (t);
+      snprintf (yVIKEYS__unit_answer, LEN_STR, "SRC undo queue   : %-.50s", t);
    }
    /*---(complete)-----------------------*/
    return yVIKEYS__unit_answer;

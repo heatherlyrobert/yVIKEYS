@@ -189,6 +189,7 @@ tOPTION  s_options [MAX_OPTION ] = {
    { YVIKEYS_STATUS  , "treg"         , TEXTREG_status      , "displays contents of treg"   },
    { YVIKEYS_STATUS  , "words"        , SOURCE_status_words , "displays word breaks"        },
    { YVIKEYS_STATUS  , "select"       , SOURCE_status_select, "displays selection status"   },
+   { YVIKEYS_STATUS  , "sundo"        , SUNDO_status        , "source editing undo stack"   },
    { NULL            , ""             , NULL                , ""                            },
 };
 static int  s_noption  = 0;
