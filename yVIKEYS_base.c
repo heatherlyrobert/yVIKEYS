@@ -5,10 +5,8 @@
 
 
 
-static char  s_keylog       [10000];
-static int   s_nkeylog      = 0;
-static char  s_keys         [LEN_LABEL] = "";
-static char  s_display      [LEN_RECD ] = "";
+static char  s_keys       [10000];
+static int   s_nkey      = 0;
 
 
 
@@ -119,7 +117,7 @@ char yVIKEYS_quit            (void) { if (myVIKEYS.done    == 'y') return 1; ret
 char yVIKEYS_error           (void) { if (myVIKEYS.trouble != '-') return 1; return 0; }
 
 char         /*-> tbd --------------------------------[ leaf   [gz.430.151.10]*/ /*-[00.0000.104.!]-*/ /*-[--.---.---.--]-*/
-BASE_key_status    (char *a_msg)
+KEYS_status        (char *a_msg)
 {
    /*---(locals)-----------+-----------+-*/
    char        t           [LEN_RECD];
@@ -127,15 +125,15 @@ BASE_key_status    (char *a_msg)
    int         x_len       = 0;             /* string length                  */
    int         i           = 0;             /* iterator -- keys               */
    int         x_start     = 0;             /* iterator -- keys               */
-   x_len = strlen (s_keylog) - 1;
+   x_len = strlen (s_keys) - 1;
    x_start = x_len - (20 * 5);
    if (x_start < 0) x_start = 0;
-   snprintf (a_msg, 500, "keys (%4d) %-100.100s", s_nkeylog, s_keylog + x_start);
+   snprintf (a_msg, 500, "keys (%4d) %-100.100s", s_nkey, s_keys + x_start);
    return 0;
 }
 
 char         /*-> tbd --------------------------------[ ------ [gz.420.121.11]*/ /*-[01.0000.102.!]-*/ /*-[--.---.---.--]-*/
-BASE__key_logger        (uchar a_key)
+KEYS__logger            (uchar a_key)
 {
    /*---(locals)-----------+-----------+-*/
    char        t           [10];
@@ -143,14 +141,22 @@ BASE__key_logger        (uchar a_key)
    /*---(normal)-------------------------*/
    x_key = chrvisible (a_key);
    sprintf  (t, "%c", x_key);
-   strlcat  (s_keylog, t, 10000);
-   ++s_nkeylog;
+   strlcat  (s_keys, t, 10000);
+   ++s_nkey;
    /*---(macro)--------------------------*/
    IF_MACRO_RECORDING {
       MACRO_rec_key (x_key);
    }
    /*---(complete)-----------------------*/
    return 0;
+}
+
+char         /*-> tbd --------------------------------[ ------ [gz.420.121.11]*/ /*-[01.0000.102.!]-*/ /*-[--.---.---.--]-*/
+KEYS_unique             (void)
+{
+   if (s_nkey < 2)                                  return 1;
+   if (s_keys [s_nkey - 1] == s_keys [s_nkey - 2])  return 0;
+   return 1;
 }
 
 uchar        /*-> gather main loop keyboard input ----[ ------ [gc.D44.233.C7]*/ /*-[02.0000.111.R]-*/ /*-[--.---.---.--]-*/
@@ -168,6 +174,8 @@ yVIKEYS_main_input      (char a_runmode, uchar a_key)
       DEBUG_LOOP   yLOG_exit    (__FUNCTION__);
       return a_key;
    }
+   /*---(fixes)--------------------------*/
+   if (a_key == G_KEY_ENTER)  a_key = G_KEY_RETURN;
    /*---(normal)-------------------------*/
    IF_MACRO_OFF {
       DEBUG_LOOP   yLOG_note    ("normal/macro off");
@@ -200,7 +208,7 @@ yVIKEYS_main_input      (char a_runmode, uchar a_key)
    }
    /*---(record)-------------------------*/
    DEBUG_LOOP   yLOG_note    ("handle keystroke normally");
-   BASE__key_logger (x_ch);
+   KEYS__logger (x_ch);
    /*---(complete)-----------------------*/
    DEBUG_LOOP   yLOG_exit    (__FUNCTION__);
    return x_ch;
@@ -223,6 +231,7 @@ yVIKEYS_main_handle     (uchar a_key)
    int         x_repeat    = 0;             /* store current repeat count     */
    char        x_nomode    = '-';           /* flag illegal mode              */
    uchar       x_key       = ' ';
+   char        x_keys      [LEN_LABEL];
    /*---(header)-------------------------*/
    DEBUG_LOOP   yLOG_enter   (__FUNCTION__);
    DEBUG_LOOP   yLOG_value   ("a_key"     , a_key);
@@ -232,7 +241,7 @@ yVIKEYS_main_handle     (uchar a_key)
       return 0;
    }
    /*---(prepare)------------------------*/
-   myVIKEYS.trouble = '-';
+   myVIKEYS.trouble   = '-';
    x_key = chrworking (a_key);
    /*---(handle count)-------------------*/
    if (MODE_curr () == SMOD_REPEAT) {
@@ -267,16 +276,16 @@ yVIKEYS_main_handle     (uchar a_key)
       /*---(translate unprintable)-------*/
       x_repeat = REPEAT_count ();
       /*> printf ("rc %3d, repeat %2d, major %c, minor %c\n", rc, x_repeat, x_major, x_key);   <*/
-      if      (x_key == 0       )      snprintf (s_keys,   9, "%2d %c%c"  , x_repeat, x_major, G_CHAR_NULL  );
-      else if (x_key == G_KEY_RETURN)  snprintf (s_keys,   9, "%2d %c%c"  , x_repeat, x_major, G_CHAR_RETURN);
-      else if (x_key == G_KEY_ENTER )  snprintf (s_keys,   9, "%2d %c%c"  , x_repeat, x_major, G_CHAR_RETURN);
-      else if (x_key == G_KEY_ESCAPE)  snprintf (s_keys,   9, "%2d %c%c"  , x_repeat, x_major, G_CHAR_ESCAPE);
-      else if (x_key == G_KEY_TAB   )  snprintf (s_keys,   9, "%2d %c%c"  , x_repeat, x_major, G_CHAR_TAB   );
-      else if (x_key == G_KEY_BS    )  snprintf (s_keys,   9, "%2d %c%c"  , x_repeat, x_major, G_CHAR_BS    );
-      else if (x_key == G_KEY_DEL   )  snprintf (s_keys,   9, "%2d %c%c"  , x_repeat, x_major, G_CHAR_BS    );
-      else if (x_key == G_KEY_SPACE )  snprintf (s_keys,   9, "%2d %c%c"  , x_repeat, x_major, G_CHAR_SPACE );
-      else if (x_key <= G_KEY_SPACE )  snprintf (s_keys,   9, "%2d %c%02x", x_repeat, x_major, x_key);
-      else                             snprintf (s_keys,   9, "%2d %c%c"  , x_repeat, x_major, x_key);
+      if      (x_key == 0       )      snprintf (x_keys,   9, "%2d %c%c"  , x_repeat, x_major, G_CHAR_NULL  );
+      else if (x_key == G_KEY_RETURN)  snprintf (x_keys,   9, "%2d %c%c"  , x_repeat, x_major, G_CHAR_RETURN);
+      else if (x_key == G_KEY_ENTER )  snprintf (x_keys,   9, "%2d %c%c"  , x_repeat, x_major, G_CHAR_RETURN);
+      else if (x_key == G_KEY_ESCAPE)  snprintf (x_keys,   9, "%2d %c%c"  , x_repeat, x_major, G_CHAR_ESCAPE);
+      else if (x_key == G_KEY_TAB   )  snprintf (x_keys,   9, "%2d %c%c"  , x_repeat, x_major, G_CHAR_TAB   );
+      else if (x_key == G_KEY_BS    )  snprintf (x_keys,   9, "%2d %c%c"  , x_repeat, x_major, G_CHAR_BS    );
+      else if (x_key == G_KEY_DEL   )  snprintf (x_keys,   9, "%2d %c%c"  , x_repeat, x_major, G_CHAR_BS    );
+      else if (x_key == G_KEY_SPACE )  snprintf (x_keys,   9, "%2d %c%c"  , x_repeat, x_major, G_CHAR_SPACE );
+      else if (x_key <= G_KEY_SPACE )  snprintf (x_keys,   9, "%2d %c%02x", x_repeat, x_major, x_key);
+      else                             snprintf (x_keys,   9, "%2d %c%c"  , x_repeat, x_major, x_key);
       /*---(multiplier)------------------*/
       if (rc >= 0 && x_repeat > 0 && MODE_curr () != SMOD_REPEAT) {
          REPEAT_decrement ();
@@ -284,6 +293,7 @@ yVIKEYS_main_handle     (uchar a_key)
          continue;
       }
       /*---(multiplier)------------------*/
+      REPEAT_done ();
       break;
       /*---(done)------------------------*/
    }
@@ -291,7 +301,7 @@ yVIKEYS_main_handle     (uchar a_key)
    if      (rc == 0)    x_major = ' ';
    else if (rc >  0)    x_major = rc;
    else               { x_major = ' ';  myVIKEYS.trouble = 'y';  REPEAT_reset (); }
-   yVIKEYS_view_text (YVIKEYS_KEYS   , s_keys   );
+   yVIKEYS_view_text (YVIKEYS_KEYS   , x_keys   );
    /*---(save current mode)--------------*/
    x_savemode = MODE_curr ();
    /*---(advance macros)-----------------*/

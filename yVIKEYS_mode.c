@@ -274,11 +274,22 @@ yVIKEYS_mode_change  (char a_mode, char *a_allow, char *a_mesg)
 /*====================------------------------------------====================*/
 static void  o___REPEAT__________o () { return; }
 
+static   int   s_request  = 0;
 static   int   s_repeat   = 0;
+
+char
+REPEAT_done             (void)
+{
+   myVIKEYS.repeating = '-';
+   s_request          = 0;
+   return 0;
+}
 
 char
 REPEAT_reset            (void)
 {
+   myVIKEYS.repeating = '-';
+   s_request      = 0;
    s_repeat       = 0;
    MACRO_zero ();
    return 0;
@@ -300,6 +311,8 @@ REPEAT_umode            (uchar a_major, uchar a_minor)
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return rce;
    }
+   /*---(turn off repeating)--------------------*/
+   myVIKEYS.repeating = '-';
    /*---(major mode changes)-------------*/
    if (a_minor == G_KEY_RETURN || a_minor == G_KEY_ENTER || a_minor == G_KEY_ESCAPE) {
       DEBUG_USER   yLOG_note    ("aborting repeat");
@@ -328,7 +341,8 @@ REPEAT_umode            (uchar a_major, uchar a_minor)
    DEBUG_USER   yLOG_value   ("s_repeat"  , s_repeat);
    --s_repeat;
    if (s_repeat <  0) s_repeat =  0;
-   /*> if (s_repeat > 99) s_repeat = 99;                                              <*/
+   s_request = s_repeat;
+   myVIKEYS.repeating = 'y';
    /*---(complete)-----------------------*/
    MODE_exit  ();
    DEBUG_USER   yLOG_exit    (__FUNCTION__);
@@ -338,7 +352,9 @@ REPEAT_umode            (uchar a_major, uchar a_minor)
 char REPEAT_normal      (void) { if (s_repeat < 1) return 0; else return 1; } 
 char REPEAT_decrement   (void) { if (s_repeat > 0)  --s_repeat; }
 int  REPEAT_count       (void) { return s_repeat; }
+int  REPEAT_original    (void) { return s_request;}
 int  REPEAT_use         (void) { int a = s_repeat; s_repeat = 0; return a; }
+char REPEAT_not         (void) { if (myVIKEYS.repeating == '-')  return 1; if (s_repeat == s_request) return 1; return 0; }
 
 
 

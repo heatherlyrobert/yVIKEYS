@@ -185,7 +185,7 @@ tOPTION  s_options [MAX_OPTION ] = {
    { YVIKEYS_STATUS  , "mode"         , MODE_status         , "display the mode stack"      },
    { YVIKEYS_STATUS  , "xmap"         , MAP_xstatus         , "x-axis position details"     },
    { YVIKEYS_STATUS  , "ymap"         , MAP_ystatus         , "y-axis position details"     },
-   { YVIKEYS_STATUS  , "keys"         , BASE_key_status     , "displays keystroke history"  },
+   { YVIKEYS_STATUS  , "keys"         , KEYS_status         , "displays keystroke history"  },
    { YVIKEYS_STATUS  , "treg"         , TEXTREG_status      , "displays contents of treg"   },
    { YVIKEYS_STATUS  , "words"        , SOURCE_status_words , "displays word breaks"        },
    { YVIKEYS_STATUS  , "select"       , SOURCE_status_select, "displays selection status"   },

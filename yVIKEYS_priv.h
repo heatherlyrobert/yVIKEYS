@@ -31,8 +31,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.8f"
-#define YVIKEYS_VER_TXT   "very simple source text undo/redo for clears"
+#define YVIKEYS_VER_NUM   "0.8g"
+#define YVIKEYS_VER_TXT   "made common editing functions for SOURCE modes, unit tested"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -55,6 +55,7 @@ struct cSHARED {
    char        done;                        /* flag indicating ready to quit  */
    char        trouble;                     /* flag indicating error        0 */
    char        redraw;
+   char        repeating;                   /* note for repeating actions     */
    /*---(marks)-----------*/
    char        mark_show;      /* show temporary marks (y/n)                    */
    /*---(font)------------*/
@@ -143,7 +144,8 @@ char*       VIEW__unit              (char *a_question, char a_index);
 
 
 extern char yVIKEYS__unit_answer [LEN_STR];
-char        BASE_key_status         (char *a_msg);
+char        KEYS_status             (char *a_msg);
+char        KEYS_unique             (void);
 char        BASE__unit_quiet        (void);
 char        BASE__unit_loud         (void);
 char        BASE__unit_end          (void);
@@ -164,11 +166,14 @@ char*       MODE_message              (void);
 char*       MODE__unit                (char *a_question);
 /*---(repeat)---------------*/
 char        REPEAT_reset            (void);
+char        REPEAT_done             (void);
 char        REPEAT_umode            (uchar a_major, uchar a_minor);
 char        REPEAT_normal           (void);
+int         REPEAT_original         (void);
 char        REPEAT_decrement        (void);
 int         REPEAT_count            (void);
 int         REPEAT_use              (void);
+char        REPEAT_not              (void);
 
 char        MAP_init                (void);
 char        MAP__load               (char a_style, tMAPPED *a_map, char a_which);
