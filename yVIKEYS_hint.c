@@ -585,7 +585,7 @@ MARK_status        (char *a_status)
 }
 
 char         /*-> tbd --------------------------------[ leaf   [ge.540.142.30]*/ /*-[01.0000.103.!]-*/ /*-[--.---.---.--]-*/
-MARK__list         (char *a_list)
+yVIKEYS_hint_marklist   (char *a_list)
 {
    /*---(locals)-----------+-----------+-*/
    int         i           = 0;

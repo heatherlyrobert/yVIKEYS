@@ -31,8 +31,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.8h"
-#define YVIKEYS_VER_TXT   "added undo/redo to all source editing functions"
+#define YVIKEYS_VER_NUM   "0.8i"
+#define YVIKEYS_VER_TXT   "really basic visual selection displays nicely with gyges"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -224,7 +224,6 @@ char        MARK__write             (char a_mark);
 char        MARK_writeall           (FILE *a_file);
 char        MARK_read               (char a_mark, char *a_label);
 char        MARK_direct             (char *a_string);
-char        MARK__list              (char *a_list);
 char        MARK__listplus          (char *a_list);
 char        MARK_status             (char *a_status);
 char        MARK_smode              (int a_major, int a_minor);

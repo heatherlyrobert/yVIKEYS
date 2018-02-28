@@ -207,6 +207,13 @@ SUNDO__purge            (int a_start)
 }
 
 char
+SUNDO__chain_next       (void)
+{
+   --s_nseq;
+   return 0;
+}
+
+char
 SUNDO__beg              (char *a_function)
 {
    DEBUG_EDIT   yLOG_senter  (__FUNCTION__);
@@ -1781,8 +1788,9 @@ TEXTREG_smode           (int a_major, int a_minor)
          break;
       case  's' :
          DEBUG_USER   yLOG_note    ("substitute selection text");
-         TEXTREG__delete  ('d');
-         TEXTREG__paste   ('i');
+         TEXTREG__delete   ('d');
+         SUNDO__chain_next ();
+         TEXTREG__paste    ('i');
          MODE_exit   ();
          SOURCE__done    ();
          break;

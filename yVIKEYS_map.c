@@ -26,6 +26,209 @@ char   g_repeat    [LEN_DESC ]   = "123456789";
 
 
 
+static char  s_live;         /* is the selection active: 0=no, 1=yes          */
+
+typedef     struct cVISU    tVISU;
+struct cVISU {
+   int         x_root;
+   int         y_root;
+   int         z_root;
+   int         x_beg;
+   int         y_beg;
+   int         z_beg;
+   int         x_end;
+   int         y_end;
+   int         z_end;
+   /*---(end)----------------------------*/
+};
+static tVISU  s_visu;
+static tVISU  s_save;
+
+#define     VISU_NOT       0
+#define     VISU_YES       1
+
+
+
+char
+MAP__current            (int *a_x, int *a_y, int *a_z)
+{
+   if (a_x != NULL)  *a_x = g_xmap.gcur;
+   if (a_y != NULL)  *a_y = g_ymap.gcur;
+   if (a_z != NULL)  *a_z = g_zmap.gcur;
+   return 0;
+}
+
+
+/*====================------------------------------------====================*/
+/*===----                            history                           ----===*/
+/*====================------------------------------------====================*/
+static void  o___HISTORY_________o () { return; }
+
+char         /*-> save the selection -----------------[ leaf   [gz.742.001.00]*/ /*-[00.0000.023.!]-*/ /*-[--.---.---.--]-*/
+VISU__save          (void)
+{
+   /*---(header)-------------------------*/
+   DEBUG_VISU   yLOG_senter  (__FUNCTION__);
+   /*---(status)-------------------------*/
+   DEBUG_VISU   yLOG_snote   ("status");
+   s_live  = VISU_NOT;
+   DEBUG_VISU   yLOG_snote   ("orig");
+   s_save.x_root  = s_visu.x_root;
+   s_save.y_root  = s_visu.y_root;
+   s_save.z_root  = s_visu.z_root;
+   DEBUG_VISU   yLOG_snote   ("beg");
+   s_save.x_beg   = s_visu.x_beg;
+   s_save.y_beg   = s_visu.y_beg;
+   s_save.z_beg   = s_visu.z_beg;
+   DEBUG_VISU   yLOG_snote   ("end");
+   s_save.x_end   = s_visu.x_end;
+   s_save.y_end   = s_visu.y_end;
+   s_save.z_end   = s_visu.z_end;
+   /*---(complete)-----------------------*/
+   DEBUG_VISU   yLOG_sexit   (__FUNCTION__);
+   return 0;
+}
+
+char         /*-> restore the selection --------------[ ------ [gz.852.001.02]*/ /*-[00.0000.103.!]-*/ /*-[--.---.---.--]-*/
+VISU__restore       (void)
+{
+   /*---(header)-------------------------*/
+   DEBUG_VISU   yLOG_senter  (__FUNCTION__);
+   /*---(status)-------------------------*/
+   DEBUG_VISU   yLOG_snote   ("status");
+   s_live  = VISU_YES;
+   DEBUG_VISU   yLOG_snote   ("orig");
+   s_visu.z_root  = s_save.z_root;
+   s_visu.x_root  = s_save.x_root;
+   s_visu.y_root  = s_save.y_root;
+   DEBUG_VISU   yLOG_snote   ("beg");
+   s_visu.z_beg   = s_save.z_beg;
+   s_visu.x_beg   = s_save.x_beg;
+   s_visu.y_beg   = s_save.y_beg;
+   DEBUG_VISU   yLOG_snote   ("end");
+   s_visu.z_end   = s_save.z_end;
+   s_visu.x_end   = s_save.x_end;
+   s_visu.y_end   = s_save.y_end;
+   /*---(complete)-----------------------*/
+   DEBUG_VISU   yLOG_sexit   (__FUNCTION__);
+   return 0;
+}
+
+char         /*-> clear the selection ----------------[ ------ [gz.742.001.13]*/ /*-[01.0000.743.A]-*/ /*-[--.---.---.--]-*/
+VISU__clear         (void)
+{
+   /*---(header)-------------------------*/
+   DEBUG_VISU   yLOG_enter   (__FUNCTION__);
+   /*---(backup)-------------------------*/
+   VISU__save   ();
+   s_live  = VISU_NOT;
+   s_visu.x_root  = s_visu.x_beg   = s_visu.x_end   = 0;
+   s_visu.y_root  = s_visu.y_beg   = s_visu.y_end   = 0;
+   s_visu.z_root  = s_visu.z_beg   = s_visu.z_end   = 0;
+   /*---(complete)-----------------------*/
+   DEBUG_VISU   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char         /*-> clear all selections ---------------[ shoot  [gz.311.001.02]*/ /*-[00.0000.102.!]-*/ /*-[--.---.---.--]-*/
+VISU_init          (void)
+{
+   /*---(header)-------------------------*/
+   DEBUG_VISU   yLOG_enter   (__FUNCTION__);
+   /*---(selection)----------------------*/
+   VISU__clear   ();
+   VISU__save    ();
+   /*---(complete)-----------------------*/
+   DEBUG_VISU   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+
+
+/*====================------------------------------------====================*/
+/*===----                            setting                           ----===*/
+/*====================------------------------------------====================*/
+static void  o___SETTING_________o () { return; }
+
+char         /*-> adjust the visual selection --------[ ------ [ge.760.324.D2]*/ /*-[01.0000.015.X]-*/ /*-[--.---.---.--]-*/
+VISU__update       (void)
+{
+   /*---(locals)-----------+-----------+-*/
+   char        rce         = -10;
+   int         x, y, z;
+   /*---(prepare)------------------------*/
+   MAP__current  (&x, &y, &z);
+   /*---(not-live)-----------------------*/
+   if (s_live == VISU_NOT) {
+      s_visu.x_root  = s_visu.x_beg   = s_visu.x_end   = x;
+      s_visu.y_root  = s_visu.y_beg   = s_visu.y_end   = y;
+      s_visu.z_root  = s_visu.z_beg   = s_visu.z_end   = z;
+      return 0;
+   }
+   /*---(x)------------------------------*/
+   if (x < s_visu.x_root) {
+      s_visu.x_beg  = x;
+      s_visu.x_end  = s_visu.x_root;
+   } else {
+      s_visu.x_beg  = s_visu.x_root;
+      s_visu.x_end  = x;
+   }
+   /*---(y)------------------------------*/
+   if (y < s_visu.y_root) {
+      s_visu.y_beg  = y;
+      s_visu.y_end  = s_visu.y_root;
+   } else {
+      s_visu.y_beg  = s_visu.y_root;
+      s_visu.y_end  = y;
+   }
+   /*---(z)------------------------------*/
+   if (z < s_visu.z_root) {
+      s_visu.z_beg  = z;
+      s_visu.z_end  = s_visu.z_root;
+   } else {
+      s_visu.z_beg  = s_visu.z_root;
+      s_visu.z_end  = z;
+   }
+   /*---(complete)-----------------------*/
+   return 0;
+}
+
+char
+yVIKEYS_root            (int x, int y, int z)
+{
+   if (x != s_visu.x_root)  return 0;
+   if (y != s_visu.y_root)  return 0;
+   if (z != s_visu.z_root)  return 0;
+   return 1;
+}
+
+char
+yVIKEYS_visual          (int x, int y, int z)
+{
+   if (x <  s_visu.x_beg)  return 0;
+   if (x >  s_visu.x_end)  return 0;
+   if (y <  s_visu.y_beg)  return 0;
+   if (y >  s_visu.y_end)  return 0;
+   if (z <  s_visu.z_beg)  return 0;
+   if (z >  s_visu.z_end)  return 0;
+   return 1;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 char         /*-> call host to update maps -----------[ ------ [gc.D44.233.C7]*/ /*-[02.0000.111.R]-*/ /*-[--.---.---.--]-*/
 MAP_reposition       (void)
 {
@@ -642,6 +845,7 @@ MAP__vert             (char a_major, char a_minor)
    x_grid *= g_gsizey;
    DEBUG_MAP   yLOG_value   ("x_grid new", x_grid);
    MAP__move   (x_grid, &g_ymap);
+   VISU__update ();
    MAP__screen (&g_ymap);
    MAP_reposition  ();
    /*> MAP__print (&g_xmap);                                                          <*/
@@ -721,6 +925,7 @@ MAP__horz             (char a_major, char a_minor)
    x_grid *= g_gsizex;
    DEBUG_MAP   yLOG_value   ("x_grid new", x_grid);
    MAP__move   (x_grid, &g_xmap);
+   VISU__update ();
    MAP__screen (&g_xmap);
    MAP_reposition  ();
    /*---(complete)-----------------------*/
@@ -764,17 +969,17 @@ MAP_mode                (char a_major, char a_minor)
       return G_KEY_SPACE;
    }
    /*---(major mode changes)-------------*/
-   if (a_minor == G_KEY_RETURN || a_minor == G_KEY_ENTER) {
+   if (a_minor == G_KEY_RETURN) {
       MODE_enter  (MODE_SOURCE);
       /*> EDIT_pos    ('0');                                                          <*/
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return  0;
    }
-   /*> if (a_minor == G_KEY_ESCAPE) {                                                 <* 
-    *>    VISU_clear ();                                                              <* 
-    *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                   <* 
-    *>    return  0;                                                                  <* 
-    *> }                                                                              <*/
+   if (a_minor == G_KEY_ESCAPE) {
+      VISU__clear ();
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return  0;
+   }
    /*---(single key)---------------------*/
    --rce;
    if (a_major == ' ') {
@@ -791,18 +996,9 @@ MAP_mode                (char a_major, char a_minor)
       }
       /*---(mode switch)-----------------*/
       switch (a_minor) {
-         /*> case 'v'      :                                                             <* 
-          *>    MODE_enter  (MODE_VISUAL);                                       <* 
-          *>    VISU_start  (CTAB, CCOL, CROW, VISU_FROM);                               <* 
-          *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <* 
-          *>    return 0;                                                                <* 
-          *>    break;                                                                   <*/
-         /*> case 'V'      :                                                             <* 
-          *>    MODE_enter  (MODE_VISUAL);                                       <* 
-          *>    VISU_restore ();                                                         <* 
-          *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <* 
-          *>    return 0;                                                                <* 
-          *>    break;                                                                   <*/
+      case 'v'      :
+         s_live = VISU_YES;
+         break;
       case ':'      :
          x_grid = REPEAT_use ();
          if (x_grid > 0) {
@@ -883,12 +1079,12 @@ MAP_mode                (char a_major, char a_minor)
           *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <* 
           *>    return a_minor;  /+ make sure double quote goes in prev char +/          <* 
           *>    break;                                                                   <*/
-         case 'm'      :
-         case '\''     :
-            MODE_enter  (SMOD_MARK    );
-            DEBUG_USER   yLOG_exit    (__FUNCTION__);
-            return a_minor;  /* make sure single quote goes in prev char */
-            break;
+      case 'm'      :
+      case '\''     :
+         MODE_enter  (SMOD_MARK    );
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         return a_minor;  /* make sure single quote goes in prev char */
+         break;
          /*> case 'E'      :                                                             <* 
           *>    MODE_enter  (SMOD_ERROR   );                                     <* 
           *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <* 
@@ -896,16 +1092,6 @@ MAP_mode                (char a_major, char a_minor)
           *>    break;                                                                   <*/
       }
       /*---(normal)----------------------*/
-      /*> if (a_minor == 6) {                                                         <* 
-       *>    rc = KEYS_gz_family  ('g', 'B');                                         <* 
-       *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <* 
-       *>    return 0;                                                                <* 
-       *> }                                                                           <*/
-      /*> if (a_minor == 2) {                                                         <* 
-       *>    rc = KEYS_gz_family  ('g', 'T');                                         <* 
-       *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <* 
-       *>    return 0;                                                                <* 
-       *> }                                                                           <*/
       if (a_minor == 'P') {
          /*> MAP__print (&g_xmap);                                                    <*/
          /*> MAP__print (&g_ymap);                                                    <*/
