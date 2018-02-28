@@ -223,6 +223,8 @@ char        yVIKEYS_view_ribbon       (char *a_cat, char *a_name);
 /*---(map mode)-------------*/
 char        yVIKEYS_map_config        (char a_coord, void *a_mapper);
 char        yVIKEYS_map_refresh       (void);
+char        yVIKEYS_root              (int x, int y, int z);
+char        yVIKEYS_visual            (int x, int y, int z);
 
 char        yVIKEYS_src_config        (void *a_saver);
 char        yVIKEYS_source            (char *a_label, char *a_contents);

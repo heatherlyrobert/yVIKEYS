@@ -44,8 +44,8 @@ struct cVISU {
 static tVISU  s_visu;
 static tVISU  s_save;
 
-#define     VISU_NOT       0
-#define     VISU_YES       1
+#define     VISU_NOT       '-'
+#define     VISU_YES       'y'
 
 
 
@@ -64,7 +64,7 @@ MAP__current            (int *a_x, int *a_y, int *a_z)
 /*====================------------------------------------====================*/
 static void  o___HISTORY_________o () { return; }
 
-char         /*-> save the selection -----------------[ leaf   [gz.742.001.00]*/ /*-[00.0000.023.!]-*/ /*-[--.---.---.--]-*/
+static char  /*-> save the selection -----------------[ leaf   [gz.742.001.00]*/ /*-[00.0000.023.!]-*/ /*-[--.---.---.--]-*/
 VISU__save          (void)
 {
    /*---(header)-------------------------*/
@@ -89,7 +89,7 @@ VISU__save          (void)
    return 0;
 }
 
-char         /*-> restore the selection --------------[ ------ [gz.852.001.02]*/ /*-[00.0000.103.!]-*/ /*-[--.---.---.--]-*/
+static char  /*-> restore the selection --------------[ ------ [gz.852.001.02]*/ /*-[00.0000.103.!]-*/ /*-[--.---.---.--]-*/
 VISU__restore       (void)
 {
    /*---(header)-------------------------*/
@@ -114,35 +114,6 @@ VISU__restore       (void)
    return 0;
 }
 
-char         /*-> clear the selection ----------------[ ------ [gz.742.001.13]*/ /*-[01.0000.743.A]-*/ /*-[--.---.---.--]-*/
-VISU__clear         (void)
-{
-   /*---(header)-------------------------*/
-   DEBUG_VISU   yLOG_enter   (__FUNCTION__);
-   /*---(backup)-------------------------*/
-   VISU__save   ();
-   s_live  = VISU_NOT;
-   s_visu.x_root  = s_visu.x_beg   = s_visu.x_end   = 0;
-   s_visu.y_root  = s_visu.y_beg   = s_visu.y_end   = 0;
-   s_visu.z_root  = s_visu.z_beg   = s_visu.z_end   = 0;
-   /*---(complete)-----------------------*/
-   DEBUG_VISU   yLOG_exit    (__FUNCTION__);
-   return 0;
-}
-
-char         /*-> clear all selections ---------------[ shoot  [gz.311.001.02]*/ /*-[00.0000.102.!]-*/ /*-[--.---.---.--]-*/
-VISU_init          (void)
-{
-   /*---(header)-------------------------*/
-   DEBUG_VISU   yLOG_enter   (__FUNCTION__);
-   /*---(selection)----------------------*/
-   VISU__clear   ();
-   VISU__save    ();
-   /*---(complete)-----------------------*/
-   DEBUG_VISU   yLOG_exit    (__FUNCTION__);
-   return 0;
-}
-
 
 
 /*====================------------------------------------====================*/
@@ -150,7 +121,7 @@ VISU_init          (void)
 /*====================------------------------------------====================*/
 static void  o___SETTING_________o () { return; }
 
-char         /*-> adjust the visual selection --------[ ------ [ge.760.324.D2]*/ /*-[01.0000.015.X]-*/ /*-[--.---.---.--]-*/
+static char  /*-> adjust the visual selection --------[ ------ [ge.760.324.D2]*/ /*-[01.0000.015.X]-*/ /*-[--.---.---.--]-*/
 VISU__update       (void)
 {
    /*---(locals)-----------+-----------+-*/
@@ -193,6 +164,33 @@ VISU__update       (void)
    return 0;
 }
 
+static char  /*-> clear the selection ----------------[ ------ [gz.742.001.13]*/ /*-[01.0000.743.A]-*/ /*-[--.---.---.--]-*/
+VISU__clear         (void)
+{
+   /*---(header)-------------------------*/
+   DEBUG_VISU   yLOG_enter   (__FUNCTION__);
+   /*---(backup)-------------------------*/
+   VISU__save   ();
+   s_live  = VISU_NOT;
+   VISU__update ();
+   /*---(complete)-----------------------*/
+   DEBUG_VISU   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char         /*-> clear all selections ---------------[ shoot  [gz.311.001.02]*/ /*-[00.0000.102.!]-*/ /*-[--.---.---.--]-*/
+VISU_init          (void)
+{
+   /*---(header)-------------------------*/
+   DEBUG_VISU   yLOG_enter   (__FUNCTION__);
+   /*---(selection)----------------------*/
+   VISU__clear   ();
+   VISU__save    ();
+   /*---(complete)-----------------------*/
+   DEBUG_VISU   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
 char
 yVIKEYS_root            (int x, int y, int z)
 {
@@ -214,6 +212,105 @@ yVIKEYS_visual          (int x, int y, int z)
    return 1;
 }
 
+static char
+VISU__reverse           (void)
+{
+   if (s_visu.x_root == s_visu.x_beg) {
+      s_visu.x_root = s_visu.x_end;
+      s_visu.y_root = s_visu.y_end;
+      s_visu.z_root = s_visu.z_end;
+      MAP_jump (s_visu.x_beg, s_visu.y_beg, s_visu.z_beg);
+   } else {
+      s_visu.x_root = s_visu.x_beg;
+      s_visu.y_root = s_visu.y_beg;
+      s_visu.z_root = s_visu.z_beg;
+      MAP_jump (s_visu.x_end, s_visu.y_end, s_visu.z_end);
+   }
+   return 0;
+}
+
+char         /*-> selection active or not ------------[ ------ [gc.B50.00#.D7]*/ /*-[01.0000.104.#]-*/ /*-[--.---.---.--]-*/
+VISU_islive        (void)
+{
+   if (s_live == VISU_YES)  return 1;
+   return 0;
+}
+
+char         /*-> return selection range borders -----[ leaf   [gc.730.107.C0]*/ /*-[01.0000.204.4]-*/ /*-[--.---.---.--]-*/
+VISU_range          (int *a_xbeg, int *a_xend, int *a_ybeg, int *a_yend, int *a_zbeg, int *a_zend)
+{
+   if (a_xbeg != NULL) *a_xbeg = s_visu.x_beg;
+   if (a_xend != NULL) *a_xend = s_visu.x_end;
+   if (a_ybeg != NULL) *a_ybeg = s_visu.y_beg;
+   if (a_yend != NULL) *a_yend = s_visu.y_end;
+   if (a_zbeg != NULL) *a_zbeg = s_visu.z_beg;
+   if (a_zend != NULL) *a_zend = s_visu.z_end;
+   return 0;
+}
+
+char         /*-> return selection range borders -----[ leaf   [gc.730.107.C0]*/ /*-[01.0000.204.4]-*/ /*-[--.---.---.--]-*/
+VISU_set            (int a_xbeg, int a_xend, int a_ybeg, int a_yend, int a_zbeg, int a_zend)
+{
+   s_visu.x_beg = a_xbeg;
+   s_visu.x_end = a_xend;
+   s_visu.y_beg = a_ybeg;
+   s_visu.y_end = a_yend;
+   s_visu.z_beg = a_zbeg;
+   s_visu.z_end = a_zend;
+   return 0;
+}
+
+static char    s_valid = '-';
+static int     s_x = 0;
+static int     s_y = 0;
+static int     s_z = 0;
+
+char
+yVIKEYS_first       (int *a_x, int *a_y, int *a_z)
+{
+   s_x = s_visu.x_beg;
+   s_y = s_visu.y_beg;
+   s_z = s_visu.z_beg;
+   if (a_x != NULL) *a_x = s_x;
+   if (a_y != NULL) *a_y = s_y;
+   if (a_z != NULL) *a_z = s_z;
+   s_valid = 'y';
+   return 0;
+}
+
+char
+yVIKEYS_next        (int *a_x, int *a_y, int *a_z)
+{
+   if (s_valid != 'y')  return -1;
+   ++s_x;
+   if (s_x > s_visu.x_end) {
+      s_x = s_visu.x_beg;
+      ++s_y;
+      if (s_y > s_visu.y_end) {
+         s_y = s_visu.y_beg;
+         ++s_z;
+         if (s_z > s_visu.z_end) {
+            s_valid = '-';
+         }
+      }
+   }
+   if (a_x != NULL) *a_x = s_x;
+   if (a_y != NULL) *a_y = s_y;
+   if (a_z != NULL) *a_z = s_z;
+   return 0;
+}
+
+char
+VISU_status           (char *a_list)
+{
+   if (a_list == NULL)  return -1;
+   sprintf (a_list, "visu   %c   %4dx to %4dx,   %4dy to %4dy,   %4dz to %4dz",
+         s_live,
+         s_visu.x_beg, s_visu.x_end,
+         s_visu.y_beg, s_visu.y_end,
+         s_visu.z_beg, s_visu.z_end);
+   return 0;
+}
 
 
 
@@ -997,7 +1094,8 @@ MAP_mode                (char a_major, char a_minor)
       /*---(mode switch)-----------------*/
       switch (a_minor) {
       case 'v'      :
-         s_live = VISU_YES;
+         if (s_live == VISU_YES)   VISU__reverse ();
+         else                      s_live = VISU_YES;
          break;
       case ':'      :
          x_grid = REPEAT_use ();

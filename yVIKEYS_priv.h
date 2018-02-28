@@ -31,8 +31,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.8i"
-#define YVIKEYS_VER_TXT   "really basic visual selection displays nicely with gyges"
+#define YVIKEYS_VER_NUM   "0.8j"
+#define YVIKEYS_VER_TXT   "visual abilities are ready to begin unit testing"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -187,6 +187,7 @@ char        MAP_status              (char *a_list);
 char*       MAP__unit               (char *a_question, char a_index);
 char        MAP__unit_ymap          (void);
 char        MAP__unit_xmap          (void);
+char        VISU_status             (char *a_list);
 
 char        SUNDO_status            (char *a_list);
 char        SUNDO__redo             (void);
