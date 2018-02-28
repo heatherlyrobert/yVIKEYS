@@ -31,8 +31,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.8g"
-#define YVIKEYS_VER_TXT   "made common editing functions for SOURCE modes, unit tested"
+#define YVIKEYS_VER_NUM   "0.8h"
+#define YVIKEYS_VER_TXT   "added undo/redo to all source editing functions"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/

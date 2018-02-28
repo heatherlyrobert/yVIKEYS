@@ -113,6 +113,7 @@ ONE__delete             (void)
    for (i = s_cur->cpos; i < s_cur->npos; ++i) {
       s_cur->contents [i] = s_cur->contents [i + 1];
    }
+   --s_cur->npos;
    return 0;
 }
 
@@ -129,9 +130,10 @@ static char
 ONE__insert             (char a_key)
 {
    int         i           =   0;
-   for (i = s_cur->npos; i >= s_cur->cpos; --i) {
+   for (i = s_cur->npos + 1; i >= s_cur->cpos; --i) {
       s_cur->contents [i + 1] = s_cur->contents [i];
    }
+   ++s_cur->npos;
    ONE__replace (a_key);
    return 0;
 }
@@ -145,6 +147,7 @@ ONE__append             (char a_key)
       ++s_cur->cpos;
       ONE__insert (a_key);
    }
+   ++s_cur->npos;
    return 0;
 }
 
@@ -241,10 +244,20 @@ SUNDO__add              (char a_action, int a_pos, char a_before, char a_after)
 }
 
 char
+SUNDO__single           (char a_action, char a_before, char a_after)
+{
+   SUNDO__add (a_action, s_cur->cpos, a_before, a_after);
+   return 0;
+}
+
+char
 SUNDO__undo_one         (void)
 {
+   /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
+   /*---(header)-------------------------*/
    DEBUG_EDIT   yLOG_senter  (__FUNCTION__);
+   /*---(defense)------------------------*/
    DEBUG_EDIT   yLOG_sint    (s_nsundo);
    DEBUG_EDIT   yLOG_sint    (s_csundo);
    --rce;  if (s_nsundo <= 0) {
@@ -257,12 +270,27 @@ SUNDO__undo_one         (void)
       DEBUG_EDIT   yLOG_sexitr  (__FUNCTION__, rce);
       return rce;
    }
+   /*---(position)-----------------------*/
    s_cur->cpos = s_sundos [s_csundo].cpos;
    DEBUG_EDIT   yLOG_value   ("cpos"      , s_cur->cpos);
-   s_cur->contents [s_cur->cpos] = chrworking (s_sundos [s_csundo].before);
+   /*---(reverse)------------------------*/
    DEBUG_EDIT   yLOG_schar   (s_sundos [s_csundo].after);
+   switch (s_sundos [s_csundo].action) {
+   case 'x' : case 'X' : case 'r' : case 'R' :
+      ONE__replace (chrworking (s_sundos [s_csundo].before));
+      break;
+   case 'd' :
+      ONE__insert  (chrworking (s_sundos [s_csundo].before));
+      break;
+   case 'i' : case 'a' :
+      ONE__delete  ();
+      break;
+   }
+   DEBUG_EDIT   yLOG_schar   (s_sundos [s_csundo].before);
+   /*---(update)-------------------------*/
    --s_csundo;
    DEBUG_EDIT   yLOG_sint    (s_csundo);
+   /*---(complete)-----------------------*/
    DEBUG_EDIT   yLOG_sexit   (__FUNCTION__);
    return 0;
 }
@@ -296,7 +324,9 @@ SUNDO__redo_one         (void)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
+   /*---(header)-------------------------*/
    DEBUG_EDIT   yLOG_senter  (__FUNCTION__);
+   /*---(defense)------------------------*/
    DEBUG_EDIT   yLOG_sint    (s_nsundo);
    DEBUG_EDIT   yLOG_sint    (s_csundo);
    --rce;  if (s_csundo < -1) {
@@ -309,12 +339,28 @@ SUNDO__redo_one         (void)
       DEBUG_EDIT   yLOG_sexitr  (__FUNCTION__, rce);
       return rce;
    }
+   /*---(update)-------------------------*/
    ++s_csundo;
    DEBUG_EDIT   yLOG_sint    (s_csundo);
+   /*---(position)-----------------------*/
    s_cur->cpos = s_sundos [s_csundo].cpos;
    DEBUG_EDIT   yLOG_value   ("cpos"      , s_cur->cpos);
-   s_cur->contents [s_cur->cpos] = chrworking (s_sundos [s_csundo].after);
+   /*---(reapply)------------------------*/
+   DEBUG_EDIT   yLOG_schar   (s_sundos [s_csundo].before);
+   switch (s_sundos [s_csundo].action) {
+   case 'x' : case 'X' : case 'r' : case 'R' :
+      ONE__replace (chrworking (s_sundos [s_csundo].after));
+      break;
+   case 'd' :
+      ONE__delete  ();
+      break;
+   case 'i' : case 'a' :
+      ONE__insert  (chrworking (s_sundos [s_csundo].after));
+      break;
+   }
+
    DEBUG_EDIT   yLOG_schar   (s_sundos [s_csundo].after);
+   /*---(complete)-----------------------*/
    DEBUG_EDIT   yLOG_sexit   (__FUNCTION__);
    return 0;
 }
@@ -1323,37 +1369,56 @@ TEXTREG__clear        (char a_action)
 {
    /*---(locals)-----------+-----------+-*/
    int         i           =   0;
-   /*---(clear)--------------------------*/
+   /*---(begin)--------------------------*/
    SUNDO__beg (__FUNCTION__);
-   for (i = s_bsel; i <= s_esel; ++i) {
+   /*---(short-path)---------------------*/
+   if (s_live == SELC_NOT && a_action == 'X') {
+      if (s_cur->cpos <= 0)  return -1;
+      --s_cur->cpos;
       SUNDO__add (a_action, i, s_cur->contents [i], ' ');
-      s_cur->contents [i] = ' ';
+      ONE__replace (' ');
+      return 0;
+   }
+   /*---(clear)--------------------------*/
+   else {
+      for (i = s_bsel; i <= s_esel; ++i) {
+         SUNDO__add ('x', i, s_cur->contents [i], G_CHAR_NULL);
+         ONE__replace (' ');
+      }
    }
    SUNDO__end (__FUNCTION__);
    /*---(reposition)---------------------*/
-   if (a_action == 'x')  s_cur->cpos = s_esel + 1;
-   else                  s_cur->cpos = s_bsel - 1;
+   s_cur->cpos = s_esel + 1;
    /*---(complete)-----------------------*/
    return 0;
 }
 
 char         /*-> process keys for register action ---[ ------ [gz.430.031.02]*/ /*-[01.0000.213.!]-*/ /*-[--.---.---.--]-*/
-TEXTREG__delete        (void)
+TEXTREG__delete        (char a_action)
 {
    /*---(locals)-----------+-----------+-*/
    int         x_diff      =   0;
    int         i           =   0;
-   /*---(set size)-----------------------*/
-   x_diff  = s_esel - s_bsel + 1;
-   /*---(delete)-------------------------*/
    SUNDO__beg (__FUNCTION__);
-   for (i = s_bsel; i < s_cur->npos; ++i) {
-      if (i <= s_esel) SUNDO__add ('d', i, s_cur->contents [i], G_CHAR_NULL);
-      s_cur->contents [i] = s_cur->contents [i + x_diff];
-      if (i + x_diff >= s_cur->npos)  break;
+   /*---(short-path)---------------------*/
+   if (s_live == SELC_NOT && a_action == 'D') {
+      if (s_cur->cpos <= 0)  return -1;
+      --s_cur->cpos;
+      SUNDO__add (a_action, i, s_cur->contents [i], G_CHAR_NULL);
+      ONE__delete ();
+      return 0;
+   }
+   else {
+      /*---(set size)-----------------------*/
+      x_diff  = s_esel - s_bsel + 1;
+      /*---(delete)-------------------------*/
+      s_cur->cpos = s_bsel;
+      for (i = 0; i < x_diff; ++i) {
+         SUNDO__add ('d', s_cur->cpos, s_cur->contents [s_cur->cpos], G_CHAR_NULL);
+         ONE__delete ();
+      }
    }
    SUNDO__end (__FUNCTION__);
-   s_cur->cpos = s_bsel;
    /*---(complete)-----------------------*/
    return 0;
 }
@@ -1385,65 +1450,53 @@ TEXTREG__copy          (void)
    return 0;
 }
 
-char         /*-> process keys for register actions --[ ------ [gz.740.061.21]*/ /*-[01.0000.013.!]-*/ /*-[--.---.---.--]-*/
+char         /*-> replace only selection long --------[ ------ [gz.740.061.21]*/ /*-[01.0000.013.!]-*/ /*-[--.---.---.--]-*/
 TEXTREG__replace        (void)
 {
    /*---(locals)-----------+-----------+-*/
    int         x_index     =   0;
-   int         x_gap       =   0;
-   int         x_start     =   0;
-   char        x_null      = '-';
+   int         x_len       =   0;
    int         i           =   0;
    /*---(identify register)--------------*/
    x_index = TEXTREG__index (s_ctreg);
    if (x_index < 0)  return -1;
+   x_len = s_esel - s_bsel + 1;
+   if (x_len > s_tregs [x_index].len)  x_len = s_tregs [x_index].len;
+   s_cur->cpos = s_bsel;
    /*---(set the start)------------------*/
-   x_start = s_cur->cpos;
-   /*---(open)---------------------------*/
-   x_gap   = s_tregs [x_index].len;
-   if (x_start + x_gap >= s_cur->npos)  x_null = 'y';
-   /*---(open)---------------------------*/
-   s_cur->npos   = s_tregs [x_index].len;
-   for (i  = 0; i < s_cur->npos; ++i) {
-      s_cur->contents [i + x_start] = s_tregs [x_index].data [i];
+   SUNDO__beg (__FUNCTION__);
+   for (i = 0; i < x_len; ++i) {
+      SUNDO__add   ('r', s_cur->cpos, s_cur->contents [s_cur->cpos], s_tregs [x_index].data [i]);
+      ONE__replace (s_tregs [x_index].data [i]);
+      ++s_cur->cpos;
    }
-   /*---(final null)---------------------*/
-   if (x_null == 'y') {
-      s_cur->contents [x_start + x_gap + 1] == '\0';
-   }
-   /*---(reposition)---------------------*/
-   s_cur->cpos += s_tregs [x_index].len - 1;
+   SUNDO__end (__FUNCTION__);
    /*---(complete)-----------------------*/
    return 0;
 }
 
-char         /*-> process keys for register actions --[ ------ [gz.640.151.11]*/ /*-[01.0000.213.!]-*/ /*-[--.---.---.--]-*/
+char         /*-> insert/append register contents ----[ ------ [gz.640.151.11]*/ /*-[01.0000.213.!]-*/ /*-[--.---.---.--]-*/
 TEXTREG__paste          (char a_dir)
 {
    /*---(locals)-----------+-----------+-*/
    int         x_index     =   0;
-   int         x_gap       =   0;
-   int         x_start     =   0;
    int         i           =   0;
    /*---(identify register)--------------*/
    x_index = TEXTREG__index (s_ctreg);
    if (x_index < 0)  return -1;
    /*---(set the start)------------------*/
-   x_start = s_cur->cpos;
-   if (a_dir == '>')   ++x_start;
-   /*---(open)---------------------------*/
-   x_gap   = s_tregs [x_index].len;
-   for (i = s_cur->npos; i >= x_start; --i) {
-      s_cur->contents [i + x_gap] = s_cur->contents [i];
-      s_cur->contents [i]         = G_CHAR_PLACE;
+   SUNDO__beg (__FUNCTION__);
+   for (i = 0; i < s_tregs [x_index].len; ++i) {
+      if (a_dir == 'a') {
+         ONE__append (s_tregs [x_index].data [i]);
+         SUNDO__add ('a', s_cur->cpos, G_CHAR_NULL, s_tregs [x_index].data [i]);
+      } else {
+         SUNDO__add ('i', s_cur->cpos, G_CHAR_NULL, s_tregs [x_index].data [i]);
+         ONE__insert (s_tregs [x_index].data [i]);
+         ++s_cur->cpos;
+      }
    }
-   /*---(fill)---------------------------*/
-   s_cur->npos   = s_tregs [x_index].len;
-   for (i  = 0; i < s_cur->npos; ++i) {
-      s_cur->contents [i + x_start] = s_tregs [x_index].data [i];
-   }
-   /*---(reposition)---------------------*/
-   s_cur->cpos += s_tregs [x_index].len - 1;
+   SUNDO__end (__FUNCTION__);
    /*---(complete)-----------------------*/
    return 0;
 }
@@ -1576,7 +1629,7 @@ SOURCE_mode             (int a_major, int a_minor)
          break;
       }
       /*---(cut/copy/paste)--------------*/
-      if (strchr ("yxXdpP", a_minor) != 0) {
+      if (strchr ("yxXdDpP", a_minor) != 0) {
          DEBUG_USER   yLOG_note    ("switch to a text register mode");
          s_ctreg = '"';
          MODE_enter (SMOD_TEXTREG);
@@ -1598,10 +1651,12 @@ SOURCE_mode             (int a_major, int a_minor)
          SOURCE__done ();
          break;
       case 'u' :
+         TEXTREG__reset ();
          rc = SUNDO__undo ();
          SOURCE__done ();
          break;
       case 'U' :
+         TEXTREG__reset ();
          rc = SUNDO__redo ();
          SOURCE__done ();
          break;
@@ -1711,10 +1766,10 @@ TEXTREG_smode           (int a_major, int a_minor)
          MODE_exit   ();
          SOURCE__done    ();
          break;
-      case  'd' :
+      case  'd' : case  'D' :
          DEBUG_USER   yLOG_note    ("delete selection text");
          TEXTREG__copy   ();
-         TEXTREG__delete ();
+         TEXTREG__delete (a_minor);
          MODE_exit   ();
          SOURCE__done    ();
          break;
@@ -1726,21 +1781,21 @@ TEXTREG_smode           (int a_major, int a_minor)
          break;
       case  's' :
          DEBUG_USER   yLOG_note    ("substitute selection text");
-         TEXTREG__delete ();
-         TEXTREG__paste   ('<');
+         TEXTREG__delete  ('d');
+         TEXTREG__paste   ('i');
          MODE_exit   ();
          SOURCE__done    ();
          break;
-      case  'p' :
+      case  'p' : case  'a' :
          DEBUG_USER   yLOG_note    ("paste after selection text");
-         TEXTREG__paste   ('>');
+         TEXTREG__paste   ('a');
          ++s_cur->cpos;
          MODE_exit   ();
          SOURCE__done    ();
          break;
-      case  'P' :
+      case  'P' : case  'i' :
          DEBUG_USER   yLOG_note    ("paste before selection text");
-         TEXTREG__paste   ('<');
+         TEXTREG__paste   ('i');
          MODE_exit   ();
          SOURCE__done    ();
          break;
@@ -1800,6 +1855,7 @@ REPLACE_smode    (int a_major, int a_minor)
       ONE__replace (G_CHAR_PLACE);
       if (x_saved == NULL)  s_cur->contents [s_cur->cpos + 1] = NULL;
       SOURCE__done   ();
+      SUNDO__beg (__FUNCTION__);
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return 0;
    }
@@ -1816,6 +1872,7 @@ REPLACE_smode    (int a_major, int a_minor)
       x_mode  = '-';
       rc = ONE__replace (x_saved);
       MODE_exit ();
+      SUNDO__end (__FUNCTION__);
       DEBUG_USER   yLOG_value   ("mode"     , MODE_curr ());
       if (a_minor == G_KEY_RETURN && strchr (MODES_ONELINE, MODE_curr ()) != NULL) {
          DEBUG_USER   yLOG_note    ("fast path back to map mode");
@@ -1829,6 +1886,7 @@ REPLACE_smode    (int a_major, int a_minor)
       x_mode  = '-';
       rc = ONE__replace (x_saved);
       MODE_exit ();
+      SUNDO__end (__FUNCTION__);
       DEBUG_USER   yLOG_value   ("mode"     , MODE_curr ());
       if (a_minor == G_KEY_RETURN && strchr (MODES_ONELINE, MODE_curr ()) != NULL) {
          DEBUG_USER   yLOG_note    ("fast path back to map mode");
@@ -1841,10 +1899,13 @@ REPLACE_smode    (int a_major, int a_minor)
       x_mode  = '-';
       if (x_prev == '\\') {
          x_prev = '-';
+         SUNDO__single ('r', x_saved, chrslashed (a_minor));
          rc = ONE__replace (chrslashed (a_minor));
       } else {
+         SUNDO__single ('r', x_saved, a_minor);
          rc = ONE__replace (a_minor);
       }
+      SUNDO__end (__FUNCTION__);
       MODE_exit ();
    }
    /*---(handle normal chars)------------*/
@@ -1864,8 +1925,10 @@ REPLACE_smode    (int a_major, int a_minor)
          DEBUG_USER   yLOG_note    ("replace and move right");
          if (x_prev == '\\') {
             x_prev = '-';
+            SUNDO__single ('R', x_saved, chrslashed (a_minor));
             rc = ONE__replace (chrslashed (a_minor));
          } else {
+            SUNDO__single ('R', x_saved, a_minor);
             rc = ONE__replace (a_minor);
          }
          ++s_cur->cpos;
@@ -1893,6 +1956,7 @@ INPUT_smode             (int  a_major, int  a_minor)
    char        rce         =  -10;
    static char x_prev      =  '-';
    char        rc          =    0;
+   static char x_mode      =  '-';
    /*---(header)-------------------------*/
    DEBUG_USER   yLOG_enter   (__FUNCTION__);
    DEBUG_USER   yLOG_char    ("a_major"   , a_major);
@@ -1910,9 +1974,11 @@ INPUT_smode             (int  a_major, int  a_minor)
    /*---(check for initial mark)---------*/
    if (a_major == 'm') {
       DEBUG_USER   yLOG_note    ("mark replacement position and save existing");
+      x_mode  = a_minor;
       if (a_minor == 'a')  ONE__append (G_CHAR_PLACE);
       else                 ONE__insert (G_CHAR_PLACE);
       SOURCE__done   ();
+      SUNDO__beg (__FUNCTION__);
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return 0;
    }
@@ -1926,13 +1992,16 @@ INPUT_smode             (int  a_major, int  a_minor)
    if (x_prev == '\\') {
       DEBUG_USER   yLOG_note    ("converting backsplash character");
       x_prev = '-';
+      SUNDO__single (x_mode, G_CHAR_NULL, chrslashed (a_minor));
       rc = ONE__insert (chrslashed (a_minor));
    }
    /*---(mode changes)-------------------*/
    else if (a_minor == G_KEY_ESCAPE || a_minor == G_KEY_RETURN) {
       DEBUG_USER   yLOG_note    ("escape/return, return to source mode");
+      x_mode  = '-';
       rc = ONE__delete ();
       --s_cur->cpos;
+      SUNDO__end (__FUNCTION__);
       MODE_exit ();
       DEBUG_USER   yLOG_value   ("mode"     , MODE_curr ());
       if (a_minor == G_KEY_RETURN && strchr (MODES_ONELINE, MODE_curr ()) != NULL) {
@@ -1948,6 +2017,7 @@ INPUT_smode             (int  a_major, int  a_minor)
    /*---(handle new character)-----------*/
    else {
       DEBUG_USER   yLOG_note    ("move remaining chars to the right");
+      SUNDO__single (x_mode, G_CHAR_NULL, a_minor);
       rc = ONE__insert (a_minor);
       ++s_cur->cpos;
    }
