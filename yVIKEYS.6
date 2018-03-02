@@ -469,6 +469,7 @@ port from vimperator.
 .SS ---basics---------------------------------------------------------
  ,a         switch to the main editing panel
  ,0         switch file labeled 0 into the current panel
+
 .SS ---overview-------------------------------------------------------
 .B definition (D).  
 buffers and panels are data files/tabs and screen regions respectively.
@@ -530,56 +531,62 @@ potential panel areas.
    :          command line/window
    /          normal search line/window
 
-.SH VISUAL SELECTION (sub-mode)
+
+
+.SH VISUAL ranges and saved selections (micro-mode)
 .SS ---basics---------------------------------------------------------
- v          enter visual selection
- ....y      use movement keys and perform an action, like yank (y)
+ v          start visual selection
+ ....y      change selection then perform a common action, like yank
 .SS ---overview-------------------------------------------------------
 .B definition (D).  
-visual selection is a technique for interactively identifying multiple objects
-for common action or treatment.  it allows quick, accurate, and consistent
-editing and scripting.
+visual selection is a technique for identifying contiguous ranges of objects for
+common action or treatment, as well as saving and retrieving these boundaries
+for later use.
 
 .B value (V).   
 confidently and accurately selecting multiple objects for common treatment
-is critical for increasing speed and accuracy, reducing total effort, and
-driving complex scripting and automation.
+is critical for speed, reliability, and efficiency, as well complex scripting
+and automation.
 
 .B complication (C).  
-visual selection is normally simplistic; and, useful features are omitted or
-implemented differently in almost every application.  good for casual users,
-terrible for advanced users.
+visual selection is normally simplistic, troublesome, and mouse/touch driven;
+and, implemented differently in almost every application.  good for casual
+users, terrible for advanced.
 
 .B answer (A).  
 i will standardize "mostly" on the excellent vim visual selection standard
-and make it absolutely universal, but will update to handle more complex
-volumetric situations.
+and make it absolutely universal, but will update to handle multiples and
+more complex volumetric situations.
 
-.B top five requirements (5) to get it right
-   -- must be quick and easy with simple, standard actions
-   -- multiple modes for contiguous and non-contiguous selection
-   -- should keep a history of selections that can be repeated
-   -- standard/compatible with text selection in source mode
-   -- standard/compatible with non-contiguous selection
+.B top requirements 
+-- fast, easy, powerful, standard, and universal.
 .SS ---full capabilities------------------------------------------------------
-.B invoking...
-   v          start visual selection mode
-   V          start visual mode with previous selection
-   "av        start visual mode with register 'a' source location
-   '*         start visual mode from mark '< to mark '>
-   ¥          return to previous mode
+.B normal selection keys in map mode
+   v          turn on selection
+   ¥          clear selection
+   you remain in map mode, so all movement keys are still available
 
-.B adjustments to selection...
-   all the standard MAP mode actions
-   o          opposite corner to switch start/end of selection
+.B selection saving and retrieving
+   there are 62 possible selections [a-zA-Z0-9]
+   M¢         mark/save the current selection
+   V¢         highlight the saved selection
+   0-9 are usually reserved for scripting (collision avoidance)
 
-.B included map mode actions
-   F f        format sub-mode, applying identically across selected area
-   /          search mode, but only within selected area
-   :          command mode, potentially only on selected area
-   !          filter sub-mode, selection though external filter
-   "          select a register for register actions
-   y x d p    register action using unnamed register
+.B special selections
+   V'         re-select last used visual selection area
+   V*         select all area in current work space
+   V(         select from mark '(' to mark ')'
+
+.B adjustments to selection
+   v          reverses the selection ends to help grow/shrink
+
+.B future possibilities
+   optional labels for saved selections
+
+
+
+
+
 
 .SH OBJECT REGISTERS (sub-mode)
 .SS ---basics---------------------------------------------------------

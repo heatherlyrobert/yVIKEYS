@@ -31,8 +31,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.8k"
-#define YVIKEYS_VER_TXT   "custom format mode called in gyges and works with visual selection"
+#define YVIKEYS_VER_NUM   "0.8l"
+#define YVIKEYS_VER_TXT   "visual marks now write to files (unit tested)"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -193,6 +193,9 @@ char        MAP_current             (int *a_x, int *a_y, int *a_z);
 char        VISU_status             (char *a_list);
 char        VISU_status_saved       (char *a_list);
 char        VISU_smode              (int a_major, int a_minor);
+char        VISU__write             (char a_visu);
+char        VISU_writeall           (FILE *a_file);
+char        VISU_read               (char a_visu, char *a_label);
 char*       VISU__unit              (char *a_question, char a_index);
 
 char        SUNDO_status            (char *a_list);
