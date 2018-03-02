@@ -16,6 +16,9 @@ static char s_mark_pprev  [LEN_LABEL] = "-";
 typedef  struct cMARK  tMARK;
 struct cMARK {
    char        label       [LEN_LABEL];
+   int         x_pos;
+   int         y_pos;
+   int         z_pos;
    char        source;
 };
 tMARK       s_mark_info [S_MAX_MARK];
@@ -268,6 +271,7 @@ MARK__set             (char a_mark)
    /*---(mark label)---------------------*/
    DEBUG_MARK   yLOG_note    ("save current position");
    strlcpy (s_mark_info [x_index].label, SOURCE_label (), LEN_LABEL);
+   if (s_locator != NULL)   s_locator (SOURCE_label (), &s_mark_info [x_index].x_pos, &s_mark_info [x_index].y_pos, &s_mark_info [x_index].z_pos);
    s_mark_info [x_index].source = MARK_USER;
    /*---(set history)--------------------*/
    MARK__history ();
@@ -300,6 +304,9 @@ MARK__unset           (char a_mark)
    DEBUG_MARK   yLOG_note    ("clear values");
    strlcpy (s_mark_info [x_index].label, "-", LEN_LABEL);
    s_mark_info [x_index].source  = MARK_NONE;
+   s_mark_info [x_index].x_pos   = 0;
+   s_mark_info [x_index].y_pos   = 0;
+   s_mark_info [x_index].z_pos   = 0;
    /*---(update range)-------------------*/
    DEBUG_MARK   yLOG_note    ("update the range");
    MARK__range ();
@@ -349,7 +356,7 @@ MARK__return        (char a_mark)
    }
    /*---(move)---------------------------*/
    DEBUG_MARK   yLOG_note    ("jump to mark");
-   HINT__return  (x_label);
+   MAP_jump (s_mark_info [x_index].x_pos, s_mark_info [x_index].y_pos, s_mark_info [x_index].z_pos);
    /*---(set history)--------------------*/
    MARK__history ();
    /*---(complete)-----------------------*/
@@ -684,7 +691,7 @@ MARK__write_head      (FILE *a_file)
    --rce;  if (a_file == NULL)                   return rce;
    /*---(header)-------------------------*/
    fprintf (a_file, "#===[[ LOCATION MARKS ]]=============================================================================================#\n");
-   fprintf (a_file, "#---------  ver  -  ---unique-label----- \n");
+   fprintf (a_file, "#---------  ver  -  ---unique-label-----  --x--  --y--  --z-- \n");
    fflush  (a_file);
    /*---(complete)-----------------------*/
    return 0;
@@ -699,7 +706,7 @@ MARK__write_foot      (FILE *a_file, int a_count)
    --rce;  if (a_file == NULL)                   return rce;
    /*---(header)-------------------------*/
    if (a_count == 0)  fprintf (a_file, "# no location marks\n");
-   else               fprintf (a_file, "#---------  ver  -  ---unique-label----- \n");
+   else               fprintf (a_file, "#---------  ver  -  ---unique-label-----  --x--  --y--  --z-- \n");
    fprintf (a_file, "\n\n\n");
    fflush  (a_file);
    /*---(complete)-----------------------*/
@@ -854,12 +861,12 @@ MARK_smode         (int a_major, int a_minor)
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    char        rc          =    0;
-   char       *x_majors    = "m'@";
+   char       *x_majors    = "m'";
    static char x_prev      =  '-';
    /*---(header)-------------------------*/
    DEBUG_USER   yLOG_enter   (__FUNCTION__);
    DEBUG_USER   yLOG_char    ("a_major"   , a_major);
-   DEBUG_USER   yLOG_char    ("a_minor"   , a_minor);
+   DEBUG_USER   yLOG_char    ("a_minor"   , chrvisible (a_minor));
    DEBUG_USER   yLOG_char    ("x_prev"    , x_prev);
    /*---(defenses)-----------------------*/
    DEBUG_USER   yLOG_char    ("mode"      , MODE_curr ());
@@ -886,7 +893,7 @@ MARK_smode         (int a_major, int a_minor)
    /*> if (a_minor == '*') {                                                          <* 
     *>    DEBUG_USER   yLOG_note    ("enter visual mode from < to >");                <* 
     *>    MODE_exit ();                                                               <* 
-    *>    MODE_enter  (MODE_VISUAL);                                                  <* 
+    *>    MODE_enter  (SMOD_VISUAL);                                                  <* 
     *>    rc = VISU_mark    ();                                                       <* 
     *>    if (rc < 0) {                                                               <* 
     *>       MODE_exit ();                                                            <* 
@@ -975,19 +982,6 @@ MARK_smode         (int a_major, int a_minor)
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return 0;
    }
-   /*---(check for wander)---------------*/
-   /*> --rce;  if (a_major == '@') {                                                  <* 
-    *>    DEBUG_USER   yLOG_note    ("handling wander (@)");                          <* 
-    *>    if (a_minor == G_KEY_RETURN) {                                              <* 
-    *>       MARK__set (x_prev);                                                      <* 
-    *>       MODE_exit ();                                                            <* 
-    *>       DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <* 
-    *>       return 0;                                                                <* 
-    *>    }                                                                           <* 
-    *>    KEYS_basics (' ', a_minor);                                                 <* 
-    *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                   <* 
-    *>    return a_major;                                                             <* 
-    *> }                                                                              <*/
    /*---(failure)------------------------*/
    --rce;
    MODE_exit ();

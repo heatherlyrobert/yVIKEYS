@@ -19,6 +19,8 @@
 static char    s_message  [LEN_RECD];
 
 
+static char    (*s_formatter) (int a_major, int a_minor);
+
 
 /*===[[ FILE-WIDE VARIABLES ]]================================================*/
 static char    s_modes    [MAX_STACK];      /* vi-like mode stack             */
@@ -46,7 +48,7 @@ static tMODE_INFO  s_mode_info [MAX_MODES] = {
    { 'G' , 'y', 'y', "GOD", "god"       , "god-mode allowing 3D omnicient viewing"             , "P"                        ,    0, "linear=LnhHJjkKIioO  rotate=PpaAYytTRrwW"                                                },
    { 'O' , 'y', 'y', "OMN", "omni"      , "omnipotent 3D manipulation mode"                    , "P"                        ,    0, "linear=LnhHJjkKIioO  rotate=PpaAYytTRrwW"                                                },
    { 'P' , 'y', 'y', "PRG", "progress"  , "progress timeline adding time dimension"            , ""                         ,    0, "horz=0LlhH$  vert=_KkjJG speed=<.> scale=+-"                                             },
-   { 'M' , 'y', 'y', "MAP", "map"       , "map-mode providing 2D review of object collections" , "GVS:/\"b\'$oe\\,@9"       ,    0, "horz(a)=0HhlL$  horz(g/z)=sh,le  vert(a)=_KkjJG  vert(g/z)=tk.jb  modes=vIFV:{ret}"      },
+   { 'M' , 'y', 'y', "MAP", "map"       , "map-mode providing 2D review of object collections" , "GvS:/\"b\'$oe\\,@9"       ,    0, "horz(a)=0HhlL$  horz(g/z)=sh,le  vert(a)=_KkjJG  vert(g/z)=tk.jb  modes=vIFV:{ret}"      },
    { 'S' , 'y', 'y', "SRC", "source"    , "linewise review of textual content"                 , "isrte9"                   ,    0, "hor=0HhlL$bBeEwW  g/z=sh,le  sel=vV\"  pul=yYdDxX  put=pP  chg=rRiIaA  fnd=fnN"          },
    { ':' , 'y', '-', "CMD", "command"   , "command line capability for advanced actions"       , "isrte9"                   ,    0, ""                                                                                        },
    { '/' , 'y', '-', "SCH", "search"    , "search mode to find data and objects"               , "isrte9"                   ,    0, ""                                                                                        },
@@ -54,7 +56,7 @@ static tMODE_INFO  s_mode_info [MAX_MODES] = {
    { 'i' , '-', 'y', "inp", "input"     , "linewise creation and editing of textual content"   , ""                         ,    0, ""                                                                                        },
    { '9' , '-', 'y', "rep", "repeat"    , "accumulate multiplier"                              , ""                         ,    0, "range 1-99"                                                                              },
    { '!' , '-', 'y', "fil", "filter"    , "process current/selection through external filter"  , ""                         ,    0, "0HhlL$_KkjJG  gz=sh,letk.jb  dxy  !: ~uU /nN oO sS"                                      },
-   { 'v' , '-', 'y', "vis", "visual"    , "visual selection of objects for collection action"  , "$\""                      ,    0, "0HhlL$_KkjJG  gz=sh,letk.jb  dxy  !: ~uU /nN oO sS"                                      },
+   { 'v' , '-', 'y', "vis", "visual"    , "visual selection history and access"                , ""                         ,    0, "index=a-zA-Z0-9   special=!?"                                                            },
    { 's' , '-', 'y', "sel", "select"    , "visual selection within text content"               , "t"                        ,    0, "0HhlL$"                                                                                  },
    { 'e' , '-', 'y', "err", "errors"    , "display and action errors"                          , ""                         ,    0, ""                                                                                        },
    { 'r' , '-', 'y', "rep", "replace"   , "linewise overtyping of content in source mode"      , ""                         ,    0, "type over character marked with special marker"                                          },
@@ -109,6 +111,8 @@ MODE_init          (void)
    /*---(clear controls)-----------------*/
    s_nmode =  0;
    s_cmode = '-';
+   /*---(custom functions)---------------*/
+   s_formatter = NULL;
    /*---(go to default mode)-------------*/
    MODE_enter (MODE_MAP);
    /*---(complete)-----------------------*/
@@ -356,6 +360,53 @@ int  REPEAT_original    (void) { return s_request;}
 int  REPEAT_use         (void) { int a = s_repeat; s_repeat = 0; return a; }
 char REPEAT_not         (void) { if (myVIKEYS.repeating == '-')  return 1; if (s_repeat == s_request) return 1; return 0; }
 
+
+
+/*====================------------------------------------====================*/
+/*===----                       custom modes                           ----===*/
+/*====================------------------------------------====================*/
+static void  o___CUSTOM__________o () { return; }
+
+char
+yVIKEYS_mode_formatter  (void *a_formatter)
+{
+   s_formatter = a_formatter;
+   return 0;
+}
+
+char         /*-> keys for formatting sub-mode -------[ ------ [gc.MT0.202.C7]*/ /*-[01.0000.112.!]-*/ /*-[--.---.---.--]-*/
+FORMAT_smode            (int a_major, int a_minor)
+{
+   /*---(locals)-----------+-----------+-*/
+   char        rce         =  -10;
+   char        rc          =   -1;
+   /*---(header)-------------------------*/
+   DEBUG_USER   yLOG_enter   (__FUNCTION__);
+   DEBUG_USER   yLOG_char    ("a_major"   , a_major);
+   DEBUG_USER   yLOG_char    ("a_minor"   , chrvisible (a_minor));
+   /*---(defenses)-----------------------*/
+   DEBUG_USER   yLOG_char    ("mode"      , MODE_curr ());
+   --rce;  if (MODE_not (SMOD_FORMAT )) {
+      DEBUG_USER   yLOG_note    ("not the correct mode");
+      DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(check for standard controls)----*/
+   switch (a_minor) {
+   case   G_KEY_RETURN : case   G_KEY_ESCAPE :
+      MODE_exit ();
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return 0;   /* escape  */
+   }
+   /*---(call-out)-----------------------*/
+   DEBUG_USER   yLOG_point   ("formatter" , s_formatter);
+   if (s_formatter != NULL)  rc = s_formatter (a_major, a_minor);
+   else                      MODE_exit   ();
+   /*---(complete)-----------------------*/
+   DEBUG_USER   yLOG_value   ("rc"        , rc);
+   DEBUG_USER   yLOG_exit    (__FUNCTION__);
+   return rc;
+}
 
 
 /*====================------------------------------------====================*/

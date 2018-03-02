@@ -82,7 +82,7 @@ SCRP          v21  (gyges_keys) verify basic functioning of mode stack        
      exec     v21  test against a mode                  MODE_not                    SMOD_TEXTREG                                                            i_equal     0                                                                                                    
 
    COND       v21  try an illegal mode change                                         - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.008))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  enter a mode                         MODE_enter                  MODE_VISUAL                                                             i_lesser    0                                                                                                    
+     exec     v21  enter a mode                         MODE_enter                  SMOD_VISUAL                                                             i_lesser    0                                                                                                    
      exec     v21  enter a mode                         MODE_enter                  SMOD_BUFFER                                                             i_lesser    0                                                                                                    
 
    COND       v21  pop                                                                - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.009))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  

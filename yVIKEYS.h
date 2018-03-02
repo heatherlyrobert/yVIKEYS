@@ -39,7 +39,6 @@
 #define     MODE_OMNI      'O'
 #define     MODE_PROGRESS  'P'
 #define     MODE_MAP       'M'
-#define     MODE_VISUAL    'V'
 #define     MODE_SOURCE    'S'
 #define     MODE_COMMAND   ':'
 #define     MODE_SEARCH    '/'
@@ -53,18 +52,18 @@
 #define     SMOD_REGISTER  '"'    /* register actions                         */
 #define     SMOD_TEXTREG   't'    /* text register actions                    */
 #define     SMOD_INPUT     'i'    /* direct input of text                     */
-
-#define     SMOD_MUNDO     'm'    /* incremental map change undo/redo         */
+#define     SMOD_WANDER    'w'    /* formula creation by pointing             */
 #define     SMOD_SUNDO     's'    /* incremental text change undo/redo        */
 
 #define     SMOD_BUFFER    ','    /* selecting buffers                        */
-#define     SMOD_WANDER    'w'    /* formula creation by pointing             */
+#define     SMOD_VISUAL    'v'    /* visual selection history                 */
+#define     SMOD_MUNDO     'm'    /* incremental map change undo/redo         */
 #define     SMOD_FORMAT    '$'    /* content formatting                       */
 #define     SMOD_OBJECT    'o'    /* object formatting                        */
 #define     SMOD_MARK      '\''   /* location and object marking              */
-#define     SMOD_MACRO     '@'    /* macro processing                         */
 #define     SMOD_HINT      'h'    /* hint labels                              */
-#define     SMOD_CHAR      'c'    /* linewise character finding               */
+
+#define     SMOD_MACRO     '@'    /* macro processing                         */
 #define     SMOD_MENUS     '\\'   /* show menu system                         */
 
 
@@ -234,6 +233,7 @@ char        yVIKEYS_hint_config     (void *a_locator);
 char        yVIKEYS_hist_marklist   (char *a_list);
 
 char        yVIKEYS_mode_change       (char a_mode, char *a_allow, char *a_mesg);
+char        yVIKEYS_mode_formatter    (void *a_formatter);
 
 /*---(speed)----------------*/
 char        yVIKEYS_speed_set    (char   *a_code   , double *a_waitns);

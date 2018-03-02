@@ -31,8 +31,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.8j"
-#define YVIKEYS_VER_TXT   "visual abilities are ready to begin unit testing"
+#define YVIKEYS_VER_NUM   "0.8k"
+#define YVIKEYS_VER_TXT   "custom format mode called in gyges and works with visual selection"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -174,6 +174,7 @@ char        REPEAT_decrement        (void);
 int         REPEAT_count            (void);
 int         REPEAT_use              (void);
 char        REPEAT_not              (void);
+char        FORMAT_smode            (int a_major, int a_minor);
 
 char        MAP_init                (void);
 char        MAP__load               (char a_style, tMAPPED *a_map, char a_which);
@@ -187,7 +188,12 @@ char        MAP_status              (char *a_list);
 char*       MAP__unit               (char *a_question, char a_index);
 char        MAP__unit_ymap          (void);
 char        MAP__unit_xmap          (void);
+char        MAP_current             (int *a_x, int *a_y, int *a_z);
+
 char        VISU_status             (char *a_list);
+char        VISU_status_saved       (char *a_list);
+char        VISU_smode              (int a_major, int a_minor);
+char*       VISU__unit              (char *a_question, char a_index);
 
 char        SUNDO_status            (char *a_list);
 char        SUNDO__redo             (void);
