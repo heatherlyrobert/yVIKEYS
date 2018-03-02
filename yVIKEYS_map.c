@@ -48,6 +48,7 @@ struct cVISU {
 static tVISU  s_visu;
 static tVISU  s_visu_info [MAX_VISU];
 static char   S_VISU_LIST [MAX_VISU] = "'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+static int    s_nvisu     =   0;
 
 static char s_visu_head   = '-';
 static char s_visu_curr   = '-';
@@ -72,7 +73,6 @@ VISU__valid           (char a_visu)
    char        rce         = -10;
    char       *x_visu      = NULL;
    int         x_index     =   0;
-   int         x_len       = 0;
    /*---(header)-------------------------*/
    DEBUG_VISU   yLOG_senter  (__FUNCTION__);
    DEBUG_VISU   yLOG_sint    (a_visu);
@@ -94,8 +94,7 @@ VISU__valid           (char a_visu)
    x_index = (int) (x_visu - S_VISU_LIST);
    DEBUG_VISU   yLOG_sint    (x_index);
    /*---(check limits)-------------------*/
-   x_len = strlen (S_VISU_LIST);
-   --rce;  if (x_index >= x_len) {
+   --rce;  if (x_index >= s_nvisu) {
       DEBUG_VISU   yLOG_snote   ("over max");
       DEBUG_VISU   yLOG_sexitr  (__FUNCTION__, rce);
       return rce;
@@ -117,15 +116,11 @@ VISU__range         (void)
 {
    /*---(locals)-----------+-----------+-*/
    int         i           =    0;
-   int         x_len       = 0;
    /*---(header)-------------------------*/
    DEBUG_VISU   yLOG_senter  (__FUNCTION__);
-   /*---(prepare)------------------------*/
-   x_len = strlen (S_VISU_LIST);
-   DEBUG_VISU   yLOG_sint    (x_len);
    /*---(find next)----------------------*/
    s_visu_head = '-';
-   for (i = 0; i < x_len; ++i) {
+   for (i = 0; i < s_nvisu; ++i) {
       DEBUG_VISU   yLOG_schar   (S_VISU_LIST [i]);
       if (s_visu_info [i].active == VISU_NOT ) continue;
       s_visu_head = S_VISU_LIST [i];
@@ -134,7 +129,7 @@ VISU__range         (void)
    }
    /*---(find last)----------------------*/
    s_visu_tail = '-';
-   for (i = x_len - 1; i >  0; --i) {
+   for (i = s_nvisu - 1; i >  0; --i) {
       DEBUG_VISU   yLOG_schar   (S_VISU_LIST [i]);
       if (s_visu_info [i].active == VISU_NOT ) continue;
       s_visu_tail = S_VISU_LIST [i];
@@ -189,7 +184,6 @@ VISU__next          (void)
    char        x_mark      =  '-';
    int         x_index     =    0;
    int         i           =    0;
-   int         x_len       = 0;
    /*---(header)-------------------------*/
    DEBUG_VISU   yLOG_enter   (__FUNCTION__);
    /*---(check mark)---------------------*/
@@ -202,8 +196,7 @@ VISU__next          (void)
    }
    /*---(find next)----------------------*/
    DEBUG_VISU   yLOG_note    ("search for next mark");
-   x_len = strlen (S_VISU_LIST);
-   for (i = x_index + 1; i < x_len; ++i) {
+   for (i = x_index + 1; i < s_nvisu; ++i) {
       if (s_visu_info [i].active == VISU_NOT )  continue;
       DEBUG_VISU   yLOG_value   ("found"     , i);
       x_mark = S_VISU_LIST [i];
@@ -376,7 +369,6 @@ VISU__purge          (char a_scope)
 {
    /*---(locals)-----------+-----------+-*/
    int         i           = 0;
-   int         x_len       = 0;
    char        x_visu      = 0;
    char       *x_upper     = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
    char       *x_lower     = "abcdefghijklmnopqrstuvwxyz";
@@ -385,9 +377,8 @@ VISU__purge          (char a_scope)
    DEBUG_VISU   yLOG_enter   (__FUNCTION__);
    /*---(clear)--------------------------*/
    DEBUG_VISU   yLOG_value   ("max_visu"  , MAX_VISU);
-   x_len = strlen (S_VISU_LIST);
-   DEBUG_VISU   yLOG_value   ("x_len"     , x_len);
-   for (i = 0; i < x_len; ++i) {
+   DEBUG_VISU   yLOG_value   ("nvisu"     , s_nvisu);
+   for (i = 0; i < s_nvisu; ++i) {
       x_visu = S_VISU_LIST [i];
       if (a_scope == VISU_UPPER  && strchr (x_upper, x_visu) == NULL)  continue;
       if (a_scope == VISU_LOWER  && strchr (x_lower, x_visu) == NULL)  continue;
@@ -411,6 +402,7 @@ VISU_init            (void)
    /*---(header)-------------------------*/
    DEBUG_VISU   yLOG_enter   (__FUNCTION__);
    /*---(clear)--------------------------*/
+   s_nvisu = strllen (S_VISU_LIST, 100);
    VISU__purge  (VISU_ALL);
    /*---(complete)-----------------------*/
    DEBUG_VISU   yLOG_exit    (__FUNCTION__);
@@ -632,95 +624,23 @@ yVIKEYS_next        (int *a_x, int *a_y, int *a_z)
 static void  o___FILE____________o () { return; }
 
 char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/
-VISU__write           (char a_visu)
+VISU_writer           (int n, int *a, int *b, int *c, int *d, int *e, int *f, int *g, int *h, int *i)
 {
-   /*---(locals)-----------+-----------+-*/
-   char        rce         = -10;           /* return code for errors         */
-   int         x_index     = 0;
-   /*---(header)-------------------------*/
-   DEBUG_OUTP   yLOG_enter   (__FUNCTION__);
-   DEBUG_OUTP   yLOG_value   ("a_visu"    , a_visu);
-   /*---(prepare)------------------------*/
-   sprintf (myVIKEYS.f_recd, "");
-   /*---(check mark)---------------------*/
-   x_index = VISU__valid (a_visu);
-   DEBUG_OUTP   yLOG_value   ("x_index"   , x_index);
-   --rce;  if (x_index <= 0) {
-      DEBUG_OUTP   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   DEBUG_OUTP   yLOG_char    ("a_visu"    , a_visu);
-   /*---(check if empty)-----------------*/
-   DEBUG_OUTP   yLOG_char    ("active"    , s_visu_info [x_index].active);
-   --rce;  if (s_visu_info [x_index].active == VISU_NOT) {
-      DEBUG_OUTP   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   /*---(build record)-------------------*/
-   DEBUG_OUTP   yLOG_note    ("write record");
-   sprintf (myVIKEYS.f_recd, "visu_mark   -A-  %c  %5d  %5d  %5d  %5d  %5d  %5d ",
-         a_visu ,
-         s_visu_info [x_index].x_beg , s_visu_info [x_index].y_beg , s_visu_info [x_index].z_beg,
-         s_visu_info [x_index].x_end , s_visu_info [x_index].y_end , s_visu_info [x_index].z_end);
-   /*---(complete)-----------------------*/
-   DEBUG_OUTP   yLOG_exit    (__FUNCTION__);
+   if (n == 0)                              return  0;
+   if (n >= s_nvisu)                        return -1;
+   if (s_visu_info [n].active == VISU_NOT)  return  0;
+   /*> endwin ();                                                                                                      <* 
+    *> printf ("visu   %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p\n", a, b, c, d, e, f, g, h, i);            <* 
+    *> printf (" val   %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p\n", *a, *b, *c, *d, *e, *f, *g, *h, *i);   <*/
+   *a = &S_VISU_LIST [n];
+   *b = &s_visu_info [n].x_beg;
+   *c = &s_visu_info [n].y_beg;
+   *d = &s_visu_info [n].z_beg;
+   *e = &s_visu_info [n].x_end;
+   *f = &s_visu_info [n].y_end;
+   *g = &s_visu_info [n].z_end;
+   /*> printf (" val   %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p\n", *a, *b, *c, *d, *e, *f, *g, *h, *i);   <*/
    return 1;
-}
-
-char         /*-> write file tab information ---------[ leaf   [ge.320.113.10]*/ /*-[00.0000.01#.!]-*/ /*-[--.---.---.--]-*/
-VISU__write_head      (FILE *a_file)
-{
-   /*---(locals)-----------+-----------+-*/
-   char        rce         = -10;           /* return code for errors         */
-   /*---(defenses)-----------------------*/
-   --rce;  if (a_file == NULL)                   return rce;
-   /*---(header)-------------------------*/
-   fprintf (a_file, "#===[[ VISUAL MARKS ]]===============================================================================================#\n");
-   fprintf (a_file, "#---------  ver  -  --x--  --y--  --z--  --x--  --y--  --z-- \n");
-   fflush  (a_file);
-   /*---(complete)-----------------------*/
-   return 0;
-}
-
-char         /*-> write file tab information ---------[ leaf   [ge.420.213.30]*/ /*-[00.0000.01#.!]-*/ /*-[--.---.---.--]-*/
-VISU__write_foot      (FILE *a_file, int a_count)
-{
-   /*---(locals)-----------+-----------+-*/
-   char        rce         = -10;           /* return code for errors         */
-   /*---(defenses)-----------------------*/
-   --rce;  if (a_file == NULL)                   return rce;
-   /*---(header)-------------------------*/
-   if (a_count == 0)  fprintf (a_file, "# no visual marks\n");
-   else               fprintf (a_file, "#---------  ver  -  --x--  --y--  --z--  --x--  --y--  --z-- \n");
-   fprintf (a_file, "\n\n\n");
-   fflush  (a_file);
-   /*---(complete)-----------------------*/
-   return 0;
-}
-
-char         /*-> tbd --------------------------------[ ------ [gc.531.141.23]*/ /*-[01.0000.10#.8]-*/ /*-[--.---.---.--]-*/
-VISU_writeall        (FILE *a_file)
-{
-   /*---(locals)-----------+-----------+-*/
-   char        rc          = 0;
-   int         c           = 0;
-   int         i           = 0;
-   int         x_len       = 0;
-   /*---(header)-------------------------*/
-   DEBUG_OUTP   yLOG_enter   (__FUNCTION__);
-   /*---(search)-------------------------*/
-   rc = VISU__write_head (a_file);
-   x_len = strlen (S_VISU_LIST);
-   for (i = 1; i < x_len; ++i) {
-      rc = VISU__write (S_VISU_LIST [i]);
-      if (rc <= 0)   continue;
-      if (a_file != NULL)  fprintf (a_file, "%s\n", myVIKEYS.f_recd);
-      ++c;
-   }
-   rc = VISU__write_foot (a_file, c);
-   /*---(complete)-----------------------*/
-   DEBUG_OUTP   yLOG_exit    (__FUNCTION__);
-   return c;
 }
 
 

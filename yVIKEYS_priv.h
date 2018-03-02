@@ -31,8 +31,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.8l"
-#define YVIKEYS_VER_TXT   "visual marks now write to files (unit tested)"
+#define YVIKEYS_VER_NUM   "0.8m"
+#define YVIKEYS_VER_TXT   "visual marks now write with COMMON writer !!!!!"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -193,10 +193,12 @@ char        MAP_current             (int *a_x, int *a_y, int *a_z);
 char        VISU_status             (char *a_list);
 char        VISU_status_saved       (char *a_list);
 char        VISU_smode              (int a_major, int a_minor);
-char        VISU__write             (char a_visu);
-char        VISU_writeall           (FILE *a_file);
+char        VISU_writer             (int n, int *a, int *b, int *c, int *d, int *e, int *f, int *g, int *h, int *i);
 char        VISU_read               (char a_visu, char *a_label);
 char*       VISU__unit              (char *a_question, char a_index);
+
+
+char        FILE_writer             (char n, int a_entry);
 
 char        SUNDO_status            (char *a_list);
 char        SUNDO__redo             (void);
