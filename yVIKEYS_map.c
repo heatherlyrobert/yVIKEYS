@@ -5,7 +5,9 @@
 
 
 
-char    (*s_mapper) (char a_type);
+static char    (*s_mapper)    (char  a_type);
+static char    (*s_locator)   (char *a_label, int *a_x, int *a_y, int *a_z);
+static char*   (*s_addresser) (int  a_x, int  a_y, int  a_z);
 
 
 
@@ -47,7 +49,7 @@ struct cVISU {
 };
 static tVISU  s_visu;
 static tVISU  s_visu_info [MAX_VISU];
-static char   S_VISU_LIST [MAX_VISU] = "'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+char          S_VISU_LIST [MAX_VISU] = "'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 static int    s_nvisu     =   0;
 
 static char s_visu_head   = '-';
@@ -67,7 +69,7 @@ static char s_visu_tail   = '-';
 static void  o___VISU_SUPPORT____o () { return; }
 
 char         /*-> check mark validity ----------------[ leaf   [ge.833.144.30]*/ /*-[01.0000.0A4.F]-*/ /*-[--.---.---.--]-*/
-VISU__valid           (char a_visu)
+VISU_valid             (char a_visu)
 {
    /*---(locals)-----------+-----------+-*/
    char        rce         = -10;
@@ -121,18 +123,18 @@ VISU__range         (void)
    /*---(find next)----------------------*/
    s_visu_head = '-';
    for (i = 0; i < s_nvisu; ++i) {
-      DEBUG_VISU   yLOG_schar   (S_VISU_LIST [i]);
       if (s_visu_info [i].active == VISU_NOT ) continue;
       s_visu_head = S_VISU_LIST [i];
+      DEBUG_VISU   yLOG_schar   (S_VISU_LIST [i]);
       DEBUG_VISU   yLOG_snote   ("HEAD");
       break;
    }
    /*---(find last)----------------------*/
    s_visu_tail = '-';
    for (i = s_nvisu - 1; i >  0; --i) {
-      DEBUG_VISU   yLOG_schar   (S_VISU_LIST [i]);
       if (s_visu_info [i].active == VISU_NOT ) continue;
       s_visu_tail = S_VISU_LIST [i];
+      DEBUG_VISU   yLOG_schar   (S_VISU_LIST [i]);
       DEBUG_VISU   yLOG_snote   ("TAIL");
       break;
    }
@@ -153,7 +155,7 @@ VISU__prev          (void)
    DEBUG_VISU   yLOG_enter   (__FUNCTION__);
    /*---(check mark)---------------------*/
    DEBUG_VISU   yLOG_char    ("visu_curr" , s_visu_curr);
-   x_index = VISU__valid (s_visu_curr);
+   x_index = VISU_valid (s_visu_curr);
    DEBUG_VISU   yLOG_value   ("x_index"   , x_index);
    --rce;  if (x_index < 0) {
       DEBUG_VISU   yLOG_exitr   (__FUNCTION__, rce);
@@ -188,7 +190,7 @@ VISU__next          (void)
    DEBUG_VISU   yLOG_enter   (__FUNCTION__);
    /*---(check mark)---------------------*/
    DEBUG_VISU   yLOG_char    ("visu_curr" , s_visu_curr);
-   x_index = VISU__valid (s_visu_curr);
+   x_index = VISU_valid (s_visu_curr);
    DEBUG_VISU   yLOG_value   ("x_index"   , x_index);
    --rce;  if (x_index < 0) {
       DEBUG_VISU   yLOG_exitr   (__FUNCTION__, rce);
@@ -228,7 +230,7 @@ VISU__unset           (char a_visu)
    DEBUG_VISU   yLOG_enter   (__FUNCTION__);
    DEBUG_VISU   yLOG_char    ("a_visu"    , a_visu);
    /*---(check mark)---------------------*/
-   x_index = VISU__valid (a_visu);
+   x_index = VISU_valid (a_visu);
    DEBUG_VISU   yLOG_value   ("x_index"   , x_index);
    --rce;  if (x_index < 0) {
       DEBUG_VISU   yLOG_exitr   (__FUNCTION__, rce);
@@ -267,7 +269,7 @@ VISU__set             (char a_visu)
    DEBUG_VISU   yLOG_enter   (__FUNCTION__);
    DEBUG_VISU   yLOG_char    ("a_visu"    , a_visu);
    /*---(check mark)---------------------*/
-   x_index = VISU__valid (a_visu);
+   x_index = VISU_valid (a_visu);
    DEBUG_VISU   yLOG_value   ("x_index"   , x_index);
    --rce;  if (x_index < 0) {
       DEBUG_VISU   yLOG_exitr   (__FUNCTION__, rce);
@@ -319,7 +321,7 @@ VISU__return          (char a_visu)
       return rce;
    }
    /*---(check mark)---------------------*/
-   x_index = VISU__valid (a_visu);
+   x_index = VISU_valid (a_visu);
    DEBUG_VISU   yLOG_value   ("x_index"   , x_index);
    --rce;  if (x_index < 0) {
       DEBUG_VISU   yLOG_exitr   (__FUNCTION__, rce);
@@ -463,7 +465,7 @@ VISU_status_saved     (char *a_list)
 {
    int         n           =    0;
    if (a_list == NULL)  return -1;
-   n = VISU__valid (s_visu_curr);
+   n = VISU_valid (s_visu_curr);
    if (n < 0)   n = 0;
    sprintf (a_list, "saved  %c (%c to %c)  %4dx to %4dx,   %4dy to %4dy,   %4dz to %4dz",
          s_visu_curr, s_visu_head, s_visu_tail,
@@ -641,6 +643,12 @@ VISU_writer           (int n, int *a, int *b, int *c, int *d, int *e, int *f, in
    *g = &s_visu_info [n].z_end;
    /*> printf (" val   %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p\n", *a, *b, *c, *d, *e, *f, *g, *h, *i);   <*/
    return 1;
+}
+
+char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/
+VISU_reader           (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i)
+{
+   return 0;
 }
 
 
@@ -937,16 +945,20 @@ MAP__load             (char a_style, tMAPPED *a_map, char a_which)
 }
 
 char
-yVIKEYS_map_config     (char a_coord, void *a_mapper)
+yVIKEYS_map_config        (char a_coord, void *a_mapper, void *a_locator, void *a_addresser)
 {
    /*---(header)-------------------------*/
    DEBUG_MAP   yLOG_senter  (__FUNCTION__);
    /*---(globals)------------------------*/
    g_coord    = a_coord;
    DEBUG_MAP   yLOG_schar   (g_coord);
-   s_mapper   = a_mapper;
-   /*---(update)-------------------------*/
+   s_mapper     = a_mapper;
    DEBUG_MAP   yLOG_spoint  (s_mapper);
+   s_locator    = a_locator;
+   DEBUG_MAP   yLOG_spoint  (s_locator);
+   s_addresser  = a_addresser;
+   DEBUG_MAP   yLOG_spoint  (s_addresser);
+   /*---(update)-------------------------*/
    if (s_mapper != NULL) {
       DEBUG_MAP   yLOG_snote   ("call host mapper");
       s_mapper (YVIKEYS_INIT);
@@ -954,6 +966,35 @@ yVIKEYS_map_config     (char a_coord, void *a_mapper)
    /*---(complete)-----------------------*/
    DEBUG_MAP   yLOG_sexit   (__FUNCTION__);
    return 0;
+}
+
+char
+MAP_locator             (char *a_label, int *a_x, int *a_y, int *a_z)
+{
+   DEBUG_MAP_M yLOG_enter   (__FUNCTION__);
+   DEBUG_MAP_M yLOG_point   ("locator"    , s_locator);
+   if (s_locator == NULL) {
+      DEBUG_MAP_M yLOG_exit    (__FUNCTION__);
+      return -1;
+   }
+   DEBUG_MAP_M yLOG_value   ("*a_x"      , *a_x);
+   DEBUG_MAP_M yLOG_value   ("*a_y"      , *a_y);
+   DEBUG_MAP_M yLOG_value   ("*a_z"      , *a_z);
+   s_locator (a_label, a_x, a_y, a_z);
+   DEBUG_MAP_M yLOG_value   ("*a_x"      , *a_x);
+   DEBUG_MAP_M yLOG_value   ("*a_y"      , *a_y);
+   DEBUG_MAP_M yLOG_value   ("*a_z"      , *a_z);
+   DEBUG_MAP_M yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char*
+MAP_addresser           (int  a_x, int  a_y, int  a_z)
+{
+   char        x_label     [LEN_LABEL] = "";
+   if (s_addresser == NULL)  return -1;
+   strlcpy (x_label, s_addresser (a_x, a_y, a_z), LEN_LABEL);
+   return x_label;
 }
 
 char
@@ -1895,6 +1936,31 @@ MAP_ystatus        (char *a_list)
 /*====================------------------------------------====================*/
 static void  o___UNIT_TEST_______o () { return; }
 
+struct {
+   char        label       [LEN_LABEL];
+   int         x, y, z;
+} MAP__unit_deref [100] = {
+   { "0a1"        ,   0,   0,   0 },
+   { "0b3"        ,   1,   2,   0 },
+   { "0c5"        ,   2,   4,   0 },
+   { "0f11"       ,   5,  10,   0 },
+   { "0g11"       ,   6,  10,   0 },
+   { "0k11"       ,  10,  10,   0 },
+   { "0p11"       ,  15,  10,   0 },
+   { "0p12"       ,  15,  11,   0 },
+   { "2b5"        ,   1,   4,   3 },
+   { "3d6"        ,   3,   5,   4 },
+   { "6d3"        ,   3,   2,   7 },
+   { "6g11"       ,   6,  10,   7 },
+   { "Ag11"       ,   6,  10,  11 },
+   { "Mp11"       ,  15,  10,  23 },
+   { "Mp12"       ,  15,  11,  23 },
+   { "Za1"        ,   0,   0,  36 },
+   { "3:11"       ,   4,  12,   0 },
+   { NULL         ,   0,   0,   0 },
+
+};
+
 char
 MAP__unit_ymap          (void)
 {
@@ -1915,6 +1981,62 @@ char
 MAP__unit_zmap          (void)
 {
    return 0;
+}
+
+char
+MAP__unit_mapper        (char a_type)
+{
+   yVIKEYS_source (MAP__unit_addressor (g_xmap.gcur, g_ymap.gcur, g_zmap.gcur), "testing");
+   return 0;
+}
+
+char
+MAP__unit_locator       (char *a_label, int *a_x, int *a_y, int *a_z)
+{
+   int         i           =    0;
+   int         n           =   -1;
+   DEBUG_MAP_M yLOG_enter   (__FUNCTION__);
+   yVIKEYS_source (a_label, "testing");
+   for (i = 0; i < 100; ++i) {
+      if (MAP__unit_deref [i].label == NULL)                 break;
+      if (MAP__unit_deref [i].label [0] != a_label [0])      continue;
+      if (strcmp (MAP__unit_deref [i].label, a_label) != 0)  continue;
+      n = i;
+      break;
+   }
+   DEBUG_MAP_M yLOG_sint    (n);
+   *a_x = -1;
+   *a_y = -1;
+   *a_z = -1;
+   DEBUG_MAP_M yLOG_sint    (*a_x);
+   DEBUG_MAP_M yLOG_sint    (*a_y);
+   DEBUG_MAP_M yLOG_sint    (*a_z);
+   if (n < 0)  return -1;
+   *a_x = MAP__unit_deref [i].x;
+   *a_y = MAP__unit_deref [i].y;
+   *a_z = MAP__unit_deref [i].z;
+   DEBUG_MAP_M yLOG_sint    (*a_x);
+   DEBUG_MAP_M yLOG_sint    (*a_y);
+   DEBUG_MAP_M yLOG_sint    (*a_z);
+   DEBUG_MAP_M yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char*
+MAP__unit_addressor     (int x, int y, int z)
+{
+   int         i           =    0;
+   int         n           =   -1;
+   for (i = 0; i < 100; ++i) {
+      if (MAP__unit_deref [i].label == NULL)                 break;
+      if (MAP__unit_deref [i].x     != x   )                 continue;
+      if (MAP__unit_deref [i].y     != y   )                 continue;
+      if (MAP__unit_deref [i].z     != z   )                 continue;
+      n = i;
+      break;
+   }
+   if (n < 0)  return "unknown";
+   return MAP__unit_deref [n].label;
 }
 
 char*        /*-> tbd --------------------------------[ leaf   [gs.520.202.40]*/ /*-[01.0000.00#.#]-*/ /*-[--.---.---.--]-*/
@@ -1948,7 +2070,7 @@ VISU__unit              (char *a_question, char a_which)
    int         n           =    0;
    /*---(preprare)-----------------------*/
    strlcpy  (yVIKEYS__unit_answer, "VISU unit        : question not understood", LEN_STR);
-   n = VISU__valid (a_which);
+   n = VISU_valid (a_which);
    /*---(dependency list)----------------*/
    if      (strcmp (a_question, "selection"      )   == 0) {
       snprintf (yVIKEYS__unit_answer, LEN_STR, "VISU selection   : %c  %4d to %4dx,  %4d to %4dy,  %4d to %4dz", s_live, s_visu.x_beg, s_visu.x_end, s_visu.y_beg, s_visu.y_end, s_visu.z_beg, s_visu.z_end);

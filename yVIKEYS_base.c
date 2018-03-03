@@ -87,13 +87,10 @@ BASE__unit_loud        (void)
    myVIKEYS.logger = yLOG_begin ("yVIKEYS" , yLOG_SYSTEM, yLOG_NOISE);
    yURG_name  ("kitchen"      , YURG_ON);
    yURG_name  ("edit"         , YURG_ON);
-   /*> yURG_name  ("user"         , YURG_ON);                                         <* 
-    *> yURG_name  ("graf"         , YURG_ON);                                         <* 
-    *> yURG_name  ("wind"         , YURG_ON);                                         <* 
-    *> yURG_name  ("yvikeys"      , YURG_ON);                                         <* 
-    *> yURG_name  ("yvikeys_mode" , YURG_ON);                                         <* 
-    *> yURG_name  ("yvikeys_keys" , YURG_ON);                                         <* 
-    *> yURG_name  ("yvikeys_scale", YURG_ON);                                         <*/
+   yURG_name  ("mark"         , YURG_ON);
+   yURG_name  ("mode"         , YURG_ON);
+   yURG_name  ("map"          , YURG_ON);
+   yURG_name  ("map_mas"      , YURG_ON);
    DEBUG_YVIKEYS yLOG_info     ("yVIKEYS"    , yVIKEYS_version   ());
    yVIKEYS_init ();
    return 0;

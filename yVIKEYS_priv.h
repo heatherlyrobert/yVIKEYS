@@ -31,8 +31,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.8m"
-#define YVIKEYS_VER_TXT   "visual marks now write with COMMON writer !!!!!"
+#define YVIKEYS_VER_NUM   "0.8n"
+#define YVIKEYS_VER_TXT   "location marks updated in new label/coords world"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -128,6 +128,7 @@ typedef     signed char       schar;
 
 
 
+
 char        VIEW__reset             (void);
 char        VIEW__find              (cchar *a_name);
 char        VIEW__abbr              (cchar  a_abbr);
@@ -176,6 +177,8 @@ int         REPEAT_use              (void);
 char        REPEAT_not              (void);
 char        FORMAT_smode            (int a_major, int a_minor);
 
+char        MAP_locator             (char *a_label, int *a_x, int *a_y, int *a_z);
+char*       MAP_addresser           (int  a_x, int  a_y, int  a_z);
 char        MAP_init                (void);
 char        MAP__load               (char a_style, tMAPPED *a_map, char a_which);
 char        MAP__screen             (tMAPPED *a_map);
@@ -190,15 +193,22 @@ char        MAP__unit_ymap          (void);
 char        MAP__unit_xmap          (void);
 char        MAP_current             (int *a_x, int *a_y, int *a_z);
 
+char        MAP__unit_mapper        (char a_type);
+char        MAP__unit_locator       (char *a_label, int *x, int *y, int *z);
+char*       MAP__unit_addressor     (int x, int y, int z);
+
+char        VISU_valid              (char a_visu);
 char        VISU_status             (char *a_list);
 char        VISU_status_saved       (char *a_list);
 char        VISU_smode              (int a_major, int a_minor);
-char        VISU_writer             (int n, int *a, int *b, int *c, int *d, int *e, int *f, int *g, int *h, int *i);
 char        VISU_read               (char a_visu, char *a_label);
 char*       VISU__unit              (char *a_question, char a_index);
+char        VISU_writer             (int  n, int  *a, int  *b, int  *c, int  *d, int  *e, int  *f, int  *g, int  *h, int  *i);
+char        VISU_reader             (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i);
 
 
-char        FILE_writer             (char n, int a_entry);
+char        OUTP__unit_writer       (char a_abbr, char a_item);
+
 
 char        SUNDO_status            (char *a_list);
 char        SUNDO__redo             (void);
@@ -223,18 +233,19 @@ char        WANDER_smode            (int  a_major, int  a_minor);
 
 
 char        MARK_init               (void);
-char        MARK__valid             (char a_mark);
+char        MARK_valid              (char a_mark);
 char        MARK__check             (char *a_label);
 char        MARK__find              (char *a_label);
 char        MARK__which             (void);
 char        MARK__set               (char a_mark);
 char        MARK__unset             (char a_mark);
 char        MARK__return            (char a_mark);
-char        HINT__unit_jumper       (char *a_label, int *a_x, int *a_y, int *a_z);
 char*       MARK__unit              (char *a_question, char a_mark);
 char        MARK__write             (char a_mark);
 char        MARK_writeall           (FILE *a_file);
 char        MARK_read               (char a_mark, char *a_label);
+char        MARK_writer             (int n, int *a, int *b, int *c, int *d, int *e, int *f, int *g, int *h, int *i);
+char        MARK_reader             (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i);
 char        MARK_direct             (char *a_string);
 char        MARK__listplus          (char *a_list);
 char        MARK_status             (char *a_status);

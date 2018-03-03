@@ -23,6 +23,7 @@ struct cMARK {
 };
 tMARK       s_mark_info [S_MAX_MARK];
 static char S_MARK_LIST [S_MAX_MARK] = "'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789()";
+static int  s_nmark       = 0;
 
 #define     MARK_ALL      '*'
 #define     MARK_LOWER    'a'
@@ -43,39 +44,6 @@ char         MARK__next            (void);
 
 
 /*====================------------------------------------====================*/
-/*===----                           callback                           ----===*/
-/*====================------------------------------------====================*/
-static void  o___CALLBACK________o () { return; }
-
-static char    (*s_locator) (char *a_label, int *a_x, int *a_y, int *a_z);
-
-char         /*-> callback for direct movement -------[ shoot  [gz.311.001.01]*/ /*-[00.0000.102.4]-*/ /*-[--.---.---.--]-*/
-yVIKEYS_hint_config     (void *a_locator)
-{
-   s_locator = a_locator;
-   return 0;
-}
-
-char
-HINT__return            (char *a_label)
-{
-   int         x, y, z;
-   /*---(header)-------------------------*/
-   DEBUG_MARK   yLOG_enter   (__FUNCTION__);
-   DEBUG_MARK   yLOG_info    ("a_label"   , a_label);
-   if (s_locator != NULL)   s_locator (a_label, &x, &y, &z);
-   DEBUG_MARK   yLOG_value   ("x"         , x);
-   DEBUG_MARK   yLOG_value   ("y"         , y);
-   DEBUG_MARK   yLOG_value   ("z"         , z);
-   MAP_jump (x, y, z);
-   /*---(header)-------------------------*/
-   DEBUG_MARK   yLOG_exit    (__FUNCTION__);
-   return 0;
-}
-
-
-
-/*====================------------------------------------====================*/
 /*===----                         location marks                       ----===*/
 /*====================------------------------------------====================*/
 static void  o___MARKS___________o () { return; }
@@ -86,6 +54,7 @@ MARK_init            (void)
    /*---(header)-------------------------*/
    DEBUG_MARK   yLOG_enter   (__FUNCTION__);
    /*---(clear)--------------------------*/
+   s_nmark = strllen (S_MARK_LIST, 100);
    MARK__purge  ('*');
    /*---(globals)------------------------*/
    myVIKEYS.mark_show = '-';
@@ -100,7 +69,6 @@ MARK__purge          (char a_scope)
 {
    /*---(locals)-----------+-----------+-*/
    int         i           = 0;
-   int         x_len       = 0;
    char        x_mark      = 0;
    char       *x_upper     = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
    char       *x_lower     = "abcdefghijklmnopqrstuvwxyz";
@@ -108,10 +76,8 @@ MARK__purge          (char a_scope)
    /*---(header)-------------------------*/
    DEBUG_MARK   yLOG_enter   (__FUNCTION__);
    /*---(clear)--------------------------*/
-   DEBUG_MARK   yLOG_value   ("max_mark"  , S_MAX_MARK);
-   x_len = strlen (S_MARK_LIST);
-   DEBUG_MARK   yLOG_value   ("x_len"     , x_len);
-   for (i = 0; i < x_len; ++i) {
+   DEBUG_MARK   yLOG_value   ("nmark"     , s_nmark);
+   for (i = 0; i < s_nmark; ++i) {
       x_mark = S_MARK_LIST [i];
       if (a_scope == MARK_UPPER  && strchr (x_upper, x_mark) == NULL)  continue;
       if (a_scope == MARK_LOWER  && strchr (x_lower, x_mark) == NULL)  continue;
@@ -139,13 +105,12 @@ MARK__purge          (char a_scope)
 static void  o___MARK_BASICS_____o () { return; }
 
 char         /*-> check mark validity ----------------[ leaf   [ge.833.144.30]*/ /*-[01.0000.0A4.F]-*/ /*-[--.---.---.--]-*/
-MARK__valid           (char a_mark)
+MARK_valid            (char a_mark)
 {
    /*---(locals)-----------+-----------+-*/
    char        rce         = -10;
    char       *x_mark      = NULL;
    int         x_index     =   0;
-   int         x_len       = 0;
    /*---(header)-------------------------*/
    DEBUG_MARK   yLOG_senter  (__FUNCTION__);
    DEBUG_MARK   yLOG_sint    (a_mark);
@@ -167,8 +132,7 @@ MARK__valid           (char a_mark)
    x_index = (int) (x_mark - S_MARK_LIST);
    DEBUG_MARK   yLOG_sint    (x_index);
    /*---(check limits)-------------------*/
-   x_len = strlen (S_MARK_LIST);
-   --rce;  if (x_index >= x_len) {
+   --rce;  if (x_index >= s_nmark) {
       DEBUG_MARK   yLOG_snote   ("over max");
       DEBUG_MARK   yLOG_sexitr  (__FUNCTION__, rce);
       return rce;
@@ -215,6 +179,8 @@ MARK__check           (char *a_label)
 char
 MARK__history         (void)
 {
+   /*---(locals)-----------+-----------+-*/
+   int         x_index     =    0;
    /*---(header)-------------------------*/
    DEBUG_MARK   yLOG_enter   (__FUNCTION__);
    /*---(cycle history)------------------*/
@@ -226,13 +192,20 @@ MARK__history         (void)
    DEBUG_MARK   yLOG_info    ("mark_curr" , s_mark_curr);
    /*---(set prev mark)------------------*/
    if (strcmp (s_mark_prev, "-") != 0) {
-      strlcpy (s_mark_info [0].label, s_mark_prev, LEN_LABEL);
-      s_mark_info [0].source = MARK_AUTO;
+      x_index = MARK__find (s_mark_prev);
+      /*> strlcpy (s_mark_info [0].label, s_mark_prev, LEN_LABEL);                    <*/
    } else {
-      strlcpy (s_mark_info [0].label, s_mark_curr, LEN_LABEL);
-      s_mark_info [0].source = MARK_AUTO;
+      x_index = MARK__find (s_mark_curr);
+      /*> strlcpy (s_mark_info [0].label, s_mark_curr, LEN_LABEL);                    <*/
    }
-   DEBUG_MARK   yLOG_info    ("'"         , s_mark_info [0           ].label);
+   DEBUG_MARK   yLOG_value   ("x_index"   , x_index);
+   /*---(fill in data)-------------------*/
+   strlcpy (s_mark_info [0].label, s_mark_info [x_index].label, LEN_LABEL);
+   DEBUG_MARK   yLOG_info    ("'"         , s_mark_info [0].label);
+   s_mark_info [0].x_pos  = s_mark_info [x_index].x_pos;
+   s_mark_info [0].y_pos  = s_mark_info [x_index].y_pos;
+   s_mark_info [0].z_pos  = s_mark_info [x_index].z_pos;
+   s_mark_info [0].source = MARK_AUTO;
    /*---(complete)-----------------------*/
    DEBUG_MARK   yLOG_exit    (__FUNCTION__);
 }
@@ -250,7 +223,7 @@ MARK__set             (char a_mark)
    DEBUG_MARK   yLOG_enter   (__FUNCTION__);
    DEBUG_MARK   yLOG_char    ("a_mark"    , a_mark);
    /*---(check mark)---------------------*/
-   x_index = MARK__valid (a_mark);
+   x_index = MARK_valid (a_mark);
    DEBUG_MARK   yLOG_value   ("x_index"   , x_index);
    --rce;  if (x_index < 0) {
       DEBUG_MARK   yLOG_exitr   (__FUNCTION__, rce);
@@ -271,7 +244,7 @@ MARK__set             (char a_mark)
    /*---(mark label)---------------------*/
    DEBUG_MARK   yLOG_note    ("save current position");
    strlcpy (s_mark_info [x_index].label, SOURCE_label (), LEN_LABEL);
-   if (s_locator != NULL)   s_locator (SOURCE_label (), &s_mark_info [x_index].x_pos, &s_mark_info [x_index].y_pos, &s_mark_info [x_index].z_pos);
+   MAP_locator (SOURCE_label (), &s_mark_info [x_index].x_pos, &s_mark_info [x_index].y_pos, &s_mark_info [x_index].z_pos);
    s_mark_info [x_index].source = MARK_USER;
    /*---(set history)--------------------*/
    MARK__history ();
@@ -295,7 +268,7 @@ MARK__unset           (char a_mark)
    DEBUG_MARK   yLOG_enter   (__FUNCTION__);
    DEBUG_MARK   yLOG_char    ("a_mark"    , a_mark);
    /*---(check mark)---------------------*/
-   x_index = MARK__valid (a_mark);
+   x_index = MARK_valid (a_mark);
    --rce;  if (x_index < 0) {
       DEBUG_MARK   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
@@ -340,7 +313,7 @@ MARK__return        (char a_mark)
    }
    /*---(check mark)---------------------*/
    DEBUG_MARK   yLOG_char    ("a_mark"    , a_mark);
-   x_index = MARK__valid (a_mark);
+   x_index = MARK_valid (a_mark);
    DEBUG_MARK   yLOG_value   ("x_index"   , x_index);
    --rce;  if (x_index < 0) {
       DEBUG_MARK   yLOG_exitr   (__FUNCTION__, rce);
@@ -375,11 +348,9 @@ char         /*-> tbd --------------------------------[ leaf   [gc.430.022.40]*/
 MARK__which        (void)
 {
    int         i           = 0;
-   int         x_len       = 0;
    char        x_label     [LEN_LABEL];
    strlcpy (x_label, SOURCE_label (), LEN_LABEL);
-   x_len = strlen (S_MARK_LIST);
-   for (i = 1; i < x_len; ++i) {
+   for (i = 1; i < s_nmark; ++i) {
       if (s_mark_info [i].source == MARK_NONE)          continue;
       if (strcmp (s_mark_info [i].label, x_label) != 0) continue;
       return S_MARK_LIST [i];
@@ -394,7 +365,6 @@ MARK__find          (char *a_label)
    /*---(locals)-----------+-----------+-*/
    char        rce         =  -10;
    int         i           =    0;
-   int         x_len       = 0;
    /*---(header)-------------------------*/
    DEBUG_MARK   yLOG_enter   (__FUNCTION__);
    DEBUG_MARK   yLOG_point   ("a_label"   , a_label);
@@ -410,9 +380,9 @@ MARK__find          (char *a_label)
    }
    /*---(search)-------------------------*/
    DEBUG_MARK   yLOG_note    ("searching");
-   x_len = strlen (S_MARK_LIST);
-   for (i = 1; i < x_len; ++i) {
+   for (i = 1; i < s_nmark; ++i) {
       if (strcmp (s_mark_info [i].label, "")      == 0) continue;
+      if (strcmp (s_mark_info [i].label, "-")     == 0) continue;
       if (strcmp (s_mark_info [i].label, a_label) != 0) continue;
       DEBUG_MARK   yLOG_value   ("i"         , i);
       DEBUG_MARK   yLOG_exit    (__FUNCTION__);
@@ -440,19 +410,16 @@ MARK__range         (void)
     */
    /*---(locals)-----------+-----------+-*/
    int         i           =    0;
-   int         x_len       = 0;
-   /*---(prepare)------------------------*/
-   x_len = strlen (S_MARK_LIST);
    /*---(find next)----------------------*/
    s_mark_head = '-';
-   for (i = 1; i < x_len; ++i) {
+   for (i = 1; i < s_nmark; ++i) {
       if (s_mark_info [i].source == MARK_NONE) continue;
       s_mark_head = S_MARK_LIST [i];
       break;
    }
    /*---(find last)----------------------*/
    s_mark_tail = '-';
-   for (i = x_len - 1; i >  0; --i) {
+   for (i = s_nmark - 1; i >  0; --i) {
       if (s_mark_info [i].source == MARK_NONE) continue;
       s_mark_tail = S_MARK_LIST [i];
       break;
@@ -503,7 +470,6 @@ MARK__next          (void)
    char        x_mark      =  '-';
    int         x_index     =    0;
    int         i           =    0;
-   int         x_len       = 0;
    /*---(header)-------------------------*/
    DEBUG_MARK   yLOG_enter   (__FUNCTION__);
    /*---(check mark)---------------------*/
@@ -515,8 +481,7 @@ MARK__next          (void)
    DEBUG_MARK   yLOG_value   ("x_index"   , x_index);
    /*---(find next)----------------------*/
    DEBUG_MARK   yLOG_note    ("search for next mark");
-   x_len = strlen (S_MARK_LIST);
-   for (i = x_index + 1; i < x_len; ++i) {
+   for (i = x_index + 1; i < s_nmark; ++i) {
       if (s_mark_info [i].source == MARK_NONE)  continue;
       DEBUG_MARK   yLOG_value   ("found"     , i);
       x_mark = S_MARK_LIST [i];
@@ -555,7 +520,7 @@ static void  o___MARK_INFO_______o () { return; }
  *>    }                                                                                                                           <* 
  *>    strlcpy (a_entry, "  - :           ", LEN_DESC);                                                                            <* 
  *>    /+---(check mark)---------------------+/                                                                                    <* 
- *>    x_index = MARK__valid (a_mark);                                                                                             <* 
+ *>    x_index = MARK_valid (a_mark);                                                                                             <* 
  *>    --rce;  if (x_index < 0) {                                                                                                  <* 
  *>       DEBUG_MARK   yLOG_exitr   (__FUNCTION__, rce);                                                                           <* 
  *>       return rce;                                                                                                              <* 
@@ -598,14 +563,12 @@ yVIKEYS_hint_marklist   (char *a_list)
    int         i           = 0;
    char        rce         = -10;
    char        x_entry     [20];
-   int         x_len       = 0;
    /*---(defenses)-----------------------*/
    --rce;  if (a_list  == NULL)  return rce;
    strncpy (a_list, "-", LEN_RECD);   /* special for a null list */
    /*---(walk the list)------------------*/
-   x_len = strlen (S_MARK_LIST);
    strncpy (a_list, ",", LEN_RECD);
-   for (i = 0; i < x_len; ++i) {
+   for (i = 0; i < s_nmark; ++i) {
       if (s_mark_info [i].source == MARK_NONE) continue;
       sprintf    (x_entry, "%s,", s_mark_info [i].label);
       strncat    (a_list, x_entry, LEN_RECD);
@@ -623,14 +586,12 @@ MARK__listplus      (char *a_list)
    int         i           = 0;
    char        rce         = -10;
    char        x_entry     [20];
-   int         x_len       = 0;
    /*---(defenses)-----------------------*/
    --rce;  if (a_list  == NULL)  return rce;
    strncpy (a_list, "-", LEN_RECD);   /* special for a null list */
    /*---(walk the list)------------------*/
-   x_len = strlen (S_MARK_LIST);
    strncpy (a_list, ",", LEN_RECD);
-   for (i = 1; i < x_len; ++i) {
+   for (i = 1; i < s_nmark; ++i) {
       if (s_mark_info [i].source == MARK_NONE) continue;
       sprintf    (x_entry, "%c:%s,", S_MARK_LIST [i], s_mark_info [i].label);
       strncat    (a_list, x_entry, LEN_RECD);
@@ -660,7 +621,7 @@ MARK__write           (char a_mark)
    /*---(prepare)------------------------*/
    sprintf (myVIKEYS.f_recd, "");
    /*---(check mark)---------------------*/
-   x_index = MARK__valid (a_mark);
+   x_index = MARK_valid (a_mark);
    DEBUG_MARK   yLOG_value   ("x_index"   , x_index);
    --rce;  if (x_index <= 0) {
       DEBUG_MARK   yLOG_exitr   (__FUNCTION__, rce);
@@ -720,13 +681,11 @@ MARK_writeall        (FILE *a_file)
    char        rc          = 0;
    int         c           = 0;
    int         i           = 0;
-   int         x_len       = 0;
    /*---(header)-------------------------*/
    DEBUG_MARK   yLOG_enter   (__FUNCTION__);
    /*---(search)-------------------------*/
    rc = MARK__write_head (a_file);
-   x_len = strlen (S_MARK_LIST);
-   for (i = 1; i < x_len; ++i) {
+   for (i = 1; i < s_nmark; ++i) {
       rc = MARK__write (S_MARK_LIST [i]);
       if (rc <= 0)   continue;
       if (a_file != NULL)  fprintf (a_file, "%s\n", myVIKEYS.f_recd);
@@ -738,6 +697,67 @@ MARK_writeall        (FILE *a_file)
    return c;
 }
 
+char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/
+MARK_writer           (int n, int *a, int *b, int *c, int *d, int *e, int *f, int *g, int *h, int *i)
+{
+   if (n == 0)                              return  0;
+   if (n >= s_nmark)                        return -1;
+   if (s_mark_info [n].source == MARK_NONE) return  0;
+   /*> endwin ();                                                                                                      <* 
+    *> printf ("visu   %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p\n", a, b, c, d, e, f, g, h, i);            <* 
+    *> printf (" val   %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p\n", *a, *b, *c, *d, *e, *f, *g, *h, *i);   <*/
+   *a = &S_MARK_LIST [n];
+   *b = &s_mark_info [n].label;
+   *c = &s_mark_info [n].x_pos;
+   *d = &s_mark_info [n].y_pos;
+   *e = &s_mark_info [n].z_pos;
+   /*> printf (" val   %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p\n", *a, *b, *c, *d, *e, *f, *g, *h, *i);   <*/
+   return 1;
+}
+
+char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/
+MARK_reader           (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i)
+{
+   /*---(locals)-----------+-----------+-*/
+   char        rce         =  -11;
+   int         x_index     =    0;
+   /*---(header)-------------------------*/
+   DEBUG_MARK   yLOG_enter   (__FUNCTION__);
+   /*---(check version)------------------*/
+   DEBUG_MARK   yLOG_char    ("version"   , n);
+   --rce;  if (n != 'A') {
+      DEBUG_MARK   yLOG_note    ("illegal version");
+      DEBUG_MARK   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(check mark)---------------------*/
+   DEBUG_MARK   yLOG_value   ("mark"      , a[0]);
+   x_index = MARK_valid (a[0]);
+   DEBUG_MARK   yLOG_value   ("x_index"   , x_index);
+   --rce;  if (x_index < 0) {
+      DEBUG_MARK   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_MARK   yLOG_char    ("mark"      , a[0]);
+   /*---(save)---------------------------*/
+   DEBUG_MARK   yLOG_note    ("assign values to mark");
+   strlcpy (s_mark_info [x_index].label, b, LEN_LABEL);
+   DEBUG_MARK   yLOG_info    ("label"     , s_mark_info [x_index].label);
+   s_mark_info [x_index].x_pos = atoi (c);
+   DEBUG_MARK   yLOG_value   ("x_pos"     , s_mark_info [x_index].x_pos);
+   s_mark_info [x_index].y_pos = atoi (d);
+   DEBUG_MARK   yLOG_value   ("y_pos"     , s_mark_info [x_index].y_pos);
+   s_mark_info [x_index].z_pos = atoi (e);
+   DEBUG_MARK   yLOG_value   ("z_pos"     , s_mark_info [x_index].z_pos);
+   s_mark_info [x_index].source = MARK_IMPORT;
+   /*---(update range)-------------------*/
+   DEBUG_MARK   yLOG_note    ("update the range");
+   MARK__range ();
+   /*---(complete)-----------------------*/
+   DEBUG_MARK  yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
 char         /*-> tbd --------------------------------[ ------ [ge.A53.264.33]*/ /*-[01.0000.113.K]-*/ /*-[--.---.---.--]-*/
 MARK_read          (char a_mark, char *a_label)
 {
@@ -745,12 +765,11 @@ MARK_read          (char a_mark, char *a_label)
    char        rce         = -11;
    char        rc          = 0;
    int         x_index     = 0;
-   int         x_len       = 0;
    /*---(header)-------------------------*/
    DEBUG_MARK   yLOG_enter   (__FUNCTION__);
    DEBUG_MARK   yLOG_value   ("a_mark"    , a_mark);
    /*---(check mark)---------------------*/
-   x_index = MARK__valid (a_mark);
+   x_index = MARK_valid (a_mark);
    DEBUG_MARK   yLOG_value   ("x_index"   , x_index);
    --rce;  if (x_index < 0) {
       DEBUG_MARK   yLOG_exitr   (__FUNCTION__, rce);
@@ -996,16 +1015,6 @@ MARK_smode         (int a_major, int a_minor)
 /*====================------------------------------------====================*/
 static void  o___UNIT_TEST_______o () { return; }
 
-char
-HINT__unit_jumper  (char *a_label, int *a_x, int *a_y, int *a_z)
-{
-   yVIKEYS_source (a_label, "testing");
-   *a_x = -1;
-   *a_y = -1;
-   *a_z = -1;
-   return 0;
-}
-
 char*        /*-> unit test accessor -----------------[ light  [us.940.221.74]*/ /*-[02.0000.00#.#]-*/ /*-[--.---.---.--]-*/
 MARK__unit         (char *a_question, char a_mark)
 {
@@ -1019,7 +1028,7 @@ MARK__unit         (char *a_question, char a_mark)
    case  0   :
       x_index = 0;  break;
    default   :
-      x_index = MARK__valid (a_mark);
+      x_index = MARK_valid (a_mark);
       if (x_index < 0) {
          snprintf (yVIKEYS__unit_answer, LEN_RECD, "MARK invalid     : %c not defined", a_mark);
       }
@@ -1030,7 +1039,7 @@ MARK__unit         (char *a_question, char a_mark)
       snprintf (yVIKEYS__unit_answer, LEN_RECD, "MARK list        : %-.80s", x_list);
    }
    else if (strcmp (a_question, "info"        )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_RECD, "MARK info        : %c %c %s", a_mark, s_mark_info [x_index].source, s_mark_info [x_index].label);
+      snprintf (yVIKEYS__unit_answer, LEN_RECD, "MARK info        : %c %c %-12.12s %4dx %4dy %4dz", a_mark, s_mark_info [x_index].source, s_mark_info [x_index].label, s_mark_info [x_index].x_pos, s_mark_info [x_index].y_pos, s_mark_info [x_index].z_pos);
    }
    else if (strcmp (a_question, "range"       )   == 0) {
       snprintf (yVIKEYS__unit_answer, LEN_RECD, "MARK range       : %c to %c", s_mark_head, s_mark_tail);
