@@ -1561,7 +1561,7 @@ SOURCE_mode             (int a_major, int a_minor)
       MODE_exit  ();
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return 0;
-   case G_KEY_RETURN : case G_KEY_ENTER  :
+   case G_KEY_RETURN :
       DEBUG_USER   yLOG_note    ("enter, means save and return to previous mode");
       SOURCE__accept ();
       SOURCE__done   ();

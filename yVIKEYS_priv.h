@@ -31,8 +31,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.8n"
-#define YVIKEYS_VER_TXT   "location marks updated in new label/coords world"
+#define YVIKEYS_VER_NUM   "0.8o"
+#define YVIKEYS_VER_TXT   "search now executes and handles history of searches"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -46,6 +46,18 @@
 #define     LEN_LABEL   20
 #define     LEN_STR     200
 #define     LEN_RECD    2000
+
+
+#define     G_STAGE_NULL         -1
+#define     G_STAGE_INIT          0
+#define     G_STAGE_CONF          1
+
+#define     G_STAGE_READY         5
+
+#define     G_STAGE_OPER         10
+
+
+
 
 typedef    struct    cSHARED    tSHARED;
 struct cSHARED {
@@ -207,7 +219,9 @@ char        VISU_writer             (int  n, int  *a, int  *b, int  *c, int  *d,
 char        VISU_reader             (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i);
 
 
+int         OUTP_write_all          (FILE *a_file, char a_abbr);
 char        OUTP__unit_writer       (char a_abbr, char a_item);
+char        INPT__unit_reader       (char a_abbr);
 
 
 char        SUNDO_status            (char *a_list);
@@ -295,13 +309,19 @@ char*       CMDS_curr               (void);
 char        CMDS__exec              (void);
 char        CMDS_mode               (char a_major, char a_minor);
 /*---(search)---------------*/
+int         SRCH_valid              (char a_mark);
 char        SRCH_init               (void);
 char        SRCH__purge             (void);
 char        SRCH_start              (void);
 char        SRCH__clear             (void);
 char*       SRCH_curr               (void);
 char        SRCH__exec              (void);
-char        SRCH_mode               (int a_major, int a_minor);
+char        SRCH_writer             (int n, int *a, int *b, int *c, int *d, int *e, int *f, int *g, int *h, int *i);
+char        SRCH_reader             (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i);
+/*---(unit testing)---------*/
+char        SRCH__unit_null         (void);
+char        SRCH__unit_searcher     (char *a_search);
+char        SRCH__unit_clearer      (char *a_label);
 char*       SRCH__unit              (char *a_question, char a_index);
 
 

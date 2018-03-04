@@ -4,6 +4,11 @@
 #include    "yVIKEYS_priv.h"
 
 
+static char s_srch_status   = G_STAGE_NULL;
+static char s_cmds_status   = G_STAGE_NULL;
+
+
+static char *S_HIST_LIST = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 /*===[[ MENUS ]]==============================================================*/
 #define    MAX_MENU        20
@@ -133,11 +138,13 @@ static int  s_slen       = 0;
 #define   MAX_PASS     200
 typedef struct cPASSES   tPASSES;
 struct cPASSES {
+   char        mark;
    char        search       [LEN_SEARCH];
    int         found;
 };
 static tPASSES   s_passes    [MAX_PASS];
 static int       s_npass     = 0;
+static int       s_cpass     = 0;
 
 
 #define   MAX_SRCH    2000
@@ -145,16 +152,17 @@ typedef   struct   cSRCH   tSRCH;
 struct cSRCH {
    int         pass;
    char        label       [LEN_LABEL];
-   char        source;
+   int         x_pos;
+   int         y_pos;
+   int         z_pos;
 };
 static tSRCH     s_srch      [MAX_SRCH];
 static int       s_nsrch     = 0;
+static int       s_csrch     = 0;
 
 char    (*s_searcher) (char *a_search);
 char    (*s_clearer ) (char *a_label );
 
-#define     SRCH_NONE     '-'
-#define     SRCH_USED     'a'
 
 
 
@@ -163,21 +171,54 @@ char    (*s_clearer ) (char *a_label );
 /*====================------------------------------------====================*/
 static void  o___SEARCH__________o () { return; }
 
+int  
+SRCH_valid           (char a_mark)
+{
+   char        rce         =  -10;
+   char        x_mark      =  ' ';
+   int         i           =    0;
+   int         n           = s_npass;
+   --rce;  if (a_mark == '\0')                        return rce;
+   --rce;  if (strchr (S_HIST_LIST, a_mark) == NULL)  return rce;
+   for (i = 0; i < s_npass; ++i) {
+      if (s_passes [i].mark != a_mark)  continue;
+      n = i;
+      break;
+   }
+   return n;
+}
+
 char
 SRCH_init               (void)
 {
-   int         i           = 0;
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   int         i           =    0;
    /*---(header)-------------------------*/
    DEBUG_PROG   yLOG_enter   (__FUNCTION__);
-   s_nsrch    = MAX_SRCH;
+   /*---(defense)------------------------*/
+   DEBUG_PROG   yLOG_value   ("stage"     , s_srch_status);
+   --rce;  if (s_srch_status != G_STAGE_NULL) {
+      DEBUG_PROG   yLOG_note    ("init called too late");
+      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, -66);
+      return -66;
+   }
+   /*---(clear callbacks)----------------*/
    s_searcher = NULL;
    s_clearer  = NULL;
+   /*---(clear current)------------------*/
+   s_nsrch    = MAX_SRCH;
    SRCH__clear  ();
    SRCH__purge ();
+   /*---(clear history)------------------*/
    for (i = 0; i < MAX_PASS; ++i) {
+      s_passes [i].mark  = '-';
       strlcpy (s_passes [i].search, "-", LEN_RECD);
-      s_passes [i].found = -1;
+      s_passes [i].found = 0;
    }
+   /*---(update stage)-------------------*/
+   s_srch_status = G_STAGE_INIT;
+   /*---(complete)-----------------------*/
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
 }
@@ -185,8 +226,37 @@ SRCH_init               (void)
 char
 yVIKEYS_srch_config     (void *a_searcher, void *a_clearer)
 {
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   /*---(header)-------------------------*/
+   DEBUG_PROG   yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   DEBUG_PROG   yLOG_value   ("stage"     , s_srch_status);
+   --rce;  if (s_srch_status <  G_STAGE_INIT) {
+      DEBUG_PROG   yLOG_note    ("must be called after init");
+      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, -66);
+      return -66;
+   }
+   /*---(update searcher)----------------*/
+   DEBUG_PROG   yLOG_point   ("searcher"  , a_searcher);
+   --rce;  if (a_searcher == NULL) {
+      DEBUG_PROG   yLOG_note    ("without searcher callback, search can not function");
+      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    s_searcher = a_searcher;
+   /*---(update clearer)-----------------*/
+   DEBUG_PROG   yLOG_point   ("clearer"   , a_clearer);
+   --rce;  if (a_clearer == NULL) {
+      DEBUG_PROG   yLOG_note    ("without clearer callback, search can not function");
+      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    s_clearer  = a_clearer;
+   /*---(update stage)-------------------*/
+   s_srch_status = G_STAGE_READY;
+   /*---(complete)-----------------------*/
+   DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -198,9 +268,9 @@ SRCH__purge             (void)
       if (s_clearer != NULL)  s_clearer (s_srch [i].label);
       s_srch [i].pass   = -1;
       strlcpy (s_srch [i].label, "-", LEN_LABEL);
-      s_srch [i].source = SRCH_NONE;
    }
    s_nsrch = 0;
+   s_csrch = 0;
    return 0;
 }
 
@@ -231,26 +301,113 @@ SRCH_curr            (void)
 }
 
 char
-yVIKEYS_srch_found   (char *a_label)
+yVIKEYS_srch_found   (char *a_label, int x, int y, int z)
 {
    s_srch [s_nsrch].pass   = s_npass;
-   strlcpy (s_srch [s_nsrch].label, a_label, LEN_LABEL);
-   s_srch [s_nsrch].source = SRCH_USED;
+   if (a_label != NULL)  strlcpy (s_srch [s_nsrch].label, a_label, LEN_LABEL);
+   s_srch [s_nsrch].x_pos = x;
+   s_srch [s_nsrch].x_pos = y;
+   s_srch [s_nsrch].x_pos = z;
    ++s_nsrch;
-   ++s_passes [s_npass].found;
+   ++s_passes [s_cpass].found;
+   return 0;
+}
+
+char
+SRCH__mark           (char a_mark)
+{
+   int         i           =    0;
+   for (i = 0; i < s_npass; ++i) {
+      if (s_passes [i].mark != a_mark)  continue;
+      s_passes [i].mark = '-';
+   }
+   s_passes [s_cpass].mark = a_mark;
+   return 0;
+}
+
+char
+SRCH__return         (char a_mark)
+{
+   int         i           =    0;
+   int         n           =   -1;
+   for (i = 0; i < s_npass; ++i) {
+      if (s_passes [i].mark != a_mark)  continue;
+      n = i;
+      break;
+   }
+   if (n < 0)  return -1;
+   s_cpass = n;
+   return 0;
+}
+
+char
+SRCH__roll           (int a_index)
+{
+   int         rce         =  -10;
+   int         i           =    0;
+   --rce;  if (a_index < 0)            return rce;
+   strlcpy (s_search, s_passes [a_index].search, LEN_RECD);
+   for (i = a_index; i < s_npass - 1; ++i) {
+      strlcpy (s_passes [i].search, s_passes [i + 1].search, LEN_RECD);
+      s_passes [i].found = s_passes [i + 1].found;
+   }
+   s_cpass = s_npass - 1;
+   strlcpy (s_passes [s_cpass].search, s_search, LEN_RECD);
+   s_passes [s_cpass].found = 0;
    return 0;
 }
 
 char
 SRCH__exec           (void)
 {
+   /*---(locals)-----------+-----+-----+-*/
+   int         rc          =    0;
+   /*---(defense)------------------------*/
+   if (s_srch_status < G_STAGE_READY)              return -66;
+   /*---(mark, no clear)-----------------*/
+   if (s_slen == 2 && s_search [0] == 'm') {
+      SRCH__mark (s_search [1]);
+      return 0;
+   }
+   /*---(clear results)------------------*/
    SRCH__purge  ();
-   if (s_slen == 1) return 0;
-   strlcpy (s_passes [s_npass].search, s_search, LEN_RECD);
-   s_passes [s_npass].found = 0;
-   ++s_npass;
-   if (s_searcher != NULL)  return s_searcher (s_search);
-   return -1;
+   /*---(handle simple)------------------*/
+   if (s_srch_status < G_STAGE_READY)              return -66;
+   if (s_slen <= 0)                                return 0;
+   if (s_slen == 1 && strcmp (s_search, "/") == 0) return 0;
+   /*---(repeat last)--------------------*/
+   else if (s_slen == 2 && strcmp (s_search, "//") == 0) {
+      if (s_npass == 0) return -1;
+      s_cpass = s_npass - 1;
+      strlcpy (s_search, s_passes [s_cpass].search, LEN_RECD);
+   }
+   /*---(repeat complex)-----------------*/
+   else if (s_slen > 2 && strncmp (s_search, "//", 2) == 0) {
+      /*---(repeat marked)---------------*/
+      if (s_slen == 3 && strchr (S_HIST_LIST, s_search [2]) != NULL) {
+         rc = SRCH__return (s_search [2]);
+         if (rc < 0)  return rc;
+      }
+      /*---(repeat by reference)---------*/
+      else {
+         s_cpass = s_npass - atoi (s_search + 2) - 1;
+         if (s_cpass < 0) s_cpass = 0;
+      }
+      /*---(copy to current)-------------*/
+      strlcpy (s_search, s_passes [s_cpass].search, LEN_RECD);
+   }
+   /*---(normal)-------------------------*/
+   else {
+      strlcpy (s_passes [s_npass].search, s_search, LEN_RECD);
+      s_cpass = s_npass;
+      ++s_npass;
+   }
+   /*---(make current)-------------------*/
+   s_passes [s_cpass].found = 0;
+   /*---(execute)------------------------*/
+   rc = s_searcher (s_search);
+   /*---(complete)-----------------------*/
+   return 0;
 }
 
 char
@@ -259,7 +416,7 @@ SRCH__load              (char *a_search)
    SRCH__clear ();
    if (a_search != NULL) {
       strlcpy (s_search, a_search, LEN_SEARCH);
-      s_clen = strllen (s_search, LEN_SEARCH);
+      s_slen = strllen (s_search, LEN_SEARCH);
    }
    return 0;
 }
@@ -271,86 +428,108 @@ yVIKEYS_srch_direct     (char *a_search)
    return SRCH__exec ();
 }
 
-char         /*-> process keys for searching ---------[ ------ [gc.LE5.266.I3]*/ /*-[05.0000.102.M]-*/ /*-[--.---.---.--]-*/
-SRCH_mode               (int a_major, int a_minor)
+char
+ySRCH_next              (char a_move)
 {
-   /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
-   char        x_temp      [11]        = "";
+   --rce;  if (s_nsrch <= 0)  return rce;
+   --rce;  switch (a_move) {
+   case '[' :  s_csrch = 0;            break;
+   case '<' :  --s_csrch;              break;
+   case 'N' :  --s_csrch;              break;
+   case 'n' :  ++s_csrch;              break;
+   case '>' :  ++s_csrch;              break;
+   case ']' :  s_csrch = s_nsrch - 1;  break;
+   default  : return rce;
+   }
+   if (s_csrch >= s_nsrch)  s_csrch = s_nsrch - 1;
+   if (s_csrch <  0      )  s_csrch = 0;
+   MAP_jump (s_srch [s_csrch].x_pos, s_srch [s_csrch].y_pos, s_srch [s_csrch].z_pos);
+   return 0;
+}
+
+
+char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/
+SRCH_writer           (int n, int *a, int *b, int *c, int *d, int *e, int *f, int *g, int *h, int *i)
+{
+   /*---(locals)-----------+-----------+-*/
+   int         x_index     =    0;
+   if (n >= strllen (S_HIST_LIST, LEN_DESC))   return -10;
+   x_index = SRCH_valid (S_HIST_LIST [n]);
+   if (s_passes [x_index].mark == '-') return 0;
+   if (x_index == s_npass)             return 0;
+   if (x_index >  s_npass)             return 0;
+   /*> endwin ();                                                                                                      <* 
+    *> printf ("visu   %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p\n", a, b, c, d, e, f, g, h, i);            <* 
+    *> printf (" val   %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p\n", *a, *b, *c, *d, *e, *f, *g, *h, *i);   <*/
+   *a = &s_passes [n].mark;
+   *b = &s_passes [n].search;
+   /*> printf (" val   %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p\n", *a, *b, *c, *d, *e, *f, *g, *h, *i);   <*/
+   return 1;
+}
+
+char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/
+SRCH_reader           (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i)
+{
+   /*---(locals)-----------+-----------+-*/
+   char        rce         =  -11;
    char        rc          =    0;
-   /*---(header)--------------------s----*/
-   DEBUG_USER   yLOG_enter   (__FUNCTION__);
-   DEBUG_USER   yLOG_char    ("a_major"   , a_major);
-   DEBUG_USER   yLOG_char    ("a_minor"   , chrvisible (a_minor));
-   /*---(defense)------------------------*/
-   DEBUG_USER   yLOG_char    ("mode"      , MODE_curr ());
-   --rce;  if (MODE_not (MODE_SEARCH )) {
-      DEBUG_USER   yLOG_note    ("not the correct mode");
-      DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
+   int         x_index     =    0;
+   char        x_label     [LEN_LABEL] = "";
+   /*---(header)-------------------------*/
+   DEBUG_SRCH   yLOG_enter   (__FUNCTION__);
+   /*---(check version)------------------*/
+   DEBUG_SRCH   yLOG_char    ("version"   , n);
+   --rce;  if (n != 'A') {
+      DEBUG_SRCH   yLOG_note    ("illegal version");
+      DEBUG_SRCH   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   --rce;  if (a_major != '/') {
-      DEBUG_USER   yLOG_note    ("a_major is not a slash (/)");
-      MODE_exit  ();
-      DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
+   /*---(check mark)---------------------*/
+   DEBUG_SRCH   yLOG_value   ("mark"      , a[0]);
+   --rce;  if (strchr (S_HIST_LIST, a[0]) == NULL) {
+      DEBUG_SRCH   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   /*---(get existing len)---------------*/
-   DEBUG_USER   yLOG_info    ("s_search"  , s_search);
-   DEBUG_USER   yLOG_value   ("s_slen"    , s_slen);
-   /*---(check for special codes)--------*/
-   if (s_escaped != 'y' && a_minor == G_KEY_BSLASH) {
-      s_escaped = 'y';
-      DEBUG_USER   yLOG_note    ("begin escaped character");
-      DEBUG_USER   yLOG_exit    (__FUNCTION__);
-      return a_major;
-   } else if (s_escaped == 'y') {
-      s_escaped = '-';
-      DEBUG_USER   yLOG_note    ("convert escaped character");
-      a_minor = chrslashed (a_minor);
+   DEBUG_SRCH   yLOG_char    ("mark"      , a[0]);
+   /*---(search)-------------------------*/
+   DEBUG_SRCH   yLOG_point   ("search"    , b);
+   --rce;  if (b == NULL) {
+      DEBUG_SRCH   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
    }
-   /*---(check for control keys)---------*/
-   switch (a_minor) {
-   case   G_KEY_RETURN : case   G_KEY_ENTER  :
-      MODE_exit  ();
-      SRCH__exec        ();
-      DEBUG_USER   yLOG_note    ("return, execute search");
-      DEBUG_USER   yLOG_exit    (__FUNCTION__);
-      return rc;   /* return  */
-   case   G_KEY_ESCAPE :
-      MODE_exit  ();
-      SRCH__clear ();
-      DEBUG_USER   yLOG_note    ("escape, ignore search");
-      DEBUG_USER   yLOG_exit    (__FUNCTION__);
-      return 0;
-   }
-   /*---(check for backspace)------------*/
-   if (a_minor == G_KEY_DEL || a_minor == G_KEY_BS) {
-      DEBUG_USER   yLOG_note    ("bs/del, remove character");
-      --s_slen;
-      if (s_search [s_slen] == G_KEY_DQUOTE) {
-         if (s_quoted == 'y')  s_quoted = '-';
-         else                  s_quoted = 'y';
-      }
-      if (s_slen < 1)   s_slen = 1;
-      s_search [s_slen] = '\0';
-      DEBUG_USER   yLOG_info    ("s_search"  , s_search);
-      DEBUG_USER   yLOG_value   ("s_slen"    , s_slen);
-      DEBUG_USER   yLOG_exit    (__FUNCTION__);
-      return a_major;
-   }
-   /*---(char fixing)--------------------*/
-   a_minor = chrvisible (a_minor);
-   /*---(normal characters)--------------*/
-   DEBUG_USER   yLOG_note    ("update search line");
-   snprintf (x_temp, 10, "%c", a_minor);
-   strcat   (s_search, x_temp);
-   ++s_slen;
-   DEBUG_USER   yLOG_info    ("s_search"  , s_search);
-   DEBUG_USER   yLOG_value   ("s_slen"    , s_slen);
+   /*---(save)---------------------------*/
+   DEBUG_SRCH   yLOG_note    ("saving values");
+   strlcpy (s_passes [s_npass].search, b, LEN_RECD);
+   s_passes [s_npass].mark = a[0];
+   ++s_npass;
+   s_cpass = s_npass - 1;
    /*---(complete)-----------------------*/
-   DEBUG_USER   yLOG_exit    (__FUNCTION__);
-   return a_major;
+   DEBUG_SRCH  yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char         /*-> tbd --------------------------------[ leaf   [ge.540.142.30]*/ /*-[01.0000.103.!]-*/ /*-[--.---.---.--]-*/
+SRCH_list               (char *a_list)
+{
+   /*---(locals)-----------+-----------+-*/
+   int         i           = 0;
+   char        rce         = -10;
+   char        x_entry     [20];
+   /*---(defenses)-----------------------*/
+   --rce;  if (a_list  == NULL)  return rce;
+   strncpy (a_list, "-", LEN_RECD);   /* special for a null list */
+   /*---(walk the list)------------------*/
+   strncpy (a_list, ",", LEN_RECD);
+   for (i = 0; i < s_nsrch; ++i) {
+      if (i > 10) break;
+      sprintf    (x_entry, "%s,", s_srch [i].label);
+      strncat    (a_list, x_entry, LEN_RECD);
+   }
+   /*---(catch empty)--------------------*/
+   if (strcmp (a_list, ",") == 0)   strcpy (a_list, ".");
+   /*---(complete)-----------------------*/
+   return 0;
 }
 
 
@@ -880,14 +1059,70 @@ CMDS__unit              (char *a_question, char a_index)
    return yVIKEYS__unit_answer;
 }
 
+char
+SRCH__unit_searcher     (char *a_search)
+{
+   if (a_search == NULL)  return 0;
+   if      (strcmp ("/1st", a_search) == 0) {
+      DEBUG_SRCH   yLOG_note    ("found /1st");
+      yVIKEYS_srch_found ("0k11"     ,  10,  10,   0);
+      yVIKEYS_srch_found ("0p12"     ,  15,  11,   0);
+      yVIKEYS_srch_found ("3d6"      ,   3,   5,   4);
+   }
+   else if (strcmp ("/2nd", a_search) == 0) {
+      DEBUG_SRCH   yLOG_note    ("found /2nd");
+      yVIKEYS_srch_found ("0k11"     ,  10,  10,   0);
+      yVIKEYS_srch_found ("0b3"      ,   1,   2,   0);
+      yVIKEYS_srch_found ("2b5"      ,   1,   4,   3);
+      yVIKEYS_srch_found ("Za1"      ,   0,   0,  36);
+   }
+   else if (strcmp ("/another", a_search) == 0) {
+      DEBUG_SRCH   yLOG_note    ("found /another");
+      yVIKEYS_srch_found ("2b5"      ,   1,   4,   3);
+   } else {
+      DEBUG_SRCH   yLOG_note    ("nothing found");
+   }
+   return 0;
+}
+
+char
+SRCH__unit_clearer      (char *a_junk)
+{
+   return 0;
+}
+
+char
+SRCH__unit_null         (void)
+{
+   s_srch_status  = G_STAGE_NULL;
+   return 0;
+}
+
 char*        /*-> tbd --------------------------------[ leaf   [gs.520.202.40]*/ /*-[01.0000.00#.#]-*/ /*-[--.---.---.--]-*/
 SRCH__unit              (char *a_question, char a_index)
 {
+   /*---(locals)-----------+-----------+-*/
+   char        t           [LEN_RECD ] = "";
    /*---(preprare)-----------------------*/
    strlcpy  (yVIKEYS__unit_answer, "SRCH unit        : question not understood", LEN_STR);
    /*---(dependency list)----------------*/
    if      (strcmp (a_question, "global"         )   == 0) {
       snprintf (yVIKEYS__unit_answer, LEN_STR, "SRCH global      : %2d[%-.40s]", s_slen, s_search);
+   }
+   else if (strcmp (a_question, "status"         )   == 0) {
+      switch (s_srch_status) {
+      case -1 : strlcpy (t, "null (not even initialized)", LEN_DESC);    break;
+      case  0 : strlcpy (t, "initialized only"           , LEN_DESC);    break;
+      case  5 : strlcpy (t, "configured and ready"       , LEN_DESC);    break;
+      }
+      snprintf (yVIKEYS__unit_answer, LEN_STR, "SRCH status      : stage %2d, %s", s_srch_status, t);
+   }
+   else if (strcmp (a_question, "history"        )   == 0) {
+      snprintf (yVIKEYS__unit_answer, LEN_STR, "SRCH history     : %2d %c %2d  %-.40s", a_index, s_passes [a_index].mark, s_passes [a_index].found, s_passes [a_index].search);
+   }
+   else if (strcmp (a_question, "results"        )   == 0) {
+      SRCH_list (t);
+      snprintf (yVIKEYS__unit_answer, LEN_STR, "SRCH results     : %2d %2d %-.40s", s_cpass, s_nsrch, t);
    }
    /*---(complete)-----------------------*/
    return yVIKEYS__unit_answer;

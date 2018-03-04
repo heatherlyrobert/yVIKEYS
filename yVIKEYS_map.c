@@ -971,30 +971,41 @@ yVIKEYS_map_config        (char a_coord, void *a_mapper, void *a_locator, void *
 char
 MAP_locator             (char *a_label, int *a_x, int *a_y, int *a_z)
 {
+   int         rce         = 0;
+   int         rc          = 0;
    DEBUG_MAP_M yLOG_enter   (__FUNCTION__);
    DEBUG_MAP_M yLOG_point   ("locator"    , s_locator);
-   if (s_locator == NULL) {
-      DEBUG_MAP_M yLOG_exit    (__FUNCTION__);
-      return -1;
+   --rce;  if (s_locator == NULL) {
+      DEBUG_MAP_M yLOG_exitr   (__FUNCTION__,rce);
+      return rce;
    }
    DEBUG_MAP_M yLOG_value   ("*a_x"      , *a_x);
    DEBUG_MAP_M yLOG_value   ("*a_y"      , *a_y);
    DEBUG_MAP_M yLOG_value   ("*a_z"      , *a_z);
-   s_locator (a_label, a_x, a_y, a_z);
+   rc = s_locator (a_label, a_x, a_y, a_z);
+   --rce;  if (rc < 0) {
+      DEBUG_MAP_M yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    DEBUG_MAP_M yLOG_value   ("*a_x"      , *a_x);
    DEBUG_MAP_M yLOG_value   ("*a_y"      , *a_y);
    DEBUG_MAP_M yLOG_value   ("*a_z"      , *a_z);
    DEBUG_MAP_M yLOG_exit    (__FUNCTION__);
-   return 0;
+   return rc;
 }
+
+static char  s_label   [LEN_LABEL] = "";
 
 char*
 MAP_addresser           (int  a_x, int  a_y, int  a_z)
 {
-   char        x_label     [LEN_LABEL] = "";
-   if (s_addresser == NULL)  return -1;
-   strlcpy (x_label, s_addresser (a_x, a_y, a_z), LEN_LABEL);
-   return x_label;
+   DEBUG_MAP   yLOG_enter   (__FUNCTION__);
+   DEBUG_MAP   yLOG_point   ("addressor" , s_addresser);
+   if (s_addresser == NULL)  strlcpy (s_label, "-", LEN_LABEL);
+   else                      strlcpy (s_label, s_addresser (a_x, a_y, a_z), LEN_LABEL);
+   DEBUG_MAP   yLOG_info    ("s_label"   , s_label);
+   DEBUG_MAP   yLOG_exit    (__FUNCTION__);
+   return s_label;
 }
 
 char
@@ -1996,7 +2007,7 @@ MAP__unit_locator       (char *a_label, int *a_x, int *a_y, int *a_z)
    int         i           =    0;
    int         n           =   -1;
    DEBUG_MAP_M yLOG_enter   (__FUNCTION__);
-   yVIKEYS_source (a_label, "testing");
+   DEBUG_MAP_M yLOG_note    (a_label);
    for (i = 0; i < 100; ++i) {
       if (MAP__unit_deref [i].label == NULL)                 break;
       if (MAP__unit_deref [i].label [0] != a_label [0])      continue;
@@ -2018,6 +2029,7 @@ MAP__unit_locator       (char *a_label, int *a_x, int *a_y, int *a_z)
    DEBUG_MAP_M yLOG_sint    (*a_x);
    DEBUG_MAP_M yLOG_sint    (*a_y);
    DEBUG_MAP_M yLOG_sint    (*a_z);
+   /*> yVIKEYS_source (a_label, "testing");                                           <*/
    DEBUG_MAP_M yLOG_exit    (__FUNCTION__);
    return 0;
 }
@@ -2035,7 +2047,7 @@ MAP__unit_addressor     (int x, int y, int z)
       n = i;
       break;
    }
-   if (n < 0)  return "unknown";
+   if (n < 0)  return "-";
    return MAP__unit_deref [n].label;
 }
 
@@ -2059,6 +2071,9 @@ MAP__unit               (char *a_question, char a_index)
    }
    else if (strcmp (a_question, "vert_grid"      )   == 0) {
       snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP vert grids   :        b %3d, c %3d, e %3d", g_ymap.gbeg, g_ymap.gcur, g_ymap.gend);
+   }
+   else if (strcmp (a_question, "current"        )   == 0) {
+      snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP current      : %3dx, %3dy, %3dz", g_xmap.gcur, g_ymap.gcur, g_zmap.gcur);
    }
    /*---(complete)-----------------------*/
    return yVIKEYS__unit_answer;

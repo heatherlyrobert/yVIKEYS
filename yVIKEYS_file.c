@@ -31,8 +31,9 @@ struct cSECTION {
 };
 static tSECTION  s_sections [MAX_SECTION] = {
    /* ---abbr---    ---name------------    --label---   ver   ---specs--    ---1st----    ---2nd----    ---3rd----    ---4th----    ---5th----    ---6th----    ---7th----    ---8th----    ---9th----   writer---------  reader---------  try  bad */
-   { SMOD_MARK   , "location marks"     , "loc_mark"  , 'A', "cLiii-----", "label"     , "x"         , "y"         , "z"         , ""          , ""          , ""          , ""          , ""          , MARK_writer    , MARK_reader    ,   0,   0 },
+   { SMOD_MARK   , "location marks"     , "loc_mark"  , 'B', "ciii------", "a"         , "x"         , "y"         , "z"         , ""          , ""          , ""          , ""          , ""          , MARK_writer    , MARK_reader    ,   0,   0 },
    { SMOD_VISUAL , "visual marks"       , "visu_mark" , 'A', "ciiiiii---", "a"         , "xbeg"      , "ybeg"      , "zbeg"      , "xend"      , "yend"      , "zend"      , ""          , ""          , VISU_writer    , VISU_reader    ,   0,   0 },
+   { MODE_SEARCH , "searches"           , "search"    , 'A', "cS--------", "a"         , "search"    , ""          , ""          , ""          , ""          , ""          , ""          , ""          , SRCH_writer    , SRCH_reader    ,   0,   0 },
    { 0           , ""                   , ""          , '-', "----------", ""          , ""          , ""          , ""          , ""          , ""          , ""          , ""          , ""          , NULL           , NULL           ,   0,   0 },
 };
 static int  s_nsection   = 0;
@@ -60,9 +61,6 @@ OUTP__sec_columns       (FILE *a_file, char a_index)
          fprintf (a_file, "%-3.3s  "  , x_label);
          break;
       case  'L'  :
-         fprintf (a_file, "%-10.10s  ", x_label);
-         break;
-      case  'N'  :
          fprintf (a_file, "%-20.20s  ", x_label);
          break;
       case  'D'  :
@@ -99,7 +97,8 @@ OUTP_writer             (char n, int a_entry)
    for (i = 0; i < 9; ++i) x_field [i] = NULL;
    /*> printf ("file   %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p\n", &x_field [0], &x_field [1], &x_field [2], &x_field [3], &x_field [4], &x_field [5], &x_field [6], &x_field [7], &x_field [8]);   <*/
    /*> printf ("value  %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p\n",  x_field [0],  x_field [1],  x_field [2],  x_field [3],  x_field [4],  x_field [5],  x_field [6],  x_field [7],  x_field [8]);   <*/
-   rc = VISU_writer (a_entry, &x_field [0], &x_field [1], &x_field [2], &x_field [3], &x_field [4], &x_field [5], &x_field [6], &x_field [7], &x_field [8]);
+   /*> rc = VISU_writer (a_entry, &x_field [0], &x_field [1], &x_field [2], &x_field [3], &x_field [4], &x_field [5], &x_field [6], &x_field [7], &x_field [8]);   <*/
+   rc = s_sections [n].writer (a_entry, &x_field [0], &x_field [1], &x_field [2], &x_field [3], &x_field [4], &x_field [5], &x_field [6], &x_field [7], &x_field [8]);
    /*> printf ("after  %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p\n", &x_field [0], &x_field [1], &x_field [2], &x_field [3], &x_field [4], &x_field [5], &x_field [6], &x_field [7], &x_field [8]);   <*/
    /*> printf ("value  %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p\n",  x_field [0],  x_field [1],  x_field [2],  x_field [3],  x_field [4],  x_field [5],  x_field [6],  x_field [7],  x_field [8]);   <*/
    if (rc <= 0)  return rc;
@@ -115,9 +114,6 @@ OUTP_writer             (char n, int a_entry)
          sprintf (t, "  %c  "     , *((char   *) x_field [i]));
          break;
       case  'L'  :
-         sprintf (t, " %-10.10s " , (char *)     x_field [i]);
-         break;
-      case  'N'  :
          sprintf (t, " %-20.20s " , (char *)     x_field [i]);
          break;
       case  'D'  :
@@ -151,6 +147,8 @@ OUTP__unit_writer       (char a_abbr, char a_item)
    int         i           =    0;
    int         n           =   -1;
    int         x_index     =   -1;
+   /*---(cleanse)------------------------*/
+   sprintf (myVIKEYS.f_recd, "");
    /*---(find entry)---------------------*/
    for (i = 0; i < MAX_SECTION; ++i) {
       if (s_sections [i].abbr == 0)       break;
@@ -163,6 +161,7 @@ OUTP__unit_writer       (char a_abbr, char a_item)
    switch (s_sections [n].abbr) {
    case SMOD_MARK    :  x_index = MARK_valid (a_item);  break;
    case SMOD_VISUAL  :  x_index = VISU_valid (a_item);  break;
+   case MODE_SEARCH  :  x_index = SRCH_valid (a_item);  break;
    }
    --rce;  if (x_index < 0)  return rce;
    /*---(process)------------------------*/
@@ -171,7 +170,7 @@ OUTP__unit_writer       (char a_abbr, char a_item)
    return rc;
 }
 
-char
+int 
 OUTP_write_all          (FILE *a_file, char a_abbr)
 {
    /*---(locals)-----------+-----+-----+-*/
@@ -194,22 +193,25 @@ OUTP_write_all          (FILE *a_file, char a_abbr)
    /*---(write header)-------------------*/
    strlcpy (x_upper, s_sections [n].name, LEN_LABEL);
    for (i = 0; i < strllen (x_upper, LEN_LABEL); ++i)  x_upper [i] = toupper (x_upper [i]);
-   fprintf (a_file, "#===[[ %-20.20s ]]===============================================================================================#\n",
-         x_upper);
-   OUTP__sec_columns (a_file, n);
+   if (a_file != NULL) {
+      fprintf (a_file, "#===[[ %-20.20s ]]===============================================================================================#\n",
+            x_upper);
+      OUTP__sec_columns (a_file, n);
+   }
    /*---(write entries)------------------*/
-   for (i = 0; i < 100; ++i) {
+   for (i = 0;  i < 127; ++i) {
       rc = OUTP_writer (n, i);
-      if (rc <  0)  break;
-      if (rc == 0)  continue;
+      if (rc <= 0)  continue;
       if (a_file != NULL)  fprintf (a_file, "%s\n", myVIKEYS.f_recd);
       ++c;
    }
    /*---(write footer)-------------------*/
-   if (c == 0)  fprintf (a_file, "# no %s\n", s_sections [n].name);
-   else         fprintf (a_file, "# complete with %d lines\n", c);
+   if (a_file != NULL) {
+      if (c == 0)  fprintf (a_file, "# no %s\n", s_sections [n].name);
+      else         fprintf (a_file, "# complete with %d lines\n", c);
+   }
    /*---(complete)-----------------------*/
-   return 0;
+   return c;
 }
 
 char         /*-> open file for reading and prep -----[ leaf   [ge.723.023.20]*/ /*-[01.0000.013.!]-*/ /*-[--.---.---.--]-*/
@@ -343,6 +345,34 @@ INPT_parse              (void)
    DEBUG_INPT  yLOG_char    ("vers"      , myVIKEYS.f_vers);
    /*---(complete)-----------------------*/
    return 0;
+}
+
+char
+INPT__unit_reader       (char a_abbr)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   int         i           =    0;
+   int         n           =   -1;
+   int         x_index     =   -1;
+   /*---(find entry)---------------------*/
+   for (i = 0; i < MAX_SECTION; ++i) {
+      if (s_sections [i].abbr == 0)       break;
+      if (s_sections [i].abbr != a_abbr)  continue;
+      n = i;
+      break;
+   }
+   --rce;  if (n < 0)     return rce;
+   /*---(parse the record)---------------*/
+   rc = INPT_parse ();
+   --rce;  if (rc < 0)    return  rce;
+   /*---(use the reader)-----------------*/
+   if (s_sections [n].writer != NULL) {
+      rc = s_sections [n].reader (myVIKEYS.f_vers, s_fields [2], s_fields [3], s_fields [4], s_fields [5], s_fields [6], s_fields [7], s_fields [8], s_fields [9], s_fields [10]);
+   }
+   /*---(complete)-----------------------*/
+   return rc;
 }
 
 char         /*-> file reading driver ----------------[ leaf   [ge.C71.072.GA]*/ /*-[02.0000.102.!]-*/ /*-[--.---.---.--]-*/
