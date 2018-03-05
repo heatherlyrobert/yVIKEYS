@@ -85,8 +85,6 @@ static tTERMS  s_terms [MAX_TERMS] = {
 static  int s_nterm  = 0;
 
 
-static char s_quoted    = '-';
-static char s_escaped   = '-';
 
 
 /*===[[ COMMANDS ]]===========================================================*/
@@ -161,15 +159,14 @@ static int       s_nsrch     = 0;
 static int       s_csrch     = 0;
 
 char    (*s_searcher) (char *a_search);
-char    (*s_clearer ) (char *a_label );
-
+char    (*s_clearer ) (int a_x, int a_y, int a_z);
 
 
 
 /*====================------------------------------------====================*/
-/*===----                        search bar                            ----===*/
+/*===----                       support functions                      ----===*/
 /*====================------------------------------------====================*/
-static void  o___SEARCH__________o () { return; }
+static void  o___SUPPORT_________o () { return; }
 
 int  
 SRCH_valid           (char a_mark)
@@ -189,6 +186,54 @@ SRCH_valid           (char a_mark)
 }
 
 char
+SRCH__clear          (void)
+{
+   strlcpy     (s_search , "" , LEN_RECD);
+   s_slen = 0;
+   return 0;
+}
+
+char CMDS__quit              (void) { myVIKEYS.done = 'y'; return 0; }
+char CMDS__writequit         (void) { myVIKEYS.done = 'y'; return 0; }
+
+int
+CMDS__find           (char *a_name)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        i           =    0;
+   int         x_len       =    0;
+   /*---(defense)------------------------*/
+   --rce;  if (a_name  == NULL)                         return rce;
+   x_len  = strllen (a_name, LEN_LABEL);
+   --rce;  if (x_len   <  1)                            return rce;
+   /*---(find)---------------------------*/
+   for (i = 0; i < s_ncmd; ++i) {
+      /*---(check abbr)------------------*/
+      if (s_cmds [i].alen == x_len) {
+         if (s_cmds [i].abbr [0] == a_name [0]) {
+            if (strcmp (s_cmds [i].abbr, a_name) == 0)  return i;
+         }
+      }
+      /*---(check name)------------------*/
+      if (s_cmds [i].len  == x_len) {
+         if (s_cmds [i].name [0] == a_name [0]) {
+            if (strcmp (s_cmds [i].name, a_name) == 0)  return i;
+         }
+      }
+   }
+   /*---(complete)-----------------------*/
+   return -1;
+}
+
+
+
+/*====================------------------------------------====================*/
+/*===----                      program level                          ----===*/
+/*====================------------------------------------====================*/
+static void  o___PROGRAM_________o () { return; }
+
+char
 SRCH_init               (void)
 {
    /*---(locals)-----------+-----+-----+-*/
@@ -204,9 +249,11 @@ SRCH_init               (void)
       return -66;
    }
    /*---(clear callbacks)----------------*/
+   DEBUG_PROG   yLOG_note    ("clear callbacks");
    s_searcher = NULL;
    s_clearer  = NULL;
    /*---(clear current)------------------*/
+   DEBUG_PROG   yLOG_note    ("initialize search results");
    s_nsrch    = MAX_SRCH;
    SRCH__clear  ();
    SRCH__purge ();
@@ -222,6 +269,88 @@ SRCH_init               (void)
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
 }
+
+char
+SRCH__purge             (void)
+{
+   int         i           = 0;
+   for (i = 0; i < s_nsrch; ++i) {
+      if (s_clearer != NULL)  s_clearer (s_srch [i].x_pos, s_srch [i].y_pos, s_srch [i].z_pos);
+      s_srch [i].pass   = -1;
+      strlcpy (s_srch [i].label, "-", LEN_LABEL);
+      s_srch [i].x_pos  =  0;
+      s_srch [i].y_pos  =  0;
+      s_srch [i].z_pos  =  0;
+   }
+   s_nsrch = 0;
+   s_csrch = 0;
+   return 0;
+}
+
+char
+CMDS_init               (void)
+{
+   char        rce         =  -10;
+   int         i           =    0;
+   /*---(header)-------------------------*/
+   DEBUG_PROG   yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   DEBUG_PROG   yLOG_value   ("stage"     , s_cmds_status);
+   --rce;  if (s_cmds_status != G_STAGE_NULL) {
+      DEBUG_PROG   yLOG_note    ("init called too late");
+      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, -66);
+      return -66;
+   }
+   /*---(menus)--------------------------*/
+   DEBUG_PROG   yLOG_note    ("initialize menu system");
+   s_nmenu = 0;
+   for (i = 0; i < MAX_MENU; ++i) {
+      if (s_menus [i].name [0] == NULL)  break;
+      s_menus [i].count = 0;
+      ++s_nmenu;
+   }
+   /*---(terms)--------------------------*/
+   DEBUG_PROG   yLOG_note    ("initialize term system");
+   s_nterm = 0;
+   for (i = 0; i < MAX_TERMS; ++i) {
+      if (s_terms [i].name [0] == '-')  break;
+      s_terms [i].count = 0;
+      ++s_nterm;
+   }
+   /*---(commands)-----------------------*/
+   DEBUG_PROG   yLOG_note    ("initialize command system");
+   s_ncmd = 0;
+   for (i = 0; i < MAX_CMDS; ++i) {
+      s_cmds [i].menu      = '-';
+      s_cmds [i].name  [0] = NULL;
+      s_cmds [i].len       = 0;
+      s_cmds [i].abbr  [0] = NULL;
+      s_cmds [i].alen      = 0;
+      s_cmds [i].active    = '-';
+      s_cmds [i].redraw    = '-';
+      s_cmds [i].f.v       = NULL;
+      s_cmds [i].terms [0] = 0;
+      s_cmds [i].nterm     = 0;
+      s_cmds [i].desc  [0] = 0;
+      s_cmds [i].disp  [0] = 0;
+   }
+   /*---(update stage)-------------------*/
+   s_cmds_status = G_STAGE_READY;
+   DEBUG_PROG   yLOG_value   ("stage"     , s_cmds_status);
+   /*---(other)--------------------------*/
+   DEBUG_PROG   yLOG_note    ("add universal commands");
+   myVIKEYS.done = '-';
+   yVIKEYS_cmds_add ('f', "quit"        , "q"   , ""     , CMDS__quit           , "quit current file (if no changes), exit if the only file"    );
+   yVIKEYS_cmds_add ('f', "quitall"     , "qa"  , ""     , CMDS__quit           , "quit all files (if no changes), and exit"                    );
+   yVIKEYS_cmds_add ('f', "writequit"   , "wq"  , ""     , CMDS__writequit      , ""                                                            );
+   yVIKEYS_cmds_add ('f', "writequitall", "wqa" , ""     , CMDS__writequit      , ""                                                            );
+   /*---(complete)-----------------------*/
+   DEBUG_PROG   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+
+
 
 char
 yVIKEYS_srch_config     (void *a_searcher, void *a_clearer)
@@ -260,40 +389,6 @@ yVIKEYS_srch_config     (void *a_searcher, void *a_clearer)
    return 0;
 }
 
-char
-SRCH__purge             (void)
-{
-   int         i           = 0;
-   for (i = 0; i < s_nsrch; ++i) {
-      if (s_clearer != NULL)  s_clearer (s_srch [i].label);
-      s_srch [i].pass   = -1;
-      strlcpy (s_srch [i].label, "-", LEN_LABEL);
-   }
-   s_nsrch = 0;
-   s_csrch = 0;
-   return 0;
-}
-
-char
-SRCH_start           (void)
-{
-   strlcpy     (s_search , "/", LEN_RECD);
-   s_slen = 1;
-   s_quoted  = '-';
-   s_escaped = '-';
-   return 0;
-}
-
-char
-SRCH__clear          (void)
-{
-   strlcpy     (s_search , "" , LEN_RECD);
-   s_slen = 0;
-   s_quoted  = '-';
-   s_escaped = '-';
-   return 0;
-}
-
 char*
 SRCH_curr            (void)
 {
@@ -303,11 +398,11 @@ SRCH_curr            (void)
 char
 yVIKEYS_srch_found   (char *a_label, int x, int y, int z)
 {
-   s_srch [s_nsrch].pass   = s_npass;
+   s_srch [s_nsrch].pass   = s_npass - 1;
    if (a_label != NULL)  strlcpy (s_srch [s_nsrch].label, a_label, LEN_LABEL);
    s_srch [s_nsrch].x_pos = x;
-   s_srch [s_nsrch].x_pos = y;
-   s_srch [s_nsrch].x_pos = z;
+   s_srch [s_nsrch].y_pos = y;
+   s_srch [s_nsrch].z_pos = z;
    ++s_nsrch;
    ++s_passes [s_cpass].found;
    return 0;
@@ -429,22 +524,43 @@ yVIKEYS_srch_direct     (char *a_search)
 }
 
 char
-ySRCH_next              (char a_move)
+SRCH_next               (char a_move)
 {
    char        rce         =  -10;
-   --rce;  if (s_nsrch <= 0)  return rce;
-   --rce;  switch (a_move) {
-   case '[' :  s_csrch = 0;            break;
-   case '<' :  --s_csrch;              break;
-   case 'N' :  --s_csrch;              break;
-   case 'n' :  ++s_csrch;              break;
-   case '>' :  ++s_csrch;              break;
-   case ']' :  s_csrch = s_nsrch - 1;  break;
-   default  : return rce;
+   char        x_seq       = s_csrch;
+   DEBUG_SRCH   yLOG_enter   (__FUNCTION__);
+   DEBUG_SRCH   yLOG_char    ("a_move"    , a_move);
+   DEBUG_SRCH   yLOG_value   ("nsrch"     , s_nsrch);
+   DEBUG_SRCH   yLOG_value   ("csrch"     , s_csrch);
+   DEBUG_SRCH   yLOG_value   ("x_seq"     , x_seq);
+   --rce;  if (s_nsrch <= 0) {
+      DEBUG_SRCH   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
    }
-   if (s_csrch >= s_nsrch)  s_csrch = s_nsrch - 1;
-   if (s_csrch <  0      )  s_csrch = 0;
+   --rce;  switch (a_move) {
+   case '[' :  x_seq = 0;            break;
+   case '<' :  --x_seq;              break;
+   case 'N' :  --x_seq;              break;
+   case 'n' :  ++x_seq;              break;
+   case '>' :  ++x_seq;              break;
+   case ']' :  x_seq = s_nsrch - 1;  break;
+   default  :
+      DEBUG_SRCH   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_SRCH   yLOG_value   ("x_seq"     , x_seq);
+   --rce;  if (x_seq >= s_nsrch) {
+      DEBUG_SRCH   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   --rce;  if (x_seq <  0      ) {
+      DEBUG_SRCH   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_SRCH   yLOG_value   ("x_seq"     , x_seq);
+   s_csrch = x_seq;
    MAP_jump (s_srch [s_csrch].x_pos, s_srch [s_csrch].y_pos, s_srch [s_csrch].z_pos);
+   DEBUG_SRCH   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -534,94 +650,17 @@ SRCH_list               (char *a_list)
 
 
 
-
 /*====================------------------------------------====================*/
 /*===----                       helpers                                ----===*/
 /*====================------------------------------------====================*/
 static void  o___CMDS_UTIL_______o () { return; }
 
-char CMDS__quit              (void) { myVIKEYS.done = 'y'; return 0; }
-char CMDS__writequit         (void) { myVIKEYS.done = 'y'; return 0; }
-
-int
-CMDS__find           (char *a_name)
-{
-   /*---(locals)-----------+-----+-----+-*/
-   char        rce         =  -10;
-   char        i           =    0;
-   int         x_len       =    0;
-   /*---(defense)------------------------*/
-   --rce;  if (a_name  == NULL)                         return rce;
-   x_len  = strllen (a_name, LEN_LABEL);
-   --rce;  if (x_len   <  1)                            return rce;
-   /*---(find)---------------------------*/
-   for (i = 0; i < s_ncmd; ++i) {
-      /*---(check abbr)------------------*/
-      if (s_cmds [i].alen == x_len) {
-         if (s_cmds [i].abbr [0] == a_name [0]) {
-            if (strcmp (s_cmds [i].abbr, a_name) == 0)  return i;
-         }
-      }
-      /*---(check name)------------------*/
-      if (s_cmds [i].len  == x_len) {
-         if (s_cmds [i].name [0] == a_name [0]) {
-            if (strcmp (s_cmds [i].name, a_name) == 0)  return i;
-         }
-      }
-   }
-   /*---(complete)-----------------------*/
-   return -1;
-}
 
 
 /*====================------------------------------------====================*/
 /*===----                       program level                          ----===*/
 /*====================------------------------------------====================*/
 static void  o___CMDS_PROG_______o () { return; }
-
-char
-CMDS_init               (void)
-{
-   int i = 0;
-   /*---(menus)--------------------------*/
-   s_nmenu = 0;
-   for (i = 0; i < MAX_MENU; ++i) {
-      if (s_menus [i].name [0] == NULL)  break;
-      s_menus [i].count = 0;
-      ++s_nmenu;
-   }
-   /*---(menus)--------------------------*/
-   s_nterm = 0;
-   for (i = 0; i < MAX_TERMS; ++i) {
-      if (s_terms [i].name [0] == '-')  break;
-      s_terms [i].count = 0;
-      ++s_nterm;
-   }
-   /*---(commands)-----------------------*/
-   s_ncmd = 0;
-   for (i = 0; i < MAX_CMDS; ++i) {
-      s_cmds [i].menu      = '-';
-      s_cmds [i].name  [0] = NULL;
-      s_cmds [i].len       = 0;
-      s_cmds [i].abbr  [0] = NULL;
-      s_cmds [i].alen      = 0;
-      s_cmds [i].active    = '-';
-      s_cmds [i].redraw    = '-';
-      s_cmds [i].f.v       = NULL;
-      s_cmds [i].terms [0] = 0;
-      s_cmds [i].nterm     = 0;
-      s_cmds [i].desc  [0] = 0;
-      s_cmds [i].disp  [0] = 0;
-   }
-   /*---(other)--------------------------*/
-   myVIKEYS.done = '-';
-   yVIKEYS_cmds_add ('f', "quit"        , "q"   , ""     , CMDS__quit           , "quit current file (if no changes), exit if the only file"    );
-   yVIKEYS_cmds_add ('f', "quitall"     , "qa"  , ""     , CMDS__quit           , "quit all files (if no changes), and exit"                    );
-   yVIKEYS_cmds_add ('f', "writequit"   , "wq"  , ""     , CMDS__writequit      , ""                                                            );
-   yVIKEYS_cmds_add ('f', "writequitall", "wqa" , ""     , CMDS__writequit      , ""                                                            );
-   /*---(complete)-----------------------*/
-   return 0;
-}
 
 char
 CMDS__menu           (char a_menu, char a_action)
@@ -673,6 +712,15 @@ yVIKEYS_cmds_add     (char a_menu, char *a_name, char *a_abbr, char *a_terms, vo
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    char        x_dup       =    0;
+   /*---(header)-------------------------*/
+   DEBUG_PROG   yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   DEBUG_PROG   yLOG_value   ("stage"     , s_cmds_status);
+   --rce;  if (s_cmds_status <  G_STAGE_INIT) {
+      DEBUG_PROG   yLOG_note    ("must be called after init");
+      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, -66);
+      return -66;
+   }
    /*---(defense)------------------------*/
    --rce;  if (CMDS__menu  (a_menu, ACTION_FIND) < 0)         return rce;
    --rce;  if (a_name  == NULL)                               return rce;
@@ -720,6 +768,7 @@ yVIKEYS_cmds_add     (char a_menu, char *a_name, char *a_abbr, char *a_terms, vo
    /*---(update count)-------------------*/
    ++s_ncmd;
    /*---(complete)-----------------------*/
+   DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -735,8 +784,6 @@ CMDS_start              (void)
 {
    strlcpy     (s_command , ":", LEN_COMMAND);
    s_clen = 1;
-   s_quoted  = '-';
-   s_escaped = '-';
    return 0;
 }
 
@@ -745,8 +792,6 @@ CMDS__clear             (void)
 {
    strlcpy     (s_command , "" , LEN_COMMAND);
    s_clen = 0;
-   s_quoted  = '-';
-   s_escaped = '-';
    return 0;
 }
 
@@ -815,6 +860,13 @@ CMDS__exec            (void)
    int         i           = 0;
    /*---(header)-------------------------*/
    DEBUG_USER   yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   DEBUG_PROG   yLOG_value   ("stage"     , s_cmds_status);
+   --rce;  if (s_cmds_status <  G_STAGE_READY) {
+      DEBUG_PROG   yLOG_note    ("must be called after init");
+      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, -66);
+      return -66;
+   }
    DEBUG_USER   yLOG_info    ("s_command" , s_command);
    /*---(look for system)---------------*/
    if (s_command [1] == '!') {
@@ -911,109 +963,6 @@ yVIKEYS_cmds_direct     (char *a_command)
 
 
 /*====================------------------------------------====================*/
-/*===----                         processing keys                      ----===*/
-/*====================------------------------------------====================*/
-static void  o___CMDS_MODE_______o () { return; }
-
-char         /*-> process keys for input/append ------[ ------ [gc.LE5.266.I3]*/ /*-[05.0000.102.M]-*/ /*-[--.---.---.--]-*/
-CMDS_mode             (char a_major, char a_minor)
-{
-   /*---(locals)-----------+-----+-----+-*/
-   char        rce         =  -10;
-   char        x_temp      [11]        = "";
-   char        rc          =    0;
-   /*---(header)-------------------------*/
-   DEBUG_USER   yLOG_enter   (__FUNCTION__);
-   DEBUG_USER   yLOG_value   ("a_major"   , a_major);
-   DEBUG_USER   yLOG_value   ("a_minor"   , a_minor);
-   /*---(defense)------------------------*/
-   DEBUG_USER   yLOG_char    ("mode"      , MODE_curr ());
-   --rce;  if (MODE_not (MODE_COMMAND)) {
-      DEBUG_USER   yLOG_note    ("not the correct mode");
-      DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   --rce;  if (a_major != ':') {
-      DEBUG_USER   yLOG_note    ("a_major is not a colon (:)");
-      MODE_exit  ();
-      DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   /*---(get existing len)---------------*/
-   DEBUG_USER   yLOG_info    ("s_command" , s_command);
-   s_clen = strllen (s_command, LEN_COMMAND);
-   DEBUG_USER   yLOG_value   ("s_clen"    , s_clen);
-   /*---(check for quoting)--------------*/
-   if (s_escaped != 'y' && a_minor == G_KEY_DQUOTE) {
-      if (s_quoted != 'y') {
-         DEBUG_USER   yLOG_note    ("entering quoted string");
-         s_quoted = 'y';
-      } else {
-         DEBUG_USER   yLOG_note    ("exiting quoted string");
-         s_quoted = '-';
-      }
-   }
-   /*---(check for special codes)--------*/
-   if (s_escaped != 'y' && a_minor == G_KEY_BSLASH) {
-      s_escaped = 'y';
-      DEBUG_USER   yLOG_note    ("begin escaped character");
-      DEBUG_USER   yLOG_exit    (__FUNCTION__);
-      return a_major;
-   } else if (s_escaped == 'y') {
-      s_escaped = '-';
-      DEBUG_USER   yLOG_note    ("convert escaped character");
-      a_minor = chrslashed (a_minor);
-   }
-   /*---(check for control keys)---------*/
-   if (s_quoted != 'y') {
-      switch (a_minor) {
-      case   G_KEY_RETURN : case   G_KEY_ENTER  :
-         DEBUG_USER   yLOG_note    ("return/enter, execute command");
-         MODE_exit  ();
-         rc = CMDS__exec ();
-         CMDS__clear ();
-         DEBUG_USER   yLOG_exit    (__FUNCTION__);
-         return rc;   /* return  */
-      case   G_KEY_ESCAPE :
-         DEBUG_USER   yLOG_note    ("escape, ignore command");
-         MODE_exit  ();
-         CMDS__clear ();
-         DEBUG_USER   yLOG_exit    (__FUNCTION__);
-         return 0;
-      }
-   }
-   /*---(check for backspace)------------*/
-   if (a_minor == G_KEY_DEL || a_minor == G_KEY_BS) {
-      DEBUG_USER   yLOG_note    ("bs/del, remove character");
-      --s_clen;
-      if (s_command [s_clen] == G_KEY_DQUOTE) {
-         if (s_quoted == 'y')  s_quoted = '-';
-         else                  s_quoted = 'y';
-      }
-      if (s_clen < 1)   s_clen = 1;
-      s_command [s_clen] = '\0';
-      DEBUG_USER   yLOG_info    ("s_command" , s_command);
-      DEBUG_USER   yLOG_value   ("s_clen"    , s_clen);
-      DEBUG_USER   yLOG_exit    (__FUNCTION__);
-      return a_major;
-   }
-   /*---(char fixing)--------------------*/
-   a_minor = chrvisible (a_minor);
-   /*---(normal characters)--------------*/
-   DEBUG_USER   yLOG_note    ("update command line");
-   snprintf (x_temp, 10, "%c", a_minor);
-   strlcat   (s_command, x_temp, LEN_COMMAND);
-   s_clen = strllen (s_command, LEN_COMMAND);
-   DEBUG_USER   yLOG_info    ("s_command" , s_command);
-   DEBUG_USER   yLOG_value   ("s_clen"    , s_clen);
-   /*---(complete)-----------------------*/
-   DEBUG_USER   yLOG_exit    (__FUNCTION__);
-   return a_major;
-}
-
-
-
-/*====================------------------------------------====================*/
 /*===----                         unit testing                         ----===*/
 /*====================------------------------------------====================*/
 static void  o___UNIT_TEST_______o () { return; }
@@ -1031,9 +980,18 @@ CMDS__test              (char a_mode, char a_value)
    return a_value;
 }
 
+char
+CMDS__unit_null         (void)
+{
+   s_cmds_status  = G_STAGE_NULL;
+   return 0;
+}
+
 char*        /*-> tbd --------------------------------[ leaf   [gs.520.202.40]*/ /*-[01.0000.00#.#]-*/ /*-[--.---.---.--]-*/
 CMDS__unit              (char *a_question, char a_index)
 {
+   /*---(locals)-----------+-----------+-*/
+   char        t           [LEN_RECD ] = "";
    /*---(preprare)-----------------------*/
    strlcpy  (yVIKEYS__unit_answer, "CMDS unit        : question not understood", LEN_STR);
    /*---(dependency list)----------------*/
@@ -1054,6 +1012,14 @@ CMDS__unit              (char *a_question, char a_index)
    }
    else if (strcmp (a_question, "command"        )   == 0) {
       snprintf (yVIKEYS__unit_answer, LEN_STR, "CMDS command (%2d): %c %-12.12s %-4.4s %-4.4s %3s", a_index, s_cmds [a_index].menu, s_cmds [a_index].name, s_cmds [a_index].abbr, s_cmds [a_index].terms, (s_cmds [a_index].f.v == NULL) ? "---" : "SET");
+   }
+   else if (strcmp (a_question, "status"         )   == 0) {
+      switch (s_cmds_status) {
+      case -1 : strlcpy (t, "null (not even initialized)", LEN_DESC);    break;
+      case  0 : strlcpy (t, "initialized only"           , LEN_DESC);    break;
+      case  5 : strlcpy (t, "configured and ready"       , LEN_DESC);    break;
+      }
+      snprintf (yVIKEYS__unit_answer, LEN_STR, "CMDS status      : stage %2d, %s", s_cmds_status, t);
    }
    /*---(complete)-----------------------*/
    return yVIKEYS__unit_answer;
@@ -1123,6 +1089,9 @@ SRCH__unit              (char *a_question, char a_index)
    else if (strcmp (a_question, "results"        )   == 0) {
       SRCH_list (t);
       snprintf (yVIKEYS__unit_answer, LEN_STR, "SRCH results     : %2d %2d %-.40s", s_cpass, s_nsrch, t);
+   }
+   else if (strcmp (a_question, "oneline"        )   == 0) {
+      snprintf (yVIKEYS__unit_answer, LEN_STR, "SRCH oneline     : %2dn, %2dc, %2dp, %-10.10s, %3dx, %3dy, %3dz", s_nsrch, a_index, s_srch [a_index].pass, s_srch [a_index].label,  s_srch [a_index].x_pos, s_srch [a_index].y_pos, s_srch [a_index].z_pos);
    }
    /*---(complete)-----------------------*/
    return yVIKEYS__unit_answer;

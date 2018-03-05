@@ -43,7 +43,7 @@
 #define     MODE_COMMAND   ':'
 #define     MODE_SEARCH    '/'
 #define     MODES_ONELINE  "S:/"
-#define     MODES_EDITING  "S:/trIw"
+#define     MODES_EDITING  "S:/triw"
 /*---(sub-modes)--------------s----------*/
 #define     SMOD_REPEAT    '9'    /* accumulate multiplier                    */
 #define     SMOD_ERROR     'e'    /* error reporting and actions              */

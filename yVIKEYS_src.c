@@ -427,6 +427,8 @@ SOURCE__accept          (void)
    s_live  = SELC_NOT;
    s_ctreg = s_wtreg = '"';
    SUNDO__purge (0);
+   yVIKEYS_source (s_src.label, s_src.original);
+   MAP_reposition  ();
    return 0;
 }
 
@@ -445,6 +447,8 @@ SOURCE__reset           (void)
    s_live  = SELC_NOT;
    s_ctreg = s_wtreg = '"';
    SUNDO__purge (0);
+   yVIKEYS_source (s_src.label, s_src.original);
+   MAP_reposition  ();
    return 0;
 }
 
@@ -1100,6 +1104,51 @@ SOURCE_command             (void)
    DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
    x_cur  = &s_cmd;
    SOURCE_display (x_cur, YVIKEYS_COMMAND);
+   DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char
+SOURCE_float               (void)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        x_mode      =  '-';
+   char        x_on        =  '-';
+   tEDIT      *x_cur       = NULL;
+   /*---(header)----------------------*/
+   DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
+   DEBUG_EDIT   yLOG_char    ("mode_curr" , MODE_curr ());
+   DEBUG_EDIT   yLOG_char    ("mode_prev" , MODE_prev ());
+   /*---(check modes)-----------------*/
+   if      (strchr (MODES_ONELINE, MODE_curr ()) != NULL )      x_mode = MODE_curr ();
+   else if (strchr (MODES_ONELINE, MODE_prev ()) != NULL )      x_mode = MODE_prev ();
+   DEBUG_EDIT   yLOG_char    ("x_mode"    , x_mode);
+   if (x_mode == '-')  {
+      DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
+   /*---(check modes)-----------------*/
+   --rce;  switch (x_mode) {
+   case MODE_SOURCE  :
+      DEBUG_EDIT   yLOG_note    ("mode source");
+      x_on   = yVIKEYS_view_size     (YVIKEYS_FORMULA, NULL, NULL, NULL, NULL, NULL);
+      x_cur  = &s_src;
+      break;
+   case MODE_COMMAND :
+   case MODE_SEARCH  :
+      DEBUG_EDIT   yLOG_note    ("mode command/search");
+      x_on   = yVIKEYS_view_size     (YVIKEYS_COMMAND, NULL, NULL, NULL, NULL, NULL);
+      x_cur  = &s_cmd;
+      break;
+   default :
+      DEBUG_EDIT   yLOG_note    ("default");
+      DEBUG_EDIT   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_EDIT   yLOG_char    ("x_on"      , x_on);
+   if (x_on != 'y')  SOURCE_display (x_cur, YVIKEYS_FLOAT);
+   /*---(complete)--------------------*/
    DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
    return 0;
 }

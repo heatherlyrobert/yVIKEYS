@@ -380,7 +380,7 @@ VIEW_defaults            (cchar a_env)
          case YVIKEYS_YAXIS   : p->on = '-';  p->def_wide =  30;  break;
          case YVIKEYS_OVERLAY : p->on = '-';                      break;
          case YVIKEYS_LAYERS  : p->on = '-';                      p->drawer = VIEW__layer_show; break;
-         case YVIKEYS_FLOAT   : p->on = 'y';  p->def_tall =  15;  p->drawer = VIEW__float;      break;
+         case YVIKEYS_FLOAT   : p->on = 'y';  p->def_tall =  15;  p->drawer = SOURCE_float;     break;
          case YVIKEYS_WINDOW  : p->on = '-';                      break;
          case YVIKEYS_MAIN    : p->on = 'y';                      break;
          }
@@ -410,7 +410,7 @@ VIEW_defaults            (cchar a_env)
          case YVIKEYS_YAXIS   : p->on = '-';  p->def_wide =   4;  break;
          case YVIKEYS_OVERLAY : p->on = '-';                      break;
          case YVIKEYS_LAYERS  : p->on = '-';                      break;
-         case YVIKEYS_FLOAT   : p->on = 'y';  p->def_tall =   1;  p->drawer = VIEW__float;      break;
+         case YVIKEYS_FLOAT   : p->on = 'y';  p->def_tall =   1;  p->drawer = SOURCE_float;     break;
          case YVIKEYS_WINDOW  : p->on = '-';                      break;
          case YVIKEYS_MAIN    : p->on = 'y';                      break;
          }

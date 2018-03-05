@@ -92,6 +92,7 @@ BASE__unit_loud        (void)
    yURG_name  ("mode"         , YURG_ON);
    yURG_name  ("map"          , YURG_ON);
    yURG_name  ("map_mas"      , YURG_ON);
+   yURG_name  ("srch"         , YURG_ON);
    DEBUG_YVIKEYS yLOG_info     ("yVIKEYS"    , yVIKEYS_version   ());
    yVIKEYS_init ();
    return 0;

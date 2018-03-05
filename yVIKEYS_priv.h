@@ -31,8 +31,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.8o"
-#define YVIKEYS_VER_TXT   "search now executes and handles history of searches"
+#define YVIKEYS_VER_NUM   "0.8q"
+#define YVIKEYS_VER_TXT   "float is working for command, search, and formula.  YES!"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -232,6 +232,7 @@ char        SOURCE_init             (void);
 char        SOURCE_other            (char a_type);
 char        SOURCE_formula          (void);
 char        SOURCE_command          (void);
+char        SOURCE_float            (void);
 char        SOURCE_status_select    (char *a_list);
 char*       SOURCE__unit            (char *a_question, char a_reg);
 char        SOURCE_status_words     (char *a_list);
@@ -307,15 +308,15 @@ int         CMDS__find              (char *a_name);
 char        CMDS__clear             (void);
 char*       CMDS_curr               (void);
 char        CMDS__exec              (void);
-char        CMDS_mode               (char a_major, char a_minor);
+char        CMDS__unit_null         (void);
 /*---(search)---------------*/
 int         SRCH_valid              (char a_mark);
 char        SRCH_init               (void);
 char        SRCH__purge             (void);
-char        SRCH_start              (void);
 char        SRCH__clear             (void);
 char*       SRCH_curr               (void);
 char        SRCH__exec              (void);
+char        SRCH_next               (char a_move);
 char        SRCH_writer             (int n, int *a, int *b, int *c, int *d, int *e, int *f, int *g, int *h, int *i);
 char        SRCH_reader             (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i);
 /*---(unit testing)---------*/

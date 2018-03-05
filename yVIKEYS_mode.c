@@ -188,12 +188,12 @@ MODE_prev          (void)
    char        rce         = -10;
    char        x_mode      = '-';
    /*---(check stack)--------------------*/
-   --rce;  if (s_nmode <= 1)            return rce;
+   --rce;  if (s_nmode <= 1)                return '-';
    /*---(grab previous)------------------*/
    x_mode = s_modes [s_nmode - 2];
    if (strchr (s_majors, x_mode) != NULL)   return x_mode;
    /*---(go back one more)---------------*/
-   --rce;  if (s_nmode <= 2)            return rce;
+   --rce;  if (s_nmode <= 2)                return '-';
    x_mode = s_modes [s_nmode - 3];
    /*---(complete)-----------------------*/
    return x_mode;

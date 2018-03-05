@@ -24,6 +24,7 @@ char   g_hword     [LEN_DESC ]   = "wbeWBE";
 char   g_multimap  [LEN_DESC ]   = "cegz";
 char   g_multisrc  [LEN_DESC ]   = "cgz";
 char   g_repeat    [LEN_DESC ]   = "123456789";
+char   g_search    [LEN_DESC ]   = "[<>]";
 
 
 
@@ -1335,8 +1336,8 @@ MAP_jump              (int a_x, int a_y, int a_z)
    MAP__move   (a_y, &g_ymap);
    MAP__screen (&g_ymap);
    DEBUG_MAP   yLOG_value   ("a_z"       , a_z);
-   /*> MAP__move   (a_z, &g_zmap);                                                    <* 
-    *> MAP__screen (&g_zmap);                                                         <*/
+   MAP__move   (a_z, &g_zmap);
+   /*> MAP__screen (&g_zmap);                                                         <*/
    MAP_reposition  ();
    VISU__update ();
    DEBUG_MAP   yLOG_exit    (__FUNCTION__);
@@ -1700,12 +1701,12 @@ MAP_mode                (char a_major, char a_minor)
           *>    break;                                                                   <*/
       }
       /*---(normal)----------------------*/
-      if (a_minor == 'P') {
-         /*> MAP__print (&g_xmap);                                                    <*/
-         /*> MAP__print (&g_ymap);                                                    <*/
-         DEBUG_USER   yLOG_exit    (__FUNCTION__);
-         return G_KEY_SPACE;
-      }
+      /*> if (a_minor == 'P') {                                                                 <* 
+       *>    /+> MAP__print (&g_xmap);                                                    <+/   <* 
+       *>    /+> MAP__print (&g_ymap);                                                    <+/   <* 
+       *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                          <* 
+       *>    return G_KEY_SPACE;                                                                <* 
+       *> }                                                                                     <*/
       if (strchr (g_hsimple, a_minor) != 0) {
          rc = MAP__horz   (a_major, a_minor);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
@@ -1715,6 +1716,13 @@ MAP_mode                (char a_major, char a_minor)
          rc = MAP__vert   (a_major, a_minor);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return G_KEY_SPACE;
+      }
+      if (strchr (g_search, a_minor) != 0) {
+         rc = SRCH_next   (a_minor);
+         MAP__screen (&g_xmap);
+         MAP__screen (&g_ymap);
+         MAP__screen (&g_zmap);
+         MAP_reposition  ();
       }
       /*---(column movement)-------------*/
       if (a_minor == '|') {
@@ -1754,8 +1762,6 @@ MAP_mode                (char a_major, char a_minor)
        *>                 return rce;                                                                           <* 
        *>                 break;                                                                                <* 
        *> }                                                                                                     <*/
-      DEBUG_USER   yLOG_exit    (__FUNCTION__);
-      return 0;
    }
    /*---(special family)------------------------*/
    /*> --rce;                                                                         <* 
@@ -1818,7 +1824,7 @@ MAP_mode                (char a_major, char a_minor)
     *> }                                                                              <*/
    /*---(complete)------------------------------*/
    DEBUG_USER   yLOG_exit    (__FUNCTION__);
-   return 0;
+   return rc;
 }
 
 char         /*-> process keys for wander mode -------[ ------ [ge.FE0.223.65]*/ /*-[05.0000.102.!]-*/ /*-[--.---.---.--]-*/
