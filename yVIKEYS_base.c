@@ -256,6 +256,7 @@ yVIKEYS_main_handle     (uchar a_key)
       case MODE_MAP      : rc = MAP_mode              (x_major , x_key);  break;
       case MODE_SOURCE   : rc = SOURCE_mode           (x_major , x_key);  break;
       case SMOD_INPUT    : rc = INPUT_smode           (x_major , x_key);  break;
+      case SMOD_HISTORY  : rc = HISTORY_smode         (x_major , x_key);  break;
       case MODE_COMMAND  : rc = SOURCE_mode           (x_major , x_key);  break;
       case MODE_SEARCH   : rc = SOURCE_mode           (x_major , x_key);  break;
       case SMOD_VISUAL   : rc = VISU_smode            (x_major , x_key);  break;

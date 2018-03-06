@@ -2001,6 +2001,115 @@ REPLACE_smode    (int a_major, int a_minor)
    return rc;
 }
 
+static int     s_min   = 0;
+static int     s_top   = 0;
+static int     s_now   = 0;
+static int     s_max   = 0;
+static int     s_lines = 0;
+
+char         /*-> show history on screen -------------[ ------ [ge.TQ5.25#.F9]*/ /*-[03.0000.122.R]-*/ /*-[--.---.---.--]-*/
+HISTORY_start           (void)
+{
+   yVIKEYS_view_size     (YVIKEYS_HISTORY, NULL, NULL, NULL, &s_lines, NULL);
+   switch (MODE_curr ()) {
+   case MODE_SEARCH  :
+      SRCH_limits (&s_min, &s_max);
+      break;
+   case MODE_COMMAND :
+      ;;
+      break;
+   }
+   s_now = s_max - 1;
+   s_top = s_now - ((s_lines - 2) / 2);
+   return 0;
+}
+
+char         /*-> show history on screen -------------[ ------ [ge.TQ5.25#.F9]*/ /*-[03.0000.122.R]-*/ /*-[--.---.---.--]-*/
+HISTORY_display         (void)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   int         x_left      =    0;
+   int         x_wide      =    0;
+   int         x_bott      =    0;
+   int         x_tall      =    0;
+   char        x_edit      =  ' ';
+   char        x_on        =  '-';
+   char        x_entry     [LEN_RECD]  = "";
+   int         i           =    0;
+   /*---(defense)------------------------*/
+   if (MODE_not (SMOD_HISTORY))   return 0;
+   /*---(header)-------------------------*/
+   DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
+   /*---(get sizes)----------------------*/
+   x_on = yVIKEYS_view_size     (YVIKEYS_HISTORY, &x_left, &x_wide, &x_bott, &x_tall, NULL);
+   if (myVIKEYS.env == YVIKEYS_CURSES) {
+      s_lines = x_tall - 2;
+      yCOLOR_curs ("h_used" );
+      mvprintw (x_bott - x_tall + 1, x_left, "%-*.*s", x_wide, x_wide, "SEARCH HISTORY                                                                             ");
+      attrset     (0);
+      for (i = 0; i < x_tall - 2; ++i) {
+         SRCH_entry (s_top + i, x_entry, x_wide);
+         if (s_top + i == s_now)  yCOLOR_curs ("map"          );
+         else                     yCOLOR_curs ("h_current"    );
+         mvprintw (x_bott - x_tall + 2 + i, x_left             , "%-*.*s", x_wide, x_wide, x_entry);
+         attrset     (0);
+      }
+      yCOLOR_curs ("h_used" );
+      mvprintw (x_bott, x_left             , "%-*.*s", x_wide, x_wide, "ENTER to choose, ESC to leave                                                              ");
+      attrset     (0);
+   }
+   /*---(complete)-----------------------*/
+   DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char         /*-> allow selection of older entries ---[ ------ [ge.TQ5.25#.F9]*/ /*-[03.0000.122.R]-*/ /*-[--.---.---.--]-*/
+HISTORY_smode           (int  a_major, int  a_minor)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   /*---(header)-------------------------*/
+   DEBUG_USER   yLOG_enter   (__FUNCTION__);
+   DEBUG_USER   yLOG_char    ("a_major"   , a_major);
+   DEBUG_USER   yLOG_char    ("a_minor"   , chrvisible (a_minor));
+   /*---(defenses)-----------------------*/
+   DEBUG_USER   yLOG_char    ("mode"      , MODE_curr ());
+   --rce;  if (MODE_not (SMOD_HISTORY)) {
+      DEBUG_USER   yLOG_note    ("not the correct mode");
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return rce;
+   }
+   if (a_minor == G_KEY_ESCAPE) {
+      DEBUG_USER   yLOG_note    ("escape, return to source mode");
+      MODE_exit ();
+      MODE_exit ();
+      return 0;
+   }
+   if (a_minor == G_KEY_RETURN) {
+      DEBUG_USER   yLOG_note    ("return, return to source mode");
+      MODE_exit ();
+      strlcpy (s_cur->contents, SRCH_use (s_now), LEN_RECD);
+      s_cur->cpos = 1;
+      SOURCE__done ();
+      return 0;
+   }
+   switch (a_minor) {
+   case '_' : s_now  = 0;                 break;
+   case 'J' : s_now += 5;                 break;
+   case 'j' : s_now += 1;                 break;
+   case 'k' : s_now -= 1;                 break;
+   case 'K' : s_now -= 5;                 break;
+   case '~' : s_now  = s_max - 1;         break;
+   }
+   if (s_now >= s_max) { s_now = s_max - 1; return -1; }
+   if (s_now <  0    ) { s_now = 0;         return -1; }
+   s_top = s_now - (s_lines / 2);
+   /*---(complete)-----------------------*/
+   DEBUG_USER   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
 char         /*-> process keys for input mode --------[ ------ [ge.TQ5.25#.F9]*/ /*-[03.0000.122.R]-*/ /*-[--.---.---.--]-*/
 INPUT_smode             (int  a_major, int  a_minor)
 {
@@ -2080,6 +2189,14 @@ INPUT_smode             (int  a_major, int  a_minor)
    }
    /*---(wrap up)------------------------*/
    SOURCE__done   ();
+   /*---(check for history)--------------*/
+   if (strcmp (s_cur->contents, "///¤") == 0) {
+      MODE_exit ();
+      strlcpy (s_cur->contents, "/", LEN_RECD);
+      SOURCE__done   ();
+      HISTORY_start ();
+      MODE_enter  (SMOD_HISTORY);
+   }
    /*---(complete)-----------------------*/
    DEBUG_USER   yLOG_exit    (__FUNCTION__);
    return rc;

@@ -166,6 +166,52 @@ char    (*s_clearer ) (int a_x, int a_y, int a_z);
 /*====================------------------------------------====================*/
 /*===----                       support functions                      ----===*/
 /*====================------------------------------------====================*/
+static void  o___HISTORY_________o () { return; }
+
+char
+SRCH_limits             (int *a_min, int *a_max)
+{
+   if (a_min != NULL)  *a_min = 0;
+   if (a_max != NULL)  *a_max = s_npass;
+   return 0;
+}
+
+char
+SRCH_entry              (int a_index, char *a_entry, int a_max)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        x_len       =    0;
+   int         x_found     =    0;
+   /*---(defense)------------------------*/
+   --rce;  if (a_entry == NULL)  return rce;
+   /*---(blank line)---------------------*/
+   if (a_index < 0 || a_index >= s_npass) {
+      sprintf (a_entry, "%-*.*s", a_max, a_max, " ");
+      return 0;
+   }
+   /*---(create)-------------------------*/
+   x_len = a_max - 8;
+   x_found = s_passes [a_index].found;
+   if (x_found > 99)  x_found = 99;
+   sprintf (a_entry, " %-3d  %2d  %c  %-*.*s ",
+         a_index, x_found, s_passes [a_index].mark,
+         x_len, x_len, s_passes [a_index].search);
+   /*---(complete)-----------------------*/
+   return 0;
+}
+
+char*
+SRCH_use                (int a_index)
+{
+   return s_passes [a_index].search;
+}
+
+
+
+/*====================------------------------------------====================*/
+/*===----                       support functions                      ----===*/
+/*====================------------------------------------====================*/
 static void  o___SUPPORT_________o () { return; }
 
 int  

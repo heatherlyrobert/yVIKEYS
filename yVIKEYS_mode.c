@@ -50,9 +50,10 @@ static tMODE_INFO  s_mode_info [MAX_MODES] = {
    { 'P' , 'y', 'y', "PRG", "progress"  , "progress timeline adding time dimension"            , ""                         ,    0, "horz=0LlhH$  vert=_KkjJG speed=<.> scale=+-"                                             },
    { 'M' , 'y', 'y', "MAP", "map"       , "map-mode providing 2D review of object collections" , "GvS:/\"b\'$oe\\,@9"       ,    0, "horz(a)=0HhlL$  horz(g/z)=sh,le  vert(a)=_KkjJG  vert(g/z)=tk.jb  modes=vIFV:{ret}"      },
    { 'S' , 'y', 'y', "SRC", "source"    , "linewise review of textual content"                 , "isrte9"                   ,    0, "hor=0HhlL$bBeEwW  g/z=sh,le  sel=vV\"  pul=yYdDxX  put=pP  chg=rRiIaA  fnd=fnN"          },
-   { ':' , 'y', '-', "CMD", "command"   , "command line capability for advanced actions"       , "isrte9"                   ,    0, ""                                                                                        },
-   { '/' , 'y', '-', "SCH", "search"    , "search mode to find data and objects"               , "isrte9"                   ,    0, ""                                                                                        },
+   { ':' , 'y', '-', "CMD", "command"   , "command line capability for advanced actions"       , "hisrte9"                  ,    0, ""                                                                                        },
+   { '/' , 'y', '-', "SCH", "search"    , "search mode to find data and objects"               , "hisrte9"                  ,    0, ""                                                                                        },
    /*---(sub-modes)----------------------*/
+   { 'h' , '-', 'y', "his", "history"   , "search and command history access"                  , ""                         ,    0, ""                                                                                        },
    { 'i' , '-', 'y', "inp", "input"     , "linewise creation and editing of textual content"   , ""                         ,    0, ""                                                                                        },
    { '9' , '-', 'y', "rep", "repeat"    , "accumulate multiplier"                              , ""                         ,    0, "range 1-99"                                                                              },
    { '!' , '-', 'y', "fil", "filter"    , "process current/selection through external filter"  , ""                         ,    0, "0HhlL$_KkjJG  gz=sh,letk.jb  dxy  !: ~uU /nN oO sS"                                      },
@@ -69,7 +70,7 @@ static tMODE_INFO  s_mode_info [MAX_MODES] = {
    { '\'', '-', 'y', "mrk", "mark"      , "object and location marking"                        , ""                         ,    0, "names=a-zA-Z0-9  actions=#!?_  special='[()]  wander=@  range=<>*"                       },
    { '@' , '-', 'y', "mac", "macro"     , "macro recording, execution, and maintenance"        , ""                         ,    0, "run=a-z"                                                                                 },
    { 'c' , '-', 'y', "chr", "char_find" , "linewise searching for characters"                  , ""                         ,    0, ""                                                                                        },
-   { 'h' , '-', 'y', "hnt", "hint"      , "provides automatic and manual labeling hints"       , ""                         ,    0, ""                                                                                        },
+   { ';' , '-', 'y', "hnt", "hint"      , "provides automatic and manual labeling hints"       , ""                         ,    0, ""                                                                                        },
    { '\\', '-', 'y', "mnu", "menus"     , "menu system"                                        , ""                         ,    0, ""                                                                                        },
    /*---(done)---------------------------*/
    { '-' , '-', 'y', "bad", "bad mode"  , "default message when mode is not understood"        , ""                         ,    0, "mode not understood"                                                                     },

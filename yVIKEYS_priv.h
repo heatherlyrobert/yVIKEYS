@@ -31,8 +31,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.8q"
-#define YVIKEYS_VER_TXT   "float is working for command, search, and formula.  YES!"
+#define YVIKEYS_VER_NUM   "0.8r"
+#define YVIKEYS_VER_TXT   "basic history screen and sub-mode are in place"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -243,6 +243,7 @@ char        SOURCE_mode             (int a_major, int a_minor);
 char        TEXTREG_smode           (int a_major, int a_minor);
 char        REPLACE_smode           (int a_major, int a_minor);
 char        INPUT_smode             (int  a_major, int  a_minor);
+char        HISTORY_display         (void);
 
 char        WANDER_smode            (int  a_major, int  a_minor);
 
@@ -299,6 +300,7 @@ char        MACRO_get_mode          ();
 char        MACRO_set_mode          (char a_mode);
 
 /*---(commands)-------------*/
+char        CMDS_limits             (int *a_min, int *a_max);
 char        CMDS_init               (void);
 char        CMDS__load              (char *a_command);
 char        CMDS__test              (char a_mode, char a_value);
@@ -310,6 +312,9 @@ char*       CMDS_curr               (void);
 char        CMDS__exec              (void);
 char        CMDS__unit_null         (void);
 /*---(search)---------------*/
+char        SRCH_limits             (int *a_min, int *a_max);
+char        SRCH_entry              (int a_index, char *a_entry, int a_max);
+char*       SRCH_use                (int a_index);
 int         SRCH_valid              (char a_mark);
 char        SRCH_init               (void);
 char        SRCH__purge             (void);

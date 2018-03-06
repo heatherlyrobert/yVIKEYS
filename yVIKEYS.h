@@ -54,6 +54,7 @@
 #define     SMOD_INPUT     'i'    /* direct input of text                     */
 #define     SMOD_WANDER    'w'    /* formula creation by pointing             */
 #define     SMOD_SUNDO     's'    /* incremental text change undo/redo        */
+#define     SMOD_HISTORY   'h'    /* hint labels                              */
 
 #define     SMOD_BUFFER    ','    /* selecting buffers                        */
 #define     SMOD_VISUAL    'v'    /* visual selection history                 */
@@ -61,7 +62,7 @@
 #define     SMOD_FORMAT    '$'    /* content formatting                       */
 #define     SMOD_OBJECT    'o'    /* object formatting                        */
 #define     SMOD_MARK      '\''   /* location and object marking              */
-#define     SMOD_HINT      'h'    /* hint labels                              */
+#define     SMOD_HINT      ';'    /* hint labels                              */
 
 #define     SMOD_MACRO     '@'    /* macro processing                         */
 #define     SMOD_MENUS     '\\'   /* show menu system                         */
@@ -156,6 +157,7 @@ tMAPPED     g_tmap;
 #define      YVIKEYS_BACK        'B'
 #define      YVIKEYS_XAXIS       'X'
 #define      YVIKEYS_YAXIS       'Y'
+#define      YVIKEYS_HISTORY     'H'
 
 
 
