@@ -138,6 +138,7 @@ typedef struct cPASSES   tPASSES;
 struct cPASSES {
    char        mark;
    char        search       [LEN_SEARCH];
+   int         count;
    int         found;
 };
 static tPASSES   s_passes    [MAX_PASS];
@@ -183,6 +184,7 @@ SRCH_entry              (int a_index, char *a_entry, int a_max)
    char        rce         =  -10;
    char        x_len       =    0;
    int         x_found     =    0;
+   int         x_count     =    0;
    /*---(defense)------------------------*/
    --rce;  if (a_entry == NULL)  return rce;
    /*---(blank line)---------------------*/
@@ -193,9 +195,11 @@ SRCH_entry              (int a_index, char *a_entry, int a_max)
    /*---(create)-------------------------*/
    x_len = a_max - 8;
    x_found = s_passes [a_index].found;
-   if (x_found > 99)  x_found = 99;
-   sprintf (a_entry, " %-3d  %2d  %c  %-*.*s ",
-         a_index, x_found, s_passes [a_index].mark,
+   if (x_found > 999)  x_found = 999;
+   x_count = s_passes [a_index].count;
+   if (x_count > 99)  x_count = 99;
+   sprintf (a_entry, " %-4d  %-2d  %-3d  %c  %-*.*s ",
+         a_index, x_count, x_found, s_passes [a_index].mark,
          x_len, x_len, s_passes [a_index].search);
    /*---(complete)-----------------------*/
    return 0;
@@ -308,6 +312,7 @@ SRCH_init               (void)
       s_passes [i].mark  = '-';
       strlcpy (s_passes [i].search, "-", LEN_RECD);
       s_passes [i].found = 0;
+      s_passes [i].count = 0;
    }
    /*---(update stage)-------------------*/
    s_srch_status = G_STAGE_INIT;
@@ -486,16 +491,47 @@ SRCH__roll           (int a_index)
 {
    int         rce         =  -10;
    int         i           =    0;
+   int         x_count     =    0;
+   int         x_found     =    0;
+   char        x_mark      =    0;
    --rce;  if (a_index < 0)            return rce;
    strlcpy (s_search, s_passes [a_index].search, LEN_RECD);
+   x_found = s_passes [a_index].found;
+   x_count = s_passes [a_index].count;
+   x_mark  = s_passes [a_index].mark;
    for (i = a_index; i < s_npass - 1; ++i) {
       strlcpy (s_passes [i].search, s_passes [i + 1].search, LEN_RECD);
       s_passes [i].found = s_passes [i + 1].found;
+      s_passes [i].count = s_passes [i + 1].count;
+      s_passes [i].mark  = s_passes [i + 1].mark;
    }
    s_cpass = s_npass - 1;
-   strlcpy (s_passes [s_cpass].search, s_search, LEN_RECD);
-   s_passes [s_cpass].found = 0;
+   strlcpy (s_passes [s_npass - 1].search, s_search, LEN_RECD);
+   s_passes [s_npass - 1].found = x_found;
+   s_passes [s_npass - 1].count = x_count;
+   s_passes [s_npass - 1].mark  = x_mark;
    return 0;
+}
+
+char
+SRCH__find            (char *a_search)
+{
+   int         i           =    0;
+   int         n           =   -1;
+   for (i = 0; i < s_npass; ++i) {
+      if (s_passes [i].search [0] != a_search [0])      continue;
+      if (strcmp (s_passes [i].search, a_search) != 0)  continue;
+      n = i;
+      break;
+   }
+   if (n < 0) {
+      strlcpy (s_passes [s_npass].search, s_search, LEN_RECD);
+      s_cpass = s_npass;
+      ++s_npass;
+   } else {
+      s_cpass = n;
+   }
+   return  0;
 }
 
 char
@@ -539,12 +575,16 @@ SRCH__exec           (void)
    }
    /*---(normal)-------------------------*/
    else {
-      strlcpy (s_passes [s_npass].search, s_search, LEN_RECD);
-      s_cpass = s_npass;
-      ++s_npass;
+      SRCH__find (s_search);
+      /*> strlcpy (s_passes [s_npass].search, s_search, LEN_RECD);                    <* 
+       *> s_cpass = s_npass;                                                          <* 
+       *> ++s_npass;                                                                  <*/
    }
    /*---(make current)-------------------*/
-   s_passes [s_cpass].found = 0;
+   SRCH__roll (s_cpass);
+   strlcpy (s_search, s_passes [s_npass - 1].search, LEN_RECD);
+   s_passes [s_npass - 1].found = 0;
+   ++s_passes [s_npass - 1].count;
    /*---(execute)------------------------*/
    rc = s_searcher (s_search);
    /*---(complete)-----------------------*/
@@ -614,18 +654,18 @@ SRCH_next               (char a_move)
 char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/
 SRCH_writer           (int n, int *a, int *b, int *c, int *d, int *e, int *f, int *g, int *h, int *i)
 {
-   /*---(locals)-----------+-----------+-*/
-   int         x_index     =    0;
-   if (n >= strllen (S_HIST_LIST, LEN_DESC))   return -10;
-   x_index = SRCH_valid (S_HIST_LIST [n]);
-   if (s_passes [x_index].mark == '-') return 0;
-   if (x_index == s_npass)             return 0;
-   if (x_index >  s_npass)             return 0;
+   /*> if (n >= strllen (S_HIST_LIST, LEN_DESC))   return -10;                        <*/
+   /*> x_index = SRCH_valid (S_HIST_LIST [n]);                                        <*/
+   if (s_passes [n].mark == '-') return 0;
+   if (n == s_npass)             return 0;
+   if (n >  s_npass)             return 0;
    /*> endwin ();                                                                                                      <* 
     *> printf ("visu   %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p\n", a, b, c, d, e, f, g, h, i);            <* 
     *> printf (" val   %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p\n", *a, *b, *c, *d, *e, *f, *g, *h, *i);   <*/
    *a = &s_passes [n].mark;
-   *b = &s_passes [n].search;
+   *b = &s_passes [n].count;
+   *c = &s_passes [n].found;
+   *d = &s_passes [n].search;
    /*> printf (" val   %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p\n", *a, *b, *c, *d, *e, *f, *g, *h, *i);   <*/
    return 1;
 }
@@ -662,8 +702,10 @@ SRCH_reader           (char n, char *a, char *b, char *c, char *d, char *e, char
    }
    /*---(save)---------------------------*/
    DEBUG_SRCH   yLOG_note    ("saving values");
-   strlcpy (s_passes [s_npass].search, b, LEN_RECD);
+   strlcpy (s_passes [s_npass].search, d, LEN_RECD);
    s_passes [s_npass].mark = a[0];
+   s_passes [s_npass].count = atoi (b);
+   s_passes [s_npass].found = atoi (c);
    ++s_npass;
    s_cpass = s_npass - 1;
    /*---(complete)-----------------------*/
@@ -1130,7 +1172,7 @@ SRCH__unit              (char *a_question, char a_index)
       snprintf (yVIKEYS__unit_answer, LEN_STR, "SRCH status      : stage %2d, %s", s_srch_status, t);
    }
    else if (strcmp (a_question, "history"        )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "SRCH history     : %2d %c %2d  %-.40s", a_index, s_passes [a_index].mark, s_passes [a_index].found, s_passes [a_index].search);
+      snprintf (yVIKEYS__unit_answer, LEN_STR, "SRCH history     : %2d %c %2d %2d  %-.40s", a_index, s_passes [a_index].mark, s_passes [a_index].count, s_passes [a_index].found, s_passes [a_index].search);
    }
    else if (strcmp (a_question, "results"        )   == 0) {
       SRCH_list (t);

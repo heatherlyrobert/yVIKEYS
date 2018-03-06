@@ -1676,12 +1676,14 @@ SOURCE_mode             (int a_major, int a_minor)
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return 0;
          break;
-      case  'i' : case  'a' :
+      case  'i' : case  'a' : case  'I' : case  'A' :
          DEBUG_USER   yLOG_note    ("enter input mode");
+         if (a_minor == 'A')  s_cur->cpos = s_cur->npos - 1;
+         if (a_minor == 'I')  s_cur->cpos = 0;
          MODE_enter (SMOD_INPUT);
-         INPUT_smode ('m', a_minor);
+         INPUT_smode ('m', tolower (a_minor));
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
-         return a_minor;
+         return tolower (a_minor);
          break;
       }
       /*---(cut/copy/paste)--------------*/
@@ -2045,7 +2047,7 @@ HISTORY_display         (void)
    if (myVIKEYS.env == YVIKEYS_CURSES) {
       s_lines = x_tall - 2;
       yCOLOR_curs ("h_used" );
-      mvprintw (x_bott - x_tall + 1, x_left, "%-*.*s", x_wide, x_wide, "SEARCH HISTORY                                                                             ");
+      mvprintw (x_bott - x_tall + 1, x_left, "%-*.*s", x_wide, x_wide, " line  rn  cnt  m  ----------SEARCH HISTORY--------------------------------------------------------------------------");
       attrset     (0);
       for (i = 0; i < x_tall - 2; ++i) {
          SRCH_entry (s_top + i, x_entry, x_wide);
@@ -2055,7 +2057,7 @@ HISTORY_display         (void)
          attrset     (0);
       }
       yCOLOR_curs ("h_used" );
-      mvprintw (x_bott, x_left             , "%-*.*s", x_wide, x_wide, "ENTER to choose, ESC to leave                                                              ");
+      mvprintw (x_bott, x_left             , "%-*.*s", x_wide, x_wide, " ¦ to choose, ¥ to leave, _KkjJ~ to move                                              ");
       attrset     (0);
    }
    /*---(complete)-----------------------*/

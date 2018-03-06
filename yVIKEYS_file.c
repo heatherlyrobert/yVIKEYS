@@ -33,7 +33,7 @@ static tSECTION  s_sections [MAX_SECTION] = {
    /* ---abbr---    ---name------------    --label---   ver   ---specs--    ---1st----    ---2nd----    ---3rd----    ---4th----    ---5th----    ---6th----    ---7th----    ---8th----    ---9th----   writer---------  reader---------  try  bad */
    { SMOD_MARK   , "location marks"     , "loc_mark"  , 'B', "ciii------", "a"         , "x"         , "y"         , "z"         , ""          , ""          , ""          , ""          , ""          , MARK_writer    , MARK_reader    ,   0,   0 },
    { SMOD_VISUAL , "visual marks"       , "visu_mark" , 'A', "ciiiiii---", "a"         , "xbeg"      , "ybeg"      , "zbeg"      , "xend"      , "yend"      , "zend"      , ""          , ""          , VISU_writer    , VISU_reader    ,   0,   0 },
-   { MODE_SEARCH , "searches"           , "search"    , 'A', "cS--------", "a"         , "search"    , ""          , ""          , ""          , ""          , ""          , ""          , ""          , SRCH_writer    , SRCH_reader    ,   0,   0 },
+   { MODE_SEARCH , "searches"           , "search"    , 'A', "ciiS------", "a"         , "count"     , "found"     , "search"    , ""          , ""          , ""          , ""          , ""          , SRCH_writer    , SRCH_reader    ,   0,   0 },
    { 0           , ""                   , ""          , '-', "----------", ""          , ""          , ""          , ""          , ""          , ""          , ""          , ""          , ""          , NULL           , NULL           ,   0,   0 },
 };
 static int  s_nsection   = 0;

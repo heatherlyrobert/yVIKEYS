@@ -31,8 +31,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.8r"
-#define YVIKEYS_VER_TXT   "basic history screen and sub-mode are in place"
+#define YVIKEYS_VER_NUM   "0.8s"
+#define YVIKEYS_VER_TXT   "added counts and founds to search writing/reading, also rolling"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
