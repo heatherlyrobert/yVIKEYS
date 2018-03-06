@@ -31,8 +31,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.8s"
-#define YVIKEYS_VER_TXT   "added counts and founds to search writing/reading, also rolling"
+#define YVIKEYS_VER_NUM   "0.8t"
+#define YVIKEYS_VER_TXT   "combined command/search history functions and tested on search"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
