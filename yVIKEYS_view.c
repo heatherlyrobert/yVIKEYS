@@ -24,7 +24,7 @@ char  VIEW__ribbon             (void);
 char  VIEW__grid_normal        (void);
 char  VIEW__grid_zoom          (void);
 char  VIEW__cursor             (void);
-char  VIEW__float              (void);
+/*> char  VIEW__float              (void);                                            <*/
 char  VIEW__layer_show         (void);
 char  VIEW__layer_set          (char *a_name);
 
@@ -1824,69 +1824,69 @@ VIEW__ribbon             (void)
    return 0;
 }
 
-char
-VIEW__float             (void)
-{
-   /*---(locals)-----------+------+----+-*/
-   char        x_use       =   '-';
-   int         x_top       =     0;
-   int         x_bot       =     0;
-   int         x_lef       =     0;
-   int         x_rig       =     0;
-   int         x_len       =     0;
-   int         n           =     0;
-   /*---(header)-------------------------*/
-   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
-   DEBUG_GRAF   yLOG_char    ("mode_curr" , MODE_curr ());
-   /*---(defense)------------------------*/
-   if (MODE_curr () == MODE_COMMAND || MODE_curr () == MODE_SEARCH) {
-      DEBUG_GRAF   yLOG_note    ("command/search mode");
-      n    = VIEW__abbr   (YVIKEYS_COMMAND);
-      if (s_parts [n].on == '-')  x_use = 'y';
-   } else {
-      DEBUG_GRAF   yLOG_note    ("other mode");
-      n    = VIEW__abbr   (YVIKEYS_FORMULA);
-      if (s_parts [n].on == '-')  x_use = 'y';
-   }
-   DEBUG_GRAF   yLOG_char    ("x_use"     , x_use);
-   if (x_use != 'y') {
-      DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
-      return 0;
-   }
-   /*---(draw)---------------------------*/
-   n    = VIEW__abbr    (YVIKEYS_FLOAT  );
-   yVIKEYS_view_coords  (YVIKEYS_FLOAT, &x_lef, &x_len, &x_bot, NULL);
-   x_rig = x_lef + x_len;
-   if (myVIKEYS.env == YVIKEYS_OPENGL) {
-      DEBUG_GRAF   yLOG_note    ("opengl environment");
-      glPushMatrix    (); {
-         yVIKEYS_view_color (s_parts [n].color, 1.0);
-         glBegin         (GL_POLYGON); {
-            glVertex3f  (x_lef , x_top, 50.0f);
-            glVertex3f  (x_rig , x_top, 50.0f);
-            glVertex3f  (x_rig , x_bot, 50.0f);
-            glVertex3f  (x_lef , x_bot, 50.0f);
-         } glEnd   ();
-         yVIKEYS_view_color_adj (s_parts [n].color, YCOLOR_MIN, 1.0);
-         glLineWidth  ( 2);
-         glBegin(GL_LINE_STRIP); {
-            glVertex3f  (x_lef , x_top, 50.0f);
-            glVertex3f  (x_rig , x_top, 50.0f);
-            glVertex3f  (x_rig , x_bot, 50.0f);
-            glVertex3f  (x_lef , x_bot, 50.0f);
-            glVertex3f  (x_lef , x_top, 50.0f);
-         } glEnd   ();
-         glTranslatef (x_lef + 3, x_bot,   60.0f);
-         switch (MODE_curr ()) {
-         case MODE_COMMAND :  yFONT_print  (myVIKEYS.font, myVIKEYS.point, YF_BOTLEF, CMDS_curr ());  break;
-         case MODE_SEARCH  :  yFONT_print  (myVIKEYS.font, myVIKEYS.point, YF_BOTLEF, SRCH_curr ());  break;
-         }
-      } glPopMatrix   ();
-   }
-   /*---(complete)-----------------------*/
-   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
-   return 0;
-}
+/*> char                                                                                                           <* 
+ *> VIEW__float             (void)                                                                                 <* 
+ *> {                                                                                                              <* 
+ *>    /+---(locals)-----------+------+----+-+/                                                                    <* 
+ *>    char        x_use       =   '-';                                                                            <* 
+ *>    int         x_top       =     0;                                                                            <* 
+ *>    int         x_bot       =     0;                                                                            <* 
+ *>    int         x_lef       =     0;                                                                            <* 
+ *>    int         x_rig       =     0;                                                                            <* 
+ *>    int         x_len       =     0;                                                                            <* 
+ *>    int         n           =     0;                                                                            <* 
+ *>    /+---(header)-------------------------+/                                                                    <* 
+ *>    DEBUG_GRAF   yLOG_enter   (__FUNCTION__);                                                                   <* 
+ *>    DEBUG_GRAF   yLOG_char    ("mode_curr" , MODE_curr ());                                                     <* 
+ *>    /+---(defense)------------------------+/                                                                    <* 
+ *>    if (MODE_curr () == MODE_COMMAND || MODE_curr () == MODE_SEARCH) {                                          <* 
+ *>       DEBUG_GRAF   yLOG_note    ("command/search mode");                                                       <* 
+ *>       n    = VIEW__abbr   (YVIKEYS_COMMAND);                                                                   <* 
+ *>       if (s_parts [n].on == '-')  x_use = 'y';                                                                 <* 
+ *>    } else {                                                                                                    <* 
+ *>       DEBUG_GRAF   yLOG_note    ("other mode");                                                                <* 
+ *>       n    = VIEW__abbr   (YVIKEYS_FORMULA);                                                                   <* 
+ *>       if (s_parts [n].on == '-')  x_use = 'y';                                                                 <* 
+ *>    }                                                                                                           <* 
+ *>    DEBUG_GRAF   yLOG_char    ("x_use"     , x_use);                                                            <* 
+ *>    if (x_use != 'y') {                                                                                         <* 
+ *>       DEBUG_GRAF   yLOG_exit    (__FUNCTION__);                                                                <* 
+ *>       return 0;                                                                                                <* 
+ *>    }                                                                                                           <* 
+ *>    /+---(draw)---------------------------+/                                                                    <* 
+ *>    n    = VIEW__abbr    (YVIKEYS_FLOAT  );                                                                     <* 
+ *>    yVIKEYS_view_coords  (YVIKEYS_FLOAT, &x_lef, &x_len, &x_bot, NULL);                                         <* 
+ *>    x_rig = x_lef + x_len;                                                                                      <* 
+ *>    if (myVIKEYS.env == YVIKEYS_OPENGL) {                                                                       <* 
+ *>       DEBUG_GRAF   yLOG_note    ("opengl environment");                                                        <* 
+ *>       glPushMatrix    (); {                                                                                    <* 
+ *>          yVIKEYS_view_color (s_parts [n].color, 1.0);                                                          <* 
+ *>          glBegin         (GL_POLYGON); {                                                                       <* 
+ *>             glVertex3f  (x_lef , x_top, 50.0f);                                                                <* 
+ *>             glVertex3f  (x_rig , x_top, 50.0f);                                                                <* 
+ *>             glVertex3f  (x_rig , x_bot, 50.0f);                                                                <* 
+ *>             glVertex3f  (x_lef , x_bot, 50.0f);                                                                <* 
+ *>          } glEnd   ();                                                                                         <* 
+ *>          yVIKEYS_view_color_adj (s_parts [n].color, YCOLOR_MIN, 1.0);                                          <* 
+ *>          glLineWidth  ( 2);                                                                                    <* 
+ *>          glBegin(GL_LINE_STRIP); {                                                                             <* 
+ *>             glVertex3f  (x_lef , x_top, 50.0f);                                                                <* 
+ *>             glVertex3f  (x_rig , x_top, 50.0f);                                                                <* 
+ *>             glVertex3f  (x_rig , x_bot, 50.0f);                                                                <* 
+ *>             glVertex3f  (x_lef , x_bot, 50.0f);                                                                <* 
+ *>             glVertex3f  (x_lef , x_top, 50.0f);                                                                <* 
+ *>          } glEnd   ();                                                                                         <* 
+ *>          glTranslatef (x_lef + 3, x_bot,   60.0f);                                                             <* 
+ *>          switch (MODE_curr ()) {                                                                               <* 
+ *>          case MODE_COMMAND :  yFONT_print  (myVIKEYS.font, myVIKEYS.point, YF_BOTLEF, CMDS_curr ());  break;   <* 
+ *>          case MODE_SEARCH  :  yFONT_print  (myVIKEYS.font, myVIKEYS.point, YF_BOTLEF, SRCH_curr ());  break;   <* 
+ *>          }                                                                                                     <* 
+ *>       } glPopMatrix   ();                                                                                      <* 
+ *>    }                                                                                                           <* 
+ *>    /+---(complete)-----------------------+/                                                                    <* 
+ *>    DEBUG_GRAF   yLOG_exit    (__FUNCTION__);                                                                   <* 
+ *>    return 0;                                                                                                   <* 
+ *> }                                                                                                              <*/
 
 char
 VIEW__layer_list         (void)

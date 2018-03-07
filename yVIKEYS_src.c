@@ -405,22 +405,28 @@ static void  o___SUPPORT_________o () { return; }
 char         /*-> accept all source changes ----------[ shoot  [gz.210.001.01]*/ /*-[00.0000.102.4]-*/ /*-[--.---.---.--]-*/
 SOURCE__accept          (void)
 {
+   char        rc          =    0;
+   DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
    switch (MODE_curr ()) {
    case MODE_SOURCE  :
+      DEBUG_EDIT   yLOG_note    ("save source back");
       if (s_saver != NULL && s_cur->npos > 0) {
          if (strcmp (s_cur->original, s_cur->contents) != 0)
             s_saver (s_cur->contents);
       }
       break;
    case MODE_COMMAND :
-      yVIKEYS_cmds_direct (s_cur->contents);
+      DEBUG_EDIT   yLOG_note    ("execute command");
+      rc = yVIKEYS_cmds_direct (s_cur->contents);
       strlcpy (s_cur->contents, "", LEN_RECD);
       break;
    case MODE_SEARCH  :
-      yVIKEYS_srch_direct (s_cur->contents);
+      DEBUG_EDIT   yLOG_note    ("execute search");
+      rc = yVIKEYS_srch_direct (s_cur->contents);
       strlcpy (s_cur->contents, "", LEN_RECD);
       break;
    }
+   DEBUG_EDIT   yLOG_value   ("rc"        , rc);
    strlcpy (s_cur->original, s_cur->contents, LEN_RECD);
    s_cur->npos  = s_cur->bpos  = s_cur->cpos  = s_cur->epos  = 0;
    s_root  = s_bsel  = s_esel  = 0;
@@ -429,7 +435,9 @@ SOURCE__accept          (void)
    SUNDO__purge (0);
    yVIKEYS_source (s_src.label, s_src.original);
    MAP_reposition  ();
-   return 0;
+   DEBUG_EDIT   yLOG_value   ("rc"        , rc);
+   DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+   return rc;
 }
 
 char         /*-> reject all source changes ----------[ shoot  [gz.210.001.01]*/ /*-[00.0000.102.4]-*/ /*-[--.---.---.--]-*/
@@ -1612,10 +1620,12 @@ SOURCE_mode             (int a_major, int a_minor)
       return 0;
    case G_KEY_RETURN :
       DEBUG_USER   yLOG_note    ("enter, means save and return to previous mode");
-      SOURCE__accept ();
+      rc = SOURCE__accept ();
+      DEBUG_USER   yLOG_value   ("rc"        , rc);
       SOURCE__done   ();
       MODE_exit  ();
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      if (rc < 0) return rc;
       return 0;
    }
    /*---(single letter)------------------*/
@@ -2013,14 +2023,7 @@ char         /*-> show history on screen -------------[ ------ [ge.TQ5.25#.F9]*/
 HISTORY_start           (void)
 {
    yVIKEYS_view_size     (YVIKEYS_HISTORY, NULL, NULL, NULL, &s_lines, NULL);
-   switch (MODE_curr ()) {
-   case MODE_SEARCH  :
-      SRCH_limits (&s_min, &s_max);
-      break;
-   case MODE_COMMAND :
-      ;;
-      break;
-   }
+   HISTORY_limits (MODE_curr (), &s_min, &s_max);
    s_now = s_max - 1;
    s_top = s_now - ((s_lines - 2) / 2);
    return 0;
@@ -2047,10 +2050,11 @@ HISTORY_display         (void)
    if (myVIKEYS.env == YVIKEYS_CURSES) {
       s_lines = x_tall - 2;
       yCOLOR_curs ("h_used" );
-      mvprintw (x_bott - x_tall + 1, x_left, "%-*.*s", x_wide, x_wide, " line  rn  cnt  m  ----------SEARCH HISTORY--------------------------------------------------------------------------");
+      if (MODE_prev () == MODE_SEARCH)  mvprintw (x_bott - x_tall + 1, x_left, "%-*.*s", x_wide, x_wide, " line  rn  cnt  m  ----------SEARCH HISTORY--------------------------------------------------------------------------");
+      else                              mvprintw (x_bott - x_tall + 1, x_left, "%-*.*s", x_wide, x_wide, " line  rn  rc-  m  ----------COMMAND HISTORY-------------------------------------------------------------------------");
       attrset     (0);
       for (i = 0; i < x_tall - 2; ++i) {
-         SRCH_entry (s_top + i, x_entry, x_wide);
+         HISTORY_entry (MODE_prev (), s_top + i, x_entry, x_wide);
          if (s_top + i == s_now)  yCOLOR_curs ("map"          );
          else                     yCOLOR_curs ("h_current"    );
          mvprintw (x_bott - x_tall + 2 + i, x_left             , "%-*.*s", x_wide, x_wide, x_entry);
@@ -2091,7 +2095,7 @@ HISTORY_smode           (int  a_major, int  a_minor)
    if (a_minor == G_KEY_RETURN) {
       DEBUG_USER   yLOG_note    ("return, return to source mode");
       MODE_exit ();
-      strlcpy (s_cur->contents, SRCH_use (s_now), LEN_RECD);
+      strlcpy (s_cur->contents, HISTORY_use (MODE_curr (), s_now), LEN_RECD);
       s_cur->cpos = 1;
       SOURCE__done ();
       return 0;
@@ -2125,6 +2129,8 @@ INPUT_smode             (int  a_major, int  a_minor)
    static char x_prev      =  '-';
    char        rc          =    0;
    static char x_mode      =  '-';
+   char        x_prevmode  =  '-';
+   char        x_history   [LEN_LABEL];
    /*---(header)-------------------------*/
    DEBUG_USER   yLOG_enter   (__FUNCTION__);
    DEBUG_USER   yLOG_char    ("a_major"   , a_major);
@@ -2174,7 +2180,7 @@ INPUT_smode             (int  a_major, int  a_minor)
       DEBUG_USER   yLOG_value   ("mode"     , MODE_curr ());
       if (a_minor == G_KEY_RETURN && strchr (MODES_ONELINE, MODE_curr ()) != NULL) {
          DEBUG_USER   yLOG_note    ("fast path back to map mode");
-         SOURCE_mode (' ', a_minor);
+         rc = SOURCE_mode (' ', a_minor);
       }
    }
    /*---(check for backspace)------------*/
@@ -2192,9 +2198,12 @@ INPUT_smode             (int  a_major, int  a_minor)
    /*---(wrap up)------------------------*/
    SOURCE__done   ();
    /*---(check for history)--------------*/
-   if (strcmp (s_cur->contents, "///¤") == 0) {
+   x_prevmode = MODE_prev ();
+   sprintf (x_history, "%c%c%c¤"  , x_prevmode, x_prevmode, x_prevmode);
+   if (strcmp (s_cur->contents, x_history) == 0) {
       MODE_exit ();
-      strlcpy (s_cur->contents, "/", LEN_RECD);
+      if (x_prevmode == MODE_SEARCH)  strlcpy (s_cur->contents, "/", LEN_RECD);
+      else                            strlcpy (s_cur->contents, ":", LEN_RECD);
       SOURCE__done   ();
       HISTORY_start ();
       MODE_enter  (SMOD_HISTORY);

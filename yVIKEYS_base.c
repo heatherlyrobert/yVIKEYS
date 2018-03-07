@@ -93,6 +93,7 @@ BASE__unit_loud        (void)
    yURG_name  ("map"          , YURG_ON);
    yURG_name  ("map_mas"      , YURG_ON);
    yURG_name  ("srch"         , YURG_ON);
+   yURG_name  ("hist"         , YURG_ON);
    DEBUG_YVIKEYS yLOG_info     ("yVIKEYS"    , yVIKEYS_version   ());
    yVIKEYS_init ();
    return 0;
@@ -274,6 +275,7 @@ yVIKEYS_main_handle     (uchar a_key)
       case SMOD_REPEAT   :                                                break;
       default            : rc = -1;  x_nomode = 'y';                      break;
       }
+      DEBUG_USER   yLOG_value   ("rc"        , rc);
       /*---(translate unprintable)-------*/
       x_repeat = REPEAT_count ();
       /*> printf ("rc %3d, repeat %2d, major %c, minor %c\n", rc, x_repeat, x_major, x_key);   <*/

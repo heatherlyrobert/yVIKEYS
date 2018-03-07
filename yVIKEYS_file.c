@@ -34,6 +34,7 @@ static tSECTION  s_sections [MAX_SECTION] = {
    { SMOD_MARK   , "location marks"     , "loc_mark"  , 'B', "ciii------", "a"         , "x"         , "y"         , "z"         , ""          , ""          , ""          , ""          , ""          , MARK_writer    , MARK_reader    ,   0,   0 },
    { SMOD_VISUAL , "visual marks"       , "visu_mark" , 'A', "ciiiiii---", "a"         , "xbeg"      , "ybeg"      , "zbeg"      , "xend"      , "yend"      , "zend"      , ""          , ""          , VISU_writer    , VISU_reader    ,   0,   0 },
    { MODE_SEARCH , "searches"           , "search"    , 'A', "ciiS------", "a"         , "count"     , "found"     , "search"    , ""          , ""          , ""          , ""          , ""          , SRCH_writer    , SRCH_reader    ,   0,   0 },
+   { MODE_COMMAND, "commands"           , "command"   , 'A', "ciiS------", "a"         , "count"     , "rc"        , "search"    , ""          , ""          , ""          , ""          , ""          , CMDS_writer    , CMDS_reader    ,   0,   0 },
    { 0           , ""                   , ""          , '-', "----------", ""          , ""          , ""          , ""          , ""          , ""          , ""          , ""          , ""          , NULL           , NULL           ,   0,   0 },
 };
 static int  s_nsection   = 0;
@@ -59,6 +60,9 @@ OUTP__sec_columns       (FILE *a_file, char a_index)
       switch (s_sections [a_index].specs [i]) {
       case  'c'  :
          fprintf (a_file, "%-3.3s  "  , x_label);
+         break;
+      case  's'  :
+         fprintf (a_file, "%-10.10s  ", x_label);
          break;
       case  'L'  :
          fprintf (a_file, "%-20.20s  ", x_label);
@@ -113,6 +117,9 @@ OUTP_writer             (char n, int a_entry)
       case  'c'  :
          sprintf (t, "  %c  "     , *((char   *) x_field [i]));
          break;
+      case  's'  :
+         fprintf (t, " %-10.10s  ", (char *)     x_field [i]);
+         break;
       case  'L'  :
          sprintf (t, " %-20.20s " , (char *)     x_field [i]);
          break;
@@ -162,6 +169,7 @@ OUTP__unit_writer       (char a_abbr, char a_item)
    case SMOD_MARK    :  x_index = MARK_valid (a_item);  break;
    case SMOD_VISUAL  :  x_index = VISU_valid (a_item);  break;
    case MODE_SEARCH  :  x_index = SRCH_valid (a_item);  break;
+   case MODE_COMMAND :  x_index = CMDS_valid (a_item);  break;
    }
    --rce;  if (x_index < 0)  return rce;
    /*---(process)------------------------*/

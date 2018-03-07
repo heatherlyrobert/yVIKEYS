@@ -31,8 +31,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.8t"
-#define YVIKEYS_VER_TXT   "combined command/search history functions and tested on search"
+#define YVIKEYS_VER_NUM   "0.8u"
+#define YVIKEYS_VER_TXT   "command and search, with history, is unit tested and working"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -302,24 +302,23 @@ char        MACRO_set_mode          (char a_mode);
 /*---(commands)-------------*/
 char        CMDS_limits             (int *a_min, int *a_max);
 char        CMDS_init               (void);
-char        CMDS__load              (char *a_command);
+/*> char        CMDS__load              (char *a_command);                            <*/
 char        CMDS__test              (char a_mode, char a_value);
 char*       CMDS__unit              (char *a_question, char a_index);
-char        CMDS_start              (void);
 int         CMDS__find              (char *a_name);
-char        CMDS__clear             (void);
 char*       CMDS_curr               (void);
 char        CMDS__exec              (void);
+int         CMDS_valid              (char a_mark);
+char        CMDS_writer             (int n, int *a, int *b, int *c, int *d, int *e, int *f, int *g, int *h, int *i);
+char        CMDS_reader             (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i);
 char        CMDS__unit_null         (void);
 /*---(search)---------------*/
-char        SRCH_limits             (int *a_min, int *a_max);
-char        SRCH_entry              (int a_index, char *a_entry, int a_max);
-char*       SRCH_use                (int a_index);
+char        HISTORY_limits          (char a_mode, int *a_min, int *a_max);
+char        HISTORY_entry           (char a_mode, int a_index, char *a_entry, int a_max);
+char*       HISTORY_use             (char a_mode, int a_index);
 int         SRCH_valid              (char a_mark);
 char        SRCH_init               (void);
 char        SRCH__purge             (void);
-char        SRCH__clear             (void);
-char*       SRCH_curr               (void);
 char        SRCH__exec              (void);
 char        SRCH_next               (char a_move);
 char        SRCH_writer             (int n, int *a, int *b, int *c, int *d, int *e, int *f, int *g, int *h, int *i);
