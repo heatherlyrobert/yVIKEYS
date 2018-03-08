@@ -50,6 +50,7 @@ yVIKEYS_init         (void)
    CMDS_init    ();
    MACRO_init   ();
    REPEAT_reset ();
+   FILE_init    ();
    myVIKEYS.done      = '-';
    myVIKEYS.trouble   = '-';
    /*----(complete)----------------------*/

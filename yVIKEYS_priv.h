@@ -31,8 +31,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.8u"
-#define YVIKEYS_VER_TXT   "command and search, with history, is unit tested and working"
+#define YVIKEYS_VER_NUM   "0.9a"
+#define YVIKEYS_VER_TXT   "added file status control and version functions from gyges"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -219,7 +219,10 @@ char        VISU_writer             (int  n, int  *a, int  *b, int  *c, int  *d,
 char        VISU_reader             (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i);
 
 
-int         OUTP_write_all          (FILE *a_file, char a_abbr);
+char        FILE_open               (char *a_dir);
+char        FILE_close              (void);
+int         OUTP_write              (void);
+int         OUTP_write_type         (FILE *a_file, char a_abbr);
 char        OUTP__unit_writer       (char a_abbr, char a_item);
 char        INPT__unit_reader       (char a_abbr);
 
@@ -328,6 +331,23 @@ char        SRCH__unit_null         (void);
 char        SRCH__unit_searcher     (char *a_search);
 char        SRCH__unit_clearer      (char *a_label);
 char*       SRCH__unit              (char *a_question, char a_index);
+
+
+
+char        yVIKEYS_file_config     (char *a_prog, char *a_ext, char *a_vernum, char *a_vertxt);
+char        FILE_init               (void);
+char        FILE_controlled         (char  *a_yes);
+char        FILE_control            (void);
+char        FILE_nocontrol          (void);
+char        FILE_version            (char  *a_ver);
+char        FILE_vertxt             (char  *a_txt);
+char        FILE_bump               (char  *a_type);
+char        FILE_bump_major         (void);
+char        FILE_bump_minor         (void);
+char        FILE_bump_inc           (void);
+char        FILE_rename             (char  *a_name);
+char        FILE__unit_null         (void);
+char*       FILE__unit              (char *a_question, int a_ref);
 
 
 #define    ACTION_FIND     'f'

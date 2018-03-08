@@ -281,7 +281,15 @@ SRCH_valid           (char a_mark)
 }
 
 char CMDS__quit              (void) { myVIKEYS.done = 'y'; return 0; }
-char CMDS__writequit         (void) { myVIKEYS.done = 'y'; return 0; }
+char CMDS__write             (void) { OUTP_write ();       return 0; }
+
+char
+CMDS__writequit         (void)
+{
+   OUTP_write ();
+   myVIKEYS.done = 'y';
+   return 0;
+}
 
 int
 CMDS__find           (char *a_name)
@@ -753,6 +761,8 @@ CMDS_init               (void)
    myVIKEYS.done = '-';
    yVIKEYS_cmds_add ('f', "quit"        , "q"   , ""     , CMDS__quit           , "quit current file (if no changes), exit if the only file"    );
    yVIKEYS_cmds_add ('f', "quitall"     , "qa"  , ""     , CMDS__quit           , "quit all files (if no changes), and exit"                    );
+   yVIKEYS_cmds_add ('f', "write"       , "w"   , ""     , CMDS__write          , "quit all files (if no changes), and exit"                    );
+   yVIKEYS_cmds_add ('f', "writeall"    , "wa"  , ""     , CMDS__write          , "quit all files (if no changes), and exit"                    );
    yVIKEYS_cmds_add ('f', "writequit"   , "wq"  , ""     , CMDS__writequit      , ""                                                            );
    yVIKEYS_cmds_add ('f', "writequitall", "wqa" , ""     , CMDS__writequit      , ""                                                            );
    /*---(complete)-----------------------*/
@@ -1108,6 +1118,8 @@ yVIKEYS_cmds_add     (char a_menu, char *a_name, char *a_abbr, char *a_terms, vo
    switch (a_terms [0]) {
    case   0  :
       s_cmds [s_ncmd].f.v   = a_func; break;
+   case  'a' :
+      s_cmds [s_ncmd].f.s   = a_func; break;
    case  'c' :
       if      (strcmp (a_terms, "c"    ) == 0)  s_cmds [s_ncmd].f.c    = a_func;
       else if (strcmp (a_terms, "cc"   ) == 0)  s_cmds [s_ncmd].f.cc   = a_func;
