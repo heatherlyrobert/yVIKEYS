@@ -16,11 +16,13 @@
 #include    <stdio.h>             /* clibc  standard input/output             */
 #include    <stdlib.h>            /* clibc  standard general purpose          */
 #include    <string.h>            /* clibc  standard string handling          */
+#include    <sys/stat.h>          /* clibc  standard file handling            */
+#include    <unistd.h>            /* clibc  linux/unix standard environment   */
 
 /*---(posix standard)--------------------*/
-#include   <GL/gl.h>              /* opengl standard primary header           */
-#include   <GL/glx.h>             /* opengl standard X11 integration          */
-#include    <ncurses.h>      /* CURSES : mvprintw, refresh, getch, ...        */
+#include    <GL/gl.h>             /* opengl standard primary header           */
+#include    <GL/glx.h>            /* opengl standard X11 integration          */
+#include    <ncurses.h>           /* CURSES mvprintw, refresh, getch, ...     */
 
 
 
@@ -31,8 +33,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.9a"
-#define YVIKEYS_VER_TXT   "added file status control and version functions from gyges"
+#define YVIKEYS_VER_NUM   "0.9b"
+#define YVIKEYS_VER_TXT   "file naming and location now unit testing great"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -132,6 +134,7 @@ extern char  g_multisrc  [LEN_DESC ];
 extern char  g_repeat    [LEN_DESC ];
 
 
+typedef     struct stat       tSTAT;
 typedef     struct timespec   tSPEC;
 typedef     unsigned char     uchar;
 typedef     signed char       schar;
@@ -345,7 +348,8 @@ char        FILE_bump               (char  *a_type);
 char        FILE_bump_major         (void);
 char        FILE_bump_minor         (void);
 char        FILE_bump_inc           (void);
-char        FILE_rename             (char  *a_name);
+char        FILE_loc                (char  *a_loc);
+char        FILE_name               (char  *a_name);
 char        FILE__unit_null         (void);
 char*       FILE__unit              (char *a_question, int a_ref);
 

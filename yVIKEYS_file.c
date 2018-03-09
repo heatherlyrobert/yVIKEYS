@@ -142,6 +142,9 @@ yVIKEYS_file_config     (char *a_prog, char *a_ext, char *a_vernum, char *a_vert
    }
    /*---(update stage)-------------------*/
    s_file_status = G_STAGE_READY;
+   /*---(default file name)--------------*/
+   FILE_loc  (NULL);
+   FILE_name (NULL);
    /*---(complete)-----------------------*/
    DEBUG_INPT   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -375,57 +378,130 @@ FILE_vertxt        (char *a_txt)
 }
 
 char         /*-> tbd --------------------------------[ leaf   [gc.C55.124.30]*/ /*-[01.0000.112.!]-*/ /*-[--.---.---.--]-*/
-FILE_name               (char *a_name)
+FILE_loc                (char *a_loc)
 {
    /*---(locals)-----------+-----+-----+-*/
-   char        t           [LEN_STR]   = "";
-   char       *p           = NULL;
+   char        rce         =  -10;
+   char        rc          =    0;
+   tSTAT       s;
+   int         x_len       =    0;
+   char        t           [LEN_RECD];
    /*---(header)-------------------------*/
    if (s_file_status <  G_STAGE_READY)   return -66;
    DEBUG_INPT   yLOG_enter   (__FUNCTION__);
-   /*---(defense)------------------------*/
+   /*---(deal with null/empty)-----------*/
+   DEBUG_INPT   yLOG_point   ("a_loc"     , a_loc);
+   if (a_loc == NULL || a_loc [0] == 0) {
+      DEBUG_INPT   yLOG_note    ("a_loc was null, clear loc");
+      strlcpy (myVIKEYS.f_loc  , ""        , LEN_RECD);
+      DEBUG_INPT   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
+   /*---(check for current)--------------*/
+   DEBUG_INPT   yLOG_point   ("a_loc"     , a_loc);
+   if (strcmp (a_loc, "./") == 0) {
+      DEBUG_INPT   yLOG_note    ("a_loc set to current");
+      getcwd (t, LEN_RECD);
+      sprintf (myVIKEYS.f_loc  , "%s/", t);
+      DEBUG_INPT   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
+   /*---(stat it)------------------------*/
+   rc = stat (a_loc, &s);
+   DEBUG_INPT   yLOG_value   ("rc"        , rc);
+   --rce;  if (rc < 0) {
+      DEBUG_INPT   yLOG_note    ("a_loc does not exist");
+      DEBUG_INPT   yLOG_exit    (__FUNCTION__);
+      return rce;
+   }
+   DEBUG_INPT   yLOG_value   ("mode"      , s.st_mode);
+   --rce;  if (!S_ISDIR (s.st_mode)) {
+      DEBUG_INPT   yLOG_note    ("a_loc is not a directory");
+      DEBUG_INPT   yLOG_exit    (__FUNCTION__);
+      return rce;
+   }
+   /*---(save directory)-----------------*/
+   x_len = strllen (a_loc, LEN_RECD);
+   if (a_loc [x_len - 1] == '/')  strlcpy (myVIKEYS.f_loc  , a_loc     , LEN_RECD);
+   else                           sprintf (myVIKEYS.f_loc  , "%s/", a_loc);
+   /*---(report out)---------------------*/
+   DEBUG_INPT   yLOG_info    ("f_loc"     , myVIKEYS.f_loc);
+   /*---(complete)-----------------------*/
+   DEBUG_INPT   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char         /*-> tbd --------------------------------[ leaf   [gc.C55.124.30]*/ /*-[01.0000.112.!]-*/ /*-[--.---.---.--]-*/
+FILE_name               (char *a_name)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   char        i           =    0;
+   char        t           [LEN_STR]   = "";
+   char        d           [LEN_STR]   = "";
+   char       *p           = NULL;
+   int         x_len       =    0;
+   int         x_extlen    =    0;
+   int        *x_valid     = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.";
+   /*---(header)-------------------------*/
+   if (s_file_status <  G_STAGE_READY)   return -66;
+   DEBUG_INPT   yLOG_enter   (__FUNCTION__);
+   /*---(prepare)------------------------*/
+   /*---(deal with empties)--------------*/
    DEBUG_INPT   yLOG_point   ("a_name"    , a_name);
-   if (a_name == NULL) {
+   if (a_name == NULL || a_name [0] == 0) {
       DEBUG_INPT   yLOG_note    ("a_name was null, using defaults");
-      strlcpy (myVIKEYS.f_loc  , ""        , LEN_RECD);
       strlcpy (myVIKEYS.f_name , FILE_BLANK, LEN_RECD);
-      sprintf (myVIKEYS.f_title, "%s.%s"   , myVIKEYS.f_name, s_ext);
-      DEBUG_INPT   yLOG_info    ("f_name"    , myVIKEYS.f_name);
-      DEBUG_INPT   yLOG_info    ("f_title"   , myVIKEYS.f_title);
+      sprintf (myVIKEYS.f_title, "%s%s.%s"   , myVIKEYS.f_loc, myVIKEYS.f_name, s_ext);
       DEBUG_INPT   yLOG_exit    (__FUNCTION__);
       return 0;
    }
-   DEBUG_INPT   yLOG_info    ("a_name"    , a_name);
-   if (a_name [0] == '\0') {
-      DEBUG_INPT   yLOG_note    ("a_name was blank, using defaults");
-      strlcpy (myVIKEYS.f_loc  , ""        , LEN_RECD);
-      strlcpy (myVIKEYS.f_name , FILE_BLANK, LEN_RECD);
-      sprintf (myVIKEYS.f_title, "%s.%s"   , myVIKEYS.f_name, s_ext);
-      DEBUG_INPT   yLOG_info    ("f_name"    , myVIKEYS.f_name);
-      DEBUG_INPT   yLOG_info    ("f_title"   , myVIKEYS.f_title);
-      DEBUG_INPT   yLOG_exit    (__FUNCTION__);
-      return 0;
-   }
-   /*---(parse base name)----------------*/
    strlcpy (t, a_name, LEN_STR);
-   p = strrchr (t, "/");
-   DEBUG_INPT   yLOG_point   ("p"         , p);
-   if (p == NULL) {
-      DEBUG_INPT   yLOG_note    ("name only, no directory");
-      strlcpy (myVIKEYS.f_loc  , ""        , LEN_RECD);
-      strlcpy (myVIKEYS.f_name , a_name, LEN_RECD);
-      sprintf (myVIKEYS.f_title, "%s.%s", myVIKEYS.f_name, s_ext);
-      DEBUG_INPT   yLOG_info    ("f_name"    , myVIKEYS.f_name);
-      DEBUG_INPT   yLOG_info    ("f_title"   , myVIKEYS.f_title);
-      DEBUG_INPT   yLOG_exit    (__FUNCTION__);
-      return 0;
+   DEBUG_INPT   yLOG_info    ("t"         , t);
+   /*---(strip extensions)---------------*/
+   DEBUG_INPT   yLOG_info    ("s_ext"     , s_ext);
+   x_extlen = strllen (s_ext, LEN_LABEL);
+   DEBUG_INPT   yLOG_value   ("x_extlen"  , x_extlen);
+   while (1) {
+      DEBUG_INPT   yLOG_info    ("t"         , t);
+      x_len = strllen (t, LEN_RECD);
+      DEBUG_INPT   yLOG_value   ("x_len"     , x_len);
+      if (x_len < x_extlen + 1)                        break;
+      DEBUG_INPT   yLOG_info    ("tail end"  , t + x_len - x_extlen - 1);
+      if (strcmp (t + x_len - x_extlen, s_ext) != 0)   break;
+      if (t [x_len - x_extlen - 1] != '.')             break;
+      t [x_len - x_extlen - 1] = 0;
    }
-   /*---(parse qualified name)-----------*/
-   DEBUG_INPT   yLOG_note    ("fully qualified name, with directory");
-   p = '\0';
-   strlcpy (myVIKEYS.f_loc  , t     , LEN_RECD);
-   strlcpy (myVIKEYS.f_name , p + 1 , LEN_RECD);
-   sprintf (myVIKEYS.f_title, "%s/%s.%s", myVIKEYS.f_loc, myVIKEYS.f_name, s_ext);
+   /*---(divide out location)------------*/
+   p = strrchr (t, '/');
+   DEBUG_INPT   yLOG_point   ("p"         , p);
+   if (p != NULL) {
+      DEBUG_INPT   yLOG_note    ("fully qualified name, with directory");
+      *p = 0;
+      sprintf (d, "%s/", t  , LEN_RECD);
+      rc = FILE_loc (d);
+      if (rc < 0) {
+         DEBUG_INPT   yLOG_exit    (__FUNCTION__);
+         return rc;
+      }
+      strlcpy (t, p + 1     , LEN_RECD);
+   } else {
+      DEBUG_INPT   yLOG_note    ("no directory assigned");
+   }
+   /*---(check for bad characters)-------*/
+   x_len = strllen (t, LEN_RECD);
+   --rce;  for (i = 0; i < x_len; ++i) {
+      if (strchr (x_valid, t [i]) != NULL)   continue;
+      DEBUG_INPT   yLOG_note    ("bad character in file name");
+      DEBUG_INPT   yLOG_exit    (__FUNCTION__);
+      return rce;
+   }
+   /*---(check for empty, again)---------*/
+   if (x_len == 0)  strlcpy (myVIKEYS.f_name , FILE_BLANK, LEN_RECD);
+   else             strlcpy (myVIKEYS.f_name , t         , LEN_RECD);
+   /*---(report out)---------------------*/
+   sprintf (myVIKEYS.f_title, "%s%s.%s", myVIKEYS.f_loc, myVIKEYS.f_name, s_ext);
    DEBUG_INPT   yLOG_info    ("f_loc"     , myVIKEYS.f_loc);
    DEBUG_INPT   yLOG_info    ("f_name"    , myVIKEYS.f_name);
    DEBUG_INPT   yLOG_info    ("f_title"   , myVIKEYS.f_title);
@@ -881,6 +957,11 @@ FILE__unit         (char *a_question, int a_ref)
       snprintf (yVIKEYS__unit_answer, LEN_STR, "FILE version     : %c %-4.4s %s", ver_ctrl, ver_num, ver_txt);
    } else if (strcmp (a_question, "recd"      )    == 0) {
       snprintf (yVIKEYS__unit_answer, LEN_STR, "FILE recd        : %s", myVIKEYS.f_recd);
+   } else if (strcmp (a_question, "loc"       )    == 0) {
+      if (myVIKEYS.f_loc [0] == 0)  snprintf (yVIKEYS__unit_answer, LEN_STR, "FILE loc         : -");
+      else                          snprintf (yVIKEYS__unit_answer, LEN_STR, "FILE loc         : %s", myVIKEYS.f_loc);
+   } else if (strcmp (a_question, "title"     )    == 0) {
+      snprintf (yVIKEYS__unit_answer, LEN_STR, "FILE title       : %s", myVIKEYS.f_title);
    }
    else if (strcmp (a_question, "status"         )   == 0) {
       switch (s_file_status) {
