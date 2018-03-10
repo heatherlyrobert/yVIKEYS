@@ -4,9 +4,12 @@
 #include    "yVIKEYS_priv.h"
 
 
+static char s_macro_status   = G_STAGE_NULL;
 
+#define     MAX_MACRO          26
 #define     LEN_MACRO        2000
 
+static char *S_MACRO_LIST = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 
 /*---(keyboard macro)-------*/
@@ -29,8 +32,10 @@ struct cMACRO {
    char        len;                         /* number of keys                 */
    char        cur;                         /* current key                    */
    char        repeat;                      /* number of repeats              */
+   int         count;
+   char        rc;
 };
-static tMACRO  s_macros    [26];
+static tMACRO  s_macros    [MAX_MACRO];
 
 static char    (*s_loader) (char a_name, char *a_keys);
 static char    (*s_saver ) (char a_name, char *a_keys);
@@ -45,11 +50,23 @@ static void  o___PROGRAM_________o () { return; }
 char         /*-> initialize macro environment -------[ shoot  [gz.210.001.01]*/ /*-[00.0000.102.4]-*/ /*-[--.---.---.--]-*/
 MACRO_init              (void)
 {
+   /*---(header)-------------------------*/
+   DEBUG_PROG   yLOG_enter   (__FUNCTION__);
+   /*---(clear)--------------------------*/
    MACRO__purge ();
    s_macro_name     = '-';
    s_loader = NULL;
    s_saver  = NULL;
+   /*---(update stage)-------------------*/
+   DEBUG_PROG   yLOG_note    ("update status");
+   s_macro_status = G_STAGE_READY;
+   /*---(commands)-----------------------*/
+   DEBUG_PROG   yLOG_note    ("add commands");
    yVIKEYS_cmds_add ('c', "macro"       , ""    , "a"    , MACRO_define         , "direct definition of a keyboard macro"                       );
+   /*---(read/write)---------------------*/
+   yVIKEYS_file_add (SMOD_MACRO, MACRO_writer, MACRO_reader);
+   /*---(complete)-----------------------*/
+   DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -91,6 +108,8 @@ MACRO__clear            (char a_macro)
    s_macros [x_index].len       =    0;
    s_macros [x_index].cur       =  ' ';
    s_macros [x_index].repeat    =    0;
+   s_macros [x_index].count     =    0;
+   s_macros [x_index].rc        =    0;
    /*---(complete)-----------------------*/
    return 0;
 }
@@ -497,6 +516,8 @@ MACRO_exec_beg          (char a_name)
    MACRO__fetch (s_macro_name);
    /*---(update repeat)---------------*/
    if (s_macro_repeat > 0)  --s_macro_repeat;
+   /*---(update count)----------------*/
+   ++s_macros [MACRO__index (s_macro_name)].count;
    /*---(complete)--------------------*/
    DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -736,6 +757,87 @@ MACRO_smode             (char a_major, char a_minor)
 
 char MACRO_get_mode          (void)         { return s_macro_mode; }
 char MACRO_set_mode          (char a_mode) { s_macro_mode = a_mode; return 0; }
+
+
+
+/*====================------------------------------------====================*/
+/*===----                        file handling                         ----===*/
+/*====================------------------------------------====================*/
+static void  o___FILE____________o () { return; }
+
+char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/
+MACRO_writer           (void)
+{
+   /*---(locals)-----------+-----------+-*/
+   int         i           =    0;
+   char        c           =    0;
+   /*---(find marked entries)------------*/
+   for (i = 0; i < MAX_MACRO; ++i) {
+      if (s_macros [i].len <= 0)  continue;
+      yVIKEYS_file_write (SMOD_MACRO, &S_MACRO_LIST [i], &s_macros [i].count, &s_macros [i].rc, s_macros [i].keys, NULL, NULL, NULL, NULL, NULL);
+      ++c;
+   }
+   /*---(complete)-----------------------*/
+   return c;
+}
+
+char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/
+MACRO_writer_single    (char a_abbr)
+{
+   /*---(locals)-----------+-----------+-*/
+   char        rce         =  -10;
+   int         i           =    0;
+   /*---(find marked entries)------------*/
+   strlcpy (myVIKEYS.f_recd, "", LEN_RECD);
+   --rce;  if (a_abbr < 0)           return rce;
+   --rce;  if (a_abbr >= MAX_MACRO)  return rce;
+   i = a_abbr - 'a';
+   yVIKEYS_file_write (SMOD_MACRO, &S_MACRO_LIST [i], &s_macros [i].count, &s_macros [i].rc, s_macros [i].keys, NULL, NULL, NULL, NULL, NULL);
+   /*---(complete)-----------------------*/
+   return 1;
+}
+
+char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/
+MACRO_reader            (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i)
+{
+   /*---(locals)-----------+-----------+-*/
+   char        rce         =  -11;
+   char        rc          =    0;
+   int         x_index     =    0;
+   char        x_label     [LEN_LABEL] = "";
+   /*---(header)-------------------------*/
+   DEBUG_SRCH   yLOG_enter   (__FUNCTION__);
+   /*---(check version)------------------*/
+   DEBUG_SRCH   yLOG_char    ("version"   , n);
+   --rce;  if (n != 'A') {
+      DEBUG_SRCH   yLOG_note    ("illegal version");
+      DEBUG_SRCH   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*> /+---(check mark)---------------------+/                                       <* 
+    *> DEBUG_SRCH   yLOG_value   ("mark"      , a[0]);                                <* 
+    *> --rce;  if (strchr (S_HIST_LIST, a[0]) == NULL) {                              <* 
+    *>    DEBUG_SRCH   yLOG_exitr   (__FUNCTION__, rce);                              <* 
+    *>    return rce;                                                                 <* 
+    *> }                                                                              <* 
+    *> DEBUG_SRCH   yLOG_char    ("mark"      , a[0]);                                <* 
+    *> /+---(search)-------------------------+/                                       <* 
+    *> DEBUG_SRCH   yLOG_point   ("search"    , b);                                   <* 
+    *> --rce;  if (b == NULL) {                                                       <* 
+    *>    DEBUG_SRCH   yLOG_exitr   (__FUNCTION__, rce);                              <* 
+    *>    return rce;                                                                 <* 
+    *> }                                                                              <* 
+    *> /+---(save)---------------------------+/                                       <* 
+    *> DEBUG_SRCH   yLOG_note    ("saving values");                                   <* 
+    *> strlcpy (s_runs [s_nrun].text, d, LEN_RECD);                                   <* 
+    *> s_runs [s_nrun].mark  = a[0];                                                  <* 
+    *> s_runs [s_nrun].count = atoi (b);                                              <* 
+    *> s_runs [s_nrun].found = atoi (c);                                              <* 
+    *> ++s_nrun;                                                                      <*/
+   /*---(complete)-----------------------*/
+   DEBUG_SRCH  yLOG_exit    (__FUNCTION__);
+   return 0;
+}
 
 
 

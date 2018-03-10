@@ -39,20 +39,23 @@ yVIKEYS_init         (void)
 {
    /*---(header)-------------------------*/
    DEBUG_PROG   yLOG_enter   (__FUNCTION__);
-   /*----(modes)-------------------------*/
+   /*----(early)-------------------------*/
    MODE_init    ();
+   FILE_init    ();
+   CMDS_init    ();
+   SRCH_init    ();
+   /*----(later)-------------------------*/
    MAP_init     ();
    SOURCE_init  ();
+   MACRO_init   ();
+   /*----(late)--------------------------*/
    TEXTREG_init ();
    MARK_init    ();
    VISU_init    ();
-   SRCH_init    ();
-   CMDS_init    ();
-   MACRO_init   ();
    REPEAT_reset ();
-   FILE_init    ();
    myVIKEYS.done      = '-';
    myVIKEYS.trouble   = '-';
+   myVIKEYS.info_win  = '-';
    /*----(complete)----------------------*/
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;

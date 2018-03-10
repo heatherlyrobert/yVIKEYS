@@ -67,6 +67,9 @@
 #define     SMOD_MACRO     '@'    /* macro processing                         */
 #define     SMOD_MENUS     '\\'   /* show menu system                         */
 
+#define     FILE_DEPCEL    'd'
+#define     FILE_FREECEL   'f'
+
 
 typedef  const unsigned char  cuchar;
 typedef  unsigned char        uchar;
@@ -269,6 +272,11 @@ char        yVIKEYS_srch_config     (void *a_searcher, void *a_clearer);
 char        yVIKEYS_srch_found      (char *a_label, int x, int y, int z);
 char        yVIKEYS_srch_direct     (char *a_search);
 
+/*---(files)----------------*/
+char        yVIKEYS_file_config     (char *a_prog, char *a_ext, char *a_vernum, char *a_vertxt);
+char        yVIKEYS_file_add        (char  a_abbr, void *a_writer, void *a_reader);
+/*> char        yVIKEYS_file_write      (char  a_abbr, void *a_field [9]);            <*/
+char        yVIKEYS_file_write      (char a_abbr, void *a, void *b, void *c, void *d, void *e, void *f, void *g, void *h, void *i);
 
 
 #endif

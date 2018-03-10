@@ -252,7 +252,7 @@ CMDS_valid           (char a_mark)
    char        rce         =  -10;
    char        x_mark      =  ' ';
    int         i           =    0;
-   int         n           = s_nrun;
+   int         n           =   -1;
    --rce;  if (a_mark == '\0')                        return rce;
    --rce;  if (strchr (S_HIST_LIST, a_mark) == NULL)  return rce;
    for (i = 0; i < s_nrun; ++i) {
@@ -269,7 +269,7 @@ SRCH_valid           (char a_mark)
    char        rce         =  -10;
    char        x_mark      =  ' ';
    int         i           =    0;
-   int         n           = s_npass;
+   int         n           =   -1; 
    --rce;  if (a_mark == '\0')                        return rce;
    --rce;  if (strchr (S_HIST_LIST, a_mark) == NULL)  return rce;
    for (i = 0; i < s_npass; ++i) {
@@ -678,6 +678,8 @@ SRCH_init               (void)
    /*---(update stage)-------------------*/
    DEBUG_PROG   yLOG_note    ("update status");
    s_srch_status = G_STAGE_INIT;
+   /*---(read/write)---------------------*/
+   yVIKEYS_file_add (MODE_SEARCH , SRCH_writer, SRCH_reader);
    /*---(complete)-----------------------*/
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -697,6 +699,28 @@ SRCH__purge             (void)
    }
    s_nsrch = 0;
    s_csrch = 0;
+   return 0;
+}
+
+char
+CMDS_purge              (void)
+{
+   int         i           =    0;
+   s_ncmd = 0;
+   for (i = 0; i < MAX_CMDS; ++i) {
+      s_cmds [i].menu      = '-';
+      s_cmds [i].name  [0] = NULL;
+      s_cmds [i].len       = 0;
+      s_cmds [i].abbr  [0] = NULL;
+      s_cmds [i].alen      = 0;
+      s_cmds [i].active    = '-';
+      s_cmds [i].redraw    = '-';
+      s_cmds [i].f.v       = NULL;
+      s_cmds [i].terms [0] = 0;
+      s_cmds [i].nterm     = 0;
+      s_cmds [i].desc  [0] = 0;
+      s_cmds [i].disp  [0] = 0;
+   }
    return 0;
 }
 
@@ -733,21 +757,22 @@ CMDS_init               (void)
    }
    /*---(commands)-----------------------*/
    DEBUG_PROG   yLOG_note    ("initialize command system");
-   s_ncmd = 0;
-   for (i = 0; i < MAX_CMDS; ++i) {
-      s_cmds [i].menu      = '-';
-      s_cmds [i].name  [0] = NULL;
-      s_cmds [i].len       = 0;
-      s_cmds [i].abbr  [0] = NULL;
-      s_cmds [i].alen      = 0;
-      s_cmds [i].active    = '-';
-      s_cmds [i].redraw    = '-';
-      s_cmds [i].f.v       = NULL;
-      s_cmds [i].terms [0] = 0;
-      s_cmds [i].nterm     = 0;
-      s_cmds [i].desc  [0] = 0;
-      s_cmds [i].disp  [0] = 0;
-   }
+   CMDS_purge ();
+   /*> s_ncmd = 0;                                                                    <* 
+    *> for (i = 0; i < MAX_CMDS; ++i) {                                               <* 
+    *>    s_cmds [i].menu      = '-';                                                 <* 
+    *>    s_cmds [i].name  [0] = NULL;                                                <* 
+    *>    s_cmds [i].len       = 0;                                                   <* 
+    *>    s_cmds [i].abbr  [0] = NULL;                                                <* 
+    *>    s_cmds [i].alen      = 0;                                                   <* 
+    *>    s_cmds [i].active    = '-';                                                 <* 
+    *>    s_cmds [i].redraw    = '-';                                                 <* 
+    *>    s_cmds [i].f.v       = NULL;                                                <* 
+    *>    s_cmds [i].terms [0] = 0;                                                   <* 
+    *>    s_cmds [i].nterm     = 0;                                                   <* 
+    *>    s_cmds [i].desc  [0] = 0;                                                   <* 
+    *>    s_cmds [i].disp  [0] = 0;                                                   <* 
+    *> }                                                                              <*/
    /*---(clear history)------------------*/
    DEBUG_PROG   yLOG_note    ("clear all history");
    HISTORY__load  (MODE_COMMAND, NULL);
@@ -756,13 +781,13 @@ CMDS_init               (void)
    DEBUG_PROG   yLOG_note    ("update status");
    s_cmds_status = G_STAGE_READY;
    DEBUG_PROG   yLOG_value   ("stage"     , s_cmds_status);
-   /*---(other)--------------------------*/
+   /*---(read/write)---------------------*/
+   yVIKEYS_file_add (MODE_COMMAND, CMDS_writer, CMDS_reader);
+   /*---(commands)-----------------------*/
    DEBUG_PROG   yLOG_note    ("add universal commands");
    myVIKEYS.done = '-';
    yVIKEYS_cmds_add ('f', "quit"        , "q"   , ""     , CMDS__quit           , "quit current file (if no changes), exit if the only file"    );
    yVIKEYS_cmds_add ('f', "quitall"     , "qa"  , ""     , CMDS__quit           , "quit all files (if no changes), and exit"                    );
-   yVIKEYS_cmds_add ('f', "write"       , "w"   , ""     , CMDS__write          , "quit all files (if no changes), and exit"                    );
-   yVIKEYS_cmds_add ('f', "writeall"    , "wa"  , ""     , CMDS__write          , "quit all files (if no changes), and exit"                    );
    yVIKEYS_cmds_add ('f', "writequit"   , "wq"  , ""     , CMDS__writequit      , ""                                                            );
    yVIKEYS_cmds_add ('f', "writequitall", "wqa" , ""     , CMDS__writequit      , ""                                                            );
    /*---(complete)-----------------------*/
@@ -885,28 +910,66 @@ SRCH_next               (char a_move)
 }
 
 char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/
-CMDS_writer           (int n, int *a, int *b, int *c, int *d, int *e, int *f, int *g, int *h, int *i)
+CMDS_writer           (void)
 {
-   if (s_runs [n].mark == '-') return 0;
-   if (n == s_nrun)            return 0;
-   if (n >  s_nrun)            return 0;
-   *a = &s_runs [n].mark;
-   *b = &s_runs [n].count;
-   *c = &s_runs [n].found;
-   *d = &s_runs [n].text;
+   /*---(locals)-----------+-----------+-*/
+   int         i           =    0;
+   char        c           =    0;
+   /*---(find marked entries)------------*/
+   for (i = 0; i < s_nrun; ++i) {
+      if (s_runs [i].mark == '-')  continue;
+      yVIKEYS_file_write (MODE_COMMAND, &s_runs [i].mark, &s_runs [i].count, &s_runs [i].found, s_runs [i].text, NULL, NULL, NULL, NULL, NULL);
+      ++c;
+   }
+   /*---(complete)-----------------------*/
+   return c;
+}
+
+char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/
+CMDS_writer_single    (char a_mark)
+{
+   /*---(locals)-----------+-----------+-*/
+   char        rce         =  -10;
+   int         i           =    0;
+   /*---(find marked entries)------------*/
+   strlcpy (myVIKEYS.f_recd, "", LEN_RECD);
+   i = CMDS_valid (a_mark);
+   --rce;  if (i < -1)  return rce;
+   if (i <  0)  return 0;
+   yVIKEYS_file_write (MODE_COMMAND, &s_runs [i].mark, &s_runs [i].count, &s_runs [i].found, s_runs [i].text, NULL, NULL, NULL, NULL, NULL);
+   /*---(complete)-----------------------*/
    return 1;
 }
 
 char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/
-SRCH_writer           (int n, int *a, int *b, int *c, int *d, int *e, int *f, int *g, int *h, int *i)
+SRCH_writer           (void)
 {
-   if (s_passes [n].mark == '-') return 0;
-   if (n == s_npass)             return 0;
-   if (n >  s_npass)             return 0;
-   *a = &s_passes [n].mark;
-   *b = &s_passes [n].count;
-   *c = &s_passes [n].found;
-   *d = &s_passes [n].text;
+   /*---(locals)-----------+-----------+-*/
+   int         i           =    0;
+   char        c           =    0;
+   /*---(find marked entries)------------*/
+   for (i = 0; i < s_npass; ++i) {
+      if (s_passes [i].mark == '-')  continue;
+      yVIKEYS_file_write (MODE_SEARCH, &s_passes [i].mark, &s_passes [i].count, &s_passes [i].found, s_passes [i].text, NULL, NULL, NULL, NULL, NULL);
+      ++c;
+   }
+   /*---(complete)-----------------------*/
+   return c;
+}
+
+char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/
+SRCH_writer_single    (char a_mark)
+{
+   /*---(locals)-----------+-----------+-*/
+   char        rce         =  -10;
+   int         i           =    0;
+   /*---(find marked entries)------------*/
+   strlcpy (myVIKEYS.f_recd, "", LEN_RECD);
+   i = SRCH_valid (a_mark);
+   --rce;  if (i < -1)  return rce;
+   if (i <  0)  return 0;
+   yVIKEYS_file_write (MODE_SEARCH, &s_passes [i].mark, &s_passes [i].count, &s_passes [i].found, s_passes [i].text, NULL, NULL, NULL, NULL, NULL);
+   /*---(complete)-----------------------*/
    return 1;
 }
 

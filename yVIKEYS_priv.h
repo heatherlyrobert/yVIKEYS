@@ -33,8 +33,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.9b"
-#define YVIKEYS_VER_TXT   "file naming and location now unit testing great"
+#define YVIKEYS_VER_NUM   "0.9c"
+#define YVIKEYS_VER_TXT   "edit command, info window, mark read and write.  awesome."
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -72,6 +72,7 @@ struct cSHARED {
    char        repeating;                   /* note for repeating actions     */
    /*---(marks)-----------*/
    char        mark_show;      /* show temporary marks (y/n)                    */
+   char        info_win;
    /*---(font)------------*/
    char        env;                         /* opengl vs ncurses              */
    int         font;                        /* yFONT font identifier          */
@@ -193,7 +194,7 @@ char        REPEAT_not              (void);
 char        FORMAT_smode            (int a_major, int a_minor);
 
 char        MAP_locator             (char *a_label, int *a_x, int *a_y, int *a_z);
-char*       MAP_addresser           (int  a_x, int  a_y, int  a_z);
+char        MAP_addresser           (char *a_label, int  a_x, int  a_y, int  a_z);
 char        MAP_init                (void);
 char        MAP__load               (char a_style, tMAPPED *a_map, char a_which);
 char        MAP__screen             (tMAPPED *a_map);
@@ -218,16 +219,16 @@ char        VISU_status_saved       (char *a_list);
 char        VISU_smode              (int a_major, int a_minor);
 char        VISU_read               (char a_visu, char *a_label);
 char*       VISU__unit              (char *a_question, char a_index);
-char        VISU_writer             (int  n, int  *a, int  *b, int  *c, int  *d, int  *e, int  *f, int  *g, int  *h, int  *i);
 char        VISU_reader             (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i);
 
 
 char        FILE_open               (char *a_dir);
 char        FILE_close              (void);
 int         OUTP_write              (void);
-int         OUTP_write_type         (FILE *a_file, char a_abbr);
+int         OUTP_write_type         (char a_abbr);
 char        OUTP__unit_writer       (char a_abbr, char a_item);
 char        INPT__unit_reader       (char a_abbr);
+char        INPT_edit               (void);
 
 
 char        SUNDO_status            (char *a_list);
@@ -266,9 +267,9 @@ char*       MARK__unit              (char *a_question, char a_mark);
 char        MARK__write             (char a_mark);
 char        MARK_writeall           (FILE *a_file);
 char        MARK_read               (char a_mark, char *a_label);
-char        MARK_writer             (int n, int *a, int *b, int *c, int *d, int *e, int *f, int *g, int *h, int *i);
 char        MARK_reader             (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i);
 char        MARK_direct             (char *a_string);
+char        MARK_infowin            (char *a_entry, int a_index);
 char        MARK__listplus          (char *a_list);
 char        MARK_status             (char *a_status);
 char        MARK_smode              (int a_major, int a_minor);
@@ -307,6 +308,7 @@ char        MACRO_set_mode          (char a_mode);
 
 /*---(commands)-------------*/
 char        CMDS_limits             (int *a_min, int *a_max);
+char        CMDS_purge              (void);
 char        CMDS_init               (void);
 /*> char        CMDS__load              (char *a_command);                            <*/
 char        CMDS__test              (char a_mode, char a_value);
@@ -315,7 +317,6 @@ int         CMDS__find              (char *a_name);
 char*       CMDS_curr               (void);
 char        CMDS__exec              (void);
 int         CMDS_valid              (char a_mark);
-char        CMDS_writer             (int n, int *a, int *b, int *c, int *d, int *e, int *f, int *g, int *h, int *i);
 char        CMDS_reader             (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i);
 char        CMDS__unit_null         (void);
 /*---(search)---------------*/
@@ -327,7 +328,6 @@ char        SRCH_init               (void);
 char        SRCH__purge             (void);
 char        SRCH__exec              (void);
 char        SRCH_next               (char a_move);
-char        SRCH_writer             (int n, int *a, int *b, int *c, int *d, int *e, int *f, int *g, int *h, int *i);
 char        SRCH_reader             (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i);
 /*---(unit testing)---------*/
 char        SRCH__unit_null         (void);
@@ -337,7 +337,6 @@ char*       SRCH__unit              (char *a_question, char a_index);
 
 
 
-char        yVIKEYS_file_config     (char *a_prog, char *a_ext, char *a_vernum, char *a_vertxt);
 char        FILE_init               (void);
 char        FILE_controlled         (char  *a_yes);
 char        FILE_control            (void);
@@ -353,6 +352,17 @@ char        FILE_name               (char  *a_name);
 char        FILE__unit_null         (void);
 char*       FILE__unit              (char *a_question, int a_ref);
 
+char        SRCH_writer             (void);
+char        SRCH_writer_single      (char a_mark);
+char        CMDS_writer             (void);
+char        CMDS_writer_single      (char a_mark);
+char        MARK_writer             (void);
+char        MARK_writer_single      (char a_mark);
+char        VISU_writer             (void);
+char        VISU_writer_single      (char a_mark);
+char        MACRO_writer            (void);
+char        MACRO_writer_single     (char a_mark);
+char        MACRO_reader            (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i);
 
 #define    ACTION_FIND     'f'
 #define    ACTION_ADD      '+'

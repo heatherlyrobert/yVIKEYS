@@ -59,6 +59,8 @@ MARK_init            (void)
    /*---(globals)------------------------*/
    myVIKEYS.mark_show = '-';
    yVIKEYS_cmds_add ('e', "mark"        , ""    , "s"    , MARK_direct                , "" );
+   /*---(read/write)---------------------*/
+   yVIKEYS_file_add (SMOD_MARK   , MARK_writer, MARK_reader);
    /*---(complete)-----------------------*/
    DEBUG_MARK   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -540,6 +542,31 @@ static void  o___MARK_INFO_______o () { return; }
  *> }                                                                                                                              <*/
 
 char         /*-> tbd --------------------------------[ ------ [ge.420.132.11]*/ /*-[00.0000.114.!]-*/ /*-[--.---.---.--]-*/
+MARK_infowin       (char *a_entry, int a_index)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   int         a           =    0;
+   int         n           =    0;
+   char        t           [LEN_RECD]  = "";
+   /*---(status)-------------------------*/
+   strlcpy (a_entry, " -  -              -     -     -      -  -              -     -     -         ", LEN_RECD);
+   if (a_index <   0)  return 0;
+   if (a_index >= 26)  return 0;
+   a = 'a' + a_index;
+   n = MARK_valid (a);
+   if (s_mark_info [n].source == MARK_NONE)  sprintf (t, " %c  -              -     -     -     ", a);
+   else                                      sprintf (t, " %c  %-10.10s %5d,%5d,%5d     "        , a, s_mark_info [n].label, s_mark_info [n].x_pos, s_mark_info [n].y_pos, s_mark_info [n].z_pos);
+   strlcpy (a_entry, t, LEN_RECD);
+   a = 'A' + a_index;
+   n = MARK_valid (a);
+   if (s_mark_info [n].source == MARK_NONE)  sprintf (t, " %c  -              -     -     -     ", a);
+   else                                      sprintf (t, " %c  %-10.10s %5d,%5d,%5d     "        , a, s_mark_info [n].label, s_mark_info [n].x_pos, s_mark_info [n].y_pos, s_mark_info [n].z_pos);
+   strlcat (a_entry, t, LEN_RECD);
+   /*---(complete)-----------------------*/
+   return 0;
+}
+
+char         /*-> tbd --------------------------------[ ------ [ge.420.132.11]*/ /*-[00.0000.114.!]-*/ /*-[--.---.---.--]-*/
 MARK_status        (char *a_status)
 {
    /*---(locals)-----------+-----+-----+-*/
@@ -609,108 +636,35 @@ MARK__listplus      (char *a_list)
 /*====================------------------------------------====================*/
 static void  o___MARK_FILE_______o () { return; }
 
-/*> char         /+-> tbd --------------------------------[ ------ [ge.732.124.21]+/ /+-[02.0000.01#.#]-+/ /+-[--.---.---.--]-+/   <* 
- *> MARK__write           (char a_mark)                                                                                            <* 
- *> {                                                                                                                              <* 
- *>    /+---(locals)-----------+-----------+-+/                                                                                    <* 
- *>    char        rce         = -10;           /+ return code for errors         +/                                               <* 
- *>    int         x_index     = 0;                                                                                                <* 
- *>    /+---(header)-------------------------+/                                                                                    <* 
- *>    DEBUG_MARK   yLOG_enter   (__FUNCTION__);                                                                                   <* 
- *>    DEBUG_MARK   yLOG_value   ("a_mark"    , a_mark);                                                                           <* 
- *>    /+---(prepare)------------------------+/                                                                                    <* 
- *>    sprintf (myVIKEYS.f_recd, "");                                                                                              <* 
- *>    /+---(check mark)---------------------+/                                                                                    <* 
- *>    x_index = MARK_valid (a_mark);                                                                                              <* 
- *>    DEBUG_MARK   yLOG_value   ("x_index"   , x_index);                                                                          <* 
- *>    --rce;  if (x_index <= 0) {                                                                                                 <* 
- *>       DEBUG_MARK   yLOG_exitr   (__FUNCTION__, rce);                                                                           <* 
- *>       return rce;                                                                                                              <* 
- *>    }                                                                                                                           <* 
- *>    DEBUG_MARK   yLOG_char    ("a_mark"    , a_mark);                                                                           <* 
- *>    /+---(check if empty)-----------------+/                                                                                    <* 
- *>    DEBUG_MARK   yLOG_char    ("source"    , s_mark_info [x_index].source);                                                     <* 
- *>    --rce;  if (s_mark_info [x_index].source == MARK_NONE) {                                                                    <* 
- *>       DEBUG_MARK   yLOG_exitr   (__FUNCTION__, rce);                                                                           <* 
- *>       return rce;                                                                                                              <* 
- *>    }                                                                                                                           <* 
- *>    /+---(build record)-------------------+/                                                                                    <* 
- *>    DEBUG_MARK   yLOG_note    ("write record");                                                                                 <* 
- *>    sprintf (myVIKEYS.f_recd, "loc_mark    -A-  %c  %-*.*s ",                                                               <* 
- *>          a_mark , LEN_LABEL, LEN_LABEL, s_mark_info [x_index].label);                                                          <* 
- *>    /+---(complete)-----------------------+/                                                                                    <* 
- *>    DEBUG_MARK   yLOG_exit    (__FUNCTION__);                                                                                   <* 
- *>    return 1;                                                                                                                   <* 
- *> }                                                                                                                              <*/
-
-/*> char         /+-> write file tab information ---------[ leaf   [ge.320.113.10]+/ /+-[00.0000.01#.!]-+/ /+-[--.---.---.--]-+/                       <* 
- *> MARK__write_head      (FILE *a_file)                                                                                                               <* 
- *> {                                                                                                                                                  <* 
- *>    /+---(locals)-----------+-----------+-+/                                                                                                        <* 
- *>    char        rce         = -10;           /+ return code for errors         +/                                                                   <* 
- *>    /+---(defenses)-----------------------+/                                                                                                        <* 
- *>    --rce;  if (a_file == NULL)                   return rce;                                                                                       <* 
- *>    /+---(header)-------------------------+/                                                                                                        <* 
- *>    fprintf (a_file, "#===[[ LOCATION MARKS ]]=============================================================================================#\n");   <* 
- *>    fprintf (a_file, "#---------  ver  -  ---unique-label-----  --x--  --y--  --z-- \n");                                                    <* 
- *>    fflush  (a_file);                                                                                                                               <* 
- *>    /+---(complete)-----------------------+/                                                                                                        <* 
- *>    return 0;                                                                                                                                       <* 
- *> }                                                                                                                                                  <*/
-
-/*> char         /+-> write file tab information ---------[ leaf   [ge.420.213.30]+/ /+-[00.0000.01#.!]-+/ /+-[--.---.---.--]-+/   <* 
- *> MARK__write_foot      (FILE *a_file, int a_count)                                                                              <* 
- *> {                                                                                                                              <* 
- *>    /+---(locals)-----------+-----------+-+/                                                                                    <* 
- *>    char        rce         = -10;           /+ return code for errors         +/                                               <* 
- *>    /+---(defenses)-----------------------+/                                                                                    <* 
- *>    --rce;  if (a_file == NULL)                   return rce;                                                                   <* 
- *>    /+---(header)-------------------------+/                                                                                    <* 
- *>    if (a_count == 0)  fprintf (a_file, "# no location marks\n");                                                               <* 
- *>    else               fprintf (a_file, "#---------  ver  -  ---unique-label-----  --x--  --y--  --z-- \n");             <* 
- *>    fprintf (a_file, "\n\n\n");                                                                                                 <* 
- *>    fflush  (a_file);                                                                                                           <* 
- *>    /+---(complete)-----------------------+/                                                                                    <* 
- *>    return 0;                                                                                                                   <* 
- *> }                                                                                                                              <*/
-
-/*> char         /+-> tbd --------------------------------[ ------ [gc.531.141.23]+/ /+-[01.0000.10#.8]-+/ /+-[--.---.---.--]-+/   <* 
- *> MARK_writeall        (FILE *a_file)                                                                                            <* 
- *> {                                                                                                                              <* 
- *>    /+---(locals)-----------+-----------+-+/                                                                                    <* 
- *>    char        rc          = 0;                                                                                                <* 
- *>    int         c           = 0;                                                                                                <* 
- *>    int         i           = 0;                                                                                                <* 
- *>    /+---(header)-------------------------+/                                                                                    <* 
- *>    DEBUG_MARK   yLOG_enter   (__FUNCTION__);                                                                                   <* 
- *>    /+---(search)-------------------------+/                                                                                    <* 
- *>    rc = MARK__write_head (a_file);                                                                                             <* 
- *>    for (i = 1; i < s_nmark; ++i) {                                                                                             <* 
- *>       rc = MARK__write (S_MARK_LIST [i]);                                                                                      <* 
- *>       if (rc <= 0)   continue;                                                                                                 <* 
- *>       if (a_file != NULL)  fprintf (a_file, "%s\n", myVIKEYS.f_recd);                                                          <* 
- *>       ++c;                                                                                                                     <* 
- *>    }                                                                                                                           <* 
- *>    rc = MARK__write_foot (a_file, c);                                                                                          <* 
- *>    /+---(complete)-----------------------+/                                                                                    <* 
- *>    DEBUG_MARK   yLOG_exit    (__FUNCTION__);                                                                                   <* 
- *>    return c;                                                                                                                   <* 
- *> }                                                                                                                              <*/
+char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/
+MARK_writer           (void)
+{
+   /*---(locals)-----------+-----------+-*/
+   char        i           =    0;
+   char        c           =    0;
+   /*---(find marked entries)------------*/
+   for (i = 1; i < s_nmark; ++i) {
+      if (s_mark_info [i].source == MARK_NONE)  continue;
+      yVIKEYS_file_write (SMOD_MARK, &(S_MARK_LIST [i]), &s_mark_info [i].x_pos, &s_mark_info [i].y_pos, &s_mark_info [i].z_pos, NULL, NULL, NULL, NULL, NULL);
+      ++c;
+   }
+   /*---(complete)-----------------------*/
+   return c;
+}
 
 char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/
-MARK_writer           (int n, int *a, int *b, int *c, int *d, int *e, int *f, int *g, int *h, int *i)
+MARK_writer_single    (char a_mark)
 {
-   if (n == 0)                              return -1;
-   if (n >= s_nmark)                        return -1;
-   if (s_mark_info [n].source == MARK_NONE) return  0;
-   /*> endwin ();                                                                                                      <* 
-    *> printf ("visu   %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p\n", a, b, c, d, e, f, g, h, i);            <* 
-    *> printf (" val   %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p\n", *a, *b, *c, *d, *e, *f, *g, *h, *i);   <*/
-   *a = &S_MARK_LIST [n];
-   *b = &s_mark_info [n].x_pos;
-   *c = &s_mark_info [n].y_pos;
-   *d = &s_mark_info [n].z_pos;
-   /*> printf (" val   %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p\n", *a, *b, *c, *d, *e, *f, *g, *h, *i);   <*/
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        i           =    0;
+   /*---(find marked entries)------------*/
+   strlcpy (myVIKEYS.f_recd, "", LEN_RECD);
+   i = MARK_valid (a_mark);
+   --rce;  if (i <= 0)  return rce;
+   if (s_mark_info [i].source == MARK_NONE)  return 0;
+   yVIKEYS_file_write (SMOD_MARK, &(S_MARK_LIST [i]), &s_mark_info [i].x_pos, &s_mark_info [i].y_pos, &s_mark_info [i].z_pos, NULL, NULL, NULL, NULL, NULL);
+   /*---(complete)-----------------------*/
    return 1;
 }
 
@@ -750,13 +704,8 @@ MARK_reader           (char n, char *a, char *b, char *c, char *d, char *e, char
    DEBUG_MARK   yLOG_value   ("z_pos"     , s_mark_info [x_index].z_pos);
    s_mark_info [x_index].source = MARK_IMPORT;
    /*---(address)------------------------*/
-   strlcpy (s_mark_info [x_index].label, MAP_addresser (s_mark_info [x_index].x_pos, s_mark_info [x_index].y_pos, s_mark_info [x_index].z_pos), LEN_LABEL);
+   MAP_addresser (s_mark_info [x_index].label, s_mark_info [x_index].x_pos, s_mark_info [x_index].y_pos, s_mark_info [x_index].z_pos);
    DEBUG_MARK   yLOG_info    ("label"     , s_mark_info [x_index].label);
-   --rce;  if (strcmp ("-", s_mark_info [x_index].label) == 0) {
-      MARK__unset (a[0]);
-      DEBUG_MARK   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
    /*---(update range)-------------------*/
    DEBUG_MARK   yLOG_note    ("update the range");
    MARK__range ();
@@ -914,6 +863,7 @@ MARK_smode         (int a_major, int a_minor)
    DEBUG_USER   yLOG_char    ("a_major"   , a_major);
    DEBUG_USER   yLOG_char    ("a_minor"   , chrvisible (a_minor));
    DEBUG_USER   yLOG_char    ("x_prev"    , x_prev);
+   myVIKEYS.info_win = '-';
    /*---(defenses)-----------------------*/
    DEBUG_USER   yLOG_char    ("mode"      , MODE_curr ());
    --rce;  if (MODE_not (SMOD_MARK   )) {
@@ -922,8 +872,8 @@ MARK_smode         (int a_major, int a_minor)
       return rce;
    }
    /*---(exit mode)----------------------*/
-   if (a_minor == G_KEY_ESCAPE) {
-      DEBUG_USER   yLOG_note    ("escape means leave");
+   if (a_minor == G_KEY_ESCAPE || a_minor == G_KEY_RETURN) {
+      DEBUG_USER   yLOG_note    ("escape/return means leave");
       MODE_exit ();
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return  0;
@@ -982,7 +932,7 @@ MARK_smode         (int a_major, int a_minor)
       switch (a_minor) {
       case '?' :
          DEBUG_USER   yLOG_note    ("show mark info window");
-         /*> my.info_win      = G_INFO_MARK;                                          <*/
+         myVIKEYS.info_win = 'y';
          return a_major;
          break;
       case '@' :

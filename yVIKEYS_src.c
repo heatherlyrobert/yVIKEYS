@@ -2030,6 +2030,54 @@ HISTORY_start           (void)
 }
 
 char         /*-> show history on screen -------------[ ------ [ge.TQ5.25#.F9]*/ /*-[03.0000.122.R]-*/ /*-[--.---.---.--]-*/
+HISTORY_infowin         (void)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   int         x_left      =    0;
+   int         x_wide      =    0;
+   int         x_bott      =    0;
+   int         x_tall      =    0;
+   char        x_edit      =  ' ';
+   char        x_on        =  '-';
+   char        x_entry     [LEN_RECD]  = "";
+   int         i           =    0;
+   /*---(header)-------------------------*/
+   DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
+   /*---(get sizes)----------------------*/
+   x_on = yVIKEYS_view_size     (YVIKEYS_HISTORY, &x_left, &x_wide, &x_bott, &x_tall, NULL);
+   if (myVIKEYS.env == YVIKEYS_CURSES) {
+      s_lines = x_tall - 2;
+      yCOLOR_curs ("h_used" );
+      /*> 1234567890123456789012345678901234::1234567890123456789012345678901234            <*/
+      switch (MODE_curr ()) {
+      case SMOD_MARK      : strlcpy (x_entry, " -  --label--- --x-- --y-- --z--      -  --label--- --x-- --y-- --z--   ", LEN_RECD);  break;
+      case SMOD_VISUAL    : strlcpy (x_entry, " - --x-- --y-- -z- --x-- --y-- -z-    - --x-- --y-- -z- --x-- --y-- -z- ", LEN_RECD);  break;
+      case SMOD_MACRO     : strlcpy (x_entry, " - len ---keys--------------------------------------------------------- ", LEN_RECD);  break;
+      }
+      mvprintw (x_bott - x_tall + 1, x_left, "%-*.*s", x_wide, x_wide, x_entry);
+      attrset     (0);
+      for (i = 0; i < x_tall - 2; ++i) {
+         if ((i % 2) == 0)  yCOLOR_curs ("h_current"    );
+         else               yCOLOR_curs ("map"          );
+         switch (MODE_curr ()) {
+         case SMOD_MARK      : MARK_infowin  (x_entry, i);  break;
+         /*> case SMOD_VISUAL    : VISU_infowin  (x_entry, i);  break;                <*/
+         /*> case SMOD_MACRO     : MACRO_infowin (x_entry, i);  break;                <*/
+         }
+         mvprintw (x_bott - x_tall + 2 + i, x_left             , "%-*.*s", x_wide, x_wide, x_entry);
+         attrset     (0);
+      }
+      attrset     (0);
+      yCOLOR_curs ("h_used" );
+      mvprintw (x_bott, x_left             , "%-*.*s", x_wide, x_wide, " ¦ to choose, ¥ to escape ------------------------------------------------------------");
+      attrset     (0);
+   }
+   /*---(complete)-----------------------*/
+   DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char         /*-> show history on screen -------------[ ------ [ge.TQ5.25#.F9]*/ /*-[03.0000.122.R]-*/ /*-[--.---.---.--]-*/
 HISTORY_display         (void)
 {
    /*---(locals)-----------+-----+-----+-*/
@@ -2042,6 +2090,10 @@ HISTORY_display         (void)
    char        x_entry     [LEN_RECD]  = "";
    int         i           =    0;
    /*---(defense)------------------------*/
+   if (myVIKEYS.info_win == 'y') {
+      HISTORY_infowin ();
+      return 0;
+   }
    if (MODE_not (SMOD_HISTORY))   return 0;
    /*---(header)-------------------------*/
    DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
@@ -2055,8 +2107,9 @@ HISTORY_display         (void)
       attrset     (0);
       for (i = 0; i < x_tall - 2; ++i) {
          HISTORY_entry (MODE_prev (), s_top + i, x_entry, x_wide);
-         if (s_top + i == s_now)  yCOLOR_curs ("map"          );
-         else                     yCOLOR_curs ("h_current"    );
+         if      (s_top + i == s_now)  yCOLOR_curs ("source"       );
+         else if ((i % 2) == 0)        yCOLOR_curs ("h_current"    );
+         else                          yCOLOR_curs ("map"          );
          mvprintw (x_bott - x_tall + 2 + i, x_left             , "%-*.*s", x_wide, x_wide, x_entry);
          attrset     (0);
       }

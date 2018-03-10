@@ -7,7 +7,7 @@
 
 static char    (*s_mapper)    (char  a_type);
 static char    (*s_locator)   (char *a_label, int *a_x, int *a_y, int *a_z);
-static char*   (*s_addresser) (int  a_x, int  a_y, int  a_z);
+static char*   (*s_addresser) (char *a_label, int  a_x, int  a_y, int  a_z);
 
 
 
@@ -407,6 +407,8 @@ VISU_init            (void)
    /*---(clear)--------------------------*/
    s_nvisu = strllen (S_VISU_LIST, 100);
    VISU__purge  (VISU_ALL);
+   /*---(read/write)---------------------*/
+   yVIKEYS_file_add (SMOD_VISUAL , VISU_writer, VISU_reader);
    /*---(complete)-----------------------*/
    DEBUG_VISU   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -627,24 +629,52 @@ yVIKEYS_next        (int *a_x, int *a_y, int *a_z)
 static void  o___FILE____________o () { return; }
 
 char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/
-VISU_writer           (int n, int *a, int *b, int *c, int *d, int *e, int *f, int *g, int *h, int *i)
+VISU_writer           (void)
 {
-   if (n == 0)                              return  0;
-   if (n >= s_nvisu)                        return -1;
-   if (s_visu_info [n].active == VISU_NOT)  return  0;
-   /*> endwin ();                                                                                                      <* 
-    *> printf ("visu   %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p\n", a, b, c, d, e, f, g, h, i);            <* 
-    *> printf (" val   %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p\n", *a, *b, *c, *d, *e, *f, *g, *h, *i);   <*/
-   *a = &S_VISU_LIST [n];
-   *b = &s_visu_info [n].x_beg;
-   *c = &s_visu_info [n].y_beg;
-   *d = &s_visu_info [n].z_beg;
-   *e = &s_visu_info [n].x_end;
-   *f = &s_visu_info [n].y_end;
-   *g = &s_visu_info [n].z_end;
-   /*> printf (" val   %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p\n", *a, *b, *c, *d, *e, *f, *g, *h, *i);   <*/
+   /*---(locals)-----------+-----------+-*/
+   char        i           =    0;
+   /*---(find marked entries)------------*/
+   for (i = 1; i < s_nvisu; ++i) {
+      if (s_visu_info [i].active == VISU_NOT)  continue;
+      yVIKEYS_file_write (SMOD_VISUAL, &(S_VISU_LIST [i]), &s_visu_info [i].x_beg, &s_visu_info [i].y_beg, &s_visu_info [i].z_beg, &s_visu_info [i].x_end, &s_visu_info [i].y_end, &s_visu_info [i].z_end, NULL, NULL);
+   }
+   /*---(complete)-----------------------*/
+   return 0;
+}
+
+char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/
+VISU_writer_single    (char a_mark)
+{
+   /*---(locals)-----------+-----------+-*/
+   char        i           =    0;
+   /*---(find marked entries)------------*/
+   i = MARK_valid (a_mark);
+   if (i < 0)  return -1;
+   if (s_visu_info [i].active == VISU_NOT)  return 0;
+   yVIKEYS_file_write (SMOD_VISUAL, &(S_VISU_LIST [i]), &s_visu_info [i].x_beg, &s_visu_info [i].y_beg, &s_visu_info [i].z_beg, &s_visu_info [i].x_end, &s_visu_info [i].y_end, &s_visu_info [i].z_end, NULL, NULL);
+   /*---(complete)-----------------------*/
    return 1;
 }
+
+/*> char         /+-> tbd --------------------------------[ ------ [ge.732.124.21]+/ /+-[02.0000.01#.#]-+/ /+-[--.---.---.--]-+/   <* 
+ *> VISU_writer           (int n, void **a, void **b, void **c, void **d, void **e, void **f, void **g, void **h, void **i)        <* 
+ *> {                                                                                                                              <* 
+ *>    if (n == 0)                              return  0;                                                                         <* 
+ *>    if (n >= s_nvisu)                        return -1;                                                                         <* 
+ *>    if (s_visu_info [n].active == VISU_NOT)  return  0;                                                                         <* 
+ *>    /+> endwin ();                                                                                                      <*      <* 
+ *>     *> printf ("visu   %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p\n", a, b, c, d, e, f, g, h, i);            <*      <* 
+ *>     *> printf (" val   %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p\n", *a, *b, *c, *d, *e, *f, *g, *h, *i);   <+/     <* 
+ *>    *a = &S_VISU_LIST [n];                                                                                                      <* 
+ *>    *b = &s_visu_info [n].x_beg;                                                                                                <* 
+ *>    *c = &s_visu_info [n].y_beg;                                                                                                <* 
+ *>    *d = &s_visu_info [n].z_beg;                                                                                                <* 
+ *>    *e = &s_visu_info [n].x_end;                                                                                                <* 
+ *>    *f = &s_visu_info [n].y_end;                                                                                                <* 
+ *>    *g = &s_visu_info [n].z_end;                                                                                                <* 
+ *>    /+> printf (" val   %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p\n", *a, *b, *c, *d, *e, *f, *g, *h, *i);   <+/     <* 
+ *>    return 1;                                                                                                                   <* 
+ *> }                                                                                                                              <*/
 
 char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/
 VISU_reader           (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i)
@@ -995,18 +1025,16 @@ MAP_locator             (char *a_label, int *a_x, int *a_y, int *a_z)
    return rc;
 }
 
-static char  s_label   [LEN_LABEL] = "";
-
-char*
-MAP_addresser           (int  a_x, int  a_y, int  a_z)
+char 
+MAP_addresser           (char *a_label, int  a_x, int  a_y, int  a_z)
 {
    DEBUG_MAP   yLOG_enter   (__FUNCTION__);
    DEBUG_MAP   yLOG_point   ("addressor" , s_addresser);
-   if (s_addresser == NULL)  strlcpy (s_label, "-", LEN_LABEL);
-   else                      strlcpy (s_label, s_addresser (a_x, a_y, a_z), LEN_LABEL);
-   DEBUG_MAP   yLOG_info    ("s_label"   , s_label);
+   if (s_addresser == NULL)  strlcpy (a_label, "-", LEN_LABEL);
+   else                      s_addresser (a_label, a_x, a_y, a_z);
+   DEBUG_MAP   yLOG_info    ("a_label"   , a_label);
    DEBUG_MAP   yLOG_exit    (__FUNCTION__);
-   return s_label;
+   return 0;
 }
 
 char

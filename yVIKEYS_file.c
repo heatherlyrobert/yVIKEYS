@@ -22,6 +22,8 @@ char        ver_num     [10]        = "----";
 char        ver_txt     [100]       = "-----";
 
 #define     FILE_BLANK  "untitled"
+#define     FILE_CALL_ONCE    '1'
+#define     FILE_CALL_ASCII   'a'
 
 #define     MAX_SECTION   50
 typedef struct  cSECTION  tSECTION;
@@ -33,25 +35,29 @@ struct cSECTION {
    char        version;
    char        specs       [LEN_LABEL];
    char        column      [ 9][LEN_LABEL];
-   char        (*writer) (int , void*,void*,void*,void*,void*,void*,void*,void*,void*);
-   char        (*reader) (char, void*,void*,void*,void*,void*,void*,void*,void*,void*);
+   char        (*writer)   (void);
+   char        (*reader)   (char, void*,void*,void*,void*,void*,void*,void*,void*,void*);
    int         try;
    int         bad;
 };
 static tSECTION  s_sections [MAX_SECTION] = {
-   /* -   ----abbr---    ---name------------    --label---   ver   ---specs--    ---1st----    ---2nd----    ---3rd----    ---4th----    ---5th----    ---6th----    ---7th----    ---8th----    ---9th----   writer---------  reader---------  try  bad */
-   { 's', SMOD_MARK   , "location marks"     , "loc_mark"  , 'B', "ciii------", "a"         , "x"         , "y"         , "z"         , ""          , ""          , ""          , ""          , ""          , MARK_writer    , MARK_reader    ,   0,   0 },
-   { 's', SMOD_VISUAL , "visual marks"       , "visu_mark" , 'A', "ciiiiii---", "a"         , "xbeg"      , "ybeg"      , "zbeg"      , "xend"      , "yend"      , "zend"      , ""          , ""          , VISU_writer    , VISU_reader    ,   0,   0 },
-   { 's', MODE_SEARCH , "search history"     , "search"    , 'A', "ciiS------", "a"         , "count"     , "found"     , "search"    , ""          , ""          , ""          , ""          , ""          , SRCH_writer    , SRCH_reader    ,   0,   0 },
-   { 's', MODE_COMMAND, "command history"    , "command"   , 'A', "ciiS------", "a"         , "count"     , "rc"        , "search"    , ""          , ""          , ""          , ""          , ""          , CMDS_writer    , CMDS_reader    ,   0,   0 },
-   { '-', 0           , ""                   , ""          , '-', "----------", ""          , ""          , ""          , ""          , ""          , ""          , ""          , ""          , ""          , NULL           , NULL           ,   0,   0 },
+   /* -   ----abbr---    ---name------------    --label---   ver   ---specs--    ---1st----    ---2nd----    ---3rd----    ---4th----    ---5th----    ---6th----    ---7th----    ---8th----    ---9th----   writer  reader  try  bad */
+   { 'i', SMOD_MARK   , "location marks"     , "loc_mark"  , 'B', "ciii------", "-a"        , "--x"       , "--y"       , "--z"       , ""          , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
+   { 'i', SMOD_VISUAL , "visual marks"       , "visu_mark" , 'A', "ciiiiii---", "-a"        , "xbeg"      , "ybeg"      , "zbeg"      , "xend"      , "yend"      , "zend"      , ""          , ""          , NULL  , NULL  ,   0,   0 },
+   { 'i', SMOD_MACRO  , "saved macros"       , "macro"     , 'A', "ciiS------", "-a"        , "count"     , "rc"        , "command"   , ""          , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
+   { 'i', MODE_SEARCH , "search history"     , "search"    , 'A', "ciiS------", "-a"        , "count"     , "found"     , "search"    , ""          , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
+   { 'i', MODE_COMMAND, "command history"    , "command"   , 'A', "ciiS------", "-a"        , "count"     , "rc"        , "command"   , ""          , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
+   { 'e', FILE_DEPCEL , "dependent cells"    , "cell_dep"  , 'D', "siLsS-----", "lvl/reg"   , "seq"       , "label"     , "t-f-d-a-m" , "contents"  , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
+   { 'e', FILE_FREECEL, "independent cells"  , "cell_free" , 'D', "siLsS-----", "lvl/reg"   , "seq"       , "label"     , "t-f-d-a-m" , "contents"  , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
+   { '-', 0           , ""                   , ""          , '-', "----------", ""          , ""          , ""          , ""          , ""          , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
 };
 static int  s_nsection   = 0;
 
 
-static FILE    *s_file;                      /* file pointer                   */
+static FILE    *s_file      = NULL;          /* file pointer                   */
 static char     s_fields    [20][LEN_RECD];
-static int      s_nfield    =   0;
+static int      s_nfield    =    0;
+static int      s_lines     =    0;
 static char     s_prog      [LEN_LABEL]   = "-";
 static char     s_ext       [LEN_LABEL]   = "";
 static char     s_vernum    [LEN_LABEL]   = "-.--";
@@ -59,6 +65,66 @@ static char     s_vertxt    [LEN_DESC ]   = "----";
 
 
 static char    *s_valid     = "csLDSif-";
+
+
+
+
+
+
+/*====================------------------------------------====================*/
+/*===----                          supporting                          ----===*/
+/*====================------------------------------------====================*/
+static void  o___SUPPORT_________o () { return; }
+
+char
+FILE__by_abbr           (char a_abbr)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   static char x_last      =  '-';
+   static char n           =    0;
+   int         i           =    0;
+   /*---(short-cut)----------------------*/
+   if (a_abbr == x_last)  return n;
+   /*---(find entry)---------------------*/
+   for (i = 0; i < MAX_SECTION; ++i) {
+      if (s_sections [i].abbr == 0)       break;
+      if (s_sections [i].abbr != a_abbr)  continue;
+      n = i;
+      break;
+   }
+   if (n < 0)  return -1;
+   x_last = a_abbr;
+   return n;
+}
+
+char
+FILE__by_label          (char *a_label)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   static char x_last      [LEN_LABEL] = "-";
+   static char n           =    0;
+   int         i           =    0;
+   /*---(short-cut)----------------------*/
+   if (strcmp (a_label, x_last) == 0)  return n;
+   /*---(find entry)---------------------*/
+   for (i = 0; i < MAX_SECTION; ++i) {
+      if (s_sections [i].label [0] != a_label [0])      continue;
+      if (strcmp (s_sections [i].label, a_label) != 0)  continue;
+      n = i;
+      break;
+   }
+   if (n < 0)  return -1;
+   strlcpy (x_last, a_label, LEN_LABEL);
+   return n;
+}
+
+char
+FILE_status          (char *a_list)
+{
+   /*> snprintf (a_list, LEN_STR, "[ file %-20.20s%*.*s%30.30s %-4.4s ]", my.f_name, my.x_full - 57, my.x_full - 57, g_empty, ver_txt, ver_num);   <*/
+   snprintf (a_list, LEN_STR, "file %s", myVIKEYS.f_title);
+   return 0;
+}
 
 
 
@@ -70,18 +136,8 @@ static void  o___PROGRAM_________o () { return; }
 char
 FILE_init               (void)
 {
-   /*---(locals)-----------+-----+-----+-*/
-   char        rc          =    0;
    /*---(header)-------------------------*/
    DEBUG_PROG   yLOG_enter   (__FUNCTION__);
-   /*---(add commands)-------------------*/
-   rc = yVIKEYS_cmds_add ('f', "control"     , ""    , ""     , FILE_control         , "turn version control ON for current file"                    );
-   rc = yVIKEYS_cmds_add ('f', "nocontrol"   , ""    , ""     , FILE_nocontrol       , "turn version control OFF for current file"                   );
-   rc = yVIKEYS_cmds_add ('f', "version"     , ""    , "s"    , FILE_version         , "set a specific file version ([0-9A-Z].[0-9A-Z][a-z])"        );
-   rc = yVIKEYS_cmds_add ('f', "vertxt"      , ""    , "a"    , FILE_vertxt          , "set a file version description"                              );
-   rc = yVIKEYS_cmds_add ('f', "major"       , ""    , ""     , FILE_bump_major      , "increment the version number by a MAJOR version"             );
-   rc = yVIKEYS_cmds_add ('f', "minor"       , ""    , ""     , FILE_bump_minor      , "increment the version number by a MINOR version"             );
-   rc = yVIKEYS_cmds_add ('f', "bump"        , ""    , ""     , FILE_bump_inc        , "increment the version number by a INC version"               );
    /*---(reset globals)------------------*/
    strlcpy (ver_num , "----" , LEN_LABEL);
    strlcpy (ver_txt , "-----", LEN_DESC );
@@ -101,6 +157,7 @@ yVIKEYS_file_config     (char *a_prog, char *a_ext, char *a_vernum, char *a_vert
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
+   char        rc          =    0;
    /*---(header)-------------------------*/
    DEBUG_INPT   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
@@ -142,20 +199,35 @@ yVIKEYS_file_config     (char *a_prog, char *a_ext, char *a_vernum, char *a_vert
    }
    /*---(update stage)-------------------*/
    s_file_status = G_STAGE_READY;
+   /*---(add commands)-------------------*/
+   rc = yVIKEYS_cmds_add ('f', "cd"          , ""    , "a"    , FILE_loc             , "set the default directory for file reading and writing"      );
+   rc = yVIKEYS_cmds_add ('f', "file"        , ""    , "a"    , FILE_name            , "rename a file for reading and writing"                       );
+   rc = yVIKEYS_cmds_add ('f', "control"     , ""    , ""     , FILE_control         , "turn version control ON for current file"                    );
+   rc = yVIKEYS_cmds_add ('f', "nocontrol"   , ""    , ""     , FILE_nocontrol       , "turn version control OFF for current file"                   );
+   rc = yVIKEYS_cmds_add ('f', "version"     , ""    , "s"    , FILE_version         , "set a specific file version ([0-9A-Z].[0-9A-Z][a-z])"        );
+   rc = yVIKEYS_cmds_add ('f', "vertxt"      , ""    , "a"    , FILE_vertxt          , "set a file version description"                              );
+   rc = yVIKEYS_cmds_add ('f', "major"       , ""    , ""     , FILE_bump_major      , "increment the version number by a MAJOR version"             );
+   rc = yVIKEYS_cmds_add ('f', "minor"       , ""    , ""     , FILE_bump_minor      , "increment the version number by a MINOR version"             );
+   rc = yVIKEYS_cmds_add ('f', "bump"        , ""    , ""     , FILE_bump_inc        , "increment the version number by a INC version"               );
+   rc = yVIKEYS_cmds_add ('f', "write"       , "w"   , ""     , OUTP_write           , "write/update the current file"                               );
+   rc = yVIKEYS_cmds_add ('f', "writeall"    , "wa"  , ""     , OUTP_write           , "quit all files (if no changes), and exit"                    );
+   rc = yVIKEYS_cmds_add ('f', "edit"        , ""    , ""     , INPT_edit            , "clear existing contents and open/read new file"              );
    /*---(default file name)--------------*/
    FILE_loc  (NULL);
    FILE_name (NULL);
+   yVIKEYS_view_option (YVIKEYS_STATUS, "file"  , FILE_status         , "file name, control, and version"            );
    /*---(complete)-----------------------*/
    DEBUG_INPT   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
 char
-yVIKEYS_file_add        (char *a_label, char *a_name, char a_ver, void *a_writer, void *a_reader, char *a_specs, char *a_title [9][LEN_LABEL])
+yVIKEYS_file_add        (char a_abbr, void *a_writer, void *a_reader)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    int         i           =    0;
+   int         n           =   -1;
    /*---(header)-------------------------*/
    DEBUG_INPT   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
@@ -165,31 +237,9 @@ yVIKEYS_file_add        (char *a_label, char *a_name, char a_ver, void *a_writer
       DEBUG_INPT   yLOG_exitr   (__FUNCTION__, -66);
       return -66;
    }
-   /*---(label)--------------------------*/
-   DEBUG_INPT   yLOG_point   ("a_label"   , a_label);
-   --rce;  if (a_label == NULL) {
-      DEBUG_INPT   yLOG_note    ("requires a label for data type");
-      DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   strlcpy (s_sections [s_nsection].label, a_label, LEN_LABEL);
-   DEBUG_INPT   yLOG_info    ("a_label"   , s_sections [s_nsection].label);
-   /*---(name)---------------------------*/
-   --rce;  if (a_name != NULL) {
-      strlcpy (s_sections [s_nsection].name, a_name, LEN_DESC);
-   } else {
-      strlcpy (s_sections [s_nsection].name, a_label, LEN_DESC);
-   }
-   DEBUG_INPT   yLOG_info    ("a_name"    , s_sections [s_nsection].name);
-   /*---(version)------------------------*/
-   DEBUG_INPT   yLOG_value   ("a_ver"     , a_ver);
-   --rce;  if (a_ver == 0 || strchr ("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", a_ver) == NULL) {
-      DEBUG_INPT   yLOG_note    ("requires a correct version number");
-      DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   s_sections [s_nsection].version = a_ver;
-   DEBUG_INPT   yLOG_char    ("a_ver"     , s_sections [s_nsection].version);
+   /*---(find entry)---------------------*/
+   n = FILE__by_abbr (a_abbr);
+   if (n < 0)  return -1;
    /*---(writer)-------------------------*/
    DEBUG_INPT   yLOG_point   ("a_writer"  , a_writer);
    --rce;  if (a_writer == NULL) {
@@ -197,7 +247,7 @@ yVIKEYS_file_add        (char *a_label, char *a_name, char a_ver, void *a_writer
       DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   s_sections [s_nsection].writer = a_writer;
+   s_sections [n].writer = a_writer;
    /*---(reader)-------------------------*/
    DEBUG_INPT   yLOG_point   ("a_reader"  , a_reader);
    --rce;  if (a_reader == NULL) {
@@ -205,24 +255,7 @@ yVIKEYS_file_add        (char *a_label, char *a_name, char a_ver, void *a_writer
       DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   s_sections [s_nsection].reader = a_reader;
-   /*---(label)--------------------------*/
-   DEBUG_INPT   yLOG_point   ("a_specs"   , a_specs);
-   --rce;  if (a_specs == NULL) {
-      DEBUG_INPT   yLOG_note    ("requires a spec list");
-      DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   strlcpy (s_sections [s_nsection].specs, a_specs, LEN_LABEL);
-   DEBUG_INPT   yLOG_info    ("a_specs"   , s_sections [s_nsection].specs);
-   /*---(titles)-------------------------*/
-   for (i = 0; i < 9; ++i) {
-      if (a_title [i] != NULL) {
-         strlcpy (s_sections [s_nsection].column [i], a_title [i], LEN_LABEL);
-      } else {
-         strlcpy (s_sections [s_nsection].column [i], ""         , LEN_LABEL);
-      }
-   }
+   s_sections [n].reader = a_reader;
    /*---(complete)-----------------------*/
    DEBUG_INPT   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -447,7 +480,6 @@ FILE_name               (char *a_name)
    /*---(header)-------------------------*/
    if (s_file_status <  G_STAGE_READY)   return -66;
    DEBUG_INPT   yLOG_enter   (__FUNCTION__);
-   /*---(prepare)------------------------*/
    /*---(deal with empties)--------------*/
    DEBUG_INPT   yLOG_point   ("a_name"    , a_name);
    if (a_name == NULL || a_name [0] == 0) {
@@ -524,16 +556,14 @@ FILE_open          (char *a_dir)
    char        rce         =  -10;
    /*---(header)-------------------------*/
    DEBUG_INPT  yLOG_enter   (__FUNCTION__);
-   DEBUG_INPT  yLOG_info    ("f_loc"     , myVIKEYS.f_loc);
-   DEBUG_INPT  yLOG_info    ("f_name"    , myVIKEYS.f_name);
    DEBUG_INPT  yLOG_info    ("f_title"   , myVIKEYS.f_title);
    /*---(open file)----------------------*/
    s_file = fopen (myVIKEYS.f_title, a_dir);
    DEBUG_INPT  yLOG_point   ("s_file"    , s_file);
    --rce;  if (s_file == NULL) {
       DEBUG_INPT  yLOG_note    ("file could not be openned");
-      DEBUG_INPT  yLOG_exit    (__FUNCTION__);
-      return 0;
+      DEBUG_INPT  yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
    }
    DEBUG_INPT  yLOG_note    ("file successfully opened");
    /*---(prepare)------------------*/
@@ -558,6 +588,7 @@ FILE_close         (void)
       DEBUG_INPT  yLOG_note    ("close file");
       fclose  (s_file);
    }
+   s_file == NULL;
    /*---(complete)-----------------*/
    DEBUG_INPT  yLOG_exit    (__FUNCTION__);
    return 0;
@@ -571,109 +602,182 @@ FILE_close         (void)
 static void  o___OUTPUT__________o () { return; }
 
 static char  /*-> write file tab information ---------[ leaf   [ge.320.113.10]*/ /*-[00.0000.01#.!]-*/ /*-[--.---.---.--]-*/
-OUTP__sec_columns       (FILE *a_file, char a_index)
+OUTP__sec_columns       (char a_index)
 {
    /*---(locals)-----------+-----+-----+-*/
+   int         rce         =  -10;
    int         i           =    0;
    int         x_label     [LEN_RECD ];
+   /*---(header)-------------------------*/
+   DEBUG_INPT   yLOG_enter   (__FUNCTION__);
+   DEBUG_INPT   yLOG_point   ("s_file"    , s_file);
+   DEBUG_INPT   yLOG_value   ("a_index"   , a_index);
+   /*---(defense)------------------------*/
+   --rce;  if (s_file == NULL) {
+      DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    /*---(prefix)-------------------------*/
-   fprintf (a_file, "#---------  ver  ");
+   fprintf (s_file, "#---------  ver  ");
    /*---(columns)------------------------*/
+   DEBUG_INPT   yLOG_info    ("specs"     , s_sections [a_index].specs);
    for (i = 0; i < 10; ++i) {
       if (s_sections [a_index].specs [i] == '-')  break;
-      sprintf (x_label, "%s%-100.100s", s_sections [a_index].column [i], "-");
+      sprintf (x_label, "%s%-100.100s", s_sections [a_index].column [i], "-----------------------------------------------------------------------------");
       switch (s_sections [a_index].specs [i]) {
       case  'c'  :
-         fprintf (a_file, "%-3.3s  "  , x_label);
+         fprintf (s_file, "%-3.3s  "  , x_label);
          break;
       case  's'  :
-         fprintf (a_file, "%-10.10s  ", x_label);
+         fprintf (s_file, "%-10.10s  ", x_label);
          break;
       case  'L'  :
-         fprintf (a_file, "%-20.20s  ", x_label);
+         fprintf (s_file, "%-20.20s  ", x_label);
          break;
       case  'D'  :
-         fprintf (a_file, "%-60.60s  ", x_label);
+         fprintf (s_file, "%-60.60s  ", x_label);
          break;
       case  'S'  :
-         fprintf (a_file, "%s  "      , x_label);
+         fprintf (s_file, "%s  "      , x_label);
          break;
       case  'i'  :
-         fprintf (a_file, "%-5.5s  "  , x_label);
+         fprintf (s_file, "%-5.5s  "  , x_label);
          break;
       case  'f'  :
-         fprintf (a_file, "%-10.10s  ", x_label);
+         fprintf (s_file, "%-10.10s  ", x_label);
          break;
       }
    }
    /*---(suffix)-------------------------*/
-   fprintf (a_file, "\n");
+   fprintf (s_file, "\n");
    /*---(complete)-----------------------*/
+   DEBUG_INPT   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
-static char
-OUTP_writer             (char n, int a_entry)
+char
+yVIKEYS_file_write      (char a_abbr, void *a, void *b, void *c, void *d, void *e, void *f, void *g, void *h, void *i)
 {
    /*---(locals)-----------+-----+-----+-*/
-   char        rc          =    0;
-   int         i           =    0;
-   int        *x_field     [9];
+   char        n           =    0;
+   int         x           =    0;
    char        t           [LEN_RECD ];
-   /*---(gather next)-----------------*/
-   sprintf (myVIKEYS.f_recd, "");
-   /*> if (s_sections [n].writer != NULL)  rc = s_sections [n].writer (i, x_field [0], x_field [1], x_field [2], x_field [3], x_field [4], x_field [5], x_field [6], x_field [7], x_field [8]);   <*/
-   for (i = 0; i < 9; ++i) x_field [i] = NULL;
-   /*> printf ("file   %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p\n", &x_field [0], &x_field [1], &x_field [2], &x_field [3], &x_field [4], &x_field [5], &x_field [6], &x_field [7], &x_field [8]);   <*/
-   /*> printf ("value  %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p\n",  x_field [0],  x_field [1],  x_field [2],  x_field [3],  x_field [4],  x_field [5],  x_field [6],  x_field [7],  x_field [8]);   <*/
-   /*> rc = VISU_writer (a_entry, &x_field [0], &x_field [1], &x_field [2], &x_field [3], &x_field [4], &x_field [5], &x_field [6], &x_field [7], &x_field [8]);   <*/
-   rc = s_sections [n].writer (a_entry, &x_field [0], &x_field [1], &x_field [2], &x_field [3], &x_field [4], &x_field [5], &x_field [6], &x_field [7], &x_field [8]);
-   /*> printf ("after  %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p\n", &x_field [0], &x_field [1], &x_field [2], &x_field [3], &x_field [4], &x_field [5], &x_field [6], &x_field [7], &x_field [8]);   <*/
-   /*> printf ("value  %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p\n",  x_field [0],  x_field [1],  x_field [2],  x_field [3],  x_field [4],  x_field [5],  x_field [6],  x_field [7],  x_field [8]);   <*/
-   if (rc <= 0)  return rc;
+   void       *x_field     [9];
+   /*---(header)-------------------------*/
+   DEBUG_INPT   yLOG_enter   (__FUNCTION__);
+   DEBUG_INPT   yLOG_value   ("a_abbr"    , a_abbr);
+   /*---(get section)-----------------*/
+   n = FILE__by_abbr (a_abbr);
+   DEBUG_INPT   yLOG_value   ("n"         , n);
+   if (n < 0)      return -1;
+   /*---(prepare)---------------------*/
+   x_field [0] = a;
+   x_field [1] = b;
+   x_field [2] = c;
+   x_field [3] = d;
+   x_field [4] = e;
+   x_field [5] = f;
+   x_field [6] = g;
+   x_field [7] = h;
+   x_field [8] = i;
    /*---(columns)---------------------*/
+   DEBUG_INPT   yLOG_info    ("label"     , s_sections [n].label);
+   DEBUG_INPT   yLOG_char    ("ver"       , s_sections [n].version);
+   DEBUG_INPT   yLOG_info    ("specs"     , s_sections [n].specs);
    sprintf (myVIKEYS.f_recd, "%-10.10s  -%c- ", s_sections [n].label, s_sections [n].version);
-   /*> sprintf (t, " %d   "   , rc);                                                 <*/
-   /*> strlcat (myVIKEYS.f_recd, t, LEN_RECD);                                        <*/
-   for (i = 0; i < 9; ++i) {
-      if (s_sections [n].specs [i] == '-')  break;
-      if (x_field [i] == NULL)  break;
-      switch (s_sections [n].specs [i]) {
+   for (x = 0; x < 9; ++x) {
+      DEBUG_INPT   yLOG_value   ("x"         , x);
+      DEBUG_INPT   yLOG_char    ("spec"      , s_sections [n].specs [x]);
+      if (s_sections [n].specs [x] == '-')  break;
+      DEBUG_INPT   yLOG_point   ("x_field"   , x_field [x]);
+      if (x_field [x] == NULL)  break;
+      strlcpy (t, "", LEN_LABEL);
+      switch (s_sections [n].specs [x]) {
       case  'c'  :
-         sprintf (t, "  %c  "     , *((char   *) x_field [i]));
+         DEBUG_INPT   yLOG_note    ("character");
+         sprintf (t, "  %c  "     , *((char   *) x_field [x]));
          break;
       case  's'  :
-         fprintf (t, " %-10.10s  ", (char *)     x_field [i]);
+         DEBUG_INPT   yLOG_note    ("short string");
+         sprintf (t, " %-10.10s  ", (char *)     x_field [x]);
          break;
       case  'L'  :
-         sprintf (t, " %-20.20s " , (char *)     x_field [i]);
+         DEBUG_INPT   yLOG_note    ("label string");
+         sprintf (t, " %-20.20s " , (char *)     x_field [x]);
          break;
       case  'D'  :
-         sprintf (t, " %-60.60s " , (char *)     x_field [i]);
+         DEBUG_INPT   yLOG_note    ("desc string");
+         sprintf (t, " %-60.60s " , (char *)     x_field [x]);
          break;
       case  'S'  :
-         sprintf (t, " %s "       , (char *)     x_field [i]);
+         DEBUG_INPT   yLOG_note    ("full string");
+         sprintf (t, " %s "       , (char *)     x_field [x]);
          break;
       case  'i'  :
-         sprintf (t, " %5d "      , *((int    *) x_field [i]));
+         DEBUG_INPT   yLOG_note    ("integer");
+         sprintf (t, " %5d "      , *((int    *) x_field [x]));
          break;
       case  'f'  :
-         sprintf (t, " %-10.3lf " , *((double *) x_field [i]));
+         DEBUG_INPT   yLOG_note    ("long float");
+         sprintf (t, " %-10.3lf " , *((double *) x_field [x]));
          break;
       default    :
+         DEBUG_INPT   yLOG_note    ("unknown");
          strlcpy (t, " ", LEN_LABEL);
          break;
       }
+      DEBUG_INPT   yLOG_info    ("t"         , t);
       strlcat (myVIKEYS.f_recd, t, LEN_RECD);
    }
+   DEBUG_INPT   yLOG_info    ("f_recd"    , myVIKEYS.f_recd);
+   /*---(write)--------------------------*/
+   if (s_file != NULL)  fprintf (s_file, "%s\n", myVIKEYS.f_recd);
    /*---(complete)-----------------------*/
+   DEBUG_INPT   yLOG_exit    (__FUNCTION__);
    return 1;
 }
 
+/*> static char                                                                                                                                                                                                            <* 
+ *> OUTP_writer             (char n, int a_entry)                                                                                                                                                                          <* 
+ *> {                                                                                                                                                                                                                      <* 
+ *>    /+---(locals)-----------+-----+-----+-+/                                                                                                                                                                            <* 
+ *>    char        rce         =  -10;                                                                                                                                                                                     <* 
+ *>    char        rc          =    0;                                                                                                                                                                                     <* 
+ *>    int         i           =    0;                                                                                                                                                                                     <* 
+ *>    int        *x_field     [9];                                                                                                                                                                                        <* 
+ *>    char        t           [LEN_RECD ];                                                                                                                                                                                <* 
+ *>    /+---(header)-------------------------+/                                                                                                                                                                            <* 
+ *>    DEBUG_INPT   yLOG_enter   (__FUNCTION__);                                                                                                                                                                           <* 
+ *>    DEBUG_INPT   yLOG_value   ("n"         , n);                                                                                                                                                                        <* 
+ *>    DEBUG_INPT   yLOG_value   ("a_entry"   , a_entry);                                                                                                                                                                  <* 
+ *>    /+---(gather next)-----------------+/                                                                                                                                                                               <* 
+ *>    strlcpy (myVIKEYS.f_recd, "", LEN_RECD);                                                                                                                                                                            <* 
+ *>    /+> if (s_sections [n].writer != NULL)  rc = s_sections [n].writer (i, x_field [0], x_field [1], x_field [2], x_field [3], x_field [4], x_field [5], x_field [6], x_field [7], x_field [8]);   <+/                  <* 
+ *>    for (i = 0; i < 9; ++i) x_field [i] = NULL;                                                                                                                                                                         <* 
+ *>    /+> printf ("file   %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p\n", &x_field [0], &x_field [1], &x_field [2], &x_field [3], &x_field [4], &x_field [5], &x_field [6], &x_field [7], &x_field [8]);   <+/   <* 
+ *>    /+> printf ("value  %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p\n",  x_field [0],  x_field [1],  x_field [2],  x_field [3],  x_field [4],  x_field [5],  x_field [6],  x_field [7],  x_field [8]);   <+/   <* 
+ *>    /+> rc = VISU_writer (a_entry, &x_field [0], &x_field [1], &x_field [2], &x_field [3], &x_field [4], &x_field [5], &x_field [6], &x_field [7], &x_field [8]);   <+/                                                 <* 
+ *>    DEBUG_INPT   yLOG_point   ("writer"    , s_sections [n].writer);                                                                                                                                                    <* 
+ *>    rc = s_sections [n].writer.a (a_entry, &x_field [0], &x_field [1], &x_field [2], &x_field [3], &x_field [4], &x_field [5], &x_field [6], &x_field [7], &x_field [8]);                                               <* 
+ *>    DEBUG_INPT   yLOG_value   ("rc"        , rc);                                                                                                                                                                       <* 
+ *>    --rce;  if (rc <= 0) {                                                                                                                                                                                              <* 
+ *>       DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);                                                                                                                                                                   <* 
+ *>       return rc;                                                                                                                                                                                                       <* 
+ *>    }                                                                                                                                                                                                                   <* 
+ *>    /+> printf ("after  %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p\n", &x_field [0], &x_field [1], &x_field [2], &x_field [3], &x_field [4], &x_field [5], &x_field [6], &x_field [7], &x_field [8]);   <+/   <* 
+ *>    /+> printf ("value  %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p  %14p\n",  x_field [0],  x_field [1],  x_field [2],  x_field [3],  x_field [4],  x_field [5],  x_field [6],  x_field [7],  x_field [8]);   <+/   <* 
+ *>    rc = yVIKEYS_file_write (n, x_field);                                                                                                                                                                               <* 
+ *>    DEBUG_INPT   yLOG_value   ("rc"        , rc);                                                                                                                                                                       <* 
+ *>    /+---(complete)-----------------------+/                                                                                                                                                                            <* 
+ *>    DEBUG_INPT   yLOG_exit    (__FUNCTION__);                                                                                                                                                                           <* 
+ *>    return rc;                                                                                                                                                                                                          <* 
+ *> }                                                                                                                                                                                                                      <*/
+
 int 
-OUTP_write_type         (FILE *a_file, char a_abbr)
+OUTP_write_type         (char a_abbr)
 {
    /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
    char        rc          =    0;
    int         i           =    0;
    int         j           =    0;
@@ -682,53 +786,89 @@ OUTP_write_type         (FILE *a_file, char a_abbr)
    char        x_upper     [LEN_LABEL];
    void       *x_field     [9];
    char        t           [LEN_RECD ];
+   /*---(header)-------------------------*/
+   DEBUG_INPT   yLOG_enter   (__FUNCTION__);
+   DEBUG_INPT   yLOG_point   ("s_file"    , s_file);
+   DEBUG_INPT   yLOG_char    ("a_abbr"    , a_abbr);
    /*---(find entry)---------------------*/
-   for (i = 0; i < MAX_SECTION; ++i) {
-      if (s_sections [i].abbr == 0)       break;
-      if (s_sections [i].abbr != a_abbr)  continue;
-      n = i;
-      break;
+   n = FILE__by_abbr (a_abbr);
+   DEBUG_INPT   yLOG_value   ("n"         , n);
+   if (n < 0) {
+      DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
    }
-   if (n < 0)  return -1;
    /*---(write header)-------------------*/
+   DEBUG_INPT   yLOG_info    ("name"      , s_sections [n].name);
    strlcpy (x_upper, s_sections [n].name, LEN_LABEL);
    for (i = 0; i < strllen (x_upper, LEN_LABEL); ++i)  x_upper [i] = toupper (x_upper [i]);
-   if (a_file != NULL) {
-      fprintf (a_file, "#===[[ %-20.20s ]]===============================================================================================#\n",
+   DEBUG_INPT   yLOG_info    ("upper"     , x_upper);
+   if (s_file != NULL) {
+      DEBUG_INPT   yLOG_note    ("write the header");
+      fprintf (s_file, "\n\n\n#===[[ %-20.20s ]]===============================================================================================#\n",
             x_upper);
-      OUTP__sec_columns (a_file, n);
+      OUTP__sec_columns (n);
    }
    /*---(write entries)------------------*/
-   for (i = 0;  i < 127; ++i) {
-      rc = OUTP_writer (n, i);
-      /*> if (rc <= 0)  continue;                                                     <*/
-      if (rc == 0)  continue;
-      if (rc <  0)  break;
-      if (a_file != NULL)  fprintf (a_file, "%s\n", myVIKEYS.f_recd);
-      ++c;
-   }
+   rc = s_sections [n].writer ();
+   DEBUG_INPT   yLOG_value   ("rc"        , rc);
    /*---(write footer)-------------------*/
-   if (a_file != NULL) {
-      if (c == 0)  fprintf (a_file, "# no %s\n", s_sections [n].name);
-      else         fprintf (a_file, "# complete with %d lines\n", c);
+   if (s_file != NULL) {
+      DEBUG_INPT   yLOG_note    ("write the footer");
+      if (c == 0)  fprintf (s_file, "# no %s\n", s_sections [n].name);
+      else         fprintf (s_file, "# complete with %d lines\n", c);
    }
    /*---(complete)-----------------------*/
+   DEBUG_INPT   yLOG_exit    (__FUNCTION__);
    return c;
 }
 
 int 
 OUTP_write              (void)
 {
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
    char        rc          =    0;
+   /*---(defense)------------------------*/
    if (s_file_status <  G_STAGE_READY)   return -66;
+   /*---(header)-------------------------*/
+   DEBUG_INPT   yLOG_enter   (__FUNCTION__);
+   /*---(open)---------------------------*/
    rc = FILE_open  ("w");
-   if (rc < 0)  return rc;
-   OUTP_write_type (s_file, SMOD_MARK);
-   OUTP_write_type (s_file, SMOD_VISUAL);
-   OUTP_write_type (s_file, MODE_SEARCH);
-   OUTP_write_type (s_file, MODE_COMMAND);
+   DEBUG_INPT   yLOG_value   ("open rc"   , rc);
+   --rce;  if (rc < 0) {
+      DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
+      return rc;
+   }
+   /*---(content)------------------------*/
+   DEBUG_INPT   yLOG_note    ("check all primary content types");
+   /*> OUTP_write_type (FILE_DEPCEL);                                         <*/
+   /*> OUTP_write_type (FILE_FREECEL);                                        <*/
+   /*---(extras)-------------------------*/
+   DEBUG_INPT   yLOG_note    ("check all meta-data types");
+   OUTP_write_type (SMOD_MARK);
+   OUTP_write_type (SMOD_VISUAL);
+   OUTP_write_type (MODE_SEARCH);
+   OUTP_write_type (MODE_COMMAND);
+   OUTP_write_type (SMOD_MACRO);
+   /*---(close)--------------------------*/
+   fprintf (s_file, "\n\n\n# done, finito, complete\n");
    FILE_close ();
+   /*---(ocmplete)-----------------------*/
+   DEBUG_INPT   yLOG_exit    (__FUNCTION__);
+   return 0;
 }
+
+/*> char         /+-> tbd --------------------------------[ ------ [gc.320.121.32]+/ /+-[00.0000.00#.!]-+/ /+-[--.---.---.--]-+/   <* 
+ *> OUTP_writeas         (char *a_name)                                                                                            <* 
+ *> {                                                                                                                              <* 
+ *>    char        rc          =    0;                                                                                             <* 
+ *>    char        x_name      [LEN_RECD]  = "";                                                                                   <* 
+ *>    strlcpy (x_name, my.f_name, LEN_RECD);                                                                                      <* 
+ *>    if (rc >= 0)  rc = FILE_name   (a_name);                                                                                    <* 
+ *>    if (rc >= 0)  rc = OUTP_write  ();                                                                                          <* 
+ *>    if (rc >= 0)  rc = FILE_name   (x_name);                                                                                    <* 
+ *>    return rc;                                                                                                                  <* 
+ *> }                                                                                                                              <*/
 
 char
 OUTP__unit_writer       (char a_abbr, char a_item)
@@ -742,13 +882,8 @@ OUTP__unit_writer       (char a_abbr, char a_item)
    /*---(cleanse)------------------------*/
    sprintf (myVIKEYS.f_recd, "");
    /*---(find entry)---------------------*/
-   for (i = 0; i < MAX_SECTION; ++i) {
-      if (s_sections [i].abbr == 0)       break;
-      if (s_sections [i].abbr != a_abbr)  continue;
-      n = i;
-      break;
-   }
-   --rce;  if (n < 0)  return rce;
+   n = FILE__by_abbr (a_abbr);
+   if (n < 0)      return -1;
    /*---(find item)----------------------*/
    switch (s_sections [n].abbr) {
    case SMOD_MARK    :  x_index = MARK_valid (a_item);  break;
@@ -758,7 +893,7 @@ OUTP__unit_writer       (char a_abbr, char a_item)
    }
    --rce;  if (x_index < 0)  return rce;
    /*---(process)------------------------*/
-   rc = OUTP_writer (n, x_index);
+   /*> rc = OUTP_writer (n, x_index);                                                 <*/
    /*---(complete)-----------------------*/
    return rc;
 }
@@ -803,6 +938,7 @@ INPT_read          (void)
          continue;
       }
       /*---(done)------------------------*/
+      break;
    }
    /*---(complete)-----------------------*/
    return 0;
@@ -848,7 +984,7 @@ INPT_parse              (void)
 }
 
 char         /*-> file reading driver ----------------[ leaf   [ge.C71.072.GA]*/ /*-[02.0000.102.!]-*/ /*-[--.---.---.--]-*/
-INTP_read_all      (void)
+INPT_edit          (void)
 {
    /*---(locals)-----------+-----------+-*/
    char        rce         =  -10;
@@ -875,19 +1011,16 @@ INTP_read_all      (void)
       rc = INPT_parse ();
       if (rc < 0)  break;
       /*---(find type)-------------------*/
-      n = -1;
-      for (i = 0; i < s_nsection; ++i) {
-         if (s_sections [i].label [0] != myVIKEYS.f_type [0])        continue;
-         if (strcmp (s_sections [i].label, myVIKEYS.f_type) != 0)    continue;
-         n = i;
-         break;
-      }
+      DEBUG_INPT  yLOG_info    ("f_type"    , myVIKEYS.f_type);
+      n = FILE__by_label (myVIKEYS.f_type);
+      DEBUG_INPT  yLOG_value   ("n"         , n);
       if (n < 0)  continue;
       /*---(handle)----------------------*/
       ++s_sections [n].try;
       rc = -1;
-      if (s_sections [n].writer != NULL) {
-         rc = s_sections [n].writer (myVIKEYS.f_vers, s_fields [3], s_fields [4], s_fields [5], s_fields [6], s_fields [7], s_fields [8], s_fields [9], s_fields [10], s_fields [11]);
+      DEBUG_INPT  yLOG_point   ("reader"    , s_sections [n].reader);
+      if (s_sections [n].reader != NULL) {
+         rc = s_sections [n].reader (myVIKEYS.f_vers, s_fields [2], s_fields [3], s_fields [4], s_fields [5], s_fields [6], s_fields [7], s_fields [8], s_fields [9], s_fields [10]);
       }
       if (rc < 0)  ++s_sections [n].bad;
       /*---(done)------------------------*/
@@ -920,7 +1053,7 @@ INPT__unit_reader       (char a_abbr)
    rc = INPT_parse ();
    --rce;  if (rc < 0)    return  rce;
    /*---(use the reader)-----------------*/
-   if (s_sections [n].writer != NULL) {
+   if (s_sections [n].reader != NULL) {
       rc = s_sections [n].reader (myVIKEYS.f_vers, s_fields [2], s_fields [3], s_fields [4], s_fields [5], s_fields [6], s_fields [7], s_fields [8], s_fields [9], s_fields [10]);
    }
    /*---(complete)-----------------------*/
