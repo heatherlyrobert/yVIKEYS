@@ -34,7 +34,7 @@
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
 #define YVIKEYS_VER_NUM   "0.9d"
-#define YVIKEYS_VER_TXT   "visu marks read, write,and info window working"
+#define YVIKEYS_VER_TXT   "visu marks read, write, and info window working.  unit testing updated"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/

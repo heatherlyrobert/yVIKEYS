@@ -644,6 +644,7 @@ MARK_writer           (void)
    char        c           =    0;
    /*---(find marked entries)------------*/
    for (i = 1; i < s_nmark; ++i) {
+      strlcpy (myVIKEYS.f_recd, "", LEN_RECD);
       if (s_mark_info [i].source == MARK_NONE)  continue;
       yVIKEYS_file_write (SMOD_MARK, &(S_MARK_LIST [i]), &s_mark_info [i].x_pos, &s_mark_info [i].y_pos, &s_mark_info [i].z_pos, NULL, NULL, NULL, NULL, NULL);
       ++c;

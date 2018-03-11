@@ -423,6 +423,7 @@ VISU_init            (void)
    /*---(clear)--------------------------*/
    s_nvisu = strllen (S_VISU_LIST, 100);
    VISU__purge  (VISU_ALL);
+   s_live = VISU_NOT;
    /*---(read/write)---------------------*/
    yVIKEYS_file_add (SMOD_VISUAL , VISU_writer, VISU_reader);
    /*---(complete)-----------------------*/
@@ -679,13 +680,16 @@ VISU_writer           (void)
 {
    /*---(locals)-----------+-----------+-*/
    char        i           =    0;
+   char        c           =    0;
    /*---(find marked entries)------------*/
    for (i = 1; i < s_nvisu; ++i) {
-      if (s_visu_info [i].active == VISU_NOT)  continue;
+      strlcpy (myVIKEYS.f_recd, "", LEN_RECD);
+      if (s_visu_info [i].active != VISU_YES)  continue;
       yVIKEYS_file_write (SMOD_VISUAL, &(S_VISU_LIST [i]), &s_visu_info [i].x_beg, &s_visu_info [i].y_beg, &s_visu_info [i].z_beg, &s_visu_info [i].x_end, &s_visu_info [i].y_end, &s_visu_info [i].z_end, NULL, NULL);
+      ++c;
    }
    /*---(complete)-----------------------*/
-   return 0;
+   return c;
 }
 
 char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/
@@ -694,9 +698,10 @@ VISU_writer_single    (char a_mark)
    /*---(locals)-----------+-----------+-*/
    char        i           =    0;
    /*---(find marked entries)------------*/
+   strlcpy (myVIKEYS.f_recd, "", LEN_RECD);
    i = VISU_valid (a_mark);
-   if (i < 0)  return -1;
-   if (s_visu_info [i].active == VISU_NOT)  return 0;
+   if (i <= 0)  return -1;
+   if (s_visu_info [i].active != VISU_YES)  return 0;
    yVIKEYS_file_write (SMOD_VISUAL, &(S_VISU_LIST [i]), &s_visu_info [i].x_beg, &s_visu_info [i].y_beg, &s_visu_info [i].z_beg, &s_visu_info [i].x_end, &s_visu_info [i].y_end, &s_visu_info [i].z_end, NULL, NULL);
    /*---(complete)-----------------------*/
    return 1;
