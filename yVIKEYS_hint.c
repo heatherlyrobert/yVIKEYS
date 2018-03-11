@@ -928,25 +928,10 @@ MARK_smode         (int a_major, int a_minor)
       return  0;
    }
    /*---(common complex)-----------------*/
-   --rce;  if (strchr("?@", a_minor) != NULL) {
-      switch (a_minor) {
-      case '?' :
-         DEBUG_USER   yLOG_note    ("show mark info window");
-         myVIKEYS.info_win = 'y';
-         return a_major;
-         break;
-      case '@' :
-         DEBUG_USER   yLOG_note    ("enter edit/wander feature");
-         rc = MARK__which ();
-         if (rc < 0) {
-            MODE_exit ();
-            DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
-            return rce;
-         }
-         x_prev = rc;
-         return a_minor;
-         break;
-      }
+   --rce;  if (a_minor == '?') {
+      DEBUG_USER   yLOG_note    ("show mark info window");
+      myVIKEYS.info_win = 'y';
+      return a_major;
    }
    /*---(check for setting)--------------*/
    --rce;  if (a_major == 'm') {

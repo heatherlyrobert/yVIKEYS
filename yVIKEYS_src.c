@@ -2061,7 +2061,7 @@ HISTORY_infowin         (void)
          else               yCOLOR_curs ("map"          );
          switch (MODE_curr ()) {
          case SMOD_MARK      : MARK_infowin  (x_entry, i);  break;
-         /*> case SMOD_VISUAL    : VISU_infowin  (x_entry, i);  break;                <*/
+         case SMOD_VISUAL    : VISU_infowin  (x_entry, i);  break;
          /*> case SMOD_MACRO     : MACRO_infowin (x_entry, i);  break;                <*/
          }
          mvprintw (x_bott - x_tall + 2 + i, x_left             , "%-*.*s", x_wide, x_wide, x_entry);

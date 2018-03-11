@@ -33,8 +33,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.9c"
-#define YVIKEYS_VER_TXT   "edit command, info window, mark read and write.  awesome."
+#define YVIKEYS_VER_NUM   "0.9d"
+#define YVIKEYS_VER_TXT   "visu marks read, write,and info window working"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
