@@ -33,8 +33,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.9d"
-#define YVIKEYS_VER_TXT   "visu marks read, write, and info window working.  unit testing updated"
+#define YVIKEYS_VER_NUM   "0.9e"
+#define YVIKEYS_VER_TXT   "new status tracking ability working, plus unit testing and reporting"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -48,6 +48,13 @@
 #define     LEN_LABEL   20
 #define     LEN_STR     200
 #define     LEN_RECD    2000
+
+#define     G_STATUS_NULL        -1
+
+#define     G_STATUS_INIT         6
+
+#define     G_STATUS_CONF         8
+
 
 
 #define     G_STAGE_NULL         -1
@@ -171,18 +178,28 @@ uchar       BASE__main_string       (uchar *a_keys);
 
 
 
-/*---(mode stack)-----------*/
-char        MODE_init                 (void);
-char        MODE_enter                (char  a_mode);
-char        MODE_exit                 (void);
-char        MODE_curr                 (void);
-char        MODE_prev                 (void);
-char        MODE_not                  (char  a_mode);
-char        MODE_status               (char *a_list);
-char*       MODE_message              (void);
-char*       MODE__unit                (char *a_question);
+/*---(status system)--------*/
+char        STATUS_init             (void);
+char        STATUS_prep_done        (char a_abbr);
+char        STATUS_needs_met        (char a_abbr);
+char        STATUS_init_set         (char a_abbr);
+char        STATUS_conf_set         (char a_abbr, char a_step);
+char        STATUS_complete         (char a_abbr);
+char        STATUS_dump             (char *a_what);
+char*       STATUS__unit            (char *a_question, char a_abbr);
+/*---(modes)----------------*/
+char        MODE_init               (void);
+char        MODE_enter              (char  a_mode);
+char        MODE_exit               (void);
+char        MODE_curr               (void);
+char        MODE_prev               (void);
+char        MODE_not                (char  a_mode);
+char        MODE_status             (char *a_list);
+char*       MODE_message            (void);
+char*       MODE__unit              (char *a_question);
 /*---(repeat)---------------*/
 char        REPEAT_reset            (void);
+char        REPEAT_init             (void);
 char        REPEAT_done             (void);
 char        REPEAT_umode            (uchar a_major, uchar a_minor);
 char        REPEAT_normal           (void);
@@ -224,6 +241,7 @@ char        VISU_reader             (char n, char *a, char *b, char *c, char *d,
 
 char        FILE_open               (char *a_dir);
 char        FILE_close              (void);
+char        FILE_status             (char *a_list);
 int         OUTP_write              (void);
 int         OUTP_write_type         (char a_abbr);
 char        OUTP__unit_writer       (char a_abbr, char a_item);

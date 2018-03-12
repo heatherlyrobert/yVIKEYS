@@ -4,8 +4,6 @@
 #include    "yVIKEYS_priv.h"
 
 
-static char s_srch_status   = G_STAGE_NULL;
-static char s_cmds_status   = G_STAGE_NULL;
 
 
 static char *S_HIST_LIST = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -123,6 +121,9 @@ static int       s_ncmd      = 0;
 static char      s_fields    [10][LEN_COMMAND];
 static int       s_nfield    =  0;
 static char      s_all       [LEN_COMMAND]       = "";
+
+
+static tCOMMAND  s_fails     [MAX_CMDS];
 
 
 
@@ -527,12 +528,12 @@ char
 HISTORY__exec           (char a_mode)
 {
    /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
    int         rc          =    0;
    tPASSES    *x_pass      = NULL;
    int         i           =    0;
    int         n           =   -1;
    int         x_max       =    0;
-   char        x_status    =  '-';
    char        x_clear     [LEN_LABEL];
    char        x_repeat    [LEN_LABEL];
    /*---(header)-------------------------*/
@@ -540,27 +541,28 @@ HISTORY__exec           (char a_mode)
    DEBUG_HIST   yLOG_char    ("a_mode"    , a_mode);
    DEBUG_HIST   yLOG_value   ("s_len"     , s_len);
    DEBUG_HIST   yLOG_info    ("s_current" , s_current);
+   /*---(defense)------------------------*/
+   --rce;  if (!STATUS_complete (a_mode)) {
+      DEBUG_HIST   yLOG_note    ("can not execute until operational");
+      DEBUG_HIST   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    /*---(set limits)---------------------*/
    switch (a_mode) {
    case MODE_COMMAND :
       x_pass   = &s_runs;
       x_max    = s_nrun;
-      x_status = s_cmds_status;
       break;
    case MODE_SEARCH  : 
       x_pass   = &s_passes;
       x_max    = s_npass;
-      x_status = s_srch_status;
       break;
    }
    DEBUG_HIST   yLOG_value   ("x_max"     , x_max);
-   DEBUG_HIST   yLOG_value   ("x_status"  , x_status);
    sprintf (x_clear  , "%c"       , a_mode);
    DEBUG_HIST   yLOG_info    ("x_clear"   , x_clear);
    sprintf (x_repeat , "%c%c"     , a_mode, a_mode);
    DEBUG_HIST   yLOG_info    ("x_repeat"  , x_repeat);
-   /*---(defense)------------------------*/
-   if (x_status < G_STAGE_READY)              return -66;
    /*---(unmark, no clear)---------------*/
    if (s_len == 2 && s_current [0] == 'u') {
       DEBUG_HIST   yLOG_char    ("unmarking" , s_current [1]);
@@ -656,13 +658,11 @@ SRCH_init               (void)
    /*---(header)-------------------------*/
    DEBUG_PROG   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
-   /*> /+ +/                                                                          <* 
-    *> DEBUG_PROG   yLOG_value   ("stage"     , s_srch_status);                       <* 
-    *> --rce;  if (s_srch_status != G_STAGE_NULL) {                                   <* 
-    *>    DEBUG_PROG   yLOG_note    ("init called too late");                         <* 
-    *>    DEBUG_PROG   yLOG_exitr   (__FUNCTION__, -66);                              <* 
-    *>    return -66;                                                                 <* 
-    *> }                                                                              <*/
+   --rce;  if (!STATUS_prep_done  (MODE_SEARCH)) {
+      DEBUG_PROG   yLOG_note    ("status is not ready for init");
+      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    /*---(clear callbacks)----------------*/
    DEBUG_PROG   yLOG_note    ("clear callbacks");
    s_searcher = NULL;
@@ -675,9 +675,8 @@ SRCH_init               (void)
    DEBUG_PROG   yLOG_note    ("initialize search results");
    s_nsrch    = MAX_SRCH;
    SRCH__purge ();
-   /*---(update stage)-------------------*/
-   DEBUG_PROG   yLOG_note    ("update status");
-   s_srch_status = G_STAGE_INIT;
+   /*---(update status)------------------*/
+   STATUS_init_set   (MODE_SEARCH);
    /*---(read/write)---------------------*/
    yVIKEYS_file_add (MODE_SEARCH , SRCH_writer, SRCH_reader);
    /*---(complete)-----------------------*/
@@ -727,18 +726,18 @@ CMDS_purge              (void)
 char
 CMDS_init               (void)
 {
+   /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
+   char        rc          =    0;
    int         i           =    0;
    /*---(header)-------------------------*/
    DEBUG_PROG   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
-   /*> /+  +/                                                                         <* 
-    *> DEBUG_PROG   yLOG_value   ("stage"     , s_cmds_status);                       <* 
-    *> --rce;  if (s_cmds_status != G_STAGE_NULL) {                                   <* 
-    *>    DEBUG_PROG   yLOG_note    ("init called too late");                         <* 
-    *>    DEBUG_PROG   yLOG_exitr   (__FUNCTION__, -66);                              <* 
-    *>    return -66;                                                                 <* 
-    *> }                                                                              <*/
+   --rce;  if (!STATUS_prep_done  (MODE_COMMAND)) {
+      DEBUG_PROG   yLOG_note    ("status is not ready for init");
+      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    /*---(menus)--------------------------*/
    DEBUG_PROG   yLOG_note    ("initialize menu system");
    s_nmenu = 0;
@@ -758,38 +757,23 @@ CMDS_init               (void)
    /*---(commands)-----------------------*/
    DEBUG_PROG   yLOG_note    ("initialize command system");
    CMDS_purge ();
-   /*> s_ncmd = 0;                                                                    <* 
-    *> for (i = 0; i < MAX_CMDS; ++i) {                                               <* 
-    *>    s_cmds [i].menu      = '-';                                                 <* 
-    *>    s_cmds [i].name  [0] = NULL;                                                <* 
-    *>    s_cmds [i].len       = 0;                                                   <* 
-    *>    s_cmds [i].abbr  [0] = NULL;                                                <* 
-    *>    s_cmds [i].alen      = 0;                                                   <* 
-    *>    s_cmds [i].active    = '-';                                                 <* 
-    *>    s_cmds [i].redraw    = '-';                                                 <* 
-    *>    s_cmds [i].f.v       = NULL;                                                <* 
-    *>    s_cmds [i].terms [0] = 0;                                                   <* 
-    *>    s_cmds [i].nterm     = 0;                                                   <* 
-    *>    s_cmds [i].desc  [0] = 0;                                                   <* 
-    *>    s_cmds [i].disp  [0] = 0;                                                   <* 
-    *> }                                                                              <*/
    /*---(clear history)------------------*/
    DEBUG_PROG   yLOG_note    ("clear all history");
    HISTORY__load  (MODE_COMMAND, NULL);
    HISTORY__purge (MODE_COMMAND);
-   /*---(update stage)-------------------*/
+   /*---(update status)------------------*/
    DEBUG_PROG   yLOG_note    ("update status");
-   s_cmds_status = G_STAGE_READY;
-   DEBUG_PROG   yLOG_value   ("stage"     , s_cmds_status);
+   STATUS_init_set   (MODE_COMMAND);
    /*---(read/write)---------------------*/
-   yVIKEYS_file_add (MODE_COMMAND, CMDS_writer, CMDS_reader);
+   rc = yVIKEYS_file_add (MODE_COMMAND, CMDS_writer, CMDS_reader);
    /*---(commands)-----------------------*/
    DEBUG_PROG   yLOG_note    ("add universal commands");
    myVIKEYS.done = '-';
-   yVIKEYS_cmds_add ('f', "quit"        , "q"   , ""     , CMDS__quit           , "quit current file (if no changes), exit if the only file"    );
-   yVIKEYS_cmds_add ('f', "quitall"     , "qa"  , ""     , CMDS__quit           , "quit all files (if no changes), and exit"                    );
-   yVIKEYS_cmds_add ('f', "writequit"   , "wq"  , ""     , CMDS__writequit      , ""                                                            );
-   yVIKEYS_cmds_add ('f', "writequitall", "wqa" , ""     , CMDS__writequit      , ""                                                            );
+   rc = yVIKEYS_cmds_add ('f', "quit"        , "q"   , ""     , CMDS__quit           , "quit current file (if no changes), exit if the only file"    );
+   rc = yVIKEYS_cmds_add ('f', "quitall"     , "qa"  , ""     , CMDS__quit           , "quit all files (if no changes), and exit"                    );
+   rc = yVIKEYS_cmds_add ('f', "writequit"   , "wq"  , ""     , CMDS__writequit      , ""                                                            );
+   rc = yVIKEYS_cmds_add ('f', "writequitall", "wqa" , ""     , CMDS__writequit      , ""                                                            );
+   rc = yVIKEYS_cmds_add ('e', "dump"        , ""    , "s"    , STATUS_dump          , "dump a specified data table to the clipboard in flat text"   );
    /*---(complete)-----------------------*/
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -801,13 +785,12 @@ yVIKEYS_srch_config     (void *a_searcher, void *a_clearer)
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    /*---(header)-------------------------*/
-   DEBUG_PROG   yLOG_enter   (__FUNCTION__);
+   DEBUG_MAP   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
-   DEBUG_PROG   yLOG_value   ("stage"     , s_srch_status);
-   --rce;  if (s_srch_status <  G_STAGE_INIT) {
-      DEBUG_PROG   yLOG_note    ("must be called after init");
-      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, -66);
-      return -66;
+   --rce;  if (!STATUS_needs_met  (MODE_SEARCH)) {
+      DEBUG_EDIT   yLOG_note    ("init must complete before config");
+      DEBUG_EDIT   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
    }
    /*---(update searcher)----------------*/
    DEBUG_PROG   yLOG_point   ("searcher"  , a_searcher);
@@ -825,8 +808,8 @@ yVIKEYS_srch_config     (void *a_searcher, void *a_clearer)
       return rce;
    }
    s_clearer  = a_clearer;
-   /*---(update stage)-------------------*/
-   s_srch_status = G_STAGE_READY;
+   /*---(update status)------------------*/
+   STATUS_conf_set   (MODE_SEARCH, '1');
    /*---(complete)-----------------------*/
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -1147,11 +1130,10 @@ yVIKEYS_cmds_add     (char a_menu, char *a_name, char *a_abbr, char *a_terms, vo
    /*---(header)-------------------------*/
    DEBUG_PROG   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
-   DEBUG_PROG   yLOG_value   ("stage"     , s_cmds_status);
-   --rce;  if (s_cmds_status <  G_STAGE_INIT) {
-      DEBUG_PROG   yLOG_note    ("must be called after init");
-      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, -66);
-      return -66;
+   --rce;  if (!STATUS_complete (MODE_COMMAND)) {
+      DEBUG_HIST   yLOG_note    ("can not execute until operational");
+      DEBUG_HIST   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
    }
    /*---(defense)------------------------*/
    --rce;  if (CMDS__menu  (a_menu, ACTION_FIND) < 0)         return rce;
@@ -1266,11 +1248,10 @@ CMDS__exec            (void)
    /*---(header)-------------------------*/
    DEBUG_USER   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
-   DEBUG_PROG   yLOG_value   ("stage"     , s_cmds_status);
-   --rce;  if (s_cmds_status <  G_STAGE_READY) {
-      DEBUG_PROG   yLOG_note    ("must be called after init");
-      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, -66);
-      return -66;
+   --rce;  if (!STATUS_complete (MODE_COMMAND)) {
+      DEBUG_HIST   yLOG_note    ("can not execute until operational");
+      DEBUG_HIST   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
    }
    DEBUG_USER   yLOG_info    ("s_current" , s_current);
    /*---(look for system)---------------*/
@@ -1370,7 +1351,6 @@ CMDS__test              (char a_mode, char a_value)
 char
 CMDS__unit_null         (void)
 {
-   s_cmds_status  = G_STAGE_NULL;
    return 0;
 }
 
@@ -1399,14 +1379,6 @@ CMDS__unit              (char *a_question, char a_index)
    }
    else if (strcmp (a_question, "command"        )   == 0) {
       snprintf (yVIKEYS__unit_answer, LEN_STR, "CMDS command (%2d): %c %-12.12s %-4.4s %-4.4s %3s", a_index, s_cmds [a_index].menu, s_cmds [a_index].name, s_cmds [a_index].abbr, s_cmds [a_index].terms, (s_cmds [a_index].f.v == NULL) ? "---" : "SET");
-   }
-   else if (strcmp (a_question, "status"         )   == 0) {
-      switch (s_cmds_status) {
-      case -1 : strlcpy (t, "null (not even initialized)", LEN_DESC);    break;
-      case  0 : strlcpy (t, "initialized only"           , LEN_DESC);    break;
-      case  5 : strlcpy (t, "configured and ready"       , LEN_DESC);    break;
-      }
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "CMDS status      : stage %2d, %s", s_cmds_status, t);
    }
    else if (strcmp (a_question, "history"        )   == 0) {
       snprintf (yVIKEYS__unit_answer, LEN_STR, "CMDS history     : %2d %c %2d %3d  %-.40s", a_index, s_runs [a_index].mark, s_runs [a_index].count, s_runs [a_index].found, s_runs [a_index].text);
@@ -1450,7 +1422,6 @@ SRCH__unit_clearer      (char *a_junk)
 char
 SRCH__unit_null         (void)
 {
-   s_srch_status  = G_STAGE_NULL;
    return 0;
 }
 
@@ -1464,14 +1435,6 @@ SRCH__unit              (char *a_question, char a_index)
    /*---(dependency list)----------------*/
    if      (strcmp (a_question, "global"         )   == 0) {
       snprintf (yVIKEYS__unit_answer, LEN_STR, "SRCH global      : %2d[%-.40s]", s_len, s_current);
-   }
-   else if (strcmp (a_question, "status"         )   == 0) {
-      switch (s_srch_status) {
-      case -1 : strlcpy (t, "null (not even initialized)", LEN_DESC);    break;
-      case  0 : strlcpy (t, "initialized only"           , LEN_DESC);    break;
-      case  5 : strlcpy (t, "configured and ready"       , LEN_DESC);    break;
-      }
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "SRCH status      : stage %2d, %s", s_srch_status, t);
    }
    else if (strcmp (a_question, "history"        )   == 0) {
       snprintf (yVIKEYS__unit_answer, LEN_STR, "SRCH history     : %2d %c %2d %2d  %-.40s", a_index, s_passes [a_index].mark, s_passes [a_index].count, s_passes [a_index].found, s_passes [a_index].text);

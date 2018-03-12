@@ -73,8 +73,24 @@ MACRO_init              (void)
 char         /*-> initialize macro environment -------[ shoot  [gz.210.001.01]*/ /*-[00.0000.102.4]-*/ /*-[--.---.---.--]-*/
 yVIKEYS_macro_config    (void *a_loader, void *a_saver)
 {
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   /*---(header)-------------------------*/
+   DEBUG_SCRP   yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   DEBUG_SCRP   yLOG_value   ("stage"     , s_macro_status);
+   --rce;  if (s_macro_status <  G_STAGE_INIT) {
+      DEBUG_SCRP   yLOG_note    ("must be called after init");
+      DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, -66);
+      return -66;
+   }
+   /*---(save)---------------------------*/
    if (a_loader != NULL) s_loader = a_loader;
+   DEBUG_SCRP   yLOG_point   ("loader"    , s_loader);
    if (a_saver  != NULL) s_saver  = a_saver;
+   DEBUG_SCRP   yLOG_point   ("saver"     , s_saver);
+   /*---(complete)-----------------------*/
+   DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 

@@ -39,9 +39,12 @@ yVIKEYS_init         (void)
 {
    /*---(header)-------------------------*/
    DEBUG_PROG   yLOG_enter   (__FUNCTION__);
+   /*----(first)-------------------------*/
+   STATUS_init  ();
    /*----(early)-------------------------*/
    MODE_init    ();
    FILE_init    ();
+   /*----(middling)----------------------*/
    CMDS_init    ();
    SRCH_init    ();
    /*----(later)-------------------------*/
@@ -52,7 +55,7 @@ yVIKEYS_init         (void)
    TEXTREG_init ();
    MARK_init    ();
    VISU_init    ();
-   REPEAT_reset ();
+   REPEAT_init  ();
    myVIKEYS.done      = '-';
    myVIKEYS.trouble   = '-';
    myVIKEYS.info_win  = '-';
@@ -249,7 +252,7 @@ yVIKEYS_main_handle     (uchar a_key)
    myVIKEYS.trouble   = '-';
    x_key = chrworking (a_key);
    /*---(handle count)-------------------*/
-   if (MODE_curr () == SMOD_REPEAT) {
+   if (MODE_curr () == UMOD_REPEAT) {
       rc = REPEAT_umode (x_major, x_key);
       if (rc >  0)  x_major = ' ';
    }
@@ -260,23 +263,23 @@ yVIKEYS_main_handle     (uchar a_key)
       case MODE_GOD      : rc = BASE__________stub    (x_major , x_key);  break;
       case MODE_MAP      : rc = MAP_mode              (x_major , x_key);  break;
       case MODE_SOURCE   : rc = SOURCE_mode           (x_major , x_key);  break;
-      case SMOD_INPUT    : rc = INPUT_smode           (x_major , x_key);  break;
-      case SMOD_HISTORY  : rc = HISTORY_smode         (x_major , x_key);  break;
+      case UMOD_INPUT    : rc = INPUT_smode           (x_major , x_key);  break;
+      case UMOD_HISTORY  : rc = HISTORY_smode         (x_major , x_key);  break;
       case MODE_COMMAND  : rc = SOURCE_mode           (x_major , x_key);  break;
       case MODE_SEARCH   : rc = SOURCE_mode           (x_major , x_key);  break;
-      case SMOD_VISUAL   : rc = VISU_smode            (x_major , x_key);  break;
+      case UMOD_VISUAL   : rc = VISU_smode            (x_major , x_key);  break;
       case SMOD_ERROR    : rc = BASE__________stub    (x_major , x_key);  break;
       case SMOD_SUNDO    : rc = BASE__________stub    (x_major , x_key);  break;
       case SMOD_TEXTREG  : rc = TEXTREG_smode         (x_major , x_key);  break;
-      case SMOD_REPLACE  : rc = REPLACE_smode         (x_major , x_key);  break;
-      case SMOD_FORMAT   : rc = FORMAT_smode          (x_major , x_key);  break;
+      case UMOD_REPLACE  : rc = REPLACE_smode         (x_major , x_key);  break;
+      case XMOD_FORMAT   : rc = FORMAT_smode          (x_major , x_key);  break;
       case SMOD_BUFFER   : rc = BASE__________stub    (x_major , x_key);  break;
-      case SMOD_WANDER   : rc = BASE__________stub    (x_major , x_key);  break;
+      case UMOD_WANDER   : rc = BASE__________stub    (x_major , x_key);  break;
       case SMOD_REGISTER : rc = BASE__________stub    (x_major , x_key);  break;
-      case SMOD_MARK     : rc = MARK_smode            (x_major , x_key);  break;
+      case UMOD_MARK     : rc = MARK_smode            (x_major , x_key);  break;
       case SMOD_MENUS    : rc = BASE__________stub    (x_major , x_key);  break;
       case SMOD_MACRO    : rc = MACRO_smode           (x_major , x_key);  break;
-      case SMOD_REPEAT   :                                                break;
+      case UMOD_REPEAT   :                                                break;
       default            : rc = -1;  x_nomode = 'y';                      break;
       }
       DEBUG_USER   yLOG_value   ("rc"        , rc);
@@ -294,7 +297,7 @@ yVIKEYS_main_handle     (uchar a_key)
       else if (x_key <= G_KEY_SPACE )  snprintf (x_keys,   9, "%2d %c%02x", x_repeat, x_major, x_key);
       else                             snprintf (x_keys,   9, "%2d %c%c"  , x_repeat, x_major, x_key);
       /*---(multiplier)------------------*/
-      if (rc >= 0 && x_repeat > 0 && MODE_curr () != SMOD_REPEAT) {
+      if (rc >= 0 && x_repeat > 0 && MODE_curr () != UMOD_REPEAT) {
          REPEAT_decrement ();
          if (rc > 0)  x_major = rc;
          continue;

@@ -34,6 +34,12 @@
 
 
 /*===[[ CONSTANTS ]]==========================================================*/
+/*---(foundation)------------------------*/
+#define     FMOD_STATUS    '5'
+#define     FMOD_FILE      'f'
+#define     FMOD_MODE      '0'
+#define     FMOD_VIEW      'V'
+#define     MODE_NONE      '-'
 /*---(major modes)-----------------------*/
 #define     MODE_GOD       'G'
 #define     MODE_OMNI      'O'
@@ -44,28 +50,29 @@
 #define     MODE_SEARCH    '/'
 #define     MODES_ONELINE  "S:/"
 #define     MODES_EDITING  "S:/triw"
-/*---(sub-modes)--------------s----------*/
-#define     SMOD_REPEAT    '9'    /* accumulate multiplier                    */
+/*---(sub-modes)-------------------------*/
 #define     SMOD_ERROR     'e'    /* error reporting and actions              */
-
-#define     SMOD_REPLACE   'r'    /* replacing characters in source mode      */
 #define     SMOD_REGISTER  '"'    /* register actions                         */
 #define     SMOD_TEXTREG   't'    /* text register actions                    */
-#define     SMOD_INPUT     'i'    /* direct input of text                     */
-#define     SMOD_WANDER    'w'    /* formula creation by pointing             */
 #define     SMOD_SUNDO     's'    /* incremental text change undo/redo        */
-#define     SMOD_HISTORY   'h'    /* hint labels                              */
-
-#define     SMOD_BUFFER    ','    /* selecting buffers                        */
-#define     SMOD_VISUAL    'v'    /* visual selection history                 */
 #define     SMOD_MUNDO     'm'    /* incremental map change undo/redo         */
-#define     SMOD_FORMAT    '$'    /* content formatting                       */
-#define     SMOD_OBJECT    'o'    /* object formatting                        */
-#define     SMOD_MARK      '\''   /* location and object marking              */
+#define     SMOD_BUFFER    ','    /* selecting buffers                        */
+#define     XMOD_FORMAT    '$'    /* content formatting                       */
+#define     XMOD_OBJECT    'o'    /* object formatting                        */
 #define     SMOD_HINT      ';'    /* hint labels                              */
-
 #define     SMOD_MACRO     '@'    /* macro processing                         */
 #define     SMOD_MENUS     '\\'   /* show menu system                         */
+/*---(micro-modes)-----------------------*/
+#define     UMOD_MARK      '\''   /* location and object marking              */
+#define     UMOD_VISUAL    'v'    /* visual selection history                 */
+#define     UMOD_REPEAT    '9'    /* accumulate multiplier                    */
+#define     UMOD_REPLACE   'r'    /* replacing characters in source mode      */
+#define     UMOD_INPUT     'i'    /* direct input of text                     */
+#define     UMOD_WANDER    'w'    /* formula creation by pointing             */
+#define     UMOD_HISTORY   'h'    /* hint labels                              */
+#define     SMOD_FILTER    '!'    /* data filtering                           */
+
+
 
 #define     FILE_DEPCEL    'd'
 #define     FILE_FREECEL   'f'

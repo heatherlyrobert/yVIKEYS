@@ -51,8 +51,16 @@ static void  o___MARKS___________o () { return; }
 char         /*-> initialize all marks ---------------[ shoot  [gz.311.001.01]*/ /*-[00.0000.102.4]-*/ /*-[--.---.---.--]-*/
 MARK_init            (void)
 {
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
    /*---(header)-------------------------*/
-   DEBUG_MARK   yLOG_enter   (__FUNCTION__);
+   DEBUG_PROG   yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   --rce;  if (!STATUS_prep_done  (UMOD_MARK)) {
+      DEBUG_PROG   yLOG_note    ("status is not ready for init");
+      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    /*---(clear)--------------------------*/
    s_nmark = strllen (S_MARK_LIST, 100);
    MARK__purge  ('*');
@@ -60,7 +68,9 @@ MARK_init            (void)
    myVIKEYS.mark_show = '-';
    yVIKEYS_cmds_add ('e', "mark"        , ""    , "s"    , MARK_direct                , "" );
    /*---(read/write)---------------------*/
-   yVIKEYS_file_add (SMOD_MARK   , MARK_writer, MARK_reader);
+   yVIKEYS_file_add (UMOD_MARK   , MARK_writer, MARK_reader);
+   /*---(update status)------------------*/
+   STATUS_init_set   (UMOD_MARK);
    /*---(complete)-----------------------*/
    DEBUG_MARK   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -646,7 +656,7 @@ MARK_writer           (void)
    for (i = 1; i < s_nmark; ++i) {
       strlcpy (myVIKEYS.f_recd, "", LEN_RECD);
       if (s_mark_info [i].source == MARK_NONE)  continue;
-      yVIKEYS_file_write (SMOD_MARK, &(S_MARK_LIST [i]), &s_mark_info [i].x_pos, &s_mark_info [i].y_pos, &s_mark_info [i].z_pos, NULL, NULL, NULL, NULL, NULL);
+      yVIKEYS_file_write (UMOD_MARK, &(S_MARK_LIST [i]), &s_mark_info [i].x_pos, &s_mark_info [i].y_pos, &s_mark_info [i].z_pos, NULL, NULL, NULL, NULL, NULL);
       ++c;
    }
    /*---(complete)-----------------------*/
@@ -664,7 +674,7 @@ MARK_writer_single    (char a_mark)
    i = MARK_valid (a_mark);
    --rce;  if (i <= 0)  return rce;
    if (s_mark_info [i].source == MARK_NONE)  return 0;
-   yVIKEYS_file_write (SMOD_MARK, &(S_MARK_LIST [i]), &s_mark_info [i].x_pos, &s_mark_info [i].y_pos, &s_mark_info [i].z_pos, NULL, NULL, NULL, NULL, NULL);
+   yVIKEYS_file_write (UMOD_MARK, &(S_MARK_LIST [i]), &s_mark_info [i].x_pos, &s_mark_info [i].y_pos, &s_mark_info [i].z_pos, NULL, NULL, NULL, NULL, NULL);
    /*---(complete)-----------------------*/
    return 1;
 }
@@ -867,7 +877,7 @@ MARK_smode         (int a_major, int a_minor)
    myVIKEYS.info_win = '-';
    /*---(defenses)-----------------------*/
    DEBUG_USER   yLOG_char    ("mode"      , MODE_curr ());
-   --rce;  if (MODE_not (SMOD_MARK   )) {
+   --rce;  if (MODE_not (UMOD_MARK   )) {
       DEBUG_USER   yLOG_note    ("not the correct mode");
       DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
@@ -890,7 +900,7 @@ MARK_smode         (int a_major, int a_minor)
    /*> if (a_minor == '*') {                                                          <* 
     *>    DEBUG_USER   yLOG_note    ("enter visual mode from < to >");                <* 
     *>    MODE_exit ();                                                               <* 
-    *>    MODE_enter  (SMOD_VISUAL);                                                  <* 
+    *>    MODE_enter  (UMOD_VISUAL);                                                  <* 
     *>    rc = VISU_mark    ();                                                       <* 
     *>    if (rc < 0) {                                                               <* 
     *>       MODE_exit ();                                                            <* 

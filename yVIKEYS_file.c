@@ -42,8 +42,8 @@ struct cSECTION {
 };
 static tSECTION  s_sections [MAX_SECTION] = {
    /* -   ----abbr---    ---name------------    --label---   ver   ---specs--    ---1st----    ---2nd----    ---3rd----    ---4th----    ---5th----    ---6th----    ---7th----    ---8th----    ---9th----   writer  reader  try  bad */
-   { 'i', SMOD_MARK   , "location marks"     , "loc_mark"  , 'B', "ciii------", "-a"        , "--x"       , "--y"       , "--z"       , ""          , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
-   { 'i', SMOD_VISUAL , "visual marks"       , "visu_mark" , 'A', "ciiiiii---", "-a"        , "xbeg"      , "ybeg"      , "zbeg"      , "xend"      , "yend"      , "zend"      , ""          , ""          , NULL  , NULL  ,   0,   0 },
+   { 'i', UMOD_MARK   , "location marks"     , "loc_mark"  , 'B', "ciii------", "-a"        , "--x"       , "--y"       , "--z"       , ""          , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
+   { 'i', UMOD_VISUAL , "visual marks"       , "visu_mark" , 'A', "ciiiiii---", "-a"        , "xbeg"      , "ybeg"      , "zbeg"      , "xend"      , "yend"      , "zend"      , ""          , ""          , NULL  , NULL  ,   0,   0 },
    { 'i', SMOD_MACRO  , "saved macros"       , "macro"     , 'A', "ciiS------", "-a"        , "count"     , "rc"        , "command"   , ""          , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
    { 'i', MODE_SEARCH , "search history"     , "search"    , 'A', "ciiS------", "-a"        , "count"     , "found"     , "search"    , ""          , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
    { 'i', MODE_COMMAND, "command history"    , "command"   , 'A', "ciiS------", "-a"        , "count"     , "rc"        , "command"   , ""          , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
@@ -136,8 +136,16 @@ static void  o___PROGRAM_________o () { return; }
 char
 FILE_init               (void)
 {
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
    /*---(header)-------------------------*/
    DEBUG_PROG   yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   --rce;  if (!STATUS_prep_done  (FMOD_FILE)) {
+      DEBUG_PROG   yLOG_note    ("status is not ready for init");
+      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    /*---(reset globals)------------------*/
    strlcpy (ver_num , "----" , LEN_LABEL);
    strlcpy (ver_txt , "-----", LEN_DESC );
@@ -146,7 +154,7 @@ FILE_init               (void)
    strlcpy (s_vernum, "-"    , LEN_DESC );
    strlcpy (s_vertxt, "-"    , LEN_DESC );
    /*---(update status)------------------*/
-   s_file_status = G_STAGE_INIT;
+   STATUS_init_set   (FMOD_FILE);
    /*---(complete)-----------------------*/
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -161,11 +169,10 @@ yVIKEYS_file_config     (char *a_prog, char *a_ext, char *a_vernum, char *a_vert
    /*---(header)-------------------------*/
    DEBUG_INPT   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
-   DEBUG_INPT   yLOG_value   ("stage"     , s_file_status);
-   --rce;  if (s_file_status <  G_STAGE_INIT) {
-      DEBUG_INPT   yLOG_note    ("must be called after init");
-      DEBUG_INPT   yLOG_exitr   (__FUNCTION__, -66);
-      return -66;
+   --rce;  if (!STATUS_needs_met  (FMOD_FILE)) {
+      DEBUG_INPT   yLOG_note    ("init must be successfully called first");
+      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
    }
    /*---(program name)-------------------*/
    DEBUG_INPT   yLOG_point   ("a_prog"    , a_prog);
@@ -198,7 +205,7 @@ yVIKEYS_file_config     (char *a_prog, char *a_ext, char *a_vernum, char *a_vert
       DEBUG_INPT   yLOG_info    ("s_vertxt"  , s_vertxt);
    }
    /*---(update stage)-------------------*/
-   s_file_status = G_STAGE_READY;
+   STATUS_conf_set (FMOD_FILE, '1');
    /*---(add commands)-------------------*/
    rc = yVIKEYS_cmds_add ('f', "cd"          , ""    , "a"    , FILE_loc             , "set the default directory for file reading and writing"      );
    rc = yVIKEYS_cmds_add ('f', "file"        , ""    , "a"    , FILE_name            , "rename a file for reading and writing"                       );
@@ -215,7 +222,6 @@ yVIKEYS_file_config     (char *a_prog, char *a_ext, char *a_vernum, char *a_vert
    /*---(default file name)--------------*/
    FILE_loc  (NULL);
    FILE_name (NULL);
-   yVIKEYS_view_option (YVIKEYS_STATUS, "file"  , FILE_status         , "file name, control, and version"            );
    /*---(complete)-----------------------*/
    DEBUG_INPT   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -231,11 +237,10 @@ yVIKEYS_file_add        (char a_abbr, void *a_writer, void *a_reader)
    /*---(header)-------------------------*/
    DEBUG_INPT   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
-   DEBUG_INPT   yLOG_value   ("stage"     , s_file_status);
-   --rce;  if (s_file_status <  G_STAGE_INIT) {
-      DEBUG_INPT   yLOG_note    ("must be called after init");
-      DEBUG_INPT   yLOG_exitr   (__FUNCTION__, -66);
-      return -66;
+   --rce;  if (!STATUS_needs_met  (FMOD_FILE)) {
+      DEBUG_INPT   yLOG_note    ("init must be successfully called first");
+      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
    }
    /*---(find entry)---------------------*/
    n = FILE__by_abbr (a_abbr);
@@ -845,8 +850,8 @@ OUTP_write              (void)
    /*> OUTP_write_type (FILE_FREECEL);                                        <*/
    /*---(extras)-------------------------*/
    DEBUG_INPT   yLOG_note    ("check all meta-data types");
-   OUTP_write_type (SMOD_MARK);
-   OUTP_write_type (SMOD_VISUAL);
+   OUTP_write_type (UMOD_MARK);
+   OUTP_write_type (UMOD_VISUAL);
    OUTP_write_type (MODE_SEARCH);
    OUTP_write_type (MODE_COMMAND);
    OUTP_write_type (SMOD_MACRO);
@@ -886,8 +891,8 @@ OUTP__unit_writer       (char a_abbr, char a_item)
    if (n < 0)      return -1;
    /*---(find item)----------------------*/
    switch (s_sections [n].abbr) {
-   case SMOD_MARK    :  x_index = MARK_valid (a_item);  break;
-   case SMOD_VISUAL  :  x_index = VISU_valid (a_item);  break;
+   case UMOD_MARK    :  x_index = MARK_valid (a_item);  break;
+   case UMOD_VISUAL  :  x_index = VISU_valid (a_item);  break;
    case MODE_SEARCH  :  x_index = SRCH_valid (a_item);  break;
    case MODE_COMMAND :  x_index = CMDS_valid (a_item);  break;
    }

@@ -665,7 +665,7 @@ SOURCE_start       (char *a_prefix)
    s_cur->epos = s_cur->npos;
    SOURCE__done ();
    /*---(go info input)------------------*/
-   MODE_enter  (SMOD_INPUT  );
+   MODE_enter  (UMOD_INPUT  );
    INPUT_smode  ('m', 'a');
    /*---(complete)-----------------------*/
    DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
@@ -708,22 +708,42 @@ static void  o___PROGRAM_________o () { return; }
 char         /*-> initialize source environment ------[ shoot  [gz.210.001.01]*/ /*-[00.0000.102.4]-*/ /*-[--.---.---.--]-*/
 SOURCE_init             (void)
 {
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
    /*---(header)-------------------------*/
    DEBUG_PROG   yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   --rce;  if (!STATUS_prep_done  (MODE_SOURCE)) {
+      DEBUG_PROG   yLOG_note    ("status is not ready for init");
+      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(pointer)------------------------*/
    DEBUG_PROG   yLOG_note    ("clear s_saver pointer");
    s_saver  = NULL;
+   /*---(command/search)-----------------*/
    DEBUG_PROG   yLOG_note    ("clear command/search values");
    s_cur = &s_cmd;
    s_cur->type  = EDIT_CMDS;
    strlcpy (s_cur->original, "" , LEN_RECD );
    strlcpy (s_cur->label   , "-", LEN_LABEL);
    SOURCE__reset ();
+   /*---(source)-------------------------*/
    DEBUG_PROG   yLOG_note    ("clear source values");
    s_cur = &s_src;
    s_cur->type  = EDIT_NORM;
    strlcpy (s_cur->original, "" , LEN_RECD );
    strlcpy (s_cur->label   , "-", LEN_LABEL);
+   /*---(clear)--------------------------*/
    SOURCE__reset ();
+   SUNDO__purge (0);
+   /*---(update status)------------------*/
+   STATUS_init_set   (MODE_SOURCE);
+   STATUS_init_set   (UMOD_REPLACE);
+   STATUS_init_set   (UMOD_INPUT);
+   STATUS_init_set   (SMOD_SUNDO);
+   STATUS_init_set   (UMOD_HISTORY);
+   /*---(complete)-----------------------*/
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
 }
@@ -731,10 +751,17 @@ SOURCE_init             (void)
 char         /*-> clear all selections ---------------[ shoot  [gz.530.011.00]*/ /*-[01.0000.013.!]-*/ /*-[--.---.---.--]-*/
 TEXTREG_init       (void)
 {
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   int         i           = 0;
    /*---(header)-------------------------*/
    DEBUG_PROG   yLOG_enter   (__FUNCTION__);
-   /*---(locals)-----------+-----------+-*/
-   int         i           = 0;
+   /*---(defense)------------------------*/
+   --rce;  if (!STATUS_prep_done  (SMOD_TEXTREG)) {
+      DEBUG_PROG   yLOG_note    ("status is not ready for init");
+      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    /*---(registers)----------------------*/
    s_ctreg  = '"';
    DEBUG_PROG   yLOG_char    ("s_ctreg"   , s_ctreg);
@@ -752,6 +779,8 @@ TEXTREG_init       (void)
       strlcpy (s_tregs [i].data , "", LEN_RECD);
       s_tregs [i].source = TREG_NONE;
    }
+   /*---(update status)------------------*/
+   STATUS_init_set   (SMOD_TEXTREG);
    /*---(complete)-----------------------*/
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -760,7 +789,22 @@ TEXTREG_init       (void)
 char         /*-> initialize source environment ------[ shoot  [gz.210.001.01]*/ /*-[00.0000.102.4]-*/ /*-[--.---.---.--]-*/
 yVIKEYS_src_config        (void *a_saver)
 {
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   /*---(header)-------------------------*/
+   DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   --rce;  if (!STATUS_needs_met  (MODE_SOURCE)) {
+      DEBUG_EDIT   yLOG_note    ("init must complete before config");
+      DEBUG_EDIT   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(save pointer)-------------------*/
    if (a_saver != NULL)  s_saver  = a_saver;
+   /*---(update status)------------------*/
+   STATUS_conf_set   (MODE_SOURCE, '1');
+   /*---(complete)-----------------------*/
+   DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -861,9 +905,9 @@ SOURCE__color           (char a_display)
       x_edit = 'y';
       switch (MODE_curr ()) {
       case SMOD_TEXTREG : x_code = 't';  break;
-      case SMOD_REPLACE : x_code = 'r';  break;
-      case SMOD_INPUT   : x_code = 'i';  break;
-      case SMOD_WANDER  : x_code = 'w';  break;
+      case UMOD_REPLACE : x_code = 'r';  break;
+      case UMOD_INPUT   : x_code = 'i';  break;
+      case UMOD_WANDER  : x_code = 'w';  break;
       default           : x_code = '-';  break;
       }
    }
@@ -1632,7 +1676,7 @@ SOURCE_mode             (int a_major, int a_minor)
    if (a_major == ' ') {
       /*---(repeats)---------------------*/
       if (strchr (g_repeat, a_minor) != 0) {
-         MODE_enter  (SMOD_REPEAT);
+         MODE_enter  (UMOD_REPEAT);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return a_minor;
       }
@@ -1681,7 +1725,7 @@ SOURCE_mode             (int a_major, int a_minor)
          break;
       case  'r' : case  'R' :
          DEBUG_USER   yLOG_note    ("enter replace mode");
-         MODE_enter (SMOD_REPLACE);
+         MODE_enter (UMOD_REPLACE);
          REPLACE_smode ('m', a_minor);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return 0;
@@ -1690,7 +1734,7 @@ SOURCE_mode             (int a_major, int a_minor)
          DEBUG_USER   yLOG_note    ("enter input mode");
          if (a_minor == 'A')  s_cur->cpos = s_cur->npos - 1;
          if (a_minor == 'I')  s_cur->cpos = 0;
-         MODE_enter (SMOD_INPUT);
+         MODE_enter (UMOD_INPUT);
          INPUT_smode ('m', tolower (a_minor));
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return tolower (a_minor);
@@ -1909,7 +1953,7 @@ REPLACE_smode    (int a_major, int a_minor)
    DEBUG_USER   yLOG_char    ("a_minor"   , chrvisible (a_minor));
    /*---(defenses)-----------------------*/
    DEBUG_USER   yLOG_char    ("mode"      , MODE_curr ());
-   --rce;  if (MODE_not (SMOD_REPLACE)) {
+   --rce;  if (MODE_not (UMOD_REPLACE)) {
       DEBUG_USER   yLOG_note    ("not the correct mode");
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return rce;
@@ -2050,8 +2094,8 @@ HISTORY_infowin         (void)
       yCOLOR_curs ("h_used" );
       /*> 1234567890123456789012345678901234::1234567890123456789012345678901234            <*/
       switch (MODE_curr ()) {
-      case SMOD_MARK      : strlcpy (x_entry, " -  --label--- --x-- --y-- --z--      -  --label--- --x-- --y-- --z--   ", LEN_RECD);  break;
-      case SMOD_VISUAL    : strlcpy (x_entry, " - --x-- --y-- -z- --x-- --y-- -z-    - --x-- --y-- -z- --x-- --y-- -z- ", LEN_RECD);  break;
+      case UMOD_MARK      : strlcpy (x_entry, " -  --label--- --x-- --y-- --z--      -  --label--- --x-- --y-- --z--   ", LEN_RECD);  break;
+      case UMOD_VISUAL    : strlcpy (x_entry, " - --x-- --y-- -z- --x-- --y-- -z-    - --x-- --y-- -z- --x-- --y-- -z- ", LEN_RECD);  break;
       case SMOD_MACRO     : strlcpy (x_entry, " - len ---keys--------------------------------------------------------- ", LEN_RECD);  break;
       }
       mvprintw (x_bott - x_tall + 1, x_left, "%-*.*s", x_wide, x_wide, x_entry);
@@ -2060,8 +2104,8 @@ HISTORY_infowin         (void)
          if ((i % 2) == 0)  yCOLOR_curs ("h_current"    );
          else               yCOLOR_curs ("map"          );
          switch (MODE_curr ()) {
-         case SMOD_MARK      : MARK_infowin  (x_entry, i);  break;
-         case SMOD_VISUAL    : VISU_infowin  (x_entry, i);  break;
+         case UMOD_MARK      : MARK_infowin  (x_entry, i);  break;
+         case UMOD_VISUAL    : VISU_infowin  (x_entry, i);  break;
          /*> case SMOD_MACRO     : MACRO_infowin (x_entry, i);  break;                <*/
          }
          mvprintw (x_bott - x_tall + 2 + i, x_left             , "%-*.*s", x_wide, x_wide, x_entry);
@@ -2094,7 +2138,7 @@ HISTORY_display         (void)
       HISTORY_infowin ();
       return 0;
    }
-   if (MODE_not (SMOD_HISTORY))   return 0;
+   if (MODE_not (UMOD_HISTORY))   return 0;
    /*---(header)-------------------------*/
    DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
    /*---(get sizes)----------------------*/
@@ -2134,7 +2178,7 @@ HISTORY_smode           (int  a_major, int  a_minor)
    DEBUG_USER   yLOG_char    ("a_minor"   , chrvisible (a_minor));
    /*---(defenses)-----------------------*/
    DEBUG_USER   yLOG_char    ("mode"      , MODE_curr ());
-   --rce;  if (MODE_not (SMOD_HISTORY)) {
+   --rce;  if (MODE_not (UMOD_HISTORY)) {
       DEBUG_USER   yLOG_note    ("not the correct mode");
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return rce;
@@ -2190,7 +2234,7 @@ INPUT_smode             (int  a_major, int  a_minor)
    DEBUG_USER   yLOG_char    ("a_minor"   , chrvisible (a_minor));
    /*---(defenses)-----------------------*/
    DEBUG_USER   yLOG_char    ("mode"      , MODE_curr ());
-   --rce;  if (MODE_not (SMOD_INPUT )) {
+   --rce;  if (MODE_not (UMOD_INPUT )) {
       DEBUG_USER   yLOG_note    ("not the correct mode");
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return rce;
@@ -2259,7 +2303,7 @@ INPUT_smode             (int  a_major, int  a_minor)
       else                            strlcpy (s_cur->contents, ":", LEN_RECD);
       SOURCE__done   ();
       HISTORY_start ();
-      MODE_enter  (SMOD_HISTORY);
+      MODE_enter  (UMOD_HISTORY);
    }
    /*---(complete)-----------------------*/
    DEBUG_USER   yLOG_exit    (__FUNCTION__);

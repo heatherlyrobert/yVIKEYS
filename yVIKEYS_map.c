@@ -418,16 +418,26 @@ VISU__purge          (char a_scope)
 char         /*-> initialize all marks ---------------[ shoot  [gz.311.001.01]*/ /*-[00.0000.102.4]-*/ /*-[--.---.---.--]-*/
 VISU_init            (void)
 {
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
    /*---(header)-------------------------*/
-   DEBUG_VISU   yLOG_enter   (__FUNCTION__);
+   DEBUG_PROG   yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   --rce;  if (!STATUS_prep_done  (UMOD_VISUAL)) {
+      DEBUG_PROG   yLOG_note    ("status is not ready for init");
+      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    /*---(clear)--------------------------*/
    s_nvisu = strllen (S_VISU_LIST, 100);
    VISU__purge  (VISU_ALL);
    s_live = VISU_NOT;
    /*---(read/write)---------------------*/
-   yVIKEYS_file_add (SMOD_VISUAL , VISU_writer, VISU_reader);
+   yVIKEYS_file_add (UMOD_VISUAL , VISU_writer, VISU_reader);
+   /*---(update status)------------------*/
+   STATUS_init_set   (UMOD_VISUAL);
    /*---(complete)-----------------------*/
-   DEBUG_VISU   yLOG_exit    (__FUNCTION__);
+   DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -685,7 +695,7 @@ VISU_writer           (void)
    for (i = 1; i < s_nvisu; ++i) {
       strlcpy (myVIKEYS.f_recd, "", LEN_RECD);
       if (s_visu_info [i].active != VISU_YES)  continue;
-      yVIKEYS_file_write (SMOD_VISUAL, &(S_VISU_LIST [i]), &s_visu_info [i].x_beg, &s_visu_info [i].y_beg, &s_visu_info [i].z_beg, &s_visu_info [i].x_end, &s_visu_info [i].y_end, &s_visu_info [i].z_end, NULL, NULL);
+      yVIKEYS_file_write (UMOD_VISUAL, &(S_VISU_LIST [i]), &s_visu_info [i].x_beg, &s_visu_info [i].y_beg, &s_visu_info [i].z_beg, &s_visu_info [i].x_end, &s_visu_info [i].y_end, &s_visu_info [i].z_end, NULL, NULL);
       ++c;
    }
    /*---(complete)-----------------------*/
@@ -702,7 +712,7 @@ VISU_writer_single    (char a_mark)
    i = VISU_valid (a_mark);
    if (i <= 0)  return -1;
    if (s_visu_info [i].active != VISU_YES)  return 0;
-   yVIKEYS_file_write (SMOD_VISUAL, &(S_VISU_LIST [i]), &s_visu_info [i].x_beg, &s_visu_info [i].y_beg, &s_visu_info [i].z_beg, &s_visu_info [i].x_end, &s_visu_info [i].y_end, &s_visu_info [i].z_end, NULL, NULL);
+   yVIKEYS_file_write (UMOD_VISUAL, &(S_VISU_LIST [i]), &s_visu_info [i].x_beg, &s_visu_info [i].y_beg, &s_visu_info [i].z_beg, &s_visu_info [i].x_end, &s_visu_info [i].y_end, &s_visu_info [i].z_end, NULL, NULL);
    /*---(complete)-----------------------*/
    return 1;
 }
@@ -790,7 +800,7 @@ VISU_smode         (int a_major, int a_minor)
    myVIKEYS.info_win = '-';
    /*---(defenses)-----------------------*/
    DEBUG_USER   yLOG_char    ("mode"      , MODE_curr ());
-   --rce;  if (MODE_not (SMOD_VISUAL )) {
+   --rce;  if (MODE_not (UMOD_VISUAL )) {
       DEBUG_USER   yLOG_note    ("not the correct mode");
       DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
@@ -1061,17 +1071,23 @@ MAP__load             (char a_style, tMAPPED *a_map, char a_which)
 char
 yVIKEYS_map_config        (char a_coord, void *a_mapper, void *a_locator, void *a_addresser)
 {
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
    /*---(header)-------------------------*/
-   DEBUG_MAP   yLOG_senter  (__FUNCTION__);
+   DEBUG_MAP   yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   --rce;  if (!STATUS_needs_met  (MODE_MAP)) {
+      DEBUG_EDIT   yLOG_note    ("init must complete before config");
+      DEBUG_EDIT   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    /*---(globals)------------------------*/
-   g_coord    = a_coord;
-   DEBUG_MAP   yLOG_schar   (g_coord);
+   g_coord      = a_coord;
    s_mapper     = a_mapper;
-   DEBUG_MAP   yLOG_spoint  (s_mapper);
    s_locator    = a_locator;
-   DEBUG_MAP   yLOG_spoint  (s_locator);
    s_addresser  = a_addresser;
-   DEBUG_MAP   yLOG_spoint  (s_addresser);
+   /*---(update status)------------------*/
+   STATUS_conf_set   (MODE_MAP, '1');
    /*---(update)-------------------------*/
    if (s_mapper != NULL) {
       DEBUG_MAP   yLOG_snote   ("call host mapper");
@@ -1123,8 +1139,17 @@ MAP_addresser           (char *a_label, int  a_x, int  a_y, int  a_z)
 char
 MAP_init               (void)
 {
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
    /*---(header)-------------------------*/
    DEBUG_PROG   yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   --rce;  if (!STATUS_prep_done  (MODE_MAP)) {
+      DEBUG_PROG   yLOG_note    ("status is not ready for init");
+      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(header)-------------------------*/
    DEBUG_PROG   yLOG_note    ("default globals");
    g_coord    = YVIKEYS_OFFICE;
    s_mapper   = NULL;
@@ -1135,6 +1160,8 @@ MAP_init               (void)
    MAP__clear (&g_tmap, YVIKEYS_TMAP);
    /*> MAP__print (&g_xmap);                                                          <*/
    /*> MAP__print (&g_ymap);                                                          <*/
+   /*---(update status)------------------*/
+   STATUS_init_set   (MODE_MAP);
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
 }
@@ -1682,7 +1709,7 @@ MAP_mode                (char a_major, char a_minor)
    if (a_major == ' ') {
       /*---(repeat)----------------------*/
       if (strchr (g_repeat, a_minor) != 0) {
-         MODE_enter  (SMOD_REPEAT);
+         MODE_enter  (UMOD_REPEAT);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return a_minor;
       }
@@ -1764,7 +1791,7 @@ MAP_mode                (char a_major, char a_minor)
          break;
       case 'F'      :
          DEBUG_USER   yLOG_note    ("calling custom format mode");
-         MODE_enter  (SMOD_FORMAT  );
+         MODE_enter  (XMOD_FORMAT  );
          if (rc < 0) {
             DEBUG_USER   yLOG_note    ("mode change refused");
             DEBUG_USER   yLOG_exitr   (__FUNCTION__, rc);
@@ -1785,7 +1812,7 @@ MAP_mode                (char a_major, char a_minor)
           *>    break;                                                                   <*/
       case 'M'      : case 'V'      :
          DEBUG_USER   yLOG_note    ("entering visual selection history sub-mode");
-         rc = MODE_enter  (SMOD_VISUAL  );
+         rc = MODE_enter  (UMOD_VISUAL  );
          if (rc < 0) {
             DEBUG_USER   yLOG_note    ("mode change refused");
             DEBUG_USER   yLOG_exitr   (__FUNCTION__, rc);
@@ -1796,7 +1823,7 @@ MAP_mode                (char a_major, char a_minor)
          break;
       case 'm'      : case '\''     :
          DEBUG_USER   yLOG_note    ("entering location mark sub-mode");
-         rc = MODE_enter  (SMOD_MARK    );
+         rc = MODE_enter  (UMOD_MARK    );
          if (rc < 0) {
             DEBUG_USER   yLOG_note    ("mode change refused");
             DEBUG_USER   yLOG_exitr   (__FUNCTION__, rc);
@@ -1958,7 +1985,7 @@ WANDER_smode            (int a_major, int a_minor)
    DEBUG_USER   yLOG_char    ("a_minor"   , a_minor);
    /*---(defenses)-----------------------*/
    DEBUG_USER   yLOG_char    ("mode"      , MODE_curr ());
-   --rce;  if (MODE_not (SMOD_WANDER )) {
+   --rce;  if (MODE_not (UMOD_WANDER )) {
       DEBUG_USER   yLOG_note    ("not the correct mode");
       MODE_exit  ();
       DEBUG_USER   yLOG_exit    (__FUNCTION__);

@@ -192,10 +192,11 @@ tOPTION  s_options [MAX_OPTION ] = {
    { YVIKEYS_STATUS  , "select"       , SOURCE_status_select, "displays selection status"   },
    { YVIKEYS_STATUS  , "sundo"        , SUNDO_status        , "source editing undo stack"   },
    { YVIKEYS_STATUS  , "visual"       , VISU_status         , "visual selection in map"     },
-   { YVIKEYS_STATUS  , "vissave"      , VISU_status_saved   , "visual selection in map"     },
+   { YVIKEYS_STATUS  , "file"         , FILE_status         , "file, control, and version"  },
    { NULL            , ""             , NULL                , ""                            },
 };
 static int  s_noption  = 0;
+
 
 
 #define      MAX_LAYERS    200
@@ -1192,11 +1193,18 @@ char
 yVIKEYS_view_config     (cchar *a_title, cchar *a_ver, cchar a_env, cint a_wide, cint a_tall, cint a_alt)
 {
    /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
    int         i           =    0;
    int         n           =    0;
    char        rc          =    0;
    /*---(header)----------------------*/
    DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   --rce;  if (!STATUS_prep_done  (FMOD_VIEW)) {
+      DEBUG_PROG   yLOG_note    ("status is not ready for init");
+      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    /*---(screen parts)-------------------*/
    s_npart = 0;
    for (i = 0; i < MAX_PARTS; ++i) {
@@ -1271,6 +1279,8 @@ yVIKEYS_view_config     (cchar *a_title, cchar *a_ver, cchar a_env, cint a_wide,
    }
    n = VIEW__abbr (YVIKEYS_COMMAND);
    MODE_message ();
+   /*---(update status)------------------*/
+   STATUS_init_set   (FMOD_VIEW);
    /*---(complete)-----------------------*/
    DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -1416,7 +1426,6 @@ yVIKEYS_view_color_clear   (cint a_color)
    yCOLOR_set_clear (a_color);
    return 0;
 }
-
 
 char
 yVIKEYS_view_colors        (cint a_lef, cint a_bot, cint a_top, cint a_rig)
