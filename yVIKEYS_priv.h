@@ -33,8 +33,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.9e"
-#define YVIKEYS_VER_TXT   "new status tracking ability working, plus unit testing and reporting"
+#define YVIKEYS_VER_NUM   "0.9f"
+#define YVIKEYS_VER_TXT   "clean up file status handling and writing of files"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -180,11 +180,11 @@ uchar       BASE__main_string       (uchar *a_keys);
 
 /*---(status system)--------*/
 char        STATUS_init             (void);
-char        STATUS_prep_done        (char a_abbr);
-char        STATUS_needs_met        (char a_abbr);
+char        STATUS_check_prep       (char a_abbr);
+char        STATUS_check_needs        (char a_abbr);
 char        STATUS_init_set         (char a_abbr);
 char        STATUS_conf_set         (char a_abbr, char a_step);
-char        STATUS_complete         (char a_abbr);
+char        STATUS_operational         (char a_abbr);
 char        STATUS_dump             (char *a_what);
 char*       STATUS__unit            (char *a_question, char a_abbr);
 /*---(modes)----------------*/

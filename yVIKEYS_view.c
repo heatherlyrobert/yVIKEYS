@@ -353,8 +353,8 @@ VIEW_defaults            (cchar a_env)
    int         n           =    0;
    tPARTS     *p           = NULL;
    /*---(header)----------------------*/
-   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
-   DEBUG_GRAF   yLOG_char    ("a_env"     , a_env);
+   DEBUG_PROG   yLOG_enter   (__FUNCTION__);
+   DEBUG_PROG   yLOG_char    ("a_env"     , a_env);
    myVIKEYS.env = a_env;
    /*---(drawers)------------------------*/
    for (n = 0; n < s_npart; ++n) {
@@ -388,7 +388,7 @@ VIEW_defaults            (cchar a_env)
          case YVIKEYS_WINDOW  : p->on = '-';                      break;
          case YVIKEYS_MAIN    : p->on = 'y';                      break;
          }
-         DEBUG_GRAF   yLOG_complex ("part"      , "%-12.12s, on %c, wide %3d, tall %3d", p->name, p->on, p->def_wide, p->def_tall);
+         DEBUG_PROG   yLOG_complex ("part"      , "%-12.12s, on %c, wide %3d, tall %3d", p->name, p->on, p->def_wide, p->def_tall);
       }
    }
    /*---(setup ncurses)------------------*/
@@ -419,11 +419,11 @@ VIEW_defaults            (cchar a_env)
          case YVIKEYS_WINDOW  : p->on = '-';                      break;
          case YVIKEYS_MAIN    : p->on = 'y';                      break;
          }
-         DEBUG_GRAF   yLOG_complex ("part"      , "%-12.12s, on %c, wide %3d, tall %3d", p->name, p->on, p->def_wide, p->def_tall);
+         DEBUG_PROG   yLOG_complex ("part"      , "%-12.12s, on %c, wide %3d, tall %3d", p->name, p->on, p->def_wide, p->def_tall);
       }
    }
    /*---(complete)-----------------------*/
-   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
+   DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return n;
 }
 
@@ -1198,9 +1198,9 @@ yVIKEYS_view_config     (cchar *a_title, cchar *a_ver, cchar a_env, cint a_wide,
    int         n           =    0;
    char        rc          =    0;
    /*---(header)----------------------*/
-   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
+   DEBUG_PROG   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
-   --rce;  if (!STATUS_prep_done  (FMOD_VIEW)) {
+   --rce;  if (!STATUS_check_prep  (FMOD_VIEW)) {
       DEBUG_PROG   yLOG_note    ("status is not ready for init");
       DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
@@ -1209,19 +1209,19 @@ yVIKEYS_view_config     (cchar *a_title, cchar *a_ver, cchar a_env, cint a_wide,
    s_npart = 0;
    for (i = 0; i < MAX_PARTS; ++i) {
       if (s_parts [i].abbr == 0)  break;
-      DEBUG_GRAF   yLOG_info    ("name"      , s_parts [i].name);
+      DEBUG_PROG   yLOG_info    ("name"      , s_parts [i].name);
       ++s_npart;
    }
-   DEBUG_GRAF   yLOG_value   ("s_npart"   , s_npart);
+   DEBUG_PROG   yLOG_value   ("s_npart"   , s_npart);
    VIEW__purge ();
    /*---(set defaults)-------------------*/
    VIEW_defaults (a_env);
    /*---(screen commands)----------------*/
    for (i = 0; i < s_npart; ++i) {
-      DEBUG_GRAF   yLOG_info    ("name"      , s_parts [i].name);
+      DEBUG_PROG   yLOG_info    ("name"      , s_parts [i].name);
       if (s_parts [i].abbr == YVIKEYS_LAYERS) ;
       else if (strchr (OWN_HIDE, s_parts [i].own) != NULL) {
-         DEBUG_GRAF   yLOG_note    ("adding view menu command to show/hide");
+         DEBUG_PROG   yLOG_note    ("adding view menu command to show/hide");
          yVIKEYS_cmds_add ('v', s_parts [i].name , ""    , "Cs"   , VIEW__switch               , "" );
       }
    }
@@ -1252,9 +1252,9 @@ yVIKEYS_view_config     (cchar *a_title, cchar *a_ver, cchar a_env, cint a_wide,
    s_orig_wide  = a_wide;
    s_orig_tall  = a_tall;
    s_alt_wide   = a_alt;
-   DEBUG_GRAF   yLOG_value   ("orig_wide" , s_orig_wide);
-   DEBUG_GRAF   yLOG_value   ("orig_tall" , s_orig_tall);
-   DEBUG_GRAF   yLOG_value   ("alt_wide"  , s_alt_wide);
+   DEBUG_PROG   yLOG_value   ("orig_wide" , s_orig_wide);
+   DEBUG_PROG   yLOG_value   ("orig_tall" , s_orig_tall);
+   DEBUG_PROG   yLOG_value   ("alt_wide"  , s_alt_wide);
    /*---(open window)--------------------*/
    switch (myVIKEYS.env) {
    case YVIKEYS_OPENGL :
@@ -1282,7 +1282,7 @@ yVIKEYS_view_config     (cchar *a_title, cchar *a_ver, cchar a_env, cint a_wide,
    /*---(update status)------------------*/
    STATUS_init_set   (FMOD_VIEW);
    /*---(complete)-----------------------*/
-   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
+   DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -1292,36 +1292,36 @@ yVIKEYS_view_simple        (cchar a_part, cchar a_color, void *a_drawer)
    /*---(locals)-----------+-----+-----+-*/
    char        n           =    0;
    /*---(header)-------------------------*/
-   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
+   DEBUG_PROG   yLOG_enter   (__FUNCTION__);
    /*---(identify part)------------------*/
-   DEBUG_GRAF   yLOG_char    ("a_part"    , a_part);
+   DEBUG_PROG   yLOG_char    ("a_part"    , a_part);
    n = VIEW__abbr (a_part);
-   DEBUG_GRAF   yLOG_value   ("n"         , n);
+   DEBUG_PROG   yLOG_value   ("n"         , n);
    if (n < 0) {
-      DEBUG_GRAF   yLOG_note    ("deal with a missing element");
-      DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
+      DEBUG_PROG   yLOG_note    ("deal with a missing element");
+      DEBUG_PROG   yLOG_exit    (__FUNCTION__);
       return n;
    }
-   DEBUG_GRAF   yLOG_info    ("name"      , s_parts [n].name);
-   DEBUG_GRAF   yLOG_char    ("own"       , s_parts [n].own);
+   DEBUG_PROG   yLOG_info    ("name"      , s_parts [n].name);
+   DEBUG_PROG   yLOG_char    ("own"       , s_parts [n].own);
    if (strchr (OWN_SIMPLE, s_parts [n].own) == NULL) {
-      DEBUG_GRAF   yLOG_note    ("can not use function on this element");
-      DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
+      DEBUG_PROG   yLOG_note    ("can not use function on this element");
+      DEBUG_PROG   yLOG_exit    (__FUNCTION__);
       return n;
    }
    /*---(save color)---------------------*/
-   DEBUG_GRAF   yLOG_value   ("a_color"   , a_color);
+   DEBUG_PROG   yLOG_value   ("a_color"   , a_color);
    if (a_color >= 0 && a_color < 50)  s_parts [n].color  = a_color;
    else                               s_parts [n].color  = 0;
-   DEBUG_GRAF   yLOG_value   ("color"     , s_parts [n].color);
+   DEBUG_PROG   yLOG_value   ("color"     , s_parts [n].color);
    /*---(save drawer)--------------------*/
-   DEBUG_GRAF   yLOG_point   ("a_drawer"  , a_drawer);
+   DEBUG_PROG   yLOG_point   ("a_drawer"  , a_drawer);
    if (a_drawer != NULL)     s_parts [n].drawer = a_drawer;
-   DEBUG_GRAF   yLOG_point   ("drawer"    , s_parts [n].drawer);
+   DEBUG_PROG   yLOG_point   ("drawer"    , s_parts [n].drawer);
    /*---(finish up)----------------------*/
    s_parts [n].mgmt   = YVIKEYS_AUTO;
    /*---(complete)-----------------------*/
-   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
+   DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -1331,50 +1331,50 @@ yVIKEYS_view_moderate      (cchar a_part, cchar a_type, cchar a_anchor, cchar a_
    /*---(locals)-----------+-----+-----+-*/
    char        n           =    0;
    /*---(header)-------------------------*/
-   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
+   DEBUG_PROG   yLOG_enter   (__FUNCTION__);
    /*---(identify part)------------------*/
-   DEBUG_GRAF   yLOG_char    ("a_part"    , a_part);
+   DEBUG_PROG   yLOG_char    ("a_part"    , a_part);
    n = VIEW__abbr (a_part);
-   DEBUG_GRAF   yLOG_value   ("n"         , n);
+   DEBUG_PROG   yLOG_value   ("n"         , n);
    if (n < 0) {
-      DEBUG_GRAF   yLOG_note    ("deal with a missing element");
-      DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
+      DEBUG_PROG   yLOG_note    ("deal with a missing element");
+      DEBUG_PROG   yLOG_exit    (__FUNCTION__);
       return n;
    }
-   DEBUG_GRAF   yLOG_info    ("name"      , s_parts [n].name);
-   DEBUG_GRAF   yLOG_char    ("own"       , s_parts [n].own);
+   DEBUG_PROG   yLOG_info    ("name"      , s_parts [n].name);
+   DEBUG_PROG   yLOG_char    ("own"       , s_parts [n].own);
    if (strchr (OWN_MODERATE, s_parts [n].own) == NULL) {
-      DEBUG_GRAF   yLOG_note    ("can not use function on this element");
-      DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
+      DEBUG_PROG   yLOG_note    ("can not use function on this element");
+      DEBUG_PROG   yLOG_exit    (__FUNCTION__);
       return n;
    }
    /*---(perspective)--------------------*/
-   DEBUG_GRAF   yLOG_char    ("a_type"    , a_type);
+   DEBUG_PROG   yLOG_char    ("a_type"    , a_type);
    if      (a_type == '-')            ;
    else if (a_type == YVIKEYS_DISABLE) s_parts [n].type = YVIKEYS_DISABLE;
    else if (a_type == YVIKEYS_DEPTH)   s_parts [n].type = YVIKEYS_DEPTH;
    else                                s_parts [n].type = YVIKEYS_FLAT;
-   DEBUG_GRAF   yLOG_char    ("type"      , s_parts [n].type);
+   DEBUG_PROG   yLOG_char    ("type"      , s_parts [n].type);
    /*---(anchor)-------------------------*/
-   DEBUG_GRAF   yLOG_char    ("a_anchor"  , a_anchor);
+   DEBUG_PROG   yLOG_char    ("a_anchor"  , a_anchor);
    if      (a_anchor <  0  )  s_parts [n].anchor = YVIKEYS_MIDCEN;
    else if (a_anchor >= 10 )  s_parts [n].anchor = YVIKEYS_MIDCEN;
    else                       s_parts [n].anchor = a_anchor;
-   DEBUG_GRAF   yLOG_char    ("anchor"    , s_parts [n].anchor);
+   DEBUG_PROG   yLOG_char    ("anchor"    , s_parts [n].anchor);
    VIEW__reanchor        (n);
    /*---(save color)---------------------*/
-   DEBUG_GRAF   yLOG_value   ("a_color"   , a_color);
+   DEBUG_PROG   yLOG_value   ("a_color"   , a_color);
    if (a_color >= 0 && a_color < 50)  s_parts [n].color  = a_color;
    else                               s_parts [n].color  = 0;
-   DEBUG_GRAF   yLOG_value   ("color"     , s_parts [n].color);
+   DEBUG_PROG   yLOG_value   ("color"     , s_parts [n].color);
    /*---(save drawer)--------------------*/
-   DEBUG_GRAF   yLOG_point   ("a_drawer"  , a_drawer);
+   DEBUG_PROG   yLOG_point   ("a_drawer"  , a_drawer);
    if (a_drawer != NULL)     s_parts [n].drawer = a_drawer;
-   DEBUG_GRAF   yLOG_point   ("drawer"    , s_parts [n].drawer);
+   DEBUG_PROG   yLOG_point   ("drawer"    , s_parts [n].drawer);
    /*---(finish up)----------------------*/
    s_parts [n].mgmt   = YVIKEYS_AUTO;
    /*---(complete)-----------------------*/
-   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
+   DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -1384,23 +1384,23 @@ yVIKEYS_view_defsize       (cchar a_part, cint a_wide, cint a_tall)
    /*---(locals)-----------+-----+-----+-*/
    char        n           =    0;
    /*---(header)-------------------------*/
-   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
+   DEBUG_PROG   yLOG_enter   (__FUNCTION__);
    /*---(identify part)------------------*/
-   DEBUG_GRAF   yLOG_char    ("a_part"    , a_part);
+   DEBUG_PROG   yLOG_char    ("a_part"    , a_part);
    n = VIEW__abbr (a_part);
-   DEBUG_GRAF   yLOG_value   ("n"         , n);
+   DEBUG_PROG   yLOG_value   ("n"         , n);
    if (n < 0) {
-      DEBUG_GRAF   yLOG_note    ("deal with a missing element");
-      DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
+      DEBUG_PROG   yLOG_note    ("deal with a missing element");
+      DEBUG_PROG   yLOG_exit    (__FUNCTION__);
       return n;
    }
-   DEBUG_GRAF   yLOG_info    ("name"      , s_parts [n].name);
+   DEBUG_PROG   yLOG_info    ("name"      , s_parts [n].name);
    /*---(size)---------------------------*/
    if (a_wide > 0)  s_parts [n].def_wide = a_wide;
    if (a_tall > 0)  s_parts [n].def_tall = a_tall;
    VIEW__resize ('r');
    /*---(complete)-----------------------*/
-   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
+   DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -1466,61 +1466,61 @@ yVIKEYS_view_setup         (cchar a_part, cchar a_type, cchar a_anchor, cint a_x
    /*---(locals)-----------+-----+-----+-*/
    char        n           =    0;
    /*---(header)-------------------------*/
-   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
+   DEBUG_PROG   yLOG_enter   (__FUNCTION__);
    /*---(identify part)------------------*/
-   DEBUG_GRAF   yLOG_char    ("a_part"    , a_part);
+   DEBUG_PROG   yLOG_char    ("a_part"    , a_part);
    n = VIEW__abbr (a_part);
-   DEBUG_GRAF   yLOG_value   ("n"         , n);
+   DEBUG_PROG   yLOG_value   ("n"         , n);
    if (n < 0) {
-      DEBUG_GRAF   yLOG_note    ("deal with a missing element");
-      DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
+      DEBUG_PROG   yLOG_note    ("deal with a missing element");
+      DEBUG_PROG   yLOG_exit    (__FUNCTION__);
       return n;
    }
-   DEBUG_GRAF   yLOG_info    ("name"      , s_parts [n].name);
-   DEBUG_GRAF   yLOG_char    ("own"       , s_parts [n].own);
+   DEBUG_PROG   yLOG_info    ("name"      , s_parts [n].name);
+   DEBUG_PROG   yLOG_char    ("own"       , s_parts [n].own);
    if (strchr (OWN_COMPLEX, s_parts [n].own) == NULL) {
-      DEBUG_GRAF   yLOG_note    ("can not use function on this element");
-      DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
+      DEBUG_PROG   yLOG_note    ("can not use function on this element");
+      DEBUG_PROG   yLOG_exit    (__FUNCTION__);
       return n;
    }
    /*---(perspective)--------------------*/
-   DEBUG_GRAF   yLOG_char    ("a_type"    , a_type);
+   DEBUG_PROG   yLOG_char    ("a_type"    , a_type);
    if      (a_type == '-')            ;
    else if (a_type == YVIKEYS_DISABLE) s_parts [n].type = YVIKEYS_DISABLE;
    else if (a_type == YVIKEYS_DEPTH)   s_parts [n].type = YVIKEYS_DEPTH;
    else                                s_parts [n].type = YVIKEYS_FLAT;
-   DEBUG_GRAF   yLOG_char    ("type"      , s_parts [n].type);
+   DEBUG_PROG   yLOG_char    ("type"      , s_parts [n].type);
    /*---(anchor)-------------------------*/
-   DEBUG_GRAF   yLOG_char    ("a_anchor"  , a_anchor);
+   DEBUG_PROG   yLOG_char    ("a_anchor"  , a_anchor);
    if      (a_anchor <  0  )  s_parts [n].anchor = YVIKEYS_MIDCEN;
    else if (a_anchor >= 10 )  s_parts [n].anchor = YVIKEYS_MIDCEN;
    else                       s_parts [n].anchor = a_anchor;
-   DEBUG_GRAF   yLOG_char    ("anchor"    , s_parts [n].anchor);
+   DEBUG_PROG   yLOG_char    ("anchor"    , s_parts [n].anchor);
    /*---(save x-coords)------------------*/
-   DEBUG_GRAF   yLOG_value   ("a_xmin"    , a_xmin);
-   DEBUG_GRAF   yLOG_value   ("a_xlen"    , a_xlen);
+   DEBUG_PROG   yLOG_value   ("a_xmin"    , a_xmin);
+   DEBUG_PROG   yLOG_value   ("a_xlen"    , a_xlen);
    if (a_xlen != 0) {
       s_parts [n].xmin  = a_xmin;
       if      (a_xlen == -1)  s_parts [n].xlen  = a_xmin - s_parts [n].wide;
       else if (a_xlen ==  1)  s_parts [n].xlen  = a_xmin + s_parts [n].wide;
       else                    s_parts [n].xlen  = a_xlen;
    }
-   DEBUG_GRAF   yLOG_value   ("xmin"      , s_parts [n].xmin);
-   DEBUG_GRAF   yLOG_value   ("xlen"      , s_parts [n].xlen);
+   DEBUG_PROG   yLOG_value   ("xmin"      , s_parts [n].xmin);
+   DEBUG_PROG   yLOG_value   ("xlen"      , s_parts [n].xlen);
    /*---(save y-coords)------------------*/
-   DEBUG_GRAF   yLOG_value   ("a_ymin"    , a_ymin);
-   DEBUG_GRAF   yLOG_value   ("a_ylen"    , a_ylen);
+   DEBUG_PROG   yLOG_value   ("a_ymin"    , a_ymin);
+   DEBUG_PROG   yLOG_value   ("a_ylen"    , a_ylen);
    if (a_ylen != 0) {
       s_parts [n].ymin  = a_ymin;
       if      (a_ylen == -1)  s_parts [n].ylen  = a_ymin - s_parts [n].tall;
       else if (a_ylen ==  1)  s_parts [n].ylen  = a_ymin + s_parts [n].tall;
       else                    s_parts [n].ylen  = a_ylen;
    }
-   DEBUG_GRAF   yLOG_value   ("ymin"      , s_parts [n].ymin);
-   DEBUG_GRAF   yLOG_value   ("ylen"      , s_parts [n].ylen);
+   DEBUG_PROG   yLOG_value   ("ymin"      , s_parts [n].ymin);
+   DEBUG_PROG   yLOG_value   ("ylen"      , s_parts [n].ylen);
    /*---(save z-coords)------------------*/
-   DEBUG_GRAF   yLOG_value   ("a_zmin"    , a_zmin);
-   DEBUG_GRAF   yLOG_value   ("a_zlen"    , a_zlen);
+   DEBUG_PROG   yLOG_value   ("a_zmin"    , a_zmin);
+   DEBUG_PROG   yLOG_value   ("a_zlen"    , a_zlen);
    if (a_ylen != 0) {
       if (a_zmin == 0 && a_zlen == 0) {
          s_parts [n].zmin  = -500;
@@ -1530,21 +1530,21 @@ yVIKEYS_view_setup         (cchar a_part, cchar a_type, cchar a_anchor, cint a_x
          s_parts [n].zlen  = a_zlen;
       }
    }
-   DEBUG_GRAF   yLOG_value   ("zmin"      , s_parts [n].zmin);
-   DEBUG_GRAF   yLOG_value   ("zlen"      , s_parts [n].zlen);
+   DEBUG_PROG   yLOG_value   ("zmin"      , s_parts [n].zmin);
+   DEBUG_PROG   yLOG_value   ("zlen"      , s_parts [n].zlen);
    /*---(save color)---------------------*/
-   DEBUG_GRAF   yLOG_value   ("a_color"   , a_color);
+   DEBUG_PROG   yLOG_value   ("a_color"   , a_color);
    if (a_color >= 0 && a_color < 50)  s_parts [n].color  = a_color;
    else                               s_parts [n].color  = 0;
-   DEBUG_GRAF   yLOG_value   ("color"     , s_parts [n].color);
+   DEBUG_PROG   yLOG_value   ("color"     , s_parts [n].color);
    /*---(save drawer)--------------------*/
-   DEBUG_GRAF   yLOG_point   ("a_drawer"  , a_drawer);
+   DEBUG_PROG   yLOG_point   ("a_drawer"  , a_drawer);
    if (a_drawer != NULL)              s_parts [n].drawer = a_drawer;
-   DEBUG_GRAF   yLOG_point   ("drawer"    , s_parts [n].drawer);
+   DEBUG_PROG   yLOG_point   ("drawer"    , s_parts [n].drawer);
    /*---(finish up)----------------------*/
    s_parts [n].mgmt   = YVIKEYS_CUSTOM;
    /*---(complete)-----------------------*/
-   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
+   DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 

@@ -23,7 +23,7 @@ SCRP          v21  (FILE  ) verify file configuration locking system          
      get      v21  review command status                FILE__unit                  "status"         , 0                                                    s_equal     FILE status      : stage  0, initialized only                                                        
 
    COND       v21  artifically set back to pre-initialized                            - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.002))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  re-null command artificially         FILE__unit_null                                                                                     i_equal     0                                                                                                    
+#    exec     v21  re-null command artificially         FILE__unit_null                                                                                     i_equal     0                                                                                                    
      get      v21  review command status                FILE__unit                  "status"         , 0                                                    s_equal     FILE status      : stage -1, null (not even initialized)                                             
 
    COND       v21  try configuring before initializing                                - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.003))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  

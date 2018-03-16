@@ -81,7 +81,8 @@ static char    (*s_saver) (char *a_contents);
 typedef struct cSUNDO  tSUNDO;
 struct cSUNDO {
    int         seq;
-   char        action;
+   char        major;
+   char        minor;
    int         cpos;
    uchar       before;
    uchar       after;
@@ -166,6 +167,7 @@ SUNDO_status            (char *a_list)
    int         x_beg       =    0;
    int         x_end       =    0;
    char        t           [LEN_LABEL];
+   char        x_ch        =  ' ';
    /*---(defenses)--------------------*/
    --rce;  if (a_list  == NULL) return rce;
    /*---(fast path)-------------------*/
@@ -180,7 +182,9 @@ SUNDO_status            (char *a_list)
    /*---(write line)------------------*/
    sprintf (a_list, "%3dn, %3dc, ", s_nsundo, s_csundo);
    for (i = x_beg; i < x_end; ++i) {
-      sprintf (t, "%d%c%d%c%c,", s_sundos [i].seq, s_sundos [i].action, s_sundos [i].cpos, chrvisible (s_sundos [i].before), s_sundos [i].after);
+      x_ch = s_sundos [i].major;
+      if (x_ch != ' ')  sprintf (t, "%d%c%c%d%c%c,", s_sundos [i].seq, x_ch, s_sundos [i].minor, s_sundos [i].cpos, chrvisible (s_sundos [i].before), s_sundos [i].after);
+      else              sprintf (t, "%d%c%d%c%c,"  , s_sundos [i].seq,       s_sundos [i].minor, s_sundos [i].cpos, chrvisible (s_sundos [i].before), s_sundos [i].after);
       strlcat (a_list, t, LEN_RECD);
    }
    /*---(complete)--------------------*/
@@ -193,7 +197,8 @@ SUNDO__purge            (int a_start)
    int         i           =    0;
    for (i = a_start; i < MAX_SUNDO; ++i) {
       s_sundos [i].seq    = -1;
-      s_sundos [i].action = '-';
+      s_sundos [i].major  = '-';
+      s_sundos [i].minor  = '-';
       s_sundos [i].cpos   = -1;
       s_sundos [i].before = '-';
       s_sundos [i].after  = '-';
@@ -236,12 +241,13 @@ SUNDO__end              (char *a_function)
 }
 
 char
-SUNDO__add              (char a_action, int a_pos, char a_before, char a_after)
+SUNDO__add              (char a_major, char a_minor, int a_pos, char a_before, char a_after)
 {
    DEBUG_EDIT   yLOG_senter  (__FUNCTION__);
    ++s_csundo;
    s_sundos [s_csundo].seq    = s_nseq;
-   s_sundos [s_csundo].action = a_action;
+   s_sundos [s_csundo].major  = a_major;
+   s_sundos [s_csundo].minor  = a_minor;
    s_sundos [s_csundo].cpos   = a_pos;
    s_sundos [s_csundo].before = chrvisible (a_before);
    s_sundos [s_csundo].after  = chrvisible (a_after);
@@ -251,9 +257,9 @@ SUNDO__add              (char a_action, int a_pos, char a_before, char a_after)
 }
 
 char
-SUNDO__single           (char a_action, char a_before, char a_after)
+SUNDO__single           (char a_minor, char a_before, char a_after)
 {
-   SUNDO__add (a_action, s_cur->cpos, a_before, a_after);
+   SUNDO__add (' ', a_minor, s_cur->cpos, a_before, a_after);
    return 0;
 }
 
@@ -280,21 +286,38 @@ SUNDO__undo_one         (void)
    /*---(position)-----------------------*/
    s_cur->cpos = s_sundos [s_csundo].cpos;
    DEBUG_EDIT   yLOG_value   ("cpos"      , s_cur->cpos);
-   /*---(reverse)------------------------*/
    DEBUG_EDIT   yLOG_schar   (s_sundos [s_csundo].after);
-   switch (s_sundos [s_csundo].action) {
-   case 'x' : case 'X' : case 'r' : case 'R' :
-      ONE__replace (chrworking (s_sundos [s_csundo].before));
-      break;
-   case 'd' :
-      ONE__insert  (chrworking (s_sundos [s_csundo].before));
-      break;
-   case 'i' : case 'a' :
-      ONE__delete  ();
-      break;
+   DEBUG_EDIT   yLOG_schar   (s_sundos [s_csundo].major);
+   /*---(single char)--------------------*/
+   if (s_sundos [s_csundo].major == ' ') {
+      switch (s_sundos [s_csundo].minor) {
+      case 'x' : case 'X' : case 'r' : case 'R' :
+         ONE__replace (chrworking (s_sundos [s_csundo].before));
+         break;
+      case 'd' :
+         ONE__insert  (chrworking (s_sundos [s_csundo].before));
+         break;
+      case 'i' : case 'a' :
+         ONE__delete  ();
+         break;
+      }
    }
-   DEBUG_EDIT   yLOG_schar   (s_sundos [s_csundo].before);
+   /*---(multi char)---------------------*/
+   else if (s_sundos [s_csundo].major == 'd') {
+      switch (s_sundos [s_csundo].minor) {
+      case 'h' : case 'l' :
+         ONE__insert  (chrworking (s_sundos [s_csundo].before));
+         break;
+      case 'w' :
+         break;
+      case 'e' :
+         break;
+      case 'b' :
+         break;
+      }
+   }
    /*---(update)-------------------------*/
+   DEBUG_EDIT   yLOG_schar   (s_sundos [s_csundo].before);
    --s_csundo;
    DEBUG_EDIT   yLOG_sint    (s_csundo);
    /*---(complete)-----------------------*/
@@ -352,20 +375,37 @@ SUNDO__redo_one         (void)
    /*---(position)-----------------------*/
    s_cur->cpos = s_sundos [s_csundo].cpos;
    DEBUG_EDIT   yLOG_value   ("cpos"      , s_cur->cpos);
-   /*---(reapply)------------------------*/
    DEBUG_EDIT   yLOG_schar   (s_sundos [s_csundo].before);
-   switch (s_sundos [s_csundo].action) {
-   case 'x' : case 'X' : case 'r' : case 'R' :
-      ONE__replace (chrworking (s_sundos [s_csundo].after));
-      break;
-   case 'd' :
-      ONE__delete  ();
-      break;
-   case 'i' : case 'a' :
-      ONE__insert  (chrworking (s_sundos [s_csundo].after));
-      break;
+   DEBUG_EDIT   yLOG_schar   (s_sundos [s_csundo].major);
+   /*---(single char)--------------------*/
+   if (s_sundos [s_csundo].major == ' ') {
+      switch (s_sundos [s_csundo].minor) {
+      case 'x' : case 'X' : case 'r' : case 'R' :
+         ONE__replace (chrworking (s_sundos [s_csundo].after));
+         break;
+      case 'd' :
+         ONE__delete  ();
+         break;
+      case 'i' : case 'a' :
+         ONE__insert  (chrworking (s_sundos [s_csundo].after));
+         break;
+      }
    }
-
+   /*---(multi char)---------------------*/
+   else if (s_sundos [s_csundo].major == 'd') {
+      switch (s_sundos [s_csundo].minor) {
+      case 'h' : case 'l' :
+         ONE__delete  ();
+         break;
+      case 'w' :
+         break;
+      case 'e' :
+         break;
+      case 'b' :
+         break;
+      }
+   }
+   /*---(update)-------------------------*/
    DEBUG_EDIT   yLOG_schar   (s_sundos [s_csundo].after);
    /*---(complete)-----------------------*/
    DEBUG_EDIT   yLOG_sexit   (__FUNCTION__);
@@ -713,7 +753,7 @@ SOURCE_init             (void)
    /*---(header)-------------------------*/
    DEBUG_PROG   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
-   --rce;  if (!STATUS_prep_done  (MODE_SOURCE)) {
+   --rce;  if (!STATUS_check_prep  (MODE_SOURCE)) {
       DEBUG_PROG   yLOG_note    ("status is not ready for init");
       DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
@@ -757,7 +797,7 @@ TEXTREG_init       (void)
    /*---(header)-------------------------*/
    DEBUG_PROG   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
-   --rce;  if (!STATUS_prep_done  (SMOD_TEXTREG)) {
+   --rce;  if (!STATUS_check_prep  (SMOD_TEXTREG)) {
       DEBUG_PROG   yLOG_note    ("status is not ready for init");
       DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
@@ -794,7 +834,7 @@ yVIKEYS_src_config        (void *a_saver)
    /*---(header)-------------------------*/
    DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
-   --rce;  if (!STATUS_needs_met  (MODE_SOURCE)) {
+   --rce;  if (!STATUS_check_needs  (MODE_SOURCE)) {
       DEBUG_EDIT   yLOG_note    ("init must complete before config");
       DEBUG_EDIT   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
@@ -1465,6 +1505,50 @@ SOURCE__charfind        (uchar a_ch)
    return -1;
 }
 
+char         /*-> complex delete action --------------[ ------ [gz.430.031.02]*/ /*-[01.0000.213.!]-*/ /*-[--.---.---.--]-*/
+SOURCE_delete          (char a_major, char a_minor)
+{
+   /*---(locals)-----------+-----------+-*/
+   char        rce         =  -10;
+   /*---(header)-------------------------*/
+   DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   DEBUG_EDIT   yLOG_char    ("s_live"    , s_live);
+   --rce;  if (s_live != SELC_NOT) {
+      DEBUG_EDIT   yLOG_note    ("function only handles non-selected text");
+      DEBUG_EDIT   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_EDIT   yLOG_char    ("a_minor"   , chrvisible (a_minor));
+   --rce;  if (a_minor == 0 || strchr ("hl", a_minor) == NULL) {
+      DEBUG_EDIT   yLOG_note    ("source only allows right and left");
+      DEBUG_EDIT   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_EDIT   yLOG_value   ("cpos"      , s_cur->cpos);
+   --rce;  if (a_minor == 'h' && s_cur->cpos <= 0) {
+      DEBUG_EDIT   yLOG_note    ("nothing left to delete");
+      DEBUG_EDIT   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   --rce;  if (a_minor == 'l' && s_cur->cpos >= s_cur->npos - 1) {
+      DEBUG_EDIT   yLOG_note    ("nothing right to delete");
+      DEBUG_EDIT   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(start)--------------------------*/
+   SUNDO__beg (__FUNCTION__);
+   /*---(delete)-------------------------*/
+   if (a_minor == 'h')  --s_cur->cpos;
+   SUNDO__add (a_major, a_minor, s_cur->cpos, s_cur->contents [s_cur->cpos], G_CHAR_NULL);
+   ONE__delete ();
+   /*---(end)----------------------------*/
+   SUNDO__end (__FUNCTION__);
+   /*---(complete)-----------------------*/
+   DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
 
 
 /*====================------------------------------------====================*/
@@ -1473,24 +1557,24 @@ SOURCE__charfind        (uchar a_ch)
 static void  o___ACTIONS_________o () { return; }
 
 char         /*-> process keys for register actions --[ ------ [gz.320.011.02]*/ /*-[01.0000.113.!]-*/ /*-[--.---.---.--]-*/
-TEXTREG__clear        (char a_action)
+TEXTREG__clear        (char a_major, char a_minor)
 {
    /*---(locals)-----------+-----------+-*/
    int         i           =   0;
    /*---(begin)--------------------------*/
    SUNDO__beg (__FUNCTION__);
    /*---(short-path)---------------------*/
-   if (s_live == SELC_NOT && a_action == 'X') {
+   if (s_live == SELC_NOT && a_minor == 'X') {
       if (s_cur->cpos <= 0)  return -1;
       --s_cur->cpos;
-      SUNDO__add (a_action, i, s_cur->contents [i], ' ');
+      SUNDO__add (a_major, a_minor, i, s_cur->contents [i], ' ');
       ONE__replace (' ');
       return 0;
    }
    /*---(clear)--------------------------*/
    else {
       for (i = s_bsel; i <= s_esel; ++i) {
-         SUNDO__add ('x', i, s_cur->contents [i], G_CHAR_NULL);
+         SUNDO__add (a_major, 'x', i, s_cur->contents [i], G_CHAR_NULL);
          ONE__replace (' ');
       }
    }
@@ -1502,17 +1586,18 @@ TEXTREG__clear        (char a_action)
 }
 
 char         /*-> process keys for register action ---[ ------ [gz.430.031.02]*/ /*-[01.0000.213.!]-*/ /*-[--.---.---.--]-*/
-TEXTREG__delete        (char a_action)
+TEXTREG__delete        (char a_major, char a_minor)
 {
    /*---(locals)-----------+-----------+-*/
    int         x_diff      =   0;
    int         i           =   0;
+   /*---(short-path)---------------------*/
    SUNDO__beg (__FUNCTION__);
    /*---(short-path)---------------------*/
-   if (s_live == SELC_NOT && a_action == 'D') {
+   if (s_live == SELC_NOT && a_minor == 'D') {
       if (s_cur->cpos <= 0)  return -1;
       --s_cur->cpos;
-      SUNDO__add (a_action, i, s_cur->contents [i], G_CHAR_NULL);
+      SUNDO__add (a_major, tolower (a_minor), i, s_cur->contents [i], G_CHAR_NULL);
       ONE__delete ();
       return 0;
    }
@@ -1522,7 +1607,7 @@ TEXTREG__delete        (char a_action)
       /*---(delete)-------------------------*/
       s_cur->cpos = s_bsel;
       for (i = 0; i < x_diff; ++i) {
-         SUNDO__add ('d', s_cur->cpos, s_cur->contents [s_cur->cpos], G_CHAR_NULL);
+         SUNDO__add (a_major, tolower (a_minor), s_cur->cpos, s_cur->contents [s_cur->cpos], G_CHAR_NULL);
          ONE__delete ();
       }
    }
@@ -1574,7 +1659,7 @@ TEXTREG__replace        (void)
    /*---(set the start)------------------*/
    SUNDO__beg (__FUNCTION__);
    for (i = 0; i < x_len; ++i) {
-      SUNDO__add   ('r', s_cur->cpos, s_cur->contents [s_cur->cpos], s_tregs [x_index].data [i]);
+      SUNDO__add   (' ', 'r', s_cur->cpos, s_cur->contents [s_cur->cpos], s_tregs [x_index].data [i]);
       ONE__replace (s_tregs [x_index].data [i]);
       ++s_cur->cpos;
    }
@@ -1597,9 +1682,9 @@ TEXTREG__paste          (char a_dir)
    for (i = 0; i < s_tregs [x_index].len; ++i) {
       if (a_dir == 'a') {
          ONE__append (s_tregs [x_index].data [i]);
-         SUNDO__add ('a', s_cur->cpos, G_CHAR_NULL, s_tregs [x_index].data [i]);
+         SUNDO__add (' ', 'a', s_cur->cpos, G_CHAR_NULL, s_tregs [x_index].data [i]);
       } else {
-         SUNDO__add ('i', s_cur->cpos, G_CHAR_NULL, s_tregs [x_index].data [i]);
+         SUNDO__add (' ', 'i', s_cur->cpos, G_CHAR_NULL, s_tregs [x_index].data [i]);
          ONE__insert (s_tregs [x_index].data [i]);
          ++s_cur->cpos;
       }
@@ -1648,28 +1733,31 @@ SOURCE_mode             (int a_major, int a_minor)
    case G_KEY_SPACE  :
       DEBUG_USER   yLOG_note    ("space, nothing to do");
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
-      return G_KEY_SPACE;
+      rc = 0;
+      break;
    case G_KEY_ESCAPE :
       if (s_live == SELC_YES) {
          DEBUG_USER   yLOG_note    ("escape, means get out of selection");
          TEXTREG__reset ();
-         DEBUG_USER   yLOG_exit    (__FUNCTION__);
-         return 0;   /* escape  */
+      } else {
+         DEBUG_USER   yLOG_note    ("escape, means forget and return to previous mode");
+         SOURCE__reset  ();
+         SOURCE__done   ();
+         MODE_exit      ();
       }
-      DEBUG_USER   yLOG_note    ("escape, means forget and return to previous mode");
-      SOURCE__reset  ();
-      SOURCE__done   ();
-      MODE_exit  ();
-      DEBUG_USER   yLOG_exit    (__FUNCTION__);
-      return 0;
+      rc = 0;
+      break;
    case G_KEY_RETURN :
       DEBUG_USER   yLOG_note    ("enter, means save and return to previous mode");
       rc = SOURCE__accept ();
       DEBUG_USER   yLOG_value   ("rc"        , rc);
       SOURCE__done   ();
-      MODE_exit  ();
+      MODE_exit      ();
+      if (rc > 0)   rc = 0;
+      break;
+   }
+   if (rc >= 0) {
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
-      if (rc < 0) return rc;
       return 0;
    }
    /*---(single letter)------------------*/
@@ -1677,14 +1765,11 @@ SOURCE_mode             (int a_major, int a_minor)
       /*---(repeats)---------------------*/
       if (strchr (g_repeat, a_minor) != 0) {
          MODE_enter  (UMOD_REPEAT);
-         DEBUG_USER   yLOG_exit    (__FUNCTION__);
-         return a_minor;
+         rc = a_minor;
       }
       /*---(multikey prefixes)-----------*/
       if (strchr (g_multisrc, a_minor) != 0) {
-         DEBUG_USER   yLOG_note    ("captured a multikey prefix a_minor");
-         DEBUG_USER   yLOG_exit    (__FUNCTION__);
-         return a_minor;
+         rc = a_minor;
       }
       /*---(mode changes)----------------*/
       switch (a_minor) {
@@ -1699,10 +1784,6 @@ SOURCE_mode             (int a_major, int a_minor)
             s_root = s_cur->cpos;
          }
          rc     = 0;
-         break;
-      case  'f' : case  'F' :
-         DEBUG_USER   yLOG_note    ("char find mode");
-         return a_minor;
          break;
       case  '#' :
          DEBUG_USER   yLOG_note    ("current char find");
@@ -1721,14 +1802,14 @@ SOURCE_mode             (int a_major, int a_minor)
          DEBUG_USER   yLOG_note    ("switch to a text register mode");
          MODE_enter (SMOD_TEXTREG);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
-         return a_minor;
+         rc = a_minor;
          break;
       case  'r' : case  'R' :
          DEBUG_USER   yLOG_note    ("enter replace mode");
          MODE_enter (UMOD_REPLACE);
          REPLACE_smode ('m', a_minor);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
-         return 0;
+         rc = 0;
          break;
       case  'i' : case  'a' : case  'I' : case  'A' :
          DEBUG_USER   yLOG_note    ("enter input mode");
@@ -1737,11 +1818,10 @@ SOURCE_mode             (int a_major, int a_minor)
          MODE_enter (UMOD_INPUT);
          INPUT_smode ('m', tolower (a_minor));
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
-         return tolower (a_minor);
-         break;
+         rc = tolower (a_minor);
       }
       /*---(cut/copy/paste)--------------*/
-      if (strchr ("yxXdDpP", a_minor) != 0) {
+      if (strchr ("yxXDpP", a_minor) != 0) {
          DEBUG_USER   yLOG_note    ("switch to a text register mode");
          s_ctreg = '"';
          MODE_enter (SMOD_TEXTREG);
@@ -1774,11 +1854,17 @@ SOURCE_mode             (int a_major, int a_minor)
          break;
       }
    }
+   if (rc >= 0) {
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
+   /*---(delete-family)------------------*/
    /*---(multi-key)----------------------*/
    else {
       switch (a_major) {
-      case 'g' :  rc = SOURCE__goto      (a_major, a_minor); break;
-      case 'z' :  rc = SOURCE__scroll    (a_major, a_minor); break;
+      case 'd' :  rc = SOURCE_delete     (a_major, a_minor);  break;
+      case 'g' :  rc = SOURCE__goto      (a_major, a_minor);  break;
+      case 'z' :  rc = SOURCE__scroll    (a_major, a_minor);  break;
       case 'f' :  x_char = a_minor;
                   rc = SOURCE__charfind  (x_char);
                   break;
@@ -1795,7 +1881,7 @@ SOURCE_mode             (int a_major, int a_minor)
       return rc;
    }
    DEBUG_USER   yLOG_exit    (__FUNCTION__);
-   return G_KEY_SPACE;
+   return 0;
 }
 
 char         /*-> process keys for register actions --[ leaf   [ge.QG5.287.FB]*/ /*-[02.0000.102.!]-*/ /*-[--.---.---.--]-*/
@@ -1874,14 +1960,14 @@ TEXTREG_smode           (int a_major, int a_minor)
       case  'x' : case  'X' :
          DEBUG_USER   yLOG_note    ("clear selection text");
          TEXTREG__copy   ();
-         TEXTREG__clear  (a_minor);
+         TEXTREG__clear  (a_major, a_minor);
          MODE_exit   ();
          SOURCE__done    ();
          break;
       case  'd' : case  'D' :
          DEBUG_USER   yLOG_note    ("delete selection text");
          TEXTREG__copy   ();
-         TEXTREG__delete (a_minor);
+         TEXTREG__delete (a_major, a_minor);
          MODE_exit   ();
          SOURCE__done    ();
          break;
@@ -1893,7 +1979,7 @@ TEXTREG_smode           (int a_major, int a_minor)
          break;
       case  's' :
          DEBUG_USER   yLOG_note    ("substitute selection text");
-         TEXTREG__delete   ('d');
+         TEXTREG__delete   (' ', 'd');
          SUNDO__chain_next ();
          TEXTREG__paste    ('i');
          MODE_exit   ();
@@ -2106,7 +2192,7 @@ HISTORY_infowin         (void)
          switch (MODE_curr ()) {
          case UMOD_MARK      : MARK_infowin  (x_entry, i);  break;
          case UMOD_VISUAL    : VISU_infowin  (x_entry, i);  break;
-         /*> case SMOD_MACRO     : MACRO_infowin (x_entry, i);  break;                <*/
+                               /*> case SMOD_MACRO     : MACRO_infowin (x_entry, i);  break;                <*/
          }
          mvprintw (x_bott - x_tall + 2 + i, x_left             , "%-*.*s", x_wide, x_wide, x_entry);
          attrset     (0);

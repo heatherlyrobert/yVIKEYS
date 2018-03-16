@@ -14,18 +14,23 @@ static char*   (*s_addresser) (char *a_label, int  a_x, int  a_y, int  a_z);
 char   g_coord    = YVIKEYS_RIGHT;
 
 
-char   g_vsimple   [LEN_DESC ]   = "_KkjJ~";
-char   g_vgoto     [LEN_DESC ]   = "TKtkmjbJB";
-char   g_vscroll   [LEN_DESC ]   = "  tkmjb  ";
-char   g_hsimple   [LEN_DESC ]   = "0HhlL$";
-char   g_hgoto     [LEN_DESC ]   = "SHshcleLE";
-char   g_hscroll   [LEN_DESC ]   = "  shcle  ";
-char   g_hword     [LEN_DESC ]   = "wbeWBE";
-char   g_multimap  [LEN_DESC ]   = "cegz";
-char   g_multisrc  [LEN_DESC ]   = "cgz";
+char   g_vsimple   [LEN_DESC ]   = "_ Kk jJ ~";
+char   g_vgoto     [LEN_DESC ]   = "TK tkmjb JB";
+char   g_vscroll   [LEN_DESC ]   = "   tkmjb   ";
+
+char   g_hsimple   [LEN_DESC ]   = "0 Hh lL $";
+char   g_hgoto     [LEN_DESC ]   = "SH shcle LE";
+char   g_hscroll   [LEN_DESC ]   = "   shcle   ";
+char   g_hword     [LEN_DESC ]   = "wbe WBE";
+
+char   g_multimap  [LEN_DESC ]   = "cgz e dia   ";
+char   g_multisrc  [LEN_DESC ]   = "cgz   d   Ff";
+
 char   g_repeat    [LEN_DESC ]   = "123456789";
 char   g_search    [LEN_DESC ]   = "[<>]";
 
+
+static char *s_map_modes = ":/,\" vMVm' s=+-#F @qQ";
 
 
 
@@ -423,7 +428,7 @@ VISU_init            (void)
    /*---(header)-------------------------*/
    DEBUG_PROG   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
-   --rce;  if (!STATUS_prep_done  (UMOD_VISUAL)) {
+   --rce;  if (!STATUS_check_prep  (UMOD_VISUAL)) {
       DEBUG_PROG   yLOG_note    ("status is not ready for init");
       DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
@@ -1076,7 +1081,7 @@ yVIKEYS_map_config        (char a_coord, void *a_mapper, void *a_locator, void *
    /*---(header)-------------------------*/
    DEBUG_MAP   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
-   --rce;  if (!STATUS_needs_met  (MODE_MAP)) {
+   --rce;  if (!STATUS_check_needs  (MODE_MAP)) {
       DEBUG_EDIT   yLOG_note    ("init must complete before config");
       DEBUG_EDIT   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
@@ -1144,7 +1149,7 @@ MAP_init               (void)
    /*---(header)-------------------------*/
    DEBUG_PROG   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
-   --rce;  if (!STATUS_prep_done  (MODE_MAP)) {
+   --rce;  if (!STATUS_check_prep  (MODE_MAP)) {
       DEBUG_PROG   yLOG_note    ("status is not ready for init");
       DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
@@ -1667,17 +1672,112 @@ yVIKEYS_map_refresh     (void)
 }
 
 char
+MAP_mode_changes        (char a_minor)
+{
+   char        rc          =   -1;
+   char        t           [5];
+   /*---(common modes)----------------*/
+   switch (a_minor) {
+   case ':'      :
+      SOURCE_start   (":");
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      rc = 'a';
+      break;
+   case '/'      :
+      SOURCE_start   ("/");
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      rc = 'a';
+      break;
+   case ','      :
+      /*> MODE_enter  (SMOD_BUFFER  );                                                <* 
+       *> DEBUG_USER   yLOG_exit    (__FUNCTION__);                                   <* 
+       *> rc = a_minor;                                                               <*/
+      break;
+   case '"'      :
+      /*> MODE_enter  (SMOD_REGISTER);                                                <* 
+       *> DEBUG_USER   yLOG_exit    (__FUNCTION__);                                   <* 
+       *> rc = a_minor;                                                               <*/
+      break;
+   case 'E'      :
+      /*> MODE_enter  (SMOD_ERROR   );                                                <* 
+       *> DEBUG_USER   yLOG_exit    (__FUNCTION__);                                   <* 
+       *> rc = a_minor;                                                               <*/
+      break;
+   }
+   if (rc >= 0)  return rc;
+   /*---(selecting and marking)-------*/
+   switch (a_minor) {
+   case 'v'      :
+      if (s_live == VISU_YES)   VISU__reverse ();
+      else                      s_live = VISU_YES;
+      rc = 0;
+      break;
+   case 'M'      : case 'V'      :
+      DEBUG_USER   yLOG_note    ("entering visual selection history sub-mode");
+      rc = MODE_enter  (UMOD_VISUAL  );
+      if (rc >= 0)  rc = a_minor;
+      break;
+   case 'm'      : case '\''     :
+      DEBUG_USER   yLOG_note    ("entering location mark sub-mode");
+      rc = MODE_enter  (UMOD_MARK    );
+      if (rc >= 0)  rc = a_minor;
+      break;
+   }
+   if (rc >= 0)  return rc;
+   /*---(source entry)----------------*/
+   switch (a_minor) {
+   case 's'      : case '='      : case '+'      : case '-'      : case '#'      :
+      if (a_minor == 's')   strlcpy (t, "", LEN_LABEL);
+      else                  sprintf     (t, "%c", a_minor);
+      SOURCE_start   (t);
+      rc = 'a';
+      break;
+   case 'F'      :
+      DEBUG_USER   yLOG_note    ("calling custom format mode");
+      rc = MODE_enter  (XMOD_FORMAT  );
+      break;
+   }
+   if (rc >= 0)  return rc;
+   /*---(macros)----------------------*/
+   switch (a_minor) {
+   case '@'      :
+      IF_MACRO_OFF {
+         MACRO_reset  ();
+         MODE_enter  (SMOD_MACRO   );
+         rc = a_minor;
+      } else {
+         MACRO_reset  ();
+         rc = -1;
+      }
+      break;
+   case 'q'      :
+      IF_MACRO_OFF {
+         MODE_enter  (SMOD_MACRO   );
+         rc = a_minor;
+      } else {
+         rc = MACRO_rec_end ();
+      }
+      break;
+   case 'Q'      :
+      rc = MACRO_reset ();
+      break;
+   }
+   if (rc >= 0)  return rc;
+   /*---(complete)-----------------------*/
+   return rc;
+}
+
+char
 MAP_mode                (char a_major, char a_minor)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    char        rc          =    0;
    char        x_grid      =    0;
-   char        t           [5];
    /*---(header)-------------------------*/
    DEBUG_USER   yLOG_enter   (__FUNCTION__);
    DEBUG_USER   yLOG_char    ("a_major"   , a_major);
-   DEBUG_USER   yLOG_char    ("a_minor"   , a_minor);
+   DEBUG_USER   yLOG_char    ("a_minor"   , chrvisible (a_minor));
    /*---(defenses)-----------------------*/
    DEBUG_USER   yLOG_char    ("mode"      , MODE_curr ());
    --rce;  if (MODE_not (MODE_MAP    )) {
@@ -1686,7 +1786,7 @@ MAP_mode                (char a_major, char a_minor)
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return rce;
    }
-   /*---(space)--------------------------*/
+   /*---(nothing to do)------------------*/
    if (a_minor == G_KEY_SPACE ) {
       DEBUG_USER   yLOG_note    ("space, nothing to do");
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
@@ -1695,7 +1795,6 @@ MAP_mode                (char a_major, char a_minor)
    /*---(major mode changes)-------------*/
    if (a_minor == G_KEY_RETURN) {
       MODE_enter  (MODE_SOURCE);
-      /*> EDIT_pos    ('0');                                                          <*/
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return  0;
    }
@@ -1714,137 +1813,36 @@ MAP_mode                (char a_major, char a_minor)
          return a_minor;
       }
       /*---(multikey prefixes)-----------*/
-      if (strchr ("gzced"  , a_minor) != 0) {
+      if (strchr (g_multimap, a_minor) != 0) {
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return a_minor;
       }
-      /*---(mode switch)-----------------*/
-      switch (a_minor) {
-      case 'v'      :
-         if (s_live == VISU_YES)   VISU__reverse ();
-         else                      s_live = VISU_YES;
-         break;
-      case ':'      :
+      /*---(funky moves)-----------------*/
+      if (a_minor == ':') {
          x_grid = REPEAT_use ();
          if (x_grid > 0) {
             MAP__move   (x_grid, &g_ymap);
             MAP__screen (&g_ymap);
             MAP_reposition  ();
-            rc     = 0;
-         } else {
-            SOURCE_start   (":");
             DEBUG_USER   yLOG_exit    (__FUNCTION__);
-            return 'a';
+            return G_KEY_SPACE;
          }
-         break;
-      case '/'      :
-         SOURCE_start   ("/");
-         DEBUG_USER   yLOG_exit    (__FUNCTION__);
-         return 'a';
-         break;
-      case 's'      :
-         SOURCE_start   ("");
-         DEBUG_USER   yLOG_exit    (__FUNCTION__);
-         return 'a';
-         break;
-      case '='      : case '+'      : case '-'      : case '#'      :
-         sprintf     (t, "%c", a_minor);
-         SOURCE_start   (t);
-         DEBUG_USER   yLOG_exit    (__FUNCTION__);
-         return 'a';
-         break;
+         /* non-repeat fall thru  */
       }
-      /*---(submodes)--------------------*/
-      switch (a_minor) {
-         /*> case '\\'     :                                                             <* 
-          *>    DEBUG_USER   yLOG_note    ("selected menu mode");                        <* 
-          *>    MODE_enter  (SMOD_MENUS  );                                      <* 
-          *>    my.menu = MENU_ROOT;                                                     <* 
-          *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <* 
-          *>    return 0;                                                                <* 
-          *>    break;                                                                   <*/
-      case '@'      :
-         IF_MACRO_OFF {
-            MACRO_reset  ();
-            MODE_enter  (SMOD_MACRO   );
-            DEBUG_USER   yLOG_exit    (__FUNCTION__);
-            return a_minor;
-         }
-         MACRO_reset  ();
-         DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
-         return rce;
-         break;
-      case 'q'      :
-         IF_MACRO_OFF {
-            MODE_enter  (SMOD_MACRO   );
-            DEBUG_USER   yLOG_exit    (__FUNCTION__);
-            return a_minor;
-         }
-         MACRO_rec_end ();
+      if (a_minor == '|') {
+         MAP__move   (REPEAT_use (), &g_xmap);
+         MAP__screen (&g_xmap);
+         MAP_reposition  ();
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return G_KEY_SPACE;
-         break;
-      case 'Q'      :
-         MACRO_reset ();
+      }
+      /*---(mode changes)----------------*/
+      if (strchr (s_map_modes, a_minor) != 0) {
+         rc = MAP_mode_changes (a_minor);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
-         return G_KEY_SPACE;
-         break;
-      case 'F'      :
-         DEBUG_USER   yLOG_note    ("calling custom format mode");
-         MODE_enter  (XMOD_FORMAT  );
-         if (rc < 0) {
-            DEBUG_USER   yLOG_note    ("mode change refused");
-            DEBUG_USER   yLOG_exitr   (__FUNCTION__, rc);
-            return rc;
-         }
-         DEBUG_USER   yLOG_exit    (__FUNCTION__);
-         return 0;
-         break;
-         /*> case ','      :                                                             <* 
-          *>    MODE_enter  (SMOD_BUFFER  );                                     <* 
-          *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <* 
-          *>    return a_minor;                                                          <* 
-          *>    break;                                                                   <*/
-         /*> case '"'      :                                                             <* 
-          *>    MODE_enter  (SMOD_REGISTER);                                     <* 
-          *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <* 
-          *>    return a_minor;  /+ make sure double quote goes in prev char +/          <* 
-          *>    break;                                                                   <*/
-      case 'M'      : case 'V'      :
-         DEBUG_USER   yLOG_note    ("entering visual selection history sub-mode");
-         rc = MODE_enter  (UMOD_VISUAL  );
-         if (rc < 0) {
-            DEBUG_USER   yLOG_note    ("mode change refused");
-            DEBUG_USER   yLOG_exitr   (__FUNCTION__, rc);
-            return rc;
-         }
-         DEBUG_USER   yLOG_exit    (__FUNCTION__);
-         return a_minor;  /* make sure single quote goes in prev char */
-         break;
-      case 'm'      : case '\''     :
-         DEBUG_USER   yLOG_note    ("entering location mark sub-mode");
-         rc = MODE_enter  (UMOD_MARK    );
-         if (rc < 0) {
-            DEBUG_USER   yLOG_note    ("mode change refused");
-            DEBUG_USER   yLOG_exitr   (__FUNCTION__, rc);
-            return rc;
-         }
-         DEBUG_USER   yLOG_exit    (__FUNCTION__);
-         return a_minor;  /* make sure single quote goes in prev char */
-         break;
-         /*> case 'E'      :                                                             <* 
-          *>    MODE_enter  (SMOD_ERROR   );                                     <* 
-          *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <* 
-          *>    return SMOD_ERROR;  /+ make sure mode indicator goes also       +/       <* 
-          *>    break;                                                                   <*/
+         return rc;
       }
       /*---(normal)----------------------*/
-      /*> if (a_minor == 'P') {                                                                 <* 
-       *>    /+> MAP__print (&g_xmap);                                                    <+/   <* 
-       *>    /+> MAP__print (&g_ymap);                                                    <+/   <* 
-       *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                          <* 
-       *>    return G_KEY_SPACE;                                                                <* 
-       *> }                                                                                     <*/
       if (strchr (g_hsimple, a_minor) != 0) {
          rc = MAP__horz   (a_major, a_minor);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
@@ -1861,64 +1859,10 @@ MAP_mode                (char a_major, char a_minor)
          MAP__screen (&g_ymap);
          MAP__screen (&g_zmap);
          MAP_reposition  ();
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         return G_KEY_SPACE;
       }
-      /*---(column movement)-------------*/
-      if (a_minor == '|') {
-         MAP__move   (REPEAT_use (), &g_xmap);
-         MAP__screen (&g_xmap);
-         MAP_reposition  ();
-         rc     = 0;
-      }
-      /*> rc = KEYS_regbasic (a_major, a_minor);                                      <* 
-       *> if (rc == 0) {                                                              <* 
-       *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <* 
-       *>    return 0;                                                                <* 
-       *> }                                                                           <*/
-      /*---(special)------------------*/
-      /*> switch (a_minor) {                                                                                    <* 
-       *> case K_CTRL_L : clear ();                       break;                                                <* 
-       *> case 'P'      : DEP_writeall (); LOC_col_map (); KEYS_pcol (); KEYS_prow (); HIST_list ();  break;    <* 
-       *>                 /+---(formatting)---------------+/                                                    <* 
-       *> case '<'      : CELL_align (CHG_INPUT, '<');               break;                                     <* 
-       *> case '|'      : CELL_align (CHG_INPUT, '|');               break;                                     <* 
-       *> case '>'      : CELL_align (CHG_INPUT, '>');               break;                                     <* 
-       *>                 /+---(selection)----------------+/                                                    <* 
-       *>                 /+> case 'v'      : VISU_start (CTAB, CCOL, CROW, VISU_FROM);   break;          <+/   <* 
-       *>                 /+> case 'V'      : VISU_start (CTAB, CCOL, CROW, VISU_CUM);    break;          <+/   <* 
-       *>                 /+> case 'y'      : REG_copy  ();                   break;                      <+/   <* 
-       *>                 /+> case 'p'      : REG_paste (G_PASTE_NORM);       break;                      <+/   <* 
-       *>                 /+---(modes and multikey)-------+/                                                    <* 
-       *> case '@'      : SEQ_calc_full ();               break;                                                <* 
-       *>                 /+> case '[' : if (escaped) { sch = ch; special = 1; } else sch = 'x'; break;   <+/   <* 
-       *>                 /+---(new stuff)----------------+/                                                    <* 
-       *> case 'u'      : HIST_undo ();                   break;                                                <* 
-       *> case 'U'      : HIST_redo ();                   break;                                                <* 
-       *>                 /+> case 'W'      : REG_bufwrite (my.reg_curr);     break;                      <+/   <* 
-       *> case '?'      : my.info_win = G_INFO_CELL;      break;                                                <* 
-       *> default       : /+ unknown problem +/                                                                 <* 
-       *>                 DEBUG_USER   yLOG_exit    (__FUNCTION__);                                             <* 
-       *>                 return rce;                                                                           <* 
-       *>                 break;                                                                                <* 
-       *> }                                                                                                     <*/
    }
-   /*---(special family)------------------------*/
-   /*> --rce;                                                                         <* 
-    *> if (a_major == 'c') {                                                           <* 
-    *>    switch (a_minor) {                                                           <* 
-    *>    case 's'      : KEYS_col ("cs");                break;                      <* 
-    *>    case 'h'      : KEYS_col ("ch");                break;                      <* 
-    *>    case 'l'      : KEYS_col ("cl");                break;                      <* 
-    *>    case 'e'      : KEYS_col ("ce");                break;                      <* 
-    *>    case 't'      : KEYS_row ("ct");                break;                      <* 
-    *>    case 'b'      : KEYS_row ("cb");                break;                      <* 
-    *>    default       : return rce;                     break;                      <* 
-    *>    }                                                                           <* 
-    *>    return 0;                                                                   <* 
-    *> }                                                                              <*/
-   /*> else if (a_major == 'x') {                                                      <* 
-    *>    sch = ' ';                                                                  <* 
-    *>    ch  = 24;                                                                   <* 
-    *> }                                                                              <*/
    /*---(goto family)--------------------*/
    if (a_major == 'g') {
       if (strchr (g_hgoto, a_minor) != 0) {

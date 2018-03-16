@@ -56,7 +56,7 @@ MARK_init            (void)
    /*---(header)-------------------------*/
    DEBUG_PROG   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
-   --rce;  if (!STATUS_prep_done  (UMOD_MARK)) {
+   --rce;  if (!STATUS_check_prep  (UMOD_MARK)) {
       DEBUG_PROG   yLOG_note    ("status is not ready for init");
       DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
@@ -72,7 +72,7 @@ MARK_init            (void)
    /*---(update status)------------------*/
    STATUS_init_set   (UMOD_MARK);
    /*---(complete)-----------------------*/
-   DEBUG_MARK   yLOG_exit    (__FUNCTION__);
+   DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 

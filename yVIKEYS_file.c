@@ -4,8 +4,6 @@
 #include    "yVIKEYS_priv.h"
 
 
-static char s_file_status   = G_STAGE_NULL;
-
 /*
  *     c   = char
  *     L   = label  (10 char)
@@ -28,13 +26,13 @@ char        ver_txt     [100]       = "-----";
 #define     MAX_SECTION   50
 typedef struct  cSECTION  tSECTION;
 struct cSECTION {
-   char        type;
-   char        abbr;
-   char        name        [LEN_DESC ];
-   char        label       [LEN_LABEL];
-   char        version;
-   char        specs       [LEN_LABEL];
-   char        column      [ 9][LEN_LABEL];
+   cchar       type;
+   cchar       abbr;
+   cchar       name        [LEN_DESC ];
+   cchar       label       [LEN_LABEL];
+   cchar       version;
+   cchar       specs       [LEN_LABEL];
+   cchar       column      [ 9][LEN_LABEL];
    char        (*writer)   (void);
    char        (*reader)   (char, void*,void*,void*,void*,void*,void*,void*,void*,void*);
    int         try;
@@ -141,12 +139,13 @@ FILE_init               (void)
    /*---(header)-------------------------*/
    DEBUG_PROG   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
-   --rce;  if (!STATUS_prep_done  (FMOD_FILE)) {
+   --rce;  if (!STATUS_check_prep  (FMOD_FILE)) {
       DEBUG_PROG   yLOG_note    ("status is not ready for init");
       DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(reset globals)------------------*/
+   DEBUG_PROG   yLOG_note    ("set defaults");
    strlcpy (ver_num , "----" , LEN_LABEL);
    strlcpy (ver_txt , "-----", LEN_DESC );
    strlcpy (s_prog  , "-"    , LEN_DESC );
@@ -167,42 +166,42 @@ yVIKEYS_file_config     (char *a_prog, char *a_ext, char *a_vernum, char *a_vert
    char        rce         =  -10;
    char        rc          =    0;
    /*---(header)-------------------------*/
-   DEBUG_INPT   yLOG_enter   (__FUNCTION__);
+   DEBUG_PROG   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
-   --rce;  if (!STATUS_needs_met  (FMOD_FILE)) {
-      DEBUG_INPT   yLOG_note    ("init must be successfully called first");
+   --rce;  if (!STATUS_check_needs  (FMOD_FILE)) {
+      DEBUG_PROG   yLOG_note    ("init must be successfully called first");
       DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(program name)-------------------*/
-   DEBUG_INPT   yLOG_point   ("a_prog"    , a_prog);
+   DEBUG_PROG   yLOG_point   ("a_prog"    , a_prog);
    --rce;  if (a_prog == NULL) {
-      DEBUG_INPT   yLOG_note    ("requires a standard file extension");
-      DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_PROG   yLOG_note    ("requires a standard file extension");
+      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    strlcpy (s_prog, a_prog, LEN_LABEL);
-   DEBUG_INPT   yLOG_info    ("s_prog"    , s_prog);
+   DEBUG_PROG   yLOG_info    ("s_prog"    , s_prog);
    /*---(default extension)--------------*/
-   DEBUG_INPT   yLOG_point   ("a_ext"     , a_ext);
+   DEBUG_PROG   yLOG_point   ("a_ext"     , a_ext);
    --rce;  if (a_ext == NULL) {
-      DEBUG_INPT   yLOG_note    ("requires a standard file extension");
-      DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_PROG   yLOG_note    ("requires a standard file extension");
+      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    strlcpy (s_ext, a_ext, LEN_LABEL);
-   DEBUG_INPT   yLOG_info    ("s_ext"     , s_ext);
+   DEBUG_PROG   yLOG_info    ("s_ext"     , s_ext);
    /*---(calling program version)--------*/
-   DEBUG_INPT   yLOG_point   ("a_vernum"  , a_vernum);
+   DEBUG_PROG   yLOG_point   ("a_vernum"  , a_vernum);
    --rce;  if (a_vernum != NULL) {
       strlcpy (s_vernum, a_vernum, LEN_LABEL);
-      DEBUG_INPT   yLOG_info    ("s_vernum"  , s_vernum);
+      DEBUG_PROG   yLOG_info    ("s_vernum"  , s_vernum);
    }
    /*---(calling program desc)-----------*/
-   DEBUG_INPT   yLOG_point   ("a_vertxt"  , a_vertxt);
+   DEBUG_PROG   yLOG_point   ("a_vertxt"  , a_vertxt);
    --rce;  if (a_vertxt != NULL) {
       strlcpy (s_vertxt, a_vertxt, LEN_DESC);
-      DEBUG_INPT   yLOG_info    ("s_vertxt"  , s_vertxt);
+      DEBUG_PROG   yLOG_info    ("s_vertxt"  , s_vertxt);
    }
    /*---(update stage)-------------------*/
    STATUS_conf_set (FMOD_FILE, '1');
@@ -223,7 +222,7 @@ yVIKEYS_file_config     (char *a_prog, char *a_ext, char *a_vernum, char *a_vert
    FILE_loc  (NULL);
    FILE_name (NULL);
    /*---(complete)-----------------------*/
-   DEBUG_INPT   yLOG_exit    (__FUNCTION__);
+   DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -235,34 +234,35 @@ yVIKEYS_file_add        (char a_abbr, void *a_writer, void *a_reader)
    int         i           =    0;
    int         n           =   -1;
    /*---(header)-------------------------*/
-   DEBUG_INPT   yLOG_enter   (__FUNCTION__);
+   DEBUG_PROG   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
-   --rce;  if (!STATUS_needs_met  (FMOD_FILE)) {
-      DEBUG_INPT   yLOG_note    ("init must be successfully called first");
+   --rce;  if (!STATUS_check_needs  (FMOD_FILE)) {
+      DEBUG_PROG   yLOG_note    ("init must be successfully called first");
       DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(find entry)---------------------*/
    n = FILE__by_abbr (a_abbr);
    if (n < 0)  return -1;
+   DEBUG_PROG   yLOG_info    ("type"      , s_sections [n].name);
    /*---(writer)-------------------------*/
-   DEBUG_INPT   yLOG_point   ("a_writer"  , a_writer);
+   DEBUG_PROG   yLOG_point   ("a_writer"  , a_writer);
    --rce;  if (a_writer == NULL) {
-      DEBUG_INPT   yLOG_note    ("requires a data writer");
-      DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_PROG   yLOG_note    ("requires a data writer");
+      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    s_sections [n].writer = a_writer;
    /*---(reader)-------------------------*/
-   DEBUG_INPT   yLOG_point   ("a_reader"  , a_reader);
+   DEBUG_PROG   yLOG_point   ("a_reader"  , a_reader);
    --rce;  if (a_reader == NULL) {
-      DEBUG_INPT   yLOG_note    ("requires a data reader");
-      DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_PROG   yLOG_note    ("requires a data reader");
+      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    s_sections [n].reader = a_reader;
    /*---(complete)-----------------------*/
-   DEBUG_INPT   yLOG_exit    (__FUNCTION__);
+   DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -283,8 +283,13 @@ FILE_bump          (char *a_type)
    char        rc          = 0;
    char        rce         = -10;
    char        x_type      = ' ';
+   /*---(defense)------------------------*/
+   --rce;  if (!STATUS_operational (FMOD_FILE)) {
+      DEBUG_HIST   yLOG_note    ("can not execute until operational");
+      DEBUG_HIST   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    /*---(defense : not controlled)-------*/
-   if (s_file_status <  G_STAGE_READY)   return -66;
    --rce;  if (ver_ctrl != 'y')  return rce;
    /*---(defense: a_type)----------------*/
    --rce;  if (a_type == NULL)                   return rce;
@@ -342,7 +347,14 @@ char FILE_nocontrol     (void)  { return FILE_controlled ("n"); }
 char         /*-> tbd --------------------------------[ ------ [gc.520.103.41]*/ /*-[02.0000.02#.G]-*/ /*-[--.---.---.--]-*/
 FILE_controlled    (char *a_yes)
 {
-   if (s_file_status <  G_STAGE_READY)   return -66;
+   /*---(locals)-----------+-----------+-*/
+   char        rce         =  -10;
+   /*---(defense)------------------------*/
+   --rce;  if (!STATUS_operational (FMOD_FILE)) {
+      DEBUG_HIST   yLOG_note    ("can not execute until operational");
+      DEBUG_HIST   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    FILE_vertxt (NULL);
    if (a_yes [0] == 'n') {
       if (ver_ctrl == 'y') {
@@ -368,8 +380,13 @@ FILE_version       (char *a_ver)
    int         x_len       = 0;
    char        rce         = -10;
    char        x_work      [10];
+   /*---(defense)------------------------*/
+   --rce;  if (!STATUS_operational (FMOD_FILE)) {
+      DEBUG_HIST   yLOG_note    ("can not execute until operational");
+      DEBUG_HIST   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    /*---(defense : not controlled)-------*/
-   if (s_file_status <  G_STAGE_READY)   return -66;
    --rce;  if (ver_ctrl != 'y')  return rce;
    /*---(defense : empty)----------------*/
    --rce;  if (a_ver == NULL)               return rce;
@@ -406,7 +423,12 @@ char         /*-> tbd --------------------------------[ leaf   [ge.330.114.30]*/
 FILE_vertxt        (char *a_txt)
 {
    char        rce         =  -10;
-   if (s_file_status <  G_STAGE_READY)   return -66;
+   /*---(defense)------------------------*/
+   --rce;  if (!STATUS_operational (FMOD_FILE)) {
+      DEBUG_HIST   yLOG_note    ("can not execute until operational");
+      DEBUG_HIST   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    strlcpy (ver_txt, "-----", LEN_DESC);
    --rce;  if (ver_ctrl   != 'y' )  return rce;
    --rce;  if (a_txt      == NULL)  return rce;
@@ -425,8 +447,13 @@ FILE_loc                (char *a_loc)
    int         x_len       =    0;
    char        t           [LEN_RECD];
    /*---(header)-------------------------*/
-   if (s_file_status <  G_STAGE_READY)   return -66;
    DEBUG_INPT   yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   --rce;  if (!STATUS_operational (FMOD_FILE)) {
+      DEBUG_HIST   yLOG_note    ("can not execute until operational");
+      DEBUG_HIST   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    /*---(deal with null/empty)-----------*/
    DEBUG_INPT   yLOG_point   ("a_loc"     , a_loc);
    if (a_loc == NULL || a_loc [0] == 0) {
@@ -483,8 +510,13 @@ FILE_name               (char *a_name)
    int         x_extlen    =    0;
    int        *x_valid     = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.";
    /*---(header)-------------------------*/
-   if (s_file_status <  G_STAGE_READY)   return -66;
    DEBUG_INPT   yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   --rce;  if (!STATUS_operational (FMOD_FILE)) {
+      DEBUG_HIST   yLOG_note    ("can not execute until operational");
+      DEBUG_HIST   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    /*---(deal with empties)--------------*/
    DEBUG_INPT   yLOG_point   ("a_name"    , a_name);
    if (a_name == NULL || a_name [0] == 0) {
@@ -623,7 +655,7 @@ OUTP__sec_columns       (char a_index)
       return rce;
    }
    /*---(prefix)-------------------------*/
-   fprintf (s_file, "#---------  ver  ");
+   fprintf (s_file, "#---------  ver ");
    /*---(columns)------------------------*/
    DEBUG_INPT   yLOG_info    ("specs"     , s_sections [a_index].specs);
    for (i = 0; i < 10; ++i) {
@@ -631,25 +663,28 @@ OUTP__sec_columns       (char a_index)
       sprintf (x_label, "%s%-100.100s", s_sections [a_index].column [i], "-----------------------------------------------------------------------------");
       switch (s_sections [a_index].specs [i]) {
       case  'c'  :
-         fprintf (s_file, "%-3.3s  "  , x_label);
+         fprintf (s_file, " %-3.3s "  , x_label);
          break;
       case  's'  :
-         fprintf (s_file, "%-10.10s  ", x_label);
+         fprintf (s_file, " %-10.10s ", x_label);
          break;
       case  'L'  :
-         fprintf (s_file, "%-20.20s  ", x_label);
+         fprintf (s_file, " %-20.20s ", x_label);
          break;
       case  'D'  :
-         fprintf (s_file, "%-60.60s  ", x_label);
+         fprintf (s_file, " %-60.60s ", x_label);
          break;
       case  'S'  :
-         fprintf (s_file, "%s  "      , x_label);
+         fprintf (s_file, " %s "      , x_label);
          break;
       case  'i'  :
-         fprintf (s_file, "%-5.5s  "  , x_label);
+         fprintf (s_file, " %-5.5s "  , x_label);
          break;
       case  'f'  :
-         fprintf (s_file, "%-10.10s  ", x_label);
+         fprintf (s_file, " %-10.10s ", x_label);
+         break;
+      default    :
+         fprintf (s_file, " ?%s? "     , x_label);
          break;
       }
    }
@@ -664,17 +699,21 @@ char
 yVIKEYS_file_write      (char a_abbr, void *a, void *b, void *c, void *d, void *e, void *f, void *g, void *h, void *i)
 {
    /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
    char        n           =    0;
    int         x           =    0;
    char        t           [LEN_RECD ];
    void       *x_field     [9];
    /*---(header)-------------------------*/
-   DEBUG_INPT   yLOG_enter   (__FUNCTION__);
-   DEBUG_INPT   yLOG_value   ("a_abbr"    , a_abbr);
+   DEBUG_OUTP   yLOG_enter   (__FUNCTION__);
+   DEBUG_OUTP   yLOG_value   ("a_abbr"    , a_abbr);
    /*---(get section)-----------------*/
    n = FILE__by_abbr (a_abbr);
-   DEBUG_INPT   yLOG_value   ("n"         , n);
-   if (n < 0)      return -1;
+   DEBUG_OUTP   yLOG_value   ("n"         , n);
+   --rce;  if (n < 0)  {
+      DEBUG_OUTP   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    /*---(prepare)---------------------*/
    x_field [0] = a;
    x_field [1] = b;
@@ -686,59 +725,65 @@ yVIKEYS_file_write      (char a_abbr, void *a, void *b, void *c, void *d, void *
    x_field [7] = h;
    x_field [8] = i;
    /*---(columns)---------------------*/
-   DEBUG_INPT   yLOG_info    ("label"     , s_sections [n].label);
-   DEBUG_INPT   yLOG_char    ("ver"       , s_sections [n].version);
-   DEBUG_INPT   yLOG_info    ("specs"     , s_sections [n].specs);
+   DEBUG_OUTP   yLOG_info    ("label"     , s_sections [n].label);
+   DEBUG_OUTP   yLOG_char    ("ver"       , s_sections [n].version);
+   DEBUG_OUTP   yLOG_info    ("specs"     , s_sections [n].specs);
    sprintf (myVIKEYS.f_recd, "%-10.10s  -%c- ", s_sections [n].label, s_sections [n].version);
    for (x = 0; x < 9; ++x) {
-      DEBUG_INPT   yLOG_value   ("x"         , x);
-      DEBUG_INPT   yLOG_char    ("spec"      , s_sections [n].specs [x]);
+      DEBUG_OUTP   yLOG_value   ("x"         , x);
+      DEBUG_OUTP   yLOG_char    ("spec"      , s_sections [n].specs [x]);
       if (s_sections [n].specs [x] == '-')  break;
-      DEBUG_INPT   yLOG_point   ("x_field"   , x_field [x]);
+      DEBUG_OUTP   yLOG_point   ("x_field"   , x_field [x]);
       if (x_field [x] == NULL)  break;
       strlcpy (t, "", LEN_LABEL);
       switch (s_sections [n].specs [x]) {
       case  'c'  :
-         DEBUG_INPT   yLOG_note    ("character");
+         DEBUG_OUTP   yLOG_note    ("character");
          sprintf (t, "  %c  "     , *((char   *) x_field [x]));
          break;
       case  's'  :
-         DEBUG_INPT   yLOG_note    ("short string");
-         sprintf (t, " %-10.10s  ", (char *)     x_field [x]);
+         DEBUG_OUTP   yLOG_note    ("short string");
+         sprintf (t, " %-10.10s ", (char *)      x_field [x]);
          break;
       case  'L'  :
-         DEBUG_INPT   yLOG_note    ("label string");
+         DEBUG_OUTP   yLOG_note    ("label string");
          sprintf (t, " %-20.20s " , (char *)     x_field [x]);
          break;
       case  'D'  :
-         DEBUG_INPT   yLOG_note    ("desc string");
+         DEBUG_OUTP   yLOG_note    ("desc string");
          sprintf (t, " %-60.60s " , (char *)     x_field [x]);
          break;
       case  'S'  :
-         DEBUG_INPT   yLOG_note    ("full string");
+         DEBUG_OUTP   yLOG_note    ("full string");
          sprintf (t, " %s "       , (char *)     x_field [x]);
          break;
       case  'i'  :
-         DEBUG_INPT   yLOG_note    ("integer");
+         DEBUG_OUTP   yLOG_note    ("integer");
          sprintf (t, " %5d "      , *((int    *) x_field [x]));
          break;
       case  'f'  :
-         DEBUG_INPT   yLOG_note    ("long float");
+         DEBUG_OUTP   yLOG_note    ("long float");
          sprintf (t, " %-10.3lf " , *((double *) x_field [x]));
          break;
       default    :
-         DEBUG_INPT   yLOG_note    ("unknown");
-         strlcpy (t, " ", LEN_LABEL);
+         DEBUG_OUTP   yLOG_note    ("unknown");
+         sprintf (t, " ??? ");
          break;
       }
-      DEBUG_INPT   yLOG_info    ("t"         , t);
+      DEBUG_OUTP   yLOG_info    ("t"         , t);
       strlcat (myVIKEYS.f_recd, t, LEN_RECD);
    }
-   DEBUG_INPT   yLOG_info    ("f_recd"    , myVIKEYS.f_recd);
+   DEBUG_OUTP   yLOG_info    ("f_recd"    , myVIKEYS.f_recd);
+   ++s_lines;
+   DEBUG_OUTP   yLOG_value   ("s_lines"   , s_lines);
    /*---(write)--------------------------*/
-   if (s_file != NULL)  fprintf (s_file, "%s\n", myVIKEYS.f_recd);
+   DEBUG_OUTP   yLOG_point   ("s_file"    , s_file);
+   if (s_file != NULL) {
+      DEBUG_OUTP   yLOG_note    ("write to file");
+      fprintf (s_file, "%s\n", myVIKEYS.f_recd);
+   }
    /*---(complete)-----------------------*/
-   DEBUG_INPT   yLOG_exit    (__FUNCTION__);
+   DEBUG_OUTP   yLOG_exit    (__FUNCTION__);
    return 1;
 }
 
@@ -787,7 +832,6 @@ OUTP_write_type         (char a_abbr)
    int         i           =    0;
    int         j           =    0;
    int         n           =   -1;
-   int         c           =    0;
    char        x_upper     [LEN_LABEL];
    void       *x_field     [9];
    char        t           [LEN_RECD ];
@@ -814,17 +858,19 @@ OUTP_write_type         (char a_abbr)
       OUTP__sec_columns (n);
    }
    /*---(write entries)------------------*/
+   s_lines = 0;
    rc = s_sections [n].writer ();
    DEBUG_INPT   yLOG_value   ("rc"        , rc);
+   DEBUG_INPT   yLOG_value   ("s_lines"   , s_lines);
    /*---(write footer)-------------------*/
    if (s_file != NULL) {
       DEBUG_INPT   yLOG_note    ("write the footer");
-      if (c == 0)  fprintf (s_file, "# no %s\n", s_sections [n].name);
-      else         fprintf (s_file, "# complete with %d lines\n", c);
+      if (s_lines == 0)  fprintf (s_file, "# no %s\n", s_sections [n].name);
+      else               fprintf (s_file, "# complete with %d line(s)\n", s_lines);
    }
    /*---(complete)-----------------------*/
    DEBUG_INPT   yLOG_exit    (__FUNCTION__);
-   return c;
+   return s_lines;
 }
 
 int 
@@ -833,10 +879,14 @@ OUTP_write              (void)
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    char        rc          =    0;
-   /*---(defense)------------------------*/
-   if (s_file_status <  G_STAGE_READY)   return -66;
    /*---(header)-------------------------*/
    DEBUG_INPT   yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   --rce;  if (!STATUS_operational (FMOD_FILE)) {
+      DEBUG_HIST   yLOG_note    ("can not execute until operational");
+      DEBUG_HIST   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    /*---(open)---------------------------*/
    rc = FILE_open  ("w");
    DEBUG_INPT   yLOG_value   ("open rc"   , rc);
@@ -846,8 +896,8 @@ OUTP_write              (void)
    }
    /*---(content)------------------------*/
    DEBUG_INPT   yLOG_note    ("check all primary content types");
-   /*> OUTP_write_type (FILE_DEPCEL);                                         <*/
-   /*> OUTP_write_type (FILE_FREECEL);                                        <*/
+   OUTP_write_type (FILE_DEPCEL);
+   OUTP_write_type (FILE_FREECEL);
    /*---(extras)-------------------------*/
    DEBUG_INPT   yLOG_note    ("check all meta-data types");
    OUTP_write_type (UMOD_MARK);
@@ -999,8 +1049,13 @@ INPT_edit          (void)
    int         x_celltry   = 0;
    int         x_cellbad   = 0;
    /*---(header)-------------------------*/
-   if (s_file_status <  G_STAGE_READY)   return -66;
    DEBUG_INPT  yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   --rce;  if (!STATUS_operational (FMOD_FILE)) {
+      DEBUG_HIST   yLOG_note    ("can not execute until operational");
+      DEBUG_HIST   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    /*---(open file)----------------------*/
    rc = FILE_open   ("r");
    --rce;  if (rc < 0) {
@@ -1072,13 +1127,6 @@ INPT__unit_reader       (char a_abbr)
 /*====================------------------------------------====================*/
 static void  o___UNIT_TEST_______o () { return; }
 
-char
-FILE__unit_null         (void)
-{
-   s_file_status  = G_STAGE_NULL;
-   return 0;
-}
-
 char*        /*-> unit test accessor -----------------[ ------ [gs.950.221.M1]*/ /*-[03.0000.00#.#]-*/ /*-[--.---.---.--]-*/
 FILE__unit         (char *a_question, int a_ref)
 {
@@ -1100,14 +1148,6 @@ FILE__unit         (char *a_question, int a_ref)
       else                          snprintf (yVIKEYS__unit_answer, LEN_STR, "FILE loc         : %s", myVIKEYS.f_loc);
    } else if (strcmp (a_question, "title"     )    == 0) {
       snprintf (yVIKEYS__unit_answer, LEN_STR, "FILE title       : %s", myVIKEYS.f_title);
-   }
-   else if (strcmp (a_question, "status"         )   == 0) {
-      switch (s_file_status) {
-      case -1 : strlcpy (t, "null (not even initialized)", LEN_DESC);    break;
-      case  0 : strlcpy (t, "initialized only"           , LEN_DESC);    break;
-      case  5 : strlcpy (t, "configured and ready"       , LEN_DESC);    break;
-      }
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "FILE status      : stage %2d, %s", s_file_status, t);
    }
    /*---(complete)-----------------------*/
    return yVIKEYS__unit_answer;

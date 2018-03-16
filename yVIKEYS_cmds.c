@@ -12,9 +12,9 @@ static char *S_HIST_LIST = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ
 #define    MAX_MENU        20
 typedef    struct   cMENU   tMENU;
 struct cMENU {
-   char        abbr;
-   char        name        [LEN_LABEL];
-   char        desc        [LEN_DESC ];
+   cchar       abbr;
+   cchar       name        [LEN_LABEL];
+   cchar       desc        [LEN_DESC ];
    int         count;
 };
 static tMENU  s_menus [MAX_MENU] = {
@@ -59,8 +59,8 @@ static  int s_nmenu  = 0;
 #define    MAX_TERMS       50
 typedef    struct   cTERMS  tTERMS;
 struct cTERMS {
-   char        name        [LEN_LABEL];
-   char        disp        [LEN_DESC ];
+   cchar       name        [LEN_LABEL];
+   cchar       disp        [LEN_DESC ];
    int         count;
 };
 static tTERMS  s_terms [MAX_TERMS] = {
@@ -542,7 +542,7 @@ HISTORY__exec           (char a_mode)
    DEBUG_HIST   yLOG_value   ("s_len"     , s_len);
    DEBUG_HIST   yLOG_info    ("s_current" , s_current);
    /*---(defense)------------------------*/
-   --rce;  if (!STATUS_complete (a_mode)) {
+   --rce;  if (!STATUS_operational (a_mode)) {
       DEBUG_HIST   yLOG_note    ("can not execute until operational");
       DEBUG_HIST   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
@@ -658,7 +658,7 @@ SRCH_init               (void)
    /*---(header)-------------------------*/
    DEBUG_PROG   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
-   --rce;  if (!STATUS_prep_done  (MODE_SEARCH)) {
+   --rce;  if (!STATUS_check_prep  (MODE_SEARCH)) {
       DEBUG_PROG   yLOG_note    ("status is not ready for init");
       DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
@@ -733,7 +733,7 @@ CMDS_init               (void)
    /*---(header)-------------------------*/
    DEBUG_PROG   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
-   --rce;  if (!STATUS_prep_done  (MODE_COMMAND)) {
+   --rce;  if (!STATUS_check_prep  (MODE_COMMAND)) {
       DEBUG_PROG   yLOG_note    ("status is not ready for init");
       DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
@@ -787,7 +787,7 @@ yVIKEYS_srch_config     (void *a_searcher, void *a_clearer)
    /*---(header)-------------------------*/
    DEBUG_MAP   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
-   --rce;  if (!STATUS_needs_met  (MODE_SEARCH)) {
+   --rce;  if (!STATUS_check_needs  (MODE_SEARCH)) {
       DEBUG_EDIT   yLOG_note    ("init must complete before config");
       DEBUG_EDIT   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
@@ -1130,25 +1130,52 @@ yVIKEYS_cmds_add     (char a_menu, char *a_name, char *a_abbr, char *a_terms, vo
    /*---(header)-------------------------*/
    DEBUG_PROG   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
-   --rce;  if (!STATUS_complete (MODE_COMMAND)) {
-      DEBUG_HIST   yLOG_note    ("can not execute until operational");
-      DEBUG_HIST   yLOG_exitr   (__FUNCTION__, rce);
+   DEBUG_PROG   yLOG_note    ("before status check");
+   --rce;  if (!STATUS_operational (MODE_COMMAND)) {
+      DEBUG_PROG   yLOG_note    ("can not configure until operational");
+      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
+   DEBUG_PROG   yLOG_note    ("after status check");
    /*---(defense)------------------------*/
-   --rce;  if (CMDS__menu  (a_menu, ACTION_FIND) < 0)         return rce;
-   --rce;  if (a_name  == NULL)                               return rce;
-   --rce;  if (strllen (a_name, LEN_LABEL) <  1)              return rce;
-   --rce;  if (a_abbr  == NULL)                               return rce;
-   --rce;  if (strllen (a_abbr, LEN_LABEL) >  4)              return rce;
-   --rce;  if (a_terms == NULL)                               return rce;
-   --rce;  if (CMDS__terms (a_terms, ACTION_FIND) < 0)        return rce;
-   --rce;  if (a_func  == NULL)                               return rce;
+   --rce;  if (CMDS__menu  (a_menu, ACTION_FIND) < 0) {
+      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_PROG   yLOG_point   ("a_name"    , a_name);
+   --rce;  if (a_name  == NULL || strllen (a_name, LEN_LABEL) <  1) {
+      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_PROG   yLOG_info    ("a_name"    , a_name);
+   DEBUG_PROG   yLOG_point   ("a_abbr"    , a_abbr);
+   --rce;  if (a_abbr  == NULL || strllen (a_abbr, LEN_LABEL) >  4) {
+      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_PROG   yLOG_point   ("a_terms"   , a_terms);
+   --rce;  if (a_terms == NULL || CMDS__terms (a_terms, ACTION_FIND) < 0) {
+      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_PROG   yLOG_point   ("a_func"    , a_func);
+   --rce;  if (a_func  == NULL) {
+      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    /*---(check for dup)------------------*/
    x_dup = CMDS__find (a_name);
-   --rce;  if (x_dup >= 0)                                    return rce;
+   DEBUG_PROG   yLOG_value   ("dup name"  , x_dup);
+   --rce;  if (x_dup >= 0) {
+      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    x_dup = CMDS__find (a_abbr);
-   --rce;  if (x_dup >= 0)                                    return rce;
+   DEBUG_PROG   yLOG_value   ("dup abbr"  , x_dup);
+   --rce;  if (x_dup >= 0) {
+      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    /*---(add data)-----------------------*/
    s_cmds [s_ncmd].menu  = a_menu;
    strlcpy (s_cmds [s_ncmd].name , a_name , LEN_LABEL);
@@ -1160,29 +1187,38 @@ yVIKEYS_cmds_add     (char a_menu, char *a_name, char *a_abbr, char *a_terms, vo
    s_cmds [s_ncmd].active = 'y';
    strlcpy (s_cmds [s_ncmd].desc , a_desc , LEN_DESC );
    /*---(assign function pointer)--------*/
-   switch (a_terms [0]) {
-   case   0  :
-      s_cmds [s_ncmd].f.v   = a_func; break;
-   case  'a' :
-      s_cmds [s_ncmd].f.s   = a_func; break;
-   case  'c' :
-      if      (strcmp (a_terms, "c"    ) == 0)  s_cmds [s_ncmd].f.c    = a_func;
-      else if (strcmp (a_terms, "cc"   ) == 0)  s_cmds [s_ncmd].f.cc   = a_func;
-   case  'i' :
-      if      (strcmp (a_terms, "i"    ) == 0)  s_cmds [s_ncmd].f.i    = a_func;
-      else if (strcmp (a_terms, "ii"   ) == 0)  s_cmds [s_ncmd].f.ii   = a_func;
-      else if (strcmp (a_terms, "iii"  ) == 0)  s_cmds [s_ncmd].f.iii  = a_func;
-      else if (strcmp (a_terms, "is"   ) == 0)  s_cmds [s_ncmd].f.is   = a_func;
-      else if (strcmp (a_terms, "isss" ) == 0)  s_cmds [s_ncmd].f.isss = a_func;
-   case  's' :
-      if      (strcmp (a_terms, "s"    ) == 0)  s_cmds [s_ncmd].f.s    = a_func;
-      else if (strcmp (a_terms, "si"   ) == 0)  s_cmds [s_ncmd].f.si   = a_func;
-      else if (strcmp (a_terms, "ss"   ) == 0)  s_cmds [s_ncmd].f.ss   = a_func;
-   case  'C' :
-      if      (strcmp (a_terms, "Cs"   ) == 0)  s_cmds [s_ncmd].f.ss   = a_func;
-   }
+   s_cmds [s_ncmd].f.v   = a_func;
+   /*> s_cmds [s_ncmd].f.v   = NULL;                                                   <* 
+    *> switch (a_terms [0]) {                                                          <* 
+    *> case   0  :                                                                     <* 
+    *>    s_cmds [s_ncmd].f.v   = a_func; break;                                       <* 
+    *> case  'a' :                                                                     <* 
+    *>    s_cmds [s_ncmd].f.s   = a_func; break;                                       <* 
+    *> case  'c' :                                                                     <* 
+    *>    if      (strcmp (a_terms, "c"    ) == 0)  s_cmds [s_ncmd].f.c    = a_func;   <* 
+    *>    else if (strcmp (a_terms, "cc"   ) == 0)  s_cmds [s_ncmd].f.cc   = a_func;   <* 
+    *> case  'i' :                                                                     <* 
+    *>    if      (strcmp (a_terms, "i"    ) == 0)  s_cmds [s_ncmd].f.i    = a_func;   <* 
+    *>    else if (strcmp (a_terms, "ii"   ) == 0)  s_cmds [s_ncmd].f.ii   = a_func;   <* 
+    *>    else if (strcmp (a_terms, "iii"  ) == 0)  s_cmds [s_ncmd].f.iii  = a_func;   <* 
+    *>    else if (strcmp (a_terms, "is"   ) == 0)  s_cmds [s_ncmd].f.is   = a_func;   <* 
+    *>    else if (strcmp (a_terms, "isss" ) == 0)  s_cmds [s_ncmd].f.isss = a_func;   <* 
+    *> case  's' :                                                                     <* 
+    *>    if      (strcmp (a_terms, "s"    ) == 0)  s_cmds [s_ncmd].f.s    = a_func;   <* 
+    *>    else if (strcmp (a_terms, "si"   ) == 0)  s_cmds [s_ncmd].f.si   = a_func;   <* 
+    *>    else if (strcmp (a_terms, "ss"   ) == 0)  s_cmds [s_ncmd].f.ss   = a_func;   <* 
+    *> case  'C' :                                                                     <* 
+    *>    if      (strcmp (a_terms, "Cs"   ) == 0)  s_cmds [s_ncmd].f.ss   = a_func;   <* 
+    *> }                                                                               <* 
+    *> DEBUG_CMDS   yLOG_point   ("func"      , s_cmds [s_ncmd].f.v);                  <* 
+    *> --rce;  if (s_cmds [s_ncmd].f.v == NULL) {                                      <* 
+    *>    DEBUG_CMDS   yLOG_note    ("found not find term assignment");                <* 
+    *>    DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);                               <* 
+    *>    return rce;                                                                  <* 
+    *> }                                                                               <*/
    /*---(update count)-------------------*/
    ++s_ncmd;
+   DEBUG_PROG   yLOG_value   ("SUCCESS"   , s_ncmd);
    /*---(complete)-----------------------*/
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -1208,33 +1244,33 @@ CMDS__parse           (void)
    int         x_len       = 0;
    int         i           = 0;
    /*---(header)-------------------------*/
-   DEBUG_USER   yLOG_enter   (__FUNCTION__);
+   DEBUG_CMDS   yLOG_enter   (__FUNCTION__);
    /*---(prepare)------------------------*/
    strlcpy (x_work, s_current, LEN_COMMAND);
    x_len = strllen (x_work, LEN_COMMAND);
    for (i = 0; i < x_len; ++i) {
       if ((uchar) x_work [i] == G_CHAR_SPACE)   x_work [i] = G_KEY_SPACE;
    }
-   DEBUG_USER   yLOG_info    ("x_work"    , x_work);
+   DEBUG_CMDS   yLOG_info    ("x_work"    , x_work);
    /*---(parse command)------------------*/
    p     = strtok_r (x_work, q, &r);
    ++p;
    x_len = strllen (p, LEN_COMMAND);
-   DEBUG_USER   yLOG_info    ("g_cmd"     , p);
+   DEBUG_CMDS   yLOG_info    ("g_cmd"     , p);
    if (strllen (x_work, LEN_COMMAND) > x_len)  strlcpy (s_all, p + x_len + 1, LEN_COMMAND);
-   DEBUG_USER   yLOG_info    ("s_all"     , s_all);
+   DEBUG_CMDS   yLOG_info    ("s_all"     , s_all);
    /*---(parse)--------------------------*/
    for (i = 0; i < 10; ++i)  strlcpy (s_fields [i], "", LEN_COMMAND);
    for (i = 0; i < 10; ++i) {
-      DEBUG_USER   yLOG_value   ("i"         , i);
-      DEBUG_USER   yLOG_info    ("p"         , p);
+      DEBUG_CMDS   yLOG_value   ("i"         , i);
+      DEBUG_CMDS   yLOG_info    ("p"         , p);
       strlcpy (s_fields [i], p, LEN_COMMAND);
       s_nfield = i + 1;
       p = strtok_r (NULL  , q, &r);
       if (p == NULL)  break;
    }
    /*---(complete)-----------------------*/
-   DEBUG_USER   yLOG_exit    (__FUNCTION__);
+   DEBUG_CMDS   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -1246,84 +1282,84 @@ CMDS__exec            (void)
    char        rc          =    0;
    int         i           = 0;
    /*---(header)-------------------------*/
-   DEBUG_USER   yLOG_enter   (__FUNCTION__);
+   DEBUG_CMDS   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
-   --rce;  if (!STATUS_complete (MODE_COMMAND)) {
+   --rce;  if (!STATUS_operational (MODE_COMMAND)) {
       DEBUG_HIST   yLOG_note    ("can not execute until operational");
       DEBUG_HIST   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   DEBUG_USER   yLOG_info    ("s_current" , s_current);
+   DEBUG_CMDS   yLOG_info    ("s_current" , s_current);
    /*---(look for system)---------------*/
    if (s_current [1] == '!') {
-      DEBUG_USER   yLOG_note    ("this is a direct run");
+      DEBUG_CMDS   yLOG_note    ("this is a direct run");
       rc = system (s_current + 2);
-      DEBUG_USER   yLOG_value   ("rc"        , rc);
-      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      DEBUG_CMDS   yLOG_value   ("rc"        , rc);
+      DEBUG_CMDS   yLOG_exit    (__FUNCTION__);
       return rc;
    }
    /*---(parse)-------------------------*/
    rc = CMDS__parse ();
-   DEBUG_USER   yLOG_value   ("rc"        , rc);
+   DEBUG_CMDS   yLOG_value   ("rc"        , rc);
    --rce;  if (rc < 0) {
-      DEBUG_USER   yLOG_note    ("could not parse");
-      DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_CMDS   yLOG_note    ("could not parse");
+      DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(find)---------------------------*/
    i = CMDS__find (s_fields [0]);
-   DEBUG_USER   yLOG_value   ("i"         , i);
+   DEBUG_CMDS   yLOG_value   ("i"         , i);
    --rce;  if (i < 0) {
-      DEBUG_USER   yLOG_note    ("command not found");
-      DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_CMDS   yLOG_note    ("command not found");
+      DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(run)----------------------------*/
    --rce; if (strcmp (s_cmds [i].terms, ""    ) == 0) {
-      DEBUG_USER   yLOG_note    ("void type, no args");
+      DEBUG_CMDS   yLOG_note    ("void type, no args");
       rc = s_cmds [i].f.v   ();
    } else if (strcmp (s_cmds [i].terms, "c"   ) == 0) {
-      DEBUG_USER   yLOG_note    ("one char arg");
+      DEBUG_CMDS   yLOG_note    ("one char arg");
       rc = s_cmds [i].f.c   (s_fields [1][0]);
    } else if (strcmp (s_cmds [i].terms, "cc"  ) == 0) {
-      DEBUG_USER   yLOG_note    ("two char args");
+      DEBUG_CMDS   yLOG_note    ("two char args");
       rc = s_cmds [i].f.cc  (s_fields [1][0], s_fields [2][0]);
    } else if (strcmp (s_cmds [i].terms, "s"   ) == 0) {
-      DEBUG_USER   yLOG_note    ("one string arg");
+      DEBUG_CMDS   yLOG_note    ("one string arg");
       rc = s_cmds [i].f.s   (s_fields [1]);
    } else if (strcmp (s_cmds [i].terms, "a"   ) == 0) {
-      DEBUG_USER   yLOG_note    ("one long string arg");
+      DEBUG_CMDS   yLOG_note    ("one long string arg");
       rc = s_cmds [i].f.s   (s_all);
    } else if (strcmp (s_cmds [i].terms, "ss"  ) == 0) {
-      DEBUG_USER   yLOG_note    ("two string args");
+      DEBUG_CMDS   yLOG_note    ("two string args");
       rc = s_cmds [i].f.ss  (s_fields [1], s_fields [2]);
    } else if (strcmp (s_cmds [i].terms, "i"   ) == 0) {
-      DEBUG_USER   yLOG_note    ("single integer");
+      DEBUG_CMDS   yLOG_note    ("single integer");
       /*> printf ("s_cmds [i].f.i %s %d\n", s_fields [1], atoi (s_fields [1]));       <*/
       rc = s_cmds [i].f.i   (atoi (s_fields [1]));
    } else if (strcmp (s_cmds [i].terms, "ii"  ) == 0) {
-      DEBUG_USER   yLOG_note    ("two integers");
+      DEBUG_CMDS   yLOG_note    ("two integers");
       rc = s_cmds [i].f.ii  (atoi (s_fields [1]), atoi (s_fields [2]));
    } else if (strcmp (s_cmds [i].terms, "iii" ) == 0) {
-      DEBUG_USER   yLOG_note    ("three integers");
+      DEBUG_CMDS   yLOG_note    ("three integers");
       rc = s_cmds [i].f.iii (atoi (s_fields [1]), atoi (s_fields [2]), atoi (s_fields [3]));
    } else if (strcmp (s_cmds [i].terms, "isss") == 0) {
-      DEBUG_USER   yLOG_note    ("integer and three strings");
+      DEBUG_CMDS   yLOG_note    ("integer and three strings");
       rc = s_cmds [i].f.isss (atoi (s_fields [1]), s_fields [2], s_fields [3], s_fields [4]);
    } else if (strcmp (s_cmds [i].terms, "is"  ) == 0) {
-      DEBUG_USER   yLOG_note    ("integer arg and string arg");
+      DEBUG_CMDS   yLOG_note    ("integer arg and string arg");
       rc = s_cmds [i].f.is  (atoi (s_fields [1]), s_fields [1]);
    } else if (strcmp (s_cmds [i].terms, "Cs"  ) == 0) {
-      DEBUG_USER   yLOG_note    ("command name and string arg");
+      DEBUG_CMDS   yLOG_note    ("command name and string arg");
       rc = s_cmds [i].f.ss  (s_fields [0], s_fields [1]);
    } else {
-      DEBUG_USER   yLOG_note    ("crazy other shit, please update or fix");
+      DEBUG_CMDS   yLOG_note    ("crazy other shit, please update or fix");
       rc = -1;
       /*> my.key_error = 'y';                                                      <*/
    }
    /*---(complete)-----------------------*/
-   DEBUG_USER   yLOG_value   ("rc"        , rc);
-   DEBUG_USER   yLOG_exit    (__FUNCTION__);
+   DEBUG_CMDS   yLOG_value   ("rc"        , rc);
+   DEBUG_CMDS   yLOG_exit    (__FUNCTION__);
    /*---(complete)-----------------------*/
    return rc;
 }
