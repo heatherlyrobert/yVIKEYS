@@ -33,8 +33,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.9f"
-#define YVIKEYS_VER_TXT   "clean up file status handling and writing of files"
+#define YVIKEYS_VER_NUM   "0.9g"
+#define YVIKEYS_VER_TXT   "key logging upgraded and tested, history sundo fixed"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -168,8 +168,15 @@ char*       VIEW__unit              (char *a_question, char a_index);
 
 
 extern char yVIKEYS__unit_answer [LEN_STR];
+
+
 char        KEYS_status             (char *a_msg);
+char        KEYS__logger            (uchar a_key);
 char        KEYS_unique             (void);
+char        KEYS_init               (void);
+char*       KEYS__unit              (char *a_question, char a_index);
+char        BASE_dump               (char *a_what);
+char        KEYS_dump               (FILE *a_file);
 char        BASE__unit_quiet        (void);
 char        BASE__unit_loud         (void);
 char        BASE__unit_end          (void);
@@ -181,11 +188,11 @@ uchar       BASE__main_string       (uchar *a_keys);
 /*---(status system)--------*/
 char        STATUS_init             (void);
 char        STATUS_check_prep       (char a_abbr);
-char        STATUS_check_needs        (char a_abbr);
+char        STATUS_check_needs      (char a_abbr);
 char        STATUS_init_set         (char a_abbr);
 char        STATUS_conf_set         (char a_abbr, char a_step);
-char        STATUS_operational         (char a_abbr);
-char        STATUS_dump             (char *a_what);
+char        STATUS_operational      (char a_abbr);
+char        STATUS_dump             (FILE *a_file);
 char*       STATUS__unit            (char *a_question, char a_abbr);
 /*---(modes)----------------*/
 char        MODE_init               (void);

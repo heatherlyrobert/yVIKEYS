@@ -1581,7 +1581,7 @@ MAP__vert             (char a_major, char a_minor)
    /*> MAP__print (&g_ymap);                                                          <*/
    /*---(complete)-----------------------*/
    DEBUG_MAP   yLOG_exit    (__FUNCTION__);
-   return G_KEY_SPACE;
+   return 0;
 }
 
 int
@@ -1659,7 +1659,7 @@ MAP__horz             (char a_major, char a_minor)
    MAP_reposition  ();
    /*---(complete)-----------------------*/
    DEBUG_MAP   yLOG_exit    (__FUNCTION__);
-   return G_KEY_SPACE;
+   return 0;
 }
 
 char
@@ -1790,18 +1790,18 @@ MAP_mode                (char a_major, char a_minor)
    if (a_minor == G_KEY_SPACE ) {
       DEBUG_USER   yLOG_note    ("space, nothing to do");
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
-      return G_KEY_SPACE;
+      return 0;
    }
    /*---(major mode changes)-------------*/
    if (a_minor == G_KEY_RETURN) {
-      MODE_enter  (MODE_SOURCE);
+      SOURCE_start ("¦");
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
-      return  0;
+      return 0;
    }
    if (a_minor == G_KEY_ESCAPE) {
       VISU__clear ();
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
-      return  0;
+      return 0;
    }
    /*---(single key)---------------------*/
    --rce;
@@ -1825,7 +1825,7 @@ MAP_mode                (char a_major, char a_minor)
             MAP__screen (&g_ymap);
             MAP_reposition  ();
             DEBUG_USER   yLOG_exit    (__FUNCTION__);
-            return G_KEY_SPACE;
+            return 0;;
          }
          /* non-repeat fall thru  */
       }
@@ -1834,7 +1834,7 @@ MAP_mode                (char a_major, char a_minor)
          MAP__screen (&g_xmap);
          MAP_reposition  ();
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
-         return G_KEY_SPACE;
+         return 0;
       }
       /*---(mode changes)----------------*/
       if (strchr (s_map_modes, a_minor) != 0) {
@@ -1846,12 +1846,12 @@ MAP_mode                (char a_major, char a_minor)
       if (strchr (g_hsimple, a_minor) != 0) {
          rc = MAP__horz   (a_major, a_minor);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
-         return G_KEY_SPACE;
+         return 0;
       }
       if (strchr (g_vsimple, a_minor) != 0) {
          rc = MAP__vert   (a_major, a_minor);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
-         return G_KEY_SPACE;
+         return 0;
       }
       if (strchr (g_search, a_minor) != 0) {
          rc = SRCH_next   (a_minor);
@@ -1860,7 +1860,7 @@ MAP_mode                (char a_major, char a_minor)
          MAP__screen (&g_zmap);
          MAP_reposition  ();
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
-         return G_KEY_SPACE;
+         return 0;
       }
    }
    /*---(goto family)--------------------*/
@@ -1868,12 +1868,12 @@ MAP_mode                (char a_major, char a_minor)
       if (strchr (g_hgoto, a_minor) != 0) {
          rc = MAP__horz   (a_major, a_minor);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
-         return G_KEY_SPACE;
+         return 0;
       }
       if (strchr (g_vgoto, a_minor) != 0) {
          rc = MAP__vert   (a_major, a_minor);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
-         return G_KEY_SPACE;
+         return 0;
       }
    }
    /*---(scroll family)------------------*/
@@ -1939,7 +1939,7 @@ WANDER_smode            (int a_major, int a_minor)
    if (a_minor == G_KEY_SPACE ) {
       DEBUG_USER   yLOG_note    ("space, nothing to do");
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
-      return G_KEY_SPACE;
+      return 0;
    }
    /*---(check for control keys)---------*/
    /*> switch (a_minor) {                                                             <* 

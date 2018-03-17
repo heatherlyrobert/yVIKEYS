@@ -557,11 +557,9 @@ STATUS_init             (void)
 }
 
 char
-STATUS_dump             (char *a_what)
+STATUS_dump             (FILE *a_file)
 {
    /*---(locals)-----------+-----+-----+-*/
-   char        rce         =  -10;
-   FILE       *f           = NULL;
    int         n           =    0;
    char        t           [LEN_LABEL];
    int         c           =    0;
@@ -571,18 +569,15 @@ STATUS_dump             (char *a_what)
    int         U           =    0;
    int         x           =    0;
    int         x_cat       =   -1;
-   /*---(open file)----------------------*/
-   f = fopen ("/root/z_gehye/vi_clip.txt", "w");
-   if (f == NULL)  return rce;
    /*---(list)---------------------------*/
-   fprintf (f, "yVIKEYS, capability status/readiness reporting                                          (:dump status)\n");
-   fprintf (f, "                   ---expected-----------------------------   ---actual-------------------------------\n");
-   fprintf (f, "---mode---   a c   prep--- i needs-- conf--- deps-------- o   prep--- i needs-- conf--- deps-------- o\n");
+   fprintf (a_file, "yVIKEYS, capability status/readiness reporting                                          (:dump status)\n");
+   fprintf (a_file, "                   ---expected-----------------------------   ---actual-------------------------------\n");
+   fprintf (a_file, "---mode---   a c   prep--- i needs-- conf--- deps-------- o   prep--- i needs-- conf--- deps-------- o\n");
    for (n = 0; n < s_nmode; ++n) {
-      if (x_cat != s_modes [n].cat)  fprintf (f, "\n");
+      if (x_cat != s_modes [n].cat)  fprintf (a_file, "\n");
       if (strchr ("MF", s_modes [n].type) != NULL)  strlcpy (t, s_modes [n].terse, LEN_LABEL);
       else                                          sprintf (t, " %-9.9s", s_modes [n].terse);
-      fprintf (f, "%-10.10s   %c %c   %s   %s\n", t, s_modes [n].abbr, s_modes [n].type, s_modes [n].expect, s_modes [n].actual);
+      fprintf (a_file, "%-10.10s   %c %c   %s   %s\n", t, s_modes [n].abbr, s_modes [n].type, s_modes [n].expect, s_modes [n].actual);
       x_cat = s_modes [n].cat;
       ++c;
       switch (s_modes [n].type) {
@@ -593,19 +588,17 @@ STATUS_dump             (char *a_what)
       case 'x' : ++x;  break;
       }
    }
-   fprintf (f, "\n");
-   fprintf (f, "---mode---   a c   prep--- i needs-- conf--- deps-------- o   prep--- i needs-- conf--- deps-------- o\n");
-   fprintf (f, "                   ---expected-----------------------------   ---actual-------------------------------\n");
-   fprintf (f, "status mode count %d (fund %d, major %d, sub %d, micro %d, extern %d)\n", c, F, M, S, U, x);
-   fprintf (f, "\n");
-   fprintf (f, "prep  = must be initialized before this mode can initialize\n");
-   fprintf (f, "i     = initialized and ready to configure\n");
-   fprintf (f, "needs = must be initialized before this mode can configure\n");
-   fprintf (f, "conf  = externally called steps in the configuration process\n");
-   fprintf (f, "deps  = must be operational before this mode can be\n");
-   fprintf (f, "o     = operational and ready to use\n");
-   /*---(close)--------------------------*/
-   fclose (f);
+   fprintf (a_file, "\n");
+   fprintf (a_file, "---mode---   a c   prep--- i needs-- conf--- deps-------- o   prep--- i needs-- conf--- deps-------- o\n");
+   fprintf (a_file, "                   ---expected-----------------------------   ---actual-------------------------------\n");
+   fprintf (a_file, "status mode count %d (fund %d, major %d, sub %d, micro %d, extern %d)\n", c, F, M, S, U, x);
+   fprintf (a_file, "\n");
+   fprintf (a_file, "prep  = must be initialized before this mode can initialize\n");
+   fprintf (a_file, "i     = initialized and ready to configure\n");
+   fprintf (a_file, "needs = must be initialized before this mode can configure\n");
+   fprintf (a_file, "conf  = externally called steps in the configuration process\n");
+   fprintf (a_file, "deps  = must be operational before this mode can be\n");
+   fprintf (a_file, "o     = operational and ready to use\n");
    /*---(complete)-----------------------*/
    return 0;
 }

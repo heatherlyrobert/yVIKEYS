@@ -5,7 +5,10 @@
 
 
 
-static char  s_keys       [10000];
+static char  s_keys_log   [10000];
+static char  s_keys_multi [10000];
+static char  s_keys_mode  [10000];
+static char  s_keys_error [10000];
 static int   s_nkey      = 0;
 
 
@@ -48,14 +51,16 @@ yVIKEYS_init         (void)
    CMDS_init    ();
    SRCH_init    ();
    /*----(later)-------------------------*/
+   KEYS_init    ();
    MAP_init     ();
    SOURCE_init  ();
    MACRO_init   ();
-   /*----(late)--------------------------*/
+   /*----(latest)------------------------*/
    TEXTREG_init ();
    MARK_init    ();
    VISU_init    ();
    REPEAT_init  ();
+   /*----(globals)-----------------------*/
    myVIKEYS.done      = '-';
    myVIKEYS.trouble   = '-';
    myVIKEYS.info_win  = '-';
@@ -70,6 +75,30 @@ yVIKEYS_wrap         (void)
    VIEW_wrap ();
    return 0;
 }
+
+char yVIKEYS_quit            (void) { if (myVIKEYS.done    == 'y') return 1; return 0; }
+char yVIKEYS_error           (void) { if (myVIKEYS.trouble != '-') return 1; return 0; }
+
+char
+BASE_dump               (char *a_what)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   FILE       *f           = NULL;
+   /*---(defense)------------------------*/
+   --rce;  if (a_what == NULL)  return rce;
+   /*---(open file)----------------------*/
+   f = fopen ("/root/z_gehye/vi_clip.txt", "w");
+   --rce;  if (f == NULL)       return rce;
+   /*---(dump)---------------------------*/
+   if      (strcmp (a_what, "keys"      ) == 0)  KEYS_dump       (f);
+   else if (strcmp (a_what, "status"    ) == 0)  STATUS_dump     (f);
+   /*---(close)--------------------------*/
+   fclose (f);
+   /*---(complete)-----------------------*/
+   return 0;
+}
+
 
 
 /*====================------------------------------------====================*/
@@ -117,12 +146,9 @@ BASE__unit_end         (void)
 
 
 /*====================------------------------------------====================*/
-/*===----                         main loop                            ----===*/
+/*===----                        key logging                           ----===*/
 /*====================------------------------------------====================*/
-static void  o___MAIN____________o () { return; }
-
-char yVIKEYS_quit            (void) { if (myVIKEYS.done    == 'y') return 1; return 0; }
-char yVIKEYS_error           (void) { if (myVIKEYS.trouble != '-') return 1; return 0; }
+static void  o___LOGGING_________o () { return; }
 
 char         /*-> tbd --------------------------------[ leaf   [gz.430.151.10]*/ /*-[00.0000.104.!]-*/ /*-[--.---.---.--]-*/
 KEYS_status        (char *a_msg)
@@ -133,23 +159,62 @@ KEYS_status        (char *a_msg)
    int         x_len       = 0;             /* string length                  */
    int         i           = 0;             /* iterator -- keys               */
    int         x_start     = 0;             /* iterator -- keys               */
-   x_len = strlen (s_keys) - 1;
+   x_len = strlen (s_keys_log) - 1;
    x_start = x_len - (20 * 5);
    if (x_start < 0) x_start = 0;
-   snprintf (a_msg, 500, "keys (%4d) %-100.100s", s_nkey, s_keys + x_start);
+   snprintf (a_msg, 500, "keys (%d) %-100s", s_nkey, s_keys_log + x_start);
+   return 0;
+}
+
+char         /*-> tbd --------------------------------[ ------ [gz.420.121.11]*/ /*-[01.0000.102.!]-*/ /*-[--.---.---.--]-*/
+KEYS__multi             (int a_pos)
+{
+   /*---(defense)------------------------*/
+   if (a_pos < 0 || a_pos >  s_nkey)                             return 0;
+   if (s_keys_log [a_pos] == G_KEY_SPACE)                        return 0;
+   if (s_keys_log [a_pos] == G_KEY_NULL )                        return 0;
+   /*---(key for mode)-------------------*/
+   switch (s_keys_mode [a_pos]) {
+   case MODE_SOURCE  : case MODE_COMMAND : case MODE_SEARCH  :
+      if (strchr (g_multisrc, s_keys_log [a_pos]) != NULL)       return 1;
+      break;
+   case MODE_MAP     :
+      if (strchr (g_multimap, s_keys_log [a_pos]) != NULL)       return 1;
+      break;
+   }
+   /*---(complete)-----------------------*/
    return 0;
 }
 
 char         /*-> tbd --------------------------------[ ------ [gz.420.121.11]*/ /*-[01.0000.102.!]-*/ /*-[--.---.---.--]-*/
 KEYS__logger            (uchar a_key)
 {
-   /*---(locals)-----------+-----------+-*/
-   char        t           [10];
-   int         x_key       =0;
-   /*---(normal)-------------------------*/
+   /*---(locals)-----------+-----+-----+-*/
+   int         x_key       =    0;
+   int         x_multi     =  '-';
+   /*---(key)----------------------------*/
    x_key = chrvisible (a_key);
-   sprintf  (t, "%c", x_key);
-   strlcat  (s_keys, t, 10000);
+   s_keys_log   [s_nkey]     = x_key;
+   s_keys_log   [s_nkey + 1] = 0;
+   /*---(mode)---------------------------*/
+   s_keys_mode  [s_nkey]     = MODE_curr ();
+   s_keys_mode  [s_nkey + 1] = 0;
+   /*---(error)--------------------------*/
+   s_keys_error [s_nkey]     = '-';
+   s_keys_error [s_nkey + 1] = 0;
+   /*---(multi)--------------------------*/
+   x_multi = KEYS__multi (s_nkey);
+   switch (s_keys_multi [s_nkey - 1]) {
+   case 'p' :
+      s_keys_multi [s_nkey] = 's';
+      break;
+   case 's' : case '-' : default  :
+      if (x_multi)  s_keys_multi [s_nkey] = 'p';
+      else          s_keys_multi [s_nkey] = '-';
+      break;
+   }
+   s_keys_multi [s_nkey + 1] = 0;
+   /*---(update count)-------------------*/
    ++s_nkey;
    /*---(macro)--------------------------*/
    IF_MACRO_RECORDING {
@@ -160,12 +225,96 @@ KEYS__logger            (uchar a_key)
 }
 
 char         /*-> tbd --------------------------------[ ------ [gz.420.121.11]*/ /*-[01.0000.102.!]-*/ /*-[--.---.---.--]-*/
-KEYS_unique             (void)
+KEYS__error             (void)
 {
-   if (s_nkey < 2)                                  return 1;
-   if (s_keys [s_nkey - 1] == s_keys [s_nkey - 2])  return 0;
+   s_keys_error [s_nkey - 1] = 'E';
+   return 0;
+}
+
+char         /*-> tbd --------------------------------[ ------ [gz.420.121.11]*/ /*-[01.0000.102.!]-*/ /*-[--.---.---.--]-*/
+KEYS_unique             (void)
+{  /*    return 1 if not a repeat sequence, 0 if repeating   */
+   /*    five mode options :    - -    - p    p s    s -    s p
+    */
+   /*---(locals)-----------+-----+-----+-*/
+   uchar       m1, m2, m3, m4;
+   uchar       c1, c2, c3, c4;
+   /*---(basic defense)------------------*/
+   if (s_nkey < 2)                               return 1;
+   /*---(prepare)------------------------*/
+   c3 = s_keys_log   [s_nkey - 2];
+   m3 = s_keys_multi [s_nkey - 2];
+   c4 = s_keys_log   [s_nkey - 1];
+   m4 = s_keys_multi [s_nkey - 1];
+   /*---(filter)-------------------------*/
+   if (strchr ("ps-", m3) == NULL)               return 1;
+   if (strchr ("ps-", m4) == NULL)               return 1;
+   if (m3 == 's' && m4 == '-')                   return 1;
+   if (m4 == 'p')                                return 1;
+   if (c3 == G_CHAR_SPACE)                       return 1;
+   if (c4 == G_CHAR_SPACE)                       return 1;
+   /*---(single)-------------------------*/
+   if (m3 == '-' && m4 == '-' && c3 == c4)       return 0;
+   /*---(filter)-------------------------*/
+   if (s_nkey < 4)                               return 1;
+   /*---(prepare)------------------------*/
+   c1 = s_keys_log   [s_nkey - 4];
+   m1 = s_keys_multi [s_nkey - 4];
+   c2 = s_keys_log   [s_nkey - 3];
+   m2 = s_keys_multi [s_nkey - 3];
+   /*---(filter)-------------------------*/
+   if (strchr ("ps-", m1) == NULL)               return 0;
+   if (strchr ("ps-", m2) == NULL)               return 0;
+   if (m1 != 'p')                                return 1;
+   if (m2 != 's')                                return 1;
+   /*---(double)-------------------------*/
+   if (c4 == c2 && c3 == c1)                     return 0;
+   /*---(complete)-----------------------*/
    return 1;
 }
+
+char
+KEYS_dump               (FILE *a_file)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   int         i           =    0;
+   /*---(header)-------------------------*/
+   fprintf (a_file, "yVIKEYS, key logging report                                                               (:dump keys)\n");
+   fprintf (a_file, "len = %d\n", s_nkey);
+   fprintf (a_file, "          ");
+   for (i = 0; i < (s_nkey / 10) + 1; ++i)  fprintf (a_file, "%-10d", i);
+   fprintf (a_file, "\n");
+   fprintf (a_file, "type----  ");
+   for (i = 0; i < (s_nkey / 10) + 1; ++i)  fprintf (a_file, "-123456789");
+   fprintf (a_file, "\n");
+   fprintf (a_file, "keys      %s\n", s_keys_log);
+   fprintf (a_file, "mode      %s\n", s_keys_mode);
+   fprintf (a_file, "multi     %s\n", s_keys_multi);
+   fprintf (a_file, "error     %s\n", s_keys_error);
+   fprintf (a_file, "type----  ");
+   for (i = 0; i < (s_nkey / 10) + 1; ++i)  fprintf (a_file, "-123456789");
+   fprintf (a_file, "\n");
+   fprintf (a_file, "          ");
+   for (i = 0; i < (s_nkey / 10) + 1; ++i)  fprintf (a_file, "%-10d", i);
+   fprintf (a_file, "\n");
+   /*---(complete)-----------------------*/
+   return 0;
+}
+
+char
+KEYS_init               (void)
+{
+   strlcpy (s_keys_log, "", LEN_RECD);
+   s_nkey = 0;
+   return 0;
+}
+
+
+
+/*====================------------------------------------====================*/
+/*===----                         main loop                            ----===*/
+/*====================------------------------------------====================*/
+static void  o___MAIN____________o () { return; }
 
 uchar        /*-> gather main loop keyboard input ----[ ------ [gc.D44.233.C7]*/ /*-[02.0000.111.R]-*/ /*-[--.---.---.--]-*/
 yVIKEYS_main_input      (char a_runmode, uchar a_key)
@@ -295,21 +444,22 @@ yVIKEYS_main_handle     (uchar a_key)
       else if (x_key == G_KEY_SPACE )  snprintf (x_keys,   9, "%2d %c%c"  , x_repeat, x_major, G_CHAR_SPACE );
       else if (x_key <= G_KEY_SPACE )  snprintf (x_keys,   9, "%2d %c%02x", x_repeat, x_major, x_key);
       else                             snprintf (x_keys,   9, "%2d %c%c"  , x_repeat, x_major, x_key);
-      /*---(multiplier)------------------*/
-      if (rc >= 0 && x_repeat > 0 && MODE_curr () != UMOD_REPEAT) {
+      /*---(loop repeats)----------------*/
+      if (rc == 0 && x_repeat > 0 && MODE_curr () != UMOD_REPEAT) {
          REPEAT_decrement ();
-         if (rc > 0)  x_major = rc;
          continue;
       }
-      /*---(multiplier)------------------*/
-      REPEAT_done ();
+      /*---(loop repeats)----------------*/
+      if (rc <= 0 && MODE_curr () != UMOD_REPEAT) {
+         REPEAT_done ();
+      }
       break;
       /*---(done)------------------------*/
    }
    /*---(setup for next keystroke)-------*/
    if      (rc == 0)    x_major = ' ';
    else if (rc >  0)    x_major = rc;
-   else               { x_major = ' ';  myVIKEYS.trouble = 'y';  REPEAT_reset (); }
+   else               { x_major = ' ';  KEYS__error ();  myVIKEYS.trouble = 'y';  REPEAT_reset (); }
    yVIKEYS_view_text (YVIKEYS_KEYS   , x_keys   );
    /*---(save current mode)--------------*/
    x_savemode = MODE_curr ();
@@ -374,6 +524,35 @@ BASE__main_string    (uchar *a_keys)
    /*---(complete)-----------------------*/
    DEBUG_LOOP   yLOG_exit    (__FUNCTION__);
    return 0;
+}
+
+char*        /*-> tbd --------------------------------[ leaf   [gs.520.202.40]*/ /*-[01.0000.00#.#]-*/ /*-[--.---.---.--]-*/
+KEYS__unit              (char *a_question, char a_index)
+{
+   /*---(locals)-----------+-----------+-*/
+   char        t           [LEN_RECD ] = "";
+   /*---(preprare)-----------------------*/
+   strlcpy  (yVIKEYS__unit_answer, "KEYS unit        : question not understood", LEN_STR);
+   /*---(dependency list)----------------*/
+   if      (strcmp (a_question, "log"            )   == 0) {
+      snprintf (yVIKEYS__unit_answer, LEN_STR, "KEYS log         : %2d[%-.40s]", s_nkey, s_keys_log);
+   }
+   else if (strcmp (a_question, "mode"           )   == 0) {
+      snprintf (yVIKEYS__unit_answer, LEN_STR, "KEYS mode        : %2d[%-.40s]", s_nkey, s_keys_mode);
+   }
+   else if (strcmp (a_question, "multi"          )   == 0) {
+      snprintf (yVIKEYS__unit_answer, LEN_STR, "KEYS multi       : %2d[%-.40s]", s_nkey, s_keys_multi);
+   }
+   else if (strcmp (a_question, "error"          )   == 0) {
+      snprintf (yVIKEYS__unit_answer, LEN_STR, "KEYS error       : %2d[%-.40s]", s_nkey, s_keys_error);
+   }
+   else if (strcmp (a_question, "status"         )   == 0) {
+      KEYS_status (t);
+      strltrim (t, ySTR_BOTH, LEN_RECD);
+      snprintf (yVIKEYS__unit_answer, LEN_STR, "%-.60s", t);
+   }
+   /*---(complete)-----------------------*/
+   return yVIKEYS__unit_answer;
 }
 
 

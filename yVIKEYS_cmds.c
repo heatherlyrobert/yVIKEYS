@@ -773,7 +773,7 @@ CMDS_init               (void)
    rc = yVIKEYS_cmds_add ('f', "quitall"     , "qa"  , ""     , CMDS__quit           , "quit all files (if no changes), and exit"                    );
    rc = yVIKEYS_cmds_add ('f', "writequit"   , "wq"  , ""     , CMDS__writequit      , ""                                                            );
    rc = yVIKEYS_cmds_add ('f', "writequitall", "wqa" , ""     , CMDS__writequit      , ""                                                            );
-   rc = yVIKEYS_cmds_add ('e', "dump"        , ""    , "s"    , STATUS_dump          , "dump a specified data table to the clipboard in flat text"   );
+   rc = yVIKEYS_cmds_add ('e', "dump"        , ""    , "s"    , BASE_dump            , "dump a specified data table to the clipboard in flat text"   );
    /*---(complete)-----------------------*/
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;

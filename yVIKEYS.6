@@ -1239,6 +1239,13 @@ them to add new text, and replace mode allows them to overtype exising text.
    N        next match backward
    found character is saved between searches for quick reuse
 
+.B delete
+   d¢       delete a character in the given direction
+   hl       left and right
+   w        word jumps also
+   0$       start and end all input
+   D        shortcut for d$
+
 .SH INPUT mode
 
 
@@ -1270,11 +1277,11 @@ prior knowledge of their locations.
    e          end/edge
 
 .B standard, universal movement suffix keys
-   shcle      horizontal (x)
-   tkmjb      vertical (y)
-   nopif      depth (z)
+   shcle x    horizontal (x)
+   tkmjb y    vertical (y)
+   nopif z    depth (z)
    azud       corners
-   gqrvwxy    unused
+   gqrv       unused
 
 .B horizontal (x-axis)...    e + [SsHhCcLlEe]
    eS         edge/leftmost start of all allowed space
