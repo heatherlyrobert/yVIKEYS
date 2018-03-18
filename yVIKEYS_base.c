@@ -412,7 +412,7 @@ yVIKEYS_main_handle     (uchar a_key)
       case MODE_GOD      : rc = BASE__________stub    (x_major , x_key);  break;
       case MODE_MAP      : rc = MAP_mode              (x_major , x_key);  break;
       case MODE_SOURCE   : rc = SOURCE_mode           (x_major , x_key);  break;
-      case UMOD_INPUT    : rc = INPUT_smode           (x_major , x_key);  break;
+      case UMOD_INPUT    : rc = INPUT_umode           (x_major , x_key);  break;
       case UMOD_HISTORY  : rc = HISTORY_smode         (x_major , x_key);  break;
       case MODE_COMMAND  : rc = SOURCE_mode           (x_major , x_key);  break;
       case MODE_SEARCH   : rc = SOURCE_mode           (x_major , x_key);  break;
@@ -420,7 +420,7 @@ yVIKEYS_main_handle     (uchar a_key)
       case SMOD_ERROR    : rc = BASE__________stub    (x_major , x_key);  break;
       case SMOD_SUNDO    : rc = BASE__________stub    (x_major , x_key);  break;
       case SMOD_TEXTREG  : rc = TEXTREG_smode         (x_major , x_key);  break;
-      case UMOD_REPLACE  : rc = REPLACE_smode         (x_major , x_key);  break;
+      case UMOD_REPLACE  : rc = REPLACE_umode         (x_major , x_key);  break;
       case XMOD_FORMAT   : rc = FORMAT_smode          (x_major , x_key);  break;
       case SMOD_BUFFER   : rc = BASE__________stub    (x_major , x_key);  break;
       case UMOD_WANDER   : rc = BASE__________stub    (x_major , x_key);  break;
@@ -434,16 +434,7 @@ yVIKEYS_main_handle     (uchar a_key)
       DEBUG_USER   yLOG_value   ("rc"        , rc);
       /*---(translate unprintable)-------*/
       x_repeat = REPEAT_count ();
-      if      (x_key == 0       )      snprintf (x_keys,   9, "%2d %c%c"  , x_repeat, x_major, G_CHAR_NULL  );
-      else if (x_key == G_KEY_RETURN)  snprintf (x_keys,   9, "%2d %c%c"  , x_repeat, x_major, G_CHAR_RETURN);
-      else if (x_key == G_KEY_ENTER )  snprintf (x_keys,   9, "%2d %c%c"  , x_repeat, x_major, G_CHAR_RETURN);
-      else if (x_key == G_KEY_ESCAPE)  snprintf (x_keys,   9, "%2d %c%c"  , x_repeat, x_major, G_CHAR_ESCAPE);
-      else if (x_key == G_KEY_TAB   )  snprintf (x_keys,   9, "%2d %c%c"  , x_repeat, x_major, G_CHAR_TAB   );
-      else if (x_key == G_KEY_BS    )  snprintf (x_keys,   9, "%2d %c%c"  , x_repeat, x_major, G_CHAR_BS    );
-      else if (x_key == G_KEY_DEL   )  snprintf (x_keys,   9, "%2d %c%c"  , x_repeat, x_major, G_CHAR_BS    );
-      else if (x_key == G_KEY_SPACE )  snprintf (x_keys,   9, "%2d %c%c"  , x_repeat, x_major, G_CHAR_SPACE );
-      else if (x_key <= G_KEY_SPACE )  snprintf (x_keys,   9, "%2d %c%02x", x_repeat, x_major, x_key);
-      else                             snprintf (x_keys,   9, "%2d %c%c"  , x_repeat, x_major, x_key);
+      snprintf (x_keys,   9, "%2d %c%c"  , x_repeat, x_major, chrvisible (x_key));
       /*---(loop repeats)----------------*/
       if (rc == 0 && x_repeat > 0 && MODE_curr () != UMOD_REPEAT) {
          REPEAT_decrement ();

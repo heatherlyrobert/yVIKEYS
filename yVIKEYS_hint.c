@@ -941,6 +941,7 @@ MARK_smode         (int a_major, int a_minor)
    /*---(common complex)-----------------*/
    --rce;  if (a_minor == '?') {
       DEBUG_USER   yLOG_note    ("show mark info window");
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
       myVIKEYS.info_win = 'y';
       return a_major;
    }

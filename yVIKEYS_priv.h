@@ -33,8 +33,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.9g"
-#define YVIKEYS_VER_TXT   "key logging upgraded and tested, history sundo fixed"
+#define YVIKEYS_VER_NUM   "0.9h"
+#define YVIKEYS_VER_TXT   "input/source delete and backspace working, textreg infowin also"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -272,9 +272,10 @@ char        SOURCE_start            (char *a_prefix);
 char        TEXTREG_init            (void);
 char        TEXTREG_status          (char *a_list);
 char        SOURCE_mode             (int a_major, int a_minor);
+char        TEXTREG_infowin         (char *a_entry, int a_index);
 char        TEXTREG_smode           (int a_major, int a_minor);
-char        REPLACE_smode           (int a_major, int a_minor);
-char        INPUT_smode             (int  a_major, int  a_minor);
+char        REPLACE_umode           (int a_major, int a_minor);
+char        INPUT_umode             (int  a_major, int  a_minor);
 char        HISTORY_display         (void);
 
 char        WANDER_smode            (int  a_major, int  a_minor);

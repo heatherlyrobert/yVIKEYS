@@ -29,18 +29,6 @@ static tEDIT  *s_cur    = &s_src;
 
 
 
-/*> static char  s_label       [LEN_RECD]  = "-";                                     <* 
- *> static char  s_original    [LEN_RECD]  = "";                                      <* 
- *> static char  s_contents    [LEN_RECD]  = "";                                      <* 
- *> static int   s_wide    = 0;                                                       <* 
- *> static int   s_apos    = 0;                                                       <* 
- *> static int   s_npos    = 0;                                                       <* 
- *> static int   s_bpos    = 0;                                                       <* 
- *> static int   s_cpos    = 0;                                                       <* 
- *> static int   s_epos    = 0;                                                       <* 
- *> static char  s_words       [LEN_RECD]  = "";                                      <*/
-
-
 #define     SELC_NOT       '-'
 #define     SELC_YES       'y'
 static char  s_live    = '-';
@@ -716,7 +704,7 @@ SOURCE_start       (char *a_prefix)
    /*---(go info input)------------------*/
    if (a_prefix [0] != '¦') {
       MODE_enter  (UMOD_INPUT  );
-      INPUT_smode  ('m', 'a');
+      INPUT_umode  ('m', 'a');
    }
    /*---(complete)-----------------------*/
    DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
@@ -1442,12 +1430,46 @@ SOURCE__nextword        (void)
 {
    /*---(locals)-----------+-----+-----+-*/
    int         i           =    0;
-   /*---(words)--------------------------*/
+   /*---(word forward)-------------------*/
    for (i = s_cur->cpos + 1; i < s_cur->npos; ++i) {
       if (strchr ("<B", s_cur->words [i]) == NULL)  continue;
       return i - s_cur->cpos;
    }
-   return s_cur->npos - 1 - s_cur->cpos;
+   /*---(complete)-----------------------*/
+   return s_cur->npos - s_cur->cpos;
+}
+
+int
+SOURCE__endword         (void)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   int         i           =    0;
+   /*---(word forward)-------------------*/
+   for (i = s_cur->cpos + 1; i < s_cur->npos; ++i) {
+      if (strchr (">B", s_cur->words [i]) == NULL)  continue;
+      return i - s_cur->cpos + 1;
+   }
+   /*---(complete)-----------------------*/
+   return s_cur->npos - s_cur->cpos;
+}
+
+int
+SOURCE__prevword        (void)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   int         i           =    0;
+   int         x_len       =    0;
+   /*---(word backward)------------------*/
+   for (i = s_cur->cpos - 1; i >= 0 ; --i) {
+      if (strchr ("<B", s_cur->words [i]) == NULL)  continue;
+      x_len       = s_cur->cpos - i;
+      s_cur->cpos = i;
+      return x_len;
+   }
+   /*---(all)----------------------------*/
+   x_len       = s_cur->cpos - 1;
+   s_cur->cpos = 0;
+   return x_len;
 }
 
 char
@@ -1531,8 +1553,10 @@ SOURCE__charfind        (uchar a_ch)
 char         /*-> complex delete action --------------[ ------ [gz.430.031.02]*/ /*-[01.0000.213.!]-*/ /*-[--.---.---.--]-*/
 SOURCE_delete          (char a_major, char a_minor)
 {
-   /*---(locals)-----------+-----------+-*/
+   /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
+   char        i           =    0;
+   char        x_len       =    0;
    /*---(header)-------------------------*/
    DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
@@ -1543,8 +1567,14 @@ SOURCE_delete          (char a_major, char a_minor)
       return rce;
    }
    DEBUG_EDIT   yLOG_char    ("a_minor"   , chrvisible (a_minor));
-   --rce;  if (a_minor == 0 || strchr ("hl", a_minor) == NULL) {
+   --rce;  if (a_minor == 0 || strchr ("hlwbe0$", a_minor) == NULL) {
       DEBUG_EDIT   yLOG_note    ("source only allows right and left");
+      DEBUG_EDIT   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_EDIT   yLOG_value   ("npos"      , s_cur->npos);
+   --rce;  if (s_cur->npos <= 0) {
+      DEBUG_EDIT   yLOG_note    ("nothing text to delete");
       DEBUG_EDIT   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
@@ -1562,9 +1592,23 @@ SOURCE_delete          (char a_major, char a_minor)
    /*---(start)--------------------------*/
    SUNDO__beg (__FUNCTION__);
    /*---(delete)-------------------------*/
-   if (a_minor == 'h')  --s_cur->cpos;
-   SUNDO__add (a_major, a_minor, s_cur->cpos, s_cur->contents [s_cur->cpos], G_KEY_SPACE);
-   ONE__delete ();
+   if (strchr ("wbe0$", a_minor) != NULL) {
+      switch (a_minor) {
+      case 'w' : x_len = SOURCE__nextword (); break;
+      case 'b' : x_len = SOURCE__prevword (); break;
+      case 'e' : x_len = SOURCE__endword  (); break;
+      case '0' : x_len = s_cur->cpos; s_cur->cpos = 0; break;
+      case '$' : x_len = s_cur->npos - s_cur->cpos;    break;
+      }
+      for (i = 0; i < x_len; ++i) {
+         SUNDO__add ('d', 'l', s_cur->cpos, s_cur->contents [s_cur->cpos], G_KEY_NULL);
+         ONE__delete ();
+      }
+   } else if (strchr ("hl", a_minor) != NULL) {
+      if (a_minor == 'h')  --s_cur->cpos;
+      SUNDO__add (a_major, a_minor, s_cur->cpos, s_cur->contents [s_cur->cpos], G_KEY_NULL);
+      ONE__delete ();
+   }
    /*---(end)----------------------------*/
    SUNDO__end (__FUNCTION__);
    /*---(complete)-----------------------*/
@@ -1830,7 +1874,7 @@ SOURCE_mode             (int a_major, int a_minor)
       case  'r' : case  'R' :
          DEBUG_USER   yLOG_note    ("enter replace mode");
          MODE_enter (UMOD_REPLACE);
-         REPLACE_smode ('m', a_minor);
+         REPLACE_umode ('m', a_minor);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          rc = 0;
          break;
@@ -1839,9 +1883,32 @@ SOURCE_mode             (int a_major, int a_minor)
          if (a_minor == 'A')  s_cur->cpos = s_cur->npos - 1;
          if (a_minor == 'I')  s_cur->cpos = 0;
          MODE_enter (UMOD_INPUT);
-         INPUT_smode ('m', tolower (a_minor));
+         INPUT_umode ('m', tolower (a_minor));
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          rc = tolower (a_minor);
+      }
+      /*---(check for backspace)------------*/
+      if (a_minor == G_KEY_BS) {
+         DEBUG_USER   yLOG_note    ("handle a backspace");
+         rc = SOURCE_delete     ('d', 'h');
+         SOURCE__done ();
+         /*> if (s_cur->cpos > 0) {                                                                      <* 
+          *>    SUNDO__beg (__FUNCTION__);                                                               <* 
+          *>    SUNDO__add ('d', 'h', s_cur->cpos - 1, s_cur->contents [s_cur->cpos - 1], G_KEY_NULL);   <* 
+          *>    rc = ONE__backspace ();                                                                  <* 
+          *>    SUNDO__end (__FUNCTION__);                                                               <* 
+          *> }                                                                                           <*/
+      }
+      if (a_minor == G_KEY_DEL) {
+         DEBUG_USER   yLOG_note    ("handle a delete");
+         rc = SOURCE_delete     ('d', 'l');
+         SOURCE__done ();
+         /*> if (s_cur->cpos < s_cur->npos) {                                                    <* 
+          *>    SUNDO__beg (__FUNCTION__);                                                       <* 
+          *>    SUNDO__add ('d', 'l', s_cur->cpos, s_cur->contents [s_cur->cpos], G_KEY_NULL);   <* 
+          *>    rc = ONE__delete ();                                                             <* 
+          *>    SUNDO__end (__FUNCTION__);                                                       <* 
+          *> }                                                                                   <*/
       }
       /*---(cut/copy/paste)--------------*/
       if (strchr ("yxXDpP", a_minor) != 0) {
@@ -1885,7 +1952,10 @@ SOURCE_mode             (int a_major, int a_minor)
    /*---(multi-key)----------------------*/
    else {
       switch (a_major) {
-      case 'd' :  rc = SOURCE_delete     (a_major, a_minor);  break;
+      case 'd' :
+         rc = SOURCE_delete     (a_major, a_minor);
+         SOURCE__done ();
+         break;
       case 'g' :  rc = SOURCE__goto      (a_major, a_minor);  break;
       case 'z' :  rc = SOURCE__scroll    (a_major, a_minor);  break;
       case 'f' :  x_char = a_minor;
@@ -1907,11 +1977,34 @@ SOURCE_mode             (int a_major, int a_minor)
    return 0;
 }
 
+char         /*-> tbd --------------------------------[ ------ [ge.420.132.11]*/ /*-[00.0000.114.!]-*/ /*-[--.---.---.--]-*/
+TEXTREG_infowin    (char *a_entry, int a_index)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   int         a           =    0;
+   int         n           =    0;
+   char        t           [LEN_RECD]  = "";
+   /*---(status)-------------------------*/
+   strlcpy (a_entry, " -  ----                                                                      ", LEN_RECD);
+   if (a_index <   0)  return 0;
+   if (a_index >= 26)  return 0;
+   a = 'a' + a_index;
+   n = TEXTREG__index (a);
+   if (s_tregs [n].len > 0) {
+      strlcpy    (t, s_tregs [n].data, LEN_RECD);
+      strlencode (t, ySTR_MAX, LEN_RECD);
+      sprintf (a_entry, " %c  %4d  %s "        , a, s_tregs [n].len, t);
+   }
+   /*---(complete)-----------------------*/
+   return 0;
+}
+
 char         /*-> process keys for register actions --[ leaf   [ge.QG5.287.FB]*/ /*-[02.0000.102.!]-*/ /*-[--.---.---.--]-*/
 TEXTREG_smode           (int a_major, int a_minor)
 {
    /*---(locals)-----------+-----------+-*/
    char        rce         = -10;
+   char        rc          =  -1;
    int         x_buf       =  -1;
    int         x_index     =   0;
    int         i           =   0;
@@ -1922,6 +2015,7 @@ TEXTREG_smode           (int a_major, int a_minor)
    DEBUG_USER   yLOG_enter   (__FUNCTION__);
    DEBUG_USER   yLOG_char    ("a_major"   , a_major);
    DEBUG_USER   yLOG_char    ("a_minor"   , a_minor);
+   myVIKEYS.info_win = '-';
    /*---(defenses)-----------------------*/
    DEBUG_USER   yLOG_char    ("mode"      , MODE_curr ());
    --rce;  if (MODE_not (SMOD_TEXTREG )) {
@@ -1937,24 +2031,25 @@ TEXTREG_smode           (int a_major, int a_minor)
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return  0;
    }
-   /*---(check for selection)------------*/
+   /*---(select register name)-----------*/
    --rce;  if (a_major == '"') {
-      if (strchr (s_tregnames, a_minor) != 0) {
+      if (strchr (s_tregnames, tolower (a_minor)) != 0) {
          DEBUG_USER   yLOG_note    ("select a text register");
          s_ctreg = a_minor;
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return 0;
       }
-      /*> else if (a_minor == '?') {                                                  <* 
-       *>    DEBUG_USER   yLOG_note    ("show text register inventory");              <* 
-       *>    my.info_win  = G_INFO_TREG;                                              <* 
-       *>    s_ctreg = '"';                                                            <* 
-       *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <* 
-       *>    return  0;                                                               <* 
-       *> }                                                                           <*/
+      else if (a_minor == '?') {
+         DEBUG_USER   yLOG_note    ("show text register inventory");
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         myVIKEYS.info_win = 'y';
+         return  a_major;
+      }
+      MODE_exit ();
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return rce;
    }
+   /*---(select register action)---------*/
    --rce;  if (a_major == ' ') {
       switch (a_minor) {
       case  '!' :
@@ -2043,7 +2138,7 @@ TEXTREG_smode           (int a_major, int a_minor)
 }
 
 char         /*-> replace sub-mode -------------------[ ------ [ge.RG6.25#.E5]*/ /*-[02.0000.112.E]-*/ /*-[--.---.---.--]-*/
-REPLACE_smode    (int a_major, int a_minor)
+REPLACE_umode    (int a_major, int a_minor)
 {  /*---(design notes)-------------------*/
    /*
     *   very limited sub-mode of SOURCE mode.  allows a user to "type over"
@@ -2091,20 +2186,6 @@ REPLACE_smode    (int a_major, int a_minor)
    /*---(mode changes)-------------------*/
    else if (a_minor == G_KEY_ESCAPE || a_minor == G_KEY_RETURN) {
       DEBUG_USER   yLOG_note    ("escape/return, return to source mode");
-      x_mode  = '-';
-      rc = ONE__replace (x_saved);
-      MODE_exit ();
-      SUNDO__end (__FUNCTION__);
-      DEBUG_USER   yLOG_value   ("mode"     , MODE_curr ());
-      if (a_minor == G_KEY_RETURN && strchr (MODES_ONELINE, MODE_curr ()) != NULL) {
-         DEBUG_USER   yLOG_note    ("fast path back to map mode");
-         SOURCE_mode (' ', a_minor);
-      }
-   }
-   /*---(mode changes)-------------------*/
-   else if (a_minor == G_KEY_ESCAPE || a_minor == G_KEY_RETURN) {
-      DEBUG_USER   yLOG_note    ("escape/return, return to source mode");
-      rc = 0;
       x_mode  = '-';
       rc = ONE__replace (x_saved);
       MODE_exit ();
@@ -2206,6 +2287,7 @@ HISTORY_infowin         (void)
       case UMOD_MARK      : strlcpy (x_entry, " -  --label--- --x-- --y-- --z--      -  --label--- --x-- --y-- --z--   ", LEN_RECD);  break;
       case UMOD_VISUAL    : strlcpy (x_entry, " - --x-- --y-- -z- --x-- --y-- -z-    - --x-- --y-- -z- --x-- --y-- -z- ", LEN_RECD);  break;
       case SMOD_MACRO     : strlcpy (x_entry, " - len ---keys--------------------------------------------------------- ", LEN_RECD);  break;
+      case SMOD_TEXTREG   : strlcpy (x_entry, " -   len  ---contents-------------------------------------------------- ", LEN_RECD);  break;
       }
       mvprintw (x_bott - x_tall + 1, x_left, "%-*.*s", x_wide, x_wide, x_entry);
       attrset     (0);
@@ -2213,9 +2295,10 @@ HISTORY_infowin         (void)
          if ((i % 2) == 0)  yCOLOR_curs ("h_current"    );
          else               yCOLOR_curs ("map"          );
          switch (MODE_curr ()) {
-         case UMOD_MARK      : MARK_infowin  (x_entry, i);  break;
-         case UMOD_VISUAL    : VISU_infowin  (x_entry, i);  break;
+         case UMOD_MARK      : MARK_infowin    (x_entry, i);  break;
+         case UMOD_VISUAL    : VISU_infowin    (x_entry, i);  break;
                                /*> case SMOD_MACRO     : MACRO_infowin (x_entry, i);  break;                <*/
+         case SMOD_TEXTREG   : TEXTREG_infowin (x_entry, i);  break;
          }
          mvprintw (x_bott - x_tall + 2 + i, x_left             , "%-*.*s", x_wide, x_wide, x_entry);
          attrset     (0);
@@ -2358,7 +2441,7 @@ HISTORY_smode           (int  a_major, int  a_minor)
 }
 
 char         /*-> process keys for input mode --------[ ------ [ge.TQ5.25#.F9]*/ /*-[03.0000.122.R]-*/ /*-[--.---.---.--]-*/
-INPUT_smode             (int  a_major, int  a_minor)
+INPUT_umode             (int  a_major, int  a_minor)
 {
    /*---(design notes)-------------------*/
    /*
@@ -2425,9 +2508,21 @@ INPUT_smode             (int  a_major, int  a_minor)
       }
    }
    /*---(check for backspace)------------*/
-   else if (a_minor == G_KEY_DEL || a_minor == G_KEY_BS) {
-      DEBUG_USER   yLOG_note    ("handle a backspace/delete");
-      rc = ONE__backspace ();
+   else if (a_minor == G_KEY_BS) {
+      DEBUG_USER   yLOG_note    ("handle a backspace");
+      if (s_cur->cpos > 0) {
+         SUNDO__add ('d', 'h', s_cur->cpos - 1, s_cur->contents [s_cur->cpos - 1], G_KEY_NULL);
+         rc = ONE__backspace ();
+      }
+   }
+   else if (a_minor == G_KEY_DEL) {
+      DEBUG_USER   yLOG_note    ("handle a delete");
+      if (s_cur->cpos < s_cur->npos - 1) {
+         ++s_cur->cpos;
+         SUNDO__add ('d', 'l', s_cur->cpos, s_cur->contents [s_cur->cpos], G_KEY_NULL);
+         rc = ONE__delete ();
+         --s_cur->cpos;
+      }
    }
    /*---(handle new character)-----------*/
    else {
