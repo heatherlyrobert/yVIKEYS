@@ -33,8 +33,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.9h"
-#define YVIKEYS_VER_TXT   "input/source delete and backspace working, textreg infowin also"
+#define YVIKEYS_VER_NUM   "0.9i"
+#define YVIKEYS_VER_TXT   "protext replace and input from strange/hidden characters"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/

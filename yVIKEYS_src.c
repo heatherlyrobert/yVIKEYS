@@ -2204,9 +2204,11 @@ REPLACE_umode    (int a_major, int a_minor)
          x_prev = '-';
          SUNDO__single ('r', x_saved, chrslashed (a_minor));
          rc = ONE__replace (chrslashed (a_minor));
-      } else {
+      } else if (a_minor >= 32 && a_minor < 127) {
          SUNDO__single ('r', x_saved, a_minor);
          rc = ONE__replace (a_minor);
+      } else {
+         rc = ONE__replace (x_saved);
       }
       SUNDO__end (__FUNCTION__);
       MODE_exit ();
@@ -2230,9 +2232,11 @@ REPLACE_umode    (int a_major, int a_minor)
             x_prev = '-';
             SUNDO__single ('R', x_saved, chrslashed (a_minor));
             rc = ONE__replace (chrslashed (a_minor));
-         } else {
+         } else if (a_minor >= 32 && a_minor < 127) {
             SUNDO__single ('R', x_saved, a_minor);
             rc = ONE__replace (a_minor);
+         } else {
+            rc = ONE__replace (x_saved);
          }
          ++s_cur->cpos;
          x_saved = s_cur->contents [s_cur->cpos];
@@ -2525,7 +2529,7 @@ INPUT_umode             (int  a_major, int  a_minor)
       }
    }
    /*---(handle new character)-----------*/
-   else {
+   else if (a_minor >= 32 && a_minor < 127) {
       DEBUG_USER   yLOG_note    ("move remaining chars to the right");
       SUNDO__single (x_mode, G_CHAR_NULL, a_minor);
       rc = ONE__insert (a_minor);
