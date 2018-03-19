@@ -469,7 +469,7 @@ BASE__main_string    (uchar *a_keys)
    char        rc          =    0;
    int         i           =    0;
    int         x_len       =    0;
-   char        x_ch        =  ' ';     /* current keystroke                   */
+   uchar       x_ch        =  ' ';     /* current keystroke                   */
    /*---(header)-------------------------*/
    DEBUG_LOOP   yLOG_enter   (__FUNCTION__);
    DEBUG_LOOP   yLOG_point   ("a_keys"    , a_keys);
@@ -485,23 +485,10 @@ BASE__main_string    (uchar *a_keys)
    for (i = 0; i < x_len; ++i) {
       DEBUG_LOOP   yLOG_value   ("LOOP"      , i);
       /*---(get next char)---------------*/
-      x_ch = a_keys [i];
+      DEBUG_LOOP   yLOG_value   ("a_keys[i]" , a_keys[i]);
+      DEBUG_LOOP   yLOG_char    ("a_keys[i]" , a_keys[i]);
+      x_ch = chrworking (a_keys [i]);
       DEBUG_LOOP   yLOG_value   ("x_ch"      , x_ch);
-      if (x_ch <  0) {
-         DEBUG_SCRP   yLOG_note    ("special character");
-         DEBUG_SCRP   yLOG_value   ("256 + x_ch", 256 + x_ch);
-         /*---(translate special)--------*/
-         switch (256 + x_ch) {
-         case G_CHAR_RETURN  :  x_ch = G_KEY_RETURN;  break;
-         case G_CHAR_ESCAPE  :  x_ch = G_KEY_ESCAPE;  break;
-         case G_CHAR_BS      :  x_ch = G_KEY_BS;      break;
-         case G_CHAR_TAB     :  x_ch = G_KEY_TAB;     break;
-         case G_CHAR_SPACE   :  x_ch = G_KEY_SPACE;   break;
-         case G_CHAR_GROUP   :  x_ch = G_KEY_GROUP;   break;
-         case G_CHAR_FIELD   :  x_ch = G_KEY_FIELD;   break;
-         }
-         DEBUG_SCRP   yLOG_value   ("x_ch (new)", x_ch);
-      }
       /*---(handle input)----------------*/
       x_ch = yVIKEYS_main_input (RUN_TEST, x_ch);
       DEBUG_LOOP   yLOG_value   ("x_ch"      , x_ch);

@@ -45,6 +45,7 @@ static tSECTION  s_sections [MAX_SECTION] = {
    { 'i', SMOD_MACRO  , "saved macros"       , "macro"     , 'A', "ciiS------", "-a"        , "count"     , "rc"        , "command"   , ""          , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
    { 'i', MODE_SEARCH , "search history"     , "search"    , 'A', "ciiS------", "-a"        , "count"     , "found"     , "search"    , ""          , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
    { 'i', MODE_COMMAND, "command history"    , "command"   , 'A', "ciiS------", "-a"        , "count"     , "rc"        , "command"   , ""          , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
+   { 'i', SMOD_TEXTREG, "text registers"     , "text_reg"  , 'A', "cS--------", "-a"        , "data"      , ""          , ""          , ""          , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
    { 'e', FILE_DEPCEL , "dependent cells"    , "cell_dep"  , 'D', "siLsS-----", "lvl/reg"   , "seq"       , "label"     , "t-f-d-a-m" , "contents"  , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
    { 'e', FILE_FREECEL, "independent cells"  , "cell_free" , 'D', "siLsS-----", "lvl/reg"   , "seq"       , "label"     , "t-f-d-a-m" , "contents"  , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
    { '-', 0           , ""                   , ""          , '-', "----------", ""          , ""          , ""          , ""          , ""          , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
@@ -905,6 +906,7 @@ OUTP_write              (void)
    OUTP_write_type (MODE_SEARCH);
    OUTP_write_type (MODE_COMMAND);
    OUTP_write_type (SMOD_MACRO);
+   OUTP_write_type (SMOD_TEXTREG);
    /*---(close)--------------------------*/
    fprintf (s_file, "\n\n\n# done, finito, complete\n");
    FILE_close ();
@@ -941,10 +943,11 @@ OUTP__unit_writer       (char a_abbr, char a_item)
    if (n < 0)      return -1;
    /*---(find item)----------------------*/
    switch (s_sections [n].abbr) {
-   case UMOD_MARK    :  x_index = MARK_valid (a_item);  break;
-   case UMOD_VISUAL  :  x_index = VISU_valid (a_item);  break;
-   case MODE_SEARCH  :  x_index = SRCH_valid (a_item);  break;
-   case MODE_COMMAND :  x_index = CMDS_valid (a_item);  break;
+   case UMOD_MARK    :  x_index = MARK_valid    (a_item);  break;
+   case UMOD_VISUAL  :  x_index = VISU_valid    (a_item);  break;
+   case MODE_SEARCH  :  x_index = SRCH_valid    (a_item);  break;
+   case MODE_COMMAND :  x_index = CMDS_valid    (a_item);  break;
+   case SMOD_TEXTREG :  x_index = TEXTREG_valid (a_item);  break;
    }
    --rce;  if (x_index < 0)  return rce;
    /*---(process)------------------------*/

@@ -33,8 +33,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.9i"
-#define YVIKEYS_VER_TXT   "protext replace and input from strange/hidden characters"
+#define YVIKEYS_VER_NUM   "0.9k"
+#define YVIKEYS_VER_TXT   "non-selected delete and clear multi-keys are good and unit tested"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -270,6 +270,7 @@ char*       SOURCE__unit            (char *a_question, char a_reg);
 char        SOURCE_status_words     (char *a_list);
 char        SOURCE_start            (char *a_prefix);
 char        TEXTREG_init            (void);
+char        TEXTREG_valid           (cchar a_reg);
 char        TEXTREG_status          (char *a_list);
 char        SOURCE_mode             (int a_major, int a_minor);
 char        TEXTREG_infowin         (char *a_entry, int a_index);
@@ -277,6 +278,9 @@ char        TEXTREG_smode           (int a_major, int a_minor);
 char        REPLACE_umode           (int a_major, int a_minor);
 char        INPUT_umode             (int  a_major, int  a_minor);
 char        HISTORY_display         (void);
+char        TEXTREG_writer          (void);
+char        TEXTREG_writer_single   (char a_mark);
+char        TEXTREG_reader          (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i);
 
 char        WANDER_smode            (int  a_major, int  a_minor);
 

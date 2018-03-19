@@ -1260,14 +1260,17 @@ them to add new text, and replace mode allows them to overtype exising text.
    N        next match backward
    found character is saved between searches for quick reuse
 
-.B delete
-   Å
-   Ä 
+.B deleting
+   Å        deletes the previous character
+   Ä        deletes the current character
    d¢       delete a character in the given direction
-   hl       left and right
-   w        word jumps also
-   0$       start and end all input
+     hl     left and right (current)
+     wbe    word jumps also
+     0$     and, to start and end all input
    D        shortcut for d$
+   3Å       backspaces three times
+   2dl      deletes two characters
+   5dw      deletes five words
 
 .SH INPUT micro-mode
 .SS ---basics---------------------------------------------------------

@@ -981,7 +981,7 @@ CMDS_reader           (char n, char *a, char *b, char *c, char *d, char *e, char
    }
    DEBUG_SRCH   yLOG_char    ("mark"      , a[0]);
    /*---(search)-------------------------*/
-   DEBUG_SRCH   yLOG_point   ("search"    , b);
+   DEBUG_SRCH   yLOG_point   ("command"   , d);
    --rce;  if (b == NULL) {
       DEBUG_SRCH   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
@@ -1023,8 +1023,8 @@ SRCH_reader           (char n, char *a, char *b, char *c, char *d, char *e, char
    }
    DEBUG_SRCH   yLOG_char    ("mark"      , a[0]);
    /*---(search)-------------------------*/
-   DEBUG_SRCH   yLOG_point   ("search"    , b);
-   --rce;  if (b == NULL) {
+   DEBUG_SRCH   yLOG_point   ("search"    , d);
+   --rce;  if (d == NULL) {
       DEBUG_SRCH   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }

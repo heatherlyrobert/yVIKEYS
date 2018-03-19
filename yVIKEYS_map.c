@@ -23,8 +23,8 @@ char   g_hgoto     [LEN_DESC ]   = "SH shcle LE";
 char   g_hscroll   [LEN_DESC ]   = "   shcle   ";
 char   g_hword     [LEN_DESC ]   = "wbe WBE";
 
-char   g_multimap  [LEN_DESC ]   = "cgz e dia   ";
-char   g_multisrc  [LEN_DESC ]   = "cgz   d   Ff";
+char   g_multimap  [LEN_DESC ]   = "cgz e d ia   ";
+char   g_multisrc  [LEN_DESC ]   = "cgz   dx   Ff";
 
 char   g_repeat    [LEN_DESC ]   = "123456789";
 char   g_search    [LEN_DESC ]   = "[<>]";

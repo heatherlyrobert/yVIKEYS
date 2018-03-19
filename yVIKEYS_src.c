@@ -282,12 +282,13 @@ SUNDO__undo_one         (void)
    /*---(single char)--------------------*/
    if (s_sundos [s_csundo].major == G_KEY_SPACE) {
       switch (s_sundos [s_csundo].minor) {
-      case 'x' : case 'X' : case 'r' : case 'R' :
+         /*> case 'x' : case 'X' : case 'r' : case 'R' :                                 <*/
+      case 'r' : case 'R' :
          ONE__replace (chrworking (s_sundos [s_csundo].before));
          break;
-      case 'd' :
-         ONE__insert  (chrworking (s_sundos [s_csundo].before));
-         break;
+         /*> case 'd' :                                                                  <* 
+          *>    ONE__insert  (chrworking (s_sundos [s_csundo].before));                  <* 
+          *>    break;                                                                   <*/
       case 'i' : case 'a' :
          ONE__delete  ();
          break;
@@ -295,17 +296,10 @@ SUNDO__undo_one         (void)
    }
    /*---(multi char)---------------------*/
    else if (s_sundos [s_csundo].major == 'd') {
-      switch (s_sundos [s_csundo].minor) {
-      case 'h' : case 'l' :
-         ONE__insert  (chrworking (s_sundos [s_csundo].before));
-         break;
-      case 'w' :
-         break;
-      case 'e' :
-         break;
-      case 'b' :
-         break;
-      }
+      ONE__insert  (chrworking (s_sundos [s_csundo].before));
+   }
+   else if (s_sundos [s_csundo].major == 'x') {
+      ONE__replace (chrworking (s_sundos [s_csundo].before));
    }
    /*---(update)-------------------------*/
    DEBUG_EDIT   yLOG_schar   (s_sundos [s_csundo].before);
@@ -371,12 +365,13 @@ SUNDO__redo_one         (void)
    /*---(single char)--------------------*/
    if (s_sundos [s_csundo].major == G_KEY_SPACE) {
       switch (s_sundos [s_csundo].minor) {
-      case 'x' : case 'X' : case 'r' : case 'R' :
+      /*> case 'x' : case 'X' : case 'r' : case 'R' :                                 <*/
+      case 'r' : case 'R' :
          ONE__replace (chrworking (s_sundos [s_csundo].after));
          break;
-      case 'd' :
-         ONE__delete  ();
-         break;
+      /*> case 'd' :                                                                  <* 
+       *>    ONE__delete  ();                                                         <* 
+       *>    break;                                                                   <*/
       case 'i' : case 'a' :
          ONE__insert  (chrworking (s_sundos [s_csundo].after));
          break;
@@ -384,17 +379,10 @@ SUNDO__redo_one         (void)
    }
    /*---(multi char)---------------------*/
    else if (s_sundos [s_csundo].major == 'd') {
-      switch (s_sundos [s_csundo].minor) {
-      case 'h' : case 'l' :
-         ONE__delete  ();
-         break;
-      case 'w' :
-         break;
-      case 'e' :
-         break;
-      case 'b' :
-         break;
-      }
+      ONE__delete  ();
+   }
+   else if (s_sundos [s_csundo].major == 'x') {
+      ONE__replace (chrworking (s_sundos [s_csundo].after));
    }
    /*---(update)-------------------------*/
    DEBUG_EDIT   yLOG_schar   (s_sundos [s_csundo].after);
@@ -727,7 +715,7 @@ TEXTREG__reset         (void)
 }
 
 char
-TEXTREG__index         (cchar a_reg)
+TEXTREG_valid          (cchar a_reg)
 {
    /*---(locals)-----------+-----------+-*/
    int         i           = 0;
@@ -820,6 +808,7 @@ TEXTREG_init       (void)
    }
    /*---(update status)------------------*/
    STATUS_init_set   (SMOD_TEXTREG);
+   yVIKEYS_file_add (SMOD_TEXTREG, TEXTREG_writer, TEXTREG_reader);
    /*---(complete)-----------------------*/
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -1279,7 +1268,7 @@ TEXTREG_status          (char *a_list)
    /*---(defenses)--------------------*/
    --rce;  if (a_list  == NULL) return rce;
    /*---(buffer number)------------------*/
-   x_reg  = TEXTREG__index  (s_wtreg);
+   x_reg  = TEXTREG_valid   (s_wtreg);
    /*---(write line)------------------*/
    sprintf (a_list , "treg %c %2d %2d  %3d [%-40.40s]  %-7.7s %3d %3d  %c",
          s_wtreg, s_ntreg, x_reg,
@@ -1557,6 +1546,7 @@ SOURCE_delete          (char a_major, char a_minor)
    char        rce         =  -10;
    char        i           =    0;
    char        x_len       =    0;
+   char        x_pos       =    0;
    /*---(header)-------------------------*/
    DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
@@ -1589,28 +1579,34 @@ SOURCE_delete          (char a_major, char a_minor)
       DEBUG_EDIT   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   /*---(start)--------------------------*/
-   SUNDO__beg (__FUNCTION__);
-   /*---(delete)-------------------------*/
-   if (strchr ("wbe0$", a_minor) != NULL) {
-      switch (a_minor) {
-      case 'w' : x_len = SOURCE__nextword (); break;
-      case 'b' : x_len = SOURCE__prevword (); break;
-      case 'e' : x_len = SOURCE__endword  (); break;
-      case '0' : x_len = s_cur->cpos; s_cur->cpos = 0; break;
-      case '$' : x_len = s_cur->npos - s_cur->cpos;    break;
-      }
-      for (i = 0; i < x_len; ++i) {
-         SUNDO__add ('d', 'l', s_cur->cpos, s_cur->contents [s_cur->cpos], G_KEY_NULL);
-         ONE__delete ();
-      }
-   } else if (strchr ("hl", a_minor) != NULL) {
-      if (a_minor == 'h')  --s_cur->cpos;
-      SUNDO__add (a_major, a_minor, s_cur->cpos, s_cur->contents [s_cur->cpos], G_KEY_NULL);
-      ONE__delete ();
+   /*---(prepare)------------------------*/
+   switch (a_minor) {
+   case 'h' : x_len = 1;                             break;
+   case 'l' : x_len = 1;                             break;
+   case 'w' : x_len = SOURCE__nextword ();           break;
+   case 'b' : x_len = SOURCE__prevword ();           break;
+   case 'e' : x_len = SOURCE__endword  ();           break;
+   case '0' : x_len = s_cur->cpos; s_cur->cpos = 0;  break;
+   case '$' : x_len = s_cur->npos - s_cur->cpos;     break;
    }
+   if (strchr ("hb0$", a_minor) != NULL)  x_pos = s_cur->cpos;
+   else                                   x_pos = s_cur->cpos + x_len;
    /*---(end)----------------------------*/
+   SUNDO__beg (__FUNCTION__);
+   for (i = 0; i < x_len; ++i) {
+      if (a_major == 'd') {
+         if (a_minor == 'h')  --s_cur->cpos;
+         SUNDO__add (a_major, 'l', s_cur->cpos, s_cur->contents [s_cur->cpos], G_KEY_NULL);
+         ONE__delete ();
+      } else {
+         if (a_minor == 'h')  --s_cur->cpos;
+         SUNDO__add (a_major, 'l', s_cur->cpos, s_cur->contents [s_cur->cpos], G_KEY_SPACE);
+         ONE__replace (G_KEY_SPACE);
+         if (a_minor != 'h')  ++s_cur->cpos;
+      }
+   }
    SUNDO__end (__FUNCTION__);
+   if (a_major == 'x' && a_minor != 'h')  s_cur->cpos = x_pos;
    /*---(complete)-----------------------*/
    DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -1692,20 +1688,28 @@ TEXTREG__copy          (void)
    int         x_len       =   0;
    char        x_label     [10]        = "";
    char        rce         = -10;
+   char        t           [LEN_RECD];
    /*---(identify register)--------------*/
-   x_index = TEXTREG__index (s_ctreg);
+   x_index = TEXTREG_valid  (tolower (s_ctreg));
    if (x_index < 0)  return -1;
    /*---(set size)-----------------------*/
    x_start = s_cur->contents + s_bsel;
    x_len   = s_esel - s_bsel + 1;
    /*---(copy)---------------------------*/
-   strlcpy (s_tregs [x_index].data, x_start, x_len + 1);
-   /*---(fill in details)----------------*/
-   s_tregs [x_index].len    = x_len;
-   s_tregs [x_index].bpos   = s_bsel;
-   s_tregs [x_index].epos   = s_esel;
-   strlcpy (s_tregs [x_index].label, s_cur->label, LEN_LABEL);
-   s_tregs [x_index].source = TREG_USER;
+   if (s_ctreg == tolower (s_ctreg)) {
+      strlcpy (s_tregs [x_index].data, x_start, x_len + 1);
+      s_tregs [x_index].len    = x_len;
+      s_tregs [x_index].bpos   = s_bsel;
+      s_tregs [x_index].epos   = s_esel;
+      strlcpy (s_tregs [x_index].label, s_cur->label, LEN_LABEL);
+      s_tregs [x_index].source = TREG_USER;
+   }
+   /*---(append)-------------------------*/
+   else {
+      strlcpy (t, x_start, x_len + 1);
+      strlcat (s_tregs [x_index].data, t, LEN_RECD);
+      s_tregs [x_index].len    = strllen (s_tregs [x_index].data, LEN_RECD);
+   }
    /*---(complete)-----------------------*/
    return 0;
 }
@@ -1718,7 +1722,7 @@ TEXTREG__replace        (void)
    int         x_len       =   0;
    int         i           =   0;
    /*---(identify register)--------------*/
-   x_index = TEXTREG__index (s_ctreg);
+   x_index = TEXTREG_valid  (s_ctreg);
    if (x_index < 0)  return -1;
    x_len = s_esel - s_bsel + 1;
    if (x_len > s_tregs [x_index].len)  x_len = s_tregs [x_index].len;
@@ -1742,7 +1746,7 @@ TEXTREG__paste          (char a_dir)
    int         x_index     =   0;
    int         i           =   0;
    /*---(identify register)--------------*/
-   x_index = TEXTREG__index (s_ctreg);
+   x_index = TEXTREG_valid  (s_ctreg);
    if (x_index < 0)  return -1;
    /*---(set the start)------------------*/
    SUNDO__beg (__FUNCTION__);
@@ -1834,9 +1838,17 @@ SOURCE_mode             (int a_major, int a_minor)
          MODE_enter  (UMOD_REPEAT);
          rc = a_minor;
       }
+      /*---(select related)--------------*/
+      if (s_live == SELC_YES && strchr ("yYxXdDpP", a_minor) != 0) {
+         DEBUG_USER   yLOG_note    ("switch to a text register mode");
+         s_ctreg = '"';
+         MODE_enter (SMOD_TEXTREG);
+         rc = TEXTREG_smode (' ', a_minor);
+         return rc;
+      }
       /*---(multikey prefixes)-----------*/
       if (strchr (g_multisrc, a_minor) != 0) {
-         rc = a_minor;
+         return a_minor;
       }
       /*---(mode changes)----------------*/
       switch (a_minor) {
@@ -1886,6 +1898,15 @@ SOURCE_mode             (int a_major, int a_minor)
          INPUT_umode ('m', tolower (a_minor));
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          rc = tolower (a_minor);
+         break;
+      case  'D' :
+         rc = SOURCE_delete     ('d', '$');
+         SOURCE__done ();
+         break;
+      case  'X' :
+         rc = SOURCE_delete     ('x', '$');
+         SOURCE__done ();
+         break;
       }
       /*---(check for backspace)------------*/
       if (a_minor == G_KEY_BS) {
@@ -1909,13 +1930,6 @@ SOURCE_mode             (int a_major, int a_minor)
           *>    rc = ONE__delete ();                                                             <* 
           *>    SUNDO__end (__FUNCTION__);                                                       <* 
           *> }                                                                                   <*/
-      }
-      /*---(cut/copy/paste)--------------*/
-      if (strchr ("yxXDpP", a_minor) != 0) {
-         DEBUG_USER   yLOG_note    ("switch to a text register mode");
-         s_ctreg = '"';
-         MODE_enter (SMOD_TEXTREG);
-         rc = TEXTREG_smode (' ', a_minor);
       }
       /*---(basic movement)--------------*/
       if (strchr (g_hsimple, a_minor) != 0) {
@@ -1952,7 +1966,7 @@ SOURCE_mode             (int a_major, int a_minor)
    /*---(multi-key)----------------------*/
    else {
       switch (a_major) {
-      case 'd' :
+      case 'd' : case 'x' :
          rc = SOURCE_delete     (a_major, a_minor);
          SOURCE__done ();
          break;
@@ -1989,13 +2003,92 @@ TEXTREG_infowin    (char *a_entry, int a_index)
    if (a_index <   0)  return 0;
    if (a_index >= 26)  return 0;
    a = 'a' + a_index;
-   n = TEXTREG__index (a);
+   n = TEXTREG_valid  (a);
    if (s_tregs [n].len > 0) {
       strlcpy    (t, s_tregs [n].data, LEN_RECD);
       strlencode (t, ySTR_MAX, LEN_RECD);
       sprintf (a_entry, " %c  %4d  %s "        , a, s_tregs [n].len, t);
+   } else {
+      sprintf (a_entry, " %c  ----                                                                      ", a);
    }
    /*---(complete)-----------------------*/
+   return 0;
+}
+
+char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/
+TEXTREG_writer          (void)
+{
+   /*---(locals)-----------+-----------+-*/
+   int         i           =    0;
+   char        c           =    0;
+   /*---(find marked entries)------------*/
+   for (i = 1; i < s_ntreg; ++i) {
+      if (s_tregs [i].len <= 0)  continue;
+      yVIKEYS_file_write (SMOD_TEXTREG, &(s_tregnames [i]), s_tregs [i].data, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+      ++c;
+   }
+   /*---(complete)-----------------------*/
+   return c;
+}
+
+char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/
+TEXTREG_writer_single   (char a_mark)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        i           =    0;
+   /*---(find marked entries)------------*/
+   strlcpy (myVIKEYS.f_recd, "", LEN_RECD);
+   i = TEXTREG_valid  (a_mark);
+   --rce;  if (i <= 0)  return rce;
+   if (s_tregs [i].len <= 0)  return 0;
+   yVIKEYS_file_write (SMOD_TEXTREG, &(s_tregnames [i]), s_tregs [i].data, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+   /*---(complete)-----------------------*/
+   return 1;
+}
+
+char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/
+TEXTREG_reader          (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i)
+{
+   /*---(locals)-----------+-----------+-*/
+   char        rce         =  -11;
+   char        rc          =    0;
+   int         x_index     =    0;
+   /*---(header)-------------------------*/
+   DEBUG_SRCH   yLOG_enter   (__FUNCTION__);
+   /*---(check version)------------------*/
+   DEBUG_SRCH   yLOG_char    ("version"   , n);
+   --rce;  if (n != 'A') {
+      DEBUG_SRCH   yLOG_note    ("illegal version");
+      DEBUG_SRCH   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(check mark)---------------------*/
+   DEBUG_SRCH   yLOG_value   ("mark"      , a[0]);
+   --rce;  if (strchr (s_tregnames, a[0]) == NULL) {
+      DEBUG_SRCH   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_SRCH   yLOG_char    ("mark"      , a[0]);
+   x_index = TEXTREG_valid  (a[0]);
+   --rce;  if (x_index <= 0)  return rce;
+   DEBUG_SRCH   yLOG_value   ("index"     , x_index);
+   /*---(search)-------------------------*/
+   DEBUG_SRCH   yLOG_point   ("contents"  , b);
+   --rce;  if (b == NULL) {
+      DEBUG_SRCH   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(save)---------------------------*/
+   DEBUG_SRCH   yLOG_note    ("saving values");
+   strlcpy (s_tregs [x_index].data, b, LEN_RECD);
+   s_tregs [x_index].len    = strllen (s_tregs [x_index].data, LEN_RECD);
+   s_tregs [x_index].bpos   = 0;
+   s_tregs [x_index].epos   = s_tregs [x_index].len - 1;
+   strlcpy (s_tregs [x_index].label, "-", LEN_LABEL);
+   s_tregs [x_index].source = TREG_FILE;
+   /*---(complete)-----------------------*/
+   DEBUG_SRCH  yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -2060,7 +2153,7 @@ TEXTREG_smode           (int a_major, int a_minor)
          return 0;
       case  '#' :
          DEBUG_USER   yLOG_note    ("wipe text register");
-         x_index = TEXTREG__index (s_ctreg);
+         x_index = TEXTREG_valid  (s_ctreg);
          if (x_index < 0)  return -1;
          strlcpy (s_tregs [x_index].label, "-", 10);
          s_tregs [x_index].bpos   =  0;
@@ -2211,6 +2304,11 @@ REPLACE_umode    (int a_major, int a_minor)
          rc = ONE__replace (x_saved);
       }
       SUNDO__end (__FUNCTION__);
+      /*> if (REPEAT_count () == 0) {                                                 <* 
+       *>    MODE_exit ();                                                            <* 
+       *> } else {                                                                    <* 
+       *>    ++s_cur->cpos;                                                           <* 
+       *> }                                                                           <*/
       MODE_exit ();
    }
    /*---(handle normal chars)------------*/
@@ -2290,8 +2388,8 @@ HISTORY_infowin         (void)
       switch (MODE_curr ()) {
       case UMOD_MARK      : strlcpy (x_entry, " -  --label--- --x-- --y-- --z--      -  --label--- --x-- --y-- --z--   ", LEN_RECD);  break;
       case UMOD_VISUAL    : strlcpy (x_entry, " - --x-- --y-- -z- --x-- --y-- -z-    - --x-- --y-- -z- --x-- --y-- -z- ", LEN_RECD);  break;
-      case SMOD_MACRO     : strlcpy (x_entry, " - len ---keys--------------------------------------------------------- ", LEN_RECD);  break;
-      case SMOD_TEXTREG   : strlcpy (x_entry, " -   len  ---contents-------------------------------------------------- ", LEN_RECD);  break;
+      case SMOD_MACRO     : strlcpy (x_entry, " - len ---macro-keys--------------------------------------------------- ", LEN_RECD);  break;
+      case SMOD_TEXTREG   : strlcpy (x_entry, " -   len  ---text-register-contents------------------------------------ ", LEN_RECD);  break;
       }
       mvprintw (x_bott - x_tall + 1, x_left, "%-*.*s", x_wide, x_wide, x_entry);
       attrset     (0);
@@ -2572,7 +2670,7 @@ SOURCE__unit            (char *a_question, char a_reg)
    char        t           [LEN_RECD];
    /*---(preprare)-----------------------*/
    strlcpy  (yVIKEYS__unit_answer, "SRC unit         : question not understood", LEN_STR);
-   x_index = TEXTREG__index (a_reg);
+   x_index = TEXTREG_valid  (a_reg);
    if (x_index < 0)  x_index = 0;
    /*---(questions)----------------------*/
    if      (strcmp (a_question, "position"       )   == 0) {
