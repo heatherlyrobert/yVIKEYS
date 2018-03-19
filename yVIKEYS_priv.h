@@ -33,8 +33,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.9k"
-#define YVIKEYS_VER_TXT   "non-selected delete and clear multi-keys are good and unit tested"
+#define YVIKEYS_VER_NUM   "0.9l"
+#define YVIKEYS_VER_TXT   "non-selected little-r repeat multi-key is good and unit tested"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/

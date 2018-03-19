@@ -339,7 +339,7 @@ yVIKEYS_main_input      (char a_runmode, uchar a_key)
       if (MACRO_count ()) {
          DEBUG_USER   yLOG_note    ("but, in macro repeat mode");
          MACRO_exec_beg ('@');
-         x_ch  = ' ';
+         x_ch  = G_KEY_SPACE;
       } else {
          x_ch  = a_key;
       }
@@ -403,7 +403,7 @@ yVIKEYS_main_handle     (uchar a_key)
    /*---(handle count)-------------------*/
    if (MODE_curr () == UMOD_REPEAT) {
       rc = REPEAT_umode (x_major, x_key);
-      if (rc >  0)  x_major = ' ';
+      if (rc >  0)  x_major = G_KEY_SPACE;
    }
    /*---(main loop)----------------------*/
    while (1) {
@@ -448,9 +448,9 @@ yVIKEYS_main_handle     (uchar a_key)
       /*---(done)------------------------*/
    }
    /*---(setup for next keystroke)-------*/
-   if      (rc == 0)    x_major = ' ';
+   if      (rc == 0)    x_major = G_KEY_SPACE;
    else if (rc >  0)    x_major = rc;
-   else               { x_major = ' ';  KEYS__error ();  myVIKEYS.trouble = 'y';  REPEAT_reset (); }
+   else               { x_major = G_KEY_SPACE;  KEYS__error ();  myVIKEYS.trouble = 'y';  REPEAT_reset (); }
    yVIKEYS_view_text (YVIKEYS_KEYS   , x_keys   );
    /*---(save current mode)--------------*/
    x_savemode = MODE_curr ();

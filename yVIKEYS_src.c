@@ -171,7 +171,7 @@ SUNDO_status            (char *a_list)
    sprintf (a_list, "%3dn, %3dc, ", s_nsundo, s_csundo);
    for (i = x_beg; i < x_end; ++i) {
       x_ch = s_sundos [i].major;
-      if (x_ch != ' ')  sprintf (t, "%d%c%c%d%c%c,", s_sundos [i].seq, x_ch, s_sundos [i].minor, s_sundos [i].cpos, chrvisible (s_sundos [i].before), s_sundos [i].after);
+      if (x_ch != G_KEY_SPACE)  sprintf (t, "%d%c%c%d%c%c,", s_sundos [i].seq, x_ch, s_sundos [i].minor, s_sundos [i].cpos, chrvisible (s_sundos [i].before), s_sundos [i].after);
       else              sprintf (t, "%d%c%d%c%c,"  , s_sundos [i].seq,       s_sundos [i].minor, s_sundos [i].cpos, chrvisible (s_sundos [i].before), s_sundos [i].after);
       strlcat (a_list, t, LEN_RECD);
    }
@@ -1303,7 +1303,7 @@ SOURCE__simple          (int a_major, int a_minor)
    DEBUG_EDIT  yLOG_enter   (__FUNCTION__);
    DEBUG_EDIT  yLOG_char    ("a_minor"   , a_minor);
    /*---(defense)------------------------*/
-   --rce;  if (a_major != ' ') {
+   --rce;  if (a_major != G_KEY_SPACE) {
       DEBUG_EDIT   yLOG_note    ("a_major was not empty");
       DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
       return rce;
@@ -1631,14 +1631,14 @@ TEXTREG__clear        (char a_major, char a_minor)
       if (s_cur->cpos <= 0)  return -1;
       --s_cur->cpos;
       SUNDO__add (a_major, a_minor, i, s_cur->contents [i], G_KEY_SPACE);
-      ONE__replace (' ');
+      ONE__replace (G_KEY_SPACE);
       return 0;
    }
    /*---(clear)--------------------------*/
    else {
       for (i = s_bsel; i <= s_esel; ++i) {
          SUNDO__add (a_major, 'x', i, s_cur->contents [i], G_KEY_SPACE);
-         ONE__replace (' ');
+         ONE__replace (G_KEY_SPACE);
       }
    }
    SUNDO__end (__FUNCTION__);
@@ -1832,7 +1832,7 @@ SOURCE_mode             (int a_major, int a_minor)
       return 0;
    }
    /*---(single letter)------------------*/
-   if (a_major == ' ') {
+   if (a_major == G_KEY_SPACE) {
       /*---(repeats)---------------------*/
       if (strchr (g_repeat, a_minor) != 0) {
          MODE_enter  (UMOD_REPEAT);
@@ -1843,7 +1843,7 @@ SOURCE_mode             (int a_major, int a_minor)
          DEBUG_USER   yLOG_note    ("switch to a text register mode");
          s_ctreg = '"';
          MODE_enter (SMOD_TEXTREG);
-         rc = TEXTREG_smode (' ', a_minor);
+         rc = TEXTREG_smode (G_KEY_SPACE, a_minor);
          return rc;
       }
       /*---(multikey prefixes)-----------*/
@@ -1883,7 +1883,18 @@ SOURCE_mode             (int a_major, int a_minor)
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          rc = a_minor;
          break;
-      case  'r' : case  'R' :
+      case  'r' :
+         DEBUG_USER   yLOG_note    ("enter replace mode");
+         MODE_enter (UMOD_REPLACE);
+         if (REPEAT_count () == 0) {
+            REPLACE_umode ('m', a_minor);
+            rc = 0;
+         } else {
+            rc = a_minor;
+         }
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         break;
+      case  'R' :
          DEBUG_USER   yLOG_note    ("enter replace mode");
          MODE_enter (UMOD_REPLACE);
          REPLACE_umode ('m', a_minor);
@@ -2143,7 +2154,7 @@ TEXTREG_smode           (int a_major, int a_minor)
       return rce;
    }
    /*---(select register action)---------*/
-   --rce;  if (a_major == ' ') {
+   --rce;  if (a_major == G_KEY_SPACE) {
       switch (a_minor) {
       case  '!' :
          s_wtreg = s_ctreg;
@@ -2190,7 +2201,7 @@ TEXTREG_smode           (int a_major, int a_minor)
          break;
       case  's' :
          DEBUG_USER   yLOG_note    ("substitute selection text");
-         TEXTREG__delete   (' ', 'd');
+         TEXTREG__delete   (G_KEY_SPACE, 'd');
          SUNDO__chain_next ();
          TEXTREG__paste    ('i');
          MODE_exit   ();
@@ -2270,7 +2281,7 @@ REPLACE_umode    (int a_major, int a_minor)
       return 0;
    }
    /*---(escaped chars)------------------*/
-   if (a_minor == '\\' && x_prev != '\\') {
+   if (a_major != 'r' && a_minor == '\\' && x_prev != '\\') {
       DEBUG_USER   yLOG_note    ("found a leading backslash");
       x_prev = '\\';
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
@@ -2286,10 +2297,28 @@ REPLACE_umode    (int a_major, int a_minor)
       DEBUG_USER   yLOG_value   ("mode"     , MODE_curr ());
       if (a_minor == G_KEY_RETURN && strchr (MODES_ONELINE, MODE_curr ()) != NULL) {
          DEBUG_USER   yLOG_note    ("fast path back to map mode");
-         SOURCE_mode (' ', a_minor);
+         SOURCE_mode (G_KEY_SPACE, a_minor);
       }
    }
-   /*---(handle normal chars)------------*/
+   /*---(handle repeat r)----------------*/
+   else if (a_major == 'r') {
+      DEBUG_USER   yLOG_note    ("replace repeatedly");
+      x_mode  = '-';
+      if (a_minor >= 32 && a_minor < 127 && a_minor != '\\') {
+         SUNDO__beg (__FUNCTION__);
+         SUNDO__single ('r', s_cur->contents [s_cur->cpos], a_minor);
+         rc = ONE__replace (a_minor);
+         SUNDO__end (__FUNCTION__);
+         ++s_cur->cpos;
+         if (REPEAT_count () == 0)  MODE_exit ();
+      } else {
+         rc = -1;
+         MODE_exit ();
+      }
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return rc;
+   }
+   /*---(handle little r)----------------*/
    else if (x_mode == 'r') {
       DEBUG_USER   yLOG_note    ("replace the marked character");
       x_mode  = '-';
@@ -2310,8 +2339,9 @@ REPLACE_umode    (int a_major, int a_minor)
        *>    ++s_cur->cpos;                                                           <* 
        *> }                                                                           <*/
       MODE_exit ();
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
    }
-   /*---(handle normal chars)------------*/
+   /*---(handle big R)-------------------*/
    else {
       /*---(check for backspace)------------*/
       if (a_minor == G_KEY_DEL || a_minor == G_KEY_BS) {
@@ -2486,7 +2516,7 @@ HISTORY_choose          (char* a_contents)
    s_cur->cpos = 0;
    for (i = 0; i < x_len; ++i) {
       ONE__append (a_contents [i]);
-      SUNDO__add (' ', 'a', s_cur->cpos, G_KEY_SPACE, s_cur->contents [s_cur->cpos]);
+      SUNDO__add (G_KEY_SPACE, 'a', s_cur->cpos, G_KEY_SPACE, s_cur->contents [s_cur->cpos]);
    }
    SUNDO__end (__FUNCTION__);
    /*---(complete)-----------------------*/
@@ -2606,7 +2636,7 @@ INPUT_umode             (int  a_major, int  a_minor)
       DEBUG_USER   yLOG_value   ("mode"     , MODE_curr ());
       if (a_minor == G_KEY_RETURN && strchr (MODES_ONELINE, MODE_curr ()) != NULL) {
          DEBUG_USER   yLOG_note    ("fast path back to map mode");
-         rc = SOURCE_mode (' ', a_minor);
+         rc = SOURCE_mode (G_KEY_SPACE, a_minor);
       }
    }
    /*---(check for backspace)------------*/
