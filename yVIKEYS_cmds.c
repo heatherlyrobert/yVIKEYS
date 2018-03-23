@@ -520,6 +520,7 @@ HISTORY__load           (char a_mode, char *a_text)
       return -1;
    }
    strlcpy (s_current, a_text, LEN_COMMAND);
+   strldchg (s_current, G_KEY_SPACE, G_CHAR_SPACE, LEN_RECD);
    s_len  = strllen (s_current, LEN_COMMAND);
    return 0;
 }
@@ -536,6 +537,7 @@ HISTORY__exec           (char a_mode)
    int         x_max       =    0;
    char        x_clear     [LEN_LABEL];
    char        x_repeat    [LEN_LABEL];
+   char        t           [LEN_RECD];
    /*---(header)-------------------------*/
    DEBUG_HIST   yLOG_enter   (__FUNCTION__);
    DEBUG_HIST   yLOG_char    ("a_mode"    , a_mode);
@@ -634,7 +636,9 @@ HISTORY__exec           (char a_mode)
       break;
    case MODE_SEARCH  : 
       DEBUG_HIST   yLOG_note    ("execute as search");
-      rc = s_searcher (s_current);
+      strlcpy (t, s_current, LEN_RECD);
+      strldchg (t, G_CHAR_SPACE, G_KEY_SPACE, LEN_RECD);
+      rc = s_searcher (t);
       break;
    }
    /*---(complete)-----------------------*/
@@ -988,6 +992,7 @@ CMDS_reader           (char n, char *a, char *b, char *c, char *d, char *e, char
    }
    /*---(save)---------------------------*/
    DEBUG_SRCH   yLOG_note    ("saving values");
+   strldchg (d, G_KEY_SPACE, G_CHAR_SPACE, LEN_RECD);
    strlcpy (s_runs [s_nrun].text, d, LEN_RECD);
    s_runs [s_nrun].mark  = a[0];
    s_runs [s_nrun].count = atoi (b);
@@ -1030,6 +1035,7 @@ SRCH_reader           (char n, char *a, char *b, char *c, char *d, char *e, char
    }
    /*---(save)---------------------------*/
    DEBUG_SRCH   yLOG_note    ("saving values");
+   strldchg (d, G_KEY_SPACE, G_CHAR_SPACE, LEN_RECD);
    strlcpy (s_passes [s_npass].text, d, LEN_RECD);
    s_passes [s_npass].mark  = a[0];
    s_passes [s_npass].count = atoi (b);

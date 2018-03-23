@@ -1132,13 +1132,20 @@ MAP_locator             (char *a_label, int *a_x, int *a_y, int *a_z)
 char 
 MAP_addresser           (char *a_label, int  a_x, int  a_y, int  a_z)
 {
+   char        rce         =  -10;
+   char        rc          =    0;
    DEBUG_MAP   yLOG_enter   (__FUNCTION__);
    DEBUG_MAP   yLOG_point   ("addressor" , s_addresser);
-   if (s_addresser == NULL)  strlcpy (a_label, "-", LEN_LABEL);
-   else                      s_addresser (a_label, a_x, a_y, a_z);
+   --rce;  if (s_addresser == NULL)  {
+      strlcpy (a_label, "-", LEN_LABEL);
+      DEBUG_MAP   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   rc = s_addresser (a_label, a_x, a_y, a_z);
+   DEBUG_MAP   yLOG_value   ("rc"        , rc);
    DEBUG_MAP   yLOG_info    ("a_label"   , a_label);
    DEBUG_MAP   yLOG_exit    (__FUNCTION__);
-   return 0;
+   return rc;
 }
 
 char
@@ -1821,20 +1828,20 @@ MAP_mode                (char a_major, char a_minor)
       if (a_minor == ':') {
          x_grid = REPEAT_use ();
          if (x_grid > 0) {
-            MAP__move   (x_grid, &g_ymap);
+            rc = MAP__move   (x_grid, &g_ymap);
             MAP__screen (&g_ymap);
             MAP_reposition  ();
             DEBUG_USER   yLOG_exit    (__FUNCTION__);
-            return 0;;
+            return rc;;
          }
          /* non-repeat fall thru  */
       }
       if (a_minor == '|') {
-         MAP__move   (REPEAT_use (), &g_xmap);
+         rc = MAP__move   (REPEAT_use (), &g_xmap);
          MAP__screen (&g_xmap);
          MAP_reposition  ();
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
-         return 0;
+         return rc;
       }
       /*---(mode changes)----------------*/
       if (strchr (s_map_modes, a_minor) != 0) {
@@ -1846,21 +1853,23 @@ MAP_mode                (char a_major, char a_minor)
       if (strchr (g_hsimple, a_minor) != 0) {
          rc = MAP__horz   (a_major, a_minor);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
-         return 0;
+         return rc;
       }
       if (strchr (g_vsimple, a_minor) != 0) {
          rc = MAP__vert   (a_major, a_minor);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
-         return 0;
+         return rc;
       }
       if (strchr (g_search, a_minor) != 0) {
          rc = SRCH_next   (a_minor);
-         MAP__screen (&g_xmap);
-         MAP__screen (&g_ymap);
-         MAP__screen (&g_zmap);
-         MAP_reposition  ();
+         if (rc >= 0) {
+            MAP__screen (&g_xmap);
+            MAP__screen (&g_ymap);
+            MAP__screen (&g_zmap);
+            MAP_reposition  ();
+         }
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
-         return 0;
+         return rc;
       }
    }
    /*---(goto family)--------------------*/
@@ -1868,12 +1877,12 @@ MAP_mode                (char a_major, char a_minor)
       if (strchr (g_hgoto, a_minor) != 0) {
          rc = MAP__horz   (a_major, a_minor);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
-         return 0;
+         return rc;
       }
       if (strchr (g_vgoto, a_minor) != 0) {
          rc = MAP__vert   (a_major, a_minor);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
-         return 0;
+         return rc;
       }
    }
    /*---(scroll family)------------------*/
@@ -2085,7 +2094,10 @@ MAP__unit_zmap          (void)
 char
 MAP__unit_mapper        (char a_type)
 {
-   yVIKEYS_source (MAP__unit_addressor (g_xmap.gcur, g_ymap.gcur, g_zmap.gcur), "testing");
+   char        rc          = 0;
+   char        t           [LEN_LABEL]  = "";
+   rc = MAP__unit_addressor (t, g_xmap.gcur, g_ymap.gcur, g_zmap.gcur);
+   yVIKEYS_source (t, "testing");
    return 0;
 }
 
@@ -2122,8 +2134,8 @@ MAP__unit_locator       (char *a_label, int *a_x, int *a_y, int *a_z)
    return 0;
 }
 
-char*
-MAP__unit_addressor     (int x, int y, int z)
+char 
+MAP__unit_addressor     (char *a_label, int x, int y, int z)
 {
    int         i           =    0;
    int         n           =   -1;
@@ -2135,8 +2147,22 @@ MAP__unit_addressor     (int x, int y, int z)
       n = i;
       break;
    }
-   if (n < 0)  return "-";
-   return MAP__unit_deref [n].label;
+   if (n < 0) {
+      strlcpy (a_label, "-", LEN_LABEL);
+      return -1;
+   }
+   strlcpy (a_label, MAP__unit_deref [n].label, LEN_LABEL);
+   return 0;
+}
+
+char
+MAP__unit_quick         (void)
+{
+   MAP__load ('1', &g_xmap, YVIKEYS_XMAP);
+   MAP__load ('1', &g_ymap, YVIKEYS_YMAP);
+   MAP__load ('1', &g_zmap, YVIKEYS_ZMAP);
+   yVIKEYS_map_config (YVIKEYS_OFFICE, MAP__unit_mapper, MAP__unit_locator, MAP__unit_addressor);
+   return 0;
 }
 
 char*        /*-> tbd --------------------------------[ leaf   [gs.520.202.40]*/ /*-[01.0000.00#.#]-*/ /*-[--.---.---.--]-*/

@@ -136,7 +136,7 @@ of some of this useful things.
    ·          delayed backslash   (\\\\)
    ¸          delayed dquote      (\\")
    ¤          placeholder         (\\p)
-   ½          big dot (any other control, 0 - 31)
+   ½          big dot             (\\#)
 
 .B macro/script control characters
    ©          pause/wait 1 sec    (\\,)
@@ -1327,11 +1327,20 @@ all text entry uses this input micro-mode, it is universal.
 .B add backslash, greek characters
    type \\ first, the one of the latin characters below
    è é ê ë   ì í î ï   ð ñ ò ó   ô õ ö ÷   ø ù ú û   ü ý þ ÿ 
-   A B G D   E Z H Y   I K L M   N X O P   R S T U   H C Q W
+   A B G D   E Z H Y   I K L M   N X O P   R S T U   F C Q W
+
+.B insert specification
+   -- moves current char (and rest) one to the left, adding to the length
+   -- current chacrcter made into a ¤
+   -- each new character current location and ¤ shifted right
+   -- ¦ and ¥ both remove ¤ and collapse its location
+   -- ¦ saves all changes, executes if needed, and returns to map mode
+   -- ¥ saves all changes, returns to source mode, current is last char added
+
 
 .SH REPLACE micro-mode
 .SS ---basics---------------------------------------------------------
- r¢      replace current character from source mode
+ r½      replace the current character in source mode
 .SS ---overview-------------------------------------------------------
 .B purpose.  
 to speed text editing, replace provides a very rapid type-over of existing
@@ -1364,9 +1373,10 @@ all text includes uses this replace micro-mode, it is universal.
    Ä          move one character right (leave character)
    \\          allows entry of special characters (same as input)
 
-
-
-
+.B single replace
+   r½
+   Ær½
+   R½½½¥
 
 .SH ENDS and EDGES
 .B situation (S).  

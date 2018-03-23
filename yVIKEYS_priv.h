@@ -18,6 +18,7 @@
 #include    <string.h>            /* clibc  standard string handling          */
 #include    <sys/stat.h>          /* clibc  standard file handling            */
 #include    <unistd.h>            /* clibc  linux/unix standard environment   */
+#include    <time.h>              /* clibc  time related functions            */
 
 /*---(posix standard)--------------------*/
 #include    <GL/gl.h>             /* opengl standard primary header           */
@@ -33,8 +34,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.9l"
-#define YVIKEYS_VER_TXT   "non-selected little-r repeat multi-key is good and unit tested"
+#define YVIKEYS_VER_NUM   "0.9m"
+#define YVIKEYS_VER_TXT   "changed internal space to ¹ and fixed ALL unit tests to match"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -187,6 +188,7 @@ uchar       BASE__main_string       (uchar *a_keys);
 
 /*---(status system)--------*/
 char        STATUS_init             (void);
+char        STATUS_wrap             (void);
 char        STATUS_check_prep       (char a_abbr);
 char        STATUS_check_needs      (char a_abbr);
 char        STATUS_init_set         (char a_abbr);
@@ -233,9 +235,10 @@ char        MAP__unit_ymap          (void);
 char        MAP__unit_xmap          (void);
 char        MAP_current             (int *a_x, int *a_y, int *a_z);
 
+char        MAP__unit_quick         (void);
 char        MAP__unit_mapper        (char a_type);
 char        MAP__unit_locator       (char *a_label, int *x, int *y, int *z);
-char*       MAP__unit_addressor     (int x, int y, int z);
+char        MAP__unit_addressor     (char *a_label, int x, int y, int z);
 
 char        VISU_valid              (char a_visu);
 char        VISU_status             (char *a_list);
@@ -246,14 +249,11 @@ char*       VISU__unit              (char *a_question, char a_index);
 char        VISU_reader             (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i);
 
 
-char        FILE_open               (char *a_dir);
-char        FILE_close              (void);
 char        FILE_status             (char *a_list);
 int         OUTP_write              (void);
-int         OUTP_write_type         (char a_abbr);
 char        OUTP__unit_writer       (char a_abbr, char a_item);
-char        INPT__unit_reader       (char a_abbr);
 char        INPT_edit               (void);
+char        INPT__unit_reader       (char a_abbr);
 
 
 char        SUNDO_status            (char *a_list);

@@ -72,7 +72,8 @@ yVIKEYS_init         (void)
 char
 yVIKEYS_wrap         (void)
 {
-   VIEW_wrap ();
+   VIEW_wrap   ();
+   STATUS_wrap ();
    return 0;
 }
 
@@ -169,12 +170,19 @@ KEYS_status        (char *a_msg)
 char         /*-> tbd --------------------------------[ ------ [gz.420.121.11]*/ /*-[01.0000.102.!]-*/ /*-[--.---.---.--]-*/
 KEYS__multi             (int a_pos)
 {
+   char        x_mode      =  ' ';
    /*---(defense)------------------------*/
    if (a_pos < 0 || a_pos >  s_nkey)                             return 0;
-   if (s_keys_log [a_pos] == G_KEY_SPACE)                        return 0;
    if (s_keys_log [a_pos] == G_KEY_NULL )                        return 0;
+   if (s_keys_log [a_pos] == G_KEY_SPACE)                        return 0;
+   if (s_keys_log [a_pos] == G_CHAR_SPACE)                       return 0;
    /*---(key for mode)-------------------*/
-   switch (s_keys_mode [a_pos]) {
+   x_mode = s_keys_mode [a_pos];
+   if (a_pos > 0 && x_mode == UMOD_REPEAT)  x_mode = s_keys_mode [a_pos - 1];
+   if (a_pos > 1 && x_mode == UMOD_REPEAT)  x_mode = s_keys_mode [a_pos - 2];
+   if (a_pos > 2 && x_mode == UMOD_REPEAT)  x_mode = s_keys_mode [a_pos - 3];
+   if (a_pos > 3 && x_mode == UMOD_REPEAT)  x_mode = s_keys_mode [a_pos - 4];
+   switch (x_mode) {
    case MODE_SOURCE  : case MODE_COMMAND : case MODE_SEARCH  :
       if (strchr (g_multisrc, s_keys_log [a_pos]) != NULL)       return 1;
       break;

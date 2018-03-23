@@ -71,9 +71,10 @@
 #define     UMOD_WANDER    'w'    /* formula creation by pointing             */
 #define     UMOD_HISTORY   'h'    /* hint labels                              */
 #define     SMOD_FILTER    '!'    /* data filtering                           */
-
-
-
+/*---(pseudo)----------------------------*/
+#define     FILE_COLS      'X'    /* x-axis (cols)                            */
+#define     FILE_ROWS      'Y'    /* y-axis (rows)                            */
+#define     FILE_TABS      'Z'    /* z-axis (tabs)                            */
 #define     FILE_DEPCEL    'd'
 #define     FILE_FREECEL   'f'
 
@@ -280,9 +281,8 @@ char        yVIKEYS_srch_found      (char *a_label, int x, int y, int z);
 char        yVIKEYS_srch_direct     (char *a_search);
 
 /*---(files)----------------*/
-char        yVIKEYS_file_config     (char *a_prog, char *a_ext, char *a_vernum, char *a_vertxt);
+char        yVIKEYS_file_config     (char *a_prog, char *a_ext, char *a_vernum, char *a_vertxt, char *a_full, char *a_desc);
 char        yVIKEYS_file_add        (char  a_abbr, void *a_writer, void *a_reader);
-/*> char        yVIKEYS_file_write      (char  a_abbr, void *a_field [9]);            <*/
 char        yVIKEYS_file_write      (char a_abbr, void *a, void *b, void *c, void *d, void *e, void *f, void *g, void *h, void *i);
 
 

@@ -532,6 +532,23 @@ STATUS_conf_set         (char a_abbr, char a_step)
 /*====================------------------------------------====================*/
 static void  o___STATUS_PROG_____o () { return; }
 
+char
+STATUS__purge           (void)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   int         i           =    0;
+   /*---(header)-------------------------*/
+   DEBUG_PROG   yLOG_senter  (__FUNCTION__);
+   /*---(count status)-------------------*/
+   for (i = 0; i < s_nmode; ++i) {
+      DEBUG_PROG   yLOG_schar   (s_modes [i].abbr);
+      strlcpy (s_modes [i].actual, "----- - - ----- - ----- - ---------- - -", LEN_DESC);
+      s_modes [i].count = 0;
+   }
+   /*---(complete)-----------------------*/
+   DEBUG_PROG   yLOG_sexit   (__FUNCTION__);
+   return 0;
+}
 
 char
 STATUS_init             (void)
@@ -549,8 +566,21 @@ STATUS_init             (void)
    }
    DEBUG_PROG   yLOG_value   ("s_nmode" , s_nmode);
    /*---(update)-------------------------*/
+   STATUS__purge ();
    STATUS__prep_checkall ();
    STATUS_init_set       (FMOD_STATUS);
+   /*---(complete)-----------------------*/
+   DEBUG_PROG   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char
+STATUS_wrap             (void)
+{
+   /*---(header)-------------------------*/
+   DEBUG_PROG   yLOG_enter   (__FUNCTION__);
+   /*---(purge)--------------------------*/
+   STATUS__purge ();
    /*---(complete)-----------------------*/
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;

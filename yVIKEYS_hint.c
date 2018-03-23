@@ -705,6 +705,13 @@ MARK_reader           (char n, char *a, char *b, char *c, char *d, char *e, char
       return rce;
    }
    DEBUG_MARK   yLOG_char    ("mark"      , a[0]);
+   /*---(address)------------------------*/
+   rc = MAP_addresser (s_mark_info [x_index].label, atoi (b), atoi (c), atoi (d));
+   --rce;  if (rc < 0) {
+      DEBUG_MARK   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_MARK   yLOG_info    ("label"     , s_mark_info [x_index].label);
    /*---(save)---------------------------*/
    DEBUG_MARK   yLOG_note    ("assign values to mark");
    s_mark_info [x_index].x_pos = atoi (b);
@@ -713,45 +720,6 @@ MARK_reader           (char n, char *a, char *b, char *c, char *d, char *e, char
    DEBUG_MARK   yLOG_value   ("y_pos"     , s_mark_info [x_index].y_pos);
    s_mark_info [x_index].z_pos = atoi (d);
    DEBUG_MARK   yLOG_value   ("z_pos"     , s_mark_info [x_index].z_pos);
-   s_mark_info [x_index].source = MARK_IMPORT;
-   /*---(address)------------------------*/
-   MAP_addresser (s_mark_info [x_index].label, s_mark_info [x_index].x_pos, s_mark_info [x_index].y_pos, s_mark_info [x_index].z_pos);
-   DEBUG_MARK   yLOG_info    ("label"     , s_mark_info [x_index].label);
-   /*---(update range)-------------------*/
-   DEBUG_MARK   yLOG_note    ("update the range");
-   MARK__range ();
-   /*---(complete)-----------------------*/
-   DEBUG_MARK  yLOG_exit    (__FUNCTION__);
-   return 0;
-}
-
-char         /*-> tbd --------------------------------[ ------ [ge.A53.264.33]*/ /*-[01.0000.113.K]-*/ /*-[--.---.---.--]-*/
-MARK_read          (char a_mark, char *a_label)
-{
-   /*---(locals)-----------+-----------+-*/
-   char        rce         = -11;
-   char        rc          = 0;
-   int         x_index     = 0;
-   /*---(header)-------------------------*/
-   DEBUG_MARK   yLOG_enter   (__FUNCTION__);
-   DEBUG_MARK   yLOG_value   ("a_mark"    , a_mark);
-   /*---(check mark)---------------------*/
-   x_index = MARK_valid (a_mark);
-   DEBUG_MARK   yLOG_value   ("x_index"   , x_index);
-   --rce;  if (x_index < 0) {
-      DEBUG_MARK   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   DEBUG_MARK   yLOG_char    ("a_mark"    , a_mark);
-   /*---(check label)--------------------*/
-   rc = MARK__check (a_label);
-   --rce;  if (rc < 0) {
-      DEBUG_MARK   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   /*---(save)---------------------------*/
-   DEBUG_MARK   yLOG_note    ("assign values to mark");
-   strlcpy (s_mark_info [x_index].label, a_label, LEN_LABEL);
    s_mark_info [x_index].source = MARK_IMPORT;
    /*---(update range)-------------------*/
    DEBUG_MARK   yLOG_note    ("update the range");
