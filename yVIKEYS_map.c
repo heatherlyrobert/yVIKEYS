@@ -691,35 +691,31 @@ yVIKEYS_next        (int *a_x, int *a_y, int *a_z)
 static void  o___FILE____________o () { return; }
 
 char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/
-VISU_writer           (void)
+VISU_writer            (char a_abbr)
 {
-   /*---(locals)-----------+-----------+-*/
-   char        i           =    0;
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        x_beg       =    0;
+   char        x_end       =    0;
+   int         i           =    0;
    char        c           =    0;
+   /*---(prepare)----------------s-------*/
+   yVIKEYS_unit_reset ();
+   if (a_abbr == 0) {
+      x_beg = 1;
+      x_end = s_nvisu - 1;
+   } else {
+      x_beg = x_end = VISU_valid (a_abbr);
+      if (x_beg <= 0)  return rce;
+   }
    /*---(find marked entries)------------*/
-   for (i = 1; i < s_nvisu; ++i) {
-      strlcpy (myVIKEYS.f_recd, "", LEN_RECD);
+   for (i = x_beg; i <= x_end; ++i) {
       if (s_visu_info [i].active != VISU_YES)  continue;
       yVIKEYS_file_write (UMOD_VISUAL, &(S_VISU_LIST [i]), &s_visu_info [i].x_beg, &s_visu_info [i].y_beg, &s_visu_info [i].z_beg, &s_visu_info [i].x_end, &s_visu_info [i].y_end, &s_visu_info [i].z_end, NULL, NULL);
       ++c;
    }
    /*---(complete)-----------------------*/
    return c;
-}
-
-char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/
-VISU_writer_single    (char a_mark)
-{
-   /*---(locals)-----------+-----------+-*/
-   char        i           =    0;
-   /*---(find marked entries)------------*/
-   strlcpy (myVIKEYS.f_recd, "", LEN_RECD);
-   i = VISU_valid (a_mark);
-   if (i <= 0)  return -1;
-   if (s_visu_info [i].active != VISU_YES)  return 0;
-   yVIKEYS_file_write (UMOD_VISUAL, &(S_VISU_LIST [i]), &s_visu_info [i].x_beg, &s_visu_info [i].y_beg, &s_visu_info [i].z_beg, &s_visu_info [i].x_end, &s_visu_info [i].y_end, &s_visu_info [i].z_end, NULL, NULL);
-   /*---(complete)-----------------------*/
-   return 1;
 }
 
 char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/

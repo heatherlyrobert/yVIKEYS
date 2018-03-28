@@ -56,7 +56,8 @@ yVIKEYS_init         (void)
    SOURCE_init  ();
    MACRO_init   ();
    /*----(latest)------------------------*/
-   TEXTREG_init ();
+   REGS_init    ();
+   SRC_REG_init ();
    MARK_init    ();
    VISU_init    ();
    REPEAT_init  ();
@@ -74,6 +75,7 @@ yVIKEYS_wrap         (void)
 {
    VIEW_wrap   ();
    STATUS_wrap ();
+   REGS_wrap   ();
    return 0;
 }
 
@@ -420,15 +422,15 @@ yVIKEYS_main_handle     (uchar a_key)
       case MODE_GOD      : rc = BASE__________stub    (x_major , x_key);  break;
       case MODE_MAP      : rc = MAP_mode              (x_major , x_key);  break;
       case MODE_SOURCE   : rc = SOURCE_mode           (x_major , x_key);  break;
-      case UMOD_INPUT    : rc = INPUT_umode           (x_major , x_key);  break;
+      case UMOD_SRC_INPT : rc = SRC_INPT_umode           (x_major , x_key);  break;
       case UMOD_HISTORY  : rc = HISTORY_smode         (x_major , x_key);  break;
       case MODE_COMMAND  : rc = SOURCE_mode           (x_major , x_key);  break;
       case MODE_SEARCH   : rc = SOURCE_mode           (x_major , x_key);  break;
       case UMOD_VISUAL   : rc = VISU_smode            (x_major , x_key);  break;
       case SMOD_ERROR    : rc = BASE__________stub    (x_major , x_key);  break;
-      case SMOD_SUNDO    : rc = BASE__________stub    (x_major , x_key);  break;
-      case SMOD_TEXTREG  : rc = TEXTREG_smode         (x_major , x_key);  break;
-      case UMOD_REPLACE  : rc = REPLACE_umode         (x_major , x_key);  break;
+      case SMOD_SRC_UNDO : rc = BASE__________stub    (x_major , x_key);  break;
+      case SMOD_SRC_REG  : rc = SRC_REG_smode         (x_major , x_key);  break;
+      case UMOD_SRC_REPL : rc = SRC_REPL_umode        (x_major , x_key);  break;
       case XMOD_FORMAT   : rc = FORMAT_smode          (x_major , x_key);  break;
       case SMOD_BUFFER   : rc = BASE__________stub    (x_major , x_key);  break;
       case UMOD_WANDER   : rc = BASE__________stub    (x_major , x_key);  break;

@@ -897,13 +897,26 @@ SRCH_next               (char a_move)
 }
 
 char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/
-CMDS_writer           (void)
+CMDS_writer            (char a_abbr)
 {
-   /*---(locals)-----------+-----------+-*/
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        x_beg       =    0;
+   char        x_end       =    0;
    int         i           =    0;
    char        c           =    0;
+   /*---(prepare)----------------s-------*/
+   yVIKEYS_unit_reset ();
+   if (a_abbr == 0) {
+      x_beg = 0;
+      x_end = s_nrun - 1;
+   } else {
+      x_beg = x_end = CMDS_valid (a_abbr);
+      if (x_beg < -1)  return rce;
+      if (x_beg <  0)  return 0;
+   }
    /*---(find marked entries)------------*/
-   for (i = 0; i < s_nrun; ++i) {
+   for (i = x_beg; i <= x_end; ++i) {
       if (s_runs [i].mark == '-')  continue;
       yVIKEYS_file_write (MODE_COMMAND, &s_runs [i].mark, &s_runs [i].count, &s_runs [i].found, s_runs [i].text, NULL, NULL, NULL, NULL, NULL);
       ++c;
@@ -912,52 +925,34 @@ CMDS_writer           (void)
    return c;
 }
 
-char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/
-CMDS_writer_single    (char a_mark)
-{
-   /*---(locals)-----------+-----------+-*/
-   char        rce         =  -10;
-   int         i           =    0;
-   /*---(find marked entries)------------*/
-   strlcpy (myVIKEYS.f_recd, "", LEN_RECD);
-   i = CMDS_valid (a_mark);
-   --rce;  if (i < -1)  return rce;
-   if (i <  0)  return 0;
-   yVIKEYS_file_write (MODE_COMMAND, &s_runs [i].mark, &s_runs [i].count, &s_runs [i].found, s_runs [i].text, NULL, NULL, NULL, NULL, NULL);
-   /*---(complete)-----------------------*/
-   return 1;
-}
 
 char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/
-SRCH_writer           (void)
+SRCH_writer            (char a_abbr)
 {
-   /*---(locals)-----------+-----------+-*/
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        x_beg       =    0;
+   char        x_end       =    0;
    int         i           =    0;
    char        c           =    0;
+   /*---(prepare)----------------s-------*/
+   yVIKEYS_unit_reset ();
+   if (a_abbr == 0) {
+      x_beg = 0;
+      x_end = s_npass - 1;
+   } else {
+      x_beg = x_end = SRCH_valid (a_abbr);
+      if (x_beg < -1)  return rce;
+      if (x_beg <  0)  return 0;
+   }
    /*---(find marked entries)------------*/
-   for (i = 0; i < s_npass; ++i) {
+   for (i = x_beg; i <= x_end; ++i) {
       if (s_passes [i].mark == '-')  continue;
       yVIKEYS_file_write (MODE_SEARCH, &s_passes [i].mark, &s_passes [i].count, &s_passes [i].found, s_passes [i].text, NULL, NULL, NULL, NULL, NULL);
       ++c;
    }
    /*---(complete)-----------------------*/
    return c;
-}
-
-char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/
-SRCH_writer_single    (char a_mark)
-{
-   /*---(locals)-----------+-----------+-*/
-   char        rce         =  -10;
-   int         i           =    0;
-   /*---(find marked entries)------------*/
-   strlcpy (myVIKEYS.f_recd, "", LEN_RECD);
-   i = SRCH_valid (a_mark);
-   --rce;  if (i < -1)  return rce;
-   if (i <  0)  return 0;
-   yVIKEYS_file_write (MODE_SEARCH, &s_passes [i].mark, &s_passes [i].count, &s_passes [i].found, s_passes [i].text, NULL, NULL, NULL, NULL, NULL);
-   /*---(complete)-----------------------*/
-   return 1;
 }
 
 char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/

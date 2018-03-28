@@ -39,8 +39,8 @@ static int   s_esel    = 0;
 
 
 #define     MAX_TREG     100
-typedef struct  cTEXTREG  tTEXTREG;
-struct cTEXTREG {
+typedef struct  cSRC_REG  tSRC_REG;
+struct cSRC_REG {
    char        label       [10];            /* original cell                  */
    int         bpos;                        /* original starting point        */
    int         epos;                        /* original ending point          */
@@ -48,7 +48,7 @@ struct cTEXTREG {
    char        data        [LEN_RECD];       /* text                           */
    char        source;                      /* user, file, import             */
 };
-static      tTEXTREG    s_tregs  [MAX_TREG];
+static      tSRC_REG    s_tregs  [MAX_TREG];
 static      int         s_ntreg  = 32;
 static char             s_ctreg  = '"';
 static char             s_wtreg  = '"';
@@ -65,9 +65,9 @@ static char    (*s_saver) (char *a_contents);
 
 
 
-#define     MAX_SUNDO      1000
-typedef struct cSUNDO  tSUNDO;
-struct cSUNDO {
+#define     MAX_SRC_UNDO      1000
+typedef struct cSRC_UNDO  tSRC_UNDO;
+struct cSRC_UNDO {
    int         seq;
    char        major;
    char        minor;
@@ -75,7 +75,7 @@ struct cSUNDO {
    uchar       before;
    uchar       after;
 };
-static tSUNDO s_sundos  [MAX_SUNDO];
+static tSRC_UNDO s_sundos  [MAX_SRC_UNDO];
 
 static int    s_nsundo    =  0;
 static int    s_csundo    = -1;
@@ -148,7 +148,7 @@ ONE__append             (char a_key)
 static void  o___UNDO_REDO_______o () { return; }
 
 char
-SUNDO_status            (char *a_list)
+SRC_UNDO_status            (char *a_list)
 {
    char        rce         =  -10;
    int         i           =    0;
@@ -180,10 +180,10 @@ SUNDO_status            (char *a_list)
 }
 
 char
-SUNDO__purge            (int a_start)
+SRC_UNDO__purge            (int a_start)
 {
    int         i           =    0;
-   for (i = a_start; i < MAX_SUNDO; ++i) {
+   for (i = a_start; i < MAX_SRC_UNDO; ++i) {
       s_sundos [i].seq    = -1;
       s_sundos [i].major  = '-';
       s_sundos [i].minor  = '-';
@@ -200,14 +200,14 @@ SUNDO__purge            (int a_start)
 }
 
 char
-SUNDO__chain_next       (void)
+SRC_UNDO__chain_next       (void)
 {
    --s_nseq;
    return 0;
 }
 
 char
-SUNDO__beg              (char *a_function)
+SRC_UNDO__beg              (char *a_function)
 {
    DEBUG_EDIT   yLOG_senter  (__FUNCTION__);
    DEBUG_EDIT   yLOG_schar   (myVIKEYS.repeating);
@@ -224,7 +224,7 @@ SUNDO__beg              (char *a_function)
 }
 
 char
-SUNDO__end              (char *a_function)
+SRC_UNDO__end              (char *a_function)
 {
    DEBUG_EDIT   yLOG_senter  (__FUNCTION__);
    DEBUG_EDIT   yLOG_sexit   (__FUNCTION__);
@@ -232,7 +232,7 @@ SUNDO__end              (char *a_function)
 }
 
 char
-SUNDO__add              (char a_major, char a_minor, int a_pos, char a_before, char a_after)
+SRC_UNDO__add              (char a_major, char a_minor, int a_pos, char a_before, char a_after)
 {
    DEBUG_EDIT   yLOG_senter  (__FUNCTION__);
    ++s_csundo;
@@ -248,14 +248,14 @@ SUNDO__add              (char a_major, char a_minor, int a_pos, char a_before, c
 }
 
 char
-SUNDO__single           (char a_minor, char a_before, char a_after)
+SRC_UNDO__single           (char a_minor, char a_before, char a_after)
 {
-   SUNDO__add (G_KEY_SPACE, a_minor, s_cur->cpos, a_before, a_after);
+   SRC_UNDO__add (G_KEY_SPACE, a_minor, s_cur->cpos, a_before, a_after);
    return 0;
 }
 
 char
-SUNDO__undo_one         (void)
+SRC_UNDO__undo_one         (void)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -307,7 +307,7 @@ SUNDO__undo_one         (void)
 }
 
 char
-SUNDO__undo             (void)
+SRC_UNDO__undo             (void)
 {
    /*---(locals)-----------+-----+-----+-*/
    int         x_seq       =   -1;
@@ -320,7 +320,7 @@ SUNDO__undo             (void)
    DEBUG_EDIT   yLOG_value   ("x_seq"     , x_seq);
    for (i = s_csundo; i >= 0; --i) {
       if (s_sundos [s_csundo].seq != x_seq)  break;
-      rc = SUNDO__undo_one ();
+      rc = SRC_UNDO__undo_one ();
       if (rc < 0) break;
       ++c;
    }
@@ -331,7 +331,7 @@ SUNDO__undo             (void)
 }
 
 char
-SUNDO__redo_one         (void)
+SRC_UNDO__redo_one         (void)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -384,7 +384,7 @@ SUNDO__redo_one         (void)
 }
 
 char
-SUNDO__redo             (void)
+SRC_UNDO__redo             (void)
 {
    /*---(locals)-----------+-----+-----+-*/
    int         x_seq       =   -1;
@@ -397,7 +397,7 @@ SUNDO__redo             (void)
    DEBUG_EDIT   yLOG_value   ("x_seq"     , x_seq);
    for (i = s_csundo; i < s_nsundo; ++i) {
       if (s_sundos [s_csundo + 1].seq != x_seq)  break;
-      rc = SUNDO__redo_one ();
+      rc = SRC_UNDO__redo_one ();
       if (rc < 0) break;
       ++c;
    }
@@ -446,7 +446,7 @@ SOURCE__accept          (void)
    s_root  = s_bsel  = s_esel  = 0;
    s_live  = SELC_NOT;
    s_ctreg = s_wtreg = '"';
-   SUNDO__purge (0);
+   SRC_UNDO__purge (0);
    yVIKEYS_source (s_src.label, s_src.original);
    MAP_reposition  ();
    DEBUG_EDIT   yLOG_value   ("rc"        , rc);
@@ -468,7 +468,7 @@ SOURCE__reset           (void)
    s_root  = s_bsel  = s_esel  = 0;
    s_live  = SELC_NOT;
    s_ctreg = s_wtreg = '"';
-   SUNDO__purge (0);
+   SRC_UNDO__purge (0);
    yVIKEYS_source (s_src.label, s_src.original);
    MAP_reposition  ();
    return 0;
@@ -677,7 +677,7 @@ SOURCE_start       (char *a_prefix)
       break;
    }
    /*---(clear sundo)--------------------*/
-   SUNDO__purge (0);
+   SRC_UNDO__purge (0);
    /*---(populate globals)---------------*/
    if (a_prefix [0] != '¦')  strlcpy (s_cur->contents, a_prefix , LEN_RECD);
    s_cur->npos = strllen (s_cur->contents, LEN_RECD);
@@ -686,8 +686,8 @@ SOURCE_start       (char *a_prefix)
    SOURCE__done ();
    /*---(go info input)------------------*/
    if (a_prefix [0] != '¦') {
-      MODE_enter  (UMOD_INPUT  );
-      INPUT_umode  ('m', 'a');
+      MODE_enter  (UMOD_SRC_INPT  );
+      SRC_INPT_umode  ('m', 'a');
    }
    /*---(complete)-----------------------*/
    DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
@@ -701,7 +701,7 @@ SOURCE_label            (void)
 }
 
 char         /*-> go back to defaults ----------------[ shoot  [gz.530.011.00]*/ /*-[01.0000.013.!]-*/ /*-[--.---.---.--]-*/
-TEXTREG__reset         (void)
+SRC_REG__reset         (void)
 {
    s_live  = SELC_NOT;
    s_root  = s_esel  = s_bsel  = s_cur->cpos;
@@ -710,7 +710,7 @@ TEXTREG__reset         (void)
 }
 
 char
-TEXTREG_valid          (cchar a_reg)
+SRC_REG_valid          (cchar a_reg)
 {
    /*---(locals)-----------+-----------+-*/
    int         i           = 0;
@@ -758,12 +758,12 @@ SOURCE_init             (void)
    strlcpy (s_cur->label   , "-", LEN_LABEL);
    /*---(clear)--------------------------*/
    SOURCE__reset ();
-   SUNDO__purge (0);
+   SRC_UNDO__purge (0);
    /*---(update status)------------------*/
    STATUS_init_set   (MODE_SOURCE);
-   STATUS_init_set   (UMOD_REPLACE);
-   STATUS_init_set   (UMOD_INPUT);
-   STATUS_init_set   (SMOD_SUNDO);
+   STATUS_init_set   (UMOD_SRC_REPL);
+   STATUS_init_set   (UMOD_SRC_INPT);
+   STATUS_init_set   (SMOD_SRC_UNDO);
    STATUS_init_set   (UMOD_HISTORY);
    /*---(complete)-----------------------*/
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
@@ -771,7 +771,7 @@ SOURCE_init             (void)
 }
 
 char         /*-> clear all selections ---------------[ shoot  [gz.530.011.00]*/ /*-[01.0000.013.!]-*/ /*-[--.---.---.--]-*/
-TEXTREG_init       (void)
+SRC_REG_init       (void)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -779,7 +779,7 @@ TEXTREG_init       (void)
    /*---(header)-------------------------*/
    DEBUG_PROG   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
-   --rce;  if (!STATUS_check_prep  (SMOD_TEXTREG)) {
+   --rce;  if (!STATUS_check_prep  (SMOD_SRC_REG)) {
       DEBUG_PROG   yLOG_note    ("status is not ready for init");
       DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
@@ -802,8 +802,8 @@ TEXTREG_init       (void)
       s_tregs [i].source = TREG_NONE;
    }
    /*---(update status)------------------*/
-   STATUS_init_set   (SMOD_TEXTREG);
-   yVIKEYS_file_add (SMOD_TEXTREG, TEXTREG_writer, TEXTREG_reader);
+   STATUS_init_set   (SMOD_SRC_REG);
+   yVIKEYS_file_add (SMOD_SRC_REG, SRC_REG_writer, SRC_REG_reader);
    /*---(complete)-----------------------*/
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -928,9 +928,9 @@ SOURCE__color           (char a_display)
       DEBUG_EDIT   yLOG_note    ("sub-mode editing");
       x_edit = 'y';
       switch (MODE_curr ()) {
-      case SMOD_TEXTREG : x_code = 't';  break;
-      case UMOD_REPLACE : x_code = 'r';  break;
-      case UMOD_INPUT   : x_code = 'i';  break;
+      case SMOD_SRC_REG : x_code = 't';  break;
+      case UMOD_SRC_REPL : x_code = 'r';  break;
+      case UMOD_SRC_INPT   : x_code = 'i';  break;
       case UMOD_WANDER  : x_code = 'w';  break;
       default           : x_code = '-';  break;
       }
@@ -1254,7 +1254,7 @@ SOURCE_status_words    (char *a_list)
 }
 
 char         /*-> tbd --------------------------------[ ------ [ge.C53.244.61]*/ /*-[02.0000.204.!]-*/ /*-[--.---.---.--]-*/
-TEXTREG_status          (char *a_list)
+SRC_REG_status          (char *a_list)
 {
    /*---(locals)-----------+-----------+-*/
    char        rce         = -10;
@@ -1264,7 +1264,7 @@ TEXTREG_status          (char *a_list)
    /*---(defenses)--------------------*/
    --rce;  if (a_list  == NULL) return rce;
    /*---(buffer number)------------------*/
-   x_reg  = TEXTREG_valid   (s_wtreg);
+   x_reg  = SRC_REG_valid   (s_wtreg);
    /*---(write line)------------------*/
    sprintf (a_list , "treg %c %2d %2d  %3d [%-40.40s]  %-7.7s %3d %3d  %c",
          s_wtreg, s_ntreg, x_reg,
@@ -1588,20 +1588,20 @@ SOURCE_delete          (char a_major, char a_minor)
    if (strchr ("hb0$", a_minor) != NULL)  x_pos = s_cur->cpos;
    else                                   x_pos = s_cur->cpos + x_len;
    /*---(end)----------------------------*/
-   SUNDO__beg (__FUNCTION__);
+   SRC_UNDO__beg (__FUNCTION__);
    for (i = 0; i < x_len; ++i) {
       if (a_major == 'd') {
          if (a_minor == 'h')  --s_cur->cpos;
-         SUNDO__add (a_major, 'l', s_cur->cpos, s_cur->contents [s_cur->cpos], G_KEY_NULL);
+         SRC_UNDO__add (a_major, 'l', s_cur->cpos, s_cur->contents [s_cur->cpos], G_KEY_NULL);
          ONE__delete ();
       } else {
          if (a_minor == 'h')  --s_cur->cpos;
-         SUNDO__add (a_major, 'l', s_cur->cpos, s_cur->contents [s_cur->cpos], G_CHAR_SPACE);
+         SRC_UNDO__add (a_major, 'l', s_cur->cpos, s_cur->contents [s_cur->cpos], G_CHAR_SPACE);
          ONE__replace (G_CHAR_SPACE);
          if (a_minor != 'h')  ++s_cur->cpos;
       }
    }
-   SUNDO__end (__FUNCTION__);
+   SRC_UNDO__end (__FUNCTION__);
    if (a_major == 'x' && a_minor != 'h')  s_cur->cpos = x_pos;
    /*---(complete)-----------------------*/
    DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
@@ -1616,18 +1616,18 @@ SOURCE_delete          (char a_major, char a_minor)
 static void  o___ACTIONS_________o () { return; }
 
 char         /*-> process keys for register actions --[ ------ [gz.320.011.02]*/ /*-[01.0000.113.!]-*/ /*-[--.---.---.--]-*/
-TEXTREG__clear        (char a_major, char a_minor)
+SRC_REG__clear        (char a_major, char a_minor)
 {
    /*---(locals)-----------+-----------+-*/
    int         i           =   0;
    /*---(begin)--------------------------*/
-   SUNDO__beg (__FUNCTION__);
+   SRC_UNDO__beg (__FUNCTION__);
    for (i = s_bsel; i <= s_esel; ++i) {
       s_cur->cpos = i;
-      SUNDO__add ('x', 'l', i, s_cur->contents [i], G_CHAR_SPACE);
+      SRC_UNDO__add ('x', 'l', i, s_cur->contents [i], G_CHAR_SPACE);
       ONE__replace (G_CHAR_SPACE);
    }
-   SUNDO__end (__FUNCTION__);
+   SRC_UNDO__end (__FUNCTION__);
    /*---(reposition)---------------------*/
    /*> s_cur->cpos = s_esel + 1;                                                      <*/
    /*---(complete)-----------------------*/
@@ -1635,18 +1635,18 @@ TEXTREG__clear        (char a_major, char a_minor)
 }
 
 char         /*-> process keys for register action ---[ ------ [gz.430.031.02]*/ /*-[01.0000.213.!]-*/ /*-[--.---.---.--]-*/
-TEXTREG__delete        (char a_major, char a_minor)
+SRC_REG__delete        (char a_major, char a_minor)
 {
    /*---(locals)-----------+-----------+-*/
    int         x_diff      =   0;
    int         i           =   0;
    /*---(short-path)---------------------*/
-   SUNDO__beg (__FUNCTION__);
+   SRC_UNDO__beg (__FUNCTION__);
    /*---(short-path)---------------------*/
    if (s_live == SELC_NOT && a_minor == 'D') {
       if (s_cur->cpos <= 0)  return -1;
       --s_cur->cpos;
-      SUNDO__add (a_major, tolower (a_minor), i, s_cur->contents [i], G_KEY_NULL);
+      SRC_UNDO__add (a_major, tolower (a_minor), i, s_cur->contents [i], G_KEY_NULL);
       ONE__delete ();
       return 0;
    }
@@ -1656,17 +1656,17 @@ TEXTREG__delete        (char a_major, char a_minor)
       /*---(delete)-------------------------*/
       s_cur->cpos = s_bsel;
       for (i = 0; i < x_diff; ++i) {
-         SUNDO__add ('d', 'l', s_cur->cpos, s_cur->contents [s_cur->cpos], G_KEY_NULL);
+         SRC_UNDO__add ('d', 'l', s_cur->cpos, s_cur->contents [s_cur->cpos], G_KEY_NULL);
          ONE__delete ();
       }
    }
-   SUNDO__end (__FUNCTION__);
+   SRC_UNDO__end (__FUNCTION__);
    /*---(complete)-----------------------*/
    return 0;
 }
 
 char         /*-> process keys for register actions --[ ------ [ge.640.051.04]*/ /*-[00.0000.213.!]-*/ /*-[--.---.---.--]-*/
-TEXTREG__copy          (void)
+SRC_REG__copy          (void)
 {
    /*---(locals)-----------+-----------+-*/
    int         x_index     =   0;
@@ -1676,7 +1676,7 @@ TEXTREG__copy          (void)
    char        rce         = -10;
    char        t           [LEN_RECD];
    /*---(identify register)--------------*/
-   x_index = TEXTREG_valid  (tolower (s_ctreg));
+   x_index = SRC_REG_valid  (tolower (s_ctreg));
    if (x_index < 0)  return -1;
    /*---(set size)-----------------------*/
    x_start = s_cur->contents + s_bsel;
@@ -1701,53 +1701,53 @@ TEXTREG__copy          (void)
 }
 
 char         /*-> replace only selection long --------[ ------ [gz.740.061.21]*/ /*-[01.0000.013.!]-*/ /*-[--.---.---.--]-*/
-TEXTREG__replace        (void)
+SRC_REG__replace        (void)
 {
    /*---(locals)-----------+-----------+-*/
    int         x_index     =   0;
    int         x_len       =   0;
    int         i           =   0;
    /*---(identify register)--------------*/
-   x_index = TEXTREG_valid  (s_ctreg);
+   x_index = SRC_REG_valid  (s_ctreg);
    if (x_index < 0)  return -1;
    /*> x_len = s_esel - s_bsel + 1;                                                   <*/
    /*> if (x_len > s_tregs [x_index].len)  x_len = s_tregs [x_index].len;             <*/
    x_len = s_tregs [x_index].len;
    s_cur->cpos = s_bsel;
    /*---(set the start)------------------*/
-   SUNDO__beg (__FUNCTION__);
+   SRC_UNDO__beg (__FUNCTION__);
    for (i = 0; i < x_len; ++i) {
-      SUNDO__add   (G_KEY_SPACE, 'r', s_cur->cpos, s_cur->contents [s_cur->cpos], s_tregs [x_index].data [i]);
+      SRC_UNDO__add   (G_KEY_SPACE, 'r', s_cur->cpos, s_cur->contents [s_cur->cpos], s_tregs [x_index].data [i]);
       ONE__replace (s_tregs [x_index].data [i]);
       ++s_cur->cpos;
    }
-   SUNDO__end (__FUNCTION__);
+   SRC_UNDO__end (__FUNCTION__);
    --s_cur->cpos;
    /*---(complete)-----------------------*/
    return 0;
 }
 
 char         /*-> insert/append register contents ----[ ------ [gz.640.151.11]*/ /*-[01.0000.213.!]-*/ /*-[--.---.---.--]-*/
-TEXTREG__paste          (char a_dir)
+SRC_REG__paste          (char a_dir)
 {
    /*---(locals)-----------+-----------+-*/
    int         x_index     =   0;
    int         i           =   0;
    /*---(identify register)--------------*/
-   x_index = TEXTREG_valid  (s_ctreg);
+   x_index = SRC_REG_valid  (s_ctreg);
    if (x_index < 0)  return -1;
    /*---(prepare)------------------------*/
    if (a_dir == 'a' && s_cur->npos > 0) {
       ++s_cur->cpos;
    }
    /*---(set the start)------------------*/
-   SUNDO__beg (__FUNCTION__);
+   SRC_UNDO__beg (__FUNCTION__);
    for (i = 0; i < s_tregs [x_index].len; ++i) {
-      SUNDO__add (G_KEY_SPACE, 'i', s_cur->cpos, G_CHAR_NULL, s_tregs [x_index].data [i]);
+      SRC_UNDO__add (G_KEY_SPACE, 'i', s_cur->cpos, G_CHAR_NULL, s_tregs [x_index].data [i]);
       ONE__insert (s_tregs [x_index].data [i]);
       ++s_cur->cpos;
    }
-   SUNDO__end (__FUNCTION__);
+   SRC_UNDO__end (__FUNCTION__);
    --s_cur->cpos;
    /*---(complete)-----------------------*/
    return 0;
@@ -1797,7 +1797,7 @@ SOURCE_mode             (int a_major, int a_minor)
    case G_KEY_ESCAPE :
       if (s_live == SELC_YES) {
          DEBUG_USER   yLOG_note    ("escape, means get out of selection");
-         TEXTREG__reset ();
+         SRC_REG__reset ();
       } else {
          DEBUG_USER   yLOG_note    ("escape, means forget and return to previous mode");
          SOURCE__reset  ();
@@ -1830,15 +1830,15 @@ SOURCE_mode             (int a_major, int a_minor)
       if (strchr ("yYpP", a_minor) != 0) {
          DEBUG_USER   yLOG_note    ("switch to a text register mode");
          s_ctreg = '"';
-         MODE_enter (SMOD_TEXTREG);
-         rc = TEXTREG_smode (G_KEY_SPACE, a_minor);
+         MODE_enter (SMOD_SRC_REG);
+         rc = SRC_REG_smode (G_KEY_SPACE, a_minor);
          return rc;
       }
       if (s_live == SELC_YES && strchr ("xXdD", a_minor) != 0) {
          DEBUG_USER   yLOG_note    ("switch to a text register mode");
          s_ctreg = '"';
-         MODE_enter (SMOD_TEXTREG);
-         rc = TEXTREG_smode (G_KEY_SPACE, a_minor);
+         MODE_enter (SMOD_SRC_REG);
+         rc = SRC_REG_smode (G_KEY_SPACE, a_minor);
          return rc;
       }
       /*---(multikey prefixes)-----------*/
@@ -1874,15 +1874,15 @@ SOURCE_mode             (int a_major, int a_minor)
          break;
       case  '"' :
          DEBUG_USER   yLOG_note    ("switch to a text register mode");
-         MODE_enter (SMOD_TEXTREG);
+         MODE_enter (SMOD_SRC_REG);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          rc = a_minor;
          break;
       case  'r' :
          DEBUG_USER   yLOG_note    ("enter replace mode");
-         MODE_enter (UMOD_REPLACE);
+         MODE_enter (UMOD_SRC_REPL);
          if (REPEAT_count () == 0) {
-            REPLACE_umode ('m', a_minor);
+            SRC_REPL_umode ('m', a_minor);
             rc = 0;
          } else {
             rc = a_minor;
@@ -1891,8 +1891,8 @@ SOURCE_mode             (int a_major, int a_minor)
          break;
       case  'R' :
          DEBUG_USER   yLOG_note    ("enter replace mode");
-         MODE_enter (UMOD_REPLACE);
-         REPLACE_umode ('m', a_minor);
+         MODE_enter (UMOD_SRC_REPL);
+         SRC_REPL_umode ('m', a_minor);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          rc = 0;
          break;
@@ -1900,8 +1900,8 @@ SOURCE_mode             (int a_major, int a_minor)
          DEBUG_USER   yLOG_note    ("enter input mode");
          if (a_minor == 'A')  s_cur->cpos = s_cur->npos - 1;
          if (a_minor == 'I')  s_cur->cpos = 0;
-         MODE_enter (UMOD_INPUT);
-         INPUT_umode ('m', tolower (a_minor));
+         MODE_enter (UMOD_SRC_INPT);
+         SRC_INPT_umode ('m', tolower (a_minor));
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          rc = tolower (a_minor);
          break;
@@ -1920,10 +1920,10 @@ SOURCE_mode             (int a_major, int a_minor)
          rc = SOURCE_delete     ('d', 'h');
          SOURCE__done ();
          /*> if (s_cur->cpos > 0) {                                                                      <* 
-          *>    SUNDO__beg (__FUNCTION__);                                                               <* 
-          *>    SUNDO__add ('d', 'h', s_cur->cpos - 1, s_cur->contents [s_cur->cpos - 1], G_KEY_NULL);   <* 
+          *>    SRC_UNDO__beg (__FUNCTION__);                                                               <* 
+          *>    SRC_UNDO__add ('d', 'h', s_cur->cpos - 1, s_cur->contents [s_cur->cpos - 1], G_KEY_NULL);   <* 
           *>    rc = ONE__backspace ();                                                                  <* 
-          *>    SUNDO__end (__FUNCTION__);                                                               <* 
+          *>    SRC_UNDO__end (__FUNCTION__);                                                               <* 
           *> }                                                                                           <*/
       }
       if (a_minor == G_KEY_DEL) {
@@ -1931,10 +1931,10 @@ SOURCE_mode             (int a_major, int a_minor)
          rc = SOURCE_delete     ('d', 'l');
          SOURCE__done ();
          /*> if (s_cur->cpos < s_cur->npos) {                                                    <* 
-          *>    SUNDO__beg (__FUNCTION__);                                                       <* 
-          *>    SUNDO__add ('d', 'l', s_cur->cpos, s_cur->contents [s_cur->cpos], G_KEY_NULL);   <* 
+          *>    SRC_UNDO__beg (__FUNCTION__);                                                       <* 
+          *>    SRC_UNDO__add ('d', 'l', s_cur->cpos, s_cur->contents [s_cur->cpos], G_KEY_NULL);   <* 
           *>    rc = ONE__delete ();                                                             <* 
-          *>    SUNDO__end (__FUNCTION__);                                                       <* 
+          *>    SRC_UNDO__end (__FUNCTION__);                                                       <* 
           *> }                                                                                   <*/
       }
       /*---(basic movement)--------------*/
@@ -1953,13 +1953,13 @@ SOURCE_mode             (int a_major, int a_minor)
          SOURCE__done ();
          break;
       case 'u' :
-         TEXTREG__reset ();
-         rc = SUNDO__undo ();
+         SRC_REG__reset ();
+         rc = SRC_UNDO__undo ();
          SOURCE__done ();
          break;
       case 'U' :
-         TEXTREG__reset ();
-         rc = SUNDO__redo ();
+         SRC_REG__reset ();
+         rc = SRC_UNDO__redo ();
          SOURCE__done ();
          break;
       }
@@ -1998,7 +1998,7 @@ SOURCE_mode             (int a_major, int a_minor)
 }
 
 char         /*-> tbd --------------------------------[ ------ [ge.420.132.11]*/ /*-[00.0000.114.!]-*/ /*-[--.---.---.--]-*/
-TEXTREG_infowin    (char *a_entry, int a_index)
+SRC_REG_infowin    (char *a_entry, int a_index)
 {
    /*---(locals)-----------+-----+-----+-*/
    int         a           =    0;
@@ -2009,7 +2009,7 @@ TEXTREG_infowin    (char *a_entry, int a_index)
    if (a_index <   0)  return 0;
    if (a_index >= 26)  return 0;
    a = 'a' + a_index;
-   n = TEXTREG_valid  (a);
+   n = SRC_REG_valid  (a);
    if (s_tregs [n].len > 0) {
       strlcpy    (t, s_tregs [n].data, LEN_RECD);
       strlencode (t, ySTR_MAX, LEN_RECD);
@@ -2022,15 +2022,27 @@ TEXTREG_infowin    (char *a_entry, int a_index)
 }
 
 char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/
-TEXTREG_writer          (void)
+SRC_REG_writer         (char a_abbr)
 {
-   /*---(locals)-----------+-----------+-*/
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        x_beg       =    0;
+   char        x_end       =    0;
    int         i           =    0;
    char        c           =    0;
+   /*---(prepare)----------------s-------*/
+   yVIKEYS_unit_reset ();
+   if (a_abbr == 0) {
+      x_beg = 1;
+      x_end = s_ntreg - 1;
+   } else {
+      x_beg = x_end = SRC_REG_valid (a_abbr);
+      if (x_beg <= 0)  return rce;
+   }
    /*---(find marked entries)------------*/
-   for (i = 1; i < s_ntreg; ++i) {
+   for (i = x_beg; i <= x_end; ++i) {
       if (s_tregs [i].len <= 0)  continue;
-      yVIKEYS_file_write (SMOD_TEXTREG, &(s_tregnames [i]), s_tregs [i].data, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+      yVIKEYS_file_write (SMOD_SRC_REG, &(s_tregnames [i]), s_tregs [i].data, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
       ++c;
    }
    /*---(complete)-----------------------*/
@@ -2038,23 +2050,7 @@ TEXTREG_writer          (void)
 }
 
 char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/
-TEXTREG_writer_single   (char a_mark)
-{
-   /*---(locals)-----------+-----+-----+-*/
-   char        rce         =  -10;
-   char        i           =    0;
-   /*---(find marked entries)------------*/
-   strlcpy (myVIKEYS.f_recd, "", LEN_RECD);
-   i = TEXTREG_valid  (a_mark);
-   --rce;  if (i <= 0)  return rce;
-   if (s_tregs [i].len <= 0)  return 0;
-   yVIKEYS_file_write (SMOD_TEXTREG, &(s_tregnames [i]), s_tregs [i].data, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-   /*---(complete)-----------------------*/
-   return 1;
-}
-
-char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/
-TEXTREG_reader          (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i)
+SRC_REG_reader          (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i)
 {
    /*---(locals)-----------+-----------+-*/
    char        rce         =  -11;
@@ -2076,7 +2072,7 @@ TEXTREG_reader          (char n, char *a, char *b, char *c, char *d, char *e, ch
       return rce;
    }
    DEBUG_SRCH   yLOG_char    ("mark"      , a[0]);
-   x_index = TEXTREG_valid  (a[0]);
+   x_index = SRC_REG_valid  (a[0]);
    --rce;  if (x_index <= 0)  return rce;
    DEBUG_SRCH   yLOG_value   ("index"     , x_index);
    /*---(search)-------------------------*/
@@ -2100,7 +2096,7 @@ TEXTREG_reader          (char n, char *a, char *b, char *c, char *d, char *e, ch
 }
 
 char         /*-> process keys for register actions --[ leaf   [ge.QG5.287.FB]*/ /*-[02.0000.102.!]-*/ /*-[--.---.---.--]-*/
-TEXTREG_smode           (int a_major, int a_minor)
+SRC_REG_smode           (int a_major, int a_minor)
 {
    /*---(locals)-----------+-----------+-*/
    char        rce         = -10;
@@ -2118,7 +2114,7 @@ TEXTREG_smode           (int a_major, int a_minor)
    myVIKEYS.info_win = '-';
    /*---(defenses)-----------------------*/
    DEBUG_USER   yLOG_char    ("mode"      , MODE_curr ());
-   --rce;  if (MODE_not (SMOD_TEXTREG )) {
+   --rce;  if (MODE_not (SMOD_SRC_REG )) {
       DEBUG_USER   yLOG_note    ("not the correct mode");
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return rce;
@@ -2126,7 +2122,7 @@ TEXTREG_smode           (int a_major, int a_minor)
    /*---(escape)-------------------------*/
    if (a_minor == G_KEY_ESCAPE)  {
       DEBUG_USER   yLOG_note    ("escape and return to previous mode");
-      TEXTREG__reset ();
+      SRC_REG__reset ();
       MODE_exit ();
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return  0;
@@ -2160,7 +2156,7 @@ TEXTREG_smode           (int a_major, int a_minor)
          return 0;
       case  '#' :
          DEBUG_USER   yLOG_note    ("wipe text register");
-         x_index = TEXTREG_valid  (s_ctreg);
+         x_index = SRC_REG_valid  (s_ctreg);
          if (x_index < 0)  return -1;
          strlcpy (s_tregs [x_index].label, "-", 10);
          s_tregs [x_index].bpos   =  0;
@@ -2172,47 +2168,47 @@ TEXTREG_smode           (int a_major, int a_minor)
          break;
       case  'y' :
          DEBUG_USER   yLOG_note    ("yank selection text to register");
-         TEXTREG__copy   ();
+         SRC_REG__copy   ();
          MODE_exit   ();
          break;
       case  'x' : case  'X' :
          DEBUG_USER   yLOG_note    ("clear selection text");
-         TEXTREG__copy   ();
-         TEXTREG__clear  (a_major, a_minor);
+         SRC_REG__copy   ();
+         SRC_REG__clear  (a_major, a_minor);
          MODE_exit   ();
          SOURCE__done    ();
          break;
       case  'd' : case  'D' :
          DEBUG_USER   yLOG_note    ("delete selection text");
-         TEXTREG__copy   ();
-         TEXTREG__delete (a_major, a_minor);
+         SRC_REG__copy   ();
+         SRC_REG__delete (a_major, a_minor);
          MODE_exit   ();
          SOURCE__done    ();
          break;
       case  'r' :
          DEBUG_USER   yLOG_note    ("replace text from register");
-         TEXTREG__replace ();
+         SRC_REG__replace ();
          MODE_exit   ();
          SOURCE__done    ();
          break;
       case  's' :
          DEBUG_USER   yLOG_note    ("substitute selection text");
-         TEXTREG__delete   (a_major, 'd');
-         SUNDO__chain_next ();
-         TEXTREG__paste    ('i');
+         SRC_REG__delete   (a_major, 'd');
+         SRC_UNDO__chain_next ();
+         SRC_REG__paste    ('i');
          MODE_exit   ();
          SOURCE__done    ();
          break;
       case  'p' : case  'a' :
          DEBUG_USER   yLOG_note    ("paste after selection text");
-         TEXTREG__paste   ('a');
+         SRC_REG__paste   ('a');
          /*> ++s_cur->cpos;                                                           <*/
          MODE_exit   ();
          SOURCE__done    ();
          break;
       case  'P' : case  'i' :
          DEBUG_USER   yLOG_note    ("paste before selection text");
-         TEXTREG__paste   ('i');
+         SRC_REG__paste   ('i');
          MODE_exit   ();
          SOURCE__done    ();
          break;
@@ -2232,13 +2228,13 @@ TEXTREG_smode           (int a_major, int a_minor)
           *>    break;                                                                    <*/
       }
    }
-   TEXTREG__reset ();
+   SRC_REG__reset ();
    DEBUG_USER   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
 char         /*-> replace sub-mode -------------------[ ------ [ge.RG6.25#.E5]*/ /*-[02.0000.112.E]-*/ /*-[--.---.---.--]-*/
-REPLACE_umode    (int a_major, int a_minor)
+SRC_REPL_umode    (int a_major, int a_minor)
 {  /*---(design notes)-------------------*/
    /*
     *   very limited sub-mode of SOURCE mode.  allows a user to "type over"
@@ -2257,7 +2253,7 @@ REPLACE_umode    (int a_major, int a_minor)
    DEBUG_USER   yLOG_char    ("a_minor"   , chrvisible (a_minor));
    /*---(defenses)-----------------------*/
    DEBUG_USER   yLOG_char    ("mode"      , MODE_curr ());
-   --rce;  if (MODE_not (UMOD_REPLACE)) {
+   --rce;  if (MODE_not (UMOD_SRC_REPL)) {
       DEBUG_USER   yLOG_note    ("not the correct mode");
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return rce;
@@ -2272,7 +2268,7 @@ REPLACE_umode    (int a_major, int a_minor)
       ONE__replace (G_CHAR_PLACE);
       if (x_saved == NULL)  s_cur->contents [s_cur->cpos + 1] = NULL;
       SOURCE__done   ();
-      SUNDO__beg (__FUNCTION__);
+      SRC_UNDO__beg (__FUNCTION__);
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return 0;
    }
@@ -2289,7 +2285,7 @@ REPLACE_umode    (int a_major, int a_minor)
       x_mode  = '-';
       rc = ONE__replace (x_saved);
       MODE_exit ();
-      SUNDO__end (__FUNCTION__);
+      SRC_UNDO__end (__FUNCTION__);
       DEBUG_USER   yLOG_value   ("mode"     , MODE_curr ());
       if (a_minor == G_KEY_RETURN && strchr (MODES_ONELINE, MODE_curr ()) != NULL) {
          DEBUG_USER   yLOG_note    ("fast path back to map mode");
@@ -2301,10 +2297,10 @@ REPLACE_umode    (int a_major, int a_minor)
       DEBUG_USER   yLOG_note    ("replace repeatedly");
       x_mode  = '-';
       if (a_minor >= 32 && a_minor < 127 && a_minor != '\\') {
-         SUNDO__beg (__FUNCTION__);
-         SUNDO__single ('r', s_cur->contents [s_cur->cpos], a_minor);
+         SRC_UNDO__beg (__FUNCTION__);
+         SRC_UNDO__single ('r', s_cur->contents [s_cur->cpos], a_minor);
          rc = ONE__replace (a_minor);
-         SUNDO__end (__FUNCTION__);
+         SRC_UNDO__end (__FUNCTION__);
          ++s_cur->cpos;
          if (REPEAT_count () == 0)  MODE_exit ();
       } else {
@@ -2320,16 +2316,16 @@ REPLACE_umode    (int a_major, int a_minor)
       x_mode  = '-';
       if (x_prev == '\\') {
          x_prev = '-';
-         SUNDO__single ('r', x_saved, chrslashed (a_minor));
+         SRC_UNDO__single ('r', x_saved, chrslashed (a_minor));
          rc = ONE__replace (chrslashed (a_minor));
       } else if (a_minor >= 32 && a_minor < 127) {
          if (a_minor == G_KEY_SPACE)  a_minor = G_CHAR_SPACE;
-         SUNDO__single ('r', x_saved, a_minor);
+         SRC_UNDO__single ('r', x_saved, a_minor);
          rc = ONE__replace (a_minor);
       } else {
          rc = ONE__replace (x_saved);
       }
-      SUNDO__end (__FUNCTION__);
+      SRC_UNDO__end (__FUNCTION__);
       /*> if (REPEAT_count () == 0) {                                                 <* 
        *>    MODE_exit ();                                                            <* 
        *> } else {                                                                    <* 
@@ -2355,11 +2351,11 @@ REPLACE_umode    (int a_major, int a_minor)
          DEBUG_USER   yLOG_note    ("replace and move right");
          if (x_prev == '\\') {
             x_prev = '-';
-            SUNDO__single ('R', x_saved, chrslashed (a_minor));
+            SRC_UNDO__single ('R', x_saved, chrslashed (a_minor));
             rc = ONE__replace (chrslashed (a_minor));
          } else if (a_minor >= 32 && a_minor < 127) {
             if (a_minor == G_KEY_SPACE)  a_minor = G_CHAR_SPACE;
-            SUNDO__single ('R', x_saved, a_minor);
+            SRC_UNDO__single ('R', x_saved, a_minor);
             rc = ONE__replace (a_minor);
          } else {
             rc = ONE__replace (x_saved);
@@ -2417,7 +2413,7 @@ HISTORY_infowin         (void)
       case UMOD_MARK      : strlcpy (x_entry, " -  --label--- --x-- --y-- --z--      -  --label--- --x-- --y-- --z--   ", LEN_RECD);  break;
       case UMOD_VISUAL    : strlcpy (x_entry, " - --x-- --y-- -z- --x-- --y-- -z-    - --x-- --y-- -z- --x-- --y-- -z- ", LEN_RECD);  break;
       case SMOD_MACRO     : strlcpy (x_entry, " - len ---macro-keys--------------------------------------------------- ", LEN_RECD);  break;
-      case SMOD_TEXTREG   : strlcpy (x_entry, " -   len  ---text-register-contents------------------------------------ ", LEN_RECD);  break;
+      case SMOD_SRC_REG   : strlcpy (x_entry, " -   len  ---text-register-contents------------------------------------ ", LEN_RECD);  break;
       }
       mvprintw (x_bott - x_tall + 1, x_left, "%-*.*s", x_wide, x_wide, x_entry);
       attrset     (0);
@@ -2428,7 +2424,7 @@ HISTORY_infowin         (void)
          case UMOD_MARK      : MARK_infowin    (x_entry, i);  break;
          case UMOD_VISUAL    : VISU_infowin    (x_entry, i);  break;
                                /*> case SMOD_MACRO     : MACRO_infowin (x_entry, i);  break;                <*/
-         case SMOD_TEXTREG   : TEXTREG_infowin (x_entry, i);  break;
+         case SMOD_SRC_REG   : SRC_REG_infowin (x_entry, i);  break;
          }
          mvprintw (x_bott - x_tall + 2 + i, x_left             , "%-*.*s", x_wide, x_wide, x_entry);
          attrset     (0);
@@ -2502,10 +2498,10 @@ HISTORY_choose          (char* a_contents)
    DEBUG_EDIT   yLOG_value   ("npos"      , s_cur->npos);
    DEBUG_EDIT   yLOG_value   ("cpos"      , s_cur->cpos);
    x_len       = s_cur->npos;
-   SUNDO__beg (__FUNCTION__);
+   SRC_UNDO__beg (__FUNCTION__);
    for (i = 0; i < x_len; ++i) {
       DEBUG_EDIT   yLOG_value   ("i"         , i);
-      SUNDO__add ('d', 'l', 0, s_cur->contents [0], G_CHAR_NULL);
+      SRC_UNDO__add ('d', 'l', 0, s_cur->contents [0], G_CHAR_NULL);
       ONE__delete ();
       DEBUG_EDIT   yLOG_value   ("cpos"      , s_cur->cpos);
    }
@@ -2514,9 +2510,9 @@ HISTORY_choose          (char* a_contents)
    s_cur->cpos = 0;
    for (i = 0; i < x_len; ++i) {
       ONE__append (a_contents [i]);
-      SUNDO__add (G_KEY_SPACE, 'a', s_cur->cpos, G_KEY_SPACE, s_cur->contents [s_cur->cpos]);
+      SRC_UNDO__add (G_KEY_SPACE, 'a', s_cur->cpos, G_KEY_SPACE, s_cur->contents [s_cur->cpos]);
    }
-   SUNDO__end (__FUNCTION__);
+   SRC_UNDO__end (__FUNCTION__);
    /*---(complete)-----------------------*/
    DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -2571,7 +2567,7 @@ HISTORY_smode           (int  a_major, int  a_minor)
 }
 
 char         /*-> process keys for input mode --------[ ------ [ge.TQ5.25#.F9]*/ /*-[03.0000.122.R]-*/ /*-[--.---.---.--]-*/
-INPUT_umode             (int  a_major, int  a_minor)
+SRC_INPT_umode             (int  a_major, int  a_minor)
 {
    /*---(design notes)-------------------*/
    /*
@@ -2591,7 +2587,7 @@ INPUT_umode             (int  a_major, int  a_minor)
    DEBUG_USER   yLOG_char    ("a_minor"   , chrvisible (a_minor));
    /*---(defenses)-----------------------*/
    DEBUG_USER   yLOG_char    ("mode"      , MODE_curr ());
-   --rce;  if (MODE_not (UMOD_INPUT )) {
+   --rce;  if (MODE_not (UMOD_SRC_INPT )) {
       DEBUG_USER   yLOG_note    ("not the correct mode");
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return rce;
@@ -2606,7 +2602,7 @@ INPUT_umode             (int  a_major, int  a_minor)
       if (a_minor == 'a')  ONE__append (G_CHAR_PLACE);
       else                 ONE__insert (G_CHAR_PLACE);
       SOURCE__done   ();
-      SUNDO__beg (__FUNCTION__);
+      SRC_UNDO__beg (__FUNCTION__);
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return 0;
    }
@@ -2620,7 +2616,7 @@ INPUT_umode             (int  a_major, int  a_minor)
    if (x_prev == '\\') {
       DEBUG_USER   yLOG_note    ("converting backsplash character");
       x_prev = '-';
-      SUNDO__single (x_mode, G_CHAR_NULL, chrslashed (a_minor));
+      SRC_UNDO__single (x_mode, G_CHAR_NULL, chrslashed (a_minor));
       rc = ONE__insert (chrslashed (a_minor));
       ++s_cur->cpos;
    }
@@ -2630,7 +2626,7 @@ INPUT_umode             (int  a_major, int  a_minor)
       x_mode  = '-';
       rc = ONE__delete ();
       --s_cur->cpos;
-      SUNDO__end (__FUNCTION__);
+      SRC_UNDO__end (__FUNCTION__);
       MODE_exit ();
       DEBUG_USER   yLOG_value   ("mode"     , MODE_curr ());
       if (a_minor == G_KEY_RETURN && strchr (MODES_ONELINE, MODE_curr ()) != NULL) {
@@ -2642,7 +2638,7 @@ INPUT_umode             (int  a_major, int  a_minor)
    else if (a_minor == G_KEY_BS) {
       DEBUG_USER   yLOG_note    ("handle a backspace");
       if (s_cur->cpos > 0) {
-         SUNDO__add ('d', 'h', s_cur->cpos - 1, s_cur->contents [s_cur->cpos - 1], G_KEY_NULL);
+         SRC_UNDO__add ('d', 'h', s_cur->cpos - 1, s_cur->contents [s_cur->cpos - 1], G_KEY_NULL);
          rc = ONE__backspace ();
       }
    }
@@ -2650,7 +2646,7 @@ INPUT_umode             (int  a_major, int  a_minor)
       DEBUG_USER   yLOG_note    ("handle a delete");
       if (s_cur->cpos < s_cur->npos - 1) {
          ++s_cur->cpos;
-         SUNDO__add ('d', 'l', s_cur->cpos, s_cur->contents [s_cur->cpos], G_KEY_NULL);
+         SRC_UNDO__add ('d', 'l', s_cur->cpos, s_cur->contents [s_cur->cpos], G_KEY_NULL);
          rc = ONE__delete ();
          --s_cur->cpos;
       }
@@ -2659,7 +2655,7 @@ INPUT_umode             (int  a_major, int  a_minor)
    else if (a_minor >= 32 && a_minor < 127) {
       DEBUG_USER   yLOG_note    ("move remaining chars to the right");
       if (a_minor == G_KEY_SPACE)  a_minor = G_CHAR_SPACE;
-      SUNDO__single (x_mode, G_CHAR_NULL, a_minor);
+      SRC_UNDO__single (x_mode, G_CHAR_NULL, a_minor);
       rc = ONE__insert (a_minor);
       ++s_cur->cpos;
    }
@@ -2671,7 +2667,7 @@ INPUT_umode             (int  a_major, int  a_minor)
    if (strcmp (s_cur->contents, x_history) == 0) {
       rc = ONE__delete ();
       --s_cur->cpos;
-      SUNDO__end (__FUNCTION__);
+      SRC_UNDO__end (__FUNCTION__);
       SOURCE__done ();
       MODE_exit ();
       /*> if (x_prevmode == MODE_SEARCH)  strlcpy (s_cur->contents, "/", LEN_RECD);   <* 
@@ -2700,7 +2696,7 @@ SOURCE__unit            (char *a_question, char a_reg)
    char        t           [LEN_RECD];
    /*---(preprare)-----------------------*/
    strlcpy  (yVIKEYS__unit_answer, "SRC unit         : question not understood", LEN_STR);
-   x_index = TEXTREG_valid  (a_reg);
+   x_index = SRC_REG_valid  (a_reg);
    if (x_index < 0)  x_index = 0;
    /*---(questions)----------------------*/
    if      (strcmp (a_question, "position"       )   == 0) {
@@ -2725,7 +2721,7 @@ SOURCE__unit            (char *a_question, char a_reg)
       snprintf (yVIKEYS__unit_answer, LEN_STR, "SRC textreg      : %2d %3d:%-20.20s: %3d %3d %c %s", x_index, s_tregs [x_index].len, s_tregs [x_index].data, s_tregs [x_index].bpos, s_tregs [x_index].epos, s_tregs [x_index].source, s_tregs [x_index].label);
    }
    else if (strcmp (a_question, "undo"           )   == 0) {
-      SUNDO_status (t);
+      SRC_UNDO_status (t);
       snprintf (yVIKEYS__unit_answer, LEN_STR, "SRC undo queue   : %-.50s", t);
    }
    /*---(complete)-----------------------*/

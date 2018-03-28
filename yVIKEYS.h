@@ -53,8 +53,8 @@
 /*---(sub-modes)-------------------------*/
 #define     SMOD_ERROR     'e'    /* error reporting and actions              */
 #define     SMOD_REGISTER  '"'    /* register actions                         */
-#define     SMOD_TEXTREG   't'    /* text register actions                    */
-#define     SMOD_SUNDO     's'    /* incremental text change undo/redo        */
+#define     SMOD_SRC_REG   't'    /* text register actions                    */
+#define     SMOD_SRC_UNDO  's'    /* incremental text change undo/redo        */
 #define     SMOD_MUNDO     'm'    /* incremental map change undo/redo         */
 #define     SMOD_BUFFER    ','    /* selecting buffers                        */
 #define     XMOD_FORMAT    '$'    /* content formatting                       */
@@ -66,8 +66,8 @@
 #define     UMOD_MARK      '\''   /* location and object marking              */
 #define     UMOD_VISUAL    'v'    /* visual selection history                 */
 #define     UMOD_REPEAT    '9'    /* accumulate multiplier                    */
-#define     UMOD_REPLACE   'r'    /* replacing characters in source mode      */
-#define     UMOD_INPUT     'i'    /* direct input of text                     */
+#define     UMOD_SRC_REPL  'r'    /* replacing characters in source mode      */
+#define     UMOD_SRC_INPT  'i'    /* direct input of text                     */
 #define     UMOD_WANDER    'w'    /* formula creation by pointing             */
 #define     UMOD_HISTORY   'h'    /* hint labels                              */
 #define     SMOD_FILTER    '!'    /* data filtering                           */
@@ -284,6 +284,15 @@ char        yVIKEYS_srch_direct     (char *a_search);
 char        yVIKEYS_file_config     (char *a_prog, char *a_ext, char *a_vernum, char *a_vertxt, char *a_full, char *a_desc);
 char        yVIKEYS_file_add        (char  a_abbr, void *a_writer, void *a_reader);
 char        yVIKEYS_file_write      (char a_abbr, void *a, void *b, void *c, void *d, void *e, void *f, void *g, void *h, void *i);
+
+char        yVIKEYS_regs_config       (void *a_killer, void *a_copier, void *a_paster);
+char        yVIKEYS_regs_save         (void *a_thing);
+
+/*---(unit testing)---------*/
+char        yVIKEYS_unit_reset      (void);
+char        yVIKEYS_unit_recd       (char *a_recd);
+char        yVIKEYS_unit_reader     (char  a_type, char *a_recd);
+
 
 
 #endif

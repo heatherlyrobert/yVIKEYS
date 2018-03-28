@@ -647,36 +647,31 @@ MARK__listplus      (char *a_list)
 static void  o___MARK_FILE_______o () { return; }
 
 char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/
-MARK_writer           (void)
+MARK_writer           (char a_abbr)
 {
    /*---(locals)-----------+-----------+-*/
+   char        rce         =  -10;
+   char        x_beg       =    0;
+   char        x_end       =    0;
    char        i           =    0;
    char        c           =    0;
+   /*---(prepare)----------------s-------*/
+   yVIKEYS_unit_reset ();
+   if (a_abbr == 0) {
+      x_beg = 1;
+      x_end = s_nmark - 1;
+   } else {
+      x_beg = x_end = MARK_valid (a_abbr);
+      if (x_beg <= 0)  return rce;
+   }
    /*---(find marked entries)------------*/
-   for (i = 1; i < s_nmark; ++i) {
-      strlcpy (myVIKEYS.f_recd, "", LEN_RECD);
+   for (i = x_beg; i <= x_end; ++i) {
       if (s_mark_info [i].source == MARK_NONE)  continue;
       yVIKEYS_file_write (UMOD_MARK, &(S_MARK_LIST [i]), &s_mark_info [i].x_pos, &s_mark_info [i].y_pos, &s_mark_info [i].z_pos, NULL, NULL, NULL, NULL, NULL);
       ++c;
    }
    /*---(complete)-----------------------*/
    return c;
-}
-
-char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/
-MARK_writer_single    (char a_mark)
-{
-   /*---(locals)-----------+-----+-----+-*/
-   char        rce         =  -10;
-   char        i           =    0;
-   /*---(find marked entries)------------*/
-   strlcpy (myVIKEYS.f_recd, "", LEN_RECD);
-   i = MARK_valid (a_mark);
-   --rce;  if (i <= 0)  return rce;
-   if (s_mark_info [i].source == MARK_NONE)  return 0;
-   yVIKEYS_file_write (UMOD_MARK, &(S_MARK_LIST [i]), &s_mark_info [i].x_pos, &s_mark_info [i].y_pos, &s_mark_info [i].z_pos, NULL, NULL, NULL, NULL, NULL);
-   /*---(complete)-----------------------*/
-   return 1;
 }
 
 char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/

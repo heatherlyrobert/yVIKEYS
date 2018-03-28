@@ -34,8 +34,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.9m"
-#define YVIKEYS_VER_TXT   "changed internal space to ¹ and fixed ALL unit tests to match"
+#define YVIKEYS_VER_NUM   "0.9n"
+#define YVIKEYS_VER_TXT   "renamed source s/u modes/functions with SRC prefix"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -246,19 +246,17 @@ char        VISU_status_saved       (char *a_list);
 char        VISU_smode              (int a_major, int a_minor);
 char        VISU_read               (char a_visu, char *a_label);
 char*       VISU__unit              (char *a_question, char a_index);
-char        VISU_reader             (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i);
 
 
 char        FILE_status             (char *a_list);
 int         OUTP_write              (void);
-char        OUTP__unit_writer       (char a_abbr, char a_item);
 char        INPT_edit               (void);
 char        INPT__unit_reader       (char a_abbr);
 
 
-char        SUNDO_status            (char *a_list);
-char        SUNDO__redo             (void);
-char        SUNDO__undo             (void);
+char        SRC_UNDO_status            (char *a_list);
+char        SRC_UNDO__redo             (void);
+char        SRC_UNDO__undo             (void);
 char*       SOURCE_label            (void);
 char        SOURCE_init             (void);
 char        SOURCE_other            (char a_type);
@@ -269,18 +267,15 @@ char        SOURCE_status_select    (char *a_list);
 char*       SOURCE__unit            (char *a_question, char a_reg);
 char        SOURCE_status_words     (char *a_list);
 char        SOURCE_start            (char *a_prefix);
-char        TEXTREG_init            (void);
-char        TEXTREG_valid           (cchar a_reg);
-char        TEXTREG_status          (char *a_list);
+char        SRC_REG_init            (void);
+char        SRC_REG_valid           (cchar a_reg);
+char        SRC_REG_status          (char *a_list);
 char        SOURCE_mode             (int a_major, int a_minor);
-char        TEXTREG_infowin         (char *a_entry, int a_index);
-char        TEXTREG_smode           (int a_major, int a_minor);
-char        REPLACE_umode           (int a_major, int a_minor);
-char        INPUT_umode             (int  a_major, int  a_minor);
+char        SRC_REG_infowin         (char *a_entry, int a_index);
+char        SRC_REG_smode           (int a_major, int a_minor);
+char        SRC_REPL_umode           (int a_major, int a_minor);
+char        SRC_INPT_umode             (int  a_major, int  a_minor);
 char        HISTORY_display         (void);
-char        TEXTREG_writer          (void);
-char        TEXTREG_writer_single   (char a_mark);
-char        TEXTREG_reader          (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i);
 
 char        WANDER_smode            (int  a_major, int  a_minor);
 
@@ -297,7 +292,6 @@ char*       MARK__unit              (char *a_question, char a_mark);
 char        MARK__write             (char a_mark);
 char        MARK_writeall           (FILE *a_file);
 char        MARK_read               (char a_mark, char *a_label);
-char        MARK_reader             (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i);
 char        MARK_direct             (char *a_string);
 char        MARK_infowin            (char *a_entry, int a_index);
 char        MARK__listplus          (char *a_list);
@@ -347,7 +341,6 @@ int         CMDS__find              (char *a_name);
 char*       CMDS_curr               (void);
 char        CMDS__exec              (void);
 int         CMDS_valid              (char a_mark);
-char        CMDS_reader             (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i);
 char        CMDS__unit_null         (void);
 /*---(search)---------------*/
 char        HISTORY_limits          (char a_mode, int *a_min, int *a_max);
@@ -358,7 +351,6 @@ char        SRCH_init               (void);
 char        SRCH__purge             (void);
 char        SRCH__exec              (void);
 char        SRCH_next               (char a_move);
-char        SRCH_reader             (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i);
 /*---(unit testing)---------*/
 char        SRCH__unit_null         (void);
 char        SRCH__unit_searcher     (char *a_search);
@@ -382,16 +374,34 @@ char        FILE_name               (char  *a_name);
 char        FILE__unit_null         (void);
 char*       FILE__unit              (char *a_question, int a_ref);
 
-char        SRCH_writer             (void);
-char        SRCH_writer_single      (char a_mark);
-char        CMDS_writer             (void);
-char        CMDS_writer_single      (char a_mark);
-char        MARK_writer             (void);
-char        MARK_writer_single      (char a_mark);
-char        VISU_writer             (void);
-char        VISU_writer_single      (char a_mark);
-char        MACRO_writer            (void);
-char        MACRO_writer_single     (char a_mark);
+
+char        REGS__by_abbr           (char a_reg);
+char        REGS__set               (char a_reg);
+char        REGS__reset             (void);
+char        REGS_init               (void);
+char        REGS_wrap               (void);
+char        REGS_clear              (void);
+char        REGS_delete             (void);
+char        REGS_copy               (void);
+char        REGS_cut                (void);
+char        REGS_paste              (char a_type);
+char        REGS__unit_killer       (void *a_thing);
+char        REGS__unit_copier       (char a_type, int a_x1, int a_x2, int a_y1, int a_y2, int a_z);
+char        REGS__unit_paster       (char a_type, int a_x , int a_y , int a_z , void *a_thing);
+
+
+char        SRC_REG_writer          (char a_abbr);
+char        SRCH_writer             (char a_abbr);
+char        CMDS_writer             (char a_abbr);
+char        MARK_writer             (char a_abbr);
+char        VISU_writer             (char a_abbr);
+char        MACRO_writer            (char a_abbr);
+
+char        SRC_REG_reader          (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i);
+char        SRCH_reader             (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i);
+char        MARK_reader             (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i);
+char        VISU_reader             (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i);
+char        CMDS_reader             (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i);
 char        MACRO_reader            (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i);
 
 #define    ACTION_FIND     'f'

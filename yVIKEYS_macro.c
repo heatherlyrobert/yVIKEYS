@@ -782,35 +782,31 @@ char MACRO_set_mode          (char a_mode) { s_macro_mode = a_mode; return 0; }
 static void  o___FILE____________o () { return; }
 
 char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/
-MACRO_writer           (void)
+MACRO_writer           (char a_abbr)
 {
-   /*---(locals)-----------+-----------+-*/
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        x_beg       =    0;
+   char        x_end       =    0;
    int         i           =    0;
    char        c           =    0;
+   /*---(prepare)----------------s-------*/
+   yVIKEYS_unit_reset ();
+   if (a_abbr == 0) {
+      x_beg = 0;
+      x_end = MAX_MACRO - 1;
+   } else {
+      x_beg = x_end = MACRO__index (a_abbr);
+      if (x_beg <  0)  return rce;
+   }
    /*---(find marked entries)------------*/
-   for (i = 0; i < MAX_MACRO; ++i) {
+   for (i = x_beg; i <= x_end; ++i) {
       if (s_macros [i].len <= 0)  continue;
       yVIKEYS_file_write (SMOD_MACRO, &S_MACRO_LIST [i], &s_macros [i].count, &s_macros [i].rc, s_macros [i].keys, NULL, NULL, NULL, NULL, NULL);
       ++c;
    }
    /*---(complete)-----------------------*/
    return c;
-}
-
-char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/
-MACRO_writer_single    (char a_abbr)
-{
-   /*---(locals)-----------+-----------+-*/
-   char        rce         =  -10;
-   int         i           =    0;
-   /*---(find marked entries)------------*/
-   strlcpy (myVIKEYS.f_recd, "", LEN_RECD);
-   --rce;  if (a_abbr < 0)           return rce;
-   --rce;  if (a_abbr >= MAX_MACRO)  return rce;
-   i = a_abbr - 'a';
-   yVIKEYS_file_write (SMOD_MACRO, &S_MACRO_LIST [i], &s_macros [i].count, &s_macros [i].rc, s_macros [i].keys, NULL, NULL, NULL, NULL, NULL);
-   /*---(complete)-----------------------*/
-   return 1;
 }
 
 char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/
