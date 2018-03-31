@@ -34,8 +34,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.9n"
-#define YVIKEYS_VER_TXT   "renamed source s/u modes/functions with SRC prefix"
+#define YVIKEYS_VER_NUM   "0.9i"
+#define YVIKEYS_VER_TXT   "clean unit test of basic map register actions"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -243,6 +243,8 @@ char        MAP__unit_addressor     (char *a_label, int x, int y, int z);
 char        VISU_valid              (char a_visu);
 char        VISU_status             (char *a_list);
 char        VISU_status_saved       (char *a_list);
+char        VISU_exact              (int a_bcol, int a_brow, int a_ecol, int a_erow, int a_tab);
+char        VISU_range              (int *a_xbeg, int *a_xend, int *a_ybeg, int *a_yend, int *a_z);
 char        VISU_smode              (int a_major, int a_minor);
 char        VISU_read               (char a_visu, char *a_label);
 char*       VISU__unit              (char *a_question, char a_index);
@@ -375,19 +377,24 @@ char        FILE__unit_null         (void);
 char*       FILE__unit              (char *a_question, int a_ref);
 
 
-char        REGS__by_abbr           (char a_reg);
-char        REGS__set               (char a_reg);
-char        REGS__reset             (void);
-char        REGS_init               (void);
-char        REGS_wrap               (void);
-char        REGS_clear              (void);
-char        REGS_delete             (void);
-char        REGS_copy               (void);
-char        REGS_cut                (void);
-char        REGS_paste              (char a_type);
-char        REGS__unit_killer       (void *a_thing);
-char        REGS__unit_copier       (char a_type, int a_x1, int a_x2, int a_y1, int a_y2, int a_z);
-char        REGS__unit_paster       (char a_type, int a_x , int a_y , int a_z , void *a_thing);
+char        MAP_REG__by_abbr           (char a_reg);
+char        MAP_REG__set               (char a_reg);
+char        MAP_REG__reset             (void);
+char        MAP_REG_init               (void);
+char        MAP_REG_wrap               (void);
+char        MAP_REG_save               (void);
+char        MAP_REG_clear              (void);
+char        MAP_REG_delete             (void);
+char        MAP_REG_copy               (void);
+char        MAP_REG_cut                (void);
+char        MAP_REG_paste              (char *a_type);
+
+char        MAP_REG__unit_purge        (void);
+char        MAP_REG__unit_killer       (void *a_thing);
+char        MAP_REG__unit_copier       (char a_type);
+char        MAP_REG__unit_clearer      (char a_1st, int x, int y, int z);
+char        MAP_REG__unit_paster       (char a_regs, char a_pros, char a_intg, char a_1st, int a_xoff, int a_yoff, int a_zoff, void *a_thing);
+char*       MAP_REG__unit              (char *a_question, char x, char y);
 
 
 char        SRC_REG_writer          (char a_abbr);

@@ -78,7 +78,7 @@ struct cSECTION {
 static tSECTION  s_sections [MAX_SECTION] = {
    /* -   ----abbr---    ---name------------    --label---   ver   ---specs--    ---1st----    ---2nd----    ---3rd----    ---4th----    ---5th----    ---6th----    ---7th----    ---8th----    ---9th----   writer  reader  try  bad */
    { 'i', UMOD_MARK   , "location marks"     , "loc_mark"  , 'B', "ciii------", "-a"        , "--x"       , "--y"       , "--z"       , ""          , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
-   { 'i', UMOD_VISUAL , "visual marks"       , "visu_mark" , 'A', "ciiiiii---", "-a"        , "xbeg"      , "ybeg"      , "zbeg"      , "xend"      , "yend"      , "zend"      , ""          , ""          , NULL  , NULL  ,   0,   0 },
+   { 'i', UMOD_VISUAL , "visual marks"       , "visu_mark" , 'A', "ciiiii----", "-a"        , "xbeg"      , "ybeg"      , "xend"      , "yend"      , "zall"      , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
    { 'i', SMOD_MACRO  , "saved macros"       , "macro"     , 'A', "ciiS------", "-a"        , "count"     , "rc"        , "command"   , ""          , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
    { 'i', MODE_SEARCH , "search history"     , "search"    , 'A', "ciiS------", "-a"        , "count"     , "found"     , "search"    , ""          , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
    { 'i', MODE_COMMAND, "command history"    , "command"   , 'A', "ciiS------", "-a"        , "count"     , "rc"        , "command"   , ""          , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
