@@ -34,8 +34,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.9i"
-#define YVIKEYS_VER_TXT   "clean unit test of basic map register actions"
+#define YVIKEYS_VER_NUM   "0.9j"
+#define YVIKEYS_VER_TXT   "gyges successful on basic register actions"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -391,7 +391,7 @@ char        MAP_REG_paste              (char *a_type);
 
 char        MAP_REG__unit_purge        (void);
 char        MAP_REG__unit_killer       (void *a_thing);
-char        MAP_REG__unit_copier       (char a_type);
+char        MAP_REG__unit_copier       (char a_type, long a_stamp);
 char        MAP_REG__unit_clearer      (char a_1st, int x, int y, int z);
 char        MAP_REG__unit_paster       (char a_regs, char a_pros, char a_intg, char a_1st, int a_xoff, int a_yoff, int a_zoff, void *a_thing);
 char*       MAP_REG__unit              (char *a_question, char x, char y);

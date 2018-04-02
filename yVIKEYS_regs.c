@@ -118,9 +118,9 @@ static      char        s_regnames   [MAX_REG] = "\"abcdefghijklmnopqrstuvwxyz-+
 /* destroy a copy held in a register --------------------------*/
 static char    (*s_killer)     (void *a_thing);
 /* get a copy and put it into a register ----------------------*/
-static void*   (*s_copier)     (char a_type);
+static void*   (*s_copier)     (char a_type, long a_stamp);
 /* clear an area in the host application ----------------------*/
-static char    (*s_clearer)    (char a_1st , int x, int y, int z);
+static char    (*s_clearer)    (char a_1st, int x, int y, int z);
 /* integrate something into the host application --------------*/
 static char    (*s_paster)     (char a_regs, char a_pros, char a_intg, char a_1st, int a_xoff, int a_yoff, int a_zoff, void *a_thing);
 
@@ -469,24 +469,48 @@ yVIKEYS_regs_add        (void *a_thing, char *a_label, char a_note)
    int         x_reg       =   0;
    int         x_nbuf      =   0;
    char        t           [LEN_LABEL]  = "";
+   /*---(header)-------------------------*/
+   DEBUG_REGS   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
-   --rce;  if (s_saving != 'y')                  return  rce;
-   --rce;  if (a_thing  == NULL)                 return  rce;
+   DEBUG_REGS   yLOG_char    ("s_saving"  , s_saving);
+   --rce;  if (s_saving != 'y') {
+      DEBUG_REGS   yLOG_exitr   (__FUNCTION__, rce);
+      return  rce;
+   }
+   DEBUG_REGS   yLOG_point   ("a_thing"   , a_thing);
+   --rce;  if (a_thing == NULL)  {
+      DEBUG_REGS   yLOG_exitr   (__FUNCTION__, rce);
+      return  rce;
+   }
+   DEBUG_REGS   yLOG_char    ("s_creg"    , s_creg);
    x_reg  = MAP_REG__by_abbr  (s_creg);
-   --rce;  if (x_reg < 0)                        return  rce;
-   --rce;  if (s_regs [x_reg].nbuf >= LEN_BUF)   return  rce;
-   /*---(attach)-------------------------*/
+   DEBUG_REGS   yLOG_value   ("x_reg"     , x_reg);
+   --rce;  if (x_reg < 0) {
+      DEBUG_REGS   yLOG_exitr   (__FUNCTION__, rce);
+      return  rce;
+   }
    x_nbuf = s_regs [x_reg].nbuf;
+   DEBUG_REGS   yLOG_value   ("x_nbuf"    , x_nbuf);
+   --rce;  if (x_nbuf >= LEN_BUF) {
+      DEBUG_REGS   yLOG_exitr   (__FUNCTION__, rce);
+      return  rce;
+   }
+   /*---(attach)-------------------------*/
    s_regs [x_reg].buf   [x_nbuf] = a_thing;
    s_regs [x_reg].notes [x_nbuf] = a_note;
+   DEBUG_REGS   yLOG_point   ("a_label"   , a_label);
    if (a_label != NULL) {
+      DEBUG_REGS   yLOG_info    ("a_label"   , a_label);
       sprintf (t, "%s,", a_label);
       strlcat (s_regs [x_reg].labels, t, LEN_RECD);
    }
    /*---(counters)-----------------------*/
    ++s_regs [x_reg].nbuf;
+   DEBUG_REGS   yLOG_value   ("nbuf"      , s_regs [x_reg].nbuf);
    ++s_regs [x_reg].real;
+   DEBUG_REGS   yLOG_value   ("real"      , s_regs [x_reg].real);
    /*---(complete)-----------------------*/
+   DEBUG_REGS   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -498,6 +522,7 @@ MAP_REG_save               (void)
    char        rc          =    0;
    int         x_reg       =    0;
    int         x_nbuf      =    0;
+   long        x_stamp     =    0;
    /*---(header)-------------------------*/
    DEBUG_REGS   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
@@ -539,17 +564,18 @@ MAP_REG_save               (void)
       return  rce;
    }
    /*---(call save)----------------------*/
+   x_stamp  = rand ();
    s_saving = 'y';
-   rc = s_copier ('c');
+   s_regs [x_reg].type = S_REG_ACTIVE;
+   rc = s_copier ('c', x_stamp);
    s_saving = '-';
    DEBUG_REGS   yLOG_value   ("copy rc"   , rc);
    --rce;  if (rc < 0) {
       DEBUG_REGS   yLOG_exitr   (__FUNCTION__, rce);
       return  rce;
    }
-   /*---(mark)---------------------------*/
-   if (s_regs [x_reg].nbuf > 0)  s_regs [x_reg].type = S_REG_ACTIVE;
-   else                          MAP_REG__wipe (s_creg, '-');
+   /*---(check counts)-------------------*/
+   if (s_regs [x_reg].nbuf <= 0)  MAP_REG__wipe (s_creg, '-');
    /*---(complete)-----------------------*/
    DEBUG_REGS   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -620,60 +646,6 @@ MAP_REG_clear           (void)
          s_clearer (x_1st, x, y, z);
          x_1st = '-';
       }
-   }
-   /*---(complete)-----------------------*/
-   DEBUG_REGS   yLOG_exit    (__FUNCTION__);
-   return 0;
-}
-
-char
-MAP_REG_delete             (void)
-{
-   /*---(locals)-----------+-----------+-*/
-   char        rce         = -10;
-   /*---(header)-------------------------*/
-   DEBUG_REGS   yLOG_enter   (__FUNCTION__);
-   /*---(defense)------------------------*/
-   --rce;  if (!STATUS_operational (SMOD_MAP_REG)) {
-      DEBUG_REGS   yLOG_note    ("can not execute until operational");
-      DEBUG_REGS   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   /*---(complete)-----------------------*/
-   DEBUG_REGS   yLOG_exit    (__FUNCTION__);
-   return 0;
-}
-
-char
-MAP_REG_copy               (void)
-{
-   /*---(locals)-----------+-----------+-*/
-   char        rce         = -10;
-   /*---(header)-------------------------*/
-   DEBUG_REGS   yLOG_enter   (__FUNCTION__);
-   /*---(defense)------------------------*/
-   --rce;  if (!STATUS_operational (SMOD_MAP_REG)) {
-      DEBUG_REGS   yLOG_note    ("can not execute until operational");
-      DEBUG_REGS   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   /*---(complete)-----------------------*/
-   DEBUG_REGS   yLOG_exit    (__FUNCTION__);
-   return 0;
-}
-
-char
-MAP_REG_cut                (void)
-{
-   /*---(locals)-----------+-----------+-*/
-   char        rce         = -10;
-   /*---(header)-------------------------*/
-   DEBUG_REGS   yLOG_enter   (__FUNCTION__);
-   /*---(defense)------------------------*/
-   --rce;  if (!STATUS_operational (SMOD_MAP_REG)) {
-      DEBUG_REGS   yLOG_note    ("can not execute until operational");
-      DEBUG_REGS   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
    }
    /*---(complete)-----------------------*/
    DEBUG_REGS   yLOG_exit    (__FUNCTION__);
@@ -844,6 +816,8 @@ MAP_REG_paste              (char *a_type)
       }
       x_1st = '-';
    }
+   /*---(update)-------------------------*/
+   MAP_reposition  ();
    /*---(complete)-----------------------*/
    DEBUG_REGS   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -1147,7 +1121,7 @@ MAP_REG__unit_init         (void)
 }
 
 char
-MAP_REG__unit_copier       (char a_type)
+MAP_REG__unit_copier       (char a_type, long a_stamp)
 {
    /*---(locals)-----------+-----------+-*/
    char        rc          = 0;

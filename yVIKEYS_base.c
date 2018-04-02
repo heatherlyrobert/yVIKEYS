@@ -44,6 +44,7 @@ yVIKEYS_init         (void)
    DEBUG_PROG   yLOG_enter   (__FUNCTION__);
    /*----(first)-------------------------*/
    STATUS_init  ();
+   srand (time (NULL));
    /*----(early)-------------------------*/
    MODE_init    ();
    FILE_init    ();

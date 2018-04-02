@@ -1846,6 +1846,7 @@ MAP_mode                (char a_major, char a_minor)
       }
       /*---(copy, paste)-----------------*/
       if (a_minor == 'y') {
+         DEBUG_USER   yLOG_note    ("y for yank/copy");
          MAP_REG_save  ();
          VISU__clear   ();
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
@@ -1859,8 +1860,8 @@ MAP_mode                (char a_major, char a_minor)
          return 0;
       }
       if (a_minor == 'P') {
+         DEBUG_USER   yLOG_note    ("P for paste normal");
          MAP_REG_paste ("normal");
-         VISU__clear   ();
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return 0;
       }
