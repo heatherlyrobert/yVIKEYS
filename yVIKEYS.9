@@ -2,12 +2,50 @@
 .na
 
 .SH NAME
-yVIKEYS \- user interface requirements
+yVIKEYS \- user interface behavior guarantees (automation)
 
 .SH SUMMARY
 yVIKEYS is a standardized, fullsome, vi/vim-like, purely keyboard-centric,
 modal interface and application framework to provide wicked, powerful, and
 high-end features to ALL my applications.
+
+.SH MAN PAGE PURPOSE
+this man page documents the guaranteed behavior of yVIKEYS as required to
+support predictable interactive usage, repeatable keyboard macros, and other
+automation, scripting, and batch use.
+
+
+
+
+.SH INPUT micro-mode
+
+.B starting behavior guarantee
+   -- input mode is entered in either insert or append mode
+   -- insert adds a space before the current char and append after
+   -- if current source is null, it creates a single open space
+   -- the new open space for editing is shown with a ¤
+
+.B adding characters
+   -- each character typed replaces the ¤
+   -- a new space is openned to the right and shown as a ¤
+   -- the source is lengthened by each new character
+
+.B back-slashed special characters
+   -- a leading · is used to add a non-keyboard character
+   -- typing a · waits for a second key to determine what to add
+   -- only a single character is added
+
+.B ending behavior guarantees
+   -- ¥ accepts changes and returns to source mode for further editing
+   -- ¦ accepts changes and saves/executes the results
+   -- upon exit, the extra character ¤ is removed from the source
+   -- for ¥, the cursor is positioned on the last char added
+   -- if nothing is added, the cursor will be before the ¤ position
+   -- this positioning exactly matches vi/vim
+
+   1¯
+   (a+b)¯
+
 
 .SH SEE ALSO
 this documentation is layered to provide easier navigation.
@@ -15,7 +53,7 @@ this documentation is layered to provide easier navigation.
    yVIKEYS (5), data file format and structure
    yVIKEYS (6), interactive system usage and navigation
    yVIKEYS (7), decision rationale, objectives, and overview
-   yVIKEYS (9), user interface requirements (for automation)
+   yVIKEYS (9), user interface behavior guarantees (automation)
 
 .SH AUTHOR
 jelloshrike at gmail dot com

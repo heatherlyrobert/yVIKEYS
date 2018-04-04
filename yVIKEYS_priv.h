@@ -34,8 +34,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.9j"
-#define YVIKEYS_VER_TXT   "gyges successful on basic register actions"
+#define YVIKEYS_VER_NUM   "0.9k"
+#define YVIKEYS_VER_TXT   "gyges copy/paste normal mode is working in unit test"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -181,7 +181,6 @@ char        KEYS_dump               (FILE *a_file);
 char        BASE__unit_quiet        (void);
 char        BASE__unit_loud         (void);
 char        BASE__unit_end          (void);
-uchar       BASE__main_string       (uchar *a_keys);
 
 
 

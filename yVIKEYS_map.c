@@ -23,11 +23,11 @@ char   g_hgoto     [LEN_DESC ]   = "SH shcle LE";
 char   g_hscroll   [LEN_DESC ]   = "   shcle   ";
 char   g_hword     [LEN_DESC ]   = "wbe WBE";
 
-char   g_multimap  [LEN_DESC ]   = "cgz e dxia   ";
-char   g_multivisu [LEN_DESC ]   = "cgz e   ia   ";
+char   g_multimap  [LEN_DESC ]   = "cgz e pdxia   ";
+char   g_multivisu [LEN_DESC ]   = "cgz e p  ia   ";
 
-char   g_multisrc  [LEN_DESC ]   = "cgz   dx   Ff";
-char   g_multiselc [LEN_DESC ]   = "cgz        Ff";
+char   g_multisrc  [LEN_DESC ]   = "cgz    dx   Ff";
+char   g_multiselc [LEN_DESC ]   = "cgz         Ff";
 
 char   g_repeat    [LEN_DESC ]   = "123456789";
 char   g_search    [LEN_DESC ]   = "[<>]";
@@ -1926,6 +1926,18 @@ MAP_mode                (char a_major, char a_minor)
          return rc;
       }
    }
+   /*---(paste family)-------------------*/
+   if (a_major == 'p') {
+      switch (a_minor) {
+      case 'n' :  rc = MAP_REG_paste ("normal");    break;
+      case 'r' :  rc = MAP_REG_paste ("replace");   break;
+      case 'd' :  rc = MAP_REG_paste ("duplicate"); break;
+      case 'm' :  rc = MAP_REG_paste ("move");      break;
+      case 'f' :  rc = MAP_REG_paste ("force");     break;
+      }
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return rc;
+   }
    /*---(scroll family)------------------*/
    /*> if (a_major == 'z') {                                                          <* 
     *>    rc = KEYS_gz_family  (a_major, a_minor);                                    <* 
@@ -2206,6 +2218,19 @@ MAP__unit_quick         (void)
    MAP__load ('1', &g_zmap, YVIKEYS_ZMAP);
    yVIKEYS_map_config (YVIKEYS_OFFICE, MAP__unit_mapper, MAP__unit_locator, MAP__unit_addressor);
    return 0;
+}
+
+char*
+yVIKEYS__unit           (char *a_question, int a_num)
+{
+   /*---(preprare)-----------------------*/
+   strlcpy  (yVIKEYS__unit_answer, "yVIKEYS unit     : question not understood", LEN_STR);
+   /*---(questions)----------------------*/
+   if (strcmp (a_question, "map_curr"       )   == 0) {
+      snprintf (yVIKEYS__unit_answer, LEN_STR, "yVIKEYS map curr : %3dx, %3dy, %3dz", g_xmap.gcur, g_ymap.gcur, g_zmap.gcur);
+   }
+   /*---(complete)-----------------------*/
+   return yVIKEYS__unit_answer;
 }
 
 char*        /*-> tbd --------------------------------[ leaf   [gs.520.202.40]*/ /*-[01.0000.00#.#]-*/ /*-[--.---.---.--]-*/

@@ -473,7 +473,7 @@ yVIKEYS_main_handle     (uchar a_key)
 }
 
 uchar        /*-> process input string in main loop --[ ------ [ge.C74.153.42]*/ /*-[02.0000.00#.D]-*/ /*-[--.---.---.--]-*/
-BASE__main_string    (uchar *a_keys)
+yVIKEYS_main_string  (uchar *a_keys)
 {
    /*---(locals)-----------+-----------+-*/
    char        rce         =  -10;     /* return code for errors              */
