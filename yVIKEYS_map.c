@@ -609,13 +609,7 @@ VISU__clear         (void)
 }
 
 char         /*-> apply a specific selection ---------[ ------ [ge.E54.125.43]*/ /*-[01.0000.213.T]-*/ /*-[--.---.---.--]-*/
-VISU_exact         (
-      /*----------+-----------+-----------------------------------------------*/
-      int         a_bcol,     /* beginning col of selection                   */
-      int         a_brow,     /* beginning row of selection                   */
-      int         a_ecol,     /* ending col of selection                      */
-      int         a_erow,     /* ending col of selection                      */
-      int         a_tab)      /* tab of selection                             */
+VISU_exact         (int a_xbeg, int a_xend, int a_ybeg, int a_yend, int a_z)
 {  /*---(design notes)--------------------------------------------------------*/
    /* if the two ends of the range are legal, this function will change the   */
    /* current selection to the boundaries passed as arguments.                */
@@ -624,11 +618,11 @@ VISU_exact         (
    char        rce         = -10;
    /*---(header)-------------------------*/
    DEBUG_VISU   yLOG_enter   (__FUNCTION__);
-   DEBUG_VISU   yLOG_value   ("a_tab"     , a_tab );
-   DEBUG_VISU   yLOG_value   ("a_bcol"    , a_bcol);
-   DEBUG_VISU   yLOG_value   ("a_brow"    , a_brow);
-   DEBUG_VISU   yLOG_value   ("a_ecol"    , a_ecol);
-   DEBUG_VISU   yLOG_value   ("a_erow"    , a_erow);
+   DEBUG_VISU   yLOG_value   ("a_xbeg"    , a_xbeg);
+   DEBUG_VISU   yLOG_value   ("a_xend"    , a_xend);
+   DEBUG_VISU   yLOG_value   ("a_ybeg"    , a_ybeg);
+   DEBUG_VISU   yLOG_value   ("a_yend"    , a_yend);
+   DEBUG_VISU   yLOG_value   ("a_z"       , a_z   );
    /*---(prepare)------------------------*/
    DEBUG_VISU   yLOG_note    ("clear existing ranges");
    VISU__clear ();
@@ -637,11 +631,11 @@ VISU_exact         (
    s_live  = VISU_YES;
    /*---(locations)----------------------*/
    DEBUG_VISU   yLOG_note    ("set range coordinates");
-   s_visu.x_root = s_visu.x_beg  = a_bcol;
-   s_visu.y_root = s_visu.y_beg  = a_brow;
-   s_visu.x_end  = a_ecol;
-   s_visu.y_end  = a_erow;
-   s_visu.z_all  = a_tab;
+   s_visu.x_root = s_visu.x_beg  = a_xbeg;
+   s_visu.y_root = s_visu.y_beg  = a_ybeg;
+   s_visu.x_end  = a_xend;
+   s_visu.y_end  = a_yend;
+   s_visu.z_all  = a_z;
    /*---(set labels)---------------------*/
    MAP_addresser (s_visu.b_label, s_visu.x_beg, s_visu.y_beg, s_visu.z_all);
    MAP_addresser (s_visu.e_label, s_visu.x_end, s_visu.y_end, s_visu.z_all);
@@ -1852,7 +1846,8 @@ MAP_mode                (char a_major, char a_minor)
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return 0;
       }
-      if (a_minor == 'x') {
+      if (a_minor == 'Y') {
+         DEBUG_USER   yLOG_note    ("y for yank/clear");
          MAP_REG_save  ();
          MAP_REG_clear ();
          VISU__clear   ();
@@ -1929,11 +1924,13 @@ MAP_mode                (char a_major, char a_minor)
    /*---(paste family)-------------------*/
    if (a_major == 'p') {
       switch (a_minor) {
-      case 'n' :  rc = MAP_REG_paste ("normal");    break;
-      case 'r' :  rc = MAP_REG_paste ("replace");   break;
-      case 'd' :  rc = MAP_REG_paste ("duplicate"); break;
-      case 'm' :  rc = MAP_REG_paste ("move");      break;
-      case 'f' :  rc = MAP_REG_paste ("force");     break;
+      case '_' :  rc = MAP_REG_visual ();            break;
+      case '#' :  rc = MAP_REG_paste  ("clear");     break;
+      case 'n' :  rc = MAP_REG_paste  ("normal");    break;
+      case 'r' :  rc = MAP_REG_paste  ("replace");   break;
+      case 'd' :  rc = MAP_REG_paste  ("duplicate"); break;
+      case 'm' :  rc = MAP_REG_paste  ("move");      break;
+      case 'f' :  rc = MAP_REG_paste  ("force");     break;
       }
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return rc;

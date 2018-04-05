@@ -34,8 +34,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.9k"
-#define YVIKEYS_VER_TXT   "gyges copy/paste normal mode is working in unit test"
+#define YVIKEYS_VER_NUM   "0.9l"
+#define YVIKEYS_VER_TXT   "all gyges core copy/paste unit tests are successful"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -242,7 +242,7 @@ char        MAP__unit_addressor     (char *a_label, int x, int y, int z);
 char        VISU_valid              (char a_visu);
 char        VISU_status             (char *a_list);
 char        VISU_status_saved       (char *a_list);
-char        VISU_exact              (int a_bcol, int a_brow, int a_ecol, int a_erow, int a_tab);
+char        VISU_exact              (int a_xbeg, int a_xend, int a_ybeg, int a_yend, int a_z);
 char        VISU_range              (int *a_xbeg, int *a_xend, int *a_ybeg, int *a_yend, int *a_z);
 char        VISU_smode              (int a_major, int a_minor);
 char        VISU_read               (char a_visu, char *a_label);
@@ -382,6 +382,7 @@ char        MAP_REG__reset             (void);
 char        MAP_REG_init               (void);
 char        MAP_REG_wrap               (void);
 char        MAP_REG_save               (void);
+char        MAP_REG_visual             (void);
 char        MAP_REG_clear              (void);
 char        MAP_REG_delete             (void);
 char        MAP_REG_copy               (void);

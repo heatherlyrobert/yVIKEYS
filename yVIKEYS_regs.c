@@ -143,54 +143,54 @@ tPASTING   s_pasting [MAX_PASTING] = {
    /*---------*/
    { '-', "----", ""            , '-',    '-', '-', '-', '-',    "tbd" },
    /*---*/
-   { '-', "-n--", ""            , '-',    '-', 'n', '-', '-',    "tbd" },
+   { '-', "-nN-", ""            , '-',    '-', 'n', 'N', '-',    "tbd" },
    { '-', "-nR-", ""            , '-',    '-', 'n', 'R', '-',    "tbd" },
    { '-', "-nA-", ""            , '-',    '-', 'n', 'A', '-',    "tbd" },
    { '-', "-nS-", ""            , '-',    '-', 'n', 'S', '-',    "tbd" },
    /*---*/
-   { '-', "-r--", "normal"      , 'y',    '-', 'r', '-', '-',    "tbd" },
+   { '-', "-rN-", "normal"      , 'y',    '-', 'r', 'N', '-',    "tbd" },
    { '-', "-rR-", ""            , '-',    '-', 'r', 'R', '-',    "tbd" },
    { '-', "-rA-", ""            , '-',    '-', 'r', 'A', '-',    "tbd" },
    { '-', "-rS-", ""            , '-',    '-', 'r', 'S', '-',    "tbd" },
    /*---*/
-   { '-', "-i--", ""            , '-',    '-', 'i', '-', '-',    "tbd" },
+   { '-', "-iN-", ""            , '-',    '-', 'i', 'N', '-',    "tbd" },
    { '-', "-iR-", ""            , '-',    '-', 'i', 'R', '-',    "tbd" },
    { '-', "-iA-", ""            , '-',    '-', 'i', 'A', '-',    "tbd" },
    { '-', "-iS-", ""            , '-',    '-', 'i', 'S', '-',    "tbd" },
    /*---*/
-   { '-', "-b--", ""            , '-',    '-', 'b', '-', '-',    "tbd" },
+   { '-', "-bN-", ""            , '-',    '-', 'b', 'N', '-',    "tbd" },
    { '-', "-bR-", ""            , '-',    '-', 'b', 'R', '-',    "tbd" },
    { '-', "-bA-", ""            , '-',    '-', 'b', 'A', '-',    "tbd" },
    { '-', "-bS-", ""            , '-',    '-', 'b', 'S', '-',    "tbd" },
    /*---*/
-   { '-', "-e--", ""            , '-',    '-', 'e', '-', '-',    "tbd" },
+   { '-', "-eN-", ""            , '-',    '-', 'e', 'N', '-',    "tbd" },
    { '-', "-eR-", ""            , '-',    '-', 'e', 'R', '-',    "tbd" },
    { '-', "-eA-", ""            , '-',    '-', 'e', 'A', '-',    "tbd" },
    { '-', "-eS-", ""            , '-',    '-', 'e', 'S', '-',    "tbd" },
    /*---------*/
    { '-', "y---", "clear"       , 'y',    'y', '-', '-', '-',    "tbd" },
    /*---*/
-   { '-', "yn--", ""            , '-',    'y', 'n', '-', '-',    "tbd" },
+   { '-', "ynN-", ""            , '-',    'y', 'n', 'N', '-',    "tbd" },
    { '-', "ynR-", ""            , '-',    'y', 'n', 'R', '-',    "tbd" },
    { '-', "ynA-", ""            , '-',    'y', 'n', 'A', '-',    "tbd" },
    { '-', "ynS-", ""            , '-',    'y', 'n', 'S', '-',    "tbd" },
    /*---*/
-   { '-', "yr--", "replace"     , 'y',    'y', 'r', '-', '-',    "tbd" },
+   { '-', "yrN-", "replace"     , 'y',    'y', 'r', 'N', '-',    "tbd" },
    { '-', "yrR-", ""            , '-',    'y', 'r', 'R', '-',    "tbd" },
    { '-', "yrA-", ""            , '-',    'y', 'r', 'A', '-',    "tbd" },
    { '-', "yrS-", ""            , '-',    'y', 'r', 'S', '-',    "tbd" },
    /*---*/
-   { '-', "yi--", "duplicate"   , 'y',    'y', 'i', '-', '-',    "tbd" },
+   { '-', "yiN-", "duplicate"   , 'y',    'y', 'i', 'N', '-',    "tbd" },
    { '-', "yiR-", ""            , '-',    'y', 'i', 'R', '-',    "tbd" },
    { '-', "yiA-", ""            , '-',    'y', 'i', 'A', '-',    "tbd" },
    { '-', "yiS-", ""            , '-',    'y', 'i', 'S', '-',    "tbd" },
    /*---*/
-   { '-', "yb--", ""            , '-',    'y', 'b', '-', '-',    "tbd" },
+   { '-', "ybN-", ""            , '-',    'y', 'b', 'N', '-',    "tbd" },
    { '-', "ybR-", "move"        , 'y',    'y', 'b', 'R', '-',    "tbd" },
    { '-', "ybA-", "force"       , 'y',    'y', 'b', 'A', '-',    "tbd" },
    { '-', "ybS-", ""            , '-',    'y', 'b', 'S', '-',    "tbd" },
    /*---*/
-   { '-', "ye--", ""            , '-',    'y', 'e', '-', '-',    "tbd" },
+   { '-', "yeN-", ""            , '-',    'y', 'e', 'N', '-',    "tbd" },
    { '-', "yeR-", ""            , '-',    'y', 'e', 'R', '-',    "tbd" },
    { '-', "yeA-", ""            , '-',    'y', 'e', 'A', '-',    "tbd" },
    { '-', "yeS-", ""            , '-',    'y', 'e', 'S', '-',    "tbd" },
@@ -800,8 +800,10 @@ MAP_REG__paste_clear    (void)
       return rce;
    }
    /*---(clear)--------------------------*/
+   DEBUG_REGS   yLOG_complex ("range"     , "%3dx to %3dx, %3dy to %3dy", s_regs [s_reg].x_beg, s_regs [s_reg].x_end, s_regs [s_reg].y_beg, s_regs [s_reg].y_end);
    for (x = s_regs [s_reg].x_beg; x <= s_regs [s_reg].x_end; ++x) {
       for (y = s_regs [s_reg].y_beg; y <= s_regs [s_reg].y_end; ++y) {
+         DEBUG_REGS   yLOG_complex ("target"    , "%c, %3dx, %3dy, %3dz", x_1st, x + s_xoff, y + s_yoff, s_regs [s_reg].z_all + s_zoff);
          s_clearer (x_1st, x + s_xoff, y + s_yoff, s_regs [s_reg].z_all + s_zoff);
          x_1st = '-';
       }
@@ -859,6 +861,36 @@ MAP_REG_paste              (char *a_type)
    }
    /*---(update)-------------------------*/
    MAP_reposition  ();
+   /*---(complete)-----------------------*/
+   DEBUG_REGS   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char
+MAP_REG_visual          (void)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   int         x_reg       =    0;
+   /*---(header)-------------------------*/
+   DEBUG_REGS   yLOG_enter   (__FUNCTION__);
+   /*---(prepare)------------------------*/
+   rc = MAP_REG__paste_check    ();
+   DEBUG_REGS   yLOG_value   ("rc"        , rc);
+   --rce;  if (rc < 0) {
+      DEBUG_REGS   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(select)-------------------------*/
+   VISU_exact (
+         s_regs [x_reg].x_beg + s_xoff, s_regs [x_reg].x_end + s_xoff,
+         s_regs [x_reg].y_beg + s_yoff, s_regs [x_reg].y_end + s_yoff,
+         s_regs [x_reg].z_all + s_zoff);
+   MAP_jump (
+         s_regs [x_reg].x_end + s_xoff,
+         s_regs [x_reg].y_end + s_yoff,
+         s_regs [x_reg].z_all + s_zoff);
    /*---(complete)-----------------------*/
    DEBUG_REGS   yLOG_exit    (__FUNCTION__);
    return 0;
