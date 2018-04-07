@@ -561,56 +561,60 @@ potential panel areas.
  ....y      change selection then perform a common action, like yank
 .SS ---overview-------------------------------------------------------
 .B definition (D).  
-visual selection is a technique for identifying contiguous ranges of objects
-for common treatment, as well as saving and retrieving these boundaries for
-later use.
+visual selection is a technique for identifying two-dimensional (xy),
+contiguous ranges of objects for common treatment.
 
 .B value (V).   
-confidently and accurately selecting multiple objects for common treatment
-is critical for speed, reliability, and efficiency, as well complex scripting
-and automation.
+confidently and accurately doing this is critical for speed, reliability,
+and efficiency, as well complex automation.
 
 .B complication (C).  
-visual selection is normally simplistic, troublesome, and mouse/touch driven;
-and, implemented differently in almost every application.  good for casual
-users, terrible for advanced.
+this feature is normally very simplistic, non-standard, troublesome, and
+mouse driven.  terrible for advanced users.
 
 .B answer (A).  
-i will standardize "mostly" on the excellent vim visual selection standard
-and make it absolutely universal, but will update to handle multiples and
-more complex volumetric situations.
-
-.B top requirements 
--- fast, easy, powerful, standard, and universal.
+standardize on the vi/vim base, generalize to handle all applications, and
+make it universal across my applications.
 .SS ---full capabilities------------------------------------------------------
-.B normal selection keys in map mode
+.B initiation and termination
    v          turn on selection
-   ¥          clear selection
+   vx         turn on selection in full-x/column mode
+   vy         turn on selection in full-y/row mode
+   v*         turn on selection of all x,y on current z
+   ¥ or ¦     clear selection
+
+.B movements increase and decrease selection
    you remain in map mode, so all movement keys are still available
 
 .B selection saving and retrieving
-   there are 62 possible selections [a-zA-Z0-9]
+   there are 36 possible selections [a-z0-9]
    M¢         mark/save the current selection
-   V¢         highlight the saved selection
+   V¢         clear selection, highlight the saved selection
    0-9 are usually reserved for scripting (collision avoidance)
 
 .B special selections
    V'         re-select last used visual selection area
-   V*         select all area in current work space
    V(         select from mark '(' to mark ')'
+
+.B additional features
+   V?¢        show all saved selections, then accept existing [a-z0-9]
+   M?¢        show all saved selections, then accept new [a-z0-9] 
 
 .B adjustments to selection
    v          reverses the selection ends to help grow/shrink
 
 .B future possibilities
-   optional short-names for saved selections
+   -- optional short-names for saved selections
+   -- removing specific cells from selections
+   -- appending to existing selections
+   -- discontinuous selections
 
 
 
 
 
 
-.SH OBJECT REGISTERS (sub-mode)
+.SH MAP REGISTERS (sub-mode)
 .SS ---basics---------------------------------------------------------
  "ay        copy current visual selection to register 'a'
  "ap        past contents of register 'a' to current position

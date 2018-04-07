@@ -244,11 +244,22 @@ MAP_REG__abbr2tab          (char a_reg)
 }
 
 char
+MAP_REG__reset             (void)
+{
+   /*---(reset register)-----------------*/
+   s_creg = '"';
+   /*---(complete)-----------------------*/
+   return 0;
+}
+
+char
 MAP_REG__set               (char a_reg)
 {
    /*---(locals)-----------+-----------+-*/
    char        rce         = -10;
    int         x_reg       = 0;
+   /*---(reset)--------------------------*/
+   MAP_REG__reset ();
    /*---(get register number)------------*/
    x_reg  = MAP_REG__by_abbr  (a_reg);
    DEBUG_REGS   yLOG_value   ("x_reg"     , x_reg);
@@ -257,15 +268,6 @@ MAP_REG__set               (char a_reg)
       return rce;
    }
    s_creg = a_reg;
-   /*---(complete)-----------------------*/
-   return 0;
-}
-
-char
-MAP_REG__reset             (void)
-{
-   /*---(reset register)-----------------*/
-   s_creg = '"';
    /*---(complete)-----------------------*/
    return 0;
 }
@@ -819,8 +821,6 @@ MAP_REG_paste              (char *a_type)
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    char        rc          =    0;
-   int         x_reg       =    0;
-   int         x_nbuf      =    0;
    int         x, y, z;
    int         i           =    0;
    char        x_1st       =  'y';
@@ -852,7 +852,7 @@ MAP_REG_paste              (char *a_type)
    /*---(paste in order)-----------------*/
    --rce;  for (i = 0; i < s_regs [s_reg].nbuf; ++i) {
       DEBUG_REGS   yLOG_value   ("i"         , i);
-      rc = s_paster (s_reqs, s_pros, s_intg, x_1st, s_xoff, s_yoff, s_zoff, s_regs [x_reg].buf [i]);
+      rc = s_paster (s_reqs, s_pros, s_intg, x_1st, s_xoff, s_yoff, s_zoff, s_regs [s_reg].buf [i]);
       if (rc < 0) {
          DEBUG_REGS   yLOG_exitr   (__FUNCTION__, rce);
          return rce;
@@ -896,10 +896,136 @@ MAP_REG_visual          (void)
    return 0;
 }
 
+char         /*-> tbd --------------------------------[ ------ [ge.420.132.11]*/ /*-[00.0000.114.!]-*/ /*-[--.---.---.--]-*/
+MAP_REG_status          (char *a_status)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        x_list      [LEN_RECD]  = "";
+   int         x_reg       =    0;
+   /*---(defenses)-----------------------*/
+   --rce;  if (a_status  == NULL)  return rce;
+   /*---(identify register)--------------*/
+   x_reg  = MAP_REG__by_abbr  (s_creg);
+   --rce;  if (x_reg < 0) {
+      return  rce;
+   }
+   /*---(status)-------------------------*/
+   snprintf (a_status, 500, "reg %c %2d %s ", s_creg, s_regs [x_reg].nbuf, s_regs [x_reg].labels);
+   /*---(complete)-----------------------*/
+   return 0;
+}
+
+char
+MAP_REG_smode           (int a_major, int a_minor)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   char       *x_majors    = "m'";
+   static char x_prev      =  '-';
+   /*---(header)-------------------------*/
+   DEBUG_USER   yLOG_enter   (__FUNCTION__);
+   DEBUG_USER   yLOG_char    ("a_major"   , a_major);
+   DEBUG_USER   yLOG_char    ("a_minor"   , chrvisible (a_minor));
+   DEBUG_USER   yLOG_char    ("x_prev"    , x_prev);
+   myVIKEYS.info_win = '-';
+   /*---(defenses)-----------------------*/
+   DEBUG_USER   yLOG_char    ("mode"      , MODE_curr ());
+   --rce;  if (MODE_not (SMOD_MAP_REG)) {
+      DEBUG_USER   yLOG_note    ("not the correct mode");
+      DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(exit mode)----------------------*/
+   if (a_minor == G_KEY_ESCAPE || a_minor == G_KEY_RETURN) {
+      DEBUG_USER   yLOG_note    ("escape/return means leave");
+      MODE_exit ();
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return  0;
+   }
+   /*---(register selection)-------------*/
+   --rce;  if (a_major == '"') {
+      if (strchr (s_regnames, a_minor) != 0) {
+         MAP_REG__set    (a_minor);
+         return 0;
+      }
+      /*> } else if (a_minor == '?') {                                                                <* 
+       *>    my.info_win = G_INFO_REGS;                                                               <* 
+       *>    REG_set ('"');                                                                           <* 
+       *>    /+> yVIKEYS_mode_exit ();                                                          <+/   <* 
+       *>    return  0;                                                                               <*/
+      /*> } else if (a_minor == '!') {                                                <* 
+       *>    my.layout_status = G_STATUS_REGS;                                        <* 
+       *>    REG_set ('"');                                                           <* 
+       *>    yVIKEYS_mode_exit ();                                                    <* 
+       *>    return  0;                                                               <* 
+       *> }                                                                           <*/
+      return rce;
+   }
+   /*---(register actions)---------------*/
+   --rce;  if (a_major == ' ') {
+      /*---(multikey prefixes)-----------*/
+      switch (a_minor) {
+      /*---(multikey prefixes)-----------*/
+      case 'p'  :
+         DEBUG_USER   yLOG_note    ("p is a multi-key");
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         return a_minor;
+      case 'y'  :
+         DEBUG_USER   yLOG_note    ("y for yank/copy");
+         MAP_REG_save  ();
+         VISU_clear   ();
+         MODE_exit ();
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         return 0;
+         break;
+      case 'Y'  :
+         DEBUG_USER   yLOG_note    ("y for yank/clear");
+         MAP_REG_save  ();
+         MAP_REG_clear ();
+         VISU_clear   ();
+         MODE_exit ();
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         return 0;
+         break;
+      case 'P'  :
+         DEBUG_USER   yLOG_note    ("P for paste normal");
+         MAP_REG_paste ("normal");
+         MODE_exit ();
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         return 0;
+         break;
+      }
+   }
+   /*---(pasting actions)----------------*/
+   --rce;  if (a_major == 'p') {
+      switch (a_minor) {
+      case '_' :  rc = MAP_REG_visual ();            break;
+      case '#' :  rc = MAP_REG_paste  ("clear");     break;
+      case 'n' :  rc = MAP_REG_paste  ("normal");    break;
+      case 'r' :  rc = MAP_REG_paste  ("replace");   break;
+      case 'd' :  rc = MAP_REG_paste  ("duplicate"); break;
+      case 'm' :  rc = MAP_REG_paste  ("move");      break;
+      case 'f' :  rc = MAP_REG_paste  ("force");     break;
+      }
+      MODE_exit ();
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return rc;
+   }
+   /*---(failure)------------------------*/
+   --rce;
+   MODE_exit ();
+   DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
+   return rce;
+}
 
 
 
-
+/*====================------------------------------------====================*/
+/*===----                         unit testing                         ----===*/
+/*====================------------------------------------====================*/
+static void  o___UNITTEST________o () { return; }
 
 typedef  struct cTHING  tTHING;
 struct cTHING {
@@ -1252,7 +1378,12 @@ MAP_REG__unit           (char *a_question, char x, char y)
    /*---(preprare)-----------------------*/
    strlcpy  (yVIKEYS__unit_answer, "MAP_REG unit     : question not understood", LEN_STR);
    /*---(dependency list)----------------*/
-   if      (strcmp (a_question, "base"           )   == 0) {
+   if      (strcmp (a_question, "current"        )   == 0) {
+      x_reg = MAP_REG__by_abbr (s_creg);
+      MAP_REG_list  (s_creg, t);
+      snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP_REG current  : %c %2d %2d %s", s_creg, x_reg, s_regs [x_reg].nbuf, t);
+   }
+   else if (strcmp (a_question, "base"           )   == 0) {
       MAP_REG__unit_base (t);
       snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP_REG base  %2d : %s", s_nbase, t);
    }

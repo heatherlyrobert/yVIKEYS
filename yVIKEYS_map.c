@@ -59,6 +59,9 @@ struct cVISU {
    /*---(labels)-------------------------*/
    char        b_label     [LEN_LABEL];
    char        e_label     [LEN_LABEL];
+   /*---(special)------------------------*/
+   char        x_lock;
+   char        y_lock;
    /*---(end)----------------------------*/
 };
 static tVISU  s_visu;
@@ -266,6 +269,9 @@ VISU__unset           (char a_visu)
    DEBUG_VISU   yLOG_note    ("labels");
    strlcpy (s_visu_info [x_index].b_label, "", LEN_LABEL);
    strlcpy (s_visu_info [x_index].e_label, "", LEN_LABEL);
+   DEBUG_VISU   yLOG_note    ("locks");
+   s_visu_info [x_index].x_lock = '-';
+   s_visu_info [x_index].y_lock = '-';
    /*---(update range)-------------------*/
    DEBUG_VISU   yLOG_note    ("update the range");
    VISU__range ();
@@ -306,6 +312,9 @@ VISU__set             (char a_visu)
    DEBUG_VISU   yLOG_note    ("labels");
    strlcpy (s_visu_info [x_index].b_label, s_visu.b_label, LEN_LABEL);
    strlcpy (s_visu_info [x_index].e_label, s_visu.e_label, LEN_LABEL);
+   DEBUG_VISU   yLOG_note    ("locks");
+   s_visu_info [x_index].x_lock = s_visu.x_lock;
+   s_visu_info [x_index].y_lock = s_visu.y_lock;
    /*---(update range)-------------------*/
    DEBUG_VISU   yLOG_note    ("update the range/current");
    s_visu_curr = a_visu;
@@ -364,6 +373,9 @@ VISU__return          (char a_visu)
    DEBUG_VISU   yLOG_note    ("labels");
    strlcpy (s_visu.b_label, s_visu_info [x_index].b_label, LEN_LABEL);
    strlcpy (s_visu.e_label, s_visu_info [x_index].e_label, LEN_LABEL);
+   DEBUG_VISU   yLOG_note    ("locks");
+   s_visu.x_lock = s_visu_info [x_index].x_lock;
+   s_visu.y_lock = s_visu_info [x_index].y_lock;
    /*---(update range)-------------------*/
    DEBUG_VISU   yLOG_note    ("update the range/current");
    MAP_jump (s_visu.x_end, s_visu.y_end, s_visu.z_all);
@@ -477,6 +489,15 @@ VISU_islive        (void)
    return 0;
 }
 
+char         /*-> selection active or not ------------[ ------ [gc.B50.00#.D7]*/ /*-[01.0000.104.#]-*/ /*-[--.---.---.--]-*/
+VISU_onecell       (void)
+{
+   if (s_live != VISU_YES)            return 0;
+   if (s_visu.x_beg != s_visu.x_end)  return 0;
+   if (s_visu.y_beg != s_visu.y_end)  return 0;
+   return 1;
+}
+
 char         /*-> tbd --------------------------------[ ------ [ge.420.132.11]*/ /*-[00.0000.114.!]-*/ /*-[--.---.---.--]-*/
 VISU_infowin       (char *a_entry, int a_index)
 {
@@ -539,15 +560,42 @@ static void  o___VISU_SETTING____o () { return; }
 static char
 VISU__reverse           (void)
 {
-   if (s_visu.x_root == s_visu.x_beg) {
+   /*---(if x locked)--------------------*/
+   if (s_visu.x_lock == 'y') {
+      if (s_visu.y_root == s_visu.y_beg) {
+         s_visu.y_root = s_visu.y_end;
+         MAP_jump (s_visu.x_root, s_visu.y_beg, s_visu.z_all);
+      }
+      else  {
+         s_visu.y_root = s_visu.y_beg;
+         MAP_jump (s_visu.x_root, s_visu.y_end, s_visu.z_all);
+      }
+      return 0;
+   }
+   /*---(if y locked)--------------------*/
+   if (s_visu.y_lock == 'y') {
+      if (s_visu.x_root == s_visu.x_beg) {
+         s_visu.x_root = s_visu.x_end;
+         MAP_jump (s_visu.x_beg, s_visu.y_root, s_visu.z_all);
+      }
+      else  {
+         s_visu.x_root = s_visu.x_beg;
+         MAP_jump (s_visu.x_end, s_visu.y_root, s_visu.z_all);
+      }
+      return 0;
+   }
+   /*---(root at beg)--------------------*/
+   if (s_visu.x_root == s_visu.x_beg && s_visu.y_root == s_visu.y_beg) {
       s_visu.x_root = s_visu.x_end;
       s_visu.y_root = s_visu.y_end;
       MAP_jump (s_visu.x_beg, s_visu.y_beg, s_visu.z_all);
-   } else {
-      s_visu.x_root = s_visu.x_beg;
-      s_visu.y_root = s_visu.y_beg;
-      MAP_jump (s_visu.x_end, s_visu.y_end, s_visu.z_all);
+      return 0;
    }
+   /*---(root at end)--------------------*/
+   s_visu.x_root = s_visu.x_beg;
+   s_visu.y_root = s_visu.y_beg;
+   MAP_jump (s_visu.x_end, s_visu.y_end, s_visu.z_all);
+   /*---(complete)-----------------------*/
    return 0;
 }
 
@@ -569,20 +617,28 @@ VISU__update       (void)
       return 0;
    }
    /*---(x)------------------------------*/
-   if (x < s_visu.x_root) {
-      s_visu.x_beg  = x;
-      s_visu.x_end  = s_visu.x_root;
+   if (s_visu.x_lock != 'y') {
+      if (x < s_visu.x_root) {
+         s_visu.x_beg  = x;
+         s_visu.x_end  = s_visu.x_root;
+      } else {
+         s_visu.x_beg  = s_visu.x_root;
+         s_visu.x_end  = x;
+      }
    } else {
-      s_visu.x_beg  = s_visu.x_root;
-      s_visu.x_end  = x;
+      s_visu.x_root = x;
    }
    /*---(y)------------------------------*/
-   if (y < s_visu.y_root) {
-      s_visu.y_beg  = y;
-      s_visu.y_end  = s_visu.y_root;
+   if (s_visu.y_lock != 'y') {
+      if (y < s_visu.y_root) {
+         s_visu.y_beg  = y;
+         s_visu.y_end  = s_visu.y_root;
+      } else {
+         s_visu.y_beg  = s_visu.y_root;
+         s_visu.y_end  = y;
+      }
    } else {
-      s_visu.y_beg  = s_visu.y_root;
-      s_visu.y_end  = y;
+      s_visu.y_root = y;
    }
    /*---(set labels)---------------------*/
    MAP_addresser (s_visu.b_label, s_visu.x_beg, s_visu.y_beg, s_visu.z_all);
@@ -593,15 +649,23 @@ VISU__update       (void)
    return 0;
 }
 
-static char  /*-> clear the selection ----------------[ ------ [gz.742.001.13]*/ /*-[01.0000.743.A]-*/ /*-[--.---.---.--]-*/
-VISU__clear         (void)
+char       /*-> clear the selection ----------------[ ------ [gz.742.001.13]*/ /*-[01.0000.743.A]-*/ /*-[--.---.---.--]-*/
+VISU_clear          (void)
 {
+   /*---(locals)-----------+-----+-----+-*/
+   char        x, y;
    /*---(header)-------------------------*/
    DEBUG_VISU   yLOG_enter   (__FUNCTION__);
    /*---(backup)-------------------------*/
    VISU__set ('\'');
-   MAP_jump (s_visu.x_beg, s_visu.y_beg, s_visu.z_all);
+   if (s_visu.x_lock == 'y')  x = s_visu.x_root;
+   else                       x = s_visu.x_beg;
+   if (s_visu.y_lock == 'y')  y = s_visu.y_root;
+   else                       y = s_visu.y_beg;
+   MAP_jump (x, y, s_visu.z_all);
    s_live  = VISU_NOT;
+   s_visu.x_lock = '-';
+   s_visu.y_lock = '-';
    VISU__update ();
    /*---(complete)-----------------------*/
    DEBUG_VISU   yLOG_exit    (__FUNCTION__);
@@ -625,7 +689,7 @@ VISU_exact         (int a_xbeg, int a_xend, int a_ybeg, int a_yend, int a_z)
    DEBUG_VISU   yLOG_value   ("a_z"       , a_z   );
    /*---(prepare)------------------------*/
    DEBUG_VISU   yLOG_note    ("clear existing ranges");
-   VISU__clear ();
+   VISU_clear ();
    /*---(set range)----------------------*/
    DEBUG_VISU   yLOG_note    ("set range live");
    s_live  = VISU_YES;
@@ -804,14 +868,12 @@ VISU_smode         (int a_major, int a_minor)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
-   char        rc          =    0;
+   char        rc          =   -1;
    char       *x_majors    = "VM";
-   static char x_prev      =  '-';
    /*---(header)-------------------------*/
    DEBUG_USER   yLOG_enter   (__FUNCTION__);
    DEBUG_USER   yLOG_char    ("a_major"   , a_major);
    DEBUG_USER   yLOG_char    ("a_minor"   , chrvisible (a_minor));
-   DEBUG_USER   yLOG_char    ("x_prev"    , x_prev);
    myVIKEYS.info_win = '-';
    /*---(defenses)-----------------------*/
    DEBUG_USER   yLOG_char    ("mode"      , MODE_curr ());
@@ -862,7 +924,6 @@ VISU_smode         (int a_major, int a_minor)
          DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
          return rce;
       }
-      x_prev = a_minor;
       MODE_exit ();
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return 0;
@@ -877,7 +938,6 @@ VISU_smode         (int a_major, int a_minor)
          DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
          return rce;
       }
-      x_prev = a_minor;
       MODE_exit ();
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return 0;
@@ -1711,9 +1771,9 @@ MAP_mode_changes        (char a_minor)
        *> rc = a_minor;                                                               <*/
       break;
    case '"'      :
-      /*> MODE_enter  (SMOD_MAP_REG );                                                <* 
-       *> DEBUG_USER   yLOG_exit    (__FUNCTION__);                                   <* 
-       *> rc = a_minor;                                                               <*/
+      MODE_enter  (SMOD_MAP_REG );
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      rc = a_minor;
       break;
    case 'E'      :
       /*> MODE_enter  (SMOD_ERROR   );                                                <* 
@@ -1816,7 +1876,7 @@ MAP_mode                (char a_major, char a_minor)
       return 0;
    }
    if (a_minor == G_KEY_ESCAPE) {
-      VISU__clear ();
+      VISU_clear ();
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return 0;
    }
@@ -1839,26 +1899,49 @@ MAP_mode                (char a_major, char a_minor)
          return a_minor;
       }
       /*---(copy, paste)-----------------*/
-      if (a_minor == 'y') {
-         DEBUG_USER   yLOG_note    ("y for yank/copy");
-         MAP_REG_save  ();
-         VISU__clear   ();
-         DEBUG_USER   yLOG_exit    (__FUNCTION__);
-         return 0;
-      }
-      if (a_minor == 'Y') {
-         DEBUG_USER   yLOG_note    ("y for yank/clear");
-         MAP_REG_save  ();
-         MAP_REG_clear ();
-         VISU__clear   ();
-         DEBUG_USER   yLOG_exit    (__FUNCTION__);
-         return 0;
-      }
-      if (a_minor == 'P') {
-         DEBUG_USER   yLOG_note    ("P for paste normal");
-         MAP_REG_paste ("normal");
-         DEBUG_USER   yLOG_exit    (__FUNCTION__);
-         return 0;
+      if (VISU_onecell () && strchr ("xy*", a_minor) != NULL) {
+         switch (a_minor) {
+         case 'x'  :
+            DEBUG_USER   yLOG_note    ("x for x_axis/col selection");
+            s_visu.y_lock = 'y';
+            s_visu.y_beg  = g_ymap.gmin;
+            s_visu.y_end  = g_ymap.gmax;
+            break;
+         case 'y'  :
+            DEBUG_USER   yLOG_note    ("y for y-axis/row selection");
+            s_visu.x_lock = 'y';
+            s_visu.x_beg  = g_xmap.gmin;
+            s_visu.x_end  = g_xmap.gmax;
+            break;
+         case '*'  :
+            DEBUG_USER   yLOG_note    ("* for all on current z selection");
+            s_visu.y_lock = 'y';
+            s_visu.y_beg  = g_ymap.gmin;
+            s_visu.y_end  = g_ymap.gmax;
+            s_visu.x_lock = 'y';
+            s_visu.x_beg  = g_xmap.gmin;
+            s_visu.x_end  = g_xmap.gmax;
+            break;
+         }
+      } else {
+         switch (a_minor) {
+         case 'X'  :
+            DEBUG_USER   yLOG_note    ("y for cut/clear");
+            MAP_REG_save  ();
+            MAP_REG_clear ();
+            VISU_clear    ();
+            break;
+         case 'Y'  :
+            DEBUG_USER   yLOG_note    ("y for yank/copy");
+            MAP_REG_save  ();
+            VISU_clear   ();
+            break;
+         case 'P'  :
+            DEBUG_USER   yLOG_note    ("P for paste normal");
+            MAP_REG_paste ("normal");
+            DEBUG_USER   yLOG_exit    (__FUNCTION__);
+            break;
+         }
       }
       /*---(funky moves)-----------------*/
       if (a_minor == ':') {

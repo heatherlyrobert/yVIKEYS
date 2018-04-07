@@ -34,8 +34,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "0.9l"
-#define YVIKEYS_VER_TXT   "all gyges core copy/paste unit tests are successful"
+#define YVIKEYS_VER_NUM   "0.9m"
+#define YVIKEYS_VER_TXT   "selection for x/col, y/row, and all xy working"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -242,6 +242,7 @@ char        MAP__unit_addressor     (char *a_label, int x, int y, int z);
 char        VISU_valid              (char a_visu);
 char        VISU_status             (char *a_list);
 char        VISU_status_saved       (char *a_list);
+char        VISU_clear              (void);
 char        VISU_exact              (int a_xbeg, int a_xend, int a_ybeg, int a_yend, int a_z);
 char        VISU_range              (int *a_xbeg, int *a_xend, int *a_ybeg, int *a_yend, int *a_z);
 char        VISU_smode              (int a_major, int a_minor);
@@ -376,18 +377,20 @@ char        FILE__unit_null         (void);
 char*       FILE__unit              (char *a_question, int a_ref);
 
 
-char        MAP_REG__by_abbr           (char a_reg);
-char        MAP_REG__set               (char a_reg);
-char        MAP_REG__reset             (void);
-char        MAP_REG_init               (void);
-char        MAP_REG_wrap               (void);
-char        MAP_REG_save               (void);
-char        MAP_REG_visual             (void);
-char        MAP_REG_clear              (void);
-char        MAP_REG_delete             (void);
-char        MAP_REG_copy               (void);
-char        MAP_REG_cut                (void);
-char        MAP_REG_paste              (char *a_type);
+char        MAP_REG__by_abbr        (char a_reg);
+char        MAP_REG__set            (char a_reg);
+char        MAP_REG__reset          (void);
+char        MAP_REG_init            (void);
+char        MAP_REG_wrap            (void);
+char        MAP_REG_save            (void);
+char        MAP_REG_visual          (void);
+char        MAP_REG_clear           (void);
+char        MAP_REG_delete          (void);
+char        MAP_REG_copy            (void);
+char        MAP_REG_cut             (void);
+char        MAP_REG_paste           (char *a_type);
+char        MAP_REG_status          (char *a_status);
+char        MAP_REG_smode           (int a_major, int a_minor);
 
 char        MAP_REG__unit_purge        (void);
 char        MAP_REG__unit_killer       (void *a_thing);
