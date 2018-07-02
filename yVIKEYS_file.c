@@ -85,9 +85,9 @@ static tSECTION  s_sections [MAX_SECTION] = {
    { 'i', SMOD_SRC_REG, "text registers"     , "text_reg"  , 'A', "cS--------", "-a"        , "data"      , ""          , ""          , ""          , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
    { 'e', FILE_DEPCEL , "dependent cells"    , "cell_dep"  , 'D', "siLsS-----", "lvl/reg"   , "seq"       , "label"     , "t-f-d-a-m" , "contents"  , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
    { 'e', FILE_FREECEL, "independent cells"  , "cell_free" , 'D', "siLsS-----", "lvl/reg"   , "seq"       , "label"     , "t-f-d-a-m" , "contents"  , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
-   { 'e', FILE_TABS   , "tab layout (z-axis)", "tab_info"  , 'I', "iLiiiiiic-", "tab"       , "name"      , "minx"      , "maxx"      , "miny"      , "maxy"      , "c_size"    , "r_size"    , "type"      , NULL  , NULL  ,   0,   0 },
-   { 'e', FILE_COLS   , "columns (x-axis)"   , "col_info"  , 'D', "iiii------", "tab"       , "col"       , "size"      , "count"     , ""          , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
-   { 'e', FILE_ROWS   , "rows (y-axis)"      , "row_info"  , 'D', "iiii------", "tab"       , "row"       , "size"      , "count"     , ""          , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
+   { 'e', FILE_TABS   , "tab (v-axis)"       , "tab"       , 'I', "Laaiiic---", "name"      , "min"       , "max"       , "x_size"    , "y_size"    , "z_size"    , "type"      , ""          , ""          , NULL  , NULL  ,   0,   0 },
+   { 'e', FILE_COLS   , "columns (x-axis)"   , "width"     , 'D', "aii-------", "label"     , "size"      , "count"     , ""          , ""          , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
+   { 'e', FILE_ROWS   , "rows (y-axis)"      , "height"    , 'D', "aii-------", "label"     , "size"      , "count"     , ""          , ""          , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
    { '-', 0           , ""                   , ""          , '-', "----------", ""          , ""          , ""          , ""          , ""          , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
 };
 static int  s_nsection   = 0;
@@ -272,7 +272,8 @@ yVIKEYS_file_config     (char *a_prog, char *a_ext, char *a_vernum, char *a_vert
    rc = yVIKEYS_cmds_add ('f', "bump"        , ""    , ""     , FILE_bump_inc        , "increment the version number by a INC version"               );
    rc = yVIKEYS_cmds_add ('f', "write"       , "w"   , ""     , OUTP_write           , "write/update the current file"                               );
    rc = yVIKEYS_cmds_add ('f', "writeall"    , "wa"  , ""     , OUTP_write           , "quit all files (if no changes), and exit"                    );
-   rc = yVIKEYS_cmds_add ('f', "edit"        , ""    , ""     , INPT_edit            , "clear existing contents and open/read new file"              );
+   rc = yVIKEYS_cmds_add ('f', "read"        , "e"   , ""     , INPT_edit            , "clear existing contents and open/read new file"              );
+   rc = yVIKEYS_cmds_add ('f', "edit"        , "e"   , ""     , INPT_edit            , "clear existing contents and open/read new file"              );
    /*---(default file name)--------------*/
    FILE_loc  (NULL);
    FILE_name (NULL);
@@ -764,6 +765,9 @@ OUTP__sec_columns       (char a_index)
       case  's'  :
          fprintf (s_file, " %-10.10s ", x_label);
          break;
+      case  'a'  :
+         fprintf (s_file, " %-10.10s ", x_label);
+         break;
       case  'L'  :
          fprintf (s_file, " %-20.20s ", x_label);
          break;
@@ -839,6 +843,10 @@ yVIKEYS_file_write      (char a_abbr, void *a, void *b, void *c, void *d, void *
          break;
       case  's'  :
          DEBUG_OUTP   yLOG_note    ("short string");
+         sprintf (t, " %-10.10s ", (char *)      x_field [x]);
+         break;
+      case  'a'  :
+         DEBUG_OUTP   yLOG_note    ("address");
          sprintf (t, " %-10.10s ", (char *)      x_field [x]);
          break;
       case  'L'  :

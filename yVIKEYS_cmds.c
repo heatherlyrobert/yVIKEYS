@@ -789,11 +789,11 @@ yVIKEYS_srch_config     (void *a_searcher, void *a_clearer)
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    /*---(header)-------------------------*/
-   DEBUG_MAP   yLOG_enter   (__FUNCTION__);
+   DEBUG_PROG  yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
    --rce;  if (!STATUS_check_needs  (MODE_SEARCH)) {
-      DEBUG_EDIT   yLOG_note    ("init must complete before config");
-      DEBUG_EDIT   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_PROG   yLOG_note    ("init must complete before config");
+      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(update searcher)----------------*/
