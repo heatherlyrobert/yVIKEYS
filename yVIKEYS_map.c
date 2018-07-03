@@ -1062,6 +1062,17 @@ MAP__load             (char a_style, tMAPPED *a_map, char a_which)
    int         j           =    0;
    int         x_spot      =    0;
    MAP__clear  (a_map, a_which);
+   if (a_style == 'f') {
+      for (j =  0; j < 16; ++j)  a_map->map [x_spot++] = 1;
+      for (j =  0; j <  7; ++j)  a_map->map [x_spot++] = 2;
+      for (j =  0; j <  7; ++j)  a_map->map [x_spot++] = 3;
+      for (j =  0; j <  2; ++j)  a_map->map [x_spot++] = 4;
+      for (j =  0; j < 20; ++j)  a_map->map [x_spot++] = 5;
+      for (j =  0; j <  6; ++j)  a_map->map [x_spot++] = 6;
+      for (j =  0; j <  6; ++j)  a_map->map [x_spot++] = 7;
+      for (j =  0; j <  2; ++j)  a_map->map [x_spot++] = 8;
+      
+   }
    for (i = 0; i < 8; ++i) {
       switch (a_style) {
       case 'u' : /* uniform size grid       */
@@ -1742,9 +1753,17 @@ MAP__horz             (char a_major, char a_minor)
 char
 yVIKEYS_map_refresh     (void)
 {
+   /*---(update)-------------------------*/
+   DEBUG_MAP   yLOG_point   ("s_mapper"  , s_mapper);
+   if (s_mapper != NULL) {
+      DEBUG_MAP   yLOG_note    ("calling source program mapper");
+      s_mapper (YVIKEYS_UPDATE);
+   }
+   /*---(refresh position)---------------*/
    MAP__vert (' ', 'r');
    MAP__horz (' ', 'r');
    clear     ();
+   /*---(complete)-----------------------*/
    return 0;
 }
 

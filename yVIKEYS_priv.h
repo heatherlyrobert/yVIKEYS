@@ -34,8 +34,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "1.0a"
-#define YVIKEYS_VER_TXT   "changed tab, col, and row file records back to addresses"
+#define YVIKEYS_VER_NUM   "1.0b"
+#define YVIKEYS_VER_TXT   "fixed most of column width changes to mapping screen"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
