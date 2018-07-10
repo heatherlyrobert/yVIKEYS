@@ -34,8 +34,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "1.0b"
-#define YVIKEYS_VER_TXT   "fixed most of column width changes to mapping screen"
+#define YVIKEYS_VER_NUM   "1.0c"
+#define YVIKEYS_VER_TXT   "updated file saving characteristics and cleaned debugging a little"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/

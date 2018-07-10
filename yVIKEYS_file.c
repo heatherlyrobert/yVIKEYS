@@ -43,11 +43,13 @@
 
 /*
  *     c   = char
- *     L   = label  (10 char)
- *     N   = name   (20 char)
- *     D   = desc   (60 char)
- *     S   = string (no trunc)
- *     d   = 5 decimal
+ *     a   = address label   (12 char)
+ *     i   = decimal         (5 char)
+ *     f   = float           (10 char)
+ *     T   = terse string    (10 char)
+ *     N   = name string     (20 char)
+ *     D   = desc string     (60 char)
+ *     S   = open string     (no trunc)
  *
  *
  */
@@ -79,13 +81,13 @@ static tSECTION  s_sections [MAX_SECTION] = {
    /* -   ----abbr---    ---name------------    --label---   ver   ---specs--    ---1st----    ---2nd----    ---3rd----    ---4th----    ---5th----    ---6th----    ---7th----    ---8th----    ---9th----   writer  reader  try  bad */
    { 'i', UMOD_MARK   , "location marks"     , "loc_mark"  , 'B', "ciii------", "-a"        , "--x"       , "--y"       , "--z"       , ""          , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
    { 'i', UMOD_VISUAL , "visual marks"       , "visu_mark" , 'A', "ciiiii----", "-a"        , "xbeg"      , "ybeg"      , "xend"      , "yend"      , "zall"      , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
-   { 'i', SMOD_MACRO  , "saved macros"       , "macro"     , 'A', "ciiS------", "-a"        , "count"     , "rc"        , "command"   , ""          , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
-   { 'i', MODE_SEARCH , "search history"     , "search"    , 'A', "ciiS------", "-a"        , "count"     , "found"     , "search"    , ""          , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
-   { 'i', MODE_COMMAND, "command history"    , "command"   , 'A', "ciiS------", "-a"        , "count"     , "rc"        , "command"   , ""          , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
-   { 'i', SMOD_SRC_REG, "text registers"     , "text_reg"  , 'A', "cS--------", "-a"        , "data"      , ""          , ""          , ""          , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
-   { 'e', FILE_DEPCEL , "dependent cells"    , "cell_dep"  , 'D', "siLsS-----", "lvl/reg"   , "seq"       , "label"     , "t-f-d-a-m" , "contents"  , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
-   { 'e', FILE_FREECEL, "independent cells"  , "cell_free" , 'D', "siLsS-----", "lvl/reg"   , "seq"       , "label"     , "t-f-d-a-m" , "contents"  , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
-   { 'e', FILE_TABS   , "tab (v-axis)"       , "tab"       , 'I', "Laaiiic---", "name"      , "min"       , "max"       , "x_size"    , "y_size"    , "z_size"    , "type"      , ""          , ""          , NULL  , NULL  ,   0,   0 },
+   { 'i', SMOD_MACRO  , "saved macros"       , "macro"     , 'A', "ciiO------", "-a"        , "count"     , "rc"        , "command"   , ""          , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
+   { 'i', MODE_SEARCH , "search history"     , "search"    , 'A', "ciiO------", "-a"        , "count"     , "found"     , "search"    , ""          , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
+   { 'i', MODE_COMMAND, "command history"    , "command"   , 'A', "ciiO------", "-a"        , "count"     , "rc"        , "command"   , ""          , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
+   { 'i', SMOD_SRC_REG, "text registers"     , "text_reg"  , 'A', "cO--------", "-a"        , "data"      , ""          , ""          , ""          , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
+   { 'e', FILE_DEPCEL , "dependent cells"    , "cell_dep"  , 'D', "TiaTO-----", "lvl/reg"   , "seq"       , "label"     , "t-f-d-a-m" , "contents"  , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
+   { 'e', FILE_FREECEL, "independent cells"  , "cell_free" , 'D', "TiaTO-----", "lvl/reg"   , "seq"       , "label"     , "t-f-d-a-m" , "contents"  , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
+   { 'e', FILE_TABS   , "tab (v-axis)"       , "tab"       , 'I', "Naaiiic---", "name"      , "min"       , "max"       , "x_size"    , "y_size"    , "z_size"    , "type"      , ""          , ""          , NULL  , NULL  ,   0,   0 },
    { 'e', FILE_COLS   , "columns (x-axis)"   , "width"     , 'D', "aii-------", "label"     , "size"      , "count"     , ""          , ""          , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
    { 'e', FILE_ROWS   , "rows (y-axis)"      , "height"    , 'D', "aii-------", "label"     , "size"      , "count"     , ""          , ""          , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
    { '-', 0           , ""                   , ""          , '-', "----------", ""          , ""          , ""          , ""          , ""          , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
@@ -762,19 +764,19 @@ OUTP__sec_columns       (char a_index)
       case  'c'  :
          fprintf (s_file, " %-3.3s "  , x_label);
          break;
-      case  's'  :
-         fprintf (s_file, " %-10.10s ", x_label);
-         break;
       case  'a'  :
+         fprintf (s_file, " %-12.12s ", x_label);
+         break;
+      case  'T'  :
          fprintf (s_file, " %-10.10s ", x_label);
          break;
-      case  'L'  :
+      case  'N'  :
          fprintf (s_file, " %-20.20s ", x_label);
          break;
       case  'D'  :
          fprintf (s_file, " %-60.60s ", x_label);
          break;
-      case  'S'  :
+      case  'O'  :
          fprintf (s_file, " %s "      , x_label);
          break;
       case  'i'  :
@@ -806,7 +808,7 @@ yVIKEYS_file_write      (char a_abbr, void *a, void *b, void *c, void *d, void *
    void       *x_field     [9];
    /*---(header)-------------------------*/
    DEBUG_OUTP   yLOG_enter   (__FUNCTION__);
-   DEBUG_OUTP   yLOG_value   ("a_abbr"    , a_abbr);
+   DEBUG_OUTP   yLOG_char    ("a_abbr"    , a_abbr);
    /*---(get section)-----------------*/
    n = FILE__by_abbr (a_abbr);
    DEBUG_OUTP   yLOG_value   ("n"         , n);
@@ -829,6 +831,7 @@ yVIKEYS_file_write      (char a_abbr, void *a, void *b, void *c, void *d, void *
    DEBUG_OUTP   yLOG_char    ("ver"       , s_sections [n].version);
    DEBUG_OUTP   yLOG_info    ("specs"     , s_sections [n].specs);
    sprintf (myVIKEYS.f_recd, "%-10.10s  -%c- ", s_sections [n].label, s_sections [n].version);
+   DEBUG_OUTP   yLOG_note    ("write fields");
    for (x = 0; x < 9; ++x) {
       DEBUG_OUTP   yLOG_value   ("x"         , x);
       DEBUG_OUTP   yLOG_char    ("spec"      , s_sections [n].specs [x]);
@@ -841,24 +844,24 @@ yVIKEYS_file_write      (char a_abbr, void *a, void *b, void *c, void *d, void *
          DEBUG_OUTP   yLOG_note    ("character");
          sprintf (t, "  %c  "     , *((char   *) x_field [x]));
          break;
-      case  's'  :
-         DEBUG_OUTP   yLOG_note    ("short string");
+      case  'T'  :
+         DEBUG_OUTP   yLOG_note    ("terse string");
          sprintf (t, " %-10.10s ", (char *)      x_field [x]);
          break;
       case  'a'  :
          DEBUG_OUTP   yLOG_note    ("address");
-         sprintf (t, " %-10.10s ", (char *)      x_field [x]);
+         sprintf (t, " %-12.12s ", (char *)      x_field [x]);
          break;
-      case  'L'  :
-         DEBUG_OUTP   yLOG_note    ("label string");
+      case  'N'  :
+         DEBUG_OUTP   yLOG_note    ("name string");
          sprintf (t, " %-20.20s " , (char *)     x_field [x]);
          break;
       case  'D'  :
          DEBUG_OUTP   yLOG_note    ("desc string");
          sprintf (t, " %-60.60s " , (char *)     x_field [x]);
          break;
-      case  'S'  :
-         DEBUG_OUTP   yLOG_note    ("full string");
+      case  'O'  :
+         DEBUG_OUTP   yLOG_note    ("open string");
          sprintf (t, " %s "       , (char *)     x_field [x]);
          break;
       case  'i'  :
@@ -940,23 +943,23 @@ OUTP__write_type         (char a_abbr)
    void       *x_field     [9];
    char        t           [LEN_RECD ];
    /*---(header)-------------------------*/
-   DEBUG_INPT   yLOG_enter   (__FUNCTION__);
-   DEBUG_INPT   yLOG_point   ("s_file"    , s_file);
-   DEBUG_INPT   yLOG_char    ("a_abbr"    , a_abbr);
+   DEBUG_OUTP   yLOG_enter   (__FUNCTION__);
+   DEBUG_OUTP   yLOG_point   ("s_file"    , s_file);
+   DEBUG_OUTP   yLOG_char    ("a_abbr"    , a_abbr);
    /*---(find entry)---------------------*/
    n = FILE__by_abbr (a_abbr);
-   DEBUG_INPT   yLOG_value   ("n"         , n);
+   DEBUG_OUTP   yLOG_value   ("n"         , n);
    if (n < 0) {
-      DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_OUTP   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(write header)-------------------*/
-   DEBUG_INPT   yLOG_info    ("name"      , s_sections [n].name);
+   DEBUG_OUTP   yLOG_info    ("name"      , s_sections [n].name);
    strlcpy (x_upper, s_sections [n].name, LEN_LABEL);
    for (i = 0; i < strllen (x_upper, LEN_LABEL); ++i)  x_upper [i] = toupper (x_upper [i]);
-   DEBUG_INPT   yLOG_info    ("upper"     , x_upper);
+   DEBUG_OUTP   yLOG_info    ("upper"     , x_upper);
    if (s_file != NULL) {
-      DEBUG_INPT   yLOG_note    ("write the header");
+      DEBUG_OUTP   yLOG_note    ("write the header");
       fprintf (s_file, "\n\n\n#===[[ %-20.20s ]]===============================================================================================#\n",
             x_upper);
       OUTP__sec_columns (n);
@@ -964,17 +967,17 @@ OUTP__write_type         (char a_abbr)
    /*---(write entries)------------------*/
    s_lines = 0;
    rc = s_sections [n].writer ();
-   DEBUG_INPT   yLOG_value   ("rc"        , rc);
-   DEBUG_INPT   yLOG_value   ("s_lines"   , s_lines);
+   DEBUG_OUTP   yLOG_value   ("rc"        , rc);
+   DEBUG_OUTP   yLOG_value   ("s_lines"   , s_lines);
    /*---(write footer)-------------------*/
    if (s_file != NULL) {
-      DEBUG_INPT   yLOG_note    ("write the footer");
+      DEBUG_OUTP   yLOG_note    ("write the footer");
       if (s_lines == 0)  fprintf (s_file, "# no %s\n", s_sections [n].name);
       else               fprintf (s_file, "# complete with %d line(s)\n", s_lines);
       fflush  (s_file);
    }
    /*---(complete)-----------------------*/
-   DEBUG_INPT   yLOG_exit    (__FUNCTION__);
+   DEBUG_OUTP   yLOG_exit    (__FUNCTION__);
    return s_lines;
 }
 
@@ -985,32 +988,35 @@ OUTP_write              (void)
    char        rce         =  -10;
    char        rc          =    0;
    /*---(header)-------------------------*/
-   DEBUG_INPT   yLOG_enter   (__FUNCTION__);
+   DEBUG_OUTP   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
    --rce;  if (!STATUS_operational (FMOD_FILE)) {
-      DEBUG_HIST   yLOG_note    ("can not execute until operational");
-      DEBUG_HIST   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_OUTP   yLOG_note    ("can not execute until operational");
+      DEBUG_OUTP   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(open)---------------------------*/
    rc = FILE__open  ("w");
-   DEBUG_INPT   yLOG_value   ("open rc"   , rc);
+   DEBUG_OUTP   yLOG_value   ("open rc"   , rc);
    --rce;  if (rc < 0) {
-      DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_OUTP   yLOG_exitr   (__FUNCTION__, rce);
       return rc;
    }
    /*---(header)-------------------------*/
-   DEBUG_INPT   yLOG_note    ("write header");
+   DEBUG_OUTP   yLOG_note    ("write header");
    OUTP__header     ();
+   DEBUG_OUTP   yLOG_note    ("write header");
    OUTP__write_type (FILE_TABS);
+   DEBUG_OUTP   yLOG_note    ("write header");
    OUTP__write_type (FILE_COLS);
+   DEBUG_OUTP   yLOG_note    ("write header");
    OUTP__write_type (FILE_ROWS);
    /*---(content)------------------------*/
-   DEBUG_INPT   yLOG_note    ("check all primary content types");
+   DEBUG_OUTP   yLOG_note    ("check all primary content types");
    OUTP__write_type (FILE_DEPCEL);
    OUTP__write_type (FILE_FREECEL);
    /*---(extras)-------------------------*/
-   DEBUG_INPT   yLOG_note    ("check all meta-data types");
+   DEBUG_OUTP   yLOG_note    ("check all meta-data types");
    OUTP__write_type (UMOD_MARK);
    OUTP__write_type (UMOD_VISUAL);
    OUTP__write_type (MODE_SEARCH);
@@ -1021,7 +1027,7 @@ OUTP_write              (void)
    fprintf (s_file, "\n\n\n# done, finito, complete\n");
    FILE__close ();
    /*---(ocmplete)-----------------------*/
-   DEBUG_INPT   yLOG_exit    (__FUNCTION__);
+   DEBUG_OUTP   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -1165,8 +1171,8 @@ INPT_edit          (void)
    DEBUG_INPT  yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
    --rce;  if (!STATUS_operational (FMOD_FILE)) {
-      DEBUG_HIST   yLOG_note    ("can not execute until operational");
-      DEBUG_HIST   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_INPT   yLOG_note    ("can not execute until operational");
+      DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(open file)----------------------*/
