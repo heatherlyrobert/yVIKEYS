@@ -493,68 +493,79 @@ SOURCE__prep            (void)
 }
 
 char
+SOURCE__words_mode      (char a_1st, char a_curr, char a_save)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char       *x_form      = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$";
+   char       *x_word      = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-";
+   char        x_mode      =  ' ';
+   /*---(formula)------------------------*/
+   if (strchr ("=#", a_1st) != NULL) {
+      if      (strchr (x_form, a_curr) != NULL)     x_mode = 'w';
+      else if (strchr ("¹ "  , a_curr) != NULL)     x_mode = '¹';
+      else                                          x_mode = 's';
+   }
+   /*---(word)---------------------------*/
+   else {
+      if      (strchr ("¹ "  , a_curr) != NULL)     x_mode = '¹';
+      else                                          x_mode = 'w';
+   }
+   /*---(complete)-----------------------*/
+   return x_mode;
+}
+
+char
+SOURCE__words_update    (int a_pos, char a_curr)
+{
+   /*---(before start)-------------------*/
+   if (a_curr < 0)  return 0;
+   /*---(beginning)----------------------*/
+   if (a_curr == '<')   s_cur->words [a_pos] = '<';
+   /*---(ending)-------------------------*/
+   if (a_curr == '>') {
+      if (s_cur->words [a_pos] == '<')  s_cur->words [a_pos] = 'B';
+      else                              s_cur->words [a_pos] = '>';
+   }
+   /*---(complete)-----------------------*/
+   return 0;
+}
+
+char
 SOURCE__words          (void)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
+   char        x_change    =  '-';
    int         i           =    0;
-   char       *x_word      = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-";
-   int         x_pos       =    0;
-   int         x_not       =    0;
-   int         x_yes       =    0;
+   char        x_save      =  '¹';
+   char        x_mode      =  '¹';
    /*---(prepare)------------------------*/
    DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
    DEBUG_EDIT   yLOG_value   ("s_npos"    , s_cur->npos);
-   DEBUG_EDIT   yLOG_info    ("s_contents", s_cur->contents);
-   for (i = 0; i < s_cur->npos; ++i)   s_cur->words [i] = s_cur->contents [i];
+   DEBUG_EDIT   yLOG_info    ("contents"  , s_cur->contents);
    s_cur->words [s_cur->npos] = 0;
-   if (strchr (x_word, s_cur->contents [0]) != NULL)  s_cur->words [0] = '<';
-   while (x_pos < s_cur->npos) {
-      /*---(skip leading non-words)---------*/
-      x_not = 0;
-      DEBUG_EDIT   yLOG_note    ("non-words.............");
-      for (x_pos = x_pos; x_pos < s_cur->npos; ++x_pos) {
-         if (s_cur->contents [x_pos] == '\0')  break;
-         DEBUG_EDIT   yLOG_value   ("x_pos"     , x_pos);
-         DEBUG_EDIT   yLOG_value   ("s_contents", s_cur->contents [x_pos]);
-         if (strchr (x_word, s_cur->contents [x_pos]) == NULL) {
-            ++x_not;
-            continue;
-         }
-         break;
-      }
-      if (x_pos >= s_cur->npos)             break;
-      if (s_cur->contents [x_pos] == '\0')  break;
-      if (x_not > 0)  {
-         DEBUG_EDIT   yLOG_value   ("beg"       , x_pos);
-         s_cur->words [x_pos] = '<';
-      }
-      /*---(skip words-chars)--------------*/
-      x_yes = 0;
-      DEBUG_EDIT   yLOG_note    ("words.................");
-      for (x_pos = x_pos; x_pos < s_cur->npos; ++x_pos) {
-         if (s_cur->contents [x_pos] == '\0')  break;
-         DEBUG_EDIT   yLOG_value   ("x_pos"     , x_pos);
-         DEBUG_EDIT   yLOG_value   ("s_contents", s_cur->contents [x_pos]);
-         if (strchr (x_word, s_cur->contents [x_pos]) != NULL) {
-            ++x_yes;
-            continue;
-         }
-         break;
-      }
-      if (s_cur->contents [x_pos] == '\0') {
-         DEBUG_EDIT   yLOG_value   ("end"       , x_pos);
-         if (x_yes > 0)  s_cur->words [x_pos - 1] = '>';
-         break;
-      }
-      if (x_pos >= s_cur->npos)             break;
-      if (x_yes > 0) {
-         DEBUG_EDIT   yLOG_value   ("end"       , x_pos);
-         if (s_cur->words [x_pos - 1] == '<')  s_cur->words [x_pos - 1] = 'B';
-         else                             s_cur->words [x_pos - 1] = '>';
-      }
+   for (i = 0; i < s_cur->npos; ++i) {
+      /*---(initialize)------------------*/
+      s_cur->words [i] = '¹';
+      /*---(check)-----------------------*/
+      x_mode = SOURCE__words_mode (s_cur->contents [0], s_cur->contents [i], x_save);
+      if (x_mode == x_save)  continue;
+      /*---(update current)--------------*/
+      if (x_save == '¹' && x_mode == 'w')   SOURCE__words_update (i    , '<');
+      if (x_save == '¹' && x_mode == 's')   SOURCE__words_update (i    , '<');
+      if (x_save == 'w' && x_mode == 's')   SOURCE__words_update (i    , '<');
+      if (x_save == 's' && x_mode == 'w')   SOURCE__words_update (i    , '<');
+      /*---(update previous)-------------*/
+      if (x_save == 'w' && x_mode == '¹')   SOURCE__words_update (i - 1, '>'); 
+      if (x_save == 's' && x_mode == '¹')   SOURCE__words_update (i - 1, '>'); 
+      if (x_save == 'w' && x_mode == 's')   SOURCE__words_update (i - 1, '>');
+      if (x_save == 's' && x_mode == 'w')   SOURCE__words_update (i - 1, '>');
+      /*---(save)------------------------*/
+      x_save = x_mode;
+      /*---(done)------------------------*/
    }
-   s_cur->words [s_cur->npos] = 0;
+   if (x_mode != '¹')  SOURCE__words_update (s_cur->npos - 1, '>');
+   DEBUG_EDIT   yLOG_info    ("words"     , s_cur->words);
    DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
    return 0;
 }
@@ -2704,6 +2715,9 @@ SOURCE__unit            (char *a_question, char a_reg)
    }
    else if (strcmp (a_question, "contents"       )   == 0) {
       snprintf (yVIKEYS__unit_answer, LEN_STR, "SRC contents     : %3d:%-.40s:", s_cur->npos, s_cur->contents);
+   }
+   else if (strcmp (a_question, "words"          )   == 0) {
+      snprintf (yVIKEYS__unit_answer, LEN_STR, "SRC words        : %3d:%-.40s:", s_cur->npos, s_cur->words);
    }
    else if (strcmp (a_question, "source"         )   == 0) {
       snprintf (yVIKEYS__unit_answer, LEN_STR, "SRC source       : %3d:%-.40s:", s_src.npos, s_src.contents);
