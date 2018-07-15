@@ -34,8 +34,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "1.0d"
-#define YVIKEYS_VER_TXT   "simplified source word boundary handling and added formula mode for it"
+#define YVIKEYS_VER_NUM   "1.0e"
+#define YVIKEYS_VER_TXT   "updated source mode with D X and c"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/

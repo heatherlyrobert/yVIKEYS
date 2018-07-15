@@ -1784,6 +1784,8 @@ SOURCE_mode             (int a_major, int a_minor)
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    char        rc          =   -1;
+   int         i           =    0;
+   int         n           =    0;
    static char x_char      =    0;
    /*---(header)-------------------------*/
    DEBUG_USER   yLOG_enter   (__FUNCTION__);
@@ -1917,11 +1919,13 @@ SOURCE_mode             (int a_major, int a_minor)
          rc = tolower (a_minor);
          break;
       case  'D' :
-         rc = SOURCE_delete     ('d', '$');
+         /*> rc = SOURCE_delete     ('d', '$');                                       <*/
+         rc = SOURCE_delete     ('d', 'l');
          SOURCE__done ();
          break;
       case  'X' :
-         rc = SOURCE_delete     ('x', '$');
+         /*> rc = SOURCE_delete     ('x', '$');                                       <*/
+         rc = SOURCE_delete     ('x', 'l');
          SOURCE__done ();
          break;
       }
@@ -1994,6 +1998,17 @@ SOURCE_mode             (int a_major, int a_minor)
                   break;
       case 'F' :  x_char = a_minor;
                   rc = SOURCE__charfindrev (x_char);
+                  break;
+      case 'c' :  n = REPEAT_use ();
+                  for (i = 0; i <= n; ++i) {
+                     SOURCE_delete  ('d', a_minor);
+                     SOURCE__done   ();
+                  }
+                  MODE_enter (UMOD_SRC_INPT);
+                  SRC_INPT_umode ('m', tolower (a_minor));
+                  DEBUG_USER   yLOG_exit    (__FUNCTION__);
+                  rc = tolower (a_minor);
+                  return rc;
                   break;
       default  :  rc = -1;                              break;
       }

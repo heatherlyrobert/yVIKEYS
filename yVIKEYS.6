@@ -1252,25 +1252,47 @@ them to add new text, and replace mode allows them to overtype exising text.
 
 .SH SOURCE mode
 
+.B standard horizontal movements
+   0HhlL$        move and adjust screen as required
+   g + shcle     goto a point in the available display space
+   z + shcle     scroll current position to a point in display space
+   g + SHLE      0.5 and 1.0 page moves left and right
+   wWeEbB        word based movements
+   Æ|            specific character position
+
+.B undo and redo (separate from map mode undo/redo)
+   u             undo last update
+   U             redo last update
+
 .B character searches
-   #        search forward for current character
-   f¢       search forward for character ¢
-   F¢       search backward for character ¢
-   n        next match forward
-   N        next match backward
+   f¢            search forward for character ¢
+   F¢            search backward for character ¢
+   n             next match forward
+   N             next match backward
+   #             search forward for current character
    found character is saved between searches for quick reuse
 
-.B deleting
-   Å        deletes the previous character
-   Ä        deletes the current character
-   d¢       delete a character in the given direction
-     hl     left and right (current)
-     wbe    word jumps also
-     0$     and, to start and end all input
-   D        shortcut for d$
-   3Å       backspaces three times
-   2dl      deletes two characters
-   5dw      deletes five words
+.B delete, clear, and change
+   Å             deletes the previous character
+   Ä             deletes the current character
+   d + hlwbe0$   delete a character(s) in the given direction
+   x + hlwbe0$   clear a character(s) in the given direction
+   c + hlwbe0$   delete a character(s) then enter input micro-mode
+   D             shortcut for dl
+   X             shortcut for xl
+
+.B inputing new text (INPUT micro-mode)
+   i             insert before current character
+   a             append after current character
+   I             insert at end-of-line
+   A             append to beginning-of-line
+
+.B replacing existing text (REPLACE micro-mode)
+   r             replace current position (exits automatically)
+   R             replace a string of characters until exiting
+
+.B repeats and counts
+   Æ             all commands can take a prefixed count
 
 .SH INPUT micro-mode
 .SS ---basics---------------------------------------------------------
@@ -1304,7 +1326,7 @@ all text entry uses this input micro-mode, it is universal.
 
 .B control characters
    ¥          return to source mode for further editing
-   ¦          all accept changes and exit source mode also
+   ¦          accept all changes and exit source mode also
    Å          delete the character before the current one
    Ä          delete the current character
    \\          allows entry of special characters (see below)
