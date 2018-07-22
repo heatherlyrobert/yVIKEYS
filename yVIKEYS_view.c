@@ -193,7 +193,7 @@ tOPTION  s_options [MAX_OPTION ] = {
    { YVIKEYS_STATUS  , "sundo"        , SRC_UNDO_status     , "source editing undo stack"   },
    { YVIKEYS_STATUS  , "visual"       , VISU_status         , "visual selection in map"     },
    { YVIKEYS_STATUS  , "file"         , FILE_status         , "file, control, and version"  },
-   { YVIKEYS_STATUS  , "regs"         , MAP_REG_status      , "current register information"},
+   { YVIKEYS_STATUS  , "regs"         , yvikeys_regs_status , "current register information"},
    { NULL            , ""             , NULL                , ""                            },
 };
 static int  s_noption  = 0;

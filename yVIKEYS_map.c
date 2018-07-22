@@ -1071,7 +1071,7 @@ MAP__load             (char a_style, tMAPPED *a_map, char a_which)
       for (j =  0; j <  6; ++j)  a_map->map [x_spot++] = 6;
       for (j =  0; j <  6; ++j)  a_map->map [x_spot++] = 7;
       for (j =  0; j <  2; ++j)  a_map->map [x_spot++] = 8;
-      
+
    }
    for (i = 0; i < 8; ++i) {
       switch (a_style) {
@@ -1163,8 +1163,8 @@ yVIKEYS_map_config        (char a_coord, void *a_mapper, void *a_locator, void *
    DEBUG_MAP   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
    --rce;  if (!STATUS_check_needs  (MODE_MAP)) {
-      DEBUG_EDIT   yLOG_note    ("init must complete before config");
-      DEBUG_EDIT   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_MAP    yLOG_note    ("init must complete before config");
+      DEBUG_MAP    yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(globals)------------------------*/
@@ -1863,6 +1863,49 @@ MAP_mode_changes        (char a_minor)
    return rc;
 }
 
+char         /*-> complex delete action --------------[ ------ [gz.430.031.02]*/ /*-[01.0000.213.!]-*/ /*-[--.---.---.--]-*/
+MAP_delete             (char a_major, char a_minor)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   char        i           =    0;
+   char        x_len       =    0;
+   char        x_pos       =    0;
+   char        x_minors    [LEN_LABEL]  = "hljk";
+   /*---(header)-------------------------*/
+   DEBUG_MAP    yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   DEBUG_MAP    yLOG_char    ("s_live"    , s_live);
+   --rce;  if (s_live != VISU_NOT) {
+      DEBUG_MAP    yLOG_note    ("function only handles non-selected deletes/clearing");
+      DEBUG_MAP    yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_MAP    yLOG_char    ("a_minor"   , chrvisible (a_minor));
+   DEBUG_MAP    yLOG_info    ("valid"     , x_minors);
+   --rce;  if (a_minor == 0 || strchr (x_minors, a_minor) == NULL) {
+      DEBUG_MAP    yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(action)-------------------------*/
+   if (a_major == 'x') {
+      yvikeys_regs_save  ();
+      yvikeys_regs_clear ();
+      VISU_clear    ();
+   }
+   /*---(move after)---------------------*/
+   switch (a_minor) {
+   case 'h' : rc = MAP__horz (G_KEY_SPACE, a_minor);         break;
+   case 'l' : rc = MAP__horz (G_KEY_SPACE, a_minor);         break;
+   case 'j' : rc = MAP__vert (G_KEY_SPACE, a_minor);         break;
+   case 'k' : rc = MAP__vert (G_KEY_SPACE, a_minor);         break;
+   }
+   /*---(complete)-----------------------*/
+   DEBUG_MAP    yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
 char
 MAP_mode                (char a_major, char a_minor)
 {
@@ -1918,50 +1961,50 @@ MAP_mode                (char a_major, char a_minor)
          return a_minor;
       }
       /*---(copy, paste)-----------------*/
-      if (VISU_onecell () && strchr ("xy*", a_minor) != NULL) {
-         switch (a_minor) {
-         case 'x'  :
-            DEBUG_USER   yLOG_note    ("x for x_axis/col selection");
-            s_visu.y_lock = 'y';
-            s_visu.y_beg  = g_ymap.gmin;
-            s_visu.y_end  = g_ymap.gmax;
-            break;
-         case 'y'  :
-            DEBUG_USER   yLOG_note    ("y for y-axis/row selection");
-            s_visu.x_lock = 'y';
-            s_visu.x_beg  = g_xmap.gmin;
-            s_visu.x_end  = g_xmap.gmax;
-            break;
-         case '*'  :
-            DEBUG_USER   yLOG_note    ("* for all on current z selection");
-            s_visu.y_lock = 'y';
-            s_visu.y_beg  = g_ymap.gmin;
-            s_visu.y_end  = g_ymap.gmax;
-            s_visu.x_lock = 'y';
-            s_visu.x_beg  = g_xmap.gmin;
-            s_visu.x_end  = g_xmap.gmax;
-            break;
-         }
-      } else {
-         switch (a_minor) {
-         case 'X'  :
-            DEBUG_USER   yLOG_note    ("y for cut/clear");
-            MAP_REG_save  ();
-            MAP_REG_clear ();
-            VISU_clear    ();
-            break;
-         case 'Y'  :
-            DEBUG_USER   yLOG_note    ("y for yank/copy");
-            MAP_REG_save  ();
-            VISU_clear   ();
-            break;
-         case 'P'  :
-            DEBUG_USER   yLOG_note    ("P for paste normal");
-            MAP_REG_paste ("normal");
-            DEBUG_USER   yLOG_exit    (__FUNCTION__);
-            break;
-         }
-      }
+      /*> if (VISU_onecell () && strchr ("xy*", a_minor) != NULL) {                   <* 
+       *>    switch (a_minor) {                                                       <* 
+       *>    case 'x'  :                                                              <* 
+       *>       DEBUG_USER   yLOG_note    ("x for x_axis/col selection");             <* 
+       *>       s_visu.y_lock = 'y';                                                  <* 
+       *>       s_visu.y_beg  = g_ymap.gmin;                                          <* 
+       *>       s_visu.y_end  = g_ymap.gmax;                                          <* 
+       *>       break;                                                                <* 
+       *>    case 'y'  :                                                              <* 
+       *>       DEBUG_USER   yLOG_note    ("y for y-axis/row selection");             <* 
+       *>       s_visu.x_lock = 'y';                                                  <* 
+       *>       s_visu.x_beg  = g_xmap.gmin;                                          <* 
+       *>       s_visu.x_end  = g_xmap.gmax;                                          <* 
+       *>       break;                                                                <* 
+       *>    case '*'  :                                                              <* 
+       *>       DEBUG_USER   yLOG_note    ("* for all on current z selection");       <* 
+       *>       s_visu.y_lock = 'y';                                                  <* 
+       *>       s_visu.y_beg  = g_ymap.gmin;                                          <* 
+       *>       s_visu.y_end  = g_ymap.gmax;                                          <* 
+       *>       s_visu.x_lock = 'y';                                                  <* 
+       *>       s_visu.x_beg  = g_xmap.gmin;                                          <* 
+       *>       s_visu.x_end  = g_xmap.gmax;                                          <* 
+       *>       break;                                                                <* 
+       *>    }                                                                        <* 
+       *> } else {                                                                    <* 
+       *>    switch (a_minor) {                                                       <* 
+       *>    case 'X'  :                                                              <* 
+       *>       DEBUG_USER   yLOG_note    ("y for cut/clear");                        <* 
+       *>       yvikeys_regs_save  ();                                                     <* 
+       *>       yvikeys_regs_clear ();                                                     <* 
+       *>       VISU_clear    ();                                                     <* 
+       *>       break;                                                                <* 
+       *>    case 'Y'  :                                                              <* 
+       *>       DEBUG_USER   yLOG_note    ("y for yank/copy");                        <* 
+       *>       yvikeys_regs_save  ();                                                     <* 
+       *>       VISU_clear   ();                                                      <* 
+       *>       break;                                                                <* 
+       *>    case 'P'  :                                                              <* 
+       *>       DEBUG_USER   yLOG_note    ("P for paste normal");                     <* 
+       *>       yvikeys_regs_paste ("normal");                                             <* 
+       *>       DEBUG_USER   yLOG_exit    (__FUNCTION__);                             <* 
+       *>       break;                                                                <* 
+       *>    }                                                                        <* 
+       *> }                                                                           <*/
       /*---(funky moves)-----------------*/
       if (a_minor == ':') {
          x_grid = REPEAT_use ();
@@ -2026,14 +2069,20 @@ MAP_mode                (char a_major, char a_minor)
    /*---(paste family)-------------------*/
    if (a_major == 'p') {
       switch (a_minor) {
-      case '_' :  rc = MAP_REG_visual ();            break;
-      case '#' :  rc = MAP_REG_paste  ("clear");     break;
-      case 'n' :  rc = MAP_REG_paste  ("normal");    break;
-      case 'r' :  rc = MAP_REG_paste  ("replace");   break;
-      case 'd' :  rc = MAP_REG_paste  ("duplicate"); break;
-      case 'm' :  rc = MAP_REG_paste  ("move");      break;
-      case 'f' :  rc = MAP_REG_paste  ("force");     break;
+      case '_' :  rc = yvikeys_regs_visual ();            break;
+      case '#' :  rc = yvikeys_regs_paste  ("clear");     break;
+      case 'n' :  rc = yvikeys_regs_paste  ("normal");    break;
+      case 'r' :  rc = yvikeys_regs_paste  ("replace");   break;
+      case 'd' :  rc = yvikeys_regs_paste  ("duplicate"); break;
+      case 'm' :  rc = yvikeys_regs_paste  ("move");      break;
+      case 'f' :  rc = yvikeys_regs_paste  ("force");     break;
       }
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return rc;
+   }
+   /*---(delete)-------------------------*/
+   if (a_major == 'x') {
+      rc = MAP_delete  (a_major, a_minor);
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return rc;
    }

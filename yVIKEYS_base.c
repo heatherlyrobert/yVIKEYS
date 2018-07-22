@@ -57,7 +57,7 @@ yVIKEYS_init         (void)
    SOURCE_init  ();
    MACRO_init   ();
    /*----(latest)------------------------*/
-   MAP_REG_init    ();
+   yvikeys_regs_init    ();
    SRC_REG_init ();
    MARK_init    ();
    VISU_init    ();
@@ -76,7 +76,7 @@ yVIKEYS_wrap         (void)
 {
    VIEW_wrap   ();
    STATUS_wrap ();
-   MAP_REG_wrap   ();
+   yvikeys_regs_wrap   ();
    return 0;
 }
 
@@ -435,7 +435,7 @@ yVIKEYS_main_handle     (uchar a_key)
       case XMOD_FORMAT   : rc = FORMAT_smode          (x_major , x_key);  break;
       case SMOD_BUFFER   : rc = BASE__________stub    (x_major , x_key);  break;
       case UMOD_WANDER   : rc = BASE__________stub    (x_major , x_key);  break;
-      case SMOD_MAP_REG  : rc = MAP_REG_smode         (x_major , x_key);  break;
+      case SMOD_MAP_REG  : rc = yvikeys_regs_smode         (x_major , x_key);  break;
       case UMOD_MARK     : rc = MARK_smode            (x_major , x_key);  break;
       case SMOD_MENUS    : rc = BASE__________stub    (x_major , x_key);  break;
       case SMOD_MACRO    : rc = MACRO_smode           (x_major , x_key);  break;

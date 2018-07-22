@@ -34,8 +34,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "1.0e"
-#define YVIKEYS_VER_TXT   "updated source mode with D X and c"
+#define YVIKEYS_VER_NUM   "1.0f"
+#define YVIKEYS_VER_TXT   "clean up regs naming and handling to prepare to gyges testing"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -377,27 +377,23 @@ char        FILE__unit_null         (void);
 char*       FILE__unit              (char *a_question, int a_ref);
 
 
-char        MAP_REG__by_abbr        (char a_reg);
-char        MAP_REG__set            (char a_reg);
-char        MAP_REG__reset          (void);
-char        MAP_REG_init            (void);
-char        MAP_REG_wrap            (void);
-char        MAP_REG_save            (void);
-char        MAP_REG_visual          (void);
-char        MAP_REG_clear           (void);
-char        MAP_REG_delete          (void);
-char        MAP_REG_copy            (void);
-char        MAP_REG_cut             (void);
-char        MAP_REG_paste           (char *a_type);
-char        MAP_REG_status          (char *a_status);
-char        MAP_REG_smode           (int a_major, int a_minor);
+char        yvikeys__regs_by_abbr        (char a_reg);
+char        yvikeys__regs_set            (char a_reg);
+char        yvikeys_regs_init            (void);
+char        yvikeys_regs_wrap            (void);
+char        yvikeys_regs_save            (void);
+char        yvikeys_regs_visual          (void);
+char        yvikeys_regs_clear           (void);
+char        yvikeys_regs_paste      (char *a_type);
+char        yvikeys_regs_status     (char *a_status);
+char        yvikeys_regs_smode           (int a_major, int a_minor);
 
-char        MAP_REG__unit_purge        (void);
-char        MAP_REG__unit_killer       (void *a_thing);
-char        MAP_REG__unit_copier       (char a_type, long a_stamp);
-char        MAP_REG__unit_clearer      (char a_1st, int x, int y, int z);
-char        MAP_REG__unit_paster       (char a_regs, char a_pros, char a_intg, char a_1st, int a_xoff, int a_yoff, int a_zoff, void *a_thing);
-char*       MAP_REG__unit              (char *a_question, char x, char y);
+char        yvikeys__unit_regs_purge   (void);
+char        yvikeys__unit_regs_clearer (char a_1st, int x, int y, int z);
+char        yvikeys__unit_regs_copier  (char a_type, long a_stamp);
+char        yvikeys__unit_regs_paster  (char a_regs, char a_pros, char a_intg, char a_1st, int a_xoff, int a_yoff, int a_zoff, void *a_thing);
+char        yvikeys__unit_regs_regkill (void *a_thing);
+char*       yvikeys__unit_regs         (char *a_question, char x, char y);
 
 
 char        SRC_REG_writer          (char a_abbr);

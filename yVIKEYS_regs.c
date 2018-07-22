@@ -116,7 +116,7 @@ static      char        s_regnames   [MAX_REG] = "\"abcdefghijklmnopqrstuvwxyz-+
 #define     S_REG_ACTIVE    'y'
 
 /* destroy a copy held in a register --------------------------*/
-static char    (*s_killer)     (void *a_thing);
+static char    (*s_regkill)    (void *a_thing);
 /* get a copy and put it into a register ----------------------*/
 static void*   (*s_copier)     (char a_type, long a_stamp);
 /* clear an area in the host application ----------------------*/
@@ -139,7 +139,7 @@ struct cPASTING {
    char        intg;        /* tbd */
    char        desc        [LEN_DESC ];
 };
-tPASTING   s_pasting [MAX_PASTING] = {
+static tPASTING   s_pasting [MAX_PASTING] = {
    /*---------*/
    { '-', "----", ""            , '-',    '-', '-', '-', '-',    "tbd" },
    /*---*/
@@ -205,7 +205,7 @@ tPASTING   s_pasting [MAX_PASTING] = {
 static void  o___SUPPORT_________o () { return; }
 
 char         /*-> find a register index by abbr ------[ leaf   [fn.540.134.80]*/ /*-[00.0000.0L3.O]-*/ /*-[--.---.---.--]-*/
-MAP_REG__by_abbr           (char a_reg)
+yvikeys__regs_by_abbr           (char a_reg)
 {
    /*---(locals)-----------+-----------+-*/
    char        rce         =  -10;
@@ -232,19 +232,19 @@ MAP_REG__by_abbr           (char a_reg)
 }
 
 int          /*-> convert a register abbr to tab -----[ ------ [fn.420.132.11]*/ /*-[00.0000.016.7]-*/ /*-[--.---.---.--]-*/
-MAP_REG__abbr2tab          (char a_reg)
+yvikeys__regs_abbr2tab          (char a_reg)
 {
    /*---(locals)-----------+-----------+-*/
    char        x_tab       =    0;
    /*---(get register index)-------------*/
-   x_tab = MAP_REG__by_abbr (a_reg);
+   x_tab = yvikeys__regs_by_abbr (a_reg);
    if (x_tab < 0)  return x_tab;
    /*---(complete)-----------------------*/
    return x_tab + 128;
 }
 
 char
-MAP_REG__reset             (void)
+yvikeys__regs_reset             (void)
 {
    /*---(reset register)-----------------*/
    s_creg = '"';
@@ -253,15 +253,15 @@ MAP_REG__reset             (void)
 }
 
 char
-MAP_REG__set               (char a_reg)
+yvikeys__regs_set               (char a_reg)
 {
    /*---(locals)-----------+-----------+-*/
    char        rce         = -10;
    int         x_reg       = 0;
    /*---(reset)--------------------------*/
-   MAP_REG__reset ();
+   yvikeys__regs_reset ();
    /*---(get register number)------------*/
-   x_reg  = MAP_REG__by_abbr  (a_reg);
+   x_reg  = yvikeys__regs_by_abbr  (a_reg);
    DEBUG_REGS   yLOG_value   ("x_reg"     , x_reg);
    --rce;  if (x_reg < 0) {
       DEBUG_REGS   yLOG_exitr   (__FUNCTION__, rce);
@@ -281,7 +281,7 @@ yVIKEYS_regs_inside     (int x, int y, int z)
    /*---(header)-------------------------*/
    DEBUG_REGS   yLOG_enter   (__FUNCTION__);
    /*---(get register number)------------*/
-   x_reg  = MAP_REG__by_abbr  (s_creg);
+   x_reg  = yvikeys__regs_by_abbr  (s_creg);
    DEBUG_REGS   yLOG_value   ("x_reg"     , x_reg);
    --rce;  if (x_reg < 0) {
       DEBUG_REGS   yLOG_exitr   (__FUNCTION__, rce);
@@ -321,7 +321,7 @@ yVIKEYS_regs_inside     (int x, int y, int z)
 static void  o___PROGRAM_________o () { return; }
 
 char         /*-> clear out a register ---------------[ ------ [ge.B63.253.32]*/ /*-[03.0000.043.3]-*/ /*-[--.---.---.--]-*/
-MAP_REG__wipe              (char a_reg, char a_init)
+yvikeys__regs_wipe              (char a_reg, char a_init)
 {
    /*---(locals)-----------+-----------+-*/
    char        rce         = -10;
@@ -334,7 +334,7 @@ MAP_REG__wipe              (char a_reg, char a_init)
    DEBUG_REGS   yLOG_char    ("a_reg"     , a_reg);
    DEBUG_REGS   yLOG_char    ("a_init"    , a_init);
    /*---(get register number)------------*/
-   x_reg  = MAP_REG__by_abbr  (a_reg);
+   x_reg  = yvikeys__regs_by_abbr  (a_reg);
    DEBUG_REGS   yLOG_value   ("x_reg"     , x_reg);
    --rce;  if (x_reg < 0) {
       DEBUG_REGS   yLOG_exit    (__FUNCTION__);
@@ -355,8 +355,8 @@ MAP_REG__wipe              (char a_reg, char a_init)
    --rce;
    for (i = 0; i < LEN_BUF; ++i) {
       x_thing = s_regs [x_reg].buf [i];
-      if (s_killer != NULL && a_init != 'y' && x_thing != NULL) {
-         rc = s_killer (x_thing);
+      if (s_regkill != NULL && a_init != 'y' && x_thing != NULL) {
+         rc = s_regkill (x_thing);
          if (rc < 0) {
             DEBUG_REGS   yLOG_note    ("found a bad register position");
             DEBUG_REGS   yLOG_value   ("posid"     , i);
@@ -374,7 +374,7 @@ MAP_REG__wipe              (char a_reg, char a_init)
 }
 
 char         /*-> clear out all buffers --------------[ ------ [gz.421.121.01]*/ /*-[01.0000.013.!]-*/ /*-[--.---.---.--]-*/
-MAP_REG__purge             (char a_init)
+yvikeys__regs_purge             (char a_init)
 {
    /*---(locals)-----------+-----------+-*/
    int         i           = 0;
@@ -384,7 +384,7 @@ MAP_REG__purge             (char a_init)
    s_creg = '"';
    s_nreg = strlen (s_regnames);
    for (i = 0; i < s_nreg; ++i) {
-      MAP_REG__wipe (s_regnames[i], a_init);
+      yvikeys__regs_wipe (s_regnames[i], a_init);
    }
    /*---(complete)-----------------------*/
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
@@ -392,7 +392,7 @@ MAP_REG__purge             (char a_init)
 }
 
 char         /*-> clear all selections ---------------[ shoot  [gz.311.001.02]*/ /*-[00.0000.102.1]-*/ /*-[--.---.---.--]-*/
-MAP_REG_init               (void)
+yvikeys_regs_init               (void)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -405,8 +405,8 @@ MAP_REG_init               (void)
       return rce;
    }
    /*---(registers)----------------------*/
-   MAP_REG__purge    ('y');
-   s_killer  = NULL;
+   yvikeys__regs_purge    ('y');
+   s_regkill  = NULL;
    s_copier  = NULL;
    s_clearer = NULL;
    s_paster  = NULL;
@@ -418,19 +418,19 @@ MAP_REG_init               (void)
 }
 
 char         /*-> clear all selections ---------------[ shoot  [gz.311.001.02]*/ /*-[00.0000.102.1]-*/ /*-[--.---.---.--]-*/
-MAP_REG_wrap               (void)
+yvikeys_regs_wrap               (void)
 {
    /*---(header)-------------------------*/
    DEBUG_PROG   yLOG_enter   (__FUNCTION__);
    /*---(registers)----------------------*/
-   MAP_REG__purge    ('y');
+   yvikeys__regs_purge    ('y');
    /*---(complete)-----------------------*/
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
 char
-yVIKEYS_regs_config       (void *a_killer, void *a_copier, void *a_clearer, void *a_paster)
+yVIKEYS_regs_config       (void *a_clearer, void *a_copier, void *a_paster, void *a_regkill)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -443,8 +443,8 @@ yVIKEYS_regs_config       (void *a_killer, void *a_copier, void *a_clearer, void
       return rce;
    }
    /*---(globals)------------------------*/
-   DEBUG_REGS  yLOG_point   ("a_killer"  , a_killer);
-   s_killer     = a_killer;
+   DEBUG_REGS  yLOG_point   ("a_regkill" , a_regkill);
+   s_regkill    = a_regkill;
    DEBUG_REGS  yLOG_point   ("a_copier"  , a_copier);
    s_copier     = a_copier;
    DEBUG_REGS  yLOG_point   ("a_clearer" , a_clearer);
@@ -489,7 +489,7 @@ yVIKEYS_regs_add        (void *a_thing, char *a_label, char a_note)
       return  rce;
    }
    DEBUG_REGS   yLOG_char    ("s_creg"    , s_creg);
-   x_reg  = MAP_REG__by_abbr  (s_creg);
+   x_reg  = yvikeys__regs_by_abbr  (s_creg);
    DEBUG_REGS   yLOG_value   ("x_reg"     , x_reg);
    --rce;  if (x_reg < 0) {
       DEBUG_REGS   yLOG_exitr   (__FUNCTION__, rce);
@@ -521,7 +521,7 @@ yVIKEYS_regs_add        (void *a_thing, char *a_label, char a_note)
 }
 
 char
-MAP_REG_save               (void)
+yvikeys_regs_save               (void)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -546,14 +546,14 @@ MAP_REG_save               (void)
    }
    /*---(identify register)--------------*/
    DEBUG_REGS   yLOG_char    ("s_creg"    , s_creg);
-   x_reg  = MAP_REG__by_abbr  (s_creg);
+   x_reg  = yvikeys__regs_by_abbr  (s_creg);
    DEBUG_REGS   yLOG_value   ("x_reg"     , x_reg);
    --rce;  if (x_reg < 0) {
       DEBUG_REGS   yLOG_exitr   (__FUNCTION__, rce);
       return  rce;
    }
    /*---(wipe register)------------------*/
-   rc = MAP_REG__wipe  (s_creg, '-');
+   rc = yvikeys__regs_wipe  (s_creg, '-');
    DEBUG_REGS   yLOG_value   ("wipe rc"   , rc);
    --rce;  if (rc < 0) {
       DEBUG_REGS   yLOG_exitr   (__FUNCTION__, rce);
@@ -581,14 +581,14 @@ MAP_REG_save               (void)
       return  rce;
    }
    /*---(check counts)-------------------*/
-   if (s_regs [x_reg].nbuf <= 0)  MAP_REG__wipe (s_creg, '-');
+   if (s_regs [x_reg].nbuf <= 0)  yvikeys__regs_wipe (s_creg, '-');
    /*---(complete)-----------------------*/
    DEBUG_REGS   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
 char
-MAP_REG_list            (char a_reg, char *a_list)
+yvikeys__regs_list            (char a_reg, char *a_list)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -596,7 +596,7 @@ MAP_REG_list            (char a_reg, char *a_list)
    /*---(identify register)--------------*/
    strlcpy (a_list, "?"                  , LEN_RECD);
    DEBUG_REGS   yLOG_char    ("a_reg"     , a_reg);
-   x_reg  = MAP_REG__by_abbr  (a_reg);
+   x_reg  = yvikeys__regs_by_abbr  (a_reg);
    DEBUG_REGS   yLOG_value   ("x_reg"     , x_reg);
    --rce;  if (x_reg < 0) {
       DEBUG_REGS   yLOG_exitr   (__FUNCTION__, rce);
@@ -614,7 +614,7 @@ MAP_REG_list            (char a_reg, char *a_list)
 static void  o___ACTIONS_________o () { return; }
 
 char
-MAP_REG_clear           (void)
+yvikeys_regs_clear           (void)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -668,7 +668,7 @@ static char s_pros  = 0;
 static char s_intg  = 0;
 
 char         /*-> prepare for a paste ----------------[ ------ [fe.842.023.21]*/ /*-[01.0000.015.!]-*/ /*-[--.---.---.--]-*/
-MAP_REG__paste_check    (void)
+yvikeys__regs_paste_check    (void)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -690,7 +690,7 @@ MAP_REG__paste_check    (void)
    }
    /*---(identify register)--------------*/
    DEBUG_REGS   yLOG_char    ("s_creg"    , s_creg);
-   s_reg  = MAP_REG__by_abbr  (s_creg);
+   s_reg  = yvikeys__regs_by_abbr  (s_creg);
    DEBUG_REGS   yLOG_value   ("s_reg"     , s_reg);
    --rce;  if (s_reg < 0) {
       DEBUG_REGS   yLOG_exitr   (__FUNCTION__, rce);
@@ -721,7 +721,7 @@ MAP_REG__paste_check    (void)
 }
 
 char         /*-> prepare for a paste ----------------[ ------ [fe.842.023.21]*/ /*-[01.0000.015.!]-*/ /*-[--.---.---.--]-*/
-MAP_REG__paste_settings (char *a_type)
+yvikeys__regs_paste_settings (char *a_type)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -786,7 +786,7 @@ MAP_REG__paste_settings (char *a_type)
 }
 
 char         /*-> prepare for a paste ----------------[ ------ [fe.842.023.21]*/ /*-[01.0000.015.!]-*/ /*-[--.---.---.--]-*/
-MAP_REG__paste_clear    (void)
+yvikeys__regs_paste_clear    (void)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -816,7 +816,7 @@ MAP_REG__paste_clear    (void)
 }
 
 char
-MAP_REG_paste              (char *a_type)
+yvikeys_regs_paste              (char *a_type)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -827,14 +827,14 @@ MAP_REG_paste              (char *a_type)
    /*---(header)-------------------------*/
    DEBUG_REGS   yLOG_enter   (__FUNCTION__);
    /*---(prepare)------------------------*/
-   rc = MAP_REG__paste_check    ();
+   rc = yvikeys__regs_paste_check    ();
    DEBUG_REGS   yLOG_value   ("rc"        , rc);
    --rce;  if (rc < 0) {
       DEBUG_REGS   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(settings)-----------------------*/
-   rc = MAP_REG__paste_settings (a_type);
+   rc = yvikeys__regs_paste_settings (a_type);
    DEBUG_REGS   yLOG_value   ("rc"        , rc);
    --rce;  if (rc < 0) {
       DEBUG_REGS   yLOG_exitr   (__FUNCTION__, rce);
@@ -842,7 +842,7 @@ MAP_REG_paste              (char *a_type)
    }
    /*---(clearing)-----------------------*/
    if (s_clear == 'y') {
-      MAP_REG__paste_clear ();
+      yvikeys__regs_paste_clear ();
    }
    if (s_reqs == '-') {
       DEBUG_REGS   yLOG_note    ("requested clear only");
@@ -867,7 +867,7 @@ MAP_REG_paste              (char *a_type)
 }
 
 char
-MAP_REG_visual          (void)
+yvikeys_regs_visual          (void)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -876,7 +876,7 @@ MAP_REG_visual          (void)
    /*---(header)-------------------------*/
    DEBUG_REGS   yLOG_enter   (__FUNCTION__);
    /*---(prepare)------------------------*/
-   rc = MAP_REG__paste_check    ();
+   rc = yvikeys__regs_paste_check    ();
    DEBUG_REGS   yLOG_value   ("rc"        , rc);
    --rce;  if (rc < 0) {
       DEBUG_REGS   yLOG_exitr   (__FUNCTION__, rce);
@@ -897,7 +897,7 @@ MAP_REG_visual          (void)
 }
 
 char         /*-> tbd --------------------------------[ ------ [ge.420.132.11]*/ /*-[00.0000.114.!]-*/ /*-[--.---.---.--]-*/
-MAP_REG_status          (char *a_status)
+yvikeys_regs_status          (char *a_status)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -906,7 +906,7 @@ MAP_REG_status          (char *a_status)
    /*---(defenses)-----------------------*/
    --rce;  if (a_status  == NULL)  return rce;
    /*---(identify register)--------------*/
-   x_reg  = MAP_REG__by_abbr  (s_creg);
+   x_reg  = yvikeys__regs_by_abbr  (s_creg);
    --rce;  if (x_reg < 0) {
       return  rce;
    }
@@ -917,7 +917,7 @@ MAP_REG_status          (char *a_status)
 }
 
 char
-MAP_REG_smode           (int a_major, int a_minor)
+yvikeys_regs_smode           (int a_major, int a_minor)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -947,7 +947,7 @@ MAP_REG_smode           (int a_major, int a_minor)
    /*---(register selection)-------------*/
    --rce;  if (a_major == '"') {
       if (strchr (s_regnames, a_minor) != 0) {
-         MAP_REG__set    (a_minor);
+         yvikeys__regs_set    (a_minor);
          return 0;
       }
       /*> } else if (a_minor == '?') {                                                                <* 
@@ -955,69 +955,69 @@ MAP_REG_smode           (int a_major, int a_minor)
        *>    REG_set ('"');                                                                           <* 
        *>    /+> yVIKEYS_mode_exit ();                                                          <+/   <* 
        *>    return  0;                                                                               <*/
-      /*> } else if (a_minor == '!') {                                                <* 
-       *>    my.layout_status = G_STATUS_REGS;                                        <* 
-       *>    REG_set ('"');                                                           <* 
-       *>    yVIKEYS_mode_exit ();                                                    <* 
-       *>    return  0;                                                               <* 
-       *> }                                                                           <*/
-      return rce;
-   }
-   /*---(register actions)---------------*/
-   --rce;  if (a_major == ' ') {
+   /*> } else if (a_minor == '!') {                                                <* 
+    *>    my.layout_status = G_STATUS_REGS;                                        <* 
+    *>    REG_set ('"');                                                           <* 
+    *>    yVIKEYS_mode_exit ();                                                    <* 
+    *>    return  0;                                                               <* 
+    *> }                                                                           <*/
+   return rce;
+}
+/*---(register actions)---------------*/
+--rce;  if (a_major == ' ') {
+   /*---(multikey prefixes)-----------*/
+   switch (a_minor) {
       /*---(multikey prefixes)-----------*/
-      switch (a_minor) {
-      /*---(multikey prefixes)-----------*/
-      case 'p'  :
-         DEBUG_USER   yLOG_note    ("p is a multi-key");
-         DEBUG_USER   yLOG_exit    (__FUNCTION__);
-         return a_minor;
-      case 'y'  :
-         DEBUG_USER   yLOG_note    ("y for yank/copy");
-         MAP_REG_save  ();
-         VISU_clear   ();
-         MODE_exit ();
-         DEBUG_USER   yLOG_exit    (__FUNCTION__);
-         return 0;
-         break;
-      case 'Y'  :
-         DEBUG_USER   yLOG_note    ("y for yank/clear");
-         MAP_REG_save  ();
-         MAP_REG_clear ();
-         VISU_clear   ();
-         MODE_exit ();
-         DEBUG_USER   yLOG_exit    (__FUNCTION__);
-         return 0;
-         break;
-      case 'P'  :
-         DEBUG_USER   yLOG_note    ("P for paste normal");
-         MAP_REG_paste ("normal");
-         MODE_exit ();
-         DEBUG_USER   yLOG_exit    (__FUNCTION__);
-         return 0;
-         break;
-      }
-   }
-   /*---(pasting actions)----------------*/
-   --rce;  if (a_major == 'p') {
-      switch (a_minor) {
-      case '_' :  rc = MAP_REG_visual ();            break;
-      case '#' :  rc = MAP_REG_paste  ("clear");     break;
-      case 'n' :  rc = MAP_REG_paste  ("normal");    break;
-      case 'r' :  rc = MAP_REG_paste  ("replace");   break;
-      case 'd' :  rc = MAP_REG_paste  ("duplicate"); break;
-      case 'm' :  rc = MAP_REG_paste  ("move");      break;
-      case 'f' :  rc = MAP_REG_paste  ("force");     break;
-      }
+   case 'p'  :
+      DEBUG_USER   yLOG_note    ("p is a multi-key");
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return a_minor;
+   case 'y'  :
+      DEBUG_USER   yLOG_note    ("y for yank/copy");
+      yvikeys_regs_save  ();
+      VISU_clear   ();
       MODE_exit ();
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
-      return rc;
+      return 0;
+      break;
+   case 'Y'  :
+      DEBUG_USER   yLOG_note    ("y for yank/clear");
+      yvikeys_regs_save  ();
+      yvikeys_regs_clear ();
+      VISU_clear   ();
+      MODE_exit ();
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return 0;
+      break;
+   case 'P'  :
+      DEBUG_USER   yLOG_note    ("P for paste normal");
+      yvikeys_regs_paste ("normal");
+      MODE_exit ();
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return 0;
+      break;
    }
-   /*---(failure)------------------------*/
-   --rce;
+}
+/*---(pasting actions)----------------*/
+--rce;  if (a_major == 'p') {
+   switch (a_minor) {
+   case '_' :  rc = yvikeys_regs_visual ();            break;
+   case '#' :  rc = yvikeys_regs_paste  ("clear");     break;
+   case 'n' :  rc = yvikeys_regs_paste  ("normal");    break;
+   case 'r' :  rc = yvikeys_regs_paste  ("replace");   break;
+   case 'd' :  rc = yvikeys_regs_paste  ("duplicate"); break;
+   case 'm' :  rc = yvikeys_regs_paste  ("move");      break;
+   case 'f' :  rc = yvikeys_regs_paste  ("force");     break;
+   }
    MODE_exit ();
-   DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
-   return rce;
+   DEBUG_USER   yLOG_exit    (__FUNCTION__);
+   return rc;
+}
+/*---(failure)------------------------*/
+--rce;
+MODE_exit ();
+DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
+return rce;
 }
 
 
@@ -1041,7 +1041,7 @@ static int      s_nbase   =    0;
 static int      s_nfree   =    0;
 
 tTHING*
-MAP_REG__unit_create       (void)
+yvikeys__unit_regs_create       (void)
 {
    /*---(locals)-----------+-----+-----+-*/
    tTHING     *p           = NULL;
@@ -1062,7 +1062,7 @@ MAP_REG__unit_create       (void)
 }
 
 char
-MAP_REG__unit_base         (char *a_list)
+yvikeys__unit_regs_base         (char *a_list)
 {
    /*---(locals)-----------+-----+-----+-*/
    int         i           =    0;
@@ -1083,7 +1083,7 @@ MAP_REG__unit_base         (char *a_list)
 }
 
 char
-MAP_REG__unit_free         (char *a_list)
+yvikeys__unit_regs_free         (char *a_list)
 {
    /*---(locals)-----------+-----+-----+-*/
    int         i           =    0;
@@ -1104,7 +1104,7 @@ MAP_REG__unit_free         (char *a_list)
 }
 
 char
-MAP_REG__unit_list         (char *a_list)
+yvikeys__unit_regs_list         (char *a_list)
 {
    /*---(locals)-----------+-----+-----+-*/
    int         i           =    0;
@@ -1123,7 +1123,7 @@ MAP_REG__unit_list         (char *a_list)
 }
 
 char
-MAP_REG__unit_A            (char *a_list)
+yvikeys__unit_regs_A       (char *a_list)
 {
    int    x, y;
    strlcpy (a_list, "", LEN_RECD);
@@ -1138,7 +1138,7 @@ MAP_REG__unit_A            (char *a_list)
 }
 
 char
-MAP_REG__unit_B            (char *a_list)
+yvikeys__unit_regs_B            (char *a_list)
 {
    int    x, y;
    strlcpy (a_list, "", LEN_RECD);
@@ -1153,7 +1153,7 @@ MAP_REG__unit_B            (char *a_list)
 }
 
 char
-MAP_REG__unit_purge        (void)
+yvikeys__unit_regs_purge   (void)
 {
    /*---(locals)-----------+-----+-----+-*/
    int         i           =    0;
@@ -1182,7 +1182,7 @@ MAP_REG__unit_purge        (void)
 }
 
 char
-MAP_REG__unit_killer       (void *a_thing)
+yvikeys__unit_regs_regkill (void *a_thing)
 {
    /*---(locals)-----------+-----+-----+-*/
    int         i           =    0;
@@ -1228,13 +1228,13 @@ MAP_REG__unit_killer       (void *a_thing)
 }
 
 tTHING*
-MAP_REG__unit_dup          (tTHING *p)
+yvikeys__unit_regs_dup          (tTHING *p)
 {
    /*---(locals)-----------+-----+-----+-*/
    tTHING     *q           = NULL;
    char        t           [LEN_LABEL];
    /*---(create)-------------------------*/
-   q = MAP_REG__unit_create ();
+   q = yvikeys__unit_regs_create ();
    /*---(copy contents)------------------*/
    q->x = p->x;
    q->y = p->y;
@@ -1246,14 +1246,14 @@ MAP_REG__unit_dup          (tTHING *p)
 }
 
 char
-MAP_REG__unit_hook         (tTHING *p, int x, int y)
+yvikeys__unit_regs_hook         (tTHING *p, int x, int y)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        t           [LEN_LABEL];
    /*---(check)--------------------------*/
    if (s_things [x][y] != NULL) {
       s_things [x][y] = NULL;
-      MAP_REG__unit_killer (s_things [x][y]);
+      yvikeys__unit_regs_regkill (s_things [x][y]);
    }
    /*---(populate)-----------------------*/
    s_things [x][y] = p;
@@ -1266,61 +1266,61 @@ MAP_REG__unit_hook         (tTHING *p, int x, int y)
    return 0;
 }
 
-char MAP_REG__unit_makebase     (tTHING *p) { p->z = 1; return 0; }
+char yvikeys__unit_regs_makebase     (tTHING *p) { p->z = 1; return 0; }
 
 
 char
-MAP_REG__unit_init         (void)
+yvikeys__unit_regs_init    (void)
 {
    /*---(locals)-----------+-----+-----+-*/
    tTHING     *p           = NULL;
    /*---(purge)--------------------------*/
-   MAP_REG__unit_purge  ();
+   yvikeys__unit_regs_purge ();
    /*---(3 secondary)--------------------*/
-   p = MAP_REG__unit_create ();
-   MAP_REG__unit_hook   (p, 0, 5);
-   MAP_REG__unit_makebase (p);
-   p = MAP_REG__unit_create ();
-   MAP_REG__unit_hook   (p, 3, 6);
-   MAP_REG__unit_makebase (p);
-   p = MAP_REG__unit_create ();
-   MAP_REG__unit_hook   (p, 6, 7);
-   MAP_REG__unit_makebase (p);
+   p = yvikeys__unit_regs_create ();
+   yvikeys__unit_regs_hook   (p, 0, 5);
+   yvikeys__unit_regs_makebase (p);
+   p = yvikeys__unit_regs_create ();
+   yvikeys__unit_regs_hook   (p, 3, 6);
+   yvikeys__unit_regs_makebase (p);
+   p = yvikeys__unit_regs_create ();
+   yvikeys__unit_regs_hook   (p, 6, 7);
+   yvikeys__unit_regs_makebase (p);
    /*---(5 primary)----------------------*/
-   p = MAP_REG__unit_create ();
-   MAP_REG__unit_hook   (p, 2, 0);
-   MAP_REG__unit_makebase (p);
-   p = MAP_REG__unit_create ();
-   MAP_REG__unit_hook   (p, 0, 2);
-   MAP_REG__unit_makebase (p);
-   p = MAP_REG__unit_create ();
-   MAP_REG__unit_hook   (p, 3, 2);
-   MAP_REG__unit_makebase (p);
-   p = MAP_REG__unit_create ();
-   MAP_REG__unit_hook   (p, 6, 2);
-   MAP_REG__unit_makebase (p);
-   p = MAP_REG__unit_create ();
-   MAP_REG__unit_hook   (p, 6, 4);
-   MAP_REG__unit_makebase (p);
+   p = yvikeys__unit_regs_create ();
+   yvikeys__unit_regs_hook   (p, 2, 0);
+   yvikeys__unit_regs_makebase (p);
+   p = yvikeys__unit_regs_create ();
+   yvikeys__unit_regs_hook   (p, 0, 2);
+   yvikeys__unit_regs_makebase (p);
+   p = yvikeys__unit_regs_create ();
+   yvikeys__unit_regs_hook   (p, 3, 2);
+   yvikeys__unit_regs_makebase (p);
+   p = yvikeys__unit_regs_create ();
+   yvikeys__unit_regs_hook   (p, 6, 2);
+   yvikeys__unit_regs_makebase (p);
+   p = yvikeys__unit_regs_create ();
+   yvikeys__unit_regs_hook   (p, 6, 4);
+   yvikeys__unit_regs_makebase (p);
    /*---(4 inner)------------------------*/
-   p = MAP_REG__unit_create ();
-   MAP_REG__unit_hook   (p, 2, 1);
-   MAP_REG__unit_makebase (p);
-   p = MAP_REG__unit_create ();
-   MAP_REG__unit_hook   (p, 2, 3);
-   MAP_REG__unit_makebase (p);
-   p = MAP_REG__unit_create ();
-   MAP_REG__unit_hook   (p, 4, 1);
-   MAP_REG__unit_makebase (p);
-   p = MAP_REG__unit_create ();
-   MAP_REG__unit_hook   (p, 4, 3);
-   MAP_REG__unit_makebase (p);
+   p = yvikeys__unit_regs_create ();
+   yvikeys__unit_regs_hook   (p, 2, 1);
+   yvikeys__unit_regs_makebase (p);
+   p = yvikeys__unit_regs_create ();
+   yvikeys__unit_regs_hook   (p, 2, 3);
+   yvikeys__unit_regs_makebase (p);
+   p = yvikeys__unit_regs_create ();
+   yvikeys__unit_regs_hook   (p, 4, 1);
+   yvikeys__unit_regs_makebase (p);
+   p = yvikeys__unit_regs_create ();
+   yvikeys__unit_regs_hook   (p, 4, 3);
+   yvikeys__unit_regs_makebase (p);
    /*---(complete)-----------------------*/
    return 0;
 }
 
 char
-MAP_REG__unit_copier       (char a_type, long a_stamp)
+yvikeys__unit_regs_copier  (char a_type, long a_stamp)
 {
    /*---(locals)-----------+-----------+-*/
    char        rc          = 0;
@@ -1336,7 +1336,7 @@ MAP_REG__unit_copier       (char a_type, long a_stamp)
       if (x_thing != NULL) {
          rc = yVIKEYS_visual (x, y, 0);
          if (rc == 1) {
-            x_new = MAP_REG__unit_dup (x_thing);
+            x_new = yvikeys__unit_regs_dup (x_thing);
             yVIKEYS_regs_add (x_new, x_new->l, '-');
          }
       }
@@ -1348,29 +1348,29 @@ MAP_REG__unit_copier       (char a_type, long a_stamp)
 }
 
 char
-MAP_REG__unit_clearer      (char a_1st, int x, int y, int z)
+yvikeys__unit_regs_clearer (char a_1st, int x, int y, int z)
 {
    tTHING     *x_thing     = NULL;
    if (s_things [x][y] == NULL)  return 0;
-   s_killer (s_things [x][y]);
+   s_regkill (s_things [x][y]);
    s_things [x][y] = NULL;
    return 0;
 }
 
 char
-MAP_REG__unit_paster       (char a_regs, char a_pros, char a_intg, char a_1st, int a_xoff, int a_yoff, int a_zoff, void *a_thing)
+yvikeys__unit_regs_paster  (char a_regs, char a_pros, char a_intg, char a_1st, int a_xoff, int a_yoff, int a_zoff, void *a_thing)
 {
    tTHING     *x_thing;
    int         x, y;
-   x_thing = MAP_REG__unit_dup (a_thing);
+   x_thing = yvikeys__unit_regs_dup (a_thing);
    x = x_thing->x + a_xoff;
    y = x_thing->y + a_yoff;
-   MAP_REG__unit_hook (x_thing, x, y);
+   yvikeys__unit_regs_hook (x_thing, x, y);
    return 0;
 }
 
 char*        /*-> tbd --------------------------------[ leaf   [gs.520.202.40]*/ /*-[01.0000.00#.#]-*/ /*-[--.---.---.--]-*/
-MAP_REG__unit           (char *a_question, char x, char y)
+yvikeys__unit_regs      (char *a_question, char x, char y)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        t           [LEN_RECD ];
@@ -1379,37 +1379,37 @@ MAP_REG__unit           (char *a_question, char x, char y)
    strlcpy  (yVIKEYS__unit_answer, "MAP_REG unit     : question not understood", LEN_STR);
    /*---(dependency list)----------------*/
    if      (strcmp (a_question, "current"        )   == 0) {
-      x_reg = MAP_REG__by_abbr (s_creg);
-      MAP_REG_list  (s_creg, t);
+      x_reg = yvikeys__regs_by_abbr (s_creg);
+      yvikeys__regs_list  (s_creg, t);
       snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP_REG current  : %c %2d %2d %s", s_creg, x_reg, s_regs [x_reg].nbuf, t);
    }
    else if (strcmp (a_question, "base"           )   == 0) {
-      MAP_REG__unit_base (t);
+      yvikeys__unit_regs_base (t);
       snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP_REG base  %2d : %s", s_nbase, t);
    }
    else if (strcmp (a_question, "free"           )   == 0) {
-      MAP_REG__unit_free (t);
+      yvikeys__unit_regs_free (t);
       snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP_REG free  %2d : %s", s_nfree, t);
    }
    else if (strcmp (a_question, "list"           )   == 0) {
-      MAP_REG__unit_list (t);
+      yvikeys__unit_regs_list (t);
       snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP_REG list  %2d : %s", s_nthing - s_nbase - s_nfree, t);
    }
    else if (strcmp (a_question, "A"              )   == 0) {
-      MAP_REG__unit_A    (t);
+      yvikeys__unit_regs_A    (t);
       snprintf (yVIKEYS__unit_answer, LEN_STR, "A : %s", t);
    }
    else if (strcmp (a_question, "B"              )   == 0) {
-      MAP_REG__unit_B    (t);
+      yvikeys__unit_regs_B    (t);
       snprintf (yVIKEYS__unit_answer, LEN_STR, "B : %s", t);
    }
    else if (strcmp (a_question, "inside"       )  == 0) {
-      MAP_REG_list  (x, t);
-      x_reg = MAP_REG__by_abbr (x);
+      yvikeys__regs_list  (x, t);
+      x_reg = yvikeys__regs_by_abbr (x);
       snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP_REG inside   : %c %2d %s", x, s_regs [x_reg].nbuf, t);
    }
    else if (strcmp (a_question, "range"        )  == 0) {
-      x_reg = MAP_REG__by_abbr (x);
+      x_reg = yvikeys__regs_by_abbr (x);
       snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP_REG range    : %c, bx=%4d, by=%4d, ex=%4d, ey=%4d, z =%4d", x, s_regs [x_reg].x_beg, s_regs [x_reg].y_beg, s_regs [x_reg].x_end, s_regs [x_reg].y_end, s_regs [x_reg].z_all);
    }
    /*---(complete)-----------------------*/
