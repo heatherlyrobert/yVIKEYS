@@ -949,75 +949,74 @@ yvikeys_regs_smode           (int a_major, int a_minor)
       if (strchr (s_regnames, a_minor) != 0) {
          yvikeys__regs_set    (a_minor);
          return 0;
+      } else if (a_minor == '?') {
+         /*> my.info_win = G_INFO_REGS;                                               <*/
+         /*> REG_set ('"');                                                           <*/
+         /*> yVIKEYS_mode_exit ();                                                          <*/
+         return  0;
+      } else if (a_minor == '!') {
+         /*> my.layout_status = G_STATUS_REGS;                                        <*/
+         /*> REG_set ('"');                                                           <*/
+         /*> yVIKEYS_mode_exit ();                                                    <*/
+         return  0;
       }
-      /*> } else if (a_minor == '?') {                                                                <* 
-       *>    my.info_win = G_INFO_REGS;                                                               <* 
-       *>    REG_set ('"');                                                                           <* 
-       *>    /+> yVIKEYS_mode_exit ();                                                          <+/   <* 
-       *>    return  0;                                                                               <*/
-   /*> } else if (a_minor == '!') {                                                <* 
-    *>    my.layout_status = G_STATUS_REGS;                                        <* 
-    *>    REG_set ('"');                                                           <* 
-    *>    yVIKEYS_mode_exit ();                                                    <* 
-    *>    return  0;                                                               <* 
-    *> }                                                                           <*/
-   return rce;
-}
-/*---(register actions)---------------*/
---rce;  if (a_major == ' ') {
-   /*---(multikey prefixes)-----------*/
-   switch (a_minor) {
+      return rce;
+   }
+   /*---(register actions)---------------*/
+   --rce;  if (a_major == ' ') {
       /*---(multikey prefixes)-----------*/
-   case 'p'  :
-      DEBUG_USER   yLOG_note    ("p is a multi-key");
-      DEBUG_USER   yLOG_exit    (__FUNCTION__);
-      return a_minor;
-   case 'y'  :
-      DEBUG_USER   yLOG_note    ("y for yank/copy");
-      yvikeys_regs_save  ();
-      VISU_clear   ();
-      MODE_exit ();
-      DEBUG_USER   yLOG_exit    (__FUNCTION__);
-      return 0;
-      break;
-   case 'Y'  :
-      DEBUG_USER   yLOG_note    ("y for yank/clear");
-      yvikeys_regs_save  ();
-      yvikeys_regs_clear ();
-      VISU_clear   ();
-      MODE_exit ();
-      DEBUG_USER   yLOG_exit    (__FUNCTION__);
-      return 0;
-      break;
-   case 'P'  :
-      DEBUG_USER   yLOG_note    ("P for paste normal");
-      yvikeys_regs_paste ("normal");
-      MODE_exit ();
-      DEBUG_USER   yLOG_exit    (__FUNCTION__);
-      return 0;
-      break;
+      switch (a_minor) {
+         /*---(multikey prefixes)-----------*/
+      case 'p'  :
+         DEBUG_USER   yLOG_note    ("p is a multi-key");
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         return a_minor;
+      case 'y'  :
+         DEBUG_USER   yLOG_note    ("y for yank/copy");
+         yvikeys_regs_save  ();
+         VISU_clear   ();
+         MODE_exit ();
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         return 0;
+         break;
+      case 'Y'  :
+         DEBUG_USER   yLOG_note    ("y for yank/clear");
+         yvikeys_regs_save  ();
+         yvikeys_regs_clear ();
+         VISU_clear   ();
+         MODE_exit ();
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         return 0;
+         break;
+      case 'P'  :
+         DEBUG_USER   yLOG_note    ("P for paste normal");
+         yvikeys_regs_paste ("normal");
+         MODE_exit ();
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         return 0;
+         break;
+      }
    }
-}
-/*---(pasting actions)----------------*/
---rce;  if (a_major == 'p') {
-   switch (a_minor) {
-   case '_' :  rc = yvikeys_regs_visual ();            break;
-   case '#' :  rc = yvikeys_regs_paste  ("clear");     break;
-   case 'n' :  rc = yvikeys_regs_paste  ("normal");    break;
-   case 'r' :  rc = yvikeys_regs_paste  ("replace");   break;
-   case 'd' :  rc = yvikeys_regs_paste  ("duplicate"); break;
-   case 'm' :  rc = yvikeys_regs_paste  ("move");      break;
-   case 'f' :  rc = yvikeys_regs_paste  ("force");     break;
+   /*---(pasting actions)----------------*/
+   --rce;  if (a_major == 'p') {
+      switch (a_minor) {
+      case '_' :  rc = yvikeys_regs_visual ();            break;
+      case '#' :  rc = yvikeys_regs_paste  ("clear");     break;
+      case 'n' :  rc = yvikeys_regs_paste  ("normal");    break;
+      case 'r' :  rc = yvikeys_regs_paste  ("replace");   break;
+      case 'd' :  rc = yvikeys_regs_paste  ("duplicate"); break;
+      case 'm' :  rc = yvikeys_regs_paste  ("move");      break;
+      case 'f' :  rc = yvikeys_regs_paste  ("force");     break;
+      }
+      MODE_exit ();
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return rc;
    }
+   /*---(failure)------------------------*/
+   --rce;
    MODE_exit ();
-   DEBUG_USER   yLOG_exit    (__FUNCTION__);
-   return rc;
-}
-/*---(failure)------------------------*/
---rce;
-MODE_exit ();
-DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
-return rce;
+   DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
+   return rce;
 }
 
 

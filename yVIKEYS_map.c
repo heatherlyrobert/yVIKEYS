@@ -23,7 +23,7 @@ char   g_hgoto     [LEN_DESC ]   = "SH shcle LE";
 char   g_hscroll   [LEN_DESC ]   = "   shcle   ";
 char   g_hword     [LEN_DESC ]   = "wbe WBE";
 
-char   g_multimap  [LEN_DESC ]   = "cgz e pdxia   ";
+char   g_multimap  [LEN_DESC ]   = "cgz e  dxia   ";
 char   g_multivisu [LEN_DESC ]   = "cgz e p  ia   ";
 
 char   g_multisrc  [LEN_DESC ]   = "cgz    dx   Ff";
@@ -1956,10 +1956,6 @@ MAP_mode                (char a_major, char a_minor)
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return a_minor;
       }
-      if (s_live == VISU_YES && strchr (g_multivisu, a_minor) != 0) {
-         DEBUG_USER   yLOG_exit    (__FUNCTION__);
-         return a_minor;
-      }
       /*---(copy, paste)-----------------*/
       /*> if (VISU_onecell () && strchr ("xy*", a_minor) != NULL) {                   <* 
        *>    switch (a_minor) {                                                       <* 
@@ -2028,6 +2024,12 @@ MAP_mode                (char a_major, char a_minor)
       if (strchr (s_map_modes, a_minor) != 0) {
          rc = MAP_mode_changes (a_minor);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         return rc;
+      }
+      if (strchr ("yYpP", a_minor) != 0) {
+         DEBUG_USER   yLOG_note    ("switch to a map register mode");
+         MODE_enter (SMOD_MAP_REG);
+         rc = yvikeys_regs_smode  (G_KEY_SPACE, a_minor);
          return rc;
       }
       /*---(normal)----------------------*/
