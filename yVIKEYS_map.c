@@ -15,12 +15,15 @@ char   g_coord    = YVIKEYS_RIGHT;
 
 
 char   g_vsimple   [LEN_DESC ]   = "_ Kk jJ ~";
-char   g_vgoto     [LEN_DESC ]   = "TK tkmjb JB";
-char   g_vscroll   [LEN_DESC ]   = "   tkmjb   ";
+char   g_vgoto     [LEN_DESC ]   = "TK tkmjb JB  ";
+char   g_vends     [LEN_DESC ]   = "T  tkmjb  B M azud";
+char   g_vscroll   [LEN_DESC ]   = " K tkmjb J   ";
 
 char   g_hsimple   [LEN_DESC ]   = "0 Hh lL $";
-char   g_hgoto     [LEN_DESC ]   = "SH shcle LE";
-char   g_hscroll   [LEN_DESC ]   = "   shcle   ";
+char   g_hgoto     [LEN_DESC ]   = "SH shcle LE  ";
+char   g_hends     [LEN_DESC ]   = "S  shcle  E C azud";
+char   g_hscroll   [LEN_DESC ]   = " H shcle L   ";
+
 char   g_hword     [LEN_DESC ]   = "wbe WBE";
 
 char   g_multimap  [LEN_DESC ]   = "cgz e  dxia   ";
@@ -996,16 +999,16 @@ MAP__clear           (tMAPPED *a_map, char a_which)
    a_map->which = a_which;
    /*---(lefts)--------------------------*/
    DEBUG_MAP   yLOG_snote   ("mins");
-   a_map->gmin  = YVIKEYS_EMPTY;
-   a_map->amin  = YVIKEYS_EMPTY;
-   a_map->lmin  = YVIKEYS_EMPTY;
-   a_map->prev  = YVIKEYS_EMPTY;
+   a_map->umin  = YVIKEYS_EMPTY;
+   a_map->gamin = YVIKEYS_EMPTY;
+   a_map->glmin = YVIKEYS_EMPTY;
+   a_map->gprev = YVIKEYS_EMPTY;
    /*---(rights)-------------------------*/
    DEBUG_MAP   yLOG_snote   ("maxs");
-   a_map->next  = YVIKEYS_EMPTY;
-   a_map->lmax  = YVIKEYS_EMPTY;
-   a_map->amax  = YVIKEYS_EMPTY;
-   a_map->gmax  = YVIKEYS_EMPTY;
+   a_map->gnext = YVIKEYS_EMPTY;
+   a_map->glmax = YVIKEYS_EMPTY;
+   a_map->gamax = YVIKEYS_EMPTY;
+   a_map->umax  = YVIKEYS_EMPTY;
    /*---(map)----------------------------*/
    DEBUG_MAP   yLOG_snote   ("map");
    for (i = 0; i < LEN_MAP; ++i) {
@@ -1043,14 +1046,14 @@ MAP__print           (tMAPPED *a_map)
    printf ("next lmax amax gmax    aval beg- cur- end- len- tend\n");
    /*---(content)------------------------*/
    printf ("%c  "                        , a_map->which);
-   printf ("%4d %4d %4d %4d    "         , a_map->gmin , a_map->amin , a_map->lmin , a_map->prev );
+   printf ("%4d %4d %4d %4d    "         , a_map->gmin , a_map->gamin , a_map->glmin , a_map->gprev );
    /*> for (i = 0; i < LEN_MAP; ++i) {                                                <* 
     *>    if (a_map->map [i] == YVIKEYS_EMPTY)  break;                                <* 
     *>    printf ("%4d "  , a_map->map [i]);                                          <* 
     *> }                                                                              <* 
     *> printf ("   ");                                                                <*/
    /*---(end)----------------------------*/
-   printf ("%4d %4d %4d %4d"              , a_map->next , a_map->lmax , a_map->amax , a_map->gmax );
+   printf ("%4d %4d %4d %4d"              , a_map->gnext , a_map->glmax , a_map->gamax , a_map->gmax );
    printf ("   %4d %4d %4d %4d %4d %4d\n", a_map->avail, a_map->beg  , a_map->cur  , a_map->end  , a_map->len  , a_map->tend );
    return 0;
 }
@@ -1113,14 +1116,16 @@ MAP__load             (char a_style, tMAPPED *a_map, char a_which)
    if (a_style == '1') {
       for (i = 0; i <= 100; ++i)   a_map->map [x_spot++] = i;
    }
+   a_map->umin  = 0;
    a_map->gmin  = 0;
-   a_map->amin  = 0;
-   a_map->lmin  = 0;
-   a_map->prev  = 0;
-   a_map->next  = x_spot - 1;;
-   a_map->lmax  = x_spot - 1;;
-   a_map->amax  = x_spot - 1;;
-   a_map->gmax  = x_spot - 1;;
+   a_map->gamin = 0;
+   a_map->glmin = 0;
+   a_map->gprev = 0;
+   a_map->gnext = a_map->map [x_spot - 1];
+   a_map->glmax = a_map->map [x_spot - 1];
+   a_map->gamax = a_map->map [x_spot - 1];
+   a_map->gmax  = a_map->map [x_spot - 1];
+   a_map->umax  = x_spot;
    switch (a_style) {
    case 'w' :
       a_map->cur   = 44;
@@ -1274,11 +1279,11 @@ MAP__closer           (int a_position, tMAPPED *a_map)
    /*---(prepare)------------------------*/
    x_target = a_map->map [a_position];
    DEBUG_MAP   yLOG_value   ("x_target"  , x_target);
-   DEBUG_MAP   yLOG_value   ("gmin"      , a_map->gmin);
-   DEBUG_MAP   yLOG_value   ("gmax"      , a_map->gmax);
+   DEBUG_MAP   yLOG_value   ("umin"      , a_map->umin);
+   DEBUG_MAP   yLOG_value   ("umax"      , a_map->umax);
    /*---(look right)---------------------*/
    DEBUG_MAP   yLOG_note    ("go right");
-   for (i = a_position; i <= a_map->gmax; ++i) {
+   for (i = a_position; i <= a_map->umax; ++i) {
       DEBUG_MAP   yLOG_value   ("looking"   , i);
       if (a_map->map [i] == YVIKEYS_EMPTY)   break;
       if (a_map->map [i] <= x_target)        continue;
@@ -1289,7 +1294,7 @@ MAP__closer           (int a_position, tMAPPED *a_map)
    else                           DEBUG_MAP   yLOG_value   ("x_right"   , x_right - a_position);
    /*---(look left)----------------------*/
    DEBUG_MAP   yLOG_note    ("go left");
-   for (i = a_position; i >= a_map->gmin; --i) {
+   for (i = a_position; i >= a_map->umin; --i) {
       DEBUG_MAP   yLOG_value   ("looking"   , i);
       if (a_map->map [i] == YVIKEYS_EMPTY)   break;
       if (a_map->map [i] <  x_target) {
@@ -1328,10 +1333,10 @@ MAP__move             (int a_target, tMAPPED *a_map)
    /*> MAP__print  (a_map);                                                           <*/
    /*---(make sure index is rational)----*/
    DEBUG_MAP   yLOG_value   ("cur"       , a_map->cur);
-   DEBUG_MAP   yLOG_value   ("gmin"      , a_map->gmin);
-   DEBUG_MAP   yLOG_value   ("gmax"      , a_map->gmax);
-   if (a_map->cur < a_map->gmin)  a_map->cur = a_map->gmin;
-   if (a_map->cur > a_map->gmax)  a_map->cur = a_map->gmax;
+   DEBUG_MAP   yLOG_value   ("umin"      , a_map->umin);
+   DEBUG_MAP   yLOG_value   ("umax"      , a_map->umax);
+   if (a_map->cur < a_map->umin)  a_map->cur = a_map->umin;
+   if (a_map->cur > a_map->umax)  a_map->cur = a_map->umax;
    DEBUG_MAP   yLOG_value   ("cur"       , a_map->cur);
    a_map->gcur = a_map->map [a_map->cur];
    DEBUG_MAP   yLOG_value   ("gcur"      , a_map->gcur);
@@ -1344,7 +1349,7 @@ MAP__move             (int a_target, tMAPPED *a_map)
    /*---(check to right)-----------------*/
    if (a_map->gcur <  a_target) {
       DEBUG_MAP   yLOG_note    ("must move to right");
-      for (i = a_map->cur; i <= a_map->gmax; ++i) {
+      for (i = a_map->cur; i <= a_map->umax; ++i) {
          if (a_map->map [i] <  a_target)   continue;
          a_map->cur  = i;
          a_map->gcur = a_map->map [a_map->cur];
@@ -1352,18 +1357,18 @@ MAP__move             (int a_target, tMAPPED *a_map)
          DEBUG_MAP   yLOG_exit    (__FUNCTION__);
          return 0;
       }
-      a_map->cur  = a_map->gmax;
+      a_map->cur  = a_map->umax;
    }
    /*---(check to left)------------------*/
    else {
       DEBUG_MAP   yLOG_note    ("must move to left");
       /*---(find the right grid)---------*/
-      for (i = a_map->cur; i >= a_map->gmin; --i) {
+      for (i = a_map->cur; i >= a_map->umin; --i) {
          if (a_map->map [i] >  a_target)   continue;
          a_map->cur  = i;
          a_map->gcur = a_map->map [a_map->cur];
          /*---(get to leftmost)----------*/
-         for (i = a_map->cur; i >= a_map->gmin; --i) {
+         for (i = a_map->cur; i >= a_map->umin; --i) {
             if (a_map->map [i] != a_target)   break;
             a_map->cur  = i;
             DEBUG_MAP   yLOG_value   ("cur"       , a_map->cur);
@@ -1371,11 +1376,11 @@ MAP__move             (int a_target, tMAPPED *a_map)
          DEBUG_MAP   yLOG_exit    (__FUNCTION__);
          return 0;
       }
-      a_map->cur  = a_map->gmin;
+      a_map->cur  = a_map->umin;
    }
    /*---(get to leftmost)----------*/
    a_map->gcur   = a_map->map [a_map->cur];
-   for (i = a_map->cur; i >= a_map->gmin; --i) {
+   for (i = a_map->cur; i >= a_map->umin; --i) {
       if (a_map->map [i] != a_map->gcur)   break;
       a_map->cur  = i;
    }
@@ -1396,10 +1401,10 @@ MAP__screen_small         (tMAPPED *a_map)
    DEBUG_MAP   yLOG_enter   (__FUNCTION__);
    DEBUG_MAP   yLOG_point   ("a_map"     , a_map);
    /*---(prepare)------------------------*/
-   a_map->beg   = a_map->gmin;
-   a_map->len   = a_map->gmax - a_map->gmin + 1;
-   a_map->end   = a_map->gmax;
-   a_map->tend  = a_map->gmax;
+   a_map->beg   = a_map->umin;
+   a_map->len   = a_map->umax - a_map->umin + 1;
+   a_map->end   = a_map->umax;
+   a_map->tend  = a_map->umax;
    /*---(complete)-----------------------*/
    DEBUG_MAP   yLOG_exit    (__FUNCTION__);
    return 2;
@@ -1420,7 +1425,7 @@ MAP__screen_beg           (tMAPPED *a_map)
    DEBUG_MAP   yLOG_enter   (__FUNCTION__);
    DEBUG_MAP   yLOG_point   ("a_map"     , a_map);
    /*---(find closest beg backward)------*/
-   for (i = a_map->beg; i > a_map->gmin; --i) {
+   for (i = a_map->beg; i > a_map->umin; --i) {
       a_map->beg   = i;
       x_curr       = a_map->map [i    ];
       x_prev       = a_map->map [i - 1];
@@ -1429,13 +1434,13 @@ MAP__screen_beg           (tMAPPED *a_map)
    DEBUG_MAP   yLOG_value   ("beg"       , a_map->beg);
    /*---(prepare)------------------------*/
    x_tend = a_map->beg + a_map->avail - 1;
-   DEBUG_MAP   yLOG_value   ("gmax"      , a_map->gmax);
-   if (x_tend <  a_map->gmax)  a_map->tend  = x_tend;
+   DEBUG_MAP   yLOG_value   ("umax"      , a_map->umax);
+   if (x_tend <  a_map->umax)  a_map->tend  = x_tend;
    DEBUG_MAP   yLOG_value   ("tend"      , a_map->tend);
    /*---(can not fill screen?)-----------*/
-   --rce;  if (a_map->tend > a_map->gmax)   return rce;
+   --rce;  if (a_map->tend > a_map->umax)   return rce;
    /*---(find end of last full grid)-----*/
-   for (i = a_map->tend; i >= a_map->gmin; --i) {
+   for (i = a_map->tend; i >= a_map->umin; --i) {
       a_map->end   = i;
       x_curr       = a_map->map [i    ];
       x_next       = a_map->map [i + 1];
@@ -1460,7 +1465,7 @@ MAP__screen_end           (tMAPPED *a_map)
    /*---(find end of end)----------------*/
    /*> printf ("MAP__screen_end\n");                                          <*/
    /*> printf ("end  = %3d\n", a_map->end);                                           <*/
-   for (i = a_map->end; i <= a_map->gmax; ++i) {
+   for (i = a_map->end; i <= a_map->umax; ++i) {
       a_map->end   = i;
       /*> printf ("end  = %3d\n", a_map->end);                                        <*/
       a_map->tend  = i;
@@ -1470,12 +1475,12 @@ MAP__screen_end           (tMAPPED *a_map)
       if (x_curr != x_next)   break;
    }
    /*---(check overrun)------------------*/
-   /*> printf ("gmax = %3d\n", a_map->gmax);                                          <*/
-   /*> printf ("gmin = %3d\n", a_map->gmin);                                          <*/
+   /*> printf ("umax = %3d\n", a_map->umax);                                          <*/
+   /*> printf ("umin = %3d\n", a_map->umin);                                          <*/
    /*---(run the final)------------------*/
    a_map->beg   = a_map->tend - a_map->avail + 1;
    /*---(find next beg forward)----------*/
-   for (i = a_map->beg; i < a_map->gmax; ++i) {
+   for (i = a_map->beg; i < a_map->umax; ++i) {
       a_map->beg   = i;
       /*> printf ("beg  = %3d\n", a_map->beg);                                        <*/
       x_curr       = a_map->map [i    ];
@@ -1504,10 +1509,10 @@ MAP__screen             (tMAPPED *a_map)
    rce;  if (a_map == NULL)     return rce;
    /*---(limits)-------------------------*/
    /*> printf ("cur  = %3d\n", a_map->cur);                                           <*/
-   if (a_map->cur < a_map->gmin)  a_map->cur = a_map->gmin;
-   if (a_map->cur > a_map->gmax) {
-      a_map->cur = a_map->gmax;
-      for (i = a_map->cur; i > a_map->gmin; --i) {
+   if (a_map->cur < a_map->umin)  a_map->cur = a_map->umin;
+   if (a_map->cur > a_map->umax) {
+      a_map->cur = a_map->umax;
+      for (i = a_map->cur; i > a_map->umin; --i) {
          a_map->cur   = i;
          x_curr       = a_map->map [i    ];
          x_prev       = a_map->map [i - 1];
@@ -1516,7 +1521,7 @@ MAP__screen             (tMAPPED *a_map)
    }
    /*> printf ("cur  = %3d\n", a_map->cur);                                           <*/
    /*---(screen fits all)----------------*/
-   if (a_map->gmax - a_map->gmin <= a_map->avail) {
+   if (a_map->umax - a_map->umin <= a_map->avail) {
       /*> printf ("processing a small\n");                                            <*/
       rc = MAP__screen_small (a_map);
       return rc;
@@ -1526,7 +1531,7 @@ MAP__screen             (tMAPPED *a_map)
       myVIKEYS.redraw = 'y';
       /*> printf ("processing a left\n");                                             <*/
       a_map->beg = a_map->cur;
-      for (i = a_map->cur; i >= a_map->gmin; --i) {
+      for (i = a_map->cur; i >= a_map->umin; --i) {
          a_map->beg = i;
          rc = MAP__screen_beg (a_map);
          if (rc > 0) break;
@@ -1592,14 +1597,14 @@ MAP__vert             (char a_major, char a_minor)
    DEBUG_MAP   yLOG_value   ("x_grid"    , x_grid);
    x_qtr       = (g_ymap.avail - g_gsizey) / 4.0;
    DEBUG_MAP   yLOG_double  ("x_qtr"     , x_qtr);
-   x_gmax  = g_ymap.map [g_ymap.gmax - g_gsizey];
+   x_gmax  = g_ymap.map [g_ymap.umax - g_gsizey];
    DEBUG_MAP   yLOG_value   ("x_gmax"    , x_gmax);
    /*---(simple)-------------------------*/
    DEBUG_MAP   yLOG_info    ("g_vsimple" , g_vsimple);
    if (a_major == ' ' && strchr (g_vsimple, a_minor) != NULL) {
       if (g_coord == YVIKEYS_OFFICE) {
          switch (a_minor) {
-         case '_' : x_grid  = g_ymap.map [g_ymap.gmin];  break;
+         case '_' : x_grid  = g_ymap.map [g_ymap.umin];  break;
          case 'K' : x_grid -= g_gsizey * 5;  break;
          case 'k' : x_grid -= g_gsizey;      break;
          case 'j' : x_grid += g_gsizey;      break;
@@ -1608,7 +1613,7 @@ MAP__vert             (char a_major, char a_minor)
          }
       } else {
          switch (a_minor) {
-         case '~' : x_grid  = g_ymap.map [g_ymap.gmin];  break;
+         case '~' : x_grid  = g_ymap.map [g_ymap.umin];  break;
          case 'J' : x_grid -= g_gsizey * 5;  break;
          case 'j' : x_grid -= g_gsizey;      break;
          case 'k' : x_grid += g_gsizey;      break;
@@ -1646,8 +1651,8 @@ MAP__vert             (char a_major, char a_minor)
          }
       }
       DEBUG_MAP   yLOG_value   ("x_unit"    , x_unit);
-      if (x_unit < g_ymap.gmin)  x_unit = g_ymap.gmin;
-      if (x_unit > g_ymap.gmax)  x_unit = g_ymap.gmax;
+      if (x_unit < g_ymap.umin)  x_unit = g_ymap.umin;
+      if (x_unit > g_ymap.umax)  x_unit = g_ymap.umax;
       DEBUG_MAP   yLOG_value   ("x_unit (1)", x_unit);
       x_unit  = MAP__closer (x_unit, &g_ymap);
       DEBUG_MAP   yLOG_value   ("x_unit (2)", x_unit);
@@ -1655,6 +1660,33 @@ MAP__vert             (char a_major, char a_minor)
       DEBUG_MAP   yLOG_value   ("x_grid"    , x_grid);
       if (strchr ("bjmkt", a_minor) != NULL)  if (x_grid > g_ymap.gend)  x_grid = g_ymap.gend;
       DEBUG_MAP   yLOG_value   ("x_grid (1)", x_grid);
+   }
+   /*---(ends and edges)-----------------*/
+   DEBUG_MAP   yLOG_info    ("g_vends"   , g_vends);
+   if (a_major == 'e' && strchr (g_vends  , a_minor) != NULL) {
+      DEBUG_MAP   yLOG_note    ("execute ends and edges move");
+      DEBUG_MAP   yLOG_value   ("gmin"      , g_ymap.gmin);
+      DEBUG_MAP   yLOG_value   ("gamin"     , g_ymap.gamin);
+      DEBUG_MAP   yLOG_value   ("glmin"     , g_ymap.glmin);
+      DEBUG_MAP   yLOG_value   ("gprev"     , g_ymap.gprev);
+      DEBUG_MAP   yLOG_value   ("gnext"     , g_ymap.gnext);
+      DEBUG_MAP   yLOG_value   ("glmax"     , g_ymap.glmax);
+      DEBUG_MAP   yLOG_value   ("gamax"     , g_ymap.gamax);
+      DEBUG_MAP   yLOG_value   ("gmax"      , g_ymap.gmax);
+      switch (a_minor) {
+      case 'a' : case 'u' :
+      case 'T' : x_grid = g_ymap.gamin;     break;
+      case 't' : x_grid = g_ymap.glmin;     break;
+      case 'k' : x_grid = g_ymap.gprev;     break;
+      case 'm' : break;
+      case 'M' : break;
+      case 'j' : x_grid = g_ymap.gnext;     break;
+      case 'b' : x_grid = g_ymap.glmax;     break;
+      case 'z' : case 'd' :
+      case 'B' : x_grid = g_ymap.gamax;     break;
+      }
+      if (x_grid < g_ymap.gmin)  x_grid = g_ymap.gcur;
+      DEBUG_MAP   yLOG_value   ("x_grid"    , x_grid);
    }
    /*---(check screen)-------------------*/
    if (x_grid > x_gmax)  x_grid = x_gmax;
@@ -1694,14 +1726,14 @@ MAP__horz             (char a_major, char a_minor)
    DEBUG_MAP   yLOG_double  ("x_qtr"     , x_qtr);
    x_beg       = g_xmap.beg;
    DEBUG_MAP   yLOG_double  ("x_beg"     , x_beg);
-   x_gmax  = g_xmap.map [g_xmap.gmax - g_gsizex];
+   x_gmax      = g_xmap.gmax;
    DEBUG_MAP   yLOG_value   ("x_gmax"    , x_gmax);
    /*---(simple)-------------------------*/
    DEBUG_MAP   yLOG_info    ("g_hsimple" , g_hsimple);
    if (a_major == ' ' && strchr (g_hsimple, a_minor) != NULL) {
       DEBUG_MAP   yLOG_note    ("execute simple move");
       switch (a_minor) {
-      case '0' : x_grid  = g_xmap.map [g_xmap.gmin];   break;
+      case '0' : x_grid  = g_xmap.map [g_xmap.umin];   break;
       case 'H' : x_grid -= g_gsizex * 5;                   break;
       case 'h' : x_grid -= g_gsizex;                       break;
       case 'l' : x_grid += g_gsizex;                       break;
@@ -1719,15 +1751,14 @@ MAP__horz             (char a_major, char a_minor)
       case 'H' : x_unit  = x_beg - (x_qtr * 2);            break;
       case 's' : x_unit  = x_beg;                          break;
       case 'h' : x_unit  = x_beg + (x_qtr * 1);            break;
-      case 'c' : x_unit  = x_beg + (x_qtr * 2);            break;
       case 'l' : x_unit  = x_beg + (x_qtr * 3);            break;
       case 'e' : x_unit  = x_beg + (x_qtr * 4);            break;
       case 'L' : x_unit  = x_beg + (x_qtr * 6);            break;
       case 'E' : x_unit  = x_beg + (x_qtr * 8);            break;
       }
       DEBUG_MAP   yLOG_value   ("x_unit"    , x_unit);
-      if (x_unit < g_xmap.gmin)  x_unit = g_xmap.gmin;
-      if (x_unit > g_xmap.gmax)  x_unit = g_xmap.gmax;
+      if (x_unit < g_xmap.umin)  x_unit = g_xmap.umin;
+      if (x_unit > g_xmap.umax)  x_unit = g_xmap.umax;
       DEBUG_MAP   yLOG_value   ("x_unit (1)" , x_unit);
       x_unit  = MAP__closer (x_unit, &g_xmap);
       DEBUG_MAP   yLOG_value   ("x_unit (2)" , x_unit);
@@ -1735,6 +1766,33 @@ MAP__horz             (char a_major, char a_minor)
       DEBUG_MAP   yLOG_value   ("x_grid"    , x_grid);
       if (strchr ("shcle", a_minor) != NULL)  if (x_grid > g_xmap.gend)  x_grid = g_xmap.gend;
       DEBUG_MAP   yLOG_value   ("x_grid (1)", x_grid);
+   }
+   /*---(ends and edges)-----------------*/
+   DEBUG_MAP   yLOG_info    ("g_hends"   , g_hends);
+   if (a_major == 'e' && strchr (g_hends  , a_minor) != NULL) {
+      DEBUG_MAP   yLOG_note    ("execute ends and edges move");
+      DEBUG_MAP   yLOG_value   ("gmin"      , g_xmap.gmin);
+      DEBUG_MAP   yLOG_value   ("gamin"     , g_xmap.gamin);
+      DEBUG_MAP   yLOG_value   ("glmin"     , g_xmap.glmin);
+      DEBUG_MAP   yLOG_value   ("gprev"     , g_xmap.gprev);
+      DEBUG_MAP   yLOG_value   ("gnext"     , g_xmap.gnext);
+      DEBUG_MAP   yLOG_value   ("glmax"     , g_xmap.glmax);
+      DEBUG_MAP   yLOG_value   ("gamax"     , g_xmap.gamax);
+      DEBUG_MAP   yLOG_value   ("gmax"      , g_xmap.gmax);
+      switch (a_minor) {
+      case 'a' : case 'd' :
+      case 'S' : x_grid = g_xmap.gamin;     break;
+      case 's' : x_grid = g_xmap.glmin;     break;
+      case 'h' : x_grid = g_xmap.gprev;     break;
+      case 'c' : break;
+      case 'C' : break;
+      case 'l' : x_grid = g_xmap.gnext;     break;
+      case 'e' : x_grid = g_xmap.glmax;     break;
+      case 'z' : case 'u' :
+      case 'E' : x_grid = g_xmap.gamax;     break;
+      }
+      if (x_grid < g_xmap.gmin)  x_grid = g_xmap.gcur;
+      DEBUG_MAP   yLOG_value   ("x_grid"    , x_grid);
    }
    /*---(check screen)-------------------*/
    if (x_grid > x_gmax)  x_grid = x_gmax;
@@ -1962,23 +2020,23 @@ MAP_mode                (char a_major, char a_minor)
        *>    case 'x'  :                                                              <* 
        *>       DEBUG_USER   yLOG_note    ("x for x_axis/col selection");             <* 
        *>       s_visu.y_lock = 'y';                                                  <* 
-       *>       s_visu.y_beg  = g_ymap.gmin;                                          <* 
-       *>       s_visu.y_end  = g_ymap.gmax;                                          <* 
+       *>       s_visu.y_beg  = g_ymap.umin;                                          <* 
+       *>       s_visu.y_end  = g_ymap.umax;                                          <* 
        *>       break;                                                                <* 
        *>    case 'y'  :                                                              <* 
        *>       DEBUG_USER   yLOG_note    ("y for y-axis/row selection");             <* 
        *>       s_visu.x_lock = 'y';                                                  <* 
-       *>       s_visu.x_beg  = g_xmap.gmin;                                          <* 
-       *>       s_visu.x_end  = g_xmap.gmax;                                          <* 
+       *>       s_visu.x_beg  = g_xmap.umin;                                          <* 
+       *>       s_visu.x_end  = g_xmap.umax;                                          <* 
        *>       break;                                                                <* 
        *>    case '*'  :                                                              <* 
        *>       DEBUG_USER   yLOG_note    ("* for all on current z selection");       <* 
        *>       s_visu.y_lock = 'y';                                                  <* 
-       *>       s_visu.y_beg  = g_ymap.gmin;                                          <* 
-       *>       s_visu.y_end  = g_ymap.gmax;                                          <* 
+       *>       s_visu.y_beg  = g_ymap.umin;                                          <* 
+       *>       s_visu.y_end  = g_ymap.umax;                                          <* 
        *>       s_visu.x_lock = 'y';                                                  <* 
-       *>       s_visu.x_beg  = g_xmap.gmin;                                          <* 
-       *>       s_visu.x_end  = g_xmap.gmax;                                          <* 
+       *>       s_visu.x_beg  = g_xmap.umin;                                          <* 
+       *>       s_visu.x_end  = g_xmap.umax;                                          <* 
        *>       break;                                                                <* 
        *>    }                                                                        <* 
        *> } else {                                                                    <* 
@@ -2063,6 +2121,25 @@ MAP_mode                (char a_major, char a_minor)
          return rc;
       }
       if (strchr (g_vgoto, a_minor) != 0) {
+         rc = MAP__vert   (a_major, a_minor);
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         return rc;
+      }
+   }
+   /*---(ends family)--------------------*/
+   if (a_major == 'e') {
+      if (strchr ("azud", a_minor) != 0) {
+         rc = MAP__horz   (a_major, a_minor);
+         rc = MAP__vert   (a_major, a_minor);
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         return rc;
+      }
+      if (strchr (g_hends, a_minor) != 0) {
+         rc = MAP__horz   (a_major, a_minor);
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         return rc;
+      }
+      if (strchr (g_vends, a_minor) != 0) {
          rc = MAP__vert   (a_major, a_minor);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return rc;

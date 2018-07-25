@@ -34,8 +34,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "1.0g"
-#define YVIKEYS_VER_TXT   "basic copy and paste re-established and works in gyges"
+#define YVIKEYS_VER_NUM   "1.0h"
+#define YVIKEYS_VER_TXT   "ends and edges implemented and unit tested"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/

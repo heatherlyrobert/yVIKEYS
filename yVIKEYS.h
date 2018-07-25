@@ -92,17 +92,20 @@ struct cMAPPED {
    /*---(identity)-------------*/
    char        which;                       /* x, y, z, or t                  */
    /*---(lefts)----------------*/
+   int         umin;                        /* global min, used or not        */
    int         gmin;                        /* global min, used or not        */
-   int         amin;                        /* min of all used space          */
-   int         lmin;                        /* min for col/row                */
-   int         prev;                        /* prev change for "end"          */
+   int         gamin;                       /* min of all used space          */
+   int         glmin;                       /* min for col/row                */
+   int         gprev;                       /* prev change for "end"          */
    /*---(current)--------------*/
    int         map         [LEN_MAP];       /* full col/row map               */
+   char        used        [LEN_MAP];       /* full col/row map (of usage)    */
    /*---(rights)---------------*/
-   int         next;                        /* next change for "end"          */
-   int         lmax;                        /* max for col/row                */
-   int         amax;                        /* max of all used space          */
+   int         gnext;                       /* next change for "end"          */
+   int         glmax;                       /* max for col/row                */
+   int         gamax;                       /* max of all used space          */
    int         gmax;                        /* global max, used or not        */
+   int         umax;                        /* global max, used or not        */
    /*---(screen)---------------*/
    int         beg;                         /* beginning of screen            */
    int         cur;                         /* current index                  */
