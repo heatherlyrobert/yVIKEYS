@@ -34,8 +34,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "1.0h"
-#define YVIKEYS_VER_TXT   "ends and edges implemented and unit tested"
+#define YVIKEYS_VER_NUM   "1.0i"
+#define YVIKEYS_VER_TXT   "basic direct address move with :<addr> works now"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/

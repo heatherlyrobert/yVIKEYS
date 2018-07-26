@@ -424,14 +424,14 @@ yVIKEYS_main_handle     (uchar a_key)
       case MODE_MAP      : rc = MAP_mode              (x_major , x_key);  break;
       case MODE_SOURCE   : rc = SOURCE_mode           (x_major , x_key);  break;
       case UMOD_SRC_INPT : rc = SRC_INPT_umode           (x_major , x_key);  break;
+      case SMOD_SRC_REG  : rc = SRC_REG_smode         (x_major , x_key);  break;
+      case UMOD_SRC_REPL : rc = SRC_REPL_umode        (x_major , x_key);  break;
+      case SMOD_SRC_UNDO : rc = BASE__________stub    (x_major , x_key);  break;
       case UMOD_HISTORY  : rc = HISTORY_smode         (x_major , x_key);  break;
       case MODE_COMMAND  : rc = SOURCE_mode           (x_major , x_key);  break;
       case MODE_SEARCH   : rc = SOURCE_mode           (x_major , x_key);  break;
       case UMOD_VISUAL   : rc = VISU_smode            (x_major , x_key);  break;
       case SMOD_ERROR    : rc = BASE__________stub    (x_major , x_key);  break;
-      case SMOD_SRC_UNDO : rc = BASE__________stub    (x_major , x_key);  break;
-      case SMOD_SRC_REG  : rc = SRC_REG_smode         (x_major , x_key);  break;
-      case UMOD_SRC_REPL : rc = SRC_REPL_umode        (x_major , x_key);  break;
       case XMOD_FORMAT   : rc = FORMAT_smode          (x_major , x_key);  break;
       case SMOD_BUFFER   : rc = BASE__________stub    (x_major , x_key);  break;
       case UMOD_WANDER   : rc = BASE__________stub    (x_major , x_key);  break;

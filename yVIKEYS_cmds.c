@@ -847,11 +847,20 @@ yVIKEYS_srch_direct     (char *a_text)
 char
 yVIKEYS_cmds_direct     (char *a_text)
 {
+   /*---(locals)-----------+-----+-----+-*/
    char        rc          =    0;
-   /*> rc = CMDS__load (a_command);                                                   <*/
+   int         x, y, z;
+   /*---(check address)------------------*/
+   rc = str2gyges (a_text + 1, &x, &y, &z, NULL, 0);
+   if (rc >= 0) {
+      rc = MAP_jump (x, y, z);
+      return rc;
+   }
+   /*---(normal command)-----------------*/
    rc = HISTORY__load (MODE_COMMAND, a_text);
    if (rc < 0)  return -1;
    rc = HISTORY__exec (MODE_COMMAND);
+   /*---(complete)-----------------------*/
    return rc;
 }
 
