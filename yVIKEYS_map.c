@@ -9,6 +9,8 @@ static char    (*s_mapper)    (char  a_type);
 static char    (*s_locator)   (char *a_label, int *a_x, int *a_y, int *a_z);
 static char*   (*s_addresser) (char *a_label, int  a_x, int  a_y, int  a_z);
 
+static char*   (*s_switcher ) (char  a_label);
+
 
 
 char   g_coord    = YVIKEYS_RIGHT;
@@ -1843,9 +1845,9 @@ MAP_mode_changes        (char a_minor)
       rc = 'a';
       break;
    case ','      :
-      /*> MODE_enter  (SMOD_BUFFER  );                                                <* 
-       *> DEBUG_USER   yLOG_exit    (__FUNCTION__);                                   <* 
-       *> rc = a_minor;                                                               <*/
+      MODE_enter  (SMOD_BUFFER  );
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      rc = a_minor;
       break;
    case '"'      :
       MODE_enter  (SMOD_MAP_REG );
@@ -2314,6 +2316,123 @@ MAP_ystatus        (char *a_list)
          g_ymap.avail, g_ymap.beg  , g_ymap.cur  , g_ymap.end  , g_ymap.tend , g_ymap.len  ,
          g_ymap.gbeg , g_ymap.gcur , g_ymap.gend );
    /*---(complete)-----------------------*/
+   return 0;
+}
+
+char
+yvikeys_bufs_init       (void)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   int         i           =    0;
+   /*---(header)-------------------------*/
+   DEBUG_PROG   yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   --rce;  if (!STATUS_check_prep  (SMOD_BUFFER)) {
+      DEBUG_PROG   yLOG_note    ("status is not ready for init");
+      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(clear callbacks)----------------*/
+   DEBUG_PROG   yLOG_note    ("clear callbacks");
+   s_switcher = NULL;
+   /*---(update status)------------------*/
+   STATUS_init_set   (SMOD_BUFFER);
+   /*---(complete)-----------------------*/
+   DEBUG_PROG   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char
+yVIKEYS_bufs_config     (void *a_switcher)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   /*---(header)-------------------------*/
+   DEBUG_PROG  yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   --rce;  if (!STATUS_check_needs  (SMOD_BUFFER)) {
+      DEBUG_PROG   yLOG_note    ("init must complete before config");
+      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(globals)------------------------*/
+   s_switcher   = a_switcher;
+   /*---(update status)------------------*/
+   STATUS_conf_set   (SMOD_BUFFER, '1');
+   /*---(complete)-----------------------*/
+   DEBUG_PROG  yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char         /*-> process keys for buffer movement ---[ leaf   [ge.F64.217.CA]*/ /*-[01.0000.102.!]-*/ /*-[--.---.---.--]-*/
+yvikeys_bufs_umode  (uchar a_major, uchar a_minor)
+{
+   /*---(design notes)-------------------*/
+   /*
+    *   this should imitate our RBUF capability in vimm
+    */
+   /*---(locals)-----------+-----------+-*/
+   char        rce         = -10;
+   char        rc          =   0;
+   /*---(header)-------------------------*/
+   DEBUG_USER   yLOG_enter   (__FUNCTION__);
+   DEBUG_USER   yLOG_char    ("a_major"   , a_major);
+   DEBUG_USER   yLOG_char    ("a_minor"   , a_minor);
+   /*---(request buffer mode)------------*/
+   DEBUG_USER   yLOG_value   ("SMOD_BUF"  , MODE_not (SMOD_BUFFER));
+   if (a_major != ' ' && a_minor == ',') {
+      DEBUG_USER   yLOG_note    ("enter buffer mode");
+      if (MODE_not (SMOD_BUFFER))  MODE_enter  (SMOD_BUFFER  );
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return a_minor;
+   }
+   /*---(defenses)-----------------------*/
+   if (a_major == ',' && MODE_not (SMOD_BUFFER)) {
+      DEBUG_USER   yLOG_note    ("force enter buffer mode");
+      MODE_enter  (SMOD_BUFFER  );
+   }
+   --rce;  if (a_major != ',') {
+      DEBUG_USER   yLOG_note    ("a_major is wrong)");
+      DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   --rce;  if (MODE_not (SMOD_BUFFER)) {
+      DEBUG_USER   yLOG_note    ("not in buffer mode");
+      DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(mode changes)-------------------*/
+   if (a_minor == G_KEY_ESCAPE) {
+      DEBUG_USER   yLOG_note    ("escape, choose nothing");
+      /*> my.menu = ' ';                                                              <*/
+      MODE_exit ();
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
+   /*---(check for control keys)---------*/
+   --rce;
+   if (strchr ("[<>]", a_minor) != NULL) {
+      DEBUG_USER   yLOG_note    ("relative mode");
+      rc = s_switcher (a_minor);
+      if (rc >= 0)  MAP_jump (0, 0, rc);
+      MODE_exit  ();
+   } else if (strchr ("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ­®", a_minor) != NULL) {
+      DEBUG_USER   yLOG_note    ("absolute mode");
+      rc = s_switcher (a_minor);
+      if (rc >= 0)  MAP_jump (0, 0, rc);
+      MODE_exit  ();
+   /*> } else if (a_minor == ',') {                                                   <* 
+    *>    my.info_win = G_INFO_BUFS;                                                  <* 
+    *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                   <* 
+    *>    return a_major;                                                             <*/
+   } else {
+      MODE_exit  ();
+      DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(complete)-----------------------*/
+   DEBUG_USER   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 

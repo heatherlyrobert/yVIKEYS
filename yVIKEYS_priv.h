@@ -34,8 +34,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "1.0i"
-#define YVIKEYS_VER_TXT   "basic direct address move with :<addr> works now"
+#define YVIKEYS_VER_NUM   "1.0j"
+#define YVIKEYS_VER_TXT   "basic tab switching with , working"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -233,6 +233,8 @@ char*       MAP__unit               (char *a_question, char a_index);
 char        MAP__unit_ymap          (void);
 char        MAP__unit_xmap          (void);
 char        MAP_current             (int *a_x, int *a_y, int *a_z);
+char        yvikeys_bufs_init       (void);
+char        yvikeys_bufs_umode      (uchar a_major, uchar a_minor);
 
 char        MAP__unit_quick         (void);
 char        MAP__unit_mapper        (char a_type);

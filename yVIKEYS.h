@@ -243,6 +243,7 @@ char        yVIKEYS_map_config        (char a_coord, void *a_mapper, void *a_loc
 char        yVIKEYS_map_refresh       (void);
 char        yVIKEYS_root              (int x, int y, int z);
 char        yVIKEYS_visual            (int x, int y, int z);
+char        yVIKEYS_bufs_config       (void *a_switcher);
 
 char        yVIKEYS_src_config        (void *a_saver);
 char        yVIKEYS_source            (char *a_label, char *a_contents);
