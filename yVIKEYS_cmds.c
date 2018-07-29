@@ -853,7 +853,7 @@ yVIKEYS_cmds_direct     (char *a_text)
    /*---(check address)------------------*/
    rc = str2gyges (a_text + 1, &x, &y, &z, NULL, 0);
    if (rc >= 0) {
-      rc = MAP_jump (x, y, z);
+      rc = yVIKEYS_jump (x, y, z);
       return rc;
    }
    /*---(normal command)-----------------*/
@@ -900,7 +900,7 @@ SRCH_next               (char a_move)
    }
    DEBUG_SRCH   yLOG_value   ("x_seq"     , x_seq);
    s_csrch = x_seq;
-   MAP_jump (s_srch [s_csrch].x_pos, s_srch [s_csrch].y_pos, s_srch [s_csrch].z_pos);
+   yVIKEYS_jump (s_srch [s_csrch].x_pos, s_srch [s_csrch].y_pos, s_srch [s_csrch].z_pos);
    DEBUG_SRCH   yLOG_exit    (__FUNCTION__);
    return 0;
 }

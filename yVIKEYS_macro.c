@@ -192,7 +192,7 @@ MACRO_reset             (void)
    s_macro_pos    =  -1;
    s_macro_len    =   0;
    s_macro_delay  = '0';
-   MACRO_zero ();
+   /*> MACRO_zero ();                                                                 <*/
    /*---(macro keystrokes)---------------*/
    DEBUG_SCRP   yLOG_snote   ("null macro keys");
    for (i = 0; i < LEN_MACRO; ++i)  s_macro_keys [i] = G_KEY_NULL;
@@ -245,6 +245,7 @@ MACRO__save             (void)
     *> }                                                                              <*/
    /*---(clear)--------------------------*/
    MACRO_reset ();
+   MACRO_zero  ();
    /*---(complete)-----------------------*/
    DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -309,7 +310,7 @@ MACRO__fetch            (char a_name)
    s_macro_keys [s_macro_len++] = G_CHAR_NULL;
    s_macro_keys [s_macro_len  ] = G_KEY_NULL;
    if (s_macro_pos < 0)  s_macro_char = 0;
-   else                   s_macro_char = s_macro_keys [s_macro_pos];
+   else                  s_macro_char = s_macro_keys [s_macro_pos];
    /*---(complete)--------------------*/
    DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -517,7 +518,7 @@ MACRO_exec_beg          (char a_name)
    if (a_name == tolower (a_name)) {
       DEBUG_SCRP   yLOG_note    ("normal execution");
       if (s_macro_delay    != '0'       )  SET_MACRO_DELAY;
-      IF_MACRO_OFF                          SET_MACRO_RUN;
+      IF_MACRO_OFF                         SET_MACRO_RUN;
       if (a_name != '@')  s_macro_name = a_name;
    }
    /*---(debugging/playback)----------*/
@@ -567,27 +568,12 @@ MACRO_exec_key          (void)
       return rce;
    }
    x_ch = s_macro_keys [s_macro_pos];
-   DEBUG_SCRP   yLOG_char    ("x_ch"      , x_ch);
-   if (x_ch <  0) {
-      DEBUG_SCRP   yLOG_note    ("special character");
-      DEBUG_SCRP   yLOG_value   ("256 + x_ch", 256 + x_ch);
-      /*---(translate special)-----------*/
-      switch (256 + x_ch) {
-      case G_CHAR_RETURN  :  x_ch = G_KEY_RETURN;  break;
-      case G_CHAR_ESCAPE  :  x_ch = G_KEY_ESCAPE;  break;
-      case G_CHAR_BS      :  x_ch = G_KEY_BS;      break;
-      case G_CHAR_TAB     :  x_ch = G_KEY_TAB;     break;
-      case G_CHAR_SPACE   :  x_ch = G_KEY_SPACE;   break;
-      case G_CHAR_GROUP   :  x_ch = G_KEY_GROUP;   break;
-      case G_CHAR_FIELD   :  x_ch = G_KEY_FIELD;   break;
-      case G_CHAR_ALT     :  x_ch = G_KEY_SPACE;   break;
-      case G_CHAR_CONTROL :  x_ch = G_KEY_SPACE;   break;
-      }
-      DEBUG_SCRP   yLOG_value   ("x_ch (new)", x_ch);
-      /*---(handle controls)-------------*/
-      if (x_ch < 0) {
-         x_ch = MACRO__exec_control (x_ch);
-      }
+   DEBUG_SCRP   yLOG_value   ("x_ch"      , x_ch);
+   x_ch = chrworking (x_ch);
+   DEBUG_SCRP   yLOG_value   ("x_ch"      , x_ch);
+   /*---(handle controls)-------------*/
+   if (x_ch < 0) {
+      x_ch = MACRO__exec_control (x_ch);
    }
    if (x_ch == NULL) {
       DEBUG_SCRP   yLOG_note    ("end of macro");
@@ -605,7 +591,7 @@ MACRO__exec_control     (char a_key)
    case G_CHAR_WAIT    : sleep (1);            a_key = G_KEY_SPACE;  break;
    case G_CHAR_BREAK   : SET_MACRO_PLAYBACK;   a_key = G_KEY_SPACE;  break;
    case G_CHAR_HALT    :                       a_key = G_KEY_NULL;   break;
-   /*> case G_CHAR_DISPLAY : CURS_main ();         a_key = G_KEY_SPACE;  break;       <*/
+                                               /*> case G_CHAR_DISPLAY : CURS_main ();         a_key = G_KEY_SPACE;  break;       <*/
    case G_CHAR_NULL    :                       a_key = G_KEY_NULL;   break;
    default             :                       a_key = G_KEY_NULL;   break;
    }
@@ -756,7 +742,7 @@ MACRO_smode             (char a_major, char a_minor)
       }
       /*---(execute)---------------------*/
       MODE_exit  ();
-      s_macro_repeat = REPEAT_count ();
+      s_macro_repeat = REPEAT_count () + 1;
       DEBUG_USER   yLOG_value   ("repeat_m"  , s_macro_repeat);
       MACRO_exec_beg  (a_minor);
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
@@ -826,26 +812,33 @@ MACRO_reader            (char n, char *a, char *b, char *c, char *d, char *e, ch
       DEBUG_SRCH   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   /*> /+---(check mark)---------------------+/                                       <* 
-    *> DEBUG_SRCH   yLOG_value   ("mark"      , a[0]);                                <* 
-    *> --rce;  if (strchr (S_HIST_LIST, a[0]) == NULL) {                              <* 
-    *>    DEBUG_SRCH   yLOG_exitr   (__FUNCTION__, rce);                              <* 
-    *>    return rce;                                                                 <* 
-    *> }                                                                              <* 
-    *> DEBUG_SRCH   yLOG_char    ("mark"      , a[0]);                                <* 
-    *> /+---(search)-------------------------+/                                       <* 
-    *> DEBUG_SRCH   yLOG_point   ("search"    , b);                                   <* 
-    *> --rce;  if (b == NULL) {                                                       <* 
-    *>    DEBUG_SRCH   yLOG_exitr   (__FUNCTION__, rce);                              <* 
-    *>    return rce;                                                                 <* 
-    *> }                                                                              <* 
-    *> /+---(save)---------------------------+/                                       <* 
-    *> DEBUG_SRCH   yLOG_note    ("saving values");                                   <* 
-    *> strlcpy (s_runs [s_nrun].text, d, LEN_RECD);                                   <* 
-    *> s_runs [s_nrun].mark  = a[0];                                                  <* 
-    *> s_runs [s_nrun].count = atoi (b);                                              <* 
-    *> s_runs [s_nrun].found = atoi (c);                                              <* 
-    *> ++s_nrun;                                                                      <*/
+   /*---(check mark)---------------------*/
+   DEBUG_SRCH   yLOG_value   ("mark"      , a[0]);
+   --rce;  if (a[0] < 'a' || a[0] > 'z') {
+      DEBUG_SRCH   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   x_index = MACRO__index (a[0]);
+   DEBUG_SRCH   yLOG_value   ("index"     , x_index);
+   /*---(search)-------------------------*/
+   DEBUG_SRCH   yLOG_point   ("search"    , b);
+   --rce;  if (b == NULL) {
+      DEBUG_SRCH   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(save)---------------------------*/
+   DEBUG_SRCH   yLOG_note    ("saving values");
+   strlcpy (s_macros [x_index].keys, d, LEN_RECD);
+   s_macros [x_index].count  = atoi (b);
+   s_macros [x_index].rc     = atoi (c);
+   /*---(initialize other)---------------*/
+   s_macros [x_index].active = '-';
+   s_macros [x_index].pos    =   -1;
+   s_macros [x_index].len    = strlen (s_macros [x_index].keys);
+   s_macros [x_index].cur    =  ' ';
+   s_macros [x_index].repeat =    0;
+   /*---(save)---------------------------*/
+   if (s_saver != NULL)  s_saver (a[0], d);
    /*---(complete)-----------------------*/
    DEBUG_SRCH  yLOG_exit    (__FUNCTION__);
    return 0;

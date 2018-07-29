@@ -34,8 +34,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "1.0j"
-#define YVIKEYS_VER_TXT   "basic tab switching with , working"
+#define YVIKEYS_VER_NUM   "1.0k"
+#define YVIKEYS_VER_TXT   "basic macros back up and working"
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -224,7 +224,6 @@ char        MAP_init                (void);
 char        MAP__load               (char a_style, tMAPPED *a_map, char a_which);
 char        MAP__screen             (tMAPPED *a_map);
 char        MAP__move               (int  a_target, tMAPPED *a_map);
-char        MAP_jump                (int a_x, int a_y, int a_z);
 char        MAP_mode                (char a_major, char a_minor);
 char        MAP_xstatus             (char *a_list);
 char        MAP_ystatus             (char *a_list);

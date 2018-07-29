@@ -247,7 +247,7 @@ char         /*-> tbd --------------------------------[ ------ [gz.420.121.11]*/
 KEYS_unique             (void)
 {  /*    return 1 if not a repeat sequence, 0 if repeating   */
    /*    five mode options :    - -    - p    p s    s -    s p
-    */
+   */
    /*---(locals)-----------+-----+-----+-*/
    uchar       m1, m2, m3, m4;
    uchar       c1, c2, c3, c4;
@@ -338,22 +338,22 @@ yVIKEYS_main_input      (char a_runmode, uchar a_key)
    DEBUG_LOOP   yLOG_enter   (__FUNCTION__);
    DEBUG_LOOP   yLOG_char    ("a_runmode" , a_runmode);
    DEBUG_LOOP   yLOG_value   ("a_key"     , a_key);
-   /*---(defense)------------------------*/
-   if (a_key == 0) {
-      DEBUG_LOOP   yLOG_exit    (__FUNCTION__);
-      return a_key;
-   }
+   DEBUG_LOOP   yLOG_char    ("macromode" , MACRO_get_mode ());
    /*---(fixes)--------------------------*/
    if (a_key == G_KEY_ENTER)  a_key = G_KEY_RETURN;
    /*---(normal)-------------------------*/
-   IF_MACRO_OFF {
-      DEBUG_LOOP   yLOG_note    ("normal/macro off");
+   IF_MACRO_NOT_PLAYING {
+      DEBUG_LOOP   yLOG_note    ("normal or macro recording");
       if (MACRO_count ()) {
          DEBUG_USER   yLOG_note    ("but, in macro repeat mode");
          MACRO_exec_beg ('@');
          x_ch  = G_KEY_SPACE;
       } else {
          x_ch  = a_key;
+         if (x_ch == 0) {
+            DEBUG_LOOP   yLOG_exit    (__FUNCTION__);
+            return x_ch;
+         }
       }
    }
    /*---(run, delay, or playback)--------*/
@@ -362,7 +362,8 @@ yVIKEYS_main_input      (char a_runmode, uchar a_key)
       x_ch = MACRO_exec_key ();
       IF_MACRO_OFF {
          DEBUG_LOOP   yLOG_exit    (__FUNCTION__);
-         return -1;
+         /*> return -1;                                                               <*/
+         return x_ch;
       }
       DEBUG_LOOP   yLOG_note    ("show screen");
       /*> if (a_runmode == RUN_USER)  CURS_main  ();                                     <*/

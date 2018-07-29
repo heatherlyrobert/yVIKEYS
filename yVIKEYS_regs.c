@@ -887,7 +887,7 @@ yvikeys_regs_visual          (void)
          s_regs [x_reg].x_beg + s_xoff, s_regs [x_reg].x_end + s_xoff,
          s_regs [x_reg].y_beg + s_yoff, s_regs [x_reg].y_end + s_yoff,
          s_regs [x_reg].z_all + s_zoff);
-   MAP_jump (
+   yVIKEYS_jump (
          s_regs [x_reg].x_end + s_xoff,
          s_regs [x_reg].y_end + s_yoff,
          s_regs [x_reg].z_all + s_zoff);

@@ -79,6 +79,8 @@
 #define     FILE_FREECEL   'f'
 
 
+
+
 typedef  const unsigned char  cuchar;
 typedef  unsigned char        uchar;
 typedef  const char           cchar;
@@ -237,6 +239,9 @@ char        yVIKEYS_layer_add         (char *a_name, void *a_drawer, char *a_des
 
 char        yVIKEYS_view_ribbon_clear (void);
 char        yVIKEYS_view_ribbon       (char *a_cat, char *a_name);
+
+
+char        yVIKEYS_jump              (int a_x, int a_y, int a_z);
 
 /*---(map mode)-------------*/
 char        yVIKEYS_map_config        (char a_coord, void *a_mapper, void *a_locator, void *a_address);

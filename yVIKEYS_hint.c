@@ -341,7 +341,7 @@ MARK__return        (char a_mark)
    }
    /*---(move)---------------------------*/
    DEBUG_MARK   yLOG_note    ("jump to mark");
-   MAP_jump (s_mark_info [x_index].x_pos, s_mark_info [x_index].y_pos, s_mark_info [x_index].z_pos);
+   yVIKEYS_jump (s_mark_info [x_index].x_pos, s_mark_info [x_index].y_pos, s_mark_info [x_index].z_pos);
    /*---(set history)--------------------*/
    MARK__history ();
    /*---(complete)-----------------------*/
@@ -805,7 +805,7 @@ MARK_direct          (char *a_string)
    }
    s_mark_info [x_index].source = MARK_IMPORT;
    /*---(go there)-----------------------*/
-   MAP_jump (s_mark_info [x_index].x_pos, s_mark_info [x_index].y_pos, s_mark_info [x_index].z_pos);
+   yVIKEYS_jump (s_mark_info [x_index].x_pos, s_mark_info [x_index].y_pos, s_mark_info [x_index].z_pos);
    /*---(set history)--------------------*/
    DEBUG_MARK   yLOG_note    ("set history");
    MARK__history ();

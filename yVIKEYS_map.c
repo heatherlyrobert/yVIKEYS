@@ -383,7 +383,7 @@ VISU__return          (char a_visu)
    s_visu.y_lock = s_visu_info [x_index].y_lock;
    /*---(update range)-------------------*/
    DEBUG_VISU   yLOG_note    ("update the range/current");
-   MAP_jump (s_visu.x_end, s_visu.y_end, s_visu.z_all);
+   yVIKEYS_jump (s_visu.x_end, s_visu.y_end, s_visu.z_all);
    if (a_visu != '\'') {
       s_visu_curr = a_visu;
       VISU__set ('\'');
@@ -569,11 +569,11 @@ VISU__reverse           (void)
    if (s_visu.x_lock == 'y') {
       if (s_visu.y_root == s_visu.y_beg) {
          s_visu.y_root = s_visu.y_end;
-         MAP_jump (s_visu.x_root, s_visu.y_beg, s_visu.z_all);
+         yVIKEYS_jump (s_visu.x_root, s_visu.y_beg, s_visu.z_all);
       }
       else  {
          s_visu.y_root = s_visu.y_beg;
-         MAP_jump (s_visu.x_root, s_visu.y_end, s_visu.z_all);
+         yVIKEYS_jump (s_visu.x_root, s_visu.y_end, s_visu.z_all);
       }
       return 0;
    }
@@ -581,11 +581,11 @@ VISU__reverse           (void)
    if (s_visu.y_lock == 'y') {
       if (s_visu.x_root == s_visu.x_beg) {
          s_visu.x_root = s_visu.x_end;
-         MAP_jump (s_visu.x_beg, s_visu.y_root, s_visu.z_all);
+         yVIKEYS_jump (s_visu.x_beg, s_visu.y_root, s_visu.z_all);
       }
       else  {
          s_visu.x_root = s_visu.x_beg;
-         MAP_jump (s_visu.x_end, s_visu.y_root, s_visu.z_all);
+         yVIKEYS_jump (s_visu.x_end, s_visu.y_root, s_visu.z_all);
       }
       return 0;
    }
@@ -593,13 +593,13 @@ VISU__reverse           (void)
    if (s_visu.x_root == s_visu.x_beg && s_visu.y_root == s_visu.y_beg) {
       s_visu.x_root = s_visu.x_end;
       s_visu.y_root = s_visu.y_end;
-      MAP_jump (s_visu.x_beg, s_visu.y_beg, s_visu.z_all);
+      yVIKEYS_jump (s_visu.x_beg, s_visu.y_beg, s_visu.z_all);
       return 0;
    }
    /*---(root at end)--------------------*/
    s_visu.x_root = s_visu.x_beg;
    s_visu.y_root = s_visu.y_beg;
-   MAP_jump (s_visu.x_end, s_visu.y_end, s_visu.z_all);
+   yVIKEYS_jump (s_visu.x_end, s_visu.y_end, s_visu.z_all);
    /*---(complete)-----------------------*/
    return 0;
 }
@@ -667,7 +667,7 @@ VISU_clear          (void)
    else                       x = s_visu.x_beg;
    if (s_visu.y_lock == 'y')  y = s_visu.y_root;
    else                       y = s_visu.y_beg;
-   MAP_jump (x, y, s_visu.z_all);
+   yVIKEYS_jump (x, y, s_visu.z_all);
    s_live  = VISU_NOT;
    s_visu.x_lock = '-';
    s_visu.y_lock = '-';
@@ -1563,7 +1563,7 @@ MAP__screen             (tMAPPED *a_map)
 }
 
 char
-MAP_jump              (int a_x, int a_y, int a_z)
+yVIKEYS_jump              (int a_x, int a_y, int a_z)
 {
    /*---(header)-------------------------*/
    DEBUG_MAP   yLOG_enter   (__FUNCTION__);
@@ -2415,12 +2415,10 @@ yvikeys_bufs_umode  (uchar a_major, uchar a_minor)
    if (strchr ("[<>]", a_minor) != NULL) {
       DEBUG_USER   yLOG_note    ("relative mode");
       rc = s_switcher (a_minor);
-      if (rc >= 0)  MAP_jump (0, 0, rc);
       MODE_exit  ();
    } else if (strchr ("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ­®", a_minor) != NULL) {
       DEBUG_USER   yLOG_note    ("absolute mode");
       rc = s_switcher (a_minor);
-      if (rc >= 0)  MAP_jump (0, 0, rc);
       MODE_exit  ();
    /*> } else if (a_minor == ',') {                                                   <* 
     *>    my.info_win = G_INFO_BUFS;                                                  <* 
