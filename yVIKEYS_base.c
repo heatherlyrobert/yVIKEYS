@@ -517,6 +517,42 @@ yVIKEYS_main_string  (uchar *a_keys)
    return 0;
 }
 
+char         /*-> tbd --------------------------------[ ------ [gn.842.232.99]*/ /*-[01.0000.000.!]-*/ /*-[--.---.---.--]-*/
+yVIKEYS_main       (float a_delay)
+{
+   /*---(locals)-----------+-----------+-*/
+   int         x_loop      = 0;
+   int         x_ch        = ' ';      /* current keystroke                   */
+   uchar       x_key       = ' ';      /* current keystroke                   */
+   char        rc          = 0;
+   tTSPEC      x_dur;
+   /*---(for timer)------------------------*/
+   x_dur.tv_sec    = 0;
+   x_dur.tv_nsec   = a_delay * 1000000;
+   /*---(main-loop)----------------------*/
+   DEBUG_TOPS   yLOG_note    ("entering main processing loop");
+   DEBUG_TOPS   yLOG_break   ();
+   while (1) {
+      x_ch = getch ();
+      if (x_ch == KEY_RESIZE)  yVIKEYS_view_resize (0, 0, 0);
+      if (x_ch < 0)  x_key = 0;
+      else           x_key = x_ch;
+      DEBUG_GRAF  yLOG_value   ("x_key"     , x_key);
+      x_key = yVIKEYS_main_input  (RUN_USER, x_key);
+      yVIKEYS_main_handle (x_key);
+      if (yVIKEYS_quit ())  break;
+      ++x_loop;
+      if ((x_loop % 20) == 0)  yVIKEYS_view_all (0.0);
+      /*---(sleeping)--------------------*/
+      nanosleep    (&x_dur, NULL);
+      /*---(done)------------------------*/
+   }
+   DEBUG_TOPS  yLOG_break   ();
+   DEBUG_TOPS  yLOG_note    ("exiting main processing loop");
+   /*---(complete)-----------------------*/
+   return 0;
+}
+
 char*        /*-> tbd --------------------------------[ leaf   [gs.520.202.40]*/ /*-[01.0000.00#.#]-*/ /*-[--.---.---.--]-*/
 KEYS__unit              (char *a_question, char a_index)
 {
