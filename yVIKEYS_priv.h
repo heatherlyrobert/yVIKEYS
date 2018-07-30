@@ -34,8 +34,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "1.0k"
-#define YVIKEYS_VER_TXT   "macro unit testing is running, adding more complex"
+#define YVIKEYS_VER_NUM   "1.0l"
+#define YVIKEYS_VER_TXT   "macro unit testing successfully includes through main loop"
 
 
 
