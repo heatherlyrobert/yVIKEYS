@@ -774,8 +774,7 @@ SOURCE_init             (void)
    STATUS_init_set   (MODE_SOURCE);
    STATUS_init_set   (UMOD_SRC_REPL);
    STATUS_init_set   (UMOD_SRC_INPT);
-   STATUS_init_set   (SMOD_SRC_UNDO);
-   STATUS_init_set   (UMOD_HISTORY);
+   STATUS_init_set   (UMOD_SRC_UNDO);
    /*---(complete)-----------------------*/
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;

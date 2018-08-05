@@ -63,6 +63,7 @@ yVIKEYS_init         (void)
    VISU_init    ();
    REPEAT_init  ();
    yvikeys_bufs_init    ();
+   yvikeys_hist_init    ();
    /*----(globals)-----------------------*/
    myVIKEYS.done      = '-';
    myVIKEYS.trouble   = '-';
@@ -341,6 +342,7 @@ yVIKEYS_main_input      (char a_runmode, uchar a_key)
    DEBUG_LOOP   yLOG_char    ("macromode" , MACRO_get_mode ());
    /*---(fixes)--------------------------*/
    if (a_key == G_KEY_ENTER)  a_key = G_KEY_RETURN;
+   if (a_key == G_KEY_DEL  )  a_key = G_KEY_BS;     /* X11 sends incorrectly  */
    /*---(normal)-------------------------*/
    IF_MACRO_NOT_PLAYING {
       DEBUG_LOOP   yLOG_note    ("normal or macro recording");
@@ -428,7 +430,7 @@ yVIKEYS_main_handle     (uchar a_key)
       case UMOD_SRC_INPT : rc = SRC_INPT_umode           (x_major , x_key);  break;
       case SMOD_SRC_REG  : rc = SRC_REG_smode         (x_major , x_key);  break;
       case UMOD_SRC_REPL : rc = SRC_REPL_umode        (x_major , x_key);  break;
-      case SMOD_SRC_UNDO : rc = BASE__________stub    (x_major , x_key);  break;
+      case UMOD_SRC_UNDO : rc = BASE__________stub    (x_major , x_key);  break;
       case UMOD_HISTORY  : rc = HISTORY_smode         (x_major , x_key);  break;
       case MODE_COMMAND  : rc = SOURCE_mode           (x_major , x_key);  break;
       case MODE_SEARCH   : rc = SOURCE_mode           (x_major , x_key);  break;
@@ -447,7 +449,8 @@ yVIKEYS_main_handle     (uchar a_key)
       DEBUG_USER   yLOG_value   ("rc"        , rc);
       /*---(translate unprintable)-------*/
       x_repeat = REPEAT_count ();
-      snprintf (x_keys,   9, "%2d %c%c"  , x_repeat, x_major, chrvisible (x_key));
+      /*> snprintf (x_keys,   9, "%2d %c%c"  , x_repeat, x_major, chrvisible (x_key));   <*/
+      snprintf (x_keys,   9, "%3d %c%c"  , x_key, x_major, chrvisible (x_key));
       /*---(loop repeats)----------------*/
       if (rc == 0 && x_repeat > 0 && MODE_curr () != UMOD_REPEAT) {
          REPEAT_decrement ();

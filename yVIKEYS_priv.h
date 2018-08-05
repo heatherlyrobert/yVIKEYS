@@ -34,8 +34,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "1.0l"
-#define YVIKEYS_VER_TXT   "macro unit testing successfully includes through main loop"
+#define YVIKEYS_VER_NUM   "1.0m"
+#define YVIKEYS_VER_TXT   "X11 does bs/del wrong.  make both a BS for now"
 
 
 
@@ -414,6 +414,12 @@ char        MARK_reader             (char n, char *a, char *b, char *c, char *d,
 char        VISU_reader             (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i);
 char        CMDS_reader             (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i);
 char        MACRO_reader            (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i);
+
+
+char        yvikeys_hist_init       (void);
+char        yvikeys_hist_undo       (void);
+char        yvikeys_hist_redo       (void);
+
 
 #define    ACTION_FIND     'f'
 #define    ACTION_ADD      '+'

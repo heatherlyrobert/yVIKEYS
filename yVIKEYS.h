@@ -54,8 +54,8 @@
 #define     SMOD_ERROR     'e'    /* error reporting and actions              */
 #define     SMOD_MAP_REG   '"'    /* register actions                         */
 #define     SMOD_SRC_REG   't'    /* text register actions                    */
-#define     SMOD_SRC_UNDO  's'    /* incremental text change undo/redo        */
-#define     SMOD_MUNDO     'm'    /* incremental map change undo/redo         */
+#define     UMOD_SRC_UNDO  's'    /* incremental text change undo/redo        */
+#define     UMOD_HISTORY   'm'    /* incremental map change undo/redo         */
 #define     SMOD_BUFFER    ','    /* selecting buffers                        */
 #define     XMOD_FORMAT    '$'    /* content formatting                       */
 #define     XMOD_OBJECT    'o'    /* object formatting                        */
@@ -69,7 +69,7 @@
 #define     UMOD_SRC_REPL  'r'    /* replacing characters in source mode      */
 #define     UMOD_SRC_INPT  'i'    /* direct input of text                     */
 #define     UMOD_WANDER    'w'    /* formula creation by pointing             */
-#define     UMOD_HISTORY   'h'    /* hint labels                              */
+#define     UMOD_HINTS     'h'    /* hint labels                              */
 #define     SMOD_FILTER    '!'    /* data filtering                           */
 /*---(pseudo)----------------------------*/
 #define     FILE_COLS      'X'    /* x-axis (cols)                            */
