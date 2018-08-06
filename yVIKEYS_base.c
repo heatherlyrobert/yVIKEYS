@@ -450,7 +450,7 @@ yVIKEYS_main_handle     (uchar a_key)
       /*---(translate unprintable)-------*/
       x_repeat = REPEAT_count ();
       /*> snprintf (x_keys,   9, "%2d %c%c"  , x_repeat, x_major, chrvisible (x_key));   <*/
-      snprintf (x_keys,   9, "%3d %c%c"  , x_key, x_major, chrvisible (x_key));
+      snprintf (x_keys,   9, "%2x %c%c"  , x_key, x_major, chrvisible (x_key));
       /*---(loop repeats)----------------*/
       if (rc == 0 && x_repeat > 0 && MODE_curr () != UMOD_REPEAT) {
          REPEAT_decrement ();

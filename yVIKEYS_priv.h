@@ -34,8 +34,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "1.0m"
-#define YVIKEYS_VER_TXT   "X11 does bs/del wrong.  make both a BS for now"
+#define YVIKEYS_VER_NUM   "1.0n"
+#define YVIKEYS_VER_TXT   "basic export-import working as a callback"
 
 
 

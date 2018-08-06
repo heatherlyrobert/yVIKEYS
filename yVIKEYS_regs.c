@@ -123,6 +123,8 @@ static void*   (*s_copier)     (char a_type, long a_stamp);
 static char    (*s_clearer)    (char a_1st, int x, int y, int z);
 /* integrate something into the host application --------------*/
 static char    (*s_paster)     (char a_regs, char a_pros, char a_intg, char a_1st, int a_xoff, int a_yoff, int a_zoff, void *a_thing);
+/* data export and import -------------------------------------*/
+static char    (*s_exim)       (char a_dir, char a_style);
 
 
 
@@ -430,7 +432,7 @@ yvikeys_regs_wrap               (void)
 }
 
 char
-yVIKEYS_regs_config       (void *a_clearer, void *a_copier, void *a_paster, void *a_regkill)
+yVIKEYS_regs_config       (void *a_clearer, void *a_copier, void *a_paster, void *a_regkill, void *a_exim)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -451,6 +453,8 @@ yVIKEYS_regs_config       (void *a_clearer, void *a_copier, void *a_paster, void
    s_clearer    = a_clearer;
    DEBUG_REGS  yLOG_point   ("a_paster"  , a_paster);
    s_paster     = a_paster;
+   DEBUG_REGS  yLOG_point   ("a_exim"    , a_exim);
+   s_exim       = a_exim;
    /*---(update status)------------------*/
    STATUS_conf_set   (SMOD_MAP_REG, '1');
    /*---(complete)-----------------------*/
@@ -946,20 +950,29 @@ yvikeys_regs_smode           (int a_major, int a_minor)
    }
    /*---(register selection)-------------*/
    --rce;  if (a_major == '"') {
-      if (strchr (s_regnames, a_minor) != 0) {
+      if (strchr ("+-", a_minor) != NULL) {
+         DEBUG_USER   yLOG_note    ("enter export-import");
          yvikeys__regs_set    (a_minor);
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         return a_minor;
+      } else if (strchr (s_regnames, a_minor) != 0) {
+         yvikeys__regs_set    (a_minor);
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return 0;
       } else if (a_minor == '?') {
          /*> my.info_win = G_INFO_REGS;                                               <*/
          /*> REG_set ('"');                                                           <*/
          /*> yVIKEYS_mode_exit ();                                                          <*/
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return  0;
       } else if (a_minor == '!') {
          /*> my.layout_status = G_STATUS_REGS;                                        <*/
          /*> REG_set ('"');                                                           <*/
          /*> yVIKEYS_mode_exit ();                                                    <*/
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return  0;
       }
+      DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(register actions)---------------*/
@@ -997,6 +1010,16 @@ yvikeys_regs_smode           (int a_major, int a_minor)
          break;
       }
    }
+   /*---(export-import)------------------*/
+   --rce;  if (strchr ("+-", a_major) != NULL) {
+      DEBUG_USER   yLOG_note    ("calling external export-import function");
+      DEBUG_USER   yLOG_point   ("s_exim"    , s_exim);
+      if (s_exim != NULL)  rc = s_exim (a_major, a_minor);
+      DEBUG_USER   yLOG_value   ("rc"        , rc);
+      MODE_exit ();
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return rc;
+   }
    /*---(pasting actions)----------------*/
    --rce;  if (a_major == 'p') {
       switch (a_minor) {
@@ -1018,6 +1041,7 @@ yvikeys_regs_smode           (int a_major, int a_minor)
    DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
    return rce;
 }
+
 
 
 

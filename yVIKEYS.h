@@ -299,7 +299,7 @@ char        yVIKEYS_file_add        (char  a_abbr, void *a_writer, void *a_reade
 char        yVIKEYS_file_write      (char a_abbr, void *a, void *b, void *c, void *d, void *e, void *f, void *g, void *h, void *i);
 
 /*---(registers)------------*/
-char        yVIKEYS_regs_config     (void *a_clearer, void *a_copier, void *a_paster, void *a_regkill);
+char        yVIKEYS_regs_config     (void *a_clearer, void *a_copier, void *a_paster, void *a_regkill, void *a_exim);
 char        yVIKEYS_regs_add        (void *a_thing, char *a_label, char a_note);
 char        yVIKEYS_regs_inside     (int x, int y, int z);
 
