@@ -19,6 +19,7 @@
 #include    <sys/stat.h>          /* clibc  standard file handling            */
 #include    <unistd.h>            /* clibc  linux/unix standard environment   */
 #include    <time.h>              /* clibc  time related functions            */
+#include    <math.h>              /* clibc  mathematical functions            */
 
 /*---(posix standard)--------------------*/
 #include    <GL/gl.h>             /* opengl standard primary header           */
@@ -34,8 +35,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "1.0n"
-#define YVIKEYS_VER_TXT   "basic export-import working as a callback"
+#define YVIKEYS_VER_NUM   "1.0o"
+#define YVIKEYS_VER_TXT   "added main loop delay and update setting functions, unit tested too ;)"
 
 
 
@@ -82,6 +83,12 @@ struct cSHARED {
    char        trouble;                     /* flag indicating error        0 */
    char        redraw;
    char        repeating;                   /* note for repeating actions     */
+   /*---(main loop)-------*/
+   float       delay;
+   float       update;
+   int         secs;
+   long        usec;
+   int         loops;
    /*---(marks)-----------*/
    char        mark_show;      /* show temporary marks (y/n)                    */
    char        info_win;
@@ -363,6 +370,13 @@ char        SRCH__unit_null         (void);
 char        SRCH__unit_searcher     (char *a_search);
 char        SRCH__unit_clearer      (char *a_label);
 char*       SRCH__unit              (char *a_question, char a_index);
+
+
+char        SCALE_init           (void);
+char        yvikeys__loop_delay  (char *a_delay);
+char        yvikeys__loop_update (char *a_update);
+char*       SCALE__unit          (char *a_question, char a_mark);
+
 
 
 

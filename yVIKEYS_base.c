@@ -12,6 +12,19 @@ static char  s_keys_error [10000];
 static int   s_nkey      = 0;
 
 
+/*> #define      MIN4SEC      60                                                      <* 
+ *> the value                                                                         <* 
+ *> 1,000,000,000                                                                     <* 
+ *> 0.000000001                                                                       <* 
+ *> T tera   1,000,000,000,000.0                                                      <* 
+ *> G giga       1,000,000,000.0                                                      <* 
+ *> M mega           1,000,000.0                                                      <* 
+ *> K kilo               1,000.0                                                      <* 
+ *> - base                   1.0                                                      <* 
+ *> m mill                   0.001                                                    <* 
+ *> u micr                   0.000'001                                                <* 
+ *> n nano                   0.000'000'001                                            <* 
+ *> p pico                   0.000'000'000'001                                        <*/
 
 
 /*====================------------------------------------====================*/
@@ -64,6 +77,7 @@ yVIKEYS_init         (void)
    REPEAT_init  ();
    yvikeys_bufs_init    ();
    yvikeys_hist_init    ();
+   SCALE_init   ();
    /*----(globals)-----------------------*/
    myVIKEYS.done      = '-';
    myVIKEYS.trouble   = '-';
@@ -341,7 +355,7 @@ yVIKEYS_main_input      (char a_runmode, uchar a_key)
    DEBUG_LOOP   yLOG_value   ("a_key"     , a_key);
    DEBUG_LOOP   yLOG_char    ("macromode" , MACRO_get_mode ());
    /*---(fixes)--------------------------*/
-   if (a_key == G_KEY_ENTER)  a_key = G_KEY_RETURN;
+   if (a_key == G_KEY_ENTER)  a_key = G_KEY_RETURN; /* X11 sends incorrently  */
    if (a_key == G_KEY_DEL  )  a_key = G_KEY_BS;     /* X11 sends incorrectly  */
    /*---(normal)-------------------------*/
    IF_MACRO_NOT_PLAYING {
@@ -427,7 +441,7 @@ yVIKEYS_main_handle     (uchar a_key)
       case MODE_GOD      : rc = BASE__________stub    (x_major , x_key);  break;
       case MODE_MAP      : rc = MAP_mode              (x_major , x_key);  break;
       case MODE_SOURCE   : rc = SOURCE_mode           (x_major , x_key);  break;
-      case UMOD_SRC_INPT : rc = SRC_INPT_umode           (x_major , x_key);  break;
+      case UMOD_SRC_INPT : rc = SRC_INPT_umode        (x_major , x_key);  break;
       case SMOD_SRC_REG  : rc = SRC_REG_smode         (x_major , x_key);  break;
       case UMOD_SRC_REPL : rc = SRC_REPL_umode        (x_major , x_key);  break;
       case UMOD_SRC_UNDO : rc = BASE__________stub    (x_major , x_key);  break;
@@ -439,7 +453,7 @@ yVIKEYS_main_handle     (uchar a_key)
       case XMOD_FORMAT   : rc = FORMAT_smode          (x_major , x_key);  break;
       case SMOD_BUFFER   : rc = yvikeys_bufs_umode    (x_major , x_key);  break;
       case UMOD_WANDER   : rc = BASE__________stub    (x_major , x_key);  break;
-      case SMOD_MAP_REG  : rc = yvikeys_regs_smode         (x_major , x_key);  break;
+      case SMOD_MAP_REG  : rc = yvikeys_regs_smode    (x_major , x_key);  break;
       case UMOD_MARK     : rc = MARK_smode            (x_major , x_key);  break;
       case SMOD_MENUS    : rc = BASE__________stub    (x_major , x_key);  break;
       case SMOD_MACRO    : rc = MACRO_smode           (x_major , x_key);  break;
@@ -520,8 +534,56 @@ yVIKEYS_main_string  (uchar *a_keys)
    return 0;
 }
 
-char         /*-> tbd --------------------------------[ ------ [gn.842.232.99]*/ /*-[01.0000.000.!]-*/ /*-[--.---.---.--]-*/
-yVIKEYS_main       (float a_delay)
+/*> char         /+-> tbd --------------------------------[ ------ [gn.842.232.99]+/ /+-[01.0000.000.!]-+/ /+-[--.---.---.--]-+/   <* 
+ *> yVIKEYS_main_opengl     (float a_delay)                                                                                        <* 
+ *> {                                                                                                                              <* 
+ *>    /+---(locals)-----------+-----------+-+/                                                                                    <* 
+ *>    int         x_loop      = 0;                                                                                                <* 
+ *>    int         x_ch        = ' ';      /+ current keystroke                   +/                                               <* 
+ *>    uchar       x_key       = ' ';      /+ current keystroke                   +/                                               <* 
+ *>    char        rc          = 0;                                                                                                <* 
+ *>    tTSPEC      x_dur;                                                                                                          <* 
+ *>    /+---(opengl-specific)----------------+/                                                                                    <* 
+ *>    XKeyEvent  *x_event;                                                                                                        <* 
+ *>    char        x_keys      [5];                                                                                                <* 
+ *>    int         x_bytes;                                                                                                        <* 
+ *>    /+---(for timer)----------------------+/                                                                                    <* 
+ *>    x_dur.tv_sec    = 0;                                                                                                        <* 
+ *>    x_dur.tv_nsec   = a_delay * 1000000;                                                                                        <* 
+ *>    /+---(main-loop)----------------------+/                                                                                    <* 
+ *>    DEBUG_TOPS   yLOG_note    ("entering main processing loop");                                                                <* 
+ *>    DEBUG_TOPS   yLOG_break   ();                                                                                               <* 
+ *>    while (1) {                                                                                                                 <* 
+ *>       while (XPending (DISP)) {                                                                                                <* 
+ *>          /+---(start processing event)---+/                                                                                    <* 
+ *>          XNextEvent (DISP, &EVNT);                                                                                             <* 
+ *>          switch (EVNT.type) {                                                                                                  <* 
+ *>          case KeyPress:                                                                                                        <* 
+ *>             x_event = (XKeyEvent *) &EVNT;                                                                                     <* 
+ *>             x_bytes = XLookupString ((XKeyEvent *) &EVNT, x_keys, 5, NULL, NULL);                                              <* 
+ *>             if (x_bytes < 1) break;                                                                                            <* 
+ *>             x_ch    = x_keys [0];                                                                                              <* 
+ *>             x_key   = x_ch;                                                                                                    <* 
+ *>          }                                                                                                                     <* 
+ *>          DEBUG_GRAF  yLOG_value   ("x_key"     , x_key);                                                                       <* 
+ *>          x_key = yVIKEYS_main_input  (RUN_USER, x_key);                                                                        <* 
+ *>          yVIKEYS_main_handle (x_key);                                                                                          <* 
+ *>          if (yVIKEYS_quit ())  break;                                                                                          <* 
+ *>          ++x_loop;                                                                                                             <* 
+ *>       }                                                                                                                        <* 
+ *>       if ((x_loop % 20) == 0)  yVIKEYS_view_all (0.0);                                                                         <* 
+ *>       /+---(sleeping)--------------------+/                                                                                    <* 
+ *>       nanosleep    (&x_dur, NULL);                                                                                             <* 
+ *>       /+---(done)------------------------+/                                                                                    <* 
+ *>    }                                                                                                                           <* 
+ *>    DEBUG_TOPS  yLOG_break   ();                                                                                                <* 
+ *>    DEBUG_TOPS  yLOG_note    ("exiting main processing loop");                                                                  <* 
+ *>    /+---(complete)-----------------------+/                                                                                    <* 
+ *>    return 0;                                                                                                                   <* 
+ *> }                                                                                                                              <*/
+
+char         /*-> handle main loop for ncurses -------[ ------ [gn.842.232.99]*/ /*-[01.0000.000.!]-*/ /*-[--.---.---.--]-*/
+yVIKEYS_main_curses     (char *a_delay, char *a_update)
 {
    /*---(locals)-----------+-----------+-*/
    int         x_loop      = 0;
@@ -531,7 +593,7 @@ yVIKEYS_main       (float a_delay)
    tTSPEC      x_dur;
    /*---(for timer)------------------------*/
    x_dur.tv_sec    = 0;
-   x_dur.tv_nsec   = a_delay * 1000000;
+   x_dur.tv_nsec   = 1000000000 * 0.01;
    /*---(main-loop)----------------------*/
    DEBUG_TOPS   yLOG_note    ("entering main processing loop");
    DEBUG_TOPS   yLOG_break   ();
@@ -544,9 +606,11 @@ yVIKEYS_main       (float a_delay)
       x_key = yVIKEYS_main_input  (RUN_USER, x_key);
       yVIKEYS_main_handle (x_key);
       if (yVIKEYS_quit ())  break;
+      /*---(showing)---------------------*/
       ++x_loop;
-      if ((x_loop % 20) == 0)  yVIKEYS_view_all (0.0);
+      if ((x_loop % 10) == 0)  yVIKEYS_view_all (0.0);
       /*---(sleeping)--------------------*/
+      x_dur.tv_nsec   = 1000000000 * 0.01;
       nanosleep    (&x_dur, NULL);
       /*---(done)------------------------*/
    }
