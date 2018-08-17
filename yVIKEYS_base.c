@@ -77,7 +77,7 @@ yVIKEYS_init         (void)
    REPEAT_init  ();
    yvikeys_bufs_init    ();
    yvikeys_hist_init    ();
-   SCALE_init   ();
+   yvikeys_loop_init    ();
    /*----(globals)-----------------------*/
    myVIKEYS.done      = '-';
    myVIKEYS.trouble   = '-';
@@ -590,13 +590,12 @@ yVIKEYS_main_curses     (char *a_delay, char *a_update)
    int         x_ch        = ' ';      /* current keystroke                   */
    uchar       x_key       = ' ';      /* current keystroke                   */
    char        rc          = 0;
-   tTSPEC      x_dur;
    /*---(for timer)------------------------*/
-   x_dur.tv_sec    = 0;
-   x_dur.tv_nsec   = 1000000000 * 0.01;
    /*---(main-loop)----------------------*/
    DEBUG_TOPS   yLOG_note    ("entering main processing loop");
    DEBUG_TOPS   yLOG_break   ();
+   yvikeys_loop_delay   (a_delay);
+   yvikeys_loop_update  (a_update);
    while (1) {
       x_ch = getch ();
       if (x_ch == KEY_RESIZE)  yVIKEYS_view_resize (0, 0, 0);
@@ -608,10 +607,9 @@ yVIKEYS_main_curses     (char *a_delay, char *a_update)
       if (yVIKEYS_quit ())  break;
       /*---(showing)---------------------*/
       ++x_loop;
-      if ((x_loop % 10) == 0)  yVIKEYS_view_all (0.0);
+      if ((x_loop % myVIKEYS.loops) == 0)  yVIKEYS_view_all (0.0);
       /*---(sleeping)--------------------*/
-      x_dur.tv_nsec   = 1000000000 * 0.01;
-      nanosleep    (&x_dur, NULL);
+      yvikeys_loop_sleep ();
       /*---(done)------------------------*/
    }
    DEBUG_TOPS  yLOG_break   ();

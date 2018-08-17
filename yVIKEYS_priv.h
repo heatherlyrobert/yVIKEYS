@@ -35,8 +35,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "1.0o"
-#define YVIKEYS_VER_TXT   "added main loop delay and update setting functions, unit tested too ;)"
+#define YVIKEYS_VER_NUM   "1.0p"
+#define YVIKEYS_VER_TXT   "main loop delay/update are working with gyges successfully"
 
 
 
@@ -87,7 +87,7 @@ struct cSHARED {
    float       delay;
    float       update;
    int         secs;
-   long        usec;
+   long        nsec;
    int         loops;
    /*---(marks)-----------*/
    char        mark_show;      /* show temporary marks (y/n)                    */
@@ -372,10 +372,12 @@ char        SRCH__unit_clearer      (char *a_label);
 char*       SRCH__unit              (char *a_question, char a_index);
 
 
-char        SCALE_init           (void);
-char        yvikeys__loop_delay  (char *a_delay);
-char        yvikeys__loop_update (char *a_update);
-char*       SCALE__unit          (char *a_question, char a_mark);
+char        yvikeys_loop_init       (void);
+char        yvikeys_loop_delay      (char *a_delay);
+char        yvikeys_loop_update     (char *a_update);
+char        yvikeys_loop_sleep      (void);
+char        yvikeys_loop_status     (char *a_list);
+char*       SCALE__unit             (char *a_question, char a_mark);
 
 
 

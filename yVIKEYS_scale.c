@@ -106,6 +106,7 @@ static tSPEED s_speed_info [MAX_SPEED] = {
 /*===[[ UPDATES ]]============================================================*/
 #define     MAX_UPDATE  50
 static int     s_update   =  0;    /* how many screen updates per second      */
+static long    s_average  =  0;
 
 typedef  struct cUPDATE tUPDATE;
 struct cUPDATE {
@@ -134,6 +135,7 @@ static tUPDATE s_update_info [MAX_UPDATE] = {
 
 
 /*===[[ UPDATES ]]============================================================*/
+#define     NSEC        1000000000
 #define     MAX_DELAY   50
 static int     s_delay    =  0;    /* how man seconds between main loops      */
 
@@ -165,22 +167,6 @@ static tDELAY s_delay_info [MAX_DELAY] = {
    /*---(done)------------------------------------*/
 };
 
-
-
-char
-SCALE_init           (void)
-{
-   s_delay         = 0;
-   s_update        = 0;
-   myVIKEYS.delay  = 0.0;
-   myVIKEYS.secs   = 0;
-   myVIKEYS.usec   = 0;
-   myVIKEYS.update = 0.0;
-   myVIKEYS.loops  = 1;
-   yvikeys__loop_delay  ("");
-   yvikeys__loop_update ("");
-   return 0;
-}
 
 
 
@@ -446,6 +432,29 @@ yVIKEYS_speed_adv  (double *a_pos)
    return 0;
 }
 
+
+
+/*====================------------------------------------====================*/
+/*===----                       main loop timing                       ----===*/
+/*====================------------------------------------====================*/
+static void      o___LOOPING_________________o (void) {;}
+
+char
+yvikeys_loop_init       (void)
+{
+   s_delay         = 0;
+   s_update        = 0;
+   myVIKEYS.delay  = 0.0;
+   myVIKEYS.secs   = 0;
+   myVIKEYS.nsec   = 0;
+   myVIKEYS.update = 0.0;
+   myVIKEYS.loops  = 1;
+   yvikeys_loop_delay  ("");
+   yvikeys_loop_update ("");
+   return 0;
+}
+
+
 char
 yvikeys__loop_calc   (void)
 {
@@ -453,7 +462,7 @@ yvikeys__loop_calc   (void)
    float       x_base      =  0.0;
    /*---(initialize)---------------------*/
    myVIKEYS.secs  = 0;
-   myVIKEYS.usec  = 0;
+   myVIKEYS.nsec  = 0;
    myVIKEYS.loops = 1;
    /*---(same)---------------------------*/
    if (s_delay == 0 && s_update == 0)   return 0;
@@ -475,7 +484,7 @@ yvikeys__loop_calc   (void)
    }
    /*---(update timing)------------------*/
    if (x_base >= 1.0)  myVIKEYS.secs  = trunc (x_base);
-   myVIKEYS.usec  = (x_base - myVIKEYS.secs) * 1000000000;
+   myVIKEYS.nsec  = (x_base - myVIKEYS.secs) * NSEC;
    /*---(update loops)-------------------*/
    if (myVIKEYS.update != 0.0 && myVIKEYS.delay != 0.0)  {
       myVIKEYS.loops = trunc (myVIKEYS.update / myVIKEYS.delay);
@@ -486,7 +495,7 @@ yvikeys__loop_calc   (void)
 }
 
 char
-yvikeys__loop_update (char *a_update)
+yvikeys_loop_update     (char *a_update)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rc          =    0;
@@ -508,14 +517,17 @@ yvikeys__loop_update (char *a_update)
       x_index = s_update;
       rc = -1;
       break;
-   case '+' :
+   case '=' :
+      x_index = s_update;
+      break;
+   case '>' :
       if (s_update <  x_max)  x_index = ++s_update;
       else {
          x_index = x_max;
          rc = -3;
       }
       break;
-   case '-' :
+   case '<' :
       if (s_update >  1    )  x_index = --s_update;
       else {
          x_index = 1;
@@ -544,7 +556,7 @@ yvikeys__loop_update (char *a_update)
 }
 
 char
-yvikeys__loop_delay  (char *a_delay)
+yvikeys_loop_delay      (char *a_delay)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rc          =    0;
@@ -566,14 +578,17 @@ yvikeys__loop_delay  (char *a_delay)
       x_index = s_delay;
       rc = -1;
       break;
-   case '+' :
+   case '=' :
+      x_index = s_delay;
+      break;
+   case '>' :
       if (s_delay  <  x_max)  x_index = ++s_delay;
       else {
          x_index = x_max;
          rc = -3;
       }
       break;
-   case '-' :
+   case '<' :
       if (s_delay  >  1    )  x_index = --s_delay;
       else {
          x_index = 1;
@@ -601,6 +616,65 @@ yvikeys__loop_delay  (char *a_delay)
    return rc;
 }
 
+static long long x_rem    = 0;
+static long long x_used   = 0;
+static float     x_pct    = 0.0;
+
+char
+yvikeys_loop_sleep      (void)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   static long x_secs      =    0;
+   static long x_nsec      =    0;
+   long        x_diff      =    0;
+   long        x_targ      =    0;
+   /*> long        x_rem       =    0;                                                <*/
+   tTSPEC      x_dur;
+   static int  x_loop      =    0;
+   static long long x_total     =    0;
+   /*---(get current time)---------------*/
+   clock_gettime  (CLOCK_MONOTONIC_RAW, &x_dur);
+   x_diff   = (x_dur.tv_sec  - x_secs) * NSEC;
+   x_diff  += (x_dur.tv_nsec - x_nsec);
+   /*---(save current)-------------------*/
+   x_secs   = x_dur.tv_sec;
+   x_nsec   = x_dur.tv_nsec;
+   /*---(for timer)----------------------*/
+   x_targ   = (myVIKEYS.secs * NSEC) + myVIKEYS.nsec;
+   x_rem    = x_targ - x_diff;
+   x_used   = x_targ - x_rem;
+   x_pct    = (x_used / (float) x_targ) * 100.0;
+   /*---(statistics)---------------------*/
+   ++x_loop;
+   x_total += x_rem;
+   s_average = x_rem / x_loop;
+   /*> s_average = 0.0;                                                               <*/
+   /*---(sleeping)-----------------------*/
+   x_dur.tv_sec  = x_rem / NSEC;
+   x_dur.tv_nsec = x_rem % NSEC;
+   nanosleep      (&x_dur, NULL);
+   x_rem   /= 1000;
+   x_used  /= 1000;
+   /*---(complete)-----------------------*/
+   return 0;
+}
+
+char       /*----: give current looping info ---------------------------------*/
+yvikeys_loop_status     (char *a_list)
+{
+   /*---(locals)-----------+-----------+-*/
+   char        rce         = -10;
+   /*---(defenses)-----------------------*/
+   --rce;  if (a_list  == NULL)  return rce;
+   /*---(write status)-------------------*/
+   sprintf (a_list, "loop, %-5s = %8.6f, %1ds, %10dns, update %-5s = %5.3f, %4d loop, %7lldu %4lldu %6.3f",
+         s_delay_info [s_delay].terse, s_delay_info [s_delay].delay, myVIKEYS.secs, myVIKEYS.nsec,
+         s_update_info [s_update].terse, s_update_info [s_update].update, myVIKEYS.loops,
+         x_rem, x_used, x_pct);
+   /*---(complete)-----------------------*/
+   return 0;
+}
+
 
 
 /*====================------------------------------------====================*/
@@ -617,7 +691,7 @@ SCALE__unit                (char *a_question, char a_mark)
    strcpy  (yVIKEYS__unit_answer, "SCALE            : question not understood");
    /*---(questions)----------------------*/
    if      (strcmp (a_question, "delay"       )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_RECD, "SCALE delay      : %-5s = %8.6f, %1ds, %10dns", s_delay_info [s_delay].terse, s_delay_info [s_delay].delay, myVIKEYS.secs, myVIKEYS.usec);
+      snprintf (yVIKEYS__unit_answer, LEN_RECD, "SCALE delay      : %-5s = %8.6f, %1ds, %10dns", s_delay_info [s_delay].terse, s_delay_info [s_delay].delay, myVIKEYS.secs, myVIKEYS.nsec);
    }
    else if (strcmp (a_question, "update"      )   == 0) {
       snprintf (yVIKEYS__unit_answer, LEN_RECD, "SCALE update     : %-5s = %5.3f, %6d loop(s)", s_update_info [s_update].terse, s_update_info [s_update].update, myVIKEYS.loops);
