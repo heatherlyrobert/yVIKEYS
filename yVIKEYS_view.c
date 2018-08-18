@@ -194,7 +194,8 @@ tOPTION  s_options [MAX_OPTION ] = {
    { YVIKEYS_STATUS  , "visual"       , VISU_status         , "visual selection in map"     },
    { YVIKEYS_STATUS  , "file"         , FILE_status         , "file, control, and version"  },
    { YVIKEYS_STATUS  , "regs"         , yvikeys_regs_status , "current register information"},
-   { YVIKEYS_STATUS  , "loop"         , yvikeys_loop_status , "main loop timing information"},
+   { YVIKEYS_STATUS  , "loop"         , yvikeys_loop_status , "main loop timing settings"   },
+   { YVIKEYS_STATUS  , "graf"         , yvikeys_graf_status , "main loop timing results"    },
    { NULL            , ""             , NULL                , ""                            },
 };
 static int  s_noption  = 0;

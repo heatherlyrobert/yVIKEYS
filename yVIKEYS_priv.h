@@ -35,8 +35,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "1.0p"
-#define YVIKEYS_VER_TXT   "main loop delay/update are working with gyges successfully"
+#define YVIKEYS_VER_NUM   "1.0q"
+#define YVIKEYS_VER_TXT   "timing and loop status lines working well"
 
 
 
@@ -78,6 +78,9 @@ typedef    struct    cSHARED    tSHARED;
 struct cSHARED {
    /*---(debugging)-------*/
    int         logger;
+   long long   last;
+   long long   beg;
+   long long   end;
    /*---(global flags-----*/
    char        done;                        /* flag indicating ready to quit  */
    char        trouble;                     /* flag indicating error        0 */
@@ -375,8 +378,10 @@ char*       SRCH__unit              (char *a_question, char a_index);
 char        yvikeys_loop_init       (void);
 char        yvikeys_loop_delay      (char *a_delay);
 char        yvikeys_loop_update     (char *a_update);
-char        yvikeys_loop_sleep      (void);
+char        yvikeys_loop_beg        (void);
+char        yvikeys_loop_sleep      (uchar a_key, char a_draw);
 char        yvikeys_loop_status     (char *a_list);
+char        yvikeys_graf_status     (char *a_list);
 char*       SCALE__unit             (char *a_question, char a_mark);
 
 

@@ -616,45 +616,100 @@ yvikeys_loop_delay      (char *a_delay)
    return rc;
 }
 
-static long long x_rem    = 0;
+static long long s_loop_targ   = 0;
+static long long s_loop_used   = 0;
+static long long s_loop_rem    = 0;
+
+static long long s_loop_slept  = 0;
+static long long s_loop_miss   = 0;
+
+static long long s_loop_prev   = 0;
+static long long s_loop_beg    = 0;
+static long long s_loop_end    = 0;
+static long long s_loop_dur    = 0;
+
+
 static long long x_used   = 0;
 static float     x_pct    = 0.0;
 
+static float     s_avg    = 0.0;
+static float     s_draw   = 0.0;
+static float     s_keys   = 0.0;
+static float     s_idle   = 0.0;
+
 char
-yvikeys_loop_sleep      (void)
+yvikeys_loop_beg        (void)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   tTSPEC      x_dur;
+   /*---(get beginning time)-------------*/
+   clock_gettime  (CLOCK_MONOTONIC_RAW, &x_dur);
+   s_loop_beg   = x_dur.tv_sec * NSEC;
+   s_loop_beg  += x_dur.tv_nsec;
+   /*---(complete)-----------------------*/
+   return 0;
+}
+
+char
+yvikeys_loop_sleep      (uchar a_key, char a_draw)
 {
    /*---(locals)-----------+-----+-----+-*/
    static long x_secs      =    0;
    static long x_nsec      =    0;
-   long        x_diff      =    0;
-   long        x_targ      =    0;
-   /*> long        x_rem       =    0;                                                <*/
    tTSPEC      x_dur;
-   static int  x_loop      =    0;
-   static long long x_total     =    0;
-   /*---(get current time)---------------*/
+   static int  x_loops     =    0;
+   static int  x_draws     =    0;
+   static int  x_keys      =    0;
+   static int  x_idles     =    0;
+   static long long x_total =    0;
+   static long long x_draw  =    0;
+   static long long x_key   =    0;
+   static long long x_idle  =    0;
+   char        x_type       =  '-';
+   /*---(get ending time)----------------*/
    clock_gettime  (CLOCK_MONOTONIC_RAW, &x_dur);
-   x_diff   = (x_dur.tv_sec  - x_secs) * NSEC;
-   x_diff  += (x_dur.tv_nsec - x_nsec);
-   /*---(save current)-------------------*/
-   x_secs   = x_dur.tv_sec;
-   x_nsec   = x_dur.tv_nsec;
+   s_loop_end   = x_dur.tv_sec * NSEC;
+   s_loop_end  += x_dur.tv_nsec;
+   /*---(classify)-----------------------*/
+   if      (a_draw == 'y')  x_type = 'g';
+   else if (a_key  !=  0 )  x_type = 'k';
+   else                     x_type = '-';
+   /*---(calc sleep diffs)---------------*/
+   /*> s_loop_slept = s_loop_beg - s_loop_prev;                                       <*/
+   /*> s_loop_miss  = s_loop_beg - s_loop_prev;                                       <*/
+   /*---(calc run diffs)-----------------*/
+   s_loop_targ  = (myVIKEYS.secs * NSEC) + myVIKEYS.nsec;
+   s_loop_used  = s_loop_end - s_loop_beg;
+   s_loop_rem   = s_loop_targ - s_loop_used;
+   /*> s_loop_prev  = s_loop_end;                                                     <*/
    /*---(for timer)----------------------*/
-   x_targ   = (myVIKEYS.secs * NSEC) + myVIKEYS.nsec;
-   x_rem    = x_targ - x_diff;
-   x_used   = x_targ - x_rem;
-   x_pct    = (x_used / (float) x_targ) * 100.0;
+   x_pct    = (s_loop_used / (float) s_loop_targ) * 100.0;
    /*---(statistics)---------------------*/
-   ++x_loop;
-   x_total += x_rem;
-   s_average = x_rem / x_loop;
-   /*> s_average = 0.0;                                                               <*/
+   ++x_loops;
+   x_total += s_loop_used;
+   s_avg    = ((x_total / (float) x_loops) / (float) s_loop_targ) * 100.0;
+   switch (x_type) {
+   case 'g' :
+      ++x_draws;
+      x_draw += s_loop_used;
+      s_draw  = ((x_draw / (float) x_draws) / (float) s_loop_targ) * 100.0;
+      break;
+   case 'k' :
+      ++x_keys;
+      x_key  += s_loop_used;
+      s_keys  = ((x_key  / (float) x_keys ) / (float) s_loop_targ) * 100.0;
+      break;
+   default  :
+      ++x_idles;
+      x_idle += s_loop_used;
+      s_idle  = ((x_idle / (float) x_idles) / (float) s_loop_targ) * 100.0;
+      break;
+   }
+   /*> s_avg     = x_total / x_loops;                                                 <*/
    /*---(sleeping)-----------------------*/
-   x_dur.tv_sec  = x_rem / NSEC;
-   x_dur.tv_nsec = x_rem % NSEC;
+   x_dur.tv_sec  = s_loop_rem / NSEC;
+   x_dur.tv_nsec = s_loop_rem % NSEC;
    nanosleep      (&x_dur, NULL);
-   x_rem   /= 1000;
-   x_used  /= 1000;
    /*---(complete)-----------------------*/
    return 0;
 }
@@ -667,10 +722,23 @@ yvikeys_loop_status     (char *a_list)
    /*---(defenses)-----------------------*/
    --rce;  if (a_list  == NULL)  return rce;
    /*---(write status)-------------------*/
-   sprintf (a_list, "loop, %-5s = %8.6f, %1ds, %10dns, update %-5s = %5.3f, %4d loop, %7lldu %4lldu %6.3f",
+   sprintf (a_list, "loop, %-5s = %8.6f, %1ds, %10dns, update %-5s = %5.3fs, %4d loop(s)",
          s_delay_info [s_delay].terse, s_delay_info [s_delay].delay, myVIKEYS.secs, myVIKEYS.nsec,
-         s_update_info [s_update].terse, s_update_info [s_update].update, myVIKEYS.loops,
-         x_rem, x_used, x_pct);
+         s_update_info [s_update].terse, s_update_info [s_update].update, myVIKEYS.loops);
+   /*---(complete)-----------------------*/
+   return 0;
+}
+
+char       /*----: give current looping info ---------------------------------*/
+yvikeys_graf_status     (char *a_list)
+{
+   /*---(locals)-----------+-----------+-*/
+   char        rce         = -10;
+   /*---(defenses)-----------------------*/
+   --rce;  if (a_list  == NULL)  return rce;
+   /*---(write status)-------------------*/
+   sprintf (a_list, "graf, %8lldt, %8lldr, %8lldu, %6.3ft, %6.3fd, %6.3fk, %6.3fi",
+         s_loop_targ, s_loop_rem, s_loop_used, s_avg, s_draw, s_keys, s_idle);
    /*---(complete)-----------------------*/
    return 0;
 }

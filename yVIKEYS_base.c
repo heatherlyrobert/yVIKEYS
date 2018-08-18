@@ -590,6 +590,7 @@ yVIKEYS_main_curses     (char *a_delay, char *a_update)
    int         x_ch        = ' ';      /* current keystroke                   */
    uchar       x_key       = ' ';      /* current keystroke                   */
    char        rc          = 0;
+   char        x_draw      = '-';
    /*---(for timer)------------------------*/
    /*---(main-loop)----------------------*/
    DEBUG_TOPS   yLOG_note    ("entering main processing loop");
@@ -598,6 +599,7 @@ yVIKEYS_main_curses     (char *a_delay, char *a_update)
    yvikeys_loop_update  (a_update);
    while (1) {
       x_ch = getch ();
+      yvikeys_loop_beg   ();
       if (x_ch == KEY_RESIZE)  yVIKEYS_view_resize (0, 0, 0);
       if (x_ch < 0)  x_key = 0;
       else           x_key = x_ch;
@@ -607,9 +609,13 @@ yVIKEYS_main_curses     (char *a_delay, char *a_update)
       if (yVIKEYS_quit ())  break;
       /*---(showing)---------------------*/
       ++x_loop;
-      if ((x_loop % myVIKEYS.loops) == 0)  yVIKEYS_view_all (0.0);
+      x_draw = '-';
+      if ((x_loop % myVIKEYS.loops) == 0) {
+         x_draw = 'y';
+         yVIKEYS_view_all (0.0);
+      }
       /*---(sleeping)--------------------*/
-      yvikeys_loop_sleep ();
+      yvikeys_loop_sleep (x_key, x_draw);
       /*---(done)------------------------*/
    }
    DEBUG_TOPS  yLOG_break   ();
