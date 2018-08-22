@@ -118,15 +118,15 @@ static tUPDATE s_update_info [MAX_UPDATE] = {
    /*---(default)--------------------------*/
    { "every" , "every loop"       ,   0.00 },
    /*---(faster)---------------------------*/
-   { "1cs"   , "very fast"        ,   0.01 },
-   { "2cs"   , "faster"           ,   0.02 },
-   { "5cs"   , "fast"             ,   0.05 },
+   { "10ms"  , "very fast"        ,   0.01 },
+   { "20ms"  , "faster"           ,   0.02 },
+   { "50ms"  , "fast"             ,   0.05 },
    /*---(normal)---------------------------*/
-   { "10cs"  , "normal"           ,   0.10 },
+   { "100ms" , "normal"           ,   0.10 },
    /*---(slower)---------------------------*/
-   { "25cs"  , "slow"             ,   0.25 },
-   { "50cs"  , "slower"           ,   0.50 },
-   { "100cs" , "very slow"        ,   1.00 },
+   { "250ms" , "slow"             ,   0.25 },
+   { "500ms" , "slower"           ,   0.50 },
+   { "1s"    , "very slow"        ,   1.00 },
    /*---(end)------------------------------*/
    { "---"   , "end-of-list"      ,   0.00 },
    /*---(done)-----------------------------*/
@@ -152,6 +152,7 @@ static tDELAY s_delay_info [MAX_DELAY] = {
    { "1us"    , "millionth"          ,   0.000001 },
    { "10us"   , "ten millionths"     ,   0.00001  },
    { "100us"  , "hundred millionths" ,   0.0001   },
+   { "500us"  , "500 millionths"     ,   0.0005   },
    /*---(normal)----------------------------------*/
    { "1ms"    , "thousandth"         ,   0.001    },
    { "5ms"    , "five thousandths"   ,   0.005    },
@@ -442,18 +443,56 @@ static void      o___LOOPING_________________o (void) {;}
 char
 yvikeys_loop_init       (void)
 {
-   s_delay         = 0;
-   s_update        = 0;
-   myVIKEYS.delay  = 0.0;
-   myVIKEYS.secs   = 0;
-   myVIKEYS.nsec   = 0;
-   myVIKEYS.update = 0.0;
-   myVIKEYS.loops  = 1;
+   s_delay           = 0;
+   s_update          = 0;
+   myVIKEYS.delay    = 0.0;
+   myVIKEYS.secs     = 0;
+   myVIKEYS.nsec     = 0;
+   myVIKEYS.update   = 0.0;
+   myVIKEYS.loops    = 1;
+   myVIKEYS.blocking = ' ';
    yvikeys_loop_delay  ("");
    yvikeys_loop_update ("");
+   yVIKEYS_cmds_add ('c', "delay"       , ""    , "ss"   , yvikeys_loop_set     , "adjust the main loop wait and screen update timings"         );
    return 0;
 }
 
+char
+yvikeys_loop_getch      (void)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        x_ch        =    0;
+   XKeyEvent  *key_event;
+   int         the_bytes;
+   char        the_keys    [5];
+   /*---(opengl)-------------------------*/
+   if (myVIKEYS.env == YVIKEYS_OPENGL) {
+      if (myVIKEYS.blocking == 'y') {
+         XNextEvent(DISP, &EVNT);
+      }
+      else {
+         if (XPending(DISP))   XNextEvent(DISP, &EVNT);
+         else                  return 0;
+      }
+      switch(EVNT.type) {
+      case KeyPress:
+         key_event  = (XKeyEvent *) &EVNT;
+         the_bytes = XLookupString((XKeyEvent *) &EVNT, the_keys, 5, NULL, NULL);
+         if (the_bytes < 1) break;
+         /*---(handle)----------------*/
+         x_ch  = the_keys [0];
+         break;
+      }
+   }
+   /*---(ncurses)------------------------*/
+   else if (myVIKEYS.env == YVIKEYS_CURSES) {
+      if (myVIKEYS.blocking == 'y')   nodelay  (stdscr, FALSE);
+      else                            nodelay  (stdscr, TRUE );
+      x_ch = getch ();
+   }
+   /*---(complete)-----------------------*/
+   return x_ch;
+}
 
 char
 yvikeys__loop_calc   (void)
@@ -464,14 +503,16 @@ yvikeys__loop_calc   (void)
    myVIKEYS.secs  = 0;
    myVIKEYS.nsec  = 0;
    myVIKEYS.loops = 1;
-   /*---(same)---------------------------*/
-   if (s_delay == 0 && s_update == 0)   return 0;
+   /*---(keyboard only)------------------*/
+   if      (myVIKEYS.delay  == 0.0 && myVIKEYS.update == 0.0) {
+      x_base = myVIKEYS.delay;
+   }
    /*---(delay, no update)---------------*/
-   if (myVIKEYS.delay > 0.0 && myVIKEYS.update == 0.0) {
+   else if (myVIKEYS.delay  >  0.0 && myVIKEYS.update == 0.0) {
       x_base = myVIKEYS.delay;
    }
    /*---(update, no delay)---------------*/
-   else if (myVIKEYS.update > 0.0 && myVIKEYS.delay == 0.0) {
+   else if (myVIKEYS.update  > 0.0 && myVIKEYS.delay  == 0.0) {
       x_base = myVIKEYS.update;
    }
    /*---(fast enough)--------------------*/
@@ -490,6 +531,9 @@ yvikeys__loop_calc   (void)
       myVIKEYS.loops = trunc (myVIKEYS.update / myVIKEYS.delay);
    }
    if (myVIKEYS.loops == 0)  myVIKEYS.loops = 1;
+   /*---(flag blocking)------------------*/
+   if (x_base == 0.0)        myVIKEYS.blocking = 'y';
+   else                      myVIKEYS.blocking = '-';
    /*---(complete)-----------------------*/
    return 0;
 }
@@ -516,6 +560,9 @@ yvikeys_loop_update     (char *a_update)
    case  0  :
       x_index = s_update;
       rc = -1;
+      break;
+   case '0' :
+      x_index = 0;
       break;
    case '=' :
       x_index = s_update;
@@ -578,6 +625,9 @@ yvikeys_loop_delay      (char *a_delay)
       x_index = s_delay;
       rc = -1;
       break;
+   case '0' :
+      x_index = 0;
+      break;
    case '=' :
       x_index = s_delay;
       break;
@@ -616,6 +666,16 @@ yvikeys_loop_delay      (char *a_delay)
    return rc;
 }
 
+char
+yvikeys_loop_set        (char *a_delay, char *a_update)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rc          =    0;
+   if (rc == 0)  rc = yvikeys_loop_delay   (a_delay);
+   if (rc == 0)  rc = yvikeys_loop_update  (a_update);
+   return rc;
+}
+
 static long long s_loop_targ   = 0;
 static long long s_loop_used   = 0;
 static long long s_loop_rem    = 0;
@@ -632,10 +692,10 @@ static long long s_loop_dur    = 0;
 static long long x_used   = 0;
 static float     x_pct    = 0.0;
 
-static float     s_avg    = 0.0;
-static float     s_draw   = 0.0;
-static float     s_keys   = 0.0;
-static float     s_idle   = 0.0;
+static long      s_avg    = 0.0;
+static long      s_draw   = 0.0;
+static long      s_keys   = 0.0;
+static long      s_idle   = 0.0;
 
 char
 yvikeys_loop_beg        (void)
@@ -679,65 +739,68 @@ yvikeys_loop_sleep      (uchar a_key, char a_draw)
    /*> s_loop_miss  = s_loop_beg - s_loop_prev;                                       <*/
    /*---(calc run diffs)-----------------*/
    s_loop_targ  = (myVIKEYS.secs * NSEC) + myVIKEYS.nsec;
-   s_loop_used  = s_loop_end - s_loop_beg;
+   s_loop_used  = s_loop_end  - s_loop_beg;
    s_loop_rem   = s_loop_targ - s_loop_used;
+   if (myVIKEYS.blocking == 'y')  s_loop_rem = 0;
    /*> s_loop_prev  = s_loop_end;                                                     <*/
    /*---(for timer)----------------------*/
    x_pct    = (s_loop_used / (float) s_loop_targ) * 100.0;
    /*---(statistics)---------------------*/
    ++x_loops;
    x_total += s_loop_used;
-   s_avg    = ((x_total / (float) x_loops) / (float) s_loop_targ) * 100.0;
+   s_avg    = x_total / (float) x_loops;
    switch (x_type) {
    case 'g' :
       ++x_draws;
       x_draw += s_loop_used;
-      s_draw  = ((x_draw / (float) x_draws) / (float) s_loop_targ) * 100.0;
+      s_draw  = x_draw / (float) x_draws;
       break;
    case 'k' :
       ++x_keys;
       x_key  += s_loop_used;
-      s_keys  = ((x_key  / (float) x_keys ) / (float) s_loop_targ) * 100.0;
+      s_keys  = x_key  / (float) x_keys;
       break;
    default  :
       ++x_idles;
       x_idle += s_loop_used;
-      s_idle  = ((x_idle / (float) x_idles) / (float) s_loop_targ) * 100.0;
+      s_idle  = x_idle / (float) x_idles;
       break;
    }
    /*> s_avg     = x_total / x_loops;                                                 <*/
    /*---(sleeping)-----------------------*/
-   x_dur.tv_sec  = s_loop_rem / NSEC;
-   x_dur.tv_nsec = s_loop_rem % NSEC;
-   nanosleep      (&x_dur, NULL);
+   if (myVIKEYS.blocking != 'y') {
+      x_dur.tv_sec  = s_loop_rem / NSEC;
+      x_dur.tv_nsec = s_loop_rem % NSEC;
+      nanosleep      (&x_dur, NULL);
+   }
    /*---(complete)-----------------------*/
    return 0;
 }
 
 char       /*----: give current looping info ---------------------------------*/
-yvikeys_loop_status     (char *a_list)
+yvikeys_delay_status    (char *a_list)
 {
    /*---(locals)-----------+-----------+-*/
    char        rce         = -10;
    /*---(defenses)-----------------------*/
    --rce;  if (a_list  == NULL)  return rce;
    /*---(write status)-------------------*/
-   sprintf (a_list, "loop, %-5s = %8.6f, %1ds, %10dns, update %-5s = %5.3fs, %4d loop(s)",
+   sprintf (a_list, "delay, %-5s = %8.6f, %1ds, %10dns, update %-5s = %5.3fs, %4d loop(s), %c",
          s_delay_info [s_delay].terse, s_delay_info [s_delay].delay, myVIKEYS.secs, myVIKEYS.nsec,
-         s_update_info [s_update].terse, s_update_info [s_update].update, myVIKEYS.loops);
+         s_update_info [s_update].terse, s_update_info [s_update].update, myVIKEYS.loops, myVIKEYS.blocking);
    /*---(complete)-----------------------*/
    return 0;
 }
 
 char       /*----: give current looping info ---------------------------------*/
-yvikeys_graf_status     (char *a_list)
+yvikeys_main_status     (char *a_list)
 {
    /*---(locals)-----------+-----------+-*/
    char        rce         = -10;
    /*---(defenses)-----------------------*/
    --rce;  if (a_list  == NULL)  return rce;
    /*---(write status)-------------------*/
-   sprintf (a_list, "graf, %8lldt, %8lldr, %8lldu, %6.3ft, %6.3fd, %6.3fk, %6.3fi",
+   sprintf (a_list, "main, %8lldt, %8lldr, %8lldu, %6ldt, %6ldd, %6ldk, %6ldi",
          s_loop_targ, s_loop_rem, s_loop_used, s_avg, s_draw, s_keys, s_idle);
    /*---(complete)-----------------------*/
    return 0;
@@ -759,7 +822,7 @@ SCALE__unit                (char *a_question, char a_mark)
    strcpy  (yVIKEYS__unit_answer, "SCALE            : question not understood");
    /*---(questions)----------------------*/
    if      (strcmp (a_question, "delay"       )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_RECD, "SCALE delay      : %-5s = %8.6f, %1ds, %10dns", s_delay_info [s_delay].terse, s_delay_info [s_delay].delay, myVIKEYS.secs, myVIKEYS.nsec);
+      snprintf (yVIKEYS__unit_answer, LEN_RECD, "SCALE delay      : %-5s = %8.6f, %1ds, %10dns   %c", s_delay_info [s_delay].terse, s_delay_info [s_delay].delay, myVIKEYS.secs, myVIKEYS.nsec, myVIKEYS.blocking);
    }
    else if (strcmp (a_question, "update"      )   == 0) {
       snprintf (yVIKEYS__unit_answer, LEN_RECD, "SCALE update     : %-5s = %5.3f, %6d loop(s)", s_update_info [s_update].terse, s_update_info [s_update].update, myVIKEYS.loops);

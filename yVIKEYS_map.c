@@ -38,7 +38,7 @@ char   g_repeat    [LEN_DESC ]   = "123456789";
 char   g_search    [LEN_DESC ]   = "[<>]";
 
 
-static char *s_map_modes = ":/,\" vMVm' s=+-#F @qQ";
+static char *s_map_modes = ":/,\" vMVm' s=+-#F @qQG";
 
 
 
@@ -1833,7 +1833,14 @@ MAP_mode_changes        (char a_minor)
    char        rc          =   -1;
    char        t           [5];
    /*---(common modes)----------------*/
+   DEBUG_USER   yLOG_char    ("change"    , a_minor);
    switch (a_minor) {
+   case 'G'      :
+      DEBUG_USER   yLOG_note    ("entering visual selection history sub-mode");
+      MODE_enter  (MODE_GOD     );
+      rc = 0;
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      break;
    case ':'      :
       SOURCE_start   (":");
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
@@ -1978,6 +1985,7 @@ MAP_mode                (char a_major, char a_minor)
    DEBUG_USER   yLOG_char    ("a_major"   , a_major);
    DEBUG_USER   yLOG_char    ("a_minor"   , chrvisible (a_minor));
    /*---(defenses)-----------------------*/
+   DEBUG_USER   yLOG_note    ("fucking testing");
    DEBUG_USER   yLOG_char    ("mode"      , MODE_curr ());
    --rce;  if (MODE_not (MODE_MAP    )) {
       DEBUG_USER   yLOG_note    ("not the correct mode");
@@ -1993,26 +2001,32 @@ MAP_mode                (char a_major, char a_minor)
    }
    /*---(major mode changes)-------------*/
    if (a_minor == G_KEY_RETURN) {
+      DEBUG_USER   yLOG_note    ("enter to begin input");
       SOURCE_start ("¦");
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return 0;
    }
    if (a_minor == G_KEY_ESCAPE) {
+      DEBUG_USER   yLOG_note    ("escape to clear selection");
       VISU_clear ();
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return 0;
    }
    /*---(single key)---------------------*/
+   DEBUG_USER   yLOG_note    ("review single keys");
    --rce;
    if (a_major == ' ') {
+      DEBUG_USER   yLOG_note    ("no/empty major");
       /*---(repeat)----------------------*/
       if (strchr (g_repeat, a_minor) != 0) {
+         DEBUG_USER   yLOG_note    ("repeating");
          MODE_enter  (UMOD_REPEAT);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return a_minor;
       }
       /*---(multikey prefixes)-----------*/
       if (s_live == VISU_NOT && strchr (g_multimap , a_minor) != 0) {
+         DEBUG_USER   yLOG_note    ("prefix of multimap keystring");
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return a_minor;
       }
@@ -2082,6 +2096,7 @@ MAP_mode                (char a_major, char a_minor)
       }
       /*---(mode changes)----------------*/
       if (strchr (s_map_modes, a_minor) != 0) {
+         DEBUG_USER   yLOG_note    ("mode changes");
          rc = MAP_mode_changes (a_minor);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return rc;
@@ -2130,6 +2145,7 @@ MAP_mode                (char a_major, char a_minor)
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return rc;
       }
+      DEBUG_USER   yLOG_note    ("no matches found");
    }
    /*---(goto family)--------------------*/
    if (a_major == 'g') {

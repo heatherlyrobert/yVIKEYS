@@ -9,13 +9,20 @@ yVIKEYS is a standardized, fullsome, vi/vim-like, purely keyboard-centric,
 modal interface and application framework to provide wicked, powerful, and
 high-end features to ALL my applications.
 
-.SH PREPRARATION...
+.SH PHASE I: minimal setup
+only five function calls are required to bring up a framework environment
+and functioning event loop.
 
-.SS STAGE 0
+.B PROG_init...
+   -- yVIKEYS_init to initialize library
 
-.SS PROG_init.  
-before any argument handling, the yVIKEYS library should be initialized with a
-call to yVIKEYS_init.
+.B PROG_final...
+   -- yVIKEYS_view_config to establish main window and sizing
+   -- yVIKEYS_cmds_direct to set the color palette
+   -- yVIKEYS_view_colors to assign colors to areas
+
+.B main...
+   -- yVIKEYS_main instead of a custom event loop
 
 
 

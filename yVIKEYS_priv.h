@@ -2,15 +2,6 @@
 
 
 
-/*---(headers)---------------------------*/
-#include    <yX11.h>               /* heatherly program logger                */
-#include    <yLOG.h>               /* heatherly program logger                */
-#include    <yURG.h>               /* heatherly program logger                */
-#include    <ySTR.h>               /* heatherly program logger                */
-#include    <yFONT.h>              /* heatherly program logger                */
-#include    <yCOLOR.h>             /* heatherly color library                 */
-
-
 /*===[[ HEADERS ]]========================================*/
 /*---(ansi-c standard)-------------------*/
 #include    <stdio.h>             /* clibc  standard input/output             */
@@ -20,11 +11,18 @@
 #include    <unistd.h>            /* clibc  linux/unix standard environment   */
 #include    <time.h>              /* clibc  time related functions            */
 #include    <math.h>              /* clibc  mathematical functions            */
-
 /*---(posix standard)--------------------*/
 #include    <GL/gl.h>             /* opengl standard primary header           */
 #include    <GL/glx.h>            /* opengl standard X11 integration          */
 #include    <ncurses.h>           /* CURSES mvprintw, refresh, getch, ...     */
+/*---(custom)----------------------------*/
+#include    <yURG.h>               /* heatherly urgent processing             */
+#include    <yLOG.h>               /* heatherly program logging               */
+#include    <yX11.h>               /* heatherly xlib/glx setup/teardown       */
+#include    <ySTR.h>               /* heatherly string processing             */
+#include    <yFONT.h>              /* heatherly texture mapped fonts          */
+#include    <yCOLOR.h>             /* heatherly opengl color handling         */
+#include    <yGOD.h>               /* heatherly opengl godview                */
 
 
 
@@ -33,10 +31,11 @@
 #define yVIKEYS_PRIV yes
 
 
+
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "1.0q"
-#define YVIKEYS_VER_TXT   "timing and loop status lines working well"
+#define YVIKEYS_VER_NUM   "1.0h"
+#define YVIKEYS_VER_TXT   "god mode inserted and working decently"
 
 
 
@@ -87,11 +86,12 @@ struct cSHARED {
    char        redraw;
    char        repeating;                   /* note for repeating actions     */
    /*---(main loop)-------*/
-   float       delay;
-   float       update;
-   int         secs;
-   long        nsec;
-   int         loops;
+   float       delay;                       /* requested loop sleep timing    */
+   float       update;                      /* requested screen update timing */
+   int         secs;                        /* loop sleep second part         */
+   long        nsec;                        /* loop sleep nanosec part        */
+   int         loops;                       /* loops before screen update     */
+   char        blocking;                    /* keyboard input blocks          */
    /*---(marks)-----------*/
    char        mark_show;      /* show temporary marks (y/n)                    */
    char        info_win;
@@ -231,6 +231,10 @@ int         REPEAT_count            (void);
 int         REPEAT_use              (void);
 char        REPEAT_not              (void);
 char        FORMAT_smode            (int a_major, int a_minor);
+
+
+char        GOD_mode                (char a_major, char a_minor);
+
 
 char        MAP_locator             (char *a_label, int *a_x, int *a_y, int *a_z);
 char        MAP_addresser           (char *a_label, int  a_x, int  a_y, int  a_z);
@@ -376,12 +380,14 @@ char*       SRCH__unit              (char *a_question, char a_index);
 
 
 char        yvikeys_loop_init       (void);
+char        yvikeys_loop_getch      (void);
 char        yvikeys_loop_delay      (char *a_delay);
 char        yvikeys_loop_update     (char *a_update);
 char        yvikeys_loop_beg        (void);
 char        yvikeys_loop_sleep      (uchar a_key, char a_draw);
-char        yvikeys_loop_status     (char *a_list);
-char        yvikeys_graf_status     (char *a_list);
+char        yvikeys_delay_status    (char *a_list);
+char        yvikeys_main_status     (char *a_list);
+char        yvikeys_loop_set        (char *a_delay, char *a_update);
 char*       SCALE__unit             (char *a_question, char a_mark);
 
 

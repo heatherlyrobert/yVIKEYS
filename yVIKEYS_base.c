@@ -438,7 +438,7 @@ yVIKEYS_main_handle     (uchar a_key)
    while (1) {
       /*---(handle keystroke)------------*/
       switch (MODE_curr ()) {
-      case MODE_GOD      : rc = BASE__________stub    (x_major , x_key);  break;
+      case MODE_GOD      : rc = GOD_mode              (x_major , x_key);  break;
       case MODE_MAP      : rc = MAP_mode              (x_major , x_key);  break;
       case MODE_SOURCE   : rc = SOURCE_mode           (x_major , x_key);  break;
       case UMOD_SRC_INPT : rc = SRC_INPT_umode        (x_major , x_key);  break;
@@ -583,7 +583,7 @@ yVIKEYS_main_string  (uchar *a_keys)
  *> }                                                                                                                              <*/
 
 char         /*-> handle main loop for ncurses -------[ ------ [gn.842.232.99]*/ /*-[01.0000.000.!]-*/ /*-[--.---.---.--]-*/
-yVIKEYS_main_curses     (char *a_delay, char *a_update)
+yVIKEYS_main            (char *a_delay, char *a_update, void *a_altinput ())
 {
    /*---(locals)-----------+-----------+-*/
    int         x_loop      = 0;
@@ -591,22 +591,28 @@ yVIKEYS_main_curses     (char *a_delay, char *a_update)
    uchar       x_key       = ' ';      /* current keystroke                   */
    char        rc          = 0;
    char        x_draw      = '-';
-   /*---(for timer)------------------------*/
-   /*---(main-loop)----------------------*/
+   /*---(prepare)------------------------*/
    DEBUG_TOPS   yLOG_note    ("entering main processing loop");
    DEBUG_TOPS   yLOG_break   ();
    yvikeys_loop_delay   (a_delay);
    yvikeys_loop_update  (a_update);
+   yVIKEYS_view_all (0.0);
+   /*---(main-loop)----------------------*/
    while (1) {
-      x_ch = getch ();
+      /*---(get input)-------------------*/
+      x_ch = yvikeys_loop_getch ();
       yvikeys_loop_beg   ();
+      /*---(specialty actions)-----------*/
       if (x_ch == KEY_RESIZE)  yVIKEYS_view_resize (0, 0, 0);
       if (x_ch < 0)  x_key = 0;
       else           x_key = x_ch;
+      /*---(keyboard input)--------------*/
       DEBUG_GRAF  yLOG_value   ("x_key"     , x_key);
       x_key = yVIKEYS_main_input  (RUN_USER, x_key);
       yVIKEYS_main_handle (x_key);
       if (yVIKEYS_quit ())  break;
+      /*---(alternate input)-------------*/
+      if (a_altinput != NULL)   a_altinput ();
       /*---(showing)---------------------*/
       ++x_loop;
       x_draw = '-';

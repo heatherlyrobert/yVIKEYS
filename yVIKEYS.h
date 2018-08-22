@@ -211,8 +211,7 @@ char        yVIKEYS_wrap              (void);
 uchar       yVIKEYS_main_input        (char  a_runmode, uchar a_key);
 uchar       yVIKEYS_main_handle       (uchar a_key);
 uchar       yVIKEYS_main_string       (uchar *a_keys);
-char        yVIKEYS_main_opengl       (float a_delay);
-char        yVIKEYS_main_curses       (char *a_delay, char *a_update);
+char        yVIKEYS_main              (char *a_delay, char *a_update, void *a_altinput ());
 
 char*       yVIKEYS__unit             (char *a_question, int a_num);
 

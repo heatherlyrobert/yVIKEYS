@@ -194,8 +194,8 @@ tOPTION  s_options [MAX_OPTION ] = {
    { YVIKEYS_STATUS  , "visual"       , VISU_status         , "visual selection in map"     },
    { YVIKEYS_STATUS  , "file"         , FILE_status         , "file, control, and version"  },
    { YVIKEYS_STATUS  , "regs"         , yvikeys_regs_status , "current register information"},
-   { YVIKEYS_STATUS  , "loop"         , yvikeys_loop_status , "main loop timing settings"   },
-   { YVIKEYS_STATUS  , "graf"         , yvikeys_graf_status , "main loop timing results"    },
+   { YVIKEYS_STATUS  , "delay"        , yvikeys_delay_status, "main loop timing settings"   },
+   { YVIKEYS_STATUS  , "main"         , yvikeys_main_status , "main loop timing results"    },
    { NULL            , ""             , NULL                , ""                            },
 };
 static int  s_noption  = 0;
@@ -1118,7 +1118,8 @@ VIEW__init_opengl       (char *a_title)
    yX11_start (a_title, s_orig_wide, s_orig_tall, YX_FOCUSABLE, YX_FIXED, '-');
    /*---(color)--------------------------*/
    DEBUG_GRAF   yLOG_note    ("clearing");
-   glClearColor    (1.0f, 1.0f, 1.0f, 1.0f);
+   /*> glClearColor    (1.0f, 1.0f, 1.0f, 1.0f);                                      <*/
+   glClearColor    (0.3f, 0.3f, 0.3f, 1.0f);
    glClearDepth    (1.0f);
    /*---(textures)-----------------------*/
    DEBUG_GRAF   yLOG_note    ("textures");
@@ -2099,21 +2100,24 @@ VIEW__opengl             (char a)
       glViewport      (s_parts [a].left, s_parts [a].bott, s_parts [a].wide, s_parts [a].tall);
       glMatrixMode    (GL_PROJECTION);
       glLoadIdentity  ();
-      glOrtho         (s_parts [a].xmin, x_max, s_parts [a].ymin, y_max, s_parts [a].zmin, z_max);
+      if (s_parts [a].type  == YVIKEYS_FLAT )  glOrtho         (s_parts [a].xmin, x_max, s_parts [a].ymin, y_max, s_parts [a].zmin, z_max);
+      else                                     gluPerspective  (45.0f, (GLfloat) s_parts [a].wide / (GLfloat) s_parts [a].tall, 0.01f, 4000.0f);
       glMatrixMode    (GL_MODELVIEW);
       /*---(background)---------------------*/
-      DEBUG_GRAF   yLOG_note    ("draw background");
-      glPushMatrix    (); {
-         yVIKEYS_view_color (s_parts [a].color, 1.0);
-         if (s_parts [a].abbr == YVIKEYS_VERSION && yURG_debugmode () == 'y')  yVIKEYS_view_color_adj (s_parts [a].color, YCOLOR_ACC, 1.0);
-         if (s_parts [a].abbr == YVIKEYS_STATUS  && yVIKEYS_error  ())         yVIKEYS_view_color_adj (s_parts [a].color, YCOLOR_ACC, 1.0);
-         glBegin         (GL_POLYGON); {
-            glVertex3f  (s_parts [a].xmin, y_max           , -100.0f);
-            glVertex3f  (x_max           , y_max           , -100.0f);
-            glVertex3f  (x_max           , s_parts [a].ymin, -100.0f);
-            glVertex3f  (s_parts [a].xmin, s_parts [a].ymin, -100.0f);
-         } glEnd   ();
-      } glPopMatrix   ();
+      if (s_parts [a].type  == YVIKEYS_FLAT ) {
+         DEBUG_GRAF   yLOG_note    ("draw background");
+         glPushMatrix    (); {
+            yVIKEYS_view_color (s_parts [a].color, 1.0);
+            if (s_parts [a].abbr == YVIKEYS_VERSION && yURG_debugmode () == 'y')  yVIKEYS_view_color_adj (s_parts [a].color, YCOLOR_ACC, 1.0);
+            if (s_parts [a].abbr == YVIKEYS_STATUS  && yVIKEYS_error  ())         yVIKEYS_view_color_adj (s_parts [a].color, YCOLOR_ACC, 1.0);
+            glBegin         (GL_POLYGON); {
+               glVertex3f  (s_parts [a].xmin, y_max           , -100.0f);
+               glVertex3f  (x_max           , y_max           , -100.0f);
+               glVertex3f  (x_max           , s_parts [a].ymin, -100.0f);
+               glVertex3f  (s_parts [a].xmin, s_parts [a].ymin, -100.0f);
+            } glEnd   ();
+         } glPopMatrix   ();
+      }
    } else if (myVIKEYS.env == YVIKEYS_CURSES) {
       ;;  /* not sure if i need to clear yet  */
    }
@@ -2186,7 +2190,8 @@ yVIKEYS_view_all         (float a_mag)
          myVIKEYS.font_scale = yFONT_width (myVIKEYS.font, myVIKEYS.point);
          DEBUG_GRAF   yLOG_double  ("font_scale", myVIKEYS.font_scale);
       }
-      glClearColor    (1.0f, 1.0f, 1.0f, 1.0f);
+      /*> glClearColor    (1.0f, 1.0f, 1.0f, 1.0f);                                   <*/
+      glClearColor    (0.3f, 0.3f, 0.3f, 1.0f);
       glClear         (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       break;
    case YVIKEYS_CURSES :
