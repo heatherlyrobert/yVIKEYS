@@ -2190,8 +2190,9 @@ yVIKEYS_view_all         (float a_mag)
          myVIKEYS.font_scale = yFONT_width (myVIKEYS.font, myVIKEYS.point);
          DEBUG_GRAF   yLOG_double  ("font_scale", myVIKEYS.font_scale);
       }
+      yCOLOR_set_clear (YCOLOR_BAS_MED);
       /*> glClearColor    (1.0f, 1.0f, 1.0f, 1.0f);                                   <*/
-      glClearColor    (0.3f, 0.3f, 0.3f, 1.0f);
+      /*> glClearColor    (0.3f, 0.3f, 0.3f, 1.0f);                                   <*/
       glClear         (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       break;
    case YVIKEYS_CURSES :

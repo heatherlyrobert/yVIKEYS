@@ -34,8 +34,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "1.0h"
-#define YVIKEYS_VER_TXT   "god mode inserted and working decently"
+#define YVIKEYS_VER_NUM   "1.0i"
+#define YVIKEYS_VER_TXT   "fix main as 3d clear color setting"
 
 
 
