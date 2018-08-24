@@ -219,6 +219,7 @@ char*       yVIKEYS__unit             (char *a_question, int a_num);
 char        yVIKEYS_view_font         (cchar  a_fixed);
 char        yVIKEYS_view_config       (cchar *a_title, cchar *a_ver, cchar a_env, cint a_wide, cint a_tall, cint a_alt);
 char        yVIKEYS_view_resize       (cint   a_wide , cint   a_tall, cint a_alt);
+char        yVIKEYS_view_disable      (cchar  a_part);
 char        yVIKEYS_view_setup        (cchar  a_part , cchar  a_type, cchar a_anchor, cint a_xmin, cint a_xlen, cint a_ymin, cint a_ylen, cint a_zmin, cint z_len, cchar a_color, void *a_drawer);
 char        yVIKEYS_view_moderate     (cchar  a_part , cchar  a_type, cchar a_anchor, cchar a_color, void *a_drawer);
 char        yVIKEYS_view_simple       (cchar  a_part , cchar  a_color, void *a_drawer);

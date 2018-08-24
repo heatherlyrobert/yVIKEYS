@@ -972,6 +972,7 @@ VIEW__switch             (char *a_name, char *a_opt)
    char        i           =    0;
    char        n           =   -1;
    char        a           =   -1;
+   char        x_good      =  '-';
    /*---(header)-------------------------*/
    DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
@@ -992,9 +993,13 @@ VIEW__switch             (char *a_name, char *a_opt)
    /*---(set the flag)-------------------*/
    DEBUG_GRAF   yLOG_char    ("current"   , s_parts [n].on);
    x_on = s_parts [n].on;
-   if      (strcmp (a_opt, "hide") == 0)  s_parts [n].on = '-';
-   else if (strcmp (a_opt, "show") == 0)  s_parts [n].on = 'y';
-   else {
+   if      (strcmp (a_opt, "hide") == 0) {
+      s_parts [n].on = '-';
+      x_good = 'y';
+   } else if (strcmp (a_opt, "show") == 0) {
+      s_parts [n].on = 'y';
+      x_good = 'y';
+   } else {
       for (i = 0; i < s_noption; ++i) {
          if (s_options [i].part == NULL)                   break;
          if (s_options [i].part != s_parts [n].abbr)       continue;
@@ -1002,8 +1007,14 @@ VIEW__switch             (char *a_name, char *a_opt)
          if (strcmp (s_options [i].opt , a_opt ) != NULL)  continue;
          s_parts [n].on     = 'y';
          s_parts [n].source = s_options [i].source;
+         x_good = 'y';
          break;
       }
+   }
+   DEBUG_GRAF   yLOG_char    ("x_good"    , x_good);
+   --rce;  if (x_good != 'y') {
+      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
    }
    DEBUG_GRAF   yLOG_char    ("new"       , s_parts [n].on);
    DEBUG_GRAF   yLOG_point   ("source"    , s_parts [n].source);
@@ -1177,6 +1188,33 @@ VIEW__init_curses       (void)
    start_color ();
    use_default_colors();
    yCOLOR_curs_init  ();
+   /*---(complete)-----------------------*/
+   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char
+yVIKEYS_view_disable    (cchar a_part)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        n           =    0;
+   /*---(header)-------------------------*/
+   DEBUG_PROG   yLOG_enter   (__FUNCTION__);
+   /*---(identify part)------------------*/
+   DEBUG_PROG   yLOG_char    ("a_part"    , a_part);
+   n = VIEW__abbr (a_part);
+   DEBUG_PROG   yLOG_value   ("n"         , n);
+   if (n < 0) {
+      DEBUG_PROG   yLOG_note    ("deal with a missing element");
+      DEBUG_PROG   yLOG_exit    (__FUNCTION__);
+      return n;
+   }
+   DEBUG_PROG   yLOG_info    ("name"      , s_parts [n].name);
+   /*---(perspective)--------------------*/
+   s_parts [n].type = YVIKEYS_DISABLE;
+   DEBUG_PROG   yLOG_char    ("type"      , s_parts [n].type);
+   s_parts [n].on   = YVIKEYS_DISABLE;
+   DEBUG_PROG   yLOG_char    ("on"        , s_parts [n].on);
    /*---(complete)-----------------------*/
    DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -2258,6 +2296,10 @@ VIEW__unit              (char *a_question, char a_index)
    if      (strcmp (a_question, "size"           )   == 0) {
       n    = VIEW__abbr   (a_index);
       snprintf (yVIKEYS__unit_answer, LEN_STR, "VIEW %-12.12s: on %c, left %4d, wide %4d, bott %4d, tall %4d", s_parts [n].name, s_parts [n].on, s_parts [n].left, s_parts [n].wide, s_parts [n].bott, s_parts [n].tall);
+   }
+   if      (strcmp (a_question, "active"         )   == 0) {
+      n    = VIEW__abbr   (a_index);
+      snprintf (yVIKEYS__unit_answer, LEN_STR, "VIEW active      : %-12.12s, on %c", s_parts [n].name, s_parts [n].on);
    }
    /*---(complete)-----------------------*/
    return yVIKEYS__unit_answer;

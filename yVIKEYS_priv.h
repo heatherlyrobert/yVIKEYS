@@ -34,8 +34,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "1.0i"
-#define YVIKEYS_VER_TXT   "fix main as 3d clear color setting"
+#define YVIKEYS_VER_NUM   "1.0j"
+#define YVIKEYS_VER_TXT   "created a disable view function and unit test for it. success."
 
 
 
@@ -171,6 +171,7 @@ char        VIEW__reset             (void);
 char        VIEW__find              (cchar *a_name);
 char        VIEW__abbr              (cchar  a_abbr);
 char        VIEW_wrap                 (void);
+char        VIEW__switch             (char *a_name, char *a_opt);
 
 char        VIEW__widths            (cint a_wide, cint a_alt);
 char        VIEW__heights           (cint a_tall);
