@@ -34,8 +34,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "1.0j"
-#define YVIKEYS_VER_TXT   "created a disable view function and unit test for it. success."
+#define YVIKEYS_VER_NUM   "1.0k"
+#define YVIKEYS_VER_TXT   "updated command line to include enable/disable with hide/show"
 
 
 

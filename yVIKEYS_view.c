@@ -263,7 +263,7 @@ VIEW__reset              (void)
    DEBUG_GRAF_M yLOG_enter   (__FUNCTION__);
    DEBUG_GRAF_M yLOG_value   ("count"     , s_npart);
    for (n = 0; n < s_npart; ++n) {
-      s_parts [n].on   = '-';
+      if (s_parts [n].on   != YVIKEYS_DISABLE)  s_parts [n].on   = '-';
       if (s_parts [n].abbr == YVIKEYS_MAIN   )  s_parts [n].on   = 'y';
       if (s_parts [n].abbr == YVIKEYS_FLOAT  )  s_parts [n].on   = 'y';
       if (s_parts [n].abbr == YVIKEYS_HISTORY)  s_parts [n].on   = 'y';
@@ -981,23 +981,31 @@ VIEW__switch             (char *a_name, char *a_opt)
       DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   --rce;  if (s_parts [n].type == YVIKEYS_DISABLE) {
-      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
    --rce;  if (a_opt == NULL) {
       DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    DEBUG_GRAF   yLOG_info    ("a_opt"     , a_opt);
+   --rce;  if (s_parts [n].on == YVIKEYS_DISABLE) {
+      if (strcmp (a_opt, "enable" ) != 0) {
+         DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
+         return rce;
+      }
+   }
    /*---(set the flag)-------------------*/
    DEBUG_GRAF   yLOG_char    ("current"   , s_parts [n].on);
    x_on = s_parts [n].on;
-   if      (strcmp (a_opt, "hide") == 0) {
+   if        (strcmp (a_opt, "hide"   ) == 0) {
       s_parts [n].on = '-';
       x_good = 'y';
-   } else if (strcmp (a_opt, "show") == 0) {
+   } else if (strcmp (a_opt, "show"   ) == 0) {
       s_parts [n].on = 'y';
+      x_good = 'y';
+   } else if (strcmp (a_opt, "enable" ) == 0) {
+      s_parts [n].on = 'y';
+      x_good = 'y';
+   } else if (strcmp (a_opt, "disable") == 0) {
+      s_parts [n].on = 'X';
       x_good = 'y';
    } else {
       for (i = 0; i < s_noption; ++i) {
@@ -1076,8 +1084,12 @@ VIEW__layout             (char *a_name)
       if (s_layouts [n].parts [i] != '-') {
          p = VIEW__abbr (s_layouts [n].parts [i]);
          if (p >= 0) {
-            DEBUG_GRAF   yLOG_info    ("turn on"   , s_parts [p].name);
-            s_parts [p].on = 'y';
+            if (s_parts [p].on == YVIKEYS_DISABLE) {
+               DEBUG_GRAF   yLOG_info    ("disabled"  , s_parts [p].name);
+            } else {
+               DEBUG_GRAF   yLOG_info    ("turn on"   , s_parts [p].name);
+               s_parts [p].on = 'y';
+            }
          }
       }
       ++i;
@@ -1188,33 +1200,6 @@ VIEW__init_curses       (void)
    start_color ();
    use_default_colors();
    yCOLOR_curs_init  ();
-   /*---(complete)-----------------------*/
-   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
-   return 0;
-}
-
-char
-yVIKEYS_view_disable    (cchar a_part)
-{
-   /*---(locals)-----------+-----+-----+-*/
-   char        n           =    0;
-   /*---(header)-------------------------*/
-   DEBUG_PROG   yLOG_enter   (__FUNCTION__);
-   /*---(identify part)------------------*/
-   DEBUG_PROG   yLOG_char    ("a_part"    , a_part);
-   n = VIEW__abbr (a_part);
-   DEBUG_PROG   yLOG_value   ("n"         , n);
-   if (n < 0) {
-      DEBUG_PROG   yLOG_note    ("deal with a missing element");
-      DEBUG_PROG   yLOG_exit    (__FUNCTION__);
-      return n;
-   }
-   DEBUG_PROG   yLOG_info    ("name"      , s_parts [n].name);
-   /*---(perspective)--------------------*/
-   s_parts [n].type = YVIKEYS_DISABLE;
-   DEBUG_PROG   yLOG_char    ("type"      , s_parts [n].type);
-   s_parts [n].on   = YVIKEYS_DISABLE;
-   DEBUG_PROG   yLOG_char    ("on"        , s_parts [n].on);
    /*---(complete)-----------------------*/
    DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -1393,7 +1378,6 @@ yVIKEYS_view_moderate      (cchar a_part, cchar a_type, cchar a_anchor, cchar a_
    /*---(perspective)--------------------*/
    DEBUG_PROG   yLOG_char    ("a_type"    , a_type);
    if      (a_type == '-')            ;
-   else if (a_type == YVIKEYS_DISABLE) s_parts [n].type = YVIKEYS_DISABLE;
    else if (a_type == YVIKEYS_DEPTH)   s_parts [n].type = YVIKEYS_DEPTH;
    else                                s_parts [n].type = YVIKEYS_FLAT;
    DEBUG_PROG   yLOG_char    ("type"      , s_parts [n].type);
@@ -1528,7 +1512,6 @@ yVIKEYS_view_setup         (cchar a_part, cchar a_type, cchar a_anchor, cint a_x
    /*---(perspective)--------------------*/
    DEBUG_PROG   yLOG_char    ("a_type"    , a_type);
    if      (a_type == '-')            ;
-   else if (a_type == YVIKEYS_DISABLE) s_parts [n].type = YVIKEYS_DISABLE;
    else if (a_type == YVIKEYS_DEPTH)   s_parts [n].type = YVIKEYS_DEPTH;
    else                                s_parts [n].type = YVIKEYS_FLAT;
    DEBUG_PROG   yLOG_char    ("type"      , s_parts [n].type);
@@ -2247,8 +2230,7 @@ yVIKEYS_view_all         (float a_mag)
       DEBUG_GRAF   yLOG_value   ("tall"      , s_parts [n].tall);
       DEBUG_GRAF   yLOG_point   ("drawer"    , s_parts [n].drawer);
       if (strchr (OWN_SETUP, s_parts [n].own) == NULL)  continue;
-      if (s_parts [n].on   == '-')                      continue;
-      if (s_parts [n].type == YVIKEYS_DISABLE)          continue;
+      if (s_parts [n].on   != 'y')                      continue;
       rc = VIEW__opengl (n);
       if (s_parts [n].drawer != NULL)  s_parts [n].drawer ();
    }
@@ -2263,8 +2245,7 @@ yVIKEYS_view_all         (float a_mag)
       DEBUG_GRAF   yLOG_value   ("tall"      , s_parts [n].tall);
       DEBUG_GRAF   yLOG_point   ("drawer"    , s_parts [n].drawer);
       if (s_parts [n].own    != OWN_OVERLAY)              continue;
-      if (s_parts [n].on     == '-')                      continue;
-      if (s_parts [n].type   == YVIKEYS_DISABLE)          continue;
+      if (s_parts [n].on     != 'y')                      continue;
       if (s_parts [n].drawer != NULL)  s_parts [n].drawer ();
       if (s_parts [n].source != NULL)  s_parts [n].source (NULL);
    }
