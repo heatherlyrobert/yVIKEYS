@@ -34,8 +34,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "1.0k"
-#define YVIKEYS_VER_TXT   "updated command line to include enable/disable with hide/show"
+#define YVIKEYS_VER_NUM   "1.0l"
+#define YVIKEYS_VER_TXT   "tweaks for ticker/progress display in arachne"
 
 
 

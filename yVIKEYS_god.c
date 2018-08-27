@@ -44,7 +44,7 @@ GOD_mode           (char a_major, char a_minor)
       /* crab  /horz  */  case 'h': case 'l': case 'H': case 'L':
       /* boom  /vert  */  case 'j': case 'k': case 'J': case 'K':
       /* dolly /zoom  */  case 'i': case 'I': case 'o': case 'O':
-      /* x-axis/pitch */  case 'p': case 'P': case 'a': case 'A':
+      /* x-axis/pitch */  case 'p': case 'P': case 'v': case 'V':
       /* y-axis/yaw   */  case 'y': case 'Y': case 't': case 'T':
       /* z-axis/roll  */  case 'r': case 'R': case 'w': case 'W':
          yGOD_key (a_minor);

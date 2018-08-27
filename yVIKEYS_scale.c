@@ -247,7 +247,7 @@ yVIKEYS_scale_desc (char *a_text)
       return rce;
    }
    /*---(create text line)---------------*/
-   snprintf (a_text, LEN_STR, "%s (%s) resolution", s_scale_info [s_scale].desc, s_scale_info [s_scale].terse);
+   snprintf (a_text, LEN_STR, "%s", s_scale_info [s_scale].desc);
    /*---(complete)-----------------------*/
    return 0;
 }
