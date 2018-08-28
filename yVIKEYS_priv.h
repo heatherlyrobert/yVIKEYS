@@ -34,8 +34,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "1.0l"
-#define YVIKEYS_VER_TXT   "tweaks for ticker/progress display in arachne"
+#define YVIKEYS_VER_NUM   "1.0m"
+#define YVIKEYS_VER_TXT   "framework (enter/leave) progress mode in place"
 
 
 
@@ -92,6 +92,14 @@ struct cSHARED {
    long        nsec;                        /* loop sleep nanosec part        */
    int         loops;                       /* loops before screen update     */
    char        blocking;                    /* keyboard input blocks          */
+   /*---(progress)--------*/
+   double      p_inc;                       /* increment for h,l              */
+   double      p_waitns;
+   char        p_curpos;                    /* position of current bar (shcle)*/
+   double      p_cursec;                    /* current timeline seconds       */
+   double      p_endsec;                    /* end second for timeline play   */
+   double      p_len;                       /* length of script               */
+   char        p_debug; 
    /*---(marks)-----------*/
    char        mark_show;      /* show temporary marks (y/n)                    */
    char        info_win;
@@ -235,6 +243,7 @@ char        FORMAT_smode            (int a_major, int a_minor);
 
 
 char        GOD_mode                (char a_major, char a_minor);
+char        PROGRESS_mode           (char a_major, char a_minor);
 
 
 char        MAP_locator             (char *a_label, int *a_x, int *a_y, int *a_z);

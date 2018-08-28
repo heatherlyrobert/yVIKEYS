@@ -1833,32 +1833,28 @@ MAP_mode_changes        (char a_minor)
    char        rc          =   -1;
    char        t           [5];
    /*---(common modes)----------------*/
+   DEBUG_USER   yLOG_enter   (__FUNCTION__);
    DEBUG_USER   yLOG_char    ("change"    , a_minor);
    switch (a_minor) {
    case 'G'      :
       DEBUG_USER   yLOG_note    ("entering visual selection history sub-mode");
       MODE_enter  (MODE_GOD     );
       rc = 0;
-      DEBUG_USER   yLOG_exit    (__FUNCTION__);
       break;
    case ':'      :
       SOURCE_start   (":");
-      DEBUG_USER   yLOG_exit    (__FUNCTION__);
       rc = 'a';
       break;
    case '/'      :
       SOURCE_start   ("/");
-      DEBUG_USER   yLOG_exit    (__FUNCTION__);
       rc = 'a';
       break;
    case ','      :
       MODE_enter  (SMOD_BUFFER  );
-      DEBUG_USER   yLOG_exit    (__FUNCTION__);
       rc = a_minor;
       break;
    case '"'      :
       MODE_enter  (SMOD_MAP_REG );
-      DEBUG_USER   yLOG_exit    (__FUNCTION__);
       rc = a_minor;
       break;
    case 'E'      :
@@ -1867,7 +1863,11 @@ MAP_mode_changes        (char a_minor)
        *> rc = a_minor;                                                               <*/
       break;
    }
-   if (rc >= 0)  return rc;
+   if (rc >= 0) {
+      DEBUG_USER   yLOG_value   ("rc"        , rc);
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return rc;
+   }
    /*---(selecting and marking)-------*/
    switch (a_minor) {
    case 'v'      :
@@ -1886,7 +1886,11 @@ MAP_mode_changes        (char a_minor)
       if (rc >= 0)  rc = a_minor;
       break;
    }
-   if (rc >= 0)  return rc;
+   if (rc >= 0) {
+      DEBUG_USER   yLOG_value   ("rc"        , rc);
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return rc;
+   }
    /*---(source entry)----------------*/
    switch (a_minor) {
    case 's'      : case '='      : case '+'      : case '-'      : case '#'      :
@@ -1900,7 +1904,11 @@ MAP_mode_changes        (char a_minor)
       rc = MODE_enter  (XMOD_FORMAT  );
       break;
    }
-   if (rc >= 0)  return rc;
+   if (rc >= 0) {
+      DEBUG_USER   yLOG_value   ("rc"        , rc);
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return rc;
+   }
    /*---(macros)----------------------*/
    switch (a_minor) {
    case '@'      :
@@ -1925,8 +1933,13 @@ MAP_mode_changes        (char a_minor)
       rc = MACRO_reset ();
       break;
    }
-   if (rc >= 0)  return rc;
+   if (rc >= 0) {
+      DEBUG_USER   yLOG_value   ("rc"        , rc);
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return rc;
+   }
    /*---(complete)-----------------------*/
+   DEBUG_USER   yLOG_exitr   (__FUNCTION__, rc);
    return rc;
 }
 

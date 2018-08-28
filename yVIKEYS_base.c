@@ -439,6 +439,7 @@ yVIKEYS_main_handle     (uchar a_key)
       /*---(handle keystroke)------------*/
       switch (MODE_curr ()) {
       case MODE_GOD      : rc = GOD_mode              (x_major , x_key);  break;
+      case MODE_PROGRESS : rc = PROGRESS_mode         (x_major , x_key);  break;
       case MODE_MAP      : rc = MAP_mode              (x_major , x_key);  break;
       case MODE_SOURCE   : rc = SOURCE_mode           (x_major , x_key);  break;
       case UMOD_SRC_INPT : rc = SRC_INPT_umode        (x_major , x_key);  break;
