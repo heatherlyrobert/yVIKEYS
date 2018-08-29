@@ -34,8 +34,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "1.0m"
-#define YVIKEYS_VER_TXT   "framework (enter/leave) progress mode in place"
+#define YVIKEYS_VER_NUM   "1.0n"
+#define YVIKEYS_VER_TXT   "updated yvikeys_scale and unit tested it"
 
 
 
@@ -83,7 +83,7 @@ struct cSHARED {
    /*---(global flags-----*/
    char        done;                        /* flag indicating ready to quit  */
    char        trouble;                     /* flag indicating error        0 */
-   char        redraw;
+   char        redraw;                      /* force redraw based on changes  */
    char        repeating;                   /* note for repeating actions     */
    /*---(main loop)-------*/
    float       delay;                       /* requested loop sleep timing    */
@@ -93,6 +93,9 @@ struct cSHARED {
    int         loops;                       /* loops before screen update     */
    char        blocking;                    /* keyboard input blocks          */
    /*---(progress)--------*/
+   int         p_scale;                     /* progress bar scale             */
+   int         p_speed;                     /* progress bar speed             */
+   double      p_adv;                       /* progress play advancing        */
    double      p_inc;                       /* increment for h,l              */
    double      p_waitns;
    char        p_curpos;                    /* position of current bar (shcle)*/
@@ -244,6 +247,8 @@ char        FORMAT_smode            (int a_major, int a_minor);
 
 char        GOD_mode                (char a_major, char a_minor);
 char        PROGRESS_mode           (char a_major, char a_minor);
+char        yvikeys_scale           (char a_mode , char *a_scale);
+char        yvikeys_speed           (char a_mode , char *a_speed);
 
 
 char        MAP_locator             (char *a_label, int *a_x, int *a_y, int *a_z);
@@ -398,7 +403,7 @@ char        yvikeys_loop_sleep      (uchar a_key, char a_draw);
 char        yvikeys_delay_status    (char *a_list);
 char        yvikeys_main_status     (char *a_list);
 char        yvikeys_loop_set        (char *a_delay, char *a_update);
-char*       SCALE__unit             (char *a_question, char a_mark);
+char*       GOD__unit               (char *a_question, char a_mark);
 
 
 
