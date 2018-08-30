@@ -241,9 +241,22 @@ yvikeys__loop_calc   (void)
       /*> printf ("p_adv    = %lf\n", myVIKEYS.p_adv);                                <*/
       /*> printf ("p_adv    = %28.14lf\n", myVIKEYS.p_adv);                           <*/
    }
+   /*---(redraw)-------------------------*/
+   myVIKEYS.p_redraw = 'y';
    /*---(complete)-----------------------*/
    return 0;
 }
+
+char
+yVIKEYS_prog_redraw   (void)
+{
+   char        rc          =    0;
+   if (myVIKEYS.p_redraw == 'y')  rc = 1;
+   myVIKEYS.p_redraw = '-';
+   return rc;
+}
+
+char  yVIKEYS_prog_pos   (double *a_sec ) { if (a_sec  != NULL)  *a_sec = myVIKEYS.p_cur; return 0; }
 
 
 
@@ -349,6 +362,10 @@ PROGRESS_mode           (char a_major, char a_minor)
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return a_minor;
          break;
+      case ':'      :
+         SOURCE_start   (":");
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         break;
       case '^':
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return a_minor;
@@ -396,9 +413,14 @@ PROGRESS_mode           (char a_major, char a_minor)
          break;
       }
       /*---(horizontal movement)---------*/
-      /*> if (strchr ("0HhlL$", a_minor) != 0) {                                                        <* 
-       *>    yVIKEYS_keys_horz    (a_minor, &myVIKEYS.p_cursec, myVIKEYS.p_inc, 0.0, myVIKEYS.p_len);   <* 
-       *> }                                                                                             <*/
+      if (strchr ("0HhlL$", a_minor) != 0) {
+         switch (a_minor) {
+         case 'H' :  myVIKEYS.p_cur -= myVIKEYS.p_inc * 5.0;  break;
+         case 'h' :  myVIKEYS.p_cur -= myVIKEYS.p_inc      ;  break;
+         case 'l' :  myVIKEYS.p_cur += myVIKEYS.p_inc      ;  break;
+         case 'L' :  myVIKEYS.p_cur += myVIKEYS.p_inc * 5.0;  break;
+         }
+      }
       /*---(other)-----------------------*/
       switch (a_minor) {
       case '?':
@@ -550,23 +572,8 @@ yvikeys_scale_prog      (char *a_scale)
    return yvikeys_scale  (MODE_PROGRESS, a_scale);
 }
 
-char
-yVIKEYS_scale_desc (char *a_text)
-{
-   /*---(locals)-----------+-----------+-*/
-   char        rce         = -10;
-   /*---(defense)------------------------*/
-   --rce;  if (a_text == NULL) {
-      return rce;
-   }
-   --rce;  if (myVIKEYS.p_scale < 0) {
-      return rce;
-   }
-   /*---(create text line)---------------*/
-   snprintf (a_text, LEN_STR, "%s %s", s_scale_info [myVIKEYS.p_scale].terse, s_scale_info [myVIKEYS.p_scale].desc);
-   /*---(complete)-----------------------*/
-   return 0;
-}
+char  yVIKEYS_scale_desc (char   *a_text) { if (a_text != NULL)  snprintf (a_text, LEN_STR, "%s %s", s_scale_info [myVIKEYS.p_scale].terse, s_scale_info [myVIKEYS.p_scale].desc); return 0; }
+char  yVIKEYS_scale_inc  (double *a_inc)  { if (a_inc  != NULL)  *a_inc = myVIKEYS.p_inc; return 0; }
 
 
 

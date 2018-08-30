@@ -270,11 +270,10 @@ char        yVIKEYS_speed_desc   (char   *a_text  );
 char        yVIKEYS_speed_adv    (double *a_pos   );
 
 /*---(scale)----------------*/
-/*> char        yVIKEYS_scale_set    (char   *a_code   , double *a_inc);              <*/
-/*> char        yVIKEYS_scale_more   (double *a_inc   );                              <*/
-/*> char        yVIKEYS_scale_less   (double *a_inc   );                              <*/
-char        yVIKEYS_scale_desc   (char   *a_text  );
-/*> char        yVIKEYS_scale_base   (double *a_multi  , char   *a_base);             <*/
+char        yVIKEYS_scale_desc   (char   *a_text);
+char        yVIKEYS_scale_inc    (double *a_inc );
+char        yVIKEYS_prog_redraw  (void);
+char        yVIKEYS_prog_pos     (double *a_sec );
 
 /*---(keys)-----------------*/
 char        yVIKEYS_keys_horz    (char a_minor, double *a_base, double a_inc, double a_min, double a_max);

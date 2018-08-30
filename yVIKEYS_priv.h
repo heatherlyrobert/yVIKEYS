@@ -34,8 +34,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "1.0p"
-#define YVIKEYS_VER_TXT   "unit tested and fixed p_adv and p_inc"
+#define YVIKEYS_VER_NUM   "1.0q"
+#define YVIKEYS_VER_TXT   "progress mode handles simple horizontal movements and redraws"
 
 
 
@@ -104,6 +104,7 @@ struct cSHARED {
    double      p_end;                       /* end second for timeline play   */
    double      p_len;                       /* length of script               */
    char        p_debug; 
+   char        p_redraw;                    /* force redraw based on changes  */
    /*---(marks)-----------*/
    char        mark_show;      /* show temporary marks (y/n)                    */
    char        info_win;
