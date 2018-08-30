@@ -34,8 +34,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "1.0n"
-#define YVIKEYS_VER_TXT   "updated yvikeys_scale and unit tested it"
+#define YVIKEYS_VER_NUM   "1.0o"
+#define YVIKEYS_VER_TXT   "created yvikeys_speed and unit tested it"
 
 
 
@@ -93,14 +93,14 @@ struct cSHARED {
    int         loops;                       /* loops before screen update     */
    char        blocking;                    /* keyboard input blocks          */
    /*---(progress)--------*/
+   char        p_play;                      /* is progress playing            */
    int         p_scale;                     /* progress bar scale             */
    int         p_speed;                     /* progress bar speed             */
    double      p_adv;                       /* progress play advancing        */
-   double      p_inc;                       /* increment for h,l              */
-   double      p_waitns;
-   char        p_curpos;                    /* position of current bar (shcle)*/
-   double      p_cursec;                    /* current timeline seconds       */
-   double      p_endsec;                    /* end second for timeline play   */
+   char        p_pos;                       /* position of current bar (shcle)*/
+   double      p_cur;                       /* current timeline seconds       */
+   double      p_beg;                       /* beg second for timeline play   */
+   double      p_end;                       /* end second for timeline play   */
    double      p_len;                       /* length of script               */
    char        p_debug; 
    /*---(marks)-----------*/
@@ -249,6 +249,8 @@ char        GOD_mode                (char a_major, char a_minor);
 char        PROGRESS_mode           (char a_major, char a_minor);
 char        yvikeys_scale           (char a_mode , char *a_scale);
 char        yvikeys_speed           (char a_mode , char *a_speed);
+char        yvikeys_speed_prog      (char *a_speed);
+char        yvikeys_scale_prog      (char *a_scale);
 
 
 char        MAP_locator             (char *a_label, int *a_x, int *a_y, int *a_z);

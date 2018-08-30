@@ -85,7 +85,6 @@ struct cSPEED {
    float       wait_ns;
 };
 static tSPEED s_speed_info [MAX_SPEED] = {
-   { "-inf"      , "infinity"         ,  -9999.99 ,    -1.2500 ,          0 },
    { "-50.0x"    , "blur"             ,    -50.00 ,    -1.2500 ,    2000000 },
    { "-20.0x"    , "super fast"       ,    -20.00 ,    -0.5000 ,    2000000 },
    { "-10.0x"    , "very fast"        ,    -10.00 ,    -0.2500 ,    2000000 },
@@ -111,8 +110,7 @@ static tSPEED s_speed_info [MAX_SPEED] = {
    { "+10.0x"    , "very fast"        ,     10.00 ,     0.2500 ,    2000000 },
    { "+20.0x"    , "super fast"       ,     20.00 ,     0.5000 ,    2000000 },
    { "+50.0x"    , "blur"             ,     50.00 ,     1.2500 ,    2000000 },
-   { "+inf"      , "infinity"         ,   9999.99 ,     1.2500 ,          0 },
-   { "??????"    , "end-of-list"      ,      0.00 ,     0.0000 ,          0 },
+   { "---"       , "end-of-list"      ,      0.00 ,     0.0000 ,          0 },
 };
 
 
@@ -181,6 +179,68 @@ static tDELAY s_delay_info [MAX_DELAY] = {
    { "---"    , "end-of-list"        ,   0.0      },
    /*---(done)------------------------------------*/
 };
+
+
+
+/*====================------------------------------------====================*/
+/*===----                         shared functions                     ----===*/
+/*====================------------------------------------====================*/
+static void      o___SHARED__________________o (void) {;}
+
+char
+yvikeys__loop_calc   (void)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   float       x_base      =  0.0;
+   float       x_adv       =  0.0;
+   /*---(initialize)---------------------*/
+   myVIKEYS.secs  = 0;
+   myVIKEYS.nsec  = 0;
+   myVIKEYS.loops = 1;
+   /*---(keyboard only)------------------*/
+   if      (myVIKEYS.delay  == 0.0 && myVIKEYS.update == 0.0) {
+      x_base = myVIKEYS.delay;
+   }
+   /*---(delay, no update)---------------*/
+   else if (myVIKEYS.delay  >  0.0 && myVIKEYS.update == 0.0) {
+      x_base = myVIKEYS.delay;
+   }
+   /*---(update, no delay)---------------*/
+   else if (myVIKEYS.update  > 0.0 && myVIKEYS.delay  == 0.0) {
+      x_base = myVIKEYS.update;
+   }
+   /*---(fast enough)--------------------*/
+   else if (myVIKEYS.delay <= myVIKEYS.update) {
+      x_base = myVIKEYS.delay;
+   }
+   /*---(too slow)-----------------------*/
+   else {
+      x_base = myVIKEYS.update;
+   }
+   /*---(update timing)------------------*/
+   if (x_base >= 1.0)  myVIKEYS.secs  = trunc (x_base);
+   myVIKEYS.nsec  = (x_base - myVIKEYS.secs) * NSEC;
+   /*---(update loops)-------------------*/
+   if (myVIKEYS.update != 0.0 && myVIKEYS.delay != 0.0)  {
+      myVIKEYS.loops = trunc (myVIKEYS.update / myVIKEYS.delay);
+   }
+   if (myVIKEYS.loops == 0)  myVIKEYS.loops = 1;
+   /*---(flag blocking)------------------*/
+   if (x_base == 0.0)        myVIKEYS.blocking = 'y';
+   else                      myVIKEYS.blocking = '-';
+   /*---(progress advance)---------------*/
+   x_base         *= myVIKEYS.loops;
+   myVIKEYS.p_adv  = s_scale_info [myVIKEYS.p_scale].unit * s_speed_info [myVIKEYS.p_speed].speed;
+   /*---(complete)-----------------------*/
+   return 0;
+}
+
+
+
+/*====================------------------------------------====================*/
+/*===----                         mode logic                           ----===*/
+/*====================------------------------------------====================*/
+static void      o___MODES___________________o (void) {;}
 
 
 char         /*--> process keystrokes in normal mode -----[--------[--------]-*/
@@ -305,17 +365,24 @@ PROGRESS_mode           (char a_major, char a_minor)
       }
       /*---(play and stop)---------------*/
       switch (a_minor) {
-      case '>':
-         yVIKEYS_speed_more   (&myVIKEYS.p_waitns);
-         myVIKEYS.redraw = 'y';
-         break;
       case '<':
-         yVIKEYS_speed_less   (&myVIKEYS.p_waitns);
-         myVIKEYS.redraw = 'y';
+         yvikeys_speed     (MODE_PROGRESS, "<");
+         break;
+      case '>':
+         yvikeys_speed     (MODE_PROGRESS, ">");
          break;
       case '.':
-         yVIKEYS_speed_play   (&myVIKEYS.p_waitns);  /* toggles */
-         myVIKEYS.redraw = 'y';
+         myVIKEYS.p_play = '-';
+         yvikeys_speed     (MODE_PROGRESS, "0");
+         break;
+      case ',':
+         if (myVIKEYS.p_play == 'y')     myVIKEYS.p_play = '-';
+         else                            myVIKEYS.p_play = 'y';
+         if (myVIKEYS.p_play == 'y' && myVIKEYS.p_adv == 0.0) {
+            yvikeys_speed     (MODE_PROGRESS, "0");
+         } else {
+            yvikeys__loop_calc ();
+         }
          break;
       }
       /*---(horizontal movement)---------*/
@@ -353,14 +420,11 @@ PROGRESS_mode           (char a_major, char a_minor)
    }
    /*---(alignment)----------------------*/
    if (a_major == '^') {
-      switch (a_minor) {
-      case '0': myVIKEYS.p_curpos = '0'; break;
-      case 's': myVIKEYS.p_curpos = 's'; break;
-      case 'h': myVIKEYS.p_curpos = 'h'; break;
-      case 'c': myVIKEYS.p_curpos = 'c'; break;
-      case 'l': myVIKEYS.p_curpos = 'l'; break;
-      case 'e': myVIKEYS.p_curpos = 'e'; break;
-      case '$': myVIKEYS.p_curpos = '$'; break;
+      if (strchr ("0shcle$", a_minor) != NULL) {
+         myVIKEYS.p_pos = a_minor;
+         yvikeys__loop_calc ();
+      } else {
+         return -1;
       }
    }
    /*---(buffer/area)--------------------*/
@@ -371,21 +435,20 @@ PROGRESS_mode           (char a_major, char a_minor)
          MODE_exit  ();
          /*> TICK_draw ();                                                            <*/
          break;
-      /*> case 'p':                                                                   <* 
-       *>    myVIKEYS.scrn = SCRN_NORM;                                               <* 
-       *>    TICK_draw ();                                                            <* 
-       *>    break;                                                                   <* 
-       *> case 'P':                                                                   <* 
-       *>    myVIKEYS.scrn = SCRN_PROG;                                               <* 
-       *>    TICK_draw ();                                                            <* 
-       *>    break;                                                                   <*/
+         /*> case 'p':                                                                   <* 
+          *>    myVIKEYS.scrn = SCRN_NORM;                                               <* 
+          *>    TICK_draw ();                                                            <* 
+          *>    break;                                                                   <* 
+          *> case 'P':                                                                   <* 
+          *>    myVIKEYS.scrn = SCRN_PROG;                                               <* 
+          *>    TICK_draw ();                                                            <* 
+          *>    break;                                                                   <*/
       }
    }
    /*---(complete)------------------------------*/
    DEBUG_USER   yLOG_exit    (__FUNCTION__);
    return 0;
 }
-
 
 
 
@@ -406,9 +469,9 @@ yvikeys_scale           (char a_mode, char *a_scale)
    char        x_max       =   -1;
    char        x_def       =   -1;
    /*---(types)--------------------------*/
-   printf ("beg : myVIKEYS.p_scale = %d\n", myVIKEYS.p_scale);
-   printf ("nxt : a_mode  = %c\n", a_mode);
-   printf ("nxt : a_scale = %s\n", a_scale);
+   /*> printf ("beg : myVIKEYS.p_scale = %d\n", myVIKEYS.p_scale);                    <*/
+   /*> printf ("nxt : a_mode  = %c\n", a_mode);                                       <*/
+   /*> printf ("nxt : a_scale = %s\n", a_scale);                                      <*/
    switch (a_mode) {
    case MODE_PROGRESS : x_scale = myVIKEYS.p_scale;   break;
    }
@@ -421,7 +484,7 @@ yvikeys_scale           (char a_mode, char *a_scale)
       if (strcmp (s_scale_info [i].terse, "-"     ) == 0)  x_def = i;
       ++x_max;
    }
-   printf ("    : x_def = %d, x_max = %d\n", x_def, x_max);
+   /*> printf ("    : x_def = %d, x_max = %d\n", x_def, x_max);                       <*/
    /*---(find entry in table)------------*/
    switch (x_prefix) {
    case  0  :
@@ -464,68 +527,18 @@ yvikeys_scale           (char a_mode, char *a_scale)
    switch (a_mode) {
    case MODE_PROGRESS : myVIKEYS.p_scale = x_index;   break;
    }
-   printf ("end : myVIKEYS.p_scale = %d\n", myVIKEYS.p_scale);
+   /*> printf ("end : myVIKEYS.p_scale = %d\n", myVIKEYS.p_scale);                    <*/
+   /*---(update looping)-----------------*/
+   yvikeys__loop_calc   ();
    /*---(complete)-----------------------*/
    return rc;
 }
 
-/*> char                                                                              <* 
- *> yVIKEYS_scale_set  (char *a_code)                                                 <* 
- *> {                                                                                 <* 
- *>    char        rce         = -10;                                                 <* 
- *>    int         i           = 0;                                                   <* 
- *>    char        x_code      = -1;                                                  <* 
- *>    --rce;  if (strlen (a_code) != 3) {                                            <* 
- *>       return rce;                                                                 <* 
- *>    }                                                                              <* 
- *>    for (i = 0; i < MAX_SCALE; ++i) {                                              <* 
- *>       if (s_scale_info [i].terse [0] != a_code [0])      continue;                <* 
- *>       if (strcmp (s_scale_info [i].terse, a_code) != 0)  continue;                <* 
- *>       x_code = i;                                                                 <* 
- *>    }                                                                              <* 
- *>    --rce;  if (x_code < 0) {                                                      <* 
- *>       return rce;                                                                 <* 
- *>    }                                                                              <* 
- *>    s_scale    = x_code;                                                           <* 
- *>    s_inc      = s_scale_info [s_scale].unit;                                      <* 
- *>    s_base     = s_scale_info [s_scale].base;                                      <* 
- *>    s_multi    = s_scale_info [s_scale].multi;                                     <* 
- *>    if (a_inc   != NULL)  *a_inc   = s_inc;                                        <* 
- *>    return 0;                                                                      <* 
- *> }                                                                                 <*/
-
-/*> char                                                                              <* 
- *> yVIKEYS_scale_less (double *a_inc)                                                <* 
- *> {                                                                                 <* 
- *>    char        rce         = -10;                                                 <* 
- *>    --rce; if (s_scale >= MAX_SCALE - 1) {                                         <* 
- *>       return rce;                                                                 <* 
- *>    }                                                                              <* 
- *>    --rce;  if (s_scale_info [s_scale + 1].terse [0] == '?') {                     <* 
- *>       return rce;                                                                 <* 
- *>    }                                                                              <* 
- *>    ++(s_scale);                                                                   <* 
- *>    s_inc      = s_scale_info [s_scale].unit;                                      <* 
- *>    s_base     = s_scale_info [s_scale].base;                                      <* 
- *>    s_multi    = s_scale_info [s_scale].multi;                                     <* 
- *>    if (a_inc   != NULL)  *a_inc   = s_inc;                                        <* 
- *>    return 0;                                                                      <* 
- *> }                                                                                 <*/
-
-/*> char                                                                              <* 
- *> yVIKEYS_scale_more (double *a_inc)                                                <* 
- *> {                                                                                 <* 
- *>    char        rce         = -10;                                                 <* 
- *>    --rce; if (s_scale <= 0) {                                                     <* 
- *>       return rce;                                                                 <* 
- *>    }                                                                              <* 
- *>    --(s_scale);                                                                   <* 
- *>    s_inc      = s_scale_info [s_scale].unit;                                      <* 
- *>    s_base     = s_scale_info [s_scale].base;                                      <* 
- *>    s_multi    = s_scale_info [s_scale].multi;                                     <* 
- *>    if (a_inc   != NULL)  *a_inc   = s_inc;                                        <* 
- *>    return 0;                                                                      <* 
- *> }                                                                                 <*/
+char
+yvikeys_scale_prog      (char *a_scale)
+{
+   return yvikeys_scale  (MODE_PROGRESS, a_scale);
+}
 
 char
 yVIKEYS_scale_desc (char *a_text)
@@ -545,22 +558,6 @@ yVIKEYS_scale_desc (char *a_text)
    return 0;
 }
 
-/*> char                                                                              <* 
- *> yVIKEYS_scale_base (double *a_multi, char *a_base)                                <* 
- *> {                                                                                 <* 
- *>    /+---(locals)-----------+-----------+-+/                                       <* 
- *>    char        rce         = -10;                                                 <* 
- *>    /+---(defense)------------------------+/                                       <* 
- *>    --rce;  if (s_scale < 0) {                                                     <* 
- *>       return rce;                                                                 <* 
- *>    }                                                                              <* 
- *>    /+---(full out values)----------------+/                                       <* 
- *>    if (a_multi != NULL)  *a_multi = s_multi;                                      <* 
- *>    if (a_base  != NULL)  *a_base  = s_base;                                       <* 
- *>    /+---(complete)-----------------------+/                                       <* 
- *>    return 0;                                                                      <* 
- *> }                                                                                 <*/
-
 
 
 /*====================------------------------------------====================*/
@@ -571,125 +568,84 @@ static void      o___SPEED___________________o (void) {;}
 char
 yvikeys_speed           (char a_mode, char *a_speed)
 {
-}
-
-char
-yVIKEYS_speed_set  (char *a_code, double *a_waitns)
-{
-   /*---(locals)-----------+-----------+-*/
-   char        rce         = -10;
-   int         i           = 0;
-   char        x_index     = -1;
-   /*---(defense)------------------------*/
-   --rce;  if (strlen (a_code) != 6) {
-      return rce;
+   /*---(locals)-----------+-----+-----+-*/
+   char        x_speed     =    0;
+   char        rc          =    0;
+   char        x_prefix    =  ' ';
+   int         i           =    0;
+   char        x_index     =   -1;
+   char        x_max       =   -1;
+   char        x_def       =   -1;
+   /*---(types)--------------------------*/
+   /*> printf ("beg : myVIKEYS.p_speed = %d\n", myVIKEYS.p_speed);                    <*/
+   /*> printf ("nxt : a_mode  = %c\n", a_mode);                                       <*/
+   /*> printf ("nxt : a_speed = %s\n", a_speed);                                      <*/
+   switch (a_mode) {
+   case MODE_PROGRESS : x_speed = myVIKEYS.p_speed;   break;
    }
+   /*---(assign prefix)------------------*/
+   if (a_speed == NULL)    x_prefix = 0;
+   else                    x_prefix = a_speed [0];
+   /*---(determine max)------------------*/
+   for (i = 0; i < MAX_UPDATE; ++i) {
+      if (strcmp (s_speed_info [i].terse, "---"   ) == 0)  break;
+      if (strcmp (s_speed_info [i].terse, "+0.00x") == 0)  x_def = i;
+      ++x_max;
+   }
+   /*> printf ("    : x_def = %d, x_max = %d\n", x_def, x_max);                       <*/
    /*---(find entry in table)------------*/
-   for (i = 0; i < MAX_SPEED; ++i) {
-      if (s_speed_info [i].terse [0] != a_code [0])      continue;
-      if (s_speed_info [i].terse [1] != a_code [1])      continue;
-      if (strcmp (s_speed_info [i].terse, a_code) != 0)  continue;
-      x_index = i;
-   }
-   /*---(defense)------------------------*/
-   --rce;  if (x_index < 0) {
-      return rce;
+   switch (x_prefix) {
+   case  0  :
+      x_index = x_speed;
+      rc      = -1;
+      break;
+   case '0' :
+      x_index = x_def;
+      break;
+   case '=' :
+      x_index = x_speed;
+      break;
+   case '>' :
+      if (x_speed <  x_max)  x_index = ++x_speed;
+      else {
+         x_index = x_max;
+         rc      = -3;
+      }
+      break;
+   case '<' :
+      if (x_speed >  0    )  x_index = --x_speed;
+      else {
+         x_index = 0;
+         rc      = -4;
+      }
+      break;
+   default  :
+      for (i = 0; i <= x_max; ++i) {
+         if (strcmp (s_speed_info [i].terse, a_speed) != 0)  continue;
+         x_index = i;
+         break;
+      }
+      if (x_index == -1) {
+         x_index = x_speed;
+         rc      = -2;
+      }
+      break;
    }
    /*---(set key values)-----------------*/
-   myVIKEYS.p_speed     = x_index;
-   s_advance   = s_speed_info [myVIKEYS.p_speed].adv_sec;
-   s_waitns    = s_speed_info [myVIKEYS.p_speed].wait_ns;
-   if (a_waitns != NULL)  *a_waitns = s_waitns;
+   switch (a_mode) {
+   case MODE_PROGRESS : myVIKEYS.p_speed = x_index;   break;
+   }
+   /*> printf ("end : myVIKEYS.p_speed = %d\n", myVIKEYS.p_speed);                    <*/
+   /*---(update looping)-----------------*/
+   yvikeys__loop_calc   ();
    /*---(complete)-----------------------*/
-   return 0;
+   return rc;
 }
 
 char
-yVIKEYS_speed_stop (double *a_waitns)
+yvikeys_speed_prog      (char *a_speed)
 {
-   /*---(locals)-----------+-----------+-*/
-   char        rce         = -10;
-   int         i           = 0;
-   char       *x_code      = "+0.00x";
-   char        x_index     = -1;
-   /*---(find stopped values)------------*/
-   for (i = 0; i < MAX_SPEED; ++i) {
-      if (s_speed_info [i].terse [0] != x_code [0])      continue;
-      if (s_speed_info [i].terse [1] != x_code [1])      continue;
-      if (strcmp (s_speed_info [i].terse, x_code) != 0)  continue;
-      x_index = i;
-   }
-   /*---(defense)------------------------*/
-   --rce;  if (x_index < 0) {
-      return rce;
-   }
-   /*---(set key values)-----------------*/
-   s_moving    = '-';
-   s_waitns    = s_speed_info [x_index].wait_ns;
-   if (a_waitns != NULL)  *a_waitns = s_waitns;
-   /*---(complete)-----------------------*/
-   return 0;
-}
-
-char
-yVIKEYS_speed_play (double *a_waitns)
-{
-   /*---(locals)-----------+-----------+-*/
-   char        rce         = -10;
-   /*---(defense)------------------------*/
-   --rce; if (myVIKEYS.p_speed < 0) {
-      return rce;
-   }
-   /*---(set key values)-----------------*/
-   if (s_moving == '-') {
-      s_moving    = 'y';
-      s_advance   = s_speed_info [myVIKEYS.p_speed].adv_sec;
-      s_waitns    = s_speed_info [myVIKEYS.p_speed].wait_ns;
-   } else {
-      yVIKEYS_speed_stop (a_waitns);
-   }
-   if (a_waitns != NULL)  *a_waitns = s_waitns;
-   /*---(complete)-----------------------*/
-   return 0;
-}
-
-char
-yVIKEYS_speed_more (double *a_waitns)
-{
-   /*---(locals)-----------+-----------+-*/
-   char        rce         = -10;
-   /*---(defense)------------------------*/
-   --rce; if (myVIKEYS.p_speed >= MAX_SPEED - 1) {
-      return rce;
-   }
-   --rce;  if (s_speed_info [myVIKEYS.p_speed + 1].terse [0] == '?') {
-      return rce;
-   }
-   /*---(set key values)-----------------*/
-   ++(myVIKEYS.p_speed);
-   s_advance   = s_speed_info [myVIKEYS.p_speed].adv_sec;
-   s_waitns    = s_speed_info [myVIKEYS.p_speed].wait_ns;
-   if (a_waitns != NULL)  *a_waitns = s_waitns;
-   /*---(complete)-----------------------*/
-   return 0;
-}
-
-char
-yVIKEYS_speed_less (double *a_waitns)
-{
-   /*---(locals)-----------+-----------+-*/
-   char        rce         = -10;
-   /*---(defense)------------------------*/
-   --rce; if (myVIKEYS.p_speed <  0) {
-      return rce;
-   }
-   /*---(set key values)-----------------*/
-   --(myVIKEYS.p_speed);
-   s_advance   = s_speed_info [myVIKEYS.p_speed].adv_sec;
-   s_waitns    = s_speed_info [myVIKEYS.p_speed].wait_ns;
-   if (a_waitns != NULL)  *a_waitns = s_waitns;
-   /*---(complete)-----------------------*/
-   return 0;
+   return yvikeys_speed  (MODE_PROGRESS, a_speed);
 }
 
 char
@@ -710,27 +666,6 @@ yVIKEYS_speed_desc (char *a_text)
    return 0;
 }
 
-char
-yVIKEYS_speed_adv  (double *a_pos)
-{
-   /*---(locals)-----------+-----------+-*/
-   char        rce         = -10;
-   /*---(defense)------------------------*/
-   --rce;  if (s_moving != 'y') {
-      return rce;
-   }
-   --rce;  if (a_pos  == NULL) {
-      return rce;
-   }
-   --rce;  if (myVIKEYS.p_speed < 0) {
-      return rce;
-   }
-   /*---(update position)----------------*/
-   *a_pos += s_advance;
-   /*---(complete)-----------------------*/
-   return 0;
-}
-
 
 
 /*====================------------------------------------====================*/
@@ -741,6 +676,7 @@ static void      o___LOOPING_________________o (void) {;}
 char
 yvikeys_loop_init       (void)
 {
+   /*---(delay/updapte)------------------*/
    s_delay           = 0;
    s_update          = 0;
    myVIKEYS.delay    = 0.0;
@@ -751,11 +687,17 @@ yvikeys_loop_init       (void)
    myVIKEYS.blocking = ' ';
    yvikeys_loop_delay  ("");
    yvikeys_loop_update ("");
+   /*---(progress)-----------------------*/
+   myVIKEYS.p_play   = '-';
    myVIKEYS.p_scale  = 0;
    myVIKEYS.p_speed  = 0;
    yvikeys_scale       (MODE_PROGRESS, "0");
    yvikeys_speed       (MODE_PROGRESS, "0");
+   /*---(commands)-----------------------*/
    yVIKEYS_cmds_add ('c', "delay"       , ""    , "ss"   , yvikeys_loop_set     , "adjust the main loop wait and screen update timings"         );
+   yVIKEYS_cmds_add ('c', "p_scale"     , ""    , "s"    , yvikeys_scale_prog   , "adjust the progress scale"                                   );
+   yVIKEYS_cmds_add ('c', "p_speed"     , ""    , "s"    , yvikeys_speed_prog   , "adjust the progress speed"                                   );
+   /*---(complete)-----------------------*/
    return 0;
 }
 
@@ -794,54 +736,6 @@ yvikeys_loop_getch      (void)
    }
    /*---(complete)-----------------------*/
    return x_ch;
-}
-
-char
-yvikeys__loop_calc   (void)
-{
-   /*---(locals)-----------+-----+-----+-*/
-   float       x_base      =  0.0;
-   float       x_adv       =  0.0;
-   /*---(initialize)---------------------*/
-   myVIKEYS.secs  = 0;
-   myVIKEYS.nsec  = 0;
-   myVIKEYS.loops = 1;
-   /*---(keyboard only)------------------*/
-   if      (myVIKEYS.delay  == 0.0 && myVIKEYS.update == 0.0) {
-      x_base = myVIKEYS.delay;
-   }
-   /*---(delay, no update)---------------*/
-   else if (myVIKEYS.delay  >  0.0 && myVIKEYS.update == 0.0) {
-      x_base = myVIKEYS.delay;
-   }
-   /*---(update, no delay)---------------*/
-   else if (myVIKEYS.update  > 0.0 && myVIKEYS.delay  == 0.0) {
-      x_base = myVIKEYS.update;
-   }
-   /*---(fast enough)--------------------*/
-   else if (myVIKEYS.delay <= myVIKEYS.update) {
-      x_base = myVIKEYS.delay;
-   }
-   /*---(too slow)-----------------------*/
-   else {
-      x_base = myVIKEYS.update;
-   }
-   /*---(update timing)------------------*/
-   if (x_base >= 1.0)  myVIKEYS.secs  = trunc (x_base);
-   myVIKEYS.nsec  = (x_base - myVIKEYS.secs) * NSEC;
-   /*---(update loops)-------------------*/
-   if (myVIKEYS.update != 0.0 && myVIKEYS.delay != 0.0)  {
-      myVIKEYS.loops = trunc (myVIKEYS.update / myVIKEYS.delay);
-   }
-   if (myVIKEYS.loops == 0)  myVIKEYS.loops = 1;
-   /*---(flag blocking)------------------*/
-   if (x_base == 0.0)        myVIKEYS.blocking = 'y';
-   else                      myVIKEYS.blocking = '-';
-   /*---(progress advance)---------------*/
-   x_base         *= myVIKEYS.loops;
-   myVIKEYS.p_adv  = s_scale_info [myVIKEYS.p_scale].unit * s_speed_info [myVIKEYS.p_speed].speed;
-   /*---(complete)-----------------------*/
-   return 0;
 }
 
 char
@@ -1135,6 +1029,12 @@ GOD__unit                  (char *a_question, char a_mark)
    }
    else if (strcmp (a_question, "p_scale"     )   == 0) {
       snprintf (yVIKEYS__unit_answer, LEN_RECD, "PROG scale       : %-5s = %26.12lf", s_scale_info [myVIKEYS.p_scale].terse, s_scale_info [myVIKEYS.p_scale].unit);
+   }
+   else if (strcmp (a_question, "p_speed"     )   == 0) {
+      snprintf (yVIKEYS__unit_answer, LEN_RECD, "PROG speed       : %-7s = %8.2f", s_speed_info [myVIKEYS.p_speed].terse, s_speed_info [myVIKEYS.p_speed].speed);
+   }
+   else if (strcmp (a_question, "p_play"      )   == 0) {
+      snprintf (yVIKEYS__unit_answer, LEN_RECD, "PROG play        : %-7s = %8.2f", s_speed_info [myVIKEYS.p_speed].terse, s_speed_info [myVIKEYS.p_speed].speed);
    }
    /*---(complete)-----------------------*/
    return yVIKEYS__unit_answer;
