@@ -80,7 +80,7 @@ typedef   struct cSPEED  tSPEED;
 struct cSPEED {
    char        terse       [LEN_LABEL];
    char        desc        [LEN_STR  ];
-   float       speed;   
+   double      speed;   
    float       adv_sec;
    float       wait_ns;
 };
@@ -192,7 +192,6 @@ yvikeys__loop_calc   (void)
 {
    /*---(locals)-----------+-----+-----+-*/
    float       x_base      =  0.0;
-   float       x_adv       =  0.0;
    /*---(initialize)---------------------*/
    myVIKEYS.secs  = 0;
    myVIKEYS.nsec  = 0;
@@ -229,8 +228,19 @@ yvikeys__loop_calc   (void)
    if (x_base == 0.0)        myVIKEYS.blocking = 'y';
    else                      myVIKEYS.blocking = '-';
    /*---(progress advance)---------------*/
+   myVIKEYS.p_inc  = s_scale_info [myVIKEYS.p_scale].unit / 10.0;
+   /*> printf ("x_base   = %f\n", x_base);                                            <*/
    x_base         *= myVIKEYS.loops;
-   myVIKEYS.p_adv  = s_scale_info [myVIKEYS.p_scale].unit * s_speed_info [myVIKEYS.p_speed].speed;
+   /*> printf ("x_base   = %f\n", x_base);                                            <*/
+   if (x_base == 0.0) {
+      myVIKEYS.p_adv  = 0.0;
+   } else {
+      myVIKEYS.p_adv  = (float) (s_scale_info [myVIKEYS.p_scale].unit * s_speed_info [myVIKEYS.p_speed].speed);
+      /*> printf ("p_adv    = %lf\n", myVIKEYS.p_adv);                                <*/
+      myVIKEYS.p_adv *= x_base;
+      /*> printf ("p_adv    = %lf\n", myVIKEYS.p_adv);                                <*/
+      /*> printf ("p_adv    = %28.14lf\n", myVIKEYS.p_adv);                           <*/
+   }
    /*---(complete)-----------------------*/
    return 0;
 }
@@ -691,6 +701,8 @@ yvikeys_loop_init       (void)
    myVIKEYS.p_play   = '-';
    myVIKEYS.p_scale  = 0;
    myVIKEYS.p_speed  = 0;
+   myVIKEYS.p_adv    = 0.0;
+   myVIKEYS.p_inc    = 0.0;
    yvikeys_scale       (MODE_PROGRESS, "0");
    yvikeys_speed       (MODE_PROGRESS, "0");
    /*---(commands)-----------------------*/
@@ -1034,7 +1046,7 @@ GOD__unit                  (char *a_question, char a_mark)
       snprintf (yVIKEYS__unit_answer, LEN_RECD, "PROG speed       : %-7s = %8.2f", s_speed_info [myVIKEYS.p_speed].terse, s_speed_info [myVIKEYS.p_speed].speed);
    }
    else if (strcmp (a_question, "p_play"      )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_RECD, "PROG play        : %-7s = %8.2f", s_speed_info [myVIKEYS.p_speed].terse, s_speed_info [myVIKEYS.p_speed].speed);
+      snprintf (yVIKEYS__unit_answer, LEN_RECD, "PROG play        : %c, %10.6lfa, %10.6lfi", myVIKEYS.p_play, myVIKEYS.p_adv, myVIKEYS.p_inc);
    }
    /*---(complete)-----------------------*/
    return yVIKEYS__unit_answer;

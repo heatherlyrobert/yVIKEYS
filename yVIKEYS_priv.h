@@ -34,8 +34,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "1.0o"
-#define YVIKEYS_VER_TXT   "created yvikeys_speed and unit tested it"
+#define YVIKEYS_VER_NUM   "1.0p"
+#define YVIKEYS_VER_TXT   "unit tested and fixed p_adv and p_inc"
 
 
 
@@ -97,6 +97,7 @@ struct cSHARED {
    int         p_scale;                     /* progress bar scale             */
    int         p_speed;                     /* progress bar speed             */
    double      p_adv;                       /* progress play advancing        */
+   double      p_inc;                       /* progress horizontal moves      */
    char        p_pos;                       /* position of current bar (shcle)*/
    double      p_cur;                       /* current timeline seconds       */
    double      p_beg;                       /* beg second for timeline play   */
