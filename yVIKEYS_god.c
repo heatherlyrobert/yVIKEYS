@@ -6,7 +6,7 @@
 
 
 /*===[[ SCALE ]]==============================================================*/
-#define     MAX_SCALE   50
+#define     MAX_SCALE   100
 static float   s_inc      =  1;             /* increment in movement          */
 static char    s_base     = ' ';            /* scale prefix for labels        */
 static float   s_multi    =  1;             /* increment in movement          */
@@ -19,53 +19,58 @@ struct cSCALE {
    char        desc        [LEN_STR  ];
    char        power;
    double      unit;
-   char        base;
-   float       conv;
-   float       multi;
 };
 static tSCALE s_scale_info [MAX_SCALE] = {
-   { 'm' , "T"  , "tera"      , "tera  (1 trillion)"    ,  12 , 1000000000000.0            , 'T' , 1000000000000.0            ,   1.0   },
-   { 'm' , "Gh" , "giga/H"    , "giga  (100 billion)"   ,  11 ,  100000000000.0            , 'G' ,    1000000000.0            ,   0.1   },
-   { 'm' , "Gd" , "giga/D"    , "giga  (10 billion)"    ,  10 ,   10000000000.0            , 'G' ,    1000000000.0            ,  10.0   },
-   { 'm' , "G"  , "giga"      , "giga  (1 billion)"     ,   9 ,    1000000000.0            , 'G' ,    1000000000.0            ,   1.0   },
-   { 'm' , "Mh" , "mega/H"    , "mega  (100 million)"   ,   8 ,     100000000.0            , 'M' ,       1000000.0            ,   0.1   },
-   { 'm' , "Md" , "mega/D"    , "mega  (10 million)"    ,   7 ,      10000000.0            , 'M' ,       1000000.0            ,  10.0   },
-   { 'm' , "MÓ" , "megaÓ"     , "mega  (3 million)"     ,   6 ,       3200000.0            , 'M' ,       1000000.0            ,   1.0   },
-   { 'm' , "M"  , "mega"      , "mega  (1 million)"     ,   6 ,       1000000.0            , 'M' ,       1000000.0            ,   1.0   },
-   { 'm' , "KhÓ", "kilo/HÓ"   , "kilo  (300 thousand)"  ,   5 ,        320000.0            , 'K' ,          1000.0            ,   0.1   },
-   { 'm' , "Kh" , "kilo/H"    , "kilo  (100 thousand)"  ,   5 ,        100000.0            , 'K' ,          1000.0            ,   0.1   },
-   { 'm' , "KdÓ", "kilo/DÓ"   , "kilo  (30 thousand)"   ,   4 ,         32000.0            , 'K' ,          1000.0            ,  10.0   },
-   { 'm' , "Kd" , "kilo/D"    , "kilo  (10 thousand)"   ,   4 ,         10000.0            , 'K' ,          1000.0            ,  10.0   },
-   { 'm' , "KÓ" , "kiloÓ"     , "kilo  (3 thousand)"    ,   3 ,          3200.0            , 'K' ,          1000.0            ,   1.0   },
-   { 'm' , "K"  , "kilo"      , "kilo  (1 thousand)"    ,   3 ,          1000.0            , 'K' ,          1000.0            ,   1.0   },
-   { 'm' , "HÓ" , "hekaÓ"     , "hecto (3 hundred)"     ,   2 ,           320.0            , 'H' ,           100.0            ,   0.1   },
-   { 'm' , "H"  , "heka"      , "hecto (1 hundred)"     ,   2 ,           100.0            , 'H' ,           100.0            ,   0.1   },
-   { 'm' , "DÓ" , "decaÓ"     , "deca  (thirty)"        ,   1 ,            32.0            , 'D' ,            10.0            ,   0.1   },
-   { 'm' , "D"  , "deca"      , "deca  (ten)"           ,   1 ,            10.0            , 'D' ,            10.0            ,   0.1   },
-   { 'm' , "Ó"  , "deca"      , "norm  (three)"         ,   1 ,             3.2            , 'D' ,            10.0            ,   0.1   },
-   { 'm' , "-"  , "base"      , "norm  (one)"           ,   0 ,             1.0            , '-' ,             1.0            ,   0.1   },
-   { 'm' , "Ô"  , "baseÔ"     , "norm  (third)"         ,   0 ,             0.32          , '-' ,             1.0            ,   0.1   },
-   { 'm' , "d"  , "deci"      , "deci  (tenth)"         ,  -1 ,             0.1            , 'd' ,             0.1            ,   0.1   },
-   { 'm' , "dÔ" , "deciÔ"     , "deci  (thirteth)"      ,  -1 ,             0.032          , 'd' ,             0.1            ,   0.1   },
-   { 'm' , "c"  , "cent"      , "centi (1 hundredth)"   ,  -2 ,             0.01           , 'c' ,             0.010          ,   0.1   },
-   { 'm' , "cÔ" , "centÔ"     , "centi (3 hundredth)"   ,  -2 ,             0.0032         , 'c' ,             0.010          ,   0.1   },
-   { 'm' , "m"  , "mill"      , "milli (1 thousandth)"  ,  -3 ,             0.001          , 'm' ,             0.001          ,   0.1   },
-   { 'm' , "mÔ" , "millÔ"     , "milli (3 thousandth)"  ,  -3 ,             0.00032        , 'm' ,             0.001          ,   0.1   },
-   { 'm' , "mD" , "mill/D"    , "milli (10 thousandth)" ,  -4 ,             0.0001         , 'm' ,             0.000001       ,   0.1   },
-   { 'm' , "mDÔ", "mill/DÔ"   , "milli (30 thousandth)" ,  -4 ,             0.000032       , 'm' ,             0.000001       ,   0.1   },
-   { 'm' , "mH" , "mill/H"    , "milli (100 thousandth)",  -5 ,             0.00001        , 'm' ,             0.000001       ,  10.0   },
-   { 'm' , "mHÔ", "mill/HÔ"   , "milli (300 thousandth)",  -5 ,             0.0000032      , 'm' ,             0.000001       ,  10.0   },
-   { 'm' , "u"  , "micr"      , "micro (1 millionth)"   ,  -6 ,             0.000001       , 'u' ,             0.000001       ,   1.0   },
-   { 'm' , "uÔ" , "micrÔ"     , "micro (3 millionth)"   ,  -6 ,             0.00000032     , 'u' ,             0.000001       ,   1.0   },
-   { 'm' , "uD" , "micr/D"    , "micro (10 millionth)"  ,  -7 ,             0.0000001      , 'u' ,             0.000000001    ,   0.1   },
-   { 'm' , "uDÔ", "micr/DÔ"   , "micro (30 millionth)"  ,  -7 ,             0.000000032    , 'u' ,             0.000000001    ,   0.1   },
-   { 'm' , "uH" , "micr/H"    , "micro (100 millionth)" ,  -8 ,             0.00000001     , 'u' ,             0.000000001    ,  10.0   },
-   { 'm' , "uHÔ", "micr/HÔ"   , "micro (300 millionth)" ,  -8 ,             0.0000000032   , 'u' ,             0.000000001    ,  10.0   },
-   { 'm' , "n"  , "nano"      , "nano  (billionth)"     ,  -9 ,             0.000000001    , 'n' ,             0.000000001    ,   1.0   },
-   { 'm' , "nD" , "nano/D"    , "nano  (10 billionth)"  , -10 ,             0.0000000001   , 'n' ,             0.000000000001 ,   0.1   },
-   { 'm' , "nH" , "nano/H"    , "nano  (100 billionth)" , -11 ,             0.00000000001  , 'n' ,             0.000000000001 ,  10.0   },
-   { 'm' , "p"  , "pico"      , "pico  (trillonth)"     , -12 ,             0.000000000001 , 'p' ,             0.000000000001 ,   1.0   },
-   { 'm' , "---", "----"      , "end-of-scales"         ,   0 ,             0.0            , '-' ,             0.0            ,   1.0   },
+   { 'm' , "T"  , "tera"      , "tera  (1 trillion)"    ,  12 , 1000000000000.0             },
+   { 'm' , "GhÓ", "giga/HÓ"   , "giga  (300 billion)"   ,  11 ,  320000000000.0             },
+   { 'm' , "Gh" , "giga/H"    , "giga  (100 billion)"   ,  11 ,  100000000000.0             },
+   { 'm' , "GdÓ", "giga/DÓ"   , "giga  (30 billion)"    ,  10 ,   32000000000.0             },
+   { 'm' , "Gd" , "giga/D"    , "giga  (10 billion)"    ,  10 ,   10000000000.0             },
+   { 'm' , "GÓ" , "gigaÓ"     , "giga  (3 billion)"     ,   9 ,    3200000000.0             },
+   { 'm' , "G"  , "giga"      , "giga  (1 billion)"     ,   9 ,    1000000000.0             },
+   { 'm' , "MhÓ", "mega/HÓ"   , "mega  (300 million)"   ,   8 ,     320000000.0             },
+   { 'm' , "Mh" , "mega/H"    , "mega  (100 million)"   ,   8 ,     100000000.0             },
+   { 'm' , "MdÓ", "mega/DÓ"   , "mega  (30 million)"    ,   7 ,      32000000.0             },
+   { 'm' , "Md" , "mega/D"    , "mega  (10 million)"    ,   7 ,      10000000.0             },
+   { 'm' , "MÓ" , "megaÓ"     , "mega  (3 million)"     ,   6 ,       3200000.0             },
+   { 'm' , "M"  , "mega"      , "mega  (1 million)"     ,   6 ,       1000000.0             },
+   { 'm' , "KhÓ", "kilo/HÓ"   , "kilo  (300 thousand)"  ,   5 ,        320000.0             },
+   { 'm' , "Kh" , "kilo/H"    , "kilo  (100 thousand)"  ,   5 ,        100000.0             },
+   { 'm' , "KdÓ", "kilo/DÓ"   , "kilo  (30 thousand)"   ,   4 ,         32000.0             },
+   { 'm' , "Kd" , "kilo/D"    , "kilo  (10 thousand)"   ,   4 ,         10000.0             },
+   { 'm' , "KÓ" , "kiloÓ"     , "kilo  (3 thousand)"    ,   3 ,          3200.0             },
+   { 'm' , "K"  , "kilo"      , "kilo  (1 thousand)"    ,   3 ,          1000.0             },
+   { 'm' , "HÓ" , "hekaÓ"     , "hecto (3 hundred)"     ,   2 ,           320.0             },
+   { 'm' , "H"  , "heka"      , "hecto (1 hundred)"     ,   2 ,           100.0             },
+   { 'm' , "DÓ" , "decaÓ"     , "deca  (thirty)"        ,   1 ,            32.0             },
+   { 'm' , "D"  , "deca"      , "deca  (ten)"           ,   1 ,            10.0             },
+   { 'm' , "Ó"  , "deca"      , "norm  (three)"         ,   0 ,             3.2             },
+   { 'm' , "-"  , "base"      , "norm  (one)"           ,   0 ,             1.0             },
+   { 'm' , "Ô"  , "baseÔ"     , "norm  (third)"         ,  -1 ,             0.32            },
+   { 'm' , "d"  , "deci"      , "deci  (tenth)"         ,  -1 ,             0.1             },
+   { 'm' , "dÔ" , "deciÔ"     , "deci  (thirteth)"      ,  -2 ,             0.032           },
+   { 'm' , "c"  , "cent"      , "centi (1 hundredth)"   ,  -2 ,             0.01            },
+   { 'm' , "cÔ" , "centÔ"     , "centi (3 hundredth)"   ,  -3 ,             0.0032          },
+   { 'm' , "m"  , "mill"      , "milli (1 thousandth)"  ,  -3 ,             0.001           },
+   { 'm' , "mÔ" , "millÔ"     , "milli (3 thousandth)"  ,  -4 ,             0.00032         },
+   { 'm' , "mD" , "mill/D"    , "milli (10 thousandth)" ,  -4 ,             0.0001          },
+   { 'm' , "mDÔ", "mill/DÔ"   , "milli (30 thousandth)" ,  -5 ,             0.000032        },
+   { 'm' , "mH" , "mill/H"    , "milli (100 thousandth)",  -5 ,             0.00001         },
+   { 'm' , "mHÔ", "mill/HÔ"   , "milli (300 thousandth)",  -6 ,             0.0000032       },
+   { 'm' , "u"  , "micr"      , "micro (1 millionth)"   ,  -6 ,             0.000001        },
+   { 'm' , "uÔ" , "micrÔ"     , "micro (3 millionth)"   ,  -7 ,             0.00000032      },
+   { 'm' , "uD" , "micr/D"    , "micro (10 millionth)"  ,  -7 ,             0.0000001       },
+   { 'm' , "uDÔ", "micr/DÔ"   , "micro (30 millionth)"  ,  -8 ,             0.000000032     },
+   { 'm' , "uH" , "micr/H"    , "micro (100 millionth)" ,  -8 ,             0.00000001      },
+   { 'm' , "uHÔ", "micr/HÔ"   , "micro (300 millionth)" ,  -9 ,             0.0000000032    },
+   { 'm' , "n"  , "nano"      , "nano  (1 billionth)"   ,  -9 ,             0.000000001     },
+   { 'm' , "nÔ" , "nanoÔ"     , "nano  (3 billionth)"   , -10 ,             0.00000000032   },
+   { 'm' , "nD" , "nano/D"    , "nano  (10 billionth)"  , -10 ,             0.0000000001    },
+   { 'm' , "nDÔ", "nano/DÔ"   , "nano  (30 billionth)"  , -11 ,             0.000000000032  },
+   { 'm' , "nH" , "nano/H"    , "nano  (100 billionth)" , -11 ,             0.00000000001   },
+   { 'm' , "nHÔ", "nano/HÔ"   , "nano  (300 billionth)" , -12 ,             0.0000000000032 },
+   { 'm' , "p"  , "pico"      , "pico  (1 trillonth)"   , -12 ,             0.000000000001  },
+   { 'm' , "---", "----"      , "end-of-scales"         ,   0 ,             0.0             },
 };
 
 
@@ -81,36 +86,34 @@ struct cSPEED {
    char        terse       [LEN_LABEL];
    char        desc        [LEN_STR  ];
    double      speed;   
-   float       adv_sec;
-   float       wait_ns;
 };
 static tSPEED s_speed_info [MAX_SPEED] = {
-   { "-50.0x"    , "blur"             ,    -50.00 ,    -1.2500 ,    2000000 },
-   { "-20.0x"    , "super fast"       ,    -20.00 ,    -0.5000 ,    2000000 },
-   { "-10.0x"    , "very fast"        ,    -10.00 ,    -0.2500 ,    2000000 },
-   { "-5.00x"    , "faster"           ,     -5.00 ,    -0.1250 ,    2000000 },
-   { "-2.00x"    , "double"           ,     -2.00 ,    -0.0500 ,    2000000 },
-   { "-1.00x"    , "normal"           ,     -1.00 ,    -0.0250 ,    2000000 },
-   { "-0.75x"    , "three-quarters"   ,     -0.75 ,    -0.0150 ,    4500000 },
-   { "-0.50x"    , "half"             ,     -0.50 ,    -0.0100 ,    5000000 },
-   { "-0.25x"    , "quarter"          ,     -0.25 ,    -0.0060 ,    5000000 },
-   { "-0.10x"    , "slow"             ,     -0.10 ,    -0.0025 ,    4500000 },
-   { "-0.05x"    , "super slow"       ,     -0.05 ,    -0.0010 ,    5000000 },
-   { "-0.02x"    , "ultra slow"       ,     -0.02 ,    -0.0005 ,    5000000 },
-   { "+0.00x"    , "stopped"          ,      0.00 ,     0.0000 ,   10000000 },
-   { "+0.02x"    , "ultra slow"       ,      0.02 ,     0.0005 ,    5000000 },
-   { "+0.05x"    , "super slow"       ,      0.05 ,     0.0010 ,    5000000 },
-   { "+0.10x"    , "slow"             ,      0.10 ,     0.0025 ,    4500000 },
-   { "+0.25x"    , "quarter"          ,      0.25 ,     0.0060 ,    5000000 },
-   { "+0.50x"    , "half"             ,      0.50 ,     0.0100 ,    5000000 },
-   { "+0.75x"    , "three-quarters"   ,      0.75 ,     0.0150 ,    4500000 },
-   { "+1.00x"    , "normal"           ,      1.00 ,     0.0250 ,    2000000 },
-   { "+2.00x"    , "double"           ,      2.00 ,     0.0500 ,    2000000 },
-   { "+5.00x"    , "faster"           ,      5.00 ,     0.1250 ,    2000000 },
-   { "+10.0x"    , "very fast"        ,     10.00 ,     0.2500 ,    2000000 },
-   { "+20.0x"    , "super fast"       ,     20.00 ,     0.5000 ,    2000000 },
-   { "+50.0x"    , "blur"             ,     50.00 ,     1.2500 ,    2000000 },
-   { "---"       , "end-of-list"      ,      0.00 ,     0.0000 ,          0 },
+   { "-50.0x"    , "blur"             ,    -50.00 },
+   { "-20.0x"    , "super fast"       ,    -20.00 },
+   { "-10.0x"    , "very fast"        ,    -10.00 },
+   { "-5.00x"    , "faster"           ,     -5.00 },
+   { "-2.00x"    , "double"           ,     -2.00 },
+   { "-1.00x"    , "normal"           ,     -1.00 },
+   { "-0.75x"    , "three-quarters"   ,     -0.75 },
+   { "-0.50x"    , "half"             ,     -0.50 },
+   { "-0.25x"    , "quarter"          ,     -0.25 },
+   { "-0.10x"    , "slow"             ,     -0.10 },
+   { "-0.05x"    , "super slow"       ,     -0.05 },
+   { "-0.02x"    , "ultra slow"       ,     -0.02 },
+   { "+0.00x"    , "stopped"          ,      0.00 },
+   { "+0.02x"    , "ultra slow"       ,      0.02 },
+   { "+0.05x"    , "super slow"       ,      0.05 },
+   { "+0.10x"    , "slow"             ,      0.10 },
+   { "+0.25x"    , "quarter"          ,      0.25 },
+   { "+0.50x"    , "half"             ,      0.50 },
+   { "+0.75x"    , "three-quarters"   ,      0.75 },
+   { "+1.00x"    , "normal"           ,      1.00 },
+   { "+2.00x"    , "double"           ,      2.00 },
+   { "+5.00x"    , "faster"           ,      5.00 },
+   { "+10.0x"    , "very fast"        ,     10.00 },
+   { "+20.0x"    , "super fast"       ,     20.00 },
+   { "+50.0x"    , "blur"             ,     50.00 },
+   { "---"       , "end-of-list"      ,      0.00 },
 };
 
 
@@ -256,7 +259,27 @@ yVIKEYS_prog_redraw   (void)
    return rc;
 }
 
-char  yVIKEYS_prog_pos   (double *a_sec ) { if (a_sec  != NULL)  *a_sec = myVIKEYS.p_cur; return 0; }
+char
+yVIKEYS_prog_script     (double a_beg, double a_end, int a_lines)
+{
+   myVIKEYS.p_beg   = a_beg;
+   myVIKEYS.p_end   = a_end;
+   myVIKEYS.p_len   = a_end - a_beg;
+   myVIKEYS.p_cur   = a_beg;
+   myVIKEYS.p_lines = a_lines;
+   return 0;
+}
+
+char
+yVIKEYS_prog_cur        (char *a_pos, double *a_sec, double *a_scale, double *a_inc, int *a_line)
+{
+   if (a_pos   != NULL)  *a_pos   = myVIKEYS.p_pos;
+   if (a_sec   != NULL)  *a_sec   = myVIKEYS.p_cur;
+   if (a_scale != NULL)  *a_scale = s_scale_info [myVIKEYS.p_scale].unit;
+   if (a_inc   != NULL)  *a_inc   = myVIKEYS.p_inc;
+   if (a_line  != NULL)  *a_line  = myVIKEYS.p_line;
+   return 0;
+}
 
 
 
@@ -376,11 +399,19 @@ PROGRESS_mode           (char a_major, char a_minor)
        *>    KINE_unitcond ();                                                        <* 
        *> }                                                                           <*/
       /*---(vertical movement)-----------*/
-      /*> x_leg = my.p_leg;                                                           <* 
-       *> if (strchr ("_KkjJG", a_minor) != 0) {                                      <* 
-       *>    yVIKEYS_keys_vert    (a_minor, &my.p_leg, 1.0, 0.0, 5.0);                <* 
-       *> }                                                                           <* 
-       *> if (x_leg != my.p_leg) TICK_draw ();                                        <*/
+      if (strchr ("_KkjJ~", a_minor) != 0) {
+         switch (a_minor) {
+         case '_' :  myVIKEYS.p_line   = 0;                     break;
+         case 'K' :  myVIKEYS.p_line  -= 5;                     break;
+         case 'k' :  myVIKEYS.p_line  -= 1;                     break;
+         case 'j' :  myVIKEYS.p_line  += 1;                     break;
+         case 'J' :  myVIKEYS.p_line  += 5;                     break;
+         case '~' :  myVIKEYS.p_line   = myVIKEYS.p_lines;      break;
+         }
+         if (myVIKEYS.p_line < 0                )  myVIKEYS.p_line = 0;
+         if (myVIKEYS.p_line >= myVIKEYS.p_lines)  myVIKEYS.p_line = myVIKEYS.p_lines - 1;
+         myVIKEYS.p_redraw = 'y';
+      }
       /*---(zoom and retreat)------------*/
       switch (a_minor) {
       case 'i':
@@ -399,14 +430,10 @@ PROGRESS_mode           (char a_major, char a_minor)
          yvikeys_speed     (MODE_PROGRESS, ">");
          break;
       case '.':
-         myVIKEYS.p_play = '-';
-         yvikeys_speed     (MODE_PROGRESS, "0");
-         break;
-      case ',':
          if (myVIKEYS.p_play == 'y')     myVIKEYS.p_play = '-';
          else                            myVIKEYS.p_play = 'y';
          if (myVIKEYS.p_play == 'y' && myVIKEYS.p_adv == 0.0) {
-            yvikeys_speed     (MODE_PROGRESS, "0");
+            yvikeys_speed     (MODE_PROGRESS, "+1.00x");
          } else {
             yvikeys__loop_calc ();
          }
@@ -415,10 +442,12 @@ PROGRESS_mode           (char a_major, char a_minor)
       /*---(horizontal movement)---------*/
       if (strchr ("0HhlL$", a_minor) != 0) {
          switch (a_minor) {
+         case '0' :  myVIKEYS.p_cur  = myVIKEYS.p_beg;        break;
          case 'H' :  myVIKEYS.p_cur -= myVIKEYS.p_inc * 5.0;  break;
          case 'h' :  myVIKEYS.p_cur -= myVIKEYS.p_inc      ;  break;
          case 'l' :  myVIKEYS.p_cur += myVIKEYS.p_inc      ;  break;
          case 'L' :  myVIKEYS.p_cur += myVIKEYS.p_inc * 5.0;  break;
+         case '$' :  myVIKEYS.p_cur  = myVIKEYS.p_end;        break;
          }
       }
       /*---(other)-----------------------*/
@@ -573,7 +602,6 @@ yvikeys_scale_prog      (char *a_scale)
 }
 
 char  yVIKEYS_scale_desc (char   *a_text) { if (a_text != NULL)  snprintf (a_text, LEN_STR, "%s %s", s_scale_info [myVIKEYS.p_scale].terse, s_scale_info [myVIKEYS.p_scale].desc); return 0; }
-char  yVIKEYS_scale_inc  (double *a_inc)  { if (a_inc  != NULL)  *a_inc = myVIKEYS.p_inc; return 0; }
 
 
 
@@ -678,7 +706,7 @@ yVIKEYS_speed_desc (char *a_text)
       return rce;
    }
    /*---(create text line)---------------*/
-   snprintf (a_text, LEN_STR, "%s %s %.3fa %.1lfms (%s)", (s_moving == 'y') ? "play" : "stop", s_speed_info [myVIKEYS.p_speed].terse, s_advance, s_waitns / 1000000, s_speed_info [myVIKEYS.p_speed].desc);
+   snprintf (a_text, LEN_STR, "%s (%s)", s_speed_info [myVIKEYS.p_speed].terse, s_speed_info [myVIKEYS.p_speed].desc);
    /*---(complete)-----------------------*/
    return 0;
 }
@@ -706,6 +734,7 @@ yvikeys_loop_init       (void)
    yvikeys_loop_update ("");
    /*---(progress)-----------------------*/
    myVIKEYS.p_play   = '-';
+   myVIKEYS.p_pos    = 's';
    myVIKEYS.p_scale  = 0;
    myVIKEYS.p_speed  = 0;
    myVIKEYS.p_adv    = 0.0;
@@ -930,6 +959,23 @@ yvikeys_loop_beg        (void)
 }
 
 char
+yvikeys_loop_prog       (void)
+{
+   if (myVIKEYS.p_play == 'y') {
+      myVIKEYS.p_cur += myVIKEYS.p_adv;
+   }
+   if (myVIKEYS.p_cur <  myVIKEYS.p_beg) {
+      myVIKEYS.p_cur  = myVIKEYS.p_beg;
+      myVIKEYS.p_play = '-';
+   }
+   if (myVIKEYS.p_cur >  myVIKEYS.p_end) {
+      myVIKEYS.p_cur  = myVIKEYS.p_end;
+      myVIKEYS.p_play = '-';
+   }
+   return 0;
+}
+
+char
 yvikeys_loop_sleep      (uchar a_key, char a_draw)
 {
    /*---(locals)-----------+-----+-----+-*/
@@ -992,6 +1038,19 @@ yvikeys_loop_sleep      (uchar a_key, char a_draw)
       x_dur.tv_nsec = s_loop_rem % NSEC;
       nanosleep      (&x_dur, NULL);
    }
+   /*---(complete)-----------------------*/
+   return 0;
+}
+
+char       /*----: give current looping info ---------------------------------*/
+yvikeys_prog_status     (char *a_list)
+{
+   /*---(locals)-----------+-----------+-*/
+   char        rce         = -10;
+   /*---(defenses)-----------------------*/
+   --rce;  if (a_list  == NULL)  return rce;
+   /*---(write status)-------------------*/
+   sprintf (a_list, "progress, play=%c, %8.6fa, %8.6fi", myVIKEYS.p_play, myVIKEYS.p_adv, myVIKEYS.p_inc);
    /*---(complete)-----------------------*/
    return 0;
 }

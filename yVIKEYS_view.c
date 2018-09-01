@@ -195,6 +195,7 @@ tOPTION  s_options [MAX_OPTION ] = {
    { YVIKEYS_STATUS  , "file"         , FILE_status         , "file, control, and version"  },
    { YVIKEYS_STATUS  , "regs"         , yvikeys_regs_status , "current register information"},
    { YVIKEYS_STATUS  , "delay"        , yvikeys_delay_status, "main loop timing settings"   },
+   { YVIKEYS_STATUS  , "prog"         , yvikeys_prog_status , "progress bar playing"        },
    { YVIKEYS_STATUS  , "main"         , yvikeys_main_status , "main loop timing results"    },
    { NULL            , ""             , NULL                , ""                            },
 };

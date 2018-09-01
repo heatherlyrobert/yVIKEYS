@@ -619,6 +619,7 @@ yVIKEYS_main            (char *a_delay, char *a_update, void *a_altinput ())
       x_draw = '-';
       if ((x_loop % myVIKEYS.loops) == 0) {
          x_draw = 'y';
+         yvikeys_loop_prog ();
          yVIKEYS_view_all (0.0);
       }
       /*---(sleeping)--------------------*/

@@ -34,8 +34,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "1.0q"
-#define YVIKEYS_VER_TXT   "progress mode handles simple horizontal movements and redraws"
+#define YVIKEYS_VER_NUM   "1.0h"
+#define YVIKEYS_VER_TXT   "progress mode now includes play and pause"
 
 
 
@@ -103,6 +103,8 @@ struct cSHARED {
    double      p_beg;                       /* beg second for timeline play   */
    double      p_end;                       /* end second for timeline play   */
    double      p_len;                       /* length of script               */
+   int         p_line;                      /* current progress window line   */
+   int         p_lines;                     /* progress window lines avail    */
    char        p_debug; 
    char        p_redraw;                    /* force redraw based on changes  */
    /*---(marks)-----------*/
@@ -403,8 +405,10 @@ char        yvikeys_loop_getch      (void);
 char        yvikeys_loop_delay      (char *a_delay);
 char        yvikeys_loop_update     (char *a_update);
 char        yvikeys_loop_beg        (void);
+char        yvikeys_loop_prog       (void);
 char        yvikeys_loop_sleep      (uchar a_key, char a_draw);
 char        yvikeys_delay_status    (char *a_list);
+char        yvikeys_prog_status     (char *a_list);
 char        yvikeys_main_status     (char *a_list);
 char        yvikeys_loop_set        (char *a_delay, char *a_update);
 char*       GOD__unit               (char *a_question, char a_mark);
