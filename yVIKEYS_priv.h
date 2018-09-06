@@ -34,8 +34,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "1.0h"
-#define YVIKEYS_VER_TXT   "progress mode now includes play and pause"
+#define YVIKEYS_VER_NUM   "1.0i"
+#define YVIKEYS_VER_TXT   "progress mode includes brief descriptions too"
 
 
 

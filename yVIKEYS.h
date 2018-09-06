@@ -261,16 +261,14 @@ char        yVIKEYS_mode_change       (char a_mode, char *a_allow, char *a_mesg)
 char        yVIKEYS_mode_formatter    (void *a_formatter);
 
 /*---(speed)----------------*/
-char        yVIKEYS_speed_set    (char   *a_code   , double *a_waitns);
-char        yVIKEYS_speed_stop   (double *a_waitns);
-char        yVIKEYS_speed_play   (double *a_waitns);
-char        yVIKEYS_speed_more   (double *a_waitns);
-char        yVIKEYS_speed_less   (double *a_waitns);
-char        yVIKEYS_speed_desc   (char   *a_text  );
-char        yVIKEYS_speed_adv    (double *a_pos   );
+char        yVIKEYS_speed_brief  (char   *a_text);
+char        yVIKEYS_speed_desc   (char   *a_text);
 
 /*---(scale)----------------*/
+char        yVIKEYS_scale_brief    (char   *a_text);
 char        yVIKEYS_scale_desc      (char   *a_text  );
+
+
 char        yVIKEYS_prog_redraw     (void);
 char        yVIKEYS_prog_script     (double  a_beg, double  a_end, int a_lines);
 char        yVIKEYS_prog_cur        (char   *a_pos, double *a_sec, double *a_scale, double *a_inc, int *a_line);

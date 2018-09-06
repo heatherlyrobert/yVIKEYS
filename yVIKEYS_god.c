@@ -94,7 +94,7 @@ static tSPEED s_speed_info [MAX_SPEED] = {
    { "-5.00x"    , "faster"           ,     -5.00 },
    { "-2.00x"    , "double"           ,     -2.00 },
    { "-1.00x"    , "normal"           ,     -1.00 },
-   { "-0.75x"    , "three-quarters"   ,     -0.75 },
+   { "-0.75x"    , "three-fourth"     ,     -0.75 },
    { "-0.50x"    , "half"             ,     -0.50 },
    { "-0.25x"    , "quarter"          ,     -0.25 },
    { "-0.10x"    , "slow"             ,     -0.10 },
@@ -106,7 +106,7 @@ static tSPEED s_speed_info [MAX_SPEED] = {
    { "+0.10x"    , "slow"             ,      0.10 },
    { "+0.25x"    , "quarter"          ,      0.25 },
    { "+0.50x"    , "half"             ,      0.50 },
-   { "+0.75x"    , "three-quarters"   ,      0.75 },
+   { "+0.75x"    , "three-fourth"     ,      0.75 },
    { "+1.00x"    , "normal"           ,      1.00 },
    { "+2.00x"    , "double"           ,      2.00 },
    { "+5.00x"    , "faster"           ,      5.00 },
@@ -601,7 +601,19 @@ yvikeys_scale_prog      (char *a_scale)
    return yvikeys_scale  (MODE_PROGRESS, a_scale);
 }
 
-char  yVIKEYS_scale_desc (char   *a_text) { if (a_text != NULL)  snprintf (a_text, LEN_STR, "%s %s", s_scale_info [myVIKEYS.p_scale].terse, s_scale_info [myVIKEYS.p_scale].desc); return 0; }
+char
+yVIKEYS_scale_brief (char   *a_text)
+{
+   if (a_text != NULL)  snprintf (a_text, LEN_STR, "%s", s_scale_info [myVIKEYS.p_scale].label);
+   return 0;
+}
+
+char
+yVIKEYS_scale_desc (char   *a_text)
+{
+   if (a_text != NULL)  snprintf (a_text, LEN_STR, "%s %s", s_scale_info [myVIKEYS.p_scale].terse, s_scale_info [myVIKEYS.p_scale].desc);
+   return 0;
+}
 
 
 
@@ -691,6 +703,24 @@ char
 yvikeys_speed_prog      (char *a_speed)
 {
    return yvikeys_speed  (MODE_PROGRESS, a_speed);
+}
+
+char
+yVIKEYS_speed_brief (char *a_text)
+{
+   /*---(locals)-----------+-----------+-*/
+   char        rce         = -10;
+   /*---(defense)------------------------*/
+   --rce;  if (a_text == NULL) {
+      return rce;
+   }
+   --rce;  if (myVIKEYS.p_speed < 0) {
+      return rce;
+   }
+   /*---(create text line)---------------*/
+   snprintf (a_text, LEN_STR, "%s", s_speed_info [myVIKEYS.p_speed].terse);
+   /*---(complete)-----------------------*/
+   return 0;
 }
 
 char
