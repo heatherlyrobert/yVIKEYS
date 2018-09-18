@@ -18,7 +18,7 @@ struct cSCALE {
    char        label       [LEN_LABEL];
    char        desc        [LEN_STR  ];
    char        power;
-   double      unit;
+   float       unit;
 };
 static tSCALE s_scale_info [MAX_SCALE] = {
    { 'm' , "T"  , "tera"      , "tera  (1 trillion)"    ,  12 , 1000000000000.0             },
@@ -77,15 +77,11 @@ static tSCALE s_scale_info [MAX_SCALE] = {
 
 /*===[[ SPEED ]]==============================================================*/
 #define     MAX_SPEED   50
-static char    s_moving   = '-';            /* playing (y/n)                  */
-static float   s_advance  = 0.0;            /* x-advance while moving         */
-static double  s_waitns   = 100000000;      /* time to wait while moving      */
-
 typedef   struct cSPEED  tSPEED;
 struct cSPEED {
    char        terse       [LEN_LABEL];
    char        desc        [LEN_STR  ];
-   double      speed;   
+   float       speed;   
 };
 static tSPEED s_speed_info [MAX_SPEED] = {
    { "-50.0x"    , "blur"             ,    -50.00 },
@@ -260,18 +256,23 @@ yVIKEYS_prog_redraw   (void)
 }
 
 char
-yVIKEYS_prog_script     (double a_beg, double a_end, int a_lines)
+yVIKEYS_prog_script     (float a_beg, float a_end, int a_lines)
 {
    myVIKEYS.p_beg   = a_beg;
+   DEBUG_USER   yLOG_double  ("p_beg"     , myVIKEYS.p_beg);
    myVIKEYS.p_end   = a_end;
+   DEBUG_USER   yLOG_double  ("p_end"     , myVIKEYS.p_end);
    myVIKEYS.p_len   = a_end - a_beg;
+   DEBUG_USER   yLOG_double  ("p_len"     , myVIKEYS.p_len);
    myVIKEYS.p_cur   = a_beg;
+   DEBUG_USER   yLOG_double  ("p_cur"     , myVIKEYS.p_cur);
    myVIKEYS.p_lines = a_lines;
+   DEBUG_USER   yLOG_value   ("p_lines"   , myVIKEYS.p_lines);
    return 0;
 }
 
 char
-yVIKEYS_prog_cur        (char *a_pos, double *a_sec, double *a_scale, double *a_inc, int *a_line)
+yVIKEYS_prog_cur        (char *a_pos, float *a_sec, float *a_scale, float *a_inc, int *a_line)
 {
    if (a_pos   != NULL)  *a_pos   = myVIKEYS.p_pos;
    if (a_sec   != NULL)  *a_sec   = myVIKEYS.p_cur;
@@ -410,7 +411,6 @@ PROGRESS_mode           (char a_major, char a_minor)
          }
          if (myVIKEYS.p_line < 0                )  myVIKEYS.p_line = 0;
          if (myVIKEYS.p_line >= myVIKEYS.p_lines)  myVIKEYS.p_line = myVIKEYS.p_lines - 1;
-         myVIKEYS.p_redraw = 'y';
       }
       /*---(zoom and retreat)------------*/
       switch (a_minor) {
@@ -436,11 +436,16 @@ PROGRESS_mode           (char a_major, char a_minor)
             yvikeys_speed     (MODE_PROGRESS, "+1.00x");
          } else {
             yvikeys__loop_calc ();
+            myVIKEYS.p_redraw = '-';
          }
          break;
       }
       /*---(horizontal movement)---------*/
       if (strchr ("0HhlL$", a_minor) != 0) {
+         DEBUG_USER   yLOG_double  ("p_beg"     , myVIKEYS.p_beg);
+         DEBUG_USER   yLOG_double  ("p_end"     , myVIKEYS.p_end);
+         DEBUG_USER   yLOG_double  ("p_inc"     , myVIKEYS.p_inc);
+         DEBUG_USER   yLOG_double  ("p_cur"     , myVIKEYS.p_cur);
          switch (a_minor) {
          case '0' :  myVIKEYS.p_cur  = myVIKEYS.p_beg;        break;
          case 'H' :  myVIKEYS.p_cur -= myVIKEYS.p_inc * 5.0;  break;
@@ -449,6 +454,7 @@ PROGRESS_mode           (char a_major, char a_minor)
          case 'L' :  myVIKEYS.p_cur += myVIKEYS.p_inc * 5.0;  break;
          case '$' :  myVIKEYS.p_cur  = myVIKEYS.p_end;        break;
          }
+         DEBUG_USER   yLOG_double  ("p_cur"     , myVIKEYS.p_cur);
       }
       /*---(other)-----------------------*/
       switch (a_minor) {
@@ -484,6 +490,7 @@ PROGRESS_mode           (char a_major, char a_minor)
       if (strchr ("0shcle$", a_minor) != NULL) {
          myVIKEYS.p_pos = a_minor;
          yvikeys__loop_calc ();
+         myVIKEYS.p_redraw = '-';
       } else {
          return -1;
       }
@@ -591,6 +598,7 @@ yvikeys_scale           (char a_mode, char *a_scale)
    /*> printf ("end : myVIKEYS.p_scale = %d\n", myVIKEYS.p_scale);                    <*/
    /*---(update looping)-----------------*/
    yvikeys__loop_calc   ();
+   if (x_scale == x_index)  myVIKEYS.p_redraw = '-';
    /*---(complete)-----------------------*/
    return rc;
 }
@@ -695,6 +703,7 @@ yvikeys_speed           (char a_mode, char *a_speed)
    /*> printf ("end : myVIKEYS.p_speed = %d\n", myVIKEYS.p_speed);                    <*/
    /*---(update looping)-----------------*/
    yvikeys__loop_calc   ();
+   if (x_speed == x_index)  myVIKEYS.p_redraw = '-';
    /*---(complete)-----------------------*/
    return rc;
 }

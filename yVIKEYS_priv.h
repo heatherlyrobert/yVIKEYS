@@ -34,8 +34,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "1.0i"
-#define YVIKEYS_VER_TXT   "progress mode includes brief descriptions too"
+#define YVIKEYS_VER_NUM   "1.0j"
+#define YVIKEYS_VER_TXT   "converted all interface real numbers to float (from double)"
 
 
 
@@ -96,13 +96,13 @@ struct cSHARED {
    char        p_play;                      /* is progress playing            */
    int         p_scale;                     /* progress bar scale             */
    int         p_speed;                     /* progress bar speed             */
-   double      p_adv;                       /* progress play advancing        */
-   double      p_inc;                       /* progress horizontal moves      */
+   float       p_adv;                       /* progress play advancing        */
+   float       p_inc;                       /* progress horizontal moves      */
    char        p_pos;                       /* position of current bar (shcle)*/
-   double      p_cur;                       /* current timeline seconds       */
-   double      p_beg;                       /* beg second for timeline play   */
-   double      p_end;                       /* end second for timeline play   */
-   double      p_len;                       /* length of script               */
+   float       p_cur;                       /* current timeline seconds       */
+   float       p_beg;                       /* beg second for timeline play   */
+   float       p_end;                       /* end second for timeline play   */
+   float       p_len;                       /* length of script               */
    int         p_line;                      /* current progress window line   */
    int         p_lines;                     /* progress window lines avail    */
    char        p_debug; 

@@ -270,13 +270,8 @@ char        yVIKEYS_scale_desc      (char   *a_text  );
 
 
 char        yVIKEYS_prog_redraw     (void);
-char        yVIKEYS_prog_script     (double  a_beg, double  a_end, int a_lines);
-char        yVIKEYS_prog_cur        (char   *a_pos, double *a_sec, double *a_scale, double *a_inc, int *a_line);
-
-/*---(keys)-----------------*/
-char        yVIKEYS_keys_horz    (char a_minor, double *a_base, double a_inc, double a_min, double a_max);
-char        yVIKEYS_keys_vert    (char a_minor, double *a_base, double a_inc, double a_min, double a_max);
-char        yVIKEYS_keys_zoom    (char a_minor, double *a_base, double a_inc, double a_min, double a_max);
+char        yVIKEYS_prog_script     (float a_beg, float  a_end, int    a_lines);
+char        yVIKEYS_prog_cur        (char *a_pos, float *a_sec, float *a_scale, float *a_inc, int *a_line);
 
 /*---(macros)---------------*/
 char        yVIKEYS_macro_config    (void *a_loader, void *a_saver);
