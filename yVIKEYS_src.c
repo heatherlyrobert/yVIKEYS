@@ -502,12 +502,12 @@ SOURCE__words_mode      (char a_1st, char a_curr, char a_save)
    /*---(formula)------------------------*/
    if (strchr ("=#", a_1st) != NULL) {
       if      (strchr (x_form, a_curr) != NULL)     x_mode = 'w';
-      else if (strchr ("¹ "  , a_curr) != NULL)     x_mode = '¹';
+      else if (strchr ("· "  , a_curr) != NULL)     x_mode = '·';
       else                                          x_mode = 's';
    }
    /*---(word)---------------------------*/
    else {
-      if      (strchr ("¹ "  , a_curr) != NULL)     x_mode = '¹';
+      if      (strchr ("· "  , a_curr) != NULL)     x_mode = '·';
       else                                          x_mode = 'w';
    }
    /*---(complete)-----------------------*/
@@ -537,8 +537,8 @@ SOURCE__words          (void)
    char        rce         =  -10;
    char        x_change    =  '-';
    int         i           =    0;
-   char        x_save      =  '¹';
-   char        x_mode      =  '¹';
+   char        x_save      =  '·';
+   char        x_mode      =  '·';
    /*---(prepare)------------------------*/
    DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
    DEBUG_EDIT   yLOG_value   ("s_npos"    , s_cur->npos);
@@ -546,25 +546,25 @@ SOURCE__words          (void)
    s_cur->words [s_cur->npos] = 0;
    for (i = 0; i < s_cur->npos; ++i) {
       /*---(initialize)------------------*/
-      s_cur->words [i] = '¹';
+      s_cur->words [i] = '·';
       /*---(check)-----------------------*/
       x_mode = SOURCE__words_mode (s_cur->contents [0], s_cur->contents [i], x_save);
       if (x_mode == x_save)  continue;
       /*---(update current)--------------*/
-      if (x_save == '¹' && x_mode == 'w')   SOURCE__words_update (i    , '<');
-      if (x_save == '¹' && x_mode == 's')   SOURCE__words_update (i    , '<');
+      if (x_save == '·' && x_mode == 'w')   SOURCE__words_update (i    , '<');
+      if (x_save == '·' && x_mode == 's')   SOURCE__words_update (i    , '<');
       if (x_save == 'w' && x_mode == 's')   SOURCE__words_update (i    , '<');
       if (x_save == 's' && x_mode == 'w')   SOURCE__words_update (i    , '<');
       /*---(update previous)-------------*/
-      if (x_save == 'w' && x_mode == '¹')   SOURCE__words_update (i - 1, '>'); 
-      if (x_save == 's' && x_mode == '¹')   SOURCE__words_update (i - 1, '>'); 
+      if (x_save == 'w' && x_mode == '·')   SOURCE__words_update (i - 1, '>'); 
+      if (x_save == 's' && x_mode == '·')   SOURCE__words_update (i - 1, '>'); 
       if (x_save == 'w' && x_mode == 's')   SOURCE__words_update (i - 1, '>');
       if (x_save == 's' && x_mode == 'w')   SOURCE__words_update (i - 1, '>');
       /*---(save)------------------------*/
       x_save = x_mode;
       /*---(done)------------------------*/
    }
-   if (x_mode != '¹')  SOURCE__words_update (s_cur->npos - 1, '>');
+   if (x_mode != '·')  SOURCE__words_update (s_cur->npos - 1, '>');
    DEBUG_EDIT   yLOG_info    ("words"     , s_cur->words);
    DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
    return 0;

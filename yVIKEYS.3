@@ -10,16 +10,70 @@ modal interface and application framework to provide wicked, powerful, and
 high-end features to ALL my applications.
 
 .SH PHASE I: minimal setup
-only five function calls are required to bring up a framework environment
-and functioning event loop.
+only six lines need to be added to bring up a simple environment and functioning
+event loop.  after compiling, the program will run, show a status and command
+line, and accept basic vikeys commands, like ":qa".
 
-.B PROG_init...
-   -- yVIKEYS_init to initialize library
+.B getting access to the library
+   1) put "#include <yVIKEYS.h>" in the private header file
+   2) include "-lyVIKEYS_debug" on LIB_MINE line in the Makefile
 
-.B PROG_final...
+.B setup and teardown
+   3) call "yVIKEYS_init" from the PROG_init function (early)
+   4) call "yVIKEYS_wrap" from the PROG_end function (late)
+
+.B main loop
+   5) replace loop with "rc = yVIKEYS_main  (¸keys¸, ¸every¸, NULL)"
+
+.B tiniest configuration to start
+   6) call "yVIKEYS_run_curses (¸<title>¸, VER_NUM)" in PROG_final
+   .) for opengl call "yVIKEYS_run_opengl (¸<title>¸, VER_NUM, ...)"
+
+do this part first to test the environment is stable.
+
+.SH PHASE II: basic main window configuration and drawing
+only a single configuration call and a new function are required to draw the
+main window.  after compiling, the program will display a static version of
+the main window allowing prototyping.
+
+.B configuration
+   1) yVIKEYS_view_basic (YVIKEYS_MAIN, YVIKEYS_FLAT, ..., <func>);
+
+.B drawing is simple
+   2) add "char <func> (void)" to your program
+   3) use yVIKEYS_view_size   (YVIKEYS_MAIN, ...) to get window sizes
+   .) for opengl use yVIKEYS_view_bounds (YVIKEYS_MAIN, ...)
+   4) add pure drawing code (no setup) to fill within size/bounds
+
+even if you just draw a test pattern, this step is useful early.
+
+.SH PHASE III: main window movements
+
+
+
+   yVIKEYS_map_config    (YVIKEYS_OFFICE, MAP_mapper, LOC_locator, LOC_addressor);
+
+   char MAP_mapper (char a_req)
+
+   char LOC_locator (char *a_label, int *a_x, int *a_y, int *a_z, int *a_w)
+
+   char LOC_addressor (char *a_label, int a_x, int a_y, int a_z, int a_w)
+
+   yVIKEYS_map_refresh ();
+
+
+
+   7) yVIKEYS_map_config    (YVIKEYS_OFFICE, MAP_mapper, LOC_locator, LOC_addressor);
+
+   PROG_final       
+   yVIKEYS_view_config   ("gyges spreadsheet", VER_NUM, YVIKEYS_CURSES, 0, 0, 0);
+   yVIKEYS_map_config    (YVIKEYS_OFFICE, MAP_mapper, LOC_locator, LOC_addressor);
    -- yVIKEYS_view_config to establish main window and sizing
    -- yVIKEYS_cmds_direct to set the color palette
    -- yVIKEYS_view_colors to assign colors to areas
+
+.B main...
+
 
 .B main...
    -- yVIKEYS_main instead of a custom event loop

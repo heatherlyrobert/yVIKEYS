@@ -129,7 +129,6 @@ static tCOMMAND  s_fails     [MAX_CMDS];
 
 
 /*===[[ HISTORY ]]============================================================*/
-
 #define   MAX_PASS     1000
 typedef struct cPASSES   tPASSES;
 struct cPASSES {
@@ -519,7 +518,7 @@ HISTORY__load           (char a_mode, char *a_text)
       s_len  = 0;
       return -1;
    }
-   strlcpy (s_current, a_text, LEN_COMMAND);
+   strlcpy  (s_current, a_text, LEN_COMMAND);
    strldchg (s_current, G_KEY_SPACE, G_CHAR_SPACE, LEN_RECD);
    s_len  = strllen (s_current, LEN_COMMAND);
    return 0;
@@ -628,6 +627,7 @@ HISTORY__exec           (char a_mode)
    DEBUG_HIST   yLOG_value   ("s_len"     , s_len);
    DEBUG_HIST   yLOG_info    ("s_current" , s_current);
    /*---(execute)------------------------*/
+   strldchg (s_current, G_CHAR_SPACE, G_KEY_SPACE, LEN_RECD);
    switch (a_mode) {
    case MODE_COMMAND :
       DEBUG_HIST   yLOG_note    ("execute as command");
@@ -636,9 +636,7 @@ HISTORY__exec           (char a_mode)
       break;
    case MODE_SEARCH  : 
       DEBUG_HIST   yLOG_note    ("execute as search");
-      strlcpy (t, s_current, LEN_RECD);
-      strldchg (t, G_CHAR_SPACE, G_KEY_SPACE, LEN_RECD);
-      rc = s_searcher (t);
+      rc = s_searcher (s_current);
       break;
    }
    /*---(complete)-----------------------*/
@@ -836,10 +834,8 @@ char
 yVIKEYS_srch_direct     (char *a_text)
 {
    char        rc          =    0;
-   /*> rc = SRCH__load (a_search);                                                    <*/
    rc = HISTORY__load (MODE_SEARCH, a_text);
    if (rc < 0)  return -1;
-   /*> rc = SRCH__exec ();                                                            <*/
    rc = HISTORY__exec (MODE_SEARCH);
    return rc;
 }

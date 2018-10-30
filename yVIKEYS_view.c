@@ -164,6 +164,7 @@ struct cLAYOUT {
 tLAYOUT   s_layouts [MAX_LAYOUT] = {
    /*---name------    tbfnmapscdrvkxy  ,    12345678901234567890123456789012345678901234567890  */
    { "min"         , "----m----------" , "smallest footprint, least elements showing"           },
+   { "starter"     , "----m--ck------" , "little footprint for new applications"                },
    { "work"        , "t---m--sc--vk--" , "more balanced display of common elements"             },
    { "rob"         , "t---m--sc--v---" , "more balanced display of common elements"             },
    { "max"         , "tbfnm-pscdrvk--" , "everything displays at one time"                      },
@@ -183,6 +184,7 @@ struct cOPTION  {
    char        desc        [LEN_DESC ];
 };
 tOPTION  s_options [MAX_OPTION ] = {
+   { YVIKEYS_STATUS  , "empty"        , VIEW_status_default , "empty status display"        },
    { YVIKEYS_STATUS  , "mode"         , MODE_status         , "display the mode stack"      },
    { YVIKEYS_STATUS  , "xmap"         , MAP_xstatus         , "x-axis position details"     },
    { YVIKEYS_STATUS  , "ymap"         , MAP_ystatus         , "y-axis position details"     },
@@ -1295,7 +1297,8 @@ yVIKEYS_view_config     (cchar *a_title, cchar *a_ver, cchar a_env, cint a_wide,
    myVIKEYS.font       =  0;
    myVIKEYS.point      =  9;
    myVIKEYS.font_scale = 0.0;
-   VIEW__layout ("work");
+   VIEW__layout ("starter");
+   VIEW__switch ("status", "empty");
    /*---(set text data)------------------*/
    if (a_title != NULL) {
       n = VIEW__abbr (YVIKEYS_TITLE);
@@ -1313,6 +1316,9 @@ yVIKEYS_view_config     (cchar *a_title, cchar *a_ver, cchar a_env, cint a_wide,
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
 }
+
+char yVIKEYS_run_curses    (cchar *a_title, cchar *a_ver) { return yVIKEYS_view_config (a_title, a_ver, YVIKEYS_CURSES, 0, 0, 0); }
+char yVIKEYS_run_opengl    (cchar *a_title, cchar *a_ver, cint a_wide, cint a_tall) { return yVIKEYS_view_config (a_title, a_ver, YVIKEYS_OPENGL, a_wide, a_tall, 0); }
 
 char
 yVIKEYS_view_simple        (cchar a_part, cchar a_color, void *a_drawer)
@@ -1354,7 +1360,7 @@ yVIKEYS_view_simple        (cchar a_part, cchar a_color, void *a_drawer)
 }
 
 char
-yVIKEYS_view_moderate      (cchar a_part, cchar a_type, cchar a_anchor, cchar a_color, void *a_drawer)
+yVIKEYS_view_basic         (cchar a_part, cchar a_type, cchar a_anchor, cchar a_color, void *a_drawer)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        n           =    0;
@@ -1383,11 +1389,11 @@ yVIKEYS_view_moderate      (cchar a_part, cchar a_type, cchar a_anchor, cchar a_
    else                                s_parts [n].type = YVIKEYS_FLAT;
    DEBUG_PROG   yLOG_char    ("type"      , s_parts [n].type);
    /*---(anchor)-------------------------*/
-   DEBUG_PROG   yLOG_char    ("a_anchor"  , a_anchor);
+   DEBUG_PROG   yLOG_value   ("a_anchor"  , a_anchor);
    if      (a_anchor <  0  )  s_parts [n].anchor = YVIKEYS_MIDCEN;
    else if (a_anchor >= 10 )  s_parts [n].anchor = YVIKEYS_MIDCEN;
    else                       s_parts [n].anchor = a_anchor;
-   DEBUG_PROG   yLOG_char    ("anchor"    , s_parts [n].anchor);
+   DEBUG_PROG   yLOG_value   ("anchor"    , s_parts [n].anchor);
    VIEW__reanchor        (n);
    /*---(save color)---------------------*/
    DEBUG_PROG   yLOG_value   ("a_color"   , a_color);
@@ -1608,6 +1614,7 @@ yVIKEYS_view_size       (cchar a_part, int *a_left, int *a_wide, int *a_bott, in
       if (a_wide != NULL)  *a_wide  = 0;
       if (a_tall != NULL)  *a_tall  = 0;
       if (a_text != NULL)  strlcpy (a_text, ""          , LEN_DESC);
+      DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
       return n;
    }
    DEBUG_GRAF   yLOG_note    ("save values for good entry");
@@ -2091,6 +2098,13 @@ VIEW__layer_show         (void)
       if (s_layers [i].on != 'y'     )  continue;
       if (s_layers [i].drawer != NULL)  s_layers [i].drawer ();
    }
+   return 0;
+}
+
+char
+VIEW_status_default  (char *a_list)
+{
+   snprintf (a_list, LEN_STR, "  ");
    return 0;
 }
 

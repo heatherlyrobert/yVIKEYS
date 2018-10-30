@@ -602,6 +602,8 @@ yVIKEYS_main            (char *a_delay, char *a_update, void *a_altinput ())
    while (1) {
       /*---(get input)-------------------*/
       x_ch = yvikeys_loop_getch ();
+      DEBUG_GRAF  yLOG_value   ("x_ch"      , x_ch);
+      DEBUG_GRAF  yLOG_value   ("RESIZE"    , KEY_RESIZE);
       yvikeys_loop_beg   ();
       /*---(specialty actions)-----------*/
       if (x_ch == KEY_RESIZE)  yVIKEYS_view_resize (0, 0, 0);

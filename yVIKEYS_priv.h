@@ -34,8 +34,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "1.0j"
-#define YVIKEYS_VER_TXT   "converted all interface real numbers to float (from double)"
+#define YVIKEYS_VER_NUM   "1.0k"
+#define YVIKEYS_VER_TXT   "update for new shrike font version"
 
 
 
@@ -193,6 +193,7 @@ char        VIEW__heights           (cint a_tall);
 char        VIEW__resize            (cchar a_type);
 char        VIEW__grid_offset       (int a_x, int a_y, int a_z);
 char        VIEW__grid_size         (int a_x, int a_y, int a_z);
+char        VIEW_status_default     (char *a_list);
 
 char*       VIEW__unit              (char *a_question, char a_index);
 
