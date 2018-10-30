@@ -34,8 +34,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "1.0k"
-#define YVIKEYS_VER_TXT   "update for new shrike font version"
+#define YVIKEYS_VER_NUM   "1.0l"
+#define YVIKEYS_VER_TXT   "patch to identify ncurses window resizing"
 
 
 
@@ -402,7 +402,7 @@ char*       SRCH__unit              (char *a_question, char a_index);
 
 
 char        yvikeys_loop_init       (void);
-char        yvikeys_loop_getch      (void);
+int         yvikeys_loop_getch      (void);
 char        yvikeys_loop_delay      (char *a_delay);
 char        yvikeys_loop_update     (char *a_update);
 char        yvikeys_loop_beg        (void);

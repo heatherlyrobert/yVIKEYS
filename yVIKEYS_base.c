@@ -607,6 +607,7 @@ yVIKEYS_main            (char *a_delay, char *a_update, void *a_altinput ())
       yvikeys_loop_beg   ();
       /*---(specialty actions)-----------*/
       if (x_ch == KEY_RESIZE)  yVIKEYS_view_resize (0, 0, 0);
+      if (x_ch == -102)        yVIKEYS_view_resize (0, 0, 0);
       if (x_ch < 0)  x_key = 0;
       else           x_key = x_ch;
       /*---(keyboard input)--------------*/

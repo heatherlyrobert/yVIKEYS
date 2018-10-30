@@ -788,7 +788,7 @@ yvikeys_loop_init       (void)
    return 0;
 }
 
-char
+int
 yvikeys_loop_getch      (void)
 {
    /*---(locals)-----------+-----+-----+-*/
