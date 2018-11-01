@@ -55,7 +55,8 @@
 #define     SMOD_MAP_REG   '"'    /* register actions                         */
 #define     SMOD_SRC_REG   't'    /* text register actions                    */
 #define     UMOD_SRC_UNDO  's'    /* incremental text change undo/redo        */
-#define     UMOD_HISTORY   'm'    /* incremental map change undo/redo         */
+#define     UMOD_MAP_UNDO  'm'    /* incremental map change undo/redo         */
+#define     UMOD_HISTORY   'H'    /* dislay command/search history            */
 #define     SMOD_BUFFER    ','    /* selecting buffers                        */
 #define     XMOD_FORMAT    '$'    /* content formatting                       */
 #define     XMOD_OBJECT    'o'    /* object formatting                        */

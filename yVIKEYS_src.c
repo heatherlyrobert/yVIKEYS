@@ -1918,12 +1918,10 @@ SOURCE_mode             (int a_major, int a_minor)
          rc = tolower (a_minor);
          break;
       case  'D' :
-         /*> rc = SOURCE_delete     ('d', '$');                                       <*/
          rc = SOURCE_delete     ('d', 'l');
          SOURCE__done ();
          break;
       case  'X' :
-         /*> rc = SOURCE_delete     ('x', '$');                                       <*/
          rc = SOURCE_delete     ('x', 'l');
          SOURCE__done ();
          break;
@@ -1933,23 +1931,11 @@ SOURCE_mode             (int a_major, int a_minor)
          DEBUG_USER   yLOG_note    ("handle a backspace");
          rc = SOURCE_delete     ('d', 'h');
          SOURCE__done ();
-         /*> if (s_cur->cpos > 0) {                                                                      <* 
-          *>    SRC_UNDO__beg (__FUNCTION__);                                                               <* 
-          *>    SRC_UNDO__add ('d', 'h', s_cur->cpos - 1, s_cur->contents [s_cur->cpos - 1], G_KEY_NULL);   <* 
-          *>    rc = ONE__backspace ();                                                                  <* 
-          *>    SRC_UNDO__end (__FUNCTION__);                                                               <* 
-          *> }                                                                                           <*/
       }
       if (a_minor == G_KEY_DEL) {
          DEBUG_USER   yLOG_note    ("handle a delete");
          rc = SOURCE_delete     ('d', 'l');
          SOURCE__done ();
-         /*> if (s_cur->cpos < s_cur->npos) {                                                    <* 
-          *>    SRC_UNDO__beg (__FUNCTION__);                                                       <* 
-          *>    SRC_UNDO__add ('d', 'l', s_cur->cpos, s_cur->contents [s_cur->cpos], G_KEY_NULL);   <* 
-          *>    rc = ONE__delete ();                                                             <* 
-          *>    SRC_UNDO__end (__FUNCTION__);                                                       <* 
-          *> }                                                                                   <*/
       }
       /*---(basic movement)--------------*/
       if (strchr (g_hsimple, a_minor) != 0) {
@@ -2477,11 +2463,19 @@ HISTORY_display         (void)
    char        x_entry     [LEN_RECD]  = "";
    int         i           =    0;
    /*---(defense)------------------------*/
+   DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
+   DEBUG_EDIT   yLOG_char    ("info_win"  , myVIKEYS.info_win);
    if (myVIKEYS.info_win == 'y') {
       HISTORY_infowin ();
+      DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
       return 0;
    }
-   if (MODE_not (UMOD_HISTORY))   return 0;
+   DEBUG_EDIT   yLOG_char    ("curr mode" , MODE_curr ());
+   DEBUG_EDIT   yLOG_char    ("prev mode" , MODE_prev ());
+   if (MODE_not (UMOD_HISTORY)) {
+      DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
    /*---(header)-------------------------*/
    DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
    /*---(get sizes)----------------------*/
@@ -2700,6 +2694,7 @@ SRC_INPT_umode             (int  a_major, int  a_minor)
       /*> SOURCE__done   ();                                                          <*/
       HISTORY_start ();
       MODE_enter  (UMOD_HISTORY);
+      DEBUG_USER   yLOG_note    ("change to history mode");
    }
    /*---(complete)-----------------------*/
    DEBUG_USER   yLOG_exit    (__FUNCTION__);

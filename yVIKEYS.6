@@ -33,16 +33,14 @@ a one-time, steep learning curve.
 
 .B six main modes (MODE)
    G   god         special 3d-style omnicient pov and review
-   O   omni        special 3d-style omnipotent manipulation
    P   progress    manage 4d timelines and action over time
    M   map         special 2d-style when content is partitioned
    S   source      normal review of content (vi/vim normal mode)
-   I   input       adding new or updating existing content
+   :   command     provides a host of complex capabilities
+   /   search      find and manipulate data and objects
 
 .B sub-modes (SMOD)
    V   visual      map/object based visual selection
-   :   command     provides a host of complex capabilities
-   /   search      find and manipulate data and objects
    \\   menu        menu system
    f   format      data presentation formatting
    o   object      object presentation formatting
@@ -50,6 +48,8 @@ a one-time, steep learning curve.
    s   select      source/character based visual select mode
    r   replace     overwrite characters in source mode
    e   error       display and act on errors or troubles
+   I   input       adding new or updating existing content
+   O   omni        special 3d-style omnipotent manipulation
 
 .B micro modes (UMOD)
    9   repeat      replay commands multiple times
@@ -106,98 +106,83 @@ anticipated change.
    -- file/save/open
 
 .SH SPECIAL CHARACTERS
-.B definition (D).  
-special characters are those outside the ascii 7bit save range of 32-127
-which have no keyboard key.
-
-.B value (V).  
-special characters can clearly represent special actions or controls, as well
-as make variables more meaningful.
+.B situation (S).  
+applications depend on many types of characters -- content, delimiters,
+special symbols, delayed input, and controls.
 
 .B complication (C).  
-other that cut and paste, most applications do not easily support the inclusion
-of funky, non-keyboard characters.
+it is normally only easily input, edit, and show ascii 7bit safe, non-control
+characters (32-127 range).
 
 .B answer (A).  
-i will add escaped characters into the input mode to allow the standard entry
-of some of this useful things.
+i will add standard escaped characters into the yVIKEYS shared input mode so
+all applications can use them.
 
-.B high frequency invisible characters
-   ¹          space               (\\s) or hit space
-   ¦          return              (\\n) or hit return
-   ¥          escape              (\\e) or hit escape
-   «          tab                 (\\t) or hit tab
-   Å          backspace           (\\b) or hit bs
-   Ä          delete              (\\d) or hit delete
+.B adding high frequency invisible characters
+   \\s     ·     visible space      (also backslash then hit space)
+   \\n     ¦     delayed return     (also backslash then hit enter)
+   \\e     ¥     delayed escape     (also backslash then hit escape)
+   \\b     ¿     delayed backspace  (also backslash then hit backspace)
+   \\d     ¾     delayed delete     (also backslash then hit delete)
 
-.B file and editing characters
-   Â          group separator     (\\g)
-   §          field separator     (\\f)
-   ·          delayed backslash   (\\\\)
-   ¸          delayed dquote      (\\")
-   ¤          placeholder         (\\p)
-   ½          big dot             (\\#)
+.B adding file and editing control characters
+   \\g     ¨     group separator for records/files
+   \\f     §     field separator for records/files
+   \\p     ¤     placeholder for current position during input
+   \\"     ¶     delayed double quote for file/input reading
+   \\\\     µ     delayed backslash for file/input reading
 
-.B macro/script control characters
-   ©          pause/wait 1 sec    (\\,)
-   ¿          break point         (\\.)
-   ±          stop/halt           (\\!)
-   ¨          display/refresh     (\\?)
-   Ó          alt                 (\\a)
-   Ô          control             (\\c)
-   £          null                (\\0)
+.B adding macro control characters
+   \\,     «     wait/pause for a preset time (often 1sec)
+   \\.     ª     breakpoint during execution
+   \\q     ³     halt execution
+   \\+     ©     update screen contents (in case of fast execution)
+   \\0     £     visible null
 
-.B greek in the input mode (upper case)
-   è          alpha               (\\A)
-   é          beta                (\\B)
-   ê          gamma               (\\G)
-   ë          delta               (\\D)
-   ì          epsilon             (\\E)
-   í          zeta                (\\Z)
-   î          eta                 (\\H)
-   ï          theta               (\\Y)
-   ð          iota                (\\I)
-   ñ          kappa               (\\K)
-   ò          lambda              (\\L)
-   ó          mu                  (\\M)
-   ô          nu                  (\\N)
-   õ          xi                  (\\X)
-   ö          omicron             (\\O)
-   ÷          pi                  (\\P)
-   ø          rho                 (\\R)
-   ù          sigma               (\\S)
-   ú          tau                 (\\T)
-   û          upsilon             (\\U)
-   ü          phi                 (\\H)
-   ý          chi                 (\\C)
-   þ          psi                 (\\Q)
-   ÿ          omega               (\\W)
+.B adding greek characters
+   type \\ first, the one of the latin characters below
+   è é ê ë   ì í î ï   ð ñ ò ó   ô õ ö ÷   ø ù ú û   ü ý þ ÿ 
+   A B G D   E Z H Y   I K L M   N X O P   R S T U   F C Q W
 
+.B adding mathmatical charcters
+   type \\ first, the one of the latin characters below
+   å æ    Ë Ì Í    Î Æ Ç È É Ê    À Á Â Ã Ä Å   ¸ ¹ º » ¼ ½
+   = ~    # a r    1 2 3 4 x y    5 6 7 8 9 z   ( ) [ ] < >
 
-.SH COMMAND LINE
+.B adding other useful characters
+   type \\ first, the one of the latin characters below
+   ´ ¢ ¡    Ô Ó Ö Õ    Ð Ñ Ò    ® ¯
+   @ ? !    j k h l    & | ^    { }
+
+.SH COMMAND mode
+.SS ---basics---------------------------------------------------------
+ :´´´¦      perform a single command
+.SS ---overview-------------------------------------------------------
 .B situation (S).  
 rapid, simple, and frequent commands belong assigned to keystrokes.  they are
-used enough to be driven into muscle memory.  vi_keys excels at exposing a
-universal standard to all applications.
+used enough to be driven into muscle memory.
 
 .B complication (C).  
-but, complicated or argument driven commands are better suited to a command
-line.  this is often a neglected, messy, non-standard affair that is crammed
-into menus and complex dialogs.
+but, complicated or argument driven commands are often neglected, messy,
+and/or crammed into menus and dialogs.
 
 .B answer (A).  
 i will standardize on a vim-like command line with relatively standard
-commands which emulate a vi/vim's version.  potentially, expanded with
-shell-like features.
+commands which parallel vi/vim's version.
+.SS ---full capabilities----------------------------------------------
 
-.B overview (O).  
-gyges provides a command line for accessing complicated, argument-driven,
-or advanced features.  the command line is assessed by typing a colon (':')
-followed by the command.
-
-.B invoking the mode
+.B invoking/exiting the mode
    :          opens the command mode at the bottom of the screen
-   <cr>       executes the command and returns to the previous mode
+   ¦          executes the command and returns to the prev mode
+   ¥          forgets the typed text/command and returns to prev mode
+
+.B history
+   ::¦        re-run the last command executed (same as ::0¦)
+   ::Ë¦       re-run the last minus count Ë command
+   :¿m¢¦      mark current command as ¢ [A-Za-z]
+   :¿u¢¦      unmark command presently marked as ¢
+   ::¢¦       re-run the command marked as ¢
+   :::        display history list, move with _KkjJ~, ¦ to edit or ¥
 
 .B files and tabs...
    :file <name>    changes the current spreadsheet name
@@ -208,50 +193,46 @@ followed by the command.
 
 
 
-.SH SEARCH
+.SH SEARCH mode
 .SS ---basics---------------------------------------------------------
- //....¦    perform a regular expression search of diplayed text
+/´´´¦      perform a regular expression search of diplayed text
 .SS ---overview-------------------------------------------------------
-.B definition (D).  
-searching is the identification of various objects based on a criteria
-
-
-rapid, standard, and powerful searching in integral to efficient creation,
-editing, and review
-
-keyboard macros repeat keystrokes as if typed, with no extra language
-constructs.  likely meets 80% of automation needs.
-
-.B value (V).  
-the ability to record, edit, and repeat predictable keystroke sequences is
-critical to efficiency, accuracy, and automation.
+.B situation (S).  
+using content/attributes to identify an entry/object or related group of them
+is fundamental to almost every application.
 
 .B complication (C).  
-few applications provide keyboard macro capability, or, when the do, it is
-unduely slow, opaque, or complex.
+very few applications provide any serious search capability, especially one
+that can navigate and manipulate them.
 
 .B answer (A).  
-standardize "mostly" on vim keyboard macros but with easier editing, simple
-playback, and basic debugging.
+i will standardize on a vim-like search line that uses regular expressions
+and content type identifiers.
 .SS ---full capabilities----------------------------------------------
 
-.B feature ideas
-   -- use text register contents as the regex
+.B invoking/exiting the mode
+   /          opens the search mode at the bottom of the screen
+   ¦          executes the search and returns to the prev mode
+   ¥          forgets the typed text/search and returns to prev mode
 
-.B extended hints actions (potential, future)
+.B history
+   //¦        re-run the last search executed (same as //0¦)
+   //Ë¦       re-run the last minus count Ë search
+   /¿m¢¦      mark current search as ¢ [A-Za-z]
+   /¿u¢¦      unmark search presently marked as ¢
+   //¢¦       re-run the search marked as ¢
+   ///        display history list, move with _KkjJ~, ¦ to edit or ¥
+
+.B ??? extended hints actions (potential, future)
    //<mre>         source text
    //!<text>       source text, force literal search
    //$<text>       source text, force microsoft explorer-style search
    //#<text>       source text, force bash shell-style search
    //*<text>       source text, force posix extended search
-
-
    //<ere>         search displayed text or descriptions
    /.<literal>     search displayed text or descriptions
    /*<literal>     search everywhere text resides
    /=<literal>     search source formulas
-
-
 
 .SH KEYBOARD MACROS (sub-mode)
 .SS ---basics---------------------------------------------------------
@@ -314,7 +295,7 @@ macros built early in development.
    .          play/pause toggle for delay mode
    +          faster execution
    -          slower execution
-   ¹          step forward one (space)
+   ·          step forward one (space)
    ¥          terminate at current point (escape)
    ¦          run to end at full speed (return)
 
@@ -1327,31 +1308,13 @@ all text entry uses this input micro-mode, it is universal.
 .B control characters
    ¥          return to source mode for further editing
    ¦          accept all changes and exit source mode also
-   Å          delete the character before the current one
-   Ä          delete the current character
+   ¿          delete the character before the current one
+   ¾          delete the current character
    \\          allows entry of special characters (see below)
 
-.B add backslash, invisible editing characters
-   type \\ first, the one of the latin characters below
-   ¹ ¦ ¥ « Å Ä
-   s n e t b d
+.B adding special characters and controls (see SPECIAL CHARACTERS)
 
-.B add backslash, file and editing characters
-   type \\ first, the one of the latin characters below
-   Â § ¤ ¸ ·
-   g f p " \\
-
-.B add backslash, macro/script control characters
-   type \\ first, the one of the latin characters below
-   © ¿ ± ¨ Ó Ô £ 
-   , . ! ? a c 0
-
-.B add backslash, greek characters
-   type \\ first, the one of the latin characters below
-   è é ê ë   ì í î ï   ð ñ ò ó   ô õ ö ÷   ø ù ú û   ü ý þ ÿ 
-   A B G D   E Z H Y   I K L M   N X O P   R S T U   F C Q W
-
-.b insert specification
+.B insert specification
    -- moves current char (and rest) one to the left, adding to the length
    -- current chacrcter made into a ¤
    -- each new character current location and ¤ shifted right

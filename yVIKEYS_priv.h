@@ -34,8 +34,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "1.0l"
-#define YVIKEYS_VER_TXT   "patch to identify ncurses window resizing"
+#define YVIKEYS_VER_NUM   "1.1a"
+#define YVIKEYS_VER_TXT   "fixed command and search history listing"
 
 
 

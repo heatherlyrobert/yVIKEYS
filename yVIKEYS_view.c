@@ -162,15 +162,15 @@ struct cLAYOUT {
    char        desc        [LEN_DESC ];     /* explanation of layout          */
 };
 tLAYOUT   s_layouts [MAX_LAYOUT] = {
-   /*---name------    tbfnmapscdrvkxy  ,    12345678901234567890123456789012345678901234567890  */
-   { "min"         , "----m----------" , "smallest footprint, least elements showing"           },
-   { "starter"     , "----m--ck------" , "little footprint for new applications"                },
-   { "work"        , "t---m--sc--vk--" , "more balanced display of common elements"             },
-   { "rob"         , "t---m--sc--v---" , "more balanced display of common elements"             },
-   { "max"         , "tbfnm-pscdrvk--" , "everything displays at one time"                      },
-   { "ycolor"      , "tbfnmapsc-rvk--" , "more balanced display of common elements"             },
-   { "gyges"       , "--f-m--sc----xy" , "prepared for gyges spreadsheet"                       },
-   { ""            , "----m----------" , ""                                                     },
+   /*---name------    tbfnmapscdrvk XY  ,    12345678901234567890123456789012345678901234567890  */
+   { "min"         , "----m-------- --" , "smallest footprint, least elements showing"           },
+   { "starter"     , "----m--ck---- --" , "little footprint for new applications"                },
+   { "work"        , "t---m--sc--vk --" , "more balanced display of common elements"             },
+   { "rob"         , "t---m--sc--v- --" , "more balanced display of common elements"             },
+   { "max"         , "tbfnm-pscdrvk --" , "everything displays at one time"                      },
+   { "ycolor"      , "tbfnmapsc-rvk --" , "more balanced display of common elements"             },
+   { "gyges"       , "--f-m--sc---- XY" , "prepared for gyges spreadsheet"                       },
+   { ""            , "----m-------- --" , ""                                                     },
 };
 static int  s_nlayout   = 0;
 
@@ -1084,7 +1084,7 @@ VIEW__layout             (char *a_name)
    /*---(set parts)----------------------*/
    i = 0;
    while (s_layouts [n].parts [i] != 0) {
-      if (s_layouts [n].parts [i] != '-') {
+      if (strchr ("- ", s_layouts [n].parts [i]) == NULL) {
          p = VIEW__abbr (s_layouts [n].parts [i]);
          if (p >= 0) {
             if (s_parts [p].on == YVIKEYS_DISABLE) {
