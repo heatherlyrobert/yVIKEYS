@@ -34,8 +34,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "1.1a"
-#define YVIKEYS_VER_TXT   "fixed command and search history listing"
+#define YVIKEYS_VER_NUM   "1.1b"
+#define YVIKEYS_VER_TXT   "all unit tests back up to working snuff (except some rounding in _god)"
 
 
 

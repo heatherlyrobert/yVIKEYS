@@ -150,6 +150,7 @@ BASE__unit_loud        (void)
    yURG_name  ("map_mas"      , YURG_ON);
    yURG_name  ("srch"         , YURG_ON);
    yURG_name  ("hist"         , YURG_ON);
+   yURG_name  ("ystr"         , YURG_ON);
    DEBUG_YVIKEYS yLOG_info     ("yVIKEYS"    , yVIKEYS_version   ());
    yVIKEYS_init ();
    return 0;
@@ -266,20 +267,55 @@ KEYS_unique             (void)
    /*---(locals)-----------+-----+-----+-*/
    uchar       m1, m2, m3, m4;
    uchar       c1, c2, c3, c4;
+   /*---(header)-------------------------*/
+   DEBUG_LOOP   yLOG_senter  (__FUNCTION__);
+   DEBUG_LOOP   yLOG_sint    (s_nkey);
    /*---(basic defense)------------------*/
-   if (s_nkey < 2)                               return 1;
+   if (s_nkey < 2) {
+      DEBUG_LOOP   yLOG_snote   ("too few keys, unique");
+      DEBUG_LOOP   yLOG_sexitr  (__FUNCTION__, 1);
+      return 1;
+   }
    /*---(prepare)------------------------*/
    c3 = s_keys_log   [s_nkey - 2];
    m3 = s_keys_multi [s_nkey - 2];
    c4 = s_keys_log   [s_nkey - 1];
    m4 = s_keys_multi [s_nkey - 1];
    /*---(filter)-------------------------*/
-   if (strchr ("ps-", m3) == NULL)               return 1;
-   if (strchr ("ps-", m4) == NULL)               return 1;
-   if (m3 == 's' && m4 == '-')                   return 1;
-   if (m4 == 'p')                                return 1;
-   if (c3 == G_CHAR_SPACE)                       return 1;
-   if (c4 == G_CHAR_SPACE)                       return 1;
+   DEBUG_LOOP   yLOG_sint    (m3);
+   if (strchr ("ps-", m3) == NULL) {
+      DEBUG_LOOP   yLOG_snote   ("m3 is weird, unique");
+      DEBUG_LOOP   yLOG_sexitr  (__FUNCTION__, 1);
+      return 1;
+   }
+   DEBUG_LOOP   yLOG_sint    (m4);
+   if (strchr ("ps-", m4) == NULL) {
+      DEBUG_LOOP   yLOG_snote   ("m4 is weird, unique");
+      DEBUG_LOOP   yLOG_sexitr  (__FUNCTION__, 1);
+      return 1;
+   }
+   if (m3 == 's' && m4 == '-') {
+      DEBUG_LOOP   yLOG_snote   ("coming off combo, obviously unique");
+      DEBUG_LOOP   yLOG_sexitr  (__FUNCTION__, 1);
+      return 1;
+   }
+   if (m4 == 'p') {
+      DEBUG_LOOP   yLOG_snote   ("starting combo, obviously unique");
+      DEBUG_LOOP   yLOG_sexitr  (__FUNCTION__, 1);
+      return 1;
+   }
+   DEBUG_LOOP   yLOG_sint    (c3);
+   if (c3 == G_CHAR_SPACE) {
+      DEBUG_LOOP   yLOG_snote   ("c3 is space, so unique");
+      DEBUG_LOOP   yLOG_sexitr  (__FUNCTION__, 1);
+      return 1;
+   }
+   DEBUG_LOOP   yLOG_sint    (c4);
+   if (c4 == G_CHAR_SPACE) {
+      DEBUG_LOOP   yLOG_snote   ("c4 is space, so unique");
+      DEBUG_LOOP   yLOG_sexitr  (__FUNCTION__, 1);
+      return 1;
+   }
    /*---(single)-------------------------*/
    if (m3 == '-' && m4 == '-' && c3 == c4)       return 0;
    /*---(filter)-------------------------*/
@@ -297,6 +333,7 @@ KEYS_unique             (void)
    /*---(double)-------------------------*/
    if (c4 == c2 && c3 == c1)                     return 0;
    /*---(complete)-----------------------*/
+   DEBUG_LOOP   yLOG_sexitr  (__FUNCTION__, 1);
    return 1;
 }
 
@@ -355,8 +392,10 @@ yVIKEYS_main_input      (char a_runmode, uchar a_key)
    DEBUG_LOOP   yLOG_value   ("a_key"     , a_key);
    DEBUG_LOOP   yLOG_char    ("macromode" , MACRO_get_mode ());
    /*---(fixes)--------------------------*/
-   if (a_key == G_KEY_ENTER)  a_key = G_KEY_RETURN; /* X11 sends incorrently  */
-   if (a_key == G_KEY_DEL  )  a_key = G_KEY_BS;     /* X11 sends incorrectly  */
+   if (myVIKEYS.env == YVIKEYS_OPENGL) {
+      if (a_key == G_KEY_ENTER)  a_key = G_KEY_RETURN; /* X11 sends incorrently  */
+      if (a_key == G_KEY_DEL  )  a_key = G_KEY_BS;     /* X11 sends incorrectly  */
+   }
    /*---(normal)-------------------------*/
    IF_MACRO_NOT_PLAYING {
       DEBUG_LOOP   yLOG_note    ("normal or macro recording");
@@ -429,6 +468,7 @@ yVIKEYS_main_handle     (uchar a_key)
    /*---(prepare)------------------------*/
    myVIKEYS.trouble   = '-';
    x_key = chrworking (a_key);
+   DEBUG_LOOP   yLOG_value   ("x_key"     , x_key);
    /*---(handle count)-------------------*/
    if (MODE_curr () == UMOD_REPEAT) {
       rc = REPEAT_umode (x_major, x_key);

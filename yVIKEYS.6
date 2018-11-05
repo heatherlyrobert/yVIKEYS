@@ -207,32 +207,44 @@ that can navigate and manipulate them.
 
 .B answer (A).  
 i will standardize on a vim-like search line that uses regular expressions
-and content type identifiers.
+and standard input and source modes.
 .SS ---full capabilities----------------------------------------------
 
 .B invoking/exiting the mode
-   /          opens the search mode at the bottom of the screen
-   ¦          executes the search and returns to the prev mode
-   ¥          forgets the typed text/search and returns to prev mode
+   /          begin search mode, directly to input mode
+   ¦          executes immediately, returns to the prev mode
+   ¥          from search (not input), forgets search, exits
+
+.B mode structure
+   source     search acts exactly like source mode (all keys, regs)
+   input      edit keys (IiAaRr) change to input, ¥ returns, ¦ runs
+   history    /// exits input to source, then brings up history
+
+.B basics
+   /¦         clear the search findings
+   /´´´¦      extended regex search (heatherly variant)
+   /!´´´¦     literal search, no special characters
+   ¥          from input mode, back to source mode
+
+.B map-mode keys to navigate found items
+   [          first entry
+   <          previous entry                          [vim is n      ]
+   >          next entry                              [vim is N      ]
+   ]          last entry
 
 .B history
    //¦        re-run the last search executed (same as //0¦)
    //Ë¦       re-run the last minus count Ë search
-   /¿m¢¦      mark current search as ¢ [A-Za-z]
-   /¿u¢¦      unmark search presently marked as ¢
-   //¢¦       re-run the search marked as ¢
    ///        display history list, move with _KkjJ~, ¦ to edit or ¥
 
-.B ??? extended hints actions (potential, future)
-   //<mre>         source text
-   //!<text>       source text, force literal search
-   //$<text>       source text, force microsoft explorer-style search
-   //#<text>       source text, force bash shell-style search
-   //*<text>       source text, force posix extended search
-   //<ere>         search displayed text or descriptions
-   /.<literal>     search displayed text or descriptions
-   /*<literal>     search everywhere text resides
-   /=<literal>     search source formulas
+.B marking [searches are marked as A-Za-z]
+   /¿m¢¦      mark current search as ¢
+   //¢¦       re-run the search marked as ¢
+   /¿u¢¦      unmark search presently marked as ¢
+
+.B input and editing
+   input is done with standard umode, including special characters
+   editing is done with standard mode, including selection, buffers
 
 .SH KEYBOARD MACROS (sub-mode)
 .SS ---basics---------------------------------------------------------
@@ -559,22 +571,24 @@ make it universal across my applications.
 .SS ---full capabilities------------------------------------------------------
 .B initiation and termination
    v          turn on selection
-   vx         turn on selection in full-x/column mode
-   vy         turn on selection in full-y/row mode
-   v*         turn on selection of all x,y on current z
    ¥ or ¦     clear selection
 
 .B movements increase and decrease selection
    you remain in map mode, so all movement keys are still available
+
+.B special adjustments to selection
+   v          reverses the selection ends to help grow/shrink
+   ex         selects full range of x
+   ey         selects full range of y
+   ez         selects full range of z
+   e!         selects screen contents
+   e*         selects all x,y,z for current workspace/tab
 
 .B selection saving and retrieving
    there are 36 possible selections [a-z0-9]
    M¢         mark/save the current selection
    V¢         clear selection, highlight the saved selection
    0-9 are usually reserved for scripting (collision avoidance)
-
-.B adjustments to selection
-   v          reverses the selection ends to help grow/shrink
 
 .B additional features
    V?¢        show all saved selections, then accept existing [a-z0-9]
@@ -1393,6 +1407,8 @@ prior knowledge of their locations.
    nopif z    depth (z)
    azud       corners
    gqrv       unused
+   *          all on tab/area
+   !          all on screen
 
 .B horizontal (x-axis)...    e + [SsHhCcLlEe]
    eS         edge/leftmost start of all allowed space
