@@ -2422,7 +2422,7 @@ HISTORY_infowin         (void)
       /*> 1234567890123456789012345678901234::1234567890123456789012345678901234            <*/
       switch (MODE_curr ()) {
       case UMOD_MARK      : strlcpy (x_entry, " -  --label--- --x-- --y-- --z--      -  --label--- --x-- --y-- --z--   ", LEN_RECD);  break;
-      case UMOD_VISUAL    : strlcpy (x_entry, " - --x-- --y-- -z- --x-- --y-- -z-    - --x-- --y-- -z- --x-- --y-- -z- ", LEN_RECD);  break;
+      case UMOD_VISUAL    : strlcpy (x_entry, " -  --label---  --label---            -  --label---  --label---         ", LEN_RECD);  break;
       case SMOD_MACRO     : strlcpy (x_entry, " - len ---macro-keys--------------------------------------------------- ", LEN_RECD);  break;
       case SMOD_SRC_REG   : strlcpy (x_entry, " -   len  ---text-register-contents------------------------------------ ", LEN_RECD);  break;
       }

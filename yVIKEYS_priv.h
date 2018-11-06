@@ -34,8 +34,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "1.1c"
-#define YVIKEYS_VER_TXT   "added screen and tab selection to visual micro mode"
+#define YVIKEYS_VER_NUM   "1.1d"
+#define YVIKEYS_VER_TXT   "visual marks info_win is working again"
 
 
 

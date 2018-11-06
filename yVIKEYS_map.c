@@ -516,18 +516,18 @@ VISU_infowin       (char *a_entry, int a_index)
    int         n           =    0;
    char        t           [LEN_RECD]  = "";
    /*---(status)-------------------------*/
-   strlcpy (a_entry, " -  -              -     -     -      -  -              -     -     -         ", LEN_RECD);
+   strlcpy (a_entry, "                                                                              ", LEN_RECD);
    if (a_index <   0)  return 0;
    if (a_index >= 26)  return 0;
    a = 'a' + a_index;
    n = VISU_valid (a);
-   if (s_visu_info [n].active == VISU_NOT )  sprintf (t, " %c  -          -                     ", a);
-   else                                      sprintf (t, " %c  %-10.10s %-10.10s            "        , a, s_visu_info [n].b_label, s_visu_info [n].e_label);
+   if (s_visu_info [n].active == VISU_NOT )  sprintf (t, " %c  -           -                    ", a);
+   else                                      sprintf (t, " %c  %-10.10s  %-10.10s           "        , a, s_visu_info [n].b_label, s_visu_info [n].e_label);
    strlcpy (a_entry, t, LEN_RECD);
    a = 'A' + a_index;
    n = VISU_valid (a);
-   if (s_visu_info [n].active == VISU_NOT )  sprintf (t, " %c  -          -                     ", a);
-   else                                      sprintf (t, " %c  %-10.10s %-10.10s            "        , a, s_visu_info [n].b_label, s_visu_info [n].e_label);
+   if (s_visu_info [n].active == VISU_NOT )  sprintf (t, " %c  -           -                    ", a);
+   else                                      sprintf (t, " %c  %-10.10s  %-10.10s           "        , a, s_visu_info [n].b_label, s_visu_info [n].e_label);
    strlcat (a_entry, t, LEN_RECD);
    /*---(complete)-----------------------*/
    return 0;
