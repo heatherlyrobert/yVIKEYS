@@ -34,8 +34,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "1.1b"
-#define YVIKEYS_VER_TXT   "all unit tests back up to working snuff (except some rounding in _god)"
+#define YVIKEYS_VER_NUM   "1.1c"
+#define YVIKEYS_VER_TXT   "added screen and tab selection to visual micro mode"
 
 
 

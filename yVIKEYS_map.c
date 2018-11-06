@@ -2168,8 +2168,8 @@ MAP_mode                (char a_major, char a_minor)
                }
             } else {
                s_visu.y_lock = 'y';
-               s_visu.y_beg  = g_ymap.umin;
-               s_visu.y_end  = g_ymap.umax;
+               s_visu.y_beg  = g_ymap.gmin;
+               s_visu.y_end  = g_ymap.gmax;
             }
             break;
          case 'y'  :
@@ -2185,18 +2185,30 @@ MAP_mode                (char a_major, char a_minor)
                }
             } else {
                s_visu.x_lock = 'y';
-               s_visu.x_beg  = g_xmap.umin;
-               s_visu.x_end  = g_xmap.umax;
+               s_visu.x_beg  = g_xmap.gmin;
+               s_visu.x_end  = g_xmap.gmax;
             }
+            break;
+         case '!'  :
+            DEBUG_USER   yLOG_note    ("! for screen selection");
+            s_visu.y_lock = '-';
+            s_visu.y_root = g_ymap.gbeg;
+            s_visu.y_beg  = g_ymap.gbeg;
+            s_visu.y_end  = g_ymap.gend;
+            s_visu.x_lock = '-';
+            s_visu.x_root = g_xmap.gbeg;
+            s_visu.x_beg  = g_xmap.gbeg;
+            s_visu.x_end  = g_xmap.gend;
+            yVIKEYS_jump (s_visu.x_end, s_visu.y_end, s_visu.z_all);
             break;
          case '*'  :
             DEBUG_USER   yLOG_note    ("* for all on current z selection");
             s_visu.y_lock = 'y';
-            s_visu.y_beg  = g_ymap.umin;
-            s_visu.y_end  = g_ymap.umax;
+            s_visu.y_beg  = g_ymap.gmin;
+            s_visu.y_end  = g_ymap.gmax;
             s_visu.x_lock = 'y';
-            s_visu.x_beg  = g_xmap.umin;
-            s_visu.x_end  = g_xmap.umax;
+            s_visu.x_beg  = g_xmap.gmin;
+            s_visu.x_end  = g_xmap.gmax;
             break;
          }
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
