@@ -10,6 +10,7 @@ static char  s_keys_multi [10000];
 static char  s_keys_mode  [10000];
 static char  s_keys_error [10000];
 static int   s_nkey      = 0;
+static char  s_keys_last  [LEN_LABEL];
 
 
 /*> #define      MIN4SEC      60                                                      <* 
@@ -335,6 +336,19 @@ KEYS_unique             (void)
    /*---(complete)-----------------------*/
    DEBUG_LOOP   yLOG_sexitr  (__FUNCTION__, 1);
    return 1;
+}
+
+int
+yVIKEYS_keys_nkey       (void)
+{
+   return s_nkey;
+}
+
+char*
+yVIKEYS_keys_last       (void)
+{
+   sprintf (s_keys_last, "(%c) %c", s_keys_mode [s_nkey - 1], s_keys_log [s_nkey - 1]);
+   return s_keys_last;
 }
 
 char

@@ -209,6 +209,8 @@ char        yVIKEYS_quit              (void);
 char        yVIKEYS_error             (void);
 char        yVIKEYS_wrap              (void);
 
+int         yVIKEYS_keys_nkey         (void);
+char*       yVIKEYS_keys_last         (void);
 uchar       yVIKEYS_main_input        (char  a_runmode, uchar a_key);
 uchar       yVIKEYS_main_handle       (uchar a_key);
 uchar       yVIKEYS_main_string       (uchar *a_keys);

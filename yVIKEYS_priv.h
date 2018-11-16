@@ -34,8 +34,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "1.1d"
-#define YVIKEYS_VER_TXT   "visual marks info_win is working again"
+#define YVIKEYS_VER_NUM   "1.1e"
+#define YVIKEYS_VER_TXT   "altered a few things to get gyges undo/redo working properly"
 
 
 

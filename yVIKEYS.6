@@ -146,13 +146,13 @@ all applications can use them.
 
 .B adding mathmatical charcters
    type \\ first, the one of the latin characters below
-   å æ    Ë Ì Í    Î Æ Ç È É Ê    À Á Â Ã Ä Å   ¸ ¹ º » ¼ ½
-   = ~    # a r    1 2 3 4 x y    5 6 7 8 9 z   ( ) [ ] < >
+   å æ    Ë Ì Í    Î Æ Ç È É Ê    À Á Â Ã Ä Å   ¸ ¹ º » ¼ ½ ° ± ²
+   = ~    # a r    1 2 3 4 x y    5 6 7 8 9 z   ( ) [ ] < > { } $
 
 .B adding other useful characters
    type \\ first, the one of the latin characters below
    ´ ¢ ¡    Ô Ó Ö Õ    Ð Ñ Ò    ® ¯
-   @ ? !    j k h l    & | ^    { }
+   @ ? !    j k h l    & | ^    : %
 
 .SH COMMAND mode
 .SS ---basics---------------------------------------------------------
@@ -548,18 +548,14 @@ potential panel areas.
 
 
 
-.SH VISUAL ranges and saved selections (micro-mode)
+.SH VISUAL selection (micro-mode)
 .SS ---basics---------------------------------------------------------
  v          start visual selection
  ....y      change selection then perform a common action, like yank
 .SS ---overview-------------------------------------------------------
-.B definition (D).  
-visual selection is a technique for identifying two-dimensional (xy),
-contiguous ranges of objects for common treatment.
-
-.B value (V).   
-confidently and accurately doing this is critical for speed, reliability,
-and efficiency, as well complex automation.
+.B situation (S).  
+selecting a contiguous group of objects for common treatment is critical for
+speed, reliability, and efficiency.
 
 .B complication (C).  
 this feature is normally very simplistic, non-standard, troublesome, and
@@ -573,7 +569,7 @@ make it universal across my applications.
    v          turn on selection
    ¥ or ¦     clear selection
 
-.B movements increase and decrease selection
+.B updating selection size
    you remain in map mode, so all movement keys are still available
 
 .B special adjustments to selection
@@ -585,25 +581,14 @@ make it universal across my applications.
    e*         selects all x,y,z for current workspace/tab
 
 .B selection saving and retrieving
-   there are 36 possible selections [a-z0-9]
-   M¢         mark/save the current selection
-   V¢         clear selection, highlight the saved selection
-   0-9 are usually reserved for scripting (collision avoidance)
+   there are 52 possible selections [a-zA-Z], plus system/macro [0-9]
+   M¢         mark/save the current selection (while in visual mode)
+   V¢         move to and highlight the saved selection
 
 .B additional features
-   V?¢        show all saved selections, then accept existing [a-z0-9]
-   M?¢        show all saved selections, then accept new [a-z0-9] 
-
-.B future possibilities
-   -- optional short-names for saved selections
-   -- removing specific cells from selections
-   -- appending to existing selections
-   -- discontinuous selections
-
-
-
-
-
+   M?¢        show all saved selections, then save current as ¢
+   V?¢        show all saved selections, then goto existing ¢
+   V! or M!   change status line to debug current selection details
 
 .SH MAP REGISTERS (sub-mode)
 .SS ---basics---------------------------------------------------------

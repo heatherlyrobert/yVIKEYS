@@ -142,7 +142,7 @@ struct cPASTING {
    char        desc        [LEN_DESC ];
 };
 static tPASTING   s_pasting [MAX_PASTING] = {
-   /*---------*/
+   /*-a- --ref-- ---name-------- -pr-    --c- --r- --p- --i- ---desc--- */
    { '-', "----", ""            , '-',    '-', '-', '-', '-',    "tbd" },
    /*---*/
    { '-', "-nN-", ""            , '-',    '-', 'n', 'N', '-',    "tbd" },
@@ -585,6 +585,7 @@ yvikeys_regs_save               (void)
       return  rce;
    }
    /*---(check counts)-------------------*/
+   DEBUG_REGS   yLOG_value   ("nbuf"      , s_regs [x_reg].nbuf);
    if (s_regs [x_reg].nbuf <= 0)  yvikeys__regs_wipe (s_creg, '-');
    /*---(complete)-----------------------*/
    DEBUG_REGS   yLOG_exit    (__FUNCTION__);
@@ -653,8 +654,8 @@ yvikeys_regs_clear           (void)
    /*---(clear)--------------------------*/
    for (x = x_beg; x <= x_end; ++x) {
       for (y = y_beg; y <= y_end; ++y) {
-         s_clearer (x_1st, x, y, z);
-         x_1st = '-';
+         rc = s_clearer (x_1st, x, y, z);
+         if (rc == 0)  x_1st = '-';
       }
    }
    /*---(complete)-----------------------*/
@@ -794,6 +795,7 @@ yvikeys__regs_paste_clear    (void)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
+   char        rc          =    0;
    int         x, y;
    char        x_1st       =  'y';
    /*---(header)-------------------------*/
@@ -806,12 +808,12 @@ yvikeys__regs_paste_clear    (void)
       return rce;
    }
    /*---(clear)--------------------------*/
-   DEBUG_REGS   yLOG_complex ("range"     , "%3dx to %3dx, %3dy to %3dy", s_regs [s_reg].x_beg, s_regs [s_reg].x_end, s_regs [s_reg].y_beg, s_regs [s_reg].y_end);
+   DEBUG_REGS   yLOG_complex ("range"     , "%3dx to %3dx, %3dy to %3dy", s_regs [s_reg].x_beg + s_xoff, s_regs [s_reg].x_end + s_xoff, s_regs [s_reg].y_beg + s_yoff, s_regs [s_reg].y_end + s_yoff);
    for (x = s_regs [s_reg].x_beg; x <= s_regs [s_reg].x_end; ++x) {
       for (y = s_regs [s_reg].y_beg; y <= s_regs [s_reg].y_end; ++y) {
          DEBUG_REGS   yLOG_complex ("target"    , "%c, %3dx, %3dy, %3dz", x_1st, x + s_xoff, y + s_yoff, s_regs [s_reg].z_all + s_zoff);
-         s_clearer (x_1st, x + s_xoff, y + s_yoff, s_regs [s_reg].z_all + s_zoff);
-         x_1st = '-';
+         rc = s_clearer (x_1st, x + s_xoff, y + s_yoff, s_regs [s_reg].z_all + s_zoff);
+         if (rc == 0)  x_1st = '-';
       }
    }
    /*---(complete)-----------------------*/
@@ -847,6 +849,7 @@ yvikeys_regs_paste              (char *a_type)
    /*---(clearing)-----------------------*/
    if (s_clear == 'y') {
       yvikeys__regs_paste_clear ();
+      x_1st = '-';  /* link pasting to clearing */
    }
    if (s_reqs == '-') {
       DEBUG_REGS   yLOG_note    ("requested clear only");
@@ -854,6 +857,7 @@ yvikeys_regs_paste              (char *a_type)
       return 0;
    }
    /*---(paste in order)-----------------*/
+   DEBUG_REGS   yLOG_value   ("nbuf"      , s_regs [s_reg].nbuf);
    --rce;  for (i = 0; i < s_regs [s_reg].nbuf; ++i) {
       DEBUG_REGS   yLOG_value   ("i"         , i);
       rc = s_paster (s_reqs, s_pros, s_intg, x_1st, s_xoff, s_yoff, s_zoff, s_regs [s_reg].buf [i]);
@@ -981,7 +985,14 @@ yvikeys_regs_smode           (int a_major, int a_minor)
       switch (a_minor) {
          /*---(multikey prefixes)-----------*/
       case 'p'  :
-         DEBUG_USER   yLOG_note    ("p is a multi-key");
+         DEBUG_USER   yLOG_note    ("p for paste normal");
+         yvikeys_regs_paste ("normal");
+         MODE_exit ();
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         return 0;
+         break;
+      case 'P'  :
+         DEBUG_USER   yLOG_note    ("P is a multi-key");
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return a_minor;
       case 'y'  :
@@ -1001,13 +1012,6 @@ yvikeys_regs_smode           (int a_major, int a_minor)
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return 0;
          break;
-      case 'P'  :
-         DEBUG_USER   yLOG_note    ("P for paste normal");
-         yvikeys_regs_paste ("normal");
-         MODE_exit ();
-         DEBUG_USER   yLOG_exit    (__FUNCTION__);
-         return 0;
-         break;
       }
    }
    /*---(export-import)------------------*/
@@ -1021,7 +1025,7 @@ yvikeys_regs_smode           (int a_major, int a_minor)
       return rc;
    }
    /*---(pasting actions)----------------*/
-   --rce;  if (a_major == 'p') {
+   --rce;  if (a_major == 'P') {
       switch (a_minor) {
       case '_' :  rc = yvikeys_regs_visual ();            break;
       case '#' :  rc = yvikeys_regs_paste  ("clear");     break;
@@ -1030,6 +1034,7 @@ yvikeys_regs_smode           (int a_major, int a_minor)
       case 'd' :  rc = yvikeys_regs_paste  ("duplicate"); break;
       case 'm' :  rc = yvikeys_regs_paste  ("move");      break;
       case 'f' :  rc = yvikeys_regs_paste  ("force");     break;
+      default  :  rc = rce;                               break;
       }
       MODE_exit ();
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
