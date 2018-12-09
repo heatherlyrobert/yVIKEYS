@@ -781,9 +781,9 @@ yvikeys_loop_init       (void)
    yvikeys_scale       (MODE_PROGRESS, "0");
    yvikeys_speed       (MODE_PROGRESS, "0");
    /*---(commands)-----------------------*/
-   yVIKEYS_cmds_add ('c', "delay"       , ""    , "ss"   , yvikeys_loop_set     , "adjust the main loop wait and screen update timings"         );
-   yVIKEYS_cmds_add ('c', "p_scale"     , ""    , "s"    , yvikeys_scale_prog   , "adjust the progress scale"                                   );
-   yVIKEYS_cmds_add ('c', "p_speed"     , ""    , "s"    , yvikeys_speed_prog   , "adjust the progress speed"                                   );
+   yVIKEYS_cmds_add (YVIKEYS_M_CONFIG, "delay"       , ""    , "ss"   , yvikeys_loop_set     , "adjust the main loop wait and screen update timings"         );
+   yVIKEYS_cmds_add (YVIKEYS_M_CONFIG, "p_scale"     , ""    , "s"    , yvikeys_scale_prog   , "adjust the progress scale"                                   );
+   yVIKEYS_cmds_add (YVIKEYS_M_CONFIG, "p_speed"     , ""    , "s"    , yvikeys_speed_prog   , "adjust the progress speed"                                   );
    /*---(complete)-----------------------*/
    return 0;
 }

@@ -8,7 +8,7 @@ NAME_BASE  = yVIKEYS
 # additional standard and outside libraries
 LIB_STD    = -lX11 -lGL -lGLU -lncurses -lm
 # all heatherly libraries used, debug versions whenever available
-LIB_MINE   = -lySTR_debug -lyFONT_debug -lyCOLOR_debug -lyX11_debug -lyGOD_debug
+LIB_MINE   = -lySTR_debug -lyFONT_debug -lyCOLOR_debug -lyX11_debug -lyGOD_debug -lyPARSE_debug
 # directory for production code, no trailing slash
 INST_DIR   = 
 

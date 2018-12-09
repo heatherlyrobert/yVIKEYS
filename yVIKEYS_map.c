@@ -2484,22 +2484,18 @@ yvikeys_bufs_umode  (uchar a_major, uchar a_minor)
       DEBUG_USER   yLOG_note    ("relative mode");
       rc = s_switcher (a_minor);
       MODE_exit  ();
-   } else if (strchr ("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ­®", a_minor) != NULL) {
+   } else if (strchr ("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ®¯", a_minor) != NULL) {
       DEBUG_USER   yLOG_note    ("absolute mode");
       rc = s_switcher (a_minor);
       MODE_exit  ();
-      /*> } else if (a_minor == ',') {                                                   <* 
-       *>    my.info_win = G_INFO_BUFS;                                                  <* 
-       *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                   <* 
-       *>    return a_major;                                                             <*/
-} else {
-   MODE_exit  ();
-   DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
-   return rce;
-}
-/*---(complete)-----------------------*/
-DEBUG_USER   yLOG_exit    (__FUNCTION__);
-return 0;
+   } else {
+      MODE_exit  ();
+      DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(complete)-----------------------*/
+   DEBUG_USER   yLOG_exit    (__FUNCTION__);
+   return 0;
 }
 
 

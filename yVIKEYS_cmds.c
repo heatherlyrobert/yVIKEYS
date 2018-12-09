@@ -18,40 +18,25 @@ struct cMENU {
    int         count;
 };
 static tMENU  s_menus [MAX_MENU] = {
-   { 'f', "file"      , "files, folders, printing, and exporting"      , 0},
-   { 'e', "edit"      , "cut, copy, paste, find, clear, etc"           , 0},
-   { 's', "select"    , ""                                             , 0},
-   { 'v', "view"      , "display and layout of application elements"   , 0},
-   { 'i', "insert"    , "add space, symbols, object, image, etc"       , 0},
-   { 'o', "object"    , "resize, change, shape, move, grouping"        , 0},
-   { 'f', "format"    , "themes, styles, formatting, data format"      , 0},
-   { 'p', "pixel"     , "painting kind of actions"                     , 0},
-   { 'x', "draw"      , "drawing/drafting kind of actions"             , 0},
-   { 'd', "data"      , ""                                             , 0},
-   { 'l', "layers"    , ""                                             , 0},
-   { 'w', "layout"    , ""                                             , 0},
-   { 't', "tools"     , "spelling, error checks, macros, controls"     , 0},
-   { 'b', "buffers"   , ""                                             , 0},
-   { 'a', "audit"     , ""                                             , 0},
-   { 'c', "config"    , ""                                             , 0},
-   { ' ', ""          , ""                                             , 0},
+   { YVIKEYS_M_FILE  , "file"      , "files, folders, printing, and exporting"      , 0},
+   { YVIKEYS_M_EDIT  , "edit"      , "cut, copy, paste, find, clear, etc"           , 0},
+   { YVIKEYS_M_SELECT, "select"    , ""                                             , 0},
+   { YVIKEYS_M_VIEW  , "view"      , "display and layout of application elements"   , 0},
+   { YVIKEYS_M_INSERT, "insert"    , "add space, symbols, object, image, etc"       , 0},
+   { YVIKEYS_M_OBJECT, "object"    , "resize, change, shape, move, grouping"        , 0},
+   { YVIKEYS_M_FORMAT, "format"    , "themes, styles, formatting, data format"      , 0},
+   { YVIKEYS_M_PIXEL , "pixel"     , "painting kind of actions"                     , 0},
+   { YVIKEYS_M_DRAW  , "draw"      , "drawing/drafting kind of actions"             , 0},
+   { YVIKEYS_M_DATA  , "data"      , ""                                             , 0},
+   { YVIKEYS_M_LAYER , "layers"    , ""                                             , 0},
+   { YVIKEYS_M_LAYOUT, "layout"    , ""                                             , 0},
+   { YVIKEYS_M_TOOL  , "tools"     , "spelling, error checks, macros, controls"     , 0},
+   { YVIKEYS_M_BUFFER, "buffers"   , ""                                             , 0},
+   { YVIKEYS_M_AUDIT , "audit"     , ""                                             , 0},
+   { YVIKEYS_M_CONFIG, "config"    , ""                                             , 0},
+   { YVIKEYS_M_NONE  , ""          , ""                                             , 0},
 };
 static  int s_nmenu  = 0;
-#define     MENU_FILE       'f'
-#define     MENU_EDIT       'e'
-#define     MENU_SELECT     's'
-#define     MENU_VIEW       'v'
-#define     MENU_INSERT     'i'
-#define     MENU_OBJECT     'o'
-#define     MENU_FORMAT     'f'
-#define     MENU_PIXEL      'p'
-#define     MENU_DRAW       'x'
-#define     MENU_DATA       'd'
-#define     MENU_LAYERS     'l'
-#define     MENU_LAYOUT     'w'
-#define     MENU_TOOLS      't'
-#define     MENU_BUFFER     'b'
-#define     MENU_AUDIT      'a'
 
 
 
@@ -771,11 +756,11 @@ CMDS_init               (void)
    /*---(commands)-----------------------*/
    DEBUG_PROG   yLOG_note    ("add universal commands");
    myVIKEYS.done = '-';
-   rc = yVIKEYS_cmds_add ('f', "quit"        , "q"   , ""     , CMDS__quit           , "quit current file (if no changes), exit if the only file"    );
-   rc = yVIKEYS_cmds_add ('f', "quitall"     , "qa"  , ""     , CMDS__quit           , "quit all files (if no changes), and exit"                    );
-   rc = yVIKEYS_cmds_add ('f', "writequit"   , "wq"  , ""     , CMDS__writequit      , ""                                                            );
-   rc = yVIKEYS_cmds_add ('f', "writequitall", "wqa" , ""     , CMDS__writequit      , ""                                                            );
-   rc = yVIKEYS_cmds_add ('e', "dump"        , ""    , "s"    , BASE_dump            , "dump a specified data table to the clipboard in flat text"   );
+   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "quit"        , "q"   , ""     , CMDS__quit           , "quit current file (if no changes), exit if the only file"    );
+   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "quitall"     , "qa"  , ""     , CMDS__quit           , "quit all files (if no changes), and exit"                    );
+   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "writequit"   , "wq"  , ""     , CMDS__writequit      , ""                                                            );
+   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "writequitall", "wqa" , ""     , CMDS__writequit      , ""                                                            );
+   rc = yVIKEYS_cmds_add (YVIKEYS_M_EDIT  , "dump"        , ""    , "s"    , BASE_dump            , "dump a specified data table to the clipboard in flat text"   );
    /*---(complete)-----------------------*/
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -1194,34 +1179,6 @@ yVIKEYS_cmds_add     (char a_menu, char *a_name, char *a_abbr, char *a_terms, vo
    strlcpy (s_cmds [s_ncmd].desc , a_desc , LEN_DESC );
    /*---(assign function pointer)--------*/
    s_cmds [s_ncmd].f.v   = a_func;
-   /*> s_cmds [s_ncmd].f.v   = NULL;                                                   <* 
-    *> switch (a_terms [0]) {                                                          <* 
-    *> case   0  :                                                                     <* 
-    *>    s_cmds [s_ncmd].f.v   = a_func; break;                                       <* 
-    *> case  'a' :                                                                     <* 
-    *>    s_cmds [s_ncmd].f.s   = a_func; break;                                       <* 
-    *> case  'c' :                                                                     <* 
-    *>    if      (strcmp (a_terms, "c"    ) == 0)  s_cmds [s_ncmd].f.c    = a_func;   <* 
-    *>    else if (strcmp (a_terms, "cc"   ) == 0)  s_cmds [s_ncmd].f.cc   = a_func;   <* 
-    *> case  'i' :                                                                     <* 
-    *>    if      (strcmp (a_terms, "i"    ) == 0)  s_cmds [s_ncmd].f.i    = a_func;   <* 
-    *>    else if (strcmp (a_terms, "ii"   ) == 0)  s_cmds [s_ncmd].f.ii   = a_func;   <* 
-    *>    else if (strcmp (a_terms, "iii"  ) == 0)  s_cmds [s_ncmd].f.iii  = a_func;   <* 
-    *>    else if (strcmp (a_terms, "is"   ) == 0)  s_cmds [s_ncmd].f.is   = a_func;   <* 
-    *>    else if (strcmp (a_terms, "isss" ) == 0)  s_cmds [s_ncmd].f.isss = a_func;   <* 
-    *> case  's' :                                                                     <* 
-    *>    if      (strcmp (a_terms, "s"    ) == 0)  s_cmds [s_ncmd].f.s    = a_func;   <* 
-    *>    else if (strcmp (a_terms, "si"   ) == 0)  s_cmds [s_ncmd].f.si   = a_func;   <* 
-    *>    else if (strcmp (a_terms, "ss"   ) == 0)  s_cmds [s_ncmd].f.ss   = a_func;   <* 
-    *> case  'C' :                                                                     <* 
-    *>    if      (strcmp (a_terms, "Cs"   ) == 0)  s_cmds [s_ncmd].f.ss   = a_func;   <* 
-    *> }                                                                               <* 
-    *> DEBUG_CMDS   yLOG_point   ("func"      , s_cmds [s_ncmd].f.v);                  <* 
-    *> --rce;  if (s_cmds [s_ncmd].f.v == NULL) {                                      <* 
-    *>    DEBUG_CMDS   yLOG_note    ("found not find term assignment");                <* 
-    *>    DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);                               <* 
-    *>    return rce;                                                                  <* 
-    *> }                                                                               <*/
    /*---(update count)-------------------*/
    ++s_ncmd;
    DEBUG_PROG   yLOG_value   ("SUCCESS"   , s_ncmd);

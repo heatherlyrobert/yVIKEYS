@@ -66,7 +66,7 @@ MARK_init            (void)
    MARK__purge  ('*');
    /*---(globals)------------------------*/
    myVIKEYS.mark_show = '-';
-   yVIKEYS_cmds_add ('e', "mark"        , ""    , "s"    , MARK_direct                , "" );
+   yVIKEYS_cmds_add (YVIKEYS_M_EDIT  , "mark"        , ""    , "s"    , MARK_direct                , "" );
    /*---(read/write)---------------------*/
    yVIKEYS_file_add (UMOD_MARK   , MARK_writer, MARK_reader);
    /*---(update status)------------------*/

@@ -194,7 +194,7 @@ tOPTION  s_options [MAX_OPTION ] = {
    { YVIKEYS_STATUS  , "select"       , SOURCE_status_select, "displays selection status"   },
    { YVIKEYS_STATUS  , "sundo"        , SRC_UNDO_status     , "source editing undo stack"   },
    { YVIKEYS_STATUS  , "visual"       , VISU_status         , "visual selection in map"     },
-   { YVIKEYS_STATUS  , "file"         , FILE_status         , "file, control, and version"  },
+   { YVIKEYS_STATUS  , "file"         , yvikeys_file_status         , "file, control, and version"  },
    { YVIKEYS_STATUS  , "regs"         , yvikeys_regs_status , "current register information"},
    { YVIKEYS_STATUS  , "delay"        , yvikeys_delay_status, "main loop timing settings"   },
    { YVIKEYS_STATUS  , "prog"         , yvikeys_prog_status , "progress bar playing"        },
@@ -1175,12 +1175,12 @@ VIEW__init_opengl       (char *a_title)
    glFlush         ();
    /*---(color options)------------------*/
    yCOLOR_init     (YCOLOR_WHEEL );
-   yVIKEYS_cmds_add ('v', "palette"     , ""    , "isss" , yCOLOR_palette             , "" );
-   yVIKEYS_cmds_add ('v', "wheel"       , ""    , "s"    , yCOLOR_wheel               , "" );
-   yVIKEYS_cmds_add ('v', "degree"      , "deg" , "i"    , yCOLOR_deg                 , "" );
-   yVIKEYS_cmds_add ('v', "harmony"     , "har" , "s"    , yCOLOR_harm                , "" );
-   yVIKEYS_cmds_add ('v', "value"       , "val" , "s"    , yCOLOR_val                 , "" );
-   yVIKEYS_cmds_add ('v', "saturation"  , "sat" , "s"    , yCOLOR_sat                 , "" );
+   yVIKEYS_cmds_add (YVIKEYS_M_VIEW  , "palette"     , ""    , "isss" , yCOLOR_palette             , "" );
+   yVIKEYS_cmds_add (YVIKEYS_M_VIEW  , "wheel"       , ""    , "s"    , yCOLOR_wheel               , "" );
+   yVIKEYS_cmds_add (YVIKEYS_M_VIEW  , "degree"      , "deg" , "i"    , yCOLOR_deg                 , "" );
+   yVIKEYS_cmds_add (YVIKEYS_M_VIEW  , "harmony"     , "har" , "s"    , yCOLOR_harm                , "" );
+   yVIKEYS_cmds_add (YVIKEYS_M_VIEW  , "value"       , "val" , "s"    , yCOLOR_val                 , "" );
+   yVIKEYS_cmds_add (YVIKEYS_M_VIEW  , "saturation"  , "sat" , "s"    , yCOLOR_sat                 , "" );
    /*---(complete)-----------------------*/
    DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -1252,7 +1252,7 @@ yVIKEYS_view_config     (cchar *a_title, cchar *a_ver, cchar a_env, cint a_wide,
       if (s_parts [i].abbr == YVIKEYS_LAYERS) ;
       else if (strchr (OWN_HIDE, s_parts [i].own) != NULL) {
          DEBUG_PROG   yLOG_note    ("adding view menu command to show/hide");
-         yVIKEYS_cmds_add ('v', s_parts [i].name , ""    , "Cs"   , VIEW__switch               , "" );
+         yVIKEYS_cmds_add (YVIKEYS_M_VIEW  , s_parts [i].name , ""    , "Cs"   , VIEW__switch               , "" );
       }
    }
    /*---(screen layouts)-----------------*/
@@ -1271,10 +1271,10 @@ yVIKEYS_view_config     (cchar *a_title, cchar *a_ver, cchar a_env, cint a_wide,
    for (i = 0; i < LEN_LABEL; ++i)  s_win.r_icons [i] = -1;
    s_win.r_nicon = 0;
    /*---(commands)-----------------------*/
-   yVIKEYS_cmds_add ('v', "gridoff"     , ""    , "iii"  , VIEW__grid_offset          , "" );
-   yVIKEYS_cmds_add ('v', "gridsize"    , ""    , "iii"  , VIEW__grid_size            , "" );
-   yVIKEYS_cmds_add ('v', "layout"      , ""    , "s"    , VIEW__layout               , "" );
-   yVIKEYS_cmds_add ('v', "layer"       , ""    , "s"    , VIEW__layer_set            , "" );
+   yVIKEYS_cmds_add (YVIKEYS_M_VIEW  , "gridoff"     , ""    , "iii"  , VIEW__grid_offset          , "" );
+   yVIKEYS_cmds_add (YVIKEYS_M_VIEW  , "gridsize"    , ""    , "iii"  , VIEW__grid_size            , "" );
+   yVIKEYS_cmds_add (YVIKEYS_M_VIEW  , "layout"      , ""    , "s"    , VIEW__layout               , "" );
+   yVIKEYS_cmds_add (YVIKEYS_M_VIEW  , "layer"       , ""    , "s"    , VIEW__layer_set            , "" );
    /*---(options)------------------------*/
    yVIKEYS_view_option (YVIKEYS_GRID, "norm"  , VIEW__grid_normal, "traditional cross-hatch grid");
    yVIKEYS_view_option (YVIKEYS_GRID, "zoom"  , VIEW__grid_zoom  , "zoom/targeting grid"         );

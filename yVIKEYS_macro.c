@@ -62,7 +62,7 @@ MACRO_init              (void)
    s_macro_status = G_STAGE_READY;
    /*---(commands)-----------------------*/
    DEBUG_PROG   yLOG_note    ("add commands");
-   yVIKEYS_cmds_add ('c', "macro"       , ""    , "a"    , MACRO_define         , "direct definition of a keyboard macro"                       );
+   yVIKEYS_cmds_add (YVIKEYS_M_CONFIG, "macro"       , ""    , "a"    , MACRO_define         , "direct definition of a keyboard macro"                       );
    /*---(read/write)---------------------*/
    yVIKEYS_file_add (SMOD_MACRO, MACRO_writer, MACRO_reader);
    /*---(complete)-----------------------*/

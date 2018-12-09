@@ -23,6 +23,7 @@
 #include    <yFONT.h>              /* heatherly texture mapped fonts          */
 #include    <yCOLOR.h>             /* heatherly opengl color handling         */
 #include    <yGOD.h>               /* heatherly opengl godview                */
+#include    <yPARSE.h>             /* heatherly file reading and writing      */
 
 
 
@@ -34,8 +35,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "1.1e"
-#define YVIKEYS_VER_TXT   "altered a few things to get gyges undo/redo working properly"
+#define YVIKEYS_VER_NUM   "1.1f"
+#define YVIKEYS_VER_TXT   "fixed input mode to handle extended chars, for scripting"
 
 
 
@@ -291,7 +292,7 @@ char        VISU_read               (char a_visu, char *a_label);
 char*       VISU__unit              (char *a_question, char a_index);
 
 
-char        FILE_status             (char *a_list);
+char        yvikeys_file_status             (char *a_list);
 int         OUTP_write              (void);
 char        INPT_edit               (void);
 char        INPT__unit_reader       (char a_abbr);
@@ -417,18 +418,18 @@ char*       GOD__unit               (char *a_question, char a_mark);
 
 
 
-char        FILE_init               (void);
-char        FILE_controlled         (char  *a_yes);
-char        FILE_control            (void);
-char        FILE_nocontrol          (void);
-char        FILE_version            (char  *a_ver);
-char        FILE_vertxt             (char  *a_txt);
-char        FILE_bump               (char  *a_type);
-char        FILE_bump_major         (void);
-char        FILE_bump_minor         (void);
-char        FILE_bump_inc           (void);
-char        FILE_loc                (char  *a_loc);
-char        FILE_name               (char  *a_name);
+char        yvikeys_file_init               (void);
+char        yvikeys_file_controlled         (char  *a_yes);
+char        yvikeys_file_control            (void);
+char        yvikeys_file_nocontrol          (void);
+char        yvikeys_file_version            (char  *a_ver);
+char        yvikeys_file_vertxt             (char  *a_txt);
+char        yvikeys_file_bump               (char  *a_type);
+char        yvikeys_file_bump_major         (void);
+char        yvikeys_file_bump_minor         (void);
+char        yvikeys_file_bump_inc           (void);
+char        yvikeys_file_loc                (char  *a_loc);
+char        yvikeys_file_name               (char  *a_name);
 char        FILE__unit_null         (void);
 char*       FILE__unit              (char *a_question, int a_ref);
 

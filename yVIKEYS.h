@@ -197,6 +197,25 @@ tMAPPED     g_tmap;
 
 
 
+#define      YVIKEYS_M_FILE    'F'
+#define      YVIKEYS_M_BUFFER  'B'
+#define      YVIKEYS_M_EDIT    'E'
+#define      YVIKEYS_M_SELECT  'S'
+#define      YVIKEYS_M_VIEW    'V'
+#define      YVIKEYS_M_INSERT  'I'
+#define      YVIKEYS_M_OBJECT  'O'
+#define      YVIKEYS_M_FORMAT  'f'
+#define      YVIKEYS_M_DRAW    'D'
+#define      YVIKEYS_M_PIXEL   'P'
+#define      YVIKEYS_M_LAYER   'L'
+#define      YVIKEYS_M_LAYOUT  'W'
+#define      YVIKEYS_M_TOOL    't'
+#define      YVIKEYS_M_DATA    'd'
+#define      YVIKEYS_M_AUDIT   'a'
+#define      YVIKEYS_M_CONFIG  'c'
+#define      YVIKEYS_M_NONE    ' '
+
+
 extern char yVIKEYS_ver     [500];
 
 /*===[[ FUNCTION PROTOTYPES ]]================================================*/

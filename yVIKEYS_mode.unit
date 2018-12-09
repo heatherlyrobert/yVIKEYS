@@ -103,7 +103,7 @@ SCRP          v21  (STATUS) verify very basic status systems                  
      exec     v21  check ops status                     STATUS_operational          UMOD_REPEAT                                                             i_equal     FALSE                                                                                                
 
    COND       v21  initialize files                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  run setup                            FILE_init                                                                                           i_equal     0                                                                                                    
+     exec     v21  run setup                            yvikeys_file_init                                                                                   i_equal     0                                                                                                    
 
    COND       v21  check statuses                                                     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.002))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      get      v21  check current status                 STATUS__unit                "actual"         , FMOD_STATUS                                          s_equal     STATUS actual    : 5  ----- p i ----- n ----- r ---------- d o                                               

@@ -2671,7 +2671,7 @@ SRC_INPT_umode             (int  a_major, int  a_minor)
       }
    }
    /*---(handle new character)-----------*/
-   else if (a_minor >= 32 && a_minor < 127) {
+   else if ((a_minor >= 32 && a_minor < 127) || (a_minor > 127 && a_minor < 256)) {
       DEBUG_USER   yLOG_note    ("move remaining chars to the right");
       if (a_minor == G_KEY_SPACE)  a_minor = G_CHAR_SPACE;
       SRC_UNDO__single (x_mode, G_CHAR_NULL, a_minor);

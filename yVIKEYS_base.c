@@ -60,8 +60,9 @@ yVIKEYS_init         (void)
    STATUS_init  ();
    srand (time (NULL));
    /*----(early)-------------------------*/
+   yPARSE_init  (NULL, '-');
    MODE_init    ();
-   FILE_init    ();
+   yvikeys_file_init    ();
    /*----(middling)----------------------*/
    CMDS_init    ();
    SRCH_init    ();
