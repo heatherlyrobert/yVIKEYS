@@ -35,8 +35,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "1.1f"
-#define YVIKEYS_VER_TXT   "fixed input mode to handle extended chars, for scripting"
+#define YVIKEYS_VER_NUM   "1.1g"
+#define YVIKEYS_VER_TXT   "fixed failed editing cell save if contents not changed"
 
 
 
@@ -259,27 +259,28 @@ char        yvikeys_speed_prog      (char *a_speed);
 char        yvikeys_scale_prog      (char *a_scale);
 
 
-char        MAP_locator             (char *a_label, int *a_x, int *a_y, int *a_z);
-char        MAP_addresser           (char *a_label, int  a_x, int  a_y, int  a_z);
-char        MAP_init                (void);
-char        MAP__load               (char a_style, tMAPPED *a_map, char a_which);
-char        MAP__screen             (tMAPPED *a_map);
-char        MAP__move               (int  a_target, tMAPPED *a_map);
-char        MAP_mode                (char a_major, char a_minor);
-char        MAP_xstatus             (char *a_list);
-char        MAP_ystatus             (char *a_list);
-char        MAP_status              (char *a_list);
-char*       MAP__unit               (char *a_question, char a_index);
-char        MAP__unit_ymap          (void);
-char        MAP__unit_xmap          (void);
-char        MAP_current             (int *a_x, int *a_y, int *a_z);
+char        yvikeys_map_locator     (char *a_label, int *a_x, int *a_y, int *a_z);
+char        yvikeys_map_addresser   (char *a_label, int  a_x, int  a_y, int  a_z);
+char        yvikeys_map_init        (void);
+char        yvikeys__map_load       (char a_style, tMAPPED *a_map, char a_which);
+char        yvikeys__screen         (tMAPPED *a_map);
+char        yvikeys__map_move       (int  a_target, tMAPPED *a_map);
+char        yvikeys_map_mode        (char a_major, char a_minor);
+char        yvikeys_map_xstatus     (char *a_list);
+char        yvikeys_map_ystatus     (char *a_list);
+char        yvikeys_map_status      (char *a_list);
+char*       yvikeys__unit_map       (char *a_question, char a_index);
+char        yvikeys__unit_map_ymap  (void);
+char        yvikeys__unit_map_xmap  (void);
+char        yvikeys_map_current     (int *a_x, int *a_y, int *a_z);
+char        yvikeys_map_reposition  (void);
 char        yvikeys_bufs_init       (void);
 char        yvikeys_bufs_umode      (uchar a_major, uchar a_minor);
 
-char        MAP__unit_quick         (void);
-char        MAP__unit_mapper        (char a_type);
-char        MAP__unit_locator       (char *a_label, int *x, int *y, int *z);
-char        MAP__unit_addressor     (char *a_label, int x, int y, int z);
+char        yvikeys__unit_quick     (void);
+char        yvikeys__unit_map_map   (char a_type);
+char        yvikeys__unit_map_loc   (char *a_label, int *x, int *y, int *z);
+char        yvikeys__unit_map_addr  (char *a_label, int x, int y, int z);
 
 char        VISU_valid              (char a_visu);
 char        VISU_status             (char *a_list);

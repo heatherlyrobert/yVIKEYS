@@ -73,7 +73,7 @@ SCRP          v21  (HINT  ) verify mark setup and validity checking           
 
    COND       v21  initialize testing                                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((02.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      exec     v21  setup the program                    BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
-     exec     v21  configure mapping (quick)            MAP__unit_quick                                                                                     i_equal     0                                                                                                    
+     exec     v21  configure mapping (quick)            yvikeys__unit_quick                                                                                 i_equal     0                                                                                                    
      get      v21  check current marks                  MARK__unit                  "list"           , NULL                                                 s_equal     MARK list        : .                                                                                 
      get      v21  check mark range                     MARK__unit                  "range"          , NULL                                                 s_equal     MARK range       : - to -                                                                            
 
@@ -302,7 +302,7 @@ SCRP          v21  (HINT  ) verify mark reading and writing                   
 
    COND       v21  initialize testing                                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      exec     v21  setup the program                    BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
-     exec     v21  configure mapping (quick)            MAP__unit_quick                                                                                     i_equal     0                                                                                                    
+     exec     v21  configure mapping (quick)            yvikeys__unit_quick                                                                                 i_equal     0                                                                                                    
      get      v21  check current marks                  MARK__unit                  "list"           , NULL                                                 s_equal     MARK list        : .                                                                                 
      get      v21  check mark range                     MARK__unit                  "range"          , NULL                                                 s_equal     MARK range       : - to -                                                                            
 
@@ -551,7 +551,7 @@ SCRP          v21  (HINT  ) verify mark definition and finding                
 
    COND       v21  initialize testing                                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((04.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      exec     v21  setup the program                    BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
-     exec     v21  configure mapping (quick)            MAP__unit_quick                                                                                     i_equal     0                                                                                                    
+     exec     v21  configure mapping (quick)            yvikeys__unit_quick                                                                                 i_equal     0                                                                                                    
      get      v21  check current marks                  MARK__unit                  "list"           , NULL                                                 s_equal     MARK list        : .                                                                                 
      get      v21  check mark range                     MARK__unit                  "range"          , NULL                                                 s_equal     MARK range       : - to -                                                                            
 
@@ -778,7 +778,7 @@ SCRP          v21  (HINT  ) verify mark definition and finding                
 
    COND       v21  initialize testing                                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((05.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      exec     v21  setup the program                    BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
-     exec     v21  configure mapping (quick)            MAP__unit_quick                                                                                     i_equal     0                                                                                                    
+     exec     v21  configure mapping (quick)            yvikeys__unit_quick                                                                                 i_equal     0                                                                                                    
      get      v21  check current marks                  MARK__unit                  "list"           , NULL                                                 s_equal     MARK list        : .                                                                                 
      get      v21  check mark range                     MARK__unit                  "range"          , NULL                                                 s_equal     MARK range       : - to -                                                                            
 

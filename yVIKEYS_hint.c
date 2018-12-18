@@ -256,7 +256,7 @@ MARK__set             (char a_mark)
    /*---(mark label)---------------------*/
    DEBUG_MARK   yLOG_note    ("save current position");
    strlcpy (s_mark_info [x_index].label, SOURCE_label (), LEN_LABEL);
-   MAP_locator (SOURCE_label (), &s_mark_info [x_index].x_pos, &s_mark_info [x_index].y_pos, &s_mark_info [x_index].z_pos);
+   yvikeys_map_locator (SOURCE_label (), &s_mark_info [x_index].x_pos, &s_mark_info [x_index].y_pos, &s_mark_info [x_index].z_pos);
    s_mark_info [x_index].source = MARK_USER;
    /*---(set history)--------------------*/
    MARK__history ();
@@ -701,7 +701,7 @@ MARK_reader           (char n, char *a, char *b, char *c, char *d, char *e, char
    }
    DEBUG_MARK   yLOG_char    ("mark"      , a[0]);
    /*---(address)------------------------*/
-   rc = MAP_addresser (s_mark_info [x_index].label, atoi (b), atoi (c), atoi (d));
+   rc = yvikeys_map_addresser (s_mark_info [x_index].label, atoi (b), atoi (c), atoi (d));
    --rce;  if (rc < 0) {
       DEBUG_MARK   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
@@ -797,7 +797,7 @@ MARK_direct          (char *a_string)
    DEBUG_MARK   yLOG_char    ("a_mark"    , a_string [0]);
    /*---(save)---------------------------*/
    strlcpy (s_mark_info [x_index].label, a_string + 2, LEN_LABEL);
-   rc = MAP_locator (s_mark_info [x_index].label, &s_mark_info [x_index].x_pos, &s_mark_info [x_index].y_pos, &s_mark_info [x_index].z_pos);
+   rc = yvikeys_map_locator (s_mark_info [x_index].label, &s_mark_info [x_index].x_pos, &s_mark_info [x_index].y_pos, &s_mark_info [x_index].z_pos);
    --rce;  if (rc < 0) {
       MARK__unset (a_string [0]);
       DEBUG_MARK   yLOG_exitr   (__FUNCTION__, rce);

@@ -61,6 +61,7 @@ static tTERMS  s_terms [MAX_TERMS] = {
    { "a"    , "char*"                      , 0},  /* string incudes spaces            */
    { "ii"   , "int, int"                   , 0},
    { "iii"  , "int, int, int"              , 0},
+   { "sii"  , "char*, int, int"            , 0},
    { "isss" , "int, char*, char*, char*"   , 0},
    { "Cs"   , "char*, char*"               , 0},
    { "-"    , ""                           , 0},
@@ -95,6 +96,7 @@ struct  cCOMMAND {
       char        (*s   ) (char*);          /* function pointer               */
       char        (*ss  ) (char*, char*);   /* function pointer               */
       char        (*si  ) (char*, int  );   /* function pointer               */
+      char        (*sii ) (char*, int, int);  /* function pointer               */
    } f;
    char        terms       [LEN_LABEL];     /* type of terms/args             */
    char        nterm;                       /* number of terms/args           */
@@ -832,7 +834,7 @@ yVIKEYS_cmds_direct     (char *a_text)
    char        rc          =    0;
    int         x, y, z;
    /*---(check address)------------------*/
-   rc = str2gyges (a_text + 1, &x, &y, &z, NULL, 0);
+   rc = str2gyges (a_text + 1, &z, &x, &y, NULL, 0);
    if (rc >= 0) {
       rc = yVIKEYS_jump (x, y, z);
       return rc;
@@ -1146,6 +1148,7 @@ yVIKEYS_cmds_add     (char a_menu, char *a_name, char *a_abbr, char *a_terms, vo
    }
    DEBUG_PROG   yLOG_point   ("a_terms"   , a_terms);
    --rce;  if (a_terms == NULL || CMDS__terms (a_terms, ACTION_FIND) < 0) {
+      DEBUG_PROG   yLOG_note    ("term specification not found in inventory");
       DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
@@ -1306,6 +1309,9 @@ CMDS__exec            (void)
    } else if (strcmp (s_cmds [i].terms, "iii" ) == 0) {
       DEBUG_CMDS   yLOG_note    ("three integers");
       rc = s_cmds [i].f.iii (atoi (s_fields [1]), atoi (s_fields [2]), atoi (s_fields [3]));
+   } else if (strcmp (s_cmds [i].terms, "sii" ) == 0) {
+      DEBUG_CMDS   yLOG_note    ("string and two integers");
+      rc = s_cmds [i].f.sii (s_fields [1], atoi (s_fields [2]), atoi (s_fields [3]));
    } else if (strcmp (s_cmds [i].terms, "isss") == 0) {
       DEBUG_CMDS   yLOG_note    ("integer and three strings");
       rc = s_cmds [i].f.isss (atoi (s_fields [1]), s_fields [2], s_fields [3], s_fields [4]);

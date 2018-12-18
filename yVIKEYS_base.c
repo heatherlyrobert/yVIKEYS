@@ -68,7 +68,7 @@ yVIKEYS_init         (void)
    SRCH_init    ();
    /*----(later)-------------------------*/
    KEYS_init    ();
-   MAP_init     ();
+   yvikeys_map_init   ();
    SOURCE_init  ();
    MACRO_init   ();
    /*----(latest)------------------------*/
@@ -495,7 +495,7 @@ yVIKEYS_main_handle     (uchar a_key)
       switch (MODE_curr ()) {
       case MODE_GOD      : rc = GOD_mode              (x_major , x_key);  break;
       case MODE_PROGRESS : rc = PROGRESS_mode         (x_major , x_key);  break;
-      case MODE_MAP      : rc = MAP_mode              (x_major , x_key);  break;
+      case MODE_MAP      : rc = yvikeys_map_mode      (x_major , x_key);  break;
       case MODE_SOURCE   : rc = SOURCE_mode           (x_major , x_key);  break;
       case UMOD_SRC_INPT : rc = SRC_INPT_umode        (x_major , x_key);  break;
       case SMOD_SRC_REG  : rc = SRC_REG_smode         (x_major , x_key);  break;

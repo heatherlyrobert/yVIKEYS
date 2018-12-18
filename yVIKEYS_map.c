@@ -616,13 +616,13 @@ VISU__update       (void)
    char        rce         = -10;
    int         x, y, z;
    /*---(prepare)------------------------*/
-   MAP_current  (&x, &y, &z);
+   yvikeys_map_current  (&x, &y, &z);
    /*---(not-live)-----------------------*/
    if (s_live == VISU_NOT) {
       s_visu.x_root  = s_visu.x_beg   = s_visu.x_end   = x;
       s_visu.y_root  = s_visu.y_beg   = s_visu.y_end   = y;
       s_visu.z_all   = z;
-      MAP_addresser (s_visu.b_label, x, y, z);
+      yvikeys_map_addresser (s_visu.b_label, x, y, z);
       strlcpy  (s_visu.e_label, s_visu.b_label, LEN_LABEL);
       return 0;
    }
@@ -647,8 +647,8 @@ VISU__update       (void)
       }
    }
    /*---(set labels)---------------------*/
-   MAP_addresser (s_visu.b_label, s_visu.x_beg, s_visu.y_beg, s_visu.z_all);
-   MAP_addresser (s_visu.e_label, s_visu.x_end, s_visu.y_end, s_visu.z_all);
+   yvikeys_map_addresser (s_visu.b_label, s_visu.x_beg, s_visu.y_beg, s_visu.z_all);
+   yvikeys_map_addresser (s_visu.e_label, s_visu.x_end, s_visu.y_end, s_visu.z_all);
    /*---(save to recent)-----------------*/
    VISU__set ('\'');
    /*---(complete)-----------------------*/
@@ -706,8 +706,8 @@ VISU_exact         (int a_xbeg, int a_xend, int a_ybeg, int a_yend, int a_z)
    s_visu.y_end  = a_yend;
    s_visu.z_all  = a_z;
    /*---(set labels)---------------------*/
-   MAP_addresser (s_visu.b_label, s_visu.x_beg, s_visu.y_beg, s_visu.z_all);
-   MAP_addresser (s_visu.e_label, s_visu.x_end, s_visu.y_end, s_visu.z_all);
+   yvikeys_map_addresser (s_visu.b_label, s_visu.x_beg, s_visu.y_beg, s_visu.z_all);
+   yvikeys_map_addresser (s_visu.e_label, s_visu.x_end, s_visu.y_end, s_visu.z_all);
    /*---(complete)-----------------------*/
    DEBUG_VISU   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -850,9 +850,9 @@ VISU_reader           (char n, char *a, char *b, char *c, char *d, char *e, char
    /*---(status)-------------------------*/
    s_visu_info [x_index].active = VISU_YES;
    /*---(address)------------------------*/
-   MAP_addresser (s_visu_info [x_index].b_label, s_visu_info [x_index].x_beg, s_visu_info [x_index].y_beg, s_visu_info [x_index].z_all);
+   yvikeys_map_addresser (s_visu_info [x_index].b_label, s_visu_info [x_index].x_beg, s_visu_info [x_index].y_beg, s_visu_info [x_index].z_all);
    DEBUG_VISU   yLOG_info    ("b_label"   , s_visu_info [x_index].b_label);
-   MAP_addresser (s_visu_info [x_index].e_label, s_visu_info [x_index].x_end, s_visu_info [x_index].y_end, s_visu_info [x_index].z_all);
+   yvikeys_map_addresser (s_visu_info [x_index].e_label, s_visu_info [x_index].x_end, s_visu_info [x_index].y_end, s_visu_info [x_index].z_all);
    DEBUG_VISU   yLOG_info    ("e_label"   , s_visu_info [x_index].e_label);
    /*---(update range)-------------------*/
    DEBUG_VISU   yLOG_note    ("update the range");
@@ -954,18 +954,8 @@ VISU_smode         (int a_major, int a_minor)
    return rce;
 }
 
-
-
-
-
-
-
-
-
-
-
 char
-MAP_current             (int *a_x, int *a_y, int *a_z)
+yvikeys_map_current     (int *a_x, int *a_y, int *a_z)
 {
    if (a_x != NULL)  *a_x = g_xmap.gcur;
    if (a_y != NULL)  *a_y = g_ymap.gcur;
@@ -974,7 +964,7 @@ MAP_current             (int *a_x, int *a_y, int *a_z)
 }
 
 char         /*-> call host to update maps -----------[ ------ [gc.D44.233.C7]*/ /*-[02.0000.111.R]-*/ /*-[--.---.---.--]-*/
-MAP_reposition       (void)
+yvikeys_map_reposition  (void)
 {
    /*---(header)-------------------------*/
    DEBUG_MAP   yLOG_enter   (__FUNCTION__);
@@ -990,7 +980,7 @@ MAP_reposition       (void)
 }
 
 char         /*-> clear a single map -----------------[ ------ [gc.D44.233.C7]*/ /*-[02.0000.111.R]-*/ /*-[--.---.---.--]-*/
-MAP__clear           (tMAPPED *a_map, char a_which)
+yvikeys__map_clear   (tMAPPED *a_map, char a_which)
 {
    /*---(header)-------------------------*/
    DEBUG_MAP   yLOG_senter  (__FUNCTION__);
@@ -1035,7 +1025,7 @@ MAP__clear           (tMAPPED *a_map, char a_which)
 }
 
 char
-MAP__print           (tMAPPED *a_map)
+yvikeys__map_print   (tMAPPED *a_map)
 {
    int         i           =    0;
    /*---(headers)------------------------*/
@@ -1061,14 +1051,14 @@ MAP__print           (tMAPPED *a_map)
 }
 
 char
-MAP__load             (char a_style, tMAPPED *a_map, char a_which)
+yvikeys__map_load     (char a_style, tMAPPED *a_map, char a_which)
 {
    /*---(locals)-----------+-----+-----+-*/
    int         i           =    0;
    int         j           =    0;
    int         x_spot      =    0;
    /*---(clear)--------------------------*/
-   MAP__clear  (a_map, a_which);
+   yvikeys__map_clear  (a_map, a_which);
    /*---(col/row setup)------------------*/
    if (a_style == 'f') {
       for (j =  0; j < 16; ++j)  a_map->map [x_spot++] = 1;
@@ -1158,7 +1148,7 @@ MAP__load             (char a_style, tMAPPED *a_map, char a_which)
    a_map->gbeg  = a_map->map [a_map->beg];
    a_map->gcur  = a_map->map [a_map->cur];
    a_map->gend  = a_map->map [a_map->end];
-   /*> MAP__print  (a_map);                                                           <*/
+   /*> yvikeys__map_print  (a_map);                                                           <*/
    /*---(complete)-----------------------*/
    return 0;
 }
@@ -1194,7 +1184,7 @@ yVIKEYS_map_config        (char a_coord, void *a_mapper, void *a_locator, void *
 }
 
 char
-MAP_locator             (char *a_label, int *a_x, int *a_y, int *a_z)
+yvikeys_map_locator     (char *a_label, int *a_x, int *a_y, int *a_z)
 {
    int         rce         = 0;
    int         rc          = 0;
@@ -1220,7 +1210,7 @@ MAP_locator             (char *a_label, int *a_x, int *a_y, int *a_z)
 }
 
 char 
-MAP_addresser           (char *a_label, int  a_x, int  a_y, int  a_z)
+yvikeys_map_addresser   (char *a_label, int  a_x, int  a_y, int  a_z)
 {
    char        rce         =  -10;
    char        rc          =    0;
@@ -1239,7 +1229,7 @@ MAP_addresser           (char *a_label, int  a_x, int  a_y, int  a_z)
 }
 
 char
-MAP_init               (void)
+yvikeys_map_init       (void)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -1256,12 +1246,12 @@ MAP_init               (void)
    g_coord    = YVIKEYS_OFFICE;
    s_mapper   = NULL;
    DEBUG_PROG   yLOG_note    ("map clearing");
-   MAP__clear (&g_xmap, YVIKEYS_XMAP);
-   MAP__clear (&g_ymap, YVIKEYS_YMAP);
-   MAP__clear (&g_zmap, YVIKEYS_ZMAP);
-   MAP__clear (&g_tmap, YVIKEYS_TMAP);
-   /*> MAP__print (&g_xmap);                                                          <*/
-   /*> MAP__print (&g_ymap);                                                          <*/
+   yvikeys__map_clear (&g_xmap, YVIKEYS_XMAP);
+   yvikeys__map_clear (&g_ymap, YVIKEYS_YMAP);
+   yvikeys__map_clear (&g_zmap, YVIKEYS_ZMAP);
+   yvikeys__map_clear (&g_tmap, YVIKEYS_TMAP);
+   /*> yvikeys__map_print (&g_xmap);                                                          <*/
+   /*> yvikeys__map_print (&g_ymap);                                                          <*/
    /*---(update status)------------------*/
    STATUS_init_set   (MODE_MAP);
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
@@ -1269,7 +1259,7 @@ MAP_init               (void)
 }
 
 int          /*-> idendify closest grid to position --[ ------ [gc.D44.233.C7]*/ /*-[02.0000.111.R]-*/ /*-[--.---.---.--]-*/
-MAP__closer           (int a_position, tMAPPED *a_map)
+yvikeys__map_closer   (int a_position, tMAPPED *a_map)
 {
    /*---(locals)-----------+-----+-----+-*/
    int         rc          =    0;
@@ -1320,7 +1310,7 @@ MAP__closer           (int a_position, tMAPPED *a_map)
 }
 
 char
-MAP__move             (int a_target, tMAPPED *a_map)
+yvikeys__map_move     (int a_target, tMAPPED *a_map)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -1334,7 +1324,7 @@ MAP__move             (int a_target, tMAPPED *a_map)
       DEBUG_MAP   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   /*> MAP__print  (a_map);                                                           <*/
+   /*> yvikeys__map_print  (a_map);                                                           <*/
    /*---(make sure index is rational)----*/
    DEBUG_MAP   yLOG_value   ("cur"       , a_map->cur);
    DEBUG_MAP   yLOG_value   ("umin"      , a_map->umin);
@@ -1388,14 +1378,14 @@ MAP__move             (int a_target, tMAPPED *a_map)
       if (a_map->map [i] != a_map->gcur)   break;
       a_map->cur  = i;
    }
-   /*> MAP__print  (a_map);                                                           <*/
+   /*> yvikeys__map_print  (a_map);                                                           <*/
    /*---(complete)-----------------------*/
    DEBUG_MAP   yLOG_exit    (__FUNCTION__);
    return  1;
 }
 
 char
-MAP__screen_small         (tMAPPED *a_map)
+yvikeys__screen_small     (tMAPPED *a_map)
 {
    /*---(locals)-----------+-----+-----+-*/
    int         i           =    0;
@@ -1416,7 +1406,7 @@ MAP__screen_small         (tMAPPED *a_map)
 
 
 char
-MAP__screen_beg           (tMAPPED *a_map)
+yvikeys__screen_beg       (tMAPPED *a_map)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -1457,7 +1447,7 @@ MAP__screen_beg           (tMAPPED *a_map)
 }
 
 char
-MAP__screen_end           (tMAPPED *a_map)
+yvikeys__screen_end       (tMAPPED *a_map)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -1467,7 +1457,7 @@ MAP__screen_end           (tMAPPED *a_map)
    int         x_prev      =    0;
    int         x_next      =    0;
    /*---(find end of end)----------------*/
-   /*> printf ("MAP__screen_end\n");                                          <*/
+   /*> printf ("yvikeys__screen_end\n");                                          <*/
    /*> printf ("end  = %3d\n", a_map->end);                                           <*/
    for (i = a_map->end; i <= a_map->umax; ++i) {
       a_map->end   = i;
@@ -1492,13 +1482,13 @@ MAP__screen_end           (tMAPPED *a_map)
       if (x_curr != x_prev)   break;
    }
    /*---(handle normally)----------------*/
-   rc = MAP__screen_beg (a_map);
+   rc = yvikeys__screen_beg (a_map);
    /*---(complete)-----------------------*/
    return rc;
 }
 
 char
-MAP__screen             (tMAPPED *a_map)
+yvikeys__screen         (tMAPPED *a_map)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -1527,7 +1517,7 @@ MAP__screen             (tMAPPED *a_map)
    /*---(screen fits all)----------------*/
    if (a_map->umax - a_map->umin <= a_map->avail) {
       /*> printf ("processing a small\n");                                            <*/
-      rc = MAP__screen_small (a_map);
+      rc = yvikeys__screen_small (a_map);
       return rc;
    }
    /*---(from beginning)-----------------*/
@@ -1537,7 +1527,7 @@ MAP__screen             (tMAPPED *a_map)
       a_map->beg = a_map->cur;
       for (i = a_map->cur; i >= a_map->umin; --i) {
          a_map->beg = i;
-         rc = MAP__screen_beg (a_map);
+         rc = yvikeys__screen_beg (a_map);
          if (rc > 0) break;
       }
    }
@@ -1548,12 +1538,12 @@ MAP__screen             (tMAPPED *a_map)
       a_map->end   = a_map->cur;
       a_map->tend  = a_map->cur;
       /*> printf ("end  = %3d\n", a_map->end);                                        <*/
-      rc = MAP__screen_end (a_map);
+      rc = yvikeys__screen_end (a_map);
    }
    /*---(just a refresh)-----------------*/
    else {
       /*> printf ("processing a refresh\n");                                          <*/
-      rc = MAP__screen_beg (a_map);
+      rc = yvikeys__screen_beg (a_map);
    }
    /*---(align grid)---------------------*/
    a_map->len   = a_map->end - a_map->beg + 1;
@@ -1570,22 +1560,22 @@ yVIKEYS_jump              (int a_x, int a_y, int a_z)
    /*---(header)-------------------------*/
    DEBUG_MAP   yLOG_enter   (__FUNCTION__);
    DEBUG_MAP   yLOG_value   ("a_x"       , a_x);
-   MAP__move   (a_x, &g_xmap);
-   MAP__screen (&g_xmap);
+   yvikeys__map_move   (a_x, &g_xmap);
+   yvikeys__screen (&g_xmap);
    DEBUG_MAP   yLOG_value   ("a_y"       , a_y);
-   MAP__move   (a_y, &g_ymap);
-   MAP__screen (&g_ymap);
+   yvikeys__map_move   (a_y, &g_ymap);
+   yvikeys__screen (&g_ymap);
    DEBUG_MAP   yLOG_value   ("a_z"       , a_z);
-   MAP__move   (a_z, &g_zmap);
-   /*> MAP__screen (&g_zmap);                                                         <*/
-   MAP_reposition  ();
+   yvikeys__map_move   (a_z, &g_zmap);
+   /*> yvikeys__screen (&g_zmap);                                                         <*/
+   yvikeys_map_reposition  ();
    VISU__update ();
    DEBUG_MAP   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
 int
-MAP__vert             (char a_major, char a_minor)
+yvikeys__map_vert     (char a_major, char a_minor)
 {
    /*---(locals)-----------+-----+-----+-*/
    int         x_grid      =    0;
@@ -1658,7 +1648,7 @@ MAP__vert             (char a_major, char a_minor)
       if (x_unit < g_ymap.umin)  x_unit = g_ymap.umin;
       if (x_unit > g_ymap.umax)  x_unit = g_ymap.umax;
       DEBUG_MAP   yLOG_value   ("x_unit (1)", x_unit);
-      x_unit  = MAP__closer (x_unit, &g_ymap);
+      x_unit  = yvikeys__map_closer (x_unit, &g_ymap);
       DEBUG_MAP   yLOG_value   ("x_unit (2)", x_unit);
       x_grid  = g_ymap.map [x_unit];
       DEBUG_MAP   yLOG_value   ("x_grid"    , x_grid);
@@ -1697,19 +1687,19 @@ MAP__vert             (char a_major, char a_minor)
    x_grid /= g_gsizey;
    x_grid *= g_gsizey;
    DEBUG_MAP   yLOG_value   ("x_grid new", x_grid);
-   MAP__move   (x_grid, &g_ymap);
+   yvikeys__map_move   (x_grid, &g_ymap);
    VISU__update ();
-   MAP__screen (&g_ymap);
-   MAP_reposition  ();
-   /*> MAP__print (&g_xmap);                                                          <*/
-   /*> MAP__print (&g_ymap);                                                          <*/
+   yvikeys__screen (&g_ymap);
+   yvikeys_map_reposition  ();
+   /*> yvikeys__map_print (&g_xmap);                                                          <*/
+   /*> yvikeys__map_print (&g_ymap);                                                          <*/
    /*---(complete)-----------------------*/
    DEBUG_MAP   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
 int
-MAP__horz             (char a_major, char a_minor)
+yvikeys__map_horz     (char a_major, char a_minor)
 {
    /*---(locals)-----------+-----+-----+-*/
    int         x_grid      =    0;
@@ -1765,7 +1755,7 @@ MAP__horz             (char a_major, char a_minor)
       if (x_unit < g_xmap.umin)  x_unit = g_xmap.umin;
       if (x_unit > g_xmap.umax)  x_unit = g_xmap.umax;
       DEBUG_MAP   yLOG_value   ("x_unit (1)" , x_unit);
-      x_unit  = MAP__closer (x_unit, &g_xmap);
+      x_unit  = yvikeys__map_closer (x_unit, &g_xmap);
       DEBUG_MAP   yLOG_value   ("x_unit (2)" , x_unit);
       x_grid  = g_xmap.map [x_unit];
       DEBUG_MAP   yLOG_value   ("x_grid"    , x_grid);
@@ -1804,10 +1794,10 @@ MAP__horz             (char a_major, char a_minor)
    x_grid /= g_gsizex;
    x_grid *= g_gsizex;
    DEBUG_MAP   yLOG_value   ("x_grid new", x_grid);
-   MAP__move   (x_grid, &g_xmap);
+   yvikeys__map_move   (x_grid, &g_xmap);
    VISU__update ();
-   MAP__screen (&g_xmap);
-   MAP_reposition  ();
+   yvikeys__screen (&g_xmap);
+   yvikeys_map_reposition  ();
    /*---(complete)-----------------------*/
    DEBUG_MAP   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -1823,15 +1813,15 @@ yVIKEYS_map_refresh     (void)
       s_mapper (YVIKEYS_UPDATE);
    }
    /*---(refresh position)---------------*/
-   MAP__vert (' ', 'r');
-   MAP__horz (' ', 'r');
+   yvikeys__map_vert (' ', 'r');
+   yvikeys__map_horz (' ', 'r');
    clear     ();
    /*---(complete)-----------------------*/
    return 0;
 }
 
 char
-MAP_mode_changes        (char a_minor)
+yvikeys__map_mode_chg   (char a_minor)
 {
    char        rc          =   -1;
    char        t           [5];
@@ -1947,7 +1937,7 @@ MAP_mode_changes        (char a_minor)
 }
 
 char         /*-> complex delete action --------------[ ------ [gz.430.031.02]*/ /*-[01.0000.213.!]-*/ /*-[--.---.---.--]-*/
-MAP_delete             (char a_major, char a_minor)
+yvikeys__map_delete    (char a_major, char a_minor)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -1979,10 +1969,10 @@ MAP_delete             (char a_major, char a_minor)
    }
    /*---(move after)---------------------*/
    switch (a_minor) {
-   case 'h' : rc = MAP__horz (G_KEY_SPACE, a_minor);         break;
-   case 'l' : rc = MAP__horz (G_KEY_SPACE, a_minor);         break;
-   case 'j' : rc = MAP__vert (G_KEY_SPACE, a_minor);         break;
-   case 'k' : rc = MAP__vert (G_KEY_SPACE, a_minor);         break;
+   case 'h' : rc = yvikeys__map_horz (G_KEY_SPACE, a_minor);         break;
+   case 'l' : rc = yvikeys__map_horz (G_KEY_SPACE, a_minor);         break;
+   case 'j' : rc = yvikeys__map_vert (G_KEY_SPACE, a_minor);         break;
+   case 'k' : rc = yvikeys__map_vert (G_KEY_SPACE, a_minor);         break;
    }
    /*---(complete)-----------------------*/
    DEBUG_MAP    yLOG_exit    (__FUNCTION__);
@@ -1990,7 +1980,7 @@ MAP_delete             (char a_major, char a_minor)
 }
 
 char
-MAP_mode                (char a_major, char a_minor)
+yvikeys_map_mode        (char a_major, char a_minor)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -2054,25 +2044,25 @@ MAP_mode                (char a_major, char a_minor)
       if (a_minor == ':') {
          x_grid = REPEAT_use ();
          if (x_grid > 0) {
-            rc = MAP__move   (x_grid, &g_ymap);
-            MAP__screen (&g_ymap);
-            MAP_reposition  ();
+            rc = yvikeys__map_move   (x_grid, &g_ymap);
+            yvikeys__screen (&g_ymap);
+            yvikeys_map_reposition  ();
             DEBUG_USER   yLOG_exit    (__FUNCTION__);
             return rc;;
          }
          /* non-repeat fall thru  */
       }
       if (a_minor == '|') {
-         rc = MAP__move   (REPEAT_use (), &g_xmap);
-         MAP__screen (&g_xmap);
-         MAP_reposition  ();
+         rc = yvikeys__map_move   (REPEAT_use (), &g_xmap);
+         yvikeys__screen (&g_xmap);
+         yvikeys_map_reposition  ();
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return rc;
       }
       /*---(mode changes)----------------*/
       if (strchr (s_map_modes, a_minor) != 0) {
          DEBUG_USER   yLOG_note    ("mode changes");
-         rc = MAP_mode_changes (a_minor);
+         rc = yvikeys__map_mode_chg (a_minor);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return rc;
       }
@@ -2087,35 +2077,35 @@ MAP_mode                (char a_major, char a_minor)
       if (a_minor == 'u') {
          VISU_clear ();
          rc = yvikeys_hist_undo ();
-         MAP_reposition  ();
+         yvikeys_map_reposition  ();
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return rc;
       }
       if (a_minor == 'U') {
          VISU_clear ();
          rc = yvikeys_hist_redo ();
-         MAP_reposition  ();
+         yvikeys_map_reposition  ();
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return rc;
       }
       /*---(normal)----------------------*/
       if (strchr (g_hsimple, a_minor) != 0) {
-         rc = MAP__horz   (a_major, a_minor);
+         rc = yvikeys__map_horz   (a_major, a_minor);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return rc;
       }
       if (strchr (g_vsimple, a_minor) != 0) {
-         rc = MAP__vert   (a_major, a_minor);
+         rc = yvikeys__map_vert   (a_major, a_minor);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return rc;
       }
       if (strchr (g_search, a_minor) != 0) {
          rc = SRCH_next   (a_minor);
          if (rc >= 0) {
-            MAP__screen (&g_xmap);
-            MAP__screen (&g_ymap);
-            MAP__screen (&g_zmap);
-            MAP_reposition  ();
+            yvikeys__screen (&g_xmap);
+            yvikeys__screen (&g_ymap);
+            yvikeys__screen (&g_zmap);
+            yvikeys_map_reposition  ();
          }
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return rc;
@@ -2125,12 +2115,12 @@ MAP_mode                (char a_major, char a_minor)
    /*---(goto family)--------------------*/
    if (a_major == 'g') {
       if (strchr (g_hgoto, a_minor) != 0) {
-         rc = MAP__horz   (a_major, a_minor);
+         rc = yvikeys__map_horz   (a_major, a_minor);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return rc;
       }
       if (strchr (g_vgoto, a_minor) != 0) {
-         rc = MAP__vert   (a_major, a_minor);
+         rc = yvikeys__map_vert   (a_major, a_minor);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return rc;
       }
@@ -2138,18 +2128,18 @@ MAP_mode                (char a_major, char a_minor)
    /*---(ends family)--------------------*/
    if (a_major == 'e') {
       if (strchr ("azud", a_minor) != 0) {
-         rc = MAP__horz   (a_major, a_minor);
-         rc = MAP__vert   (a_major, a_minor);
+         rc = yvikeys__map_horz   (a_major, a_minor);
+         rc = yvikeys__map_vert   (a_major, a_minor);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return rc;
       }
       if (strchr (g_hends, a_minor) != 0) {
-         rc = MAP__horz   (a_major, a_minor);
+         rc = yvikeys__map_horz   (a_major, a_minor);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return rc;
       }
       if (strchr (g_vends, a_minor) != 0) {
-         rc = MAP__vert   (a_major, a_minor);
+         rc = yvikeys__map_vert   (a_major, a_minor);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return rc;
       }
@@ -2231,7 +2221,7 @@ MAP_mode                (char a_major, char a_minor)
    }
    /*---(delete)-------------------------*/
    if (a_major == 'x') {
-      rc = MAP_delete  (a_major, a_minor);
+      rc = yvikeys__map_delete  (a_major, a_minor);
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return rc;
    }
@@ -2358,7 +2348,7 @@ WANDER_smode            (int a_major, int a_minor)
 }
 
 char       /*----: give current position info --------------------------------*/
-MAP_xstatus        (char *a_list)
+yvikeys_map_xstatus     (char *a_list)
 {
    /*---(locals)-----------+-----------+-*/
    char        rce         = -10;
@@ -2373,7 +2363,7 @@ MAP_xstatus        (char *a_list)
 }
 
 char       /*----: give current position info --------------------------------*/
-MAP_ystatus        (char *a_list)
+yvikeys_map_ystatus     (char *a_list)
 {
    /*---(locals)-----------+-----------+-*/
    char        rce         = -10;
@@ -2505,10 +2495,10 @@ yvikeys_bufs_umode  (uchar a_major, uchar a_minor)
 /*====================------------------------------------====================*/
 static void  o___UNIT_TEST_______o () { return; }
 
-struct {
+static struct {
    char        label       [LEN_LABEL];
    int         x, y, z;
-} MAP__unit_deref [100] = {
+} s_map_unit_deref [100] = {
    { "0a1"        ,   0,   0,   0 },
    { "0b3"        ,   1,   2,   0 },
    { "0c5"        ,   2,   4,   0 },
@@ -2533,48 +2523,48 @@ struct {
 };
 
 char
-MAP__unit_ymap          (void)
+yvikeys__unit_map_ymap  (void)
 {
    /*> printf ("running rowmap\n");                                                   <*/
-   MAP__load ('1', &g_ymap, YVIKEYS_YMAP);
+   yvikeys__map_load ('1', &g_ymap, YVIKEYS_YMAP);
    return 0;
 }
 
 char
-MAP__unit_xmap          (void)
+yvikeys__unit_map_xmap  (void)
 {
    /*> printf ("running colmap\n");                                                   <*/
-   MAP__load ('w', &g_xmap, YVIKEYS_YMAP);
+   yvikeys__map_load ('w', &g_xmap, YVIKEYS_YMAP);
    return 0;
 }
 
 char
-MAP__unit_zmap          (void)
+yvikeys__unit_map_zmap  (void)
 {
    return 0;
 }
 
 char
-MAP__unit_mapper        (char a_type)
+yvikeys__unit_map_map   (char a_type)
 {
    char        rc          = 0;
    char        t           [LEN_LABEL]  = "";
-   rc = MAP__unit_addressor (t, g_xmap.gcur, g_ymap.gcur, g_zmap.gcur);
+   rc = yvikeys__unit_map_addr (t, g_xmap.gcur, g_ymap.gcur, g_zmap.gcur);
    yVIKEYS_source (t, "testing");
    return 0;
 }
 
 char
-MAP__unit_locator       (char *a_label, int *a_x, int *a_y, int *a_z)
+yvikeys__unit_map_loc   (char *a_label, int *a_x, int *a_y, int *a_z)
 {
    int         i           =    0;
    int         n           =   -1;
    DEBUG_MAP_M yLOG_enter   (__FUNCTION__);
    DEBUG_MAP_M yLOG_note    (a_label);
    for (i = 0; i < 100; ++i) {
-      if (MAP__unit_deref [i].label == NULL)                 break;
-      if (MAP__unit_deref [i].label [0] != a_label [0])      continue;
-      if (strcmp (MAP__unit_deref [i].label, a_label) != 0)  continue;
+      if (s_map_unit_deref [i].label == NULL)                 break;
+      if (s_map_unit_deref [i].label [0] != a_label [0])      continue;
+      if (strcmp (s_map_unit_deref [i].label, a_label) != 0)  continue;
       n = i;
       break;
    }
@@ -2586,9 +2576,9 @@ MAP__unit_locator       (char *a_label, int *a_x, int *a_y, int *a_z)
    DEBUG_MAP_M yLOG_sint    (*a_y);
    DEBUG_MAP_M yLOG_sint    (*a_z);
    if (n < 0)  return -1;
-   *a_x = MAP__unit_deref [i].x;
-   *a_y = MAP__unit_deref [i].y;
-   *a_z = MAP__unit_deref [i].z;
+   *a_x = s_map_unit_deref [i].x;
+   *a_y = s_map_unit_deref [i].y;
+   *a_z = s_map_unit_deref [i].z;
    DEBUG_MAP_M yLOG_sint    (*a_x);
    DEBUG_MAP_M yLOG_sint    (*a_y);
    DEBUG_MAP_M yLOG_sint    (*a_z);
@@ -2598,15 +2588,15 @@ MAP__unit_locator       (char *a_label, int *a_x, int *a_y, int *a_z)
 }
 
 char 
-MAP__unit_addressor     (char *a_label, int x, int y, int z)
+yvikeys__unit_map_addr  (char *a_label, int x, int y, int z)
 {
    int         i           =    0;
    int         n           =   -1;
    for (i = 0; i < 100; ++i) {
-      if (MAP__unit_deref [i].label == NULL)                 break;
-      if (MAP__unit_deref [i].x     != x   )                 continue;
-      if (MAP__unit_deref [i].y     != y   )                 continue;
-      if (MAP__unit_deref [i].z     != z   )                 continue;
+      if (s_map_unit_deref [i].label == NULL)                 break;
+      if (s_map_unit_deref [i].x     != x   )                 continue;
+      if (s_map_unit_deref [i].y     != y   )                 continue;
+      if (s_map_unit_deref [i].z     != z   )                 continue;
       n = i;
       break;
    }
@@ -2614,17 +2604,17 @@ MAP__unit_addressor     (char *a_label, int x, int y, int z)
       strlcpy (a_label, "-", LEN_LABEL);
       return -1;
    }
-   strlcpy (a_label, MAP__unit_deref [n].label, LEN_LABEL);
+   strlcpy (a_label, s_map_unit_deref [n].label, LEN_LABEL);
    return 0;
 }
 
 char
-MAP__unit_quick         (void)
+yvikeys__unit_quick     (void)
 {
-   MAP__load ('1', &g_xmap, YVIKEYS_XMAP);
-   MAP__load ('1', &g_ymap, YVIKEYS_YMAP);
-   MAP__load ('1', &g_zmap, YVIKEYS_ZMAP);
-   yVIKEYS_map_config (YVIKEYS_OFFICE, MAP__unit_mapper, MAP__unit_locator, MAP__unit_addressor);
+   yvikeys__map_load ('1', &g_xmap, YVIKEYS_XMAP);
+   yvikeys__map_load ('1', &g_ymap, YVIKEYS_YMAP);
+   yvikeys__map_load ('1', &g_zmap, YVIKEYS_ZMAP);
+   yVIKEYS_map_config (YVIKEYS_OFFICE, yvikeys__unit_map_map, yvikeys__unit_map_loc, yvikeys__unit_map_addr);
    return 0;
 }
 
@@ -2642,7 +2632,7 @@ yVIKEYS__unit           (char *a_question, int a_num)
 }
 
 char*        /*-> tbd --------------------------------[ leaf   [gs.520.202.40]*/ /*-[01.0000.00#.#]-*/ /*-[--.---.---.--]-*/
-MAP__unit               (char *a_question, char a_index)
+yvikeys__unit_map       (char *a_question, char a_index)
 {
    /*---(preprare)-----------------------*/
    strlcpy  (yVIKEYS__unit_answer, "MAP unit         : question not understood", LEN_STR);

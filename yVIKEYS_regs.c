@@ -709,7 +709,7 @@ yvikeys__regs_paste_check    (void)
       return  rce;
    }
    /*---(get current position)-----------*/
-   MAP_current (&s_xoff, &s_yoff, &s_zoff);
+   yvikeys_map_current (&s_xoff, &s_yoff, &s_zoff);
    DEBUG_REGS   yLOG_value   ("s_xoff"    , s_xoff);
    DEBUG_REGS   yLOG_value   ("s_yoff"    , s_yoff);
    DEBUG_REGS   yLOG_value   ("s_zoff"    , s_zoff);
@@ -868,7 +868,7 @@ yvikeys_regs_paste              (char *a_type)
       x_1st = '-';
    }
    /*---(update)-------------------------*/
-   MAP_reposition  ();
+   yvikeys_map_reposition  ();
    /*---(complete)-----------------------*/
    DEBUG_REGS   yLOG_exit    (__FUNCTION__);
    return 0;

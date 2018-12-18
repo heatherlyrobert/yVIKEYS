@@ -423,8 +423,7 @@ SOURCE__accept          (void)
    case MODE_SOURCE  :
       DEBUG_EDIT   yLOG_note    ("save source back");
       if (s_saver != NULL && s_cur->npos > 0) {
-         if (strcmp (s_cur->original, s_cur->contents) != 0)
-            strlcpy (t, s_cur->contents, LEN_RECD);
+         strlcpy (t, s_cur->contents, LEN_RECD);
          strldchg (t, G_CHAR_SPACE, G_KEY_SPACE, LEN_RECD);
          s_saver (t);
       }
@@ -448,7 +447,7 @@ SOURCE__accept          (void)
    s_ctreg = s_wtreg = '"';
    SRC_UNDO__purge (0);
    yVIKEYS_source (s_src.label, s_src.original);
-   MAP_reposition  ();
+   yvikeys_map_reposition  ();
    DEBUG_EDIT   yLOG_value   ("rc"        , rc);
    DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
    return rc;
@@ -470,7 +469,7 @@ SOURCE__reset           (void)
    s_ctreg = s_wtreg = '"';
    SRC_UNDO__purge (0);
    yVIKEYS_source (s_src.label, s_src.original);
-   MAP_reposition  ();
+   yvikeys_map_reposition  ();
    return 0;
 }
 

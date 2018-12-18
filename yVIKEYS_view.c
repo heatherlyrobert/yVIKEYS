@@ -186,8 +186,8 @@ struct cOPTION  {
 tOPTION  s_options [MAX_OPTION ] = {
    { YVIKEYS_STATUS  , "empty"        , VIEW_status_default , "empty status display"        },
    { YVIKEYS_STATUS  , "mode"         , MODE_status         , "display the mode stack"      },
-   { YVIKEYS_STATUS  , "xmap"         , MAP_xstatus         , "x-axis position details"     },
-   { YVIKEYS_STATUS  , "ymap"         , MAP_ystatus         , "y-axis position details"     },
+   { YVIKEYS_STATUS  , "xmap"         , yvikeys_map_xstatus , "x-axis position details"     },
+   { YVIKEYS_STATUS  , "ymap"         , yvikeys_map_ystatus , "y-axis position details"     },
    { YVIKEYS_STATUS  , "keys"         , KEYS_status         , "displays keystroke history"  },
    { YVIKEYS_STATUS  , "treg"         , SRC_REG_status      , "displays contents of treg"   },
    { YVIKEYS_STATUS  , "words"        , SOURCE_status_words , "displays word breaks"        },
