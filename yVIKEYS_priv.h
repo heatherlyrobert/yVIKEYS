@@ -35,8 +35,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "1.1g"
-#define YVIKEYS_VER_TXT   "fixed failed editing cell save if contents not changed"
+#define YVIKEYS_VER_NUM   "1.1h"
+#define YVIKEYS_VER_TXT   "first decent file output (not reading) from gyges, no unit test"
 
 
 
@@ -434,6 +434,13 @@ char        yvikeys_file_name               (char  *a_name);
 char        FILE__unit_null         (void);
 char*       FILE__unit              (char *a_question, int a_ref);
 
+/*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
+char        yvikeys_file_prog_writer    (void);
+char        yvikeys_file_time_writer    (void);
+char        yvikeys_file_vers_writer    (void);
+char        yvikeys_file_writer         (void);
+
+char        yvikeys_file_reader         (void);
 
 char        yvikeys__regs_by_abbr        (char a_reg);
 char        yvikeys__regs_set            (char a_reg);

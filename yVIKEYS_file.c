@@ -199,15 +199,15 @@ yvikeys_file_init               (void)
    strlcpy (s_vernum, "-"    , LEN_DESC );
    strlcpy (s_vertxt, "-"    , LEN_DESC );
    /*---(yPARSE verbs)-------------------*/
-   rc = yPARSE_handler ('·'          , "source"    , 0.1, "TSD---------", NULL          , NULL          , "------------" , ""                          , "gyges program versioning"  );
-   rc = yPARSE_handler ('·'          , "version"   , 0.2, "SD----------", NULL          , NULL          , "------------" , ""                          , "file version"              );
-   rc = yPARSE_handler ('·'          , "written"   , 0.3, "L-----------", NULL          , NULL          , "------------" , ""                          , "file save timestamp"       );
-   rc = yPARSE_handler (UMOD_MARK    , "loc_mark"  , 7.1, "ciii--------", MARK_reader   , MARK_writer   , "------------" , "a,xpos,ypos,zpos"          , "map mode location marks"   );
-   rc = yPARSE_handler (UMOD_VISUAL  , "visu_mark" , 7.2, "ciiiii------", VISU_reader   , VISU_writer   , "------------" , "a,xbeg,ybeg,xend,yend,zpos", "map mode visual selections");
-   rc = yPARSE_handler (SMOD_MACRO   , "macro"     , 7.3, "ciiO--------", MACRO_reader  , MACRO_writer  , "------------" , "a,count,rc,keys"           , "keyboard macros"           );
-   rc = yPARSE_handler (MODE_COMMAND , "command"   , 7.4, "ciiO--------", CMDS_reader   , CMDS_writer   , "------------" , "a,count,rc,command"        , "command history"           );
-   rc = yPARSE_handler (MODE_SEARCH  , "search"    , 7.5, "ciiO--------", SRCH_reader   , SRCH_writer   , "------------" , "a,count,found,search"      , "search history"            );
-   rc = yPARSE_handler (SMOD_SRC_REG , "text_reg"  , 7.6, "cO----------", SRC_REG_reader, SRC_REG_writer, "------------" , "a,text"                    , "text editing registers"    );
+   rc = yPARSE_handler ('·'          , "source"    , 0.1, "NSO---------", NULL          , yvikeys_file_prog_writer   , "------------" , ""                          , "source program versioning" );
+   rc = yPARSE_handler ('·'          , "written"   , 0.2, "N-----------", NULL          , yvikeys_file_time_writer   , "------------" , ""                          , "data file save timestamp"  );
+   rc = yPARSE_handler ('·'          , "version"   , 0.3, "cSO---------", NULL          , yvikeys_file_vers_writer   , "------------" , ""                          , "data file versioning"      );
+   /*> rc = yPARSE_handler (UMOD_MARK    , "loc_mark"  , 7.1, "ciii--------", MARK_reader   , MARK_writer                , "------------" , "a,xpos,ypos,zpos"          , "map mode location marks"   );   <*/
+   /*> rc = yPARSE_handler (UMOD_VISUAL  , "visu_mark" , 7.2, "ciiiii------", VISU_reader   , VISU_writer                , "------------" , "a,xbeg,ybeg,xend,yend,zpos", "map mode visual selections");   <*/
+   /*> rc = yPARSE_handler (SMOD_MACRO   , "macro"     , 7.3, "ciiO--------", MACRO_reader  , MACRO_writer               , "------------" , "a,count,rc,keys"           , "keyboard macros"           );   <*/
+   /*> rc = yPARSE_handler (MODE_COMMAND , "command"   , 7.4, "ciiO--------", CMDS_reader   , CMDS_writer                , "------------" , "a,count,rc,command"        , "command history"           );   <*/
+   /*> rc = yPARSE_handler (MODE_SEARCH  , "search"    , 7.5, "ciiO--------", SRCH_reader   , SRCH_writer                , "------------" , "a,count,found,search"      , "search history"            );   <*/
+   /*> rc = yPARSE_handler (SMOD_SRC_REG , "text_reg"  , 7.6, "cO----------", SRC_REG_reader, SRC_REG_writer             , "------------" , "a,text"                    , "text editing registers"    );   <*/
    /*---(update status)------------------*/
    STATUS_init_set   (FMOD_FILE);
    /*---(complete)-----------------------*/
@@ -283,10 +283,10 @@ yVIKEYS_file_config     (char *a_prog, char *a_ext, char *a_vernum, char *a_vert
    rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "major"       , ""    , ""     , yvikeys_file_bump_major      , "increment the version number by a MAJOR version"             );
    rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "minor"       , ""    , ""     , yvikeys_file_bump_minor      , "increment the version number by a MINOR version"             );
    rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "bump"        , ""    , ""     , yvikeys_file_bump_inc        , "increment the version number by a INC version"               );
-   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "write"       , "w"   , ""     , OUTP_write           , "write/update the current file"                               );
-   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "writeall"    , "wa"  , ""     , OUTP_write           , "quit all files (if no changes), and exit"                    );
-   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "read"        , "e"   , ""     , INPT_edit            , "clear existing contents and open/read new file"              );
-   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "edit"        , "e"   , ""     , INPT_edit            , "clear existing contents and open/read new file"              );
+   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "write"       , "w"   , ""     , yvikeys_file_writer          , "write/update the current file"                               );
+   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "writeall"    , "wa"  , ""     , yvikeys_file_writer          , "quit all files (if no changes), and exit"                    );
+   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "read"        , "e"   , ""     , yvikeys_file_reader          , "clear existing contents and open/read new file"              );
+   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "edit"        , "e"   , ""     , yvikeys_file_reader          , "clear existing contents and open/read new file"              );
    /*---(default file name)--------------*/
    yvikeys_file_loc  (NULL);
    yvikeys_file_name (NULL);
@@ -715,7 +715,7 @@ yvikeys__file_close     (void)
 static void  o___OUTPUT__________o () { return; }
 
 char         /*-> write file header ------------------[ leaf   [ge.850.154.20]*/ /*-[03.0000.01#.!]-*/ /*-[--.---.---.--]-*/
-yvikeys__file_header     (void)
+yvikeys__file_intro      (void)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;          /* return code for errors         */
@@ -726,37 +726,28 @@ yvikeys__file_header     (void)
    /*---(header)-------------------------*/
    DEBUG_INPT   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
-   /*> --rce;  if (s_file == NULL) {                                                  <* 
-    *>    DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);                              <* 
-    *>    return rce;                                                                 <* 
-    *> }                                                                              <*/
-   /*---(introduction)---------------------*/
-   /*> fprintf (s_file, "#!%s\n", s_fullpath);                                        <* 
-    *> fprintf (s_file, "#   generated by %s\n", s_fulldesc);                         <*/
+   --rce;  if (!STATUS_operational (FMOD_FILE)) {
+      DEBUG_INPT   yLOG_note    ("can not execute until operational");
+      DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    /*---(write header)---------------------*/
    yPARSE_section ("GENERAL");
-   /*> fprintf (s_file, "\n\n\n");                                                                                                                             <* 
-    *> fprintf (s_file, "#===[[ GENERAL ]]============================================================================================================#\n");   <* 
-    *> fprintf (s_file, "#---------  -ver-  ---description ------------------------------------------------\n");                                             <*/
    /*---(format identifiers)---------------*/
-   /*> fprintf (s_file, "%-10.10s  %5s  %-60.60s \n", s_prog, s_vernum, s_vertxt);   <*/
    rc = yPARSE_fullwrite ("source"   , s_prog, s_vernum, s_vertxt);
    DEBUG_INPT   yLOG_value   ("source"    , rc);
    /*---(timestamp)------------------------*/
    x_time = time (NULL);
    strftime (x_temp, 100, "%Y.%m.%d.%H.%M.%S", localtime (&x_time));
-   /*> fprintf (s_file, "timestamp   %5s  %-60.60s \n", "-----", x_temp);          <*/
    rc = yPARSE_fullwrite ("written"  , x_temp);
    DEBUG_INPT   yLOG_value   ("written"   , rc);
    /*---(version)------------------------*/
    if (ver_ctrl == 'y') {
-      /*> fprintf (s_file, "version     %5s  %-60.60s \n", ver_num, ver_txt);      <*/
       rc = yPARSE_fullwrite ("version"  , ver_num, ver_txt);
       DEBUG_INPT   yLOG_value   ("version"   , rc);
+   } else {
+      rc = yPARSE_fullwrite ("version"  , "n/a", "untracked");
    }
-   /*---(finish)-------------------------*/
-   /*> fprintf (s_file, "#---------  -ver-  ---description ------------------------------------------------\n");   <*/
-   /*> fflush  (s_file);                                                              <*/
    /*---(complete)-----------------------*/
    DEBUG_INPT   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -1011,6 +1002,127 @@ OUTP__write_type         (char *a_name)
    return s_lines;
 }
 
+char
+yvikeys_file_prog_writer (void)
+{
+   /*---(locals)-----------+-----------+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   /*---(header)-------------------------*/
+   DEBUG_OUTP   yLOG_enter   (__FUNCTION__);
+   /*---(header)-------------------------*/
+   yPARSE_section ("INTRODUCTION");
+   /*---(clear output)-------------------*/
+   yPARSE_outclear  ();
+   /*---(write line)---------------------*/
+   rc = yPARSE_fullwrite ("source"   , s_prog, s_vernum, s_vertxt);
+   DEBUG_INPT   yLOG_value   ("source"    , rc);
+   --rce; if (rc < 0) { 
+      DEBUG_OUTP   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(complete)-----------------------*/
+   DEBUG_OUTP  yLOG_exit    (__FUNCTION__);
+   return 1;
+}
+
+char
+yvikeys_file_time_writer (void)
+{
+   /*---(locals)-----------+-----------+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   char        x_temp      [100];
+   time_t      x_time;
+   /*---(header)-------------------------*/
+   DEBUG_OUTP   yLOG_enter   (__FUNCTION__);
+   /*---(clear output)-------------------*/
+   yPARSE_outclear  ();
+   /*---(timestamp)------------------------*/
+   x_time = time (NULL);
+   strftime (x_temp, 100, "%Y.%m.%d.%H.%M.%S", localtime (&x_time));
+   rc = yPARSE_fullwrite ("written"  , x_temp);
+   DEBUG_INPT   yLOG_value   ("written"   , rc);
+   --rce; if (rc < 0) { 
+      DEBUG_OUTP   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(complete)-----------------------*/
+   DEBUG_OUTP  yLOG_exit    (__FUNCTION__);
+   return 1;
+}
+
+char
+yvikeys_file_vers_writer (void)
+{
+   /*---(locals)-----------+-----------+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   /*---(header)-------------------------*/
+   DEBUG_OUTP   yLOG_enter   (__FUNCTION__);
+   /*---(clear output)-------------------*/
+   yPARSE_outclear  ();
+   /*---(version)------------------------*/
+   if (ver_ctrl == 'y') {
+      rc = yPARSE_fullwrite ("version"  , 'y', ver_num, ver_txt);
+   } else {
+      rc = yPARSE_fullwrite ("version"  , '-', "n/a", "untracked");
+   }
+   DEBUG_INPT   yLOG_value   ("version"   , rc);
+   --rce; if (rc < 0) { 
+      DEBUG_OUTP   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(complete)-----------------------*/
+   DEBUG_OUTP  yLOG_exit    (__FUNCTION__);
+   return 1;
+}
+
+char
+yvikeys_file_writer     (void)
+{
+   /*---(locals)-----------+-----------+-*/
+   char        rce         =  -10;
+   int         rc          =    0;
+   int         i           =    0;
+   int         n           =   -1;
+   /*---(header)-------------------------*/
+   DEBUG_INPT  yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   --rce;  if (!STATUS_operational (FMOD_FILE)) {
+      DEBUG_INPT   yLOG_note    ("can not execute until operational");
+      DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(open file)----------------------*/
+   DEBUG_INPT  yLOG_info    ("f_title"   , myVIKEYS.f_title);
+   DEBUG_INPT  yLOG_info    ("s_fullpath", s_fullpath);
+   DEBUG_INPT  yLOG_info    ("s_fulldesc", s_fulldesc);
+   rc = yPARSE_open_out (myVIKEYS.f_title, s_fullpath, s_fulldesc);
+   DEBUG_OUTP   yLOG_value   ("open"      , rc);
+   --rce;  if (rc < 0) {
+      DEBUG_INPT  yLOG_exit    (__FUNCTION__);
+      return rce;
+   }
+   /*---(intro)--------------------------*/
+   rc = yPARSE_write_all ();
+   DEBUG_OUTP   yLOG_value   ("yparse"    , rc);
+   --rce;  if (rc < 0) {
+      DEBUG_INPT  yLOG_exit    (__FUNCTION__);
+      return rce;
+   }
+   /*---(close file)---------------------*/
+   rc = yPARSE_close_out ();
+   DEBUG_OUTP   yLOG_value   ("close"     , rc);
+   --rce;  if (rc < 0) {
+      DEBUG_INPT  yLOG_exit    (__FUNCTION__);
+      return rce;
+   }
+   /*---(complete)-----------------------*/
+   DEBUG_OUTP  yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
 int 
 OUTP_write              (void)
 {
@@ -1035,7 +1147,7 @@ OUTP_write              (void)
    }
    /*---(header)-------------------------*/
    DEBUG_OUTP   yLOG_note    ("write header");
-   yvikeys__file_header ();
+   yvikeys__file_intro ();
    DEBUG_OUTP   yLOG_note    ("write header");
    /*> TABS_writer_all ();                                                            <*/
    /*> OUTP__write_type (FILE_TABS);                                                  <*/
@@ -1245,6 +1357,11 @@ INPT_edit          (void)
    /*---(complete)-----------------------*/
    DEBUG_INPT yLOG_exit    (__FUNCTION__);
    return 0;
+}
+
+char
+yvikeys_file_reader     (void)
+{
 }
 
 char
