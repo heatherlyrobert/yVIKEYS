@@ -2431,7 +2431,7 @@ HISTORY_infowin         (void)
          if ((i % 2) == 0)  yCOLOR_curs ("h_current"    );
          else               yCOLOR_curs ("map"          );
          switch (MODE_curr ()) {
-         case UMOD_MARK      : MARK_infowin    (x_entry, i);  break;
+         case UMOD_MARK      : yvikeys_mark_info    (x_entry, i);  break;
          case UMOD_VISUAL    : VISU_infowin    (x_entry, i);  break;
                                /*> case SMOD_MACRO     : MACRO_infowin (x_entry, i);  break;                <*/
          case SMOD_SRC_REG   : SRC_REG_infowin (x_entry, i);  break;

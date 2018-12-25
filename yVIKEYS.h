@@ -122,15 +122,15 @@ struct cMAPPED {
    int         gend;                        /* grid at end of screen          */
    /*---(done)-----------------*/
 };
+tMAPPED     g_bmap;
 tMAPPED     g_xmap;
 tMAPPED     g_ymap;
 tMAPPED     g_zmap;
-tMAPPED     g_tmap;
 
+#define     YVIKEYS_BMAP     'b'
 #define     YVIKEYS_XMAP     'x'
 #define     YVIKEYS_YMAP     'y'
 #define     YVIKEYS_ZMAP     'z'
-#define     YVIKEYS_TMAP     't'
 
 #define     YVIKEYS_EMPTY   -666
 #define     YVIKEYS_INIT    'i'
@@ -266,7 +266,7 @@ char        yVIKEYS_view_ribbon_clear (void);
 char        yVIKEYS_view_ribbon       (char *a_cat, char *a_name);
 
 
-char        yVIKEYS_jump              (int a_x, int a_y, int a_z);
+char        yVIKEYS_jump              (int a_buf, int a_x, int a_y, int a_z);
 
 /*---(map mode)-------------*/
 char        yVIKEYS_map_config        (char a_coord, void *a_mapper, void *a_locator, void *a_address);

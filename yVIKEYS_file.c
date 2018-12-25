@@ -199,14 +199,11 @@ yvikeys_file_init               (void)
    strlcpy (s_vernum, "-"    , LEN_DESC );
    strlcpy (s_vertxt, "-"    , LEN_DESC );
    /*---(yPARSE verbs)-------------------*/
-   rc = yPARSE_handler ('·'          , "source"    , 0.1, "NSO---------", NULL          , yvikeys_file_prog_writer   , "------------" , ""                          , "source program versioning" );
-   rc = yPARSE_handler ('·'          , "written"   , 0.2, "N-----------", NULL          , yvikeys_file_time_writer   , "------------" , ""                          , "data file save timestamp"  );
+   rc = yPARSE_handler ('·'          , "source"    , 0.1, "OSO---------", NULL          , yvikeys_file_prog_writer   , "------------" , ""                          , "source program versioning" );
+   rc = yPARSE_handler ('·'          , "written"   , 0.2, "O-----------", NULL          , yvikeys_file_time_writer   , "------------" , ""                          , "data file save timestamp"  );
    rc = yPARSE_handler ('·'          , "version"   , 0.3, "cSO---------", NULL          , yvikeys_file_vers_writer   , "------------" , ""                          , "data file versioning"      );
-   /*> rc = yPARSE_handler (UMOD_MARK    , "loc_mark"  , 7.1, "ciii--------", MARK_reader   , MARK_writer                , "------------" , "a,xpos,ypos,zpos"          , "map mode location marks"   );   <*/
    /*> rc = yPARSE_handler (UMOD_VISUAL  , "visu_mark" , 7.2, "ciiiii------", VISU_reader   , VISU_writer                , "------------" , "a,xbeg,ybeg,xend,yend,zpos", "map mode visual selections");   <*/
    /*> rc = yPARSE_handler (SMOD_MACRO   , "macro"     , 7.3, "ciiO--------", MACRO_reader  , MACRO_writer               , "------------" , "a,count,rc,keys"           , "keyboard macros"           );   <*/
-   /*> rc = yPARSE_handler (MODE_COMMAND , "command"   , 7.4, "ciiO--------", CMDS_reader   , CMDS_writer                , "------------" , "a,count,rc,command"        , "command history"           );   <*/
-   /*> rc = yPARSE_handler (MODE_SEARCH  , "search"    , 7.5, "ciiO--------", SRCH_reader   , SRCH_writer                , "------------" , "a,count,found,search"      , "search history"            );   <*/
    /*> rc = yPARSE_handler (SMOD_SRC_REG , "text_reg"  , 7.6, "cO----------", SRC_REG_reader, SRC_REG_writer             , "------------" , "a,text"                    , "text editing registers"    );   <*/
    /*---(update status)------------------*/
    STATUS_init_set   (FMOD_FILE);
@@ -1040,7 +1037,7 @@ yvikeys_file_time_writer (void)
    yPARSE_outclear  ();
    /*---(timestamp)------------------------*/
    x_time = time (NULL);
-   strftime (x_temp, 100, "%Y.%m.%d.%H.%M.%S", localtime (&x_time));
+   strftime (x_temp, 100, "%y.%m.%d.%H.%M.%S.%V.%w", localtime (&x_time));
    rc = yPARSE_fullwrite ("written"  , x_temp);
    DEBUG_INPT   yLOG_value   ("written"   , rc);
    --rce; if (rc < 0) { 
@@ -1362,6 +1359,44 @@ INPT_edit          (void)
 char
 yvikeys_file_reader     (void)
 {
+   /*---(locals)-----------+-----------+-*/
+   char        rce         =  -10;
+   int         rc          =    0;
+   int         i           =    0;
+   int         n           =   -1;
+   /*---(header)-------------------------*/
+   DEBUG_INPT  yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   --rce;  if (!STATUS_operational (FMOD_FILE)) {
+      DEBUG_INPT   yLOG_note    ("can not execute until operational");
+      DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(open file)----------------------*/
+   DEBUG_INPT  yLOG_info    ("f_title"   , myVIKEYS.f_title);
+   rc = yPARSE_open_in (myVIKEYS.f_title);
+   DEBUG_OUTP   yLOG_value   ("open"      , rc);
+   --rce;  if (rc < 0) {
+      DEBUG_INPT  yLOG_exit    (__FUNCTION__);
+      return rce;
+   }
+   /*---(intro)--------------------------*/
+   rc = yPARSE_read_all ();
+   DEBUG_OUTP   yLOG_value   ("yparse"    , rc);
+   --rce;  if (rc < 0) {
+      DEBUG_INPT  yLOG_exit    (__FUNCTION__);
+      return rce;
+   }
+   /*---(close file)---------------------*/
+   rc = yPARSE_close_in ();
+   DEBUG_OUTP   yLOG_value   ("close"     , rc);
+   --rce;  if (rc < 0) {
+      DEBUG_INPT  yLOG_exit    (__FUNCTION__);
+      return rce;
+   }
+   /*---(complete)-----------------------*/
+   DEBUG_OUTP  yLOG_exit    (__FUNCTION__);
+   return 0;
 }
 
 char

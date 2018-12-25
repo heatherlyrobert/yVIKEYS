@@ -35,8 +35,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "1.1h"
-#define YVIKEYS_VER_TXT   "first decent file output (not reading) from gyges, no unit test"
+#define YVIKEYS_VER_NUM   "1.1i"
+#define YVIKEYS_VER_TXT   "upgraded and unit tested marks, incuding file read/write"
 
 
 
@@ -209,6 +209,7 @@ char        KEYS_unique             (void);
 char        KEYS_init               (void);
 char*       KEYS__unit              (char *a_question, char a_index);
 char        BASE_dump               (char *a_what);
+int         yvikeys_abbr_shared     (char a_abbr, char *a_valid);
 char        KEYS_dump               (FILE *a_file);
 char        BASE__unit_quiet        (void);
 char        BASE__unit_loud         (void);
@@ -259,8 +260,8 @@ char        yvikeys_speed_prog      (char *a_speed);
 char        yvikeys_scale_prog      (char *a_scale);
 
 
-char        yvikeys_map_locator     (char *a_label, int *a_x, int *a_y, int *a_z);
-char        yvikeys_map_addresser   (char *a_label, int  a_x, int  a_y, int  a_z);
+char        yvikeys_map_locator     (char *a_label, int *a_buf, int *a_x, int *a_y, int *a_z);
+char        yvikeys_map_addresser   (char *a_label, int a_buf, int a_x, int a_y, int a_z);
 char        yvikeys_map_init        (void);
 char        yvikeys__map_load       (char a_style, tMAPPED *a_map, char a_which);
 char        yvikeys__screen         (tMAPPED *a_map);
@@ -272,15 +273,15 @@ char        yvikeys_map_status      (char *a_list);
 char*       yvikeys__unit_map       (char *a_question, char a_index);
 char        yvikeys__unit_map_ymap  (void);
 char        yvikeys__unit_map_xmap  (void);
-char        yvikeys_map_current     (int *a_x, int *a_y, int *a_z);
+char        yvikeys_map_current     (char *a_label, int *a_buf, int *a_x, int *a_y, int *a_z);
 char        yvikeys_map_reposition  (void);
 char        yvikeys_bufs_init       (void);
 char        yvikeys_bufs_umode      (uchar a_major, uchar a_minor);
 
 char        yvikeys__unit_quick     (void);
 char        yvikeys__unit_map_map   (char a_type);
-char        yvikeys__unit_map_loc   (char *a_label, int *x, int *y, int *z);
-char        yvikeys__unit_map_addr  (char *a_label, int x, int y, int z);
+char        yvikeys__unit_map_loc   (char *a_label, int *a_buf, int *x, int *y, int *z);
+char        yvikeys__unit_map_addr  (char *a_label, int a_buf, int x, int y, int z);
 
 char        VISU_valid              (char a_visu);
 char        VISU_status             (char *a_list);
@@ -325,23 +326,25 @@ char        HISTORY_display         (void);
 char        WANDER_smode            (int  a_major, int  a_minor);
 
 
-char        MARK_init               (void);
-char        MARK_valid              (char a_mark);
-char        MARK__check             (char *a_label);
-char        MARK__find              (char *a_label);
-char        MARK__which             (void);
-char        MARK__set               (char a_mark);
-char        MARK__unset             (char a_mark);
-char        MARK__return            (char a_mark);
-char*       MARK__unit              (char *a_question, char a_mark);
-char        MARK__write             (char a_mark);
-char        MARK_writeall           (FILE *a_file);
-char        MARK_read               (char a_mark, char *a_label);
-char        MARK_direct             (char *a_string);
-char        MARK_infowin            (char *a_entry, int a_index);
-char        MARK__listplus          (char *a_list);
-char        MARK_status             (char *a_status);
-char        MARK_smode              (int a_major, int a_minor);
+/*345678901-12345678901-12345678901-1234-12345678901-12345678901-12345678901-1*/
+char        yvikeys_mark_init            (void);
+char        yvikeys_mark__valid          (char a_abbr);
+int         yvikeys_mark__index          (char a_abbr);
+char        yvikeys_mark__abbr           (int  a_index);
+char        yvikeys_mark__find           (char *a_label);
+char        yvikeys_mark__which          (void);
+char        yvikeys_mark__set            (char a_mark);
+char        yvikeys_mark__unset          (char a_mark);
+char        yvikeys_mark__return         (char a_mark);
+char*       yvikeys_mark__unit           (char *a_question, char a_mark);
+char        yvikeys_mark_writer          (char a_abbr);
+char        yvikeys_mark_writer_all      (void);
+char        yvikeys_mark_reader          (void);
+char        yvikeys_mark_direct          (char *a_string);
+char        yvikeys_mark_info            (char *a_entry, int a_index);
+char        yvikeys_mark_listplus        (char *a_list);
+char        yvikeys_mark_status          (char *a_status);
+char        yvikeys_mark_smode           (int a_major, int a_minor);
 
 
 /*---(program)--------------*/
@@ -385,17 +388,25 @@ char*       CMDS__unit              (char *a_question, char a_index);
 int         CMDS__find              (char *a_name);
 char*       CMDS_curr               (void);
 char        CMDS__exec              (void);
-int         CMDS_valid              (char a_mark);
+char        CMDS_valid_abbr         (char a_mark);
+int         CMDS_find_abbr          (char a_mark);
+char        CMDS_reader             (void);
+char        CMDS_writer             (char a_abbr);
+char        CMDS_writer_all         (void);
 char        CMDS__unit_null         (void);
 /*---(search)---------------*/
 char        HISTORY_limits          (char a_mode, int *a_min, int *a_max);
 char        HISTORY_entry           (char a_mode, int a_index, char *a_entry, int a_max);
 char*       HISTORY_use             (char a_mode, int a_index);
-int         SRCH_valid              (char a_mark);
+char        SRCH_valid_abbr         (char a_mark);
+int         SRCH_find_abbr          (char a_mark);
 char        SRCH_init               (void);
 char        SRCH__purge             (void);
 char        SRCH__exec              (void);
 char        SRCH_next               (char a_move);
+char        SRCH_reader             (void);
+char        SRCH_writer             (char a_abbr);
+char        SRCH_writer_all         (void);
 /*---(unit testing)---------*/
 char        SRCH__unit_null         (void);
 char        SRCH__unit_searcher     (char *a_search);
@@ -462,17 +473,11 @@ char*       yvikeys__unit_regs         (char *a_question, char x, char y);
 
 
 char        SRC_REG_writer          (char a_abbr);
-char        SRCH_writer             (char a_abbr);
-char        CMDS_writer             (char a_abbr);
-char        MARK_writer             (char a_abbr);
 char        VISU_writer             (char a_abbr);
 char        MACRO_writer            (char a_abbr);
 
 char        SRC_REG_reader          (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i);
-char        SRCH_reader             (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i);
-char        MARK_reader             (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i);
 char        VISU_reader             (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i);
-char        CMDS_reader             (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i);
 char        MACRO_reader            (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i);
 
 

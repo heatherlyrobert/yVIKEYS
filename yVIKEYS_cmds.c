@@ -145,6 +145,7 @@ typedef   struct   cSRCH   tSRCH;
 struct cSRCH {
    int         pass;
    char        label       [LEN_LABEL];
+   int         b_pos;
    int         x_pos;
    int         y_pos;
    int         z_pos;
@@ -154,7 +155,7 @@ static int       s_nsrch     = 0;
 static int       s_csrch     = 0;
 
 char    (*s_searcher) (char *a_search);
-char    (*s_clearer ) (int a_x, int a_y, int a_z);
+char    (*s_clearer ) (int a_buf, int a_x, int a_y, int a_z);
 
 
 
@@ -233,37 +234,81 @@ HISTORY_use             (char a_mode, int a_index)
 /*====================------------------------------------====================*/
 static void  o___SUPPORT_________o () { return; }
 
-int  
-CMDS_valid           (char a_mark)
+char 
+CMDS_valid_abbr      (char a_abbr)
 {
    char        rce         =  -10;
-   char        x_mark      =  ' ';
-   int         i           =    0;
-   int         n           =   -1;
-   --rce;  if (a_mark == '\0')                        return rce;
-   --rce;  if (strchr (S_HIST_LIST, a_mark) == NULL)  return rce;
-   for (i = 0; i < s_nrun; ++i) {
-      if (s_runs [i].mark != a_mark)  continue;
-      n = i;
-      break;
+   char        rc          =    0;
+   DEBUG_HIST   yLOG_senter  (__FUNCTION__);
+   rc = yvikeys_abbr_shared (a_abbr, S_HIST_LIST);
+   --rce;  if (rc < 0) {
+      DEBUG_HIST   yLOG_sexitr  (__FUNCTION__, rce);
+      return rce;
    }
-   return n;
+   DEBUG_HIST   yLOG_sexit   (__FUNCTION__);
+   return 0;
 }
 
 int  
-SRCH_valid           (char a_mark)
+CMDS_find_abbr       (char a_abbr)
 {
    char        rce         =  -10;
-   char        x_mark      =  ' ';
+   char        rc          =    0;
    int         i           =    0;
-   int         n           =   -1; 
-   --rce;  if (a_mark == '\0')                        return rce;
-   --rce;  if (strchr (S_HIST_LIST, a_mark) == NULL)  return rce;
-   for (i = 0; i < s_npass; ++i) {
-      if (s_passes [i].mark != a_mark)  continue;
+   int         n           =   -1;
+   DEBUG_HIST   yLOG_senter  (__FUNCTION__);
+   rc = yvikeys_abbr_shared (a_abbr, S_HIST_LIST);
+   --rce;  if (rc < 0) {
+      DEBUG_HIST   yLOG_sexitr  (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_HIST   yLOG_snote   ("search commands");
+   for (i = 0; i < s_nrun; ++i) {
+      if (s_runs [i].mark != a_abbr)  continue;
       n = i;
       break;
    }
+   DEBUG_HIST   yLOG_sint    (n);
+   DEBUG_HIST   yLOG_sexit   (__FUNCTION__);
+   return n;
+}
+
+char 
+SRCH_valid_abbr      (char a_abbr)
+{
+   char        rce         =  -10;
+   char        rc          =    0;
+   DEBUG_HIST   yLOG_senter  (__FUNCTION__);
+   rc = yvikeys_abbr_shared (a_abbr, S_HIST_LIST);
+   --rce;  if (rc < 0) {
+      DEBUG_HIST   yLOG_sexitr  (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_HIST   yLOG_sexit   (__FUNCTION__);
+   return 0;
+}
+
+int  
+SRCH_find_abbr       (char a_abbr)
+{
+   char        rce         =  -10;
+   char        rc          =    0;
+   int         i           =    0;
+   int         n           =   -1; 
+   DEBUG_HIST   yLOG_senter  (__FUNCTION__);
+   rc = yvikeys_abbr_shared (a_abbr, S_HIST_LIST);
+   --rce;  if (rc < 0) {
+      DEBUG_HIST   yLOG_sexitr  (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_HIST   yLOG_snote   ("search searches");
+   for (i = 0; i < s_npass; ++i) {
+      if (s_passes [i].mark != a_abbr)  continue;
+      n = i;
+      break;
+   }
+   DEBUG_HIST   yLOG_sint    (n);
+   DEBUG_HIST   yLOG_sexit   (__FUNCTION__);
    return n;
 }
 
@@ -643,6 +688,7 @@ SRCH_init               (void)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
+   char        rc          =    0;
    int         i           =    0;
    /*---(header)-------------------------*/
    DEBUG_PROG   yLOG_enter   (__FUNCTION__);
@@ -666,8 +712,8 @@ SRCH_init               (void)
    SRCH__purge ();
    /*---(update status)------------------*/
    STATUS_init_set   (MODE_SEARCH);
-   /*---(read/write)---------------------*/
-   yVIKEYS_file_add (MODE_SEARCH , SRCH_writer, SRCH_reader);
+   /*---(yparse)-------------------------*/
+   rc = yPARSE_handler (MODE_SEARCH  , "search"    , 7.5, "cO----------", SRCH_reader   , SRCH_writer_all            , "------------" , "a,search"                  , "search history"            );
    /*---(complete)-----------------------*/
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -678,7 +724,7 @@ SRCH__purge             (void)
 {
    int         i           = 0;
    for (i = 0; i < s_nsrch; ++i) {
-      if (s_clearer != NULL)  s_clearer (s_srch [i].x_pos, s_srch [i].y_pos, s_srch [i].z_pos);
+      if (s_clearer != NULL)  s_clearer (s_srch [i].b_pos, s_srch [i].x_pos, s_srch [i].y_pos, s_srch [i].z_pos);
       s_srch [i].pass   = -1;
       strlcpy (s_srch [i].label, "-", LEN_LABEL);
       s_srch [i].x_pos  =  0;
@@ -753,8 +799,6 @@ CMDS_init               (void)
    /*---(update status)------------------*/
    DEBUG_PROG   yLOG_note    ("update status");
    STATUS_init_set   (MODE_COMMAND);
-   /*---(read/write)---------------------*/
-   rc = yVIKEYS_file_add (MODE_COMMAND, CMDS_writer, CMDS_reader);
    /*---(commands)-----------------------*/
    DEBUG_PROG   yLOG_note    ("add universal commands");
    myVIKEYS.done = '-';
@@ -763,6 +807,8 @@ CMDS_init               (void)
    rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "writequit"   , "wq"  , ""     , CMDS__writequit      , ""                                                            );
    rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "writequitall", "wqa" , ""     , CMDS__writequit      , ""                                                            );
    rc = yVIKEYS_cmds_add (YVIKEYS_M_EDIT  , "dump"        , ""    , "s"    , BASE_dump            , "dump a specified data table to the clipboard in flat text"   );
+   /*---(yparse)-------------------------*/
+   rc = yPARSE_handler (MODE_COMMAND , "command"   , 7.4, "cO----------", CMDS_reader   , CMDS_writer_all            , "------------" , "a,command-----------------", "command history"           );
    /*---(complete)-----------------------*/
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -832,11 +878,11 @@ yVIKEYS_cmds_direct     (char *a_text)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rc          =    0;
-   int         x, y, z;
+   int         b, x, y, z;
    /*---(check address)------------------*/
-   rc = str2gyges (a_text + 1, &z, &x, &y, NULL, 0);
+   rc = yvikeys_map_locator (a_text + 1, &b, &x, &y, &z);
    if (rc >= 0) {
-      rc = yVIKEYS_jump (x, y, z);
+      rc = yVIKEYS_jump (b, x, y, z);
       return rc;
    }
    /*---(normal command)-----------------*/
@@ -883,154 +929,223 @@ SRCH_next               (char a_move)
    }
    DEBUG_SRCH   yLOG_value   ("x_seq"     , x_seq);
    s_csrch = x_seq;
-   yVIKEYS_jump (s_srch [s_csrch].x_pos, s_srch [s_csrch].y_pos, s_srch [s_csrch].z_pos);
+   yVIKEYS_jump (s_srch [s_csrch].b_pos, s_srch [s_csrch].x_pos, s_srch [s_csrch].y_pos, s_srch [s_csrch].z_pos);
    DEBUG_SRCH   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
+
+
 char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/
-CMDS_writer            (char a_abbr)
+CMDS_writer             (char a_abbr)
+{
+   /*---(locals)-----------+-----------+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   char        n           =    0;
+   char        x_cmd       [LEN_RECD ];
+   /*---(header)-------------------------*/
+   DEBUG_OUTP   yLOG_enter   (__FUNCTION__);
+   /*---(clear output)-------------------*/
+   yPARSE_outclear  ();
+   /*---(defense)------------------------*/
+   DEBUG_OUTP   yLOG_char    ("a_abbr"    , a_abbr);
+   n  = CMDS_find_abbr (a_abbr);
+   DEBUG_OUTP   yLOG_char    ("index"     , n);
+   if (n == -1) { 
+      DEBUG_OUTP   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
+   --rce; if (n  < 0) { 
+      DEBUG_OUTP   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(filter)-------------------------*/
+   DEBUG_OUTP   yLOG_char    ("mark"      , s_runs [n].mark);
+   if (s_runs [n].mark == '-') {
+      DEBUG_OUTP   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
+   /*---(write)-----------------------*/
+   /*> strlcpy  (x_cmd, s_runs [n].text, LEN_RECD);                                   <*/
+   /*> strldchg (x_cmd, G_KEY_SPACE, G_CHAR_STORAGE, LEN_RECD);                       <*/
+   yPARSE_fullwrite ("command", s_runs [n].mark, s_runs [n].text);
+   /*---(complete)-----------------------*/
+   DEBUG_OUTP  yLOG_exit    (__FUNCTION__);
+   return 1;
+}
+
+char
+CMDS_writer_all         (void)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
-   char        x_beg       =    0;
+   char        rc          =    0;
    char        x_end       =    0;
    int         i           =    0;
    char        c           =    0;
-   /*---(prepare)----------------s-------*/
-   yVIKEYS_unit_reset ();
-   if (a_abbr == 0) {
-      x_beg = 0;
-      x_end = s_nrun - 1;
-   } else {
-      x_beg = x_end = CMDS_valid (a_abbr);
-      if (x_beg < -1)  return rce;
-      if (x_beg <  0)  return 0;
-   }
-   /*---(find marked entries)------------*/
-   for (i = x_beg; i <= x_end; ++i) {
-      if (s_runs [i].mark == '-')  continue;
-      yVIKEYS_file_write (MODE_COMMAND, &s_runs [i].mark, &s_runs [i].count, &s_runs [i].found, s_runs [i].text, NULL, NULL, NULL, NULL, NULL);
+   /*---(prepare)------------------------*/
+   x_end = strlen (S_HIST_LIST);
+   yPARSE_verb_begin ("command");
+   /*---(walk list)----------------------*/
+   for (i = 0; i <= x_end; ++i) {
+      rc = CMDS_writer (S_HIST_LIST [i]);
+      if (rc < 1)  continue;
       ++c;
+      yPARSE_verb_break (c);
    }
+   /*---(wrap-up)------------------------*/
+   yPARSE_verb_end   (c);
    /*---(complete)-----------------------*/
    return c;
 }
 
-
 char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/
-SRCH_writer            (char a_abbr)
+SRCH_writer             (char a_abbr)
+{
+   /*---(locals)-----------+-----------+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   char        n           =    0;
+   char        x_srch       [LEN_RECD ];
+   /*---(header)-------------------------*/
+   DEBUG_OUTP   yLOG_enter   (__FUNCTION__);
+   /*---(clear output)-------------------*/
+   yPARSE_outclear  ();
+   /*---(defense)------------------------*/
+   DEBUG_OUTP   yLOG_char    ("a_abbr"    , a_abbr);
+   n  = SRCH_find_abbr (a_abbr);
+   DEBUG_OUTP   yLOG_char    ("index"     , n);
+   if (n == -1) { 
+      DEBUG_OUTP   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
+   --rce; if (n  < 0) { 
+      DEBUG_OUTP   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(filter)-------------------------*/
+   DEBUG_OUTP   yLOG_char    ("mark"      , s_passes [n].mark);
+   if (s_passes [n].mark == '-') {
+      DEBUG_OUTP   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
+   /*---(write)-----------------------*/
+   yPARSE_fullwrite ("search", s_passes [n].mark, s_passes [n].text);
+   /*---(complete)-----------------------*/
+   DEBUG_OUTP  yLOG_exit    (__FUNCTION__);
+   return 1;
+}
+
+char
+SRCH_writer_all         (void)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
-   char        x_beg       =    0;
+   char        rc          =    0;
    char        x_end       =    0;
    int         i           =    0;
    char        c           =    0;
-   /*---(prepare)----------------s-------*/
-   yVIKEYS_unit_reset ();
-   if (a_abbr == 0) {
-      x_beg = 0;
-      x_end = s_npass - 1;
-   } else {
-      x_beg = x_end = SRCH_valid (a_abbr);
-      if (x_beg < -1)  return rce;
-      if (x_beg <  0)  return 0;
-   }
-   /*---(find marked entries)------------*/
-   for (i = x_beg; i <= x_end; ++i) {
-      if (s_passes [i].mark == '-')  continue;
-      yVIKEYS_file_write (MODE_SEARCH, &s_passes [i].mark, &s_passes [i].count, &s_passes [i].found, s_passes [i].text, NULL, NULL, NULL, NULL, NULL);
+   /*---(prepare)------------------------*/
+   x_end = strlen (S_HIST_LIST);
+   yPARSE_verb_begin ("search");
+   /*---(walk list)----------------------*/
+   for (i = 0; i <= x_end; ++i) {
+      rc = SRCH_writer (S_HIST_LIST [i]);
+      if (rc < 1)  continue;
       ++c;
+      yPARSE_verb_break (c);
    }
+   /*---(wrap-up)------------------------*/
+   yPARSE_verb_end   (c);
    /*---(complete)-----------------------*/
    return c;
 }
 
-char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/
-CMDS_reader           (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i)
+char
+CMDS_reader          (void)
 {
    /*---(locals)-----------+-----------+-*/
    char        rce         =  -11;
    char        rc          =    0;
-   int         x_index     =    0;
-   char        x_label     [LEN_LABEL] = "";
+   char        x_verb      [LEN_LABEL];
+   char        x_abbr      =    0;
+   char        x_cmd       [LEN_RECD ];
    /*---(header)-------------------------*/
-   DEBUG_SRCH   yLOG_enter   (__FUNCTION__);
-   /*---(check version)------------------*/
-   DEBUG_SRCH   yLOG_char    ("version"   , n);
-   --rce;  if (n != 'A') {
-      DEBUG_SRCH   yLOG_note    ("illegal version");
-      DEBUG_SRCH   yLOG_exitr   (__FUNCTION__, rce);
+   DEBUG_INPT   yLOG_enter   (__FUNCTION__);
+   /*---(get verb)-----------------------*/
+   rc = yPARSE_popstr (x_verb);
+   DEBUG_INPT   yLOG_value   ("pop verb"  , rc);
+   DEBUG_INPT   yLOG_info    ("x_verb"    , x_verb);
+   --rce;  if (strcmp ("command", x_verb) != 0) {
+      DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   /*---(check mark)---------------------*/
-   DEBUG_SRCH   yLOG_value   ("mark"      , a[0]);
-   --rce;  if (strchr (S_HIST_LIST, a[0]) == NULL) {
-      DEBUG_SRCH   yLOG_exitr   (__FUNCTION__, rce);
+   /*---(label)--------------------------*/
+   rc = yPARSE_popchar (&x_abbr);
+   DEBUG_INPT   yLOG_value   ("pop abbr"  , rc);
+   DEBUG_INPT   yLOG_char    ("abbr"      , x_abbr);
+   rc = CMDS_valid_abbr (x_abbr);
+   DEBUG_INPT   yLOG_char    ("index"     , rc);
+   --rce; if (rc  < 0) { 
+      DEBUG_OUTP   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   DEBUG_SRCH   yLOG_char    ("mark"      , a[0]);
-   /*---(search)-------------------------*/
-   DEBUG_SRCH   yLOG_point   ("command"   , d);
-   --rce;  if (b == NULL) {
-      DEBUG_SRCH   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
+   /*---(get command)--------------------*/
+   rc = yPARSE_popstr (x_cmd);
+   DEBUG_INPT   yLOG_value   ("pop verb"  , rc);
+   DEBUG_INPT   yLOG_info    ("x_cmd"     , x_cmd);
    /*---(save)---------------------------*/
    DEBUG_SRCH   yLOG_note    ("saving values");
-   strldchg (d, G_KEY_SPACE, G_CHAR_SPACE, LEN_RECD);
-   strlcpy (s_runs [s_nrun].text, d, LEN_RECD);
-   s_runs [s_nrun].mark  = a[0];
-   s_runs [s_nrun].count = atoi (b);
-   s_runs [s_nrun].found = atoi (c);
+   strlcpy (s_runs [s_nrun].text, x_cmd, LEN_RECD);
+   s_runs [s_nrun].mark  = x_abbr;
    ++s_nrun;
    /*---(complete)-----------------------*/
-   DEBUG_SRCH  yLOG_exit    (__FUNCTION__);
-   return 0;
+   DEBUG_INPT  yLOG_exit    (__FUNCTION__);
+   return 1;
 }
 
-char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/
-SRCH_reader           (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i)
+char
+SRCH_reader          (void)
 {
    /*---(locals)-----------+-----------+-*/
    char        rce         =  -11;
    char        rc          =    0;
-   int         x_index     =    0;
-   char        x_label     [LEN_LABEL] = "";
+   char        x_verb      [LEN_LABEL];
+   char        x_abbr      =    0;
+   char        x_srch       [LEN_RECD ];
    /*---(header)-------------------------*/
-   DEBUG_SRCH   yLOG_enter   (__FUNCTION__);
-   /*---(check version)------------------*/
-   DEBUG_SRCH   yLOG_char    ("version"   , n);
-   --rce;  if (n != 'A') {
-      DEBUG_SRCH   yLOG_note    ("illegal version");
-      DEBUG_SRCH   yLOG_exitr   (__FUNCTION__, rce);
+   DEBUG_INPT   yLOG_enter   (__FUNCTION__);
+   /*---(get verb)-----------------------*/
+   rc = yPARSE_popstr (x_verb);
+   DEBUG_INPT   yLOG_value   ("pop verb"  , rc);
+   DEBUG_INPT   yLOG_info    ("x_verb"    , x_verb);
+   --rce;  if (strcmp ("search", x_verb) != 0) {
+      DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   /*---(check mark)---------------------*/
-   DEBUG_SRCH   yLOG_value   ("mark"      , a[0]);
-   --rce;  if (strchr (S_HIST_LIST, a[0]) == NULL) {
-      DEBUG_SRCH   yLOG_exitr   (__FUNCTION__, rce);
+   /*---(label)--------------------------*/
+   rc = yPARSE_popchar (&x_abbr);
+   DEBUG_INPT   yLOG_value   ("pop abbr"  , rc);
+   DEBUG_INPT   yLOG_char    ("abbr"      , x_abbr);
+   rc  = SRCH_valid_abbr (x_abbr);
+   DEBUG_INPT   yLOG_value   ("index"     , rc);
+   --rce; if (rc  < 0) { 
+      DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   DEBUG_SRCH   yLOG_char    ("mark"      , a[0]);
-   /*---(search)-------------------------*/
-   DEBUG_SRCH   yLOG_point   ("search"    , d);
-   --rce;  if (d == NULL) {
-      DEBUG_SRCH   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
+   /*---(get command)--------------------*/
+   rc = yPARSE_popstr (x_srch);
+   DEBUG_INPT   yLOG_value   ("pop verb"  , rc);
+   DEBUG_INPT   yLOG_info    ("x_srch"    , x_srch);
    /*---(save)---------------------------*/
    DEBUG_SRCH   yLOG_note    ("saving values");
-   strldchg (d, G_KEY_SPACE, G_CHAR_SPACE, LEN_RECD);
-   strlcpy (s_passes [s_npass].text, d, LEN_RECD);
-   s_passes [s_npass].mark  = a[0];
-   s_passes [s_npass].count = atoi (b);
-   s_passes [s_npass].found = atoi (c);
+   strlcpy (s_passes [s_npass].text, x_srch, LEN_RECD);
+   s_passes [s_npass].mark  = x_abbr;
    ++s_npass;
    /*---(complete)-----------------------*/
-   DEBUG_SRCH  yLOG_exit    (__FUNCTION__);
-   return 0;
+   DEBUG_INPT  yLOG_exit    (__FUNCTION__);
+   return 1;
 }
 
 char         /*-> tbd --------------------------------[ leaf   [ge.540.142.30]*/ /*-[01.0000.103.!]-*/ /*-[--.---.---.--]-*/

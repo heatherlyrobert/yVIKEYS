@@ -6,6 +6,7 @@
 
 
 
+
 #23456789-12  123  123456789-123456789-123456789-12345  123456789-123456789-123456  123456789-123456789-123456789-123456789-123456789-123456789-123456789-  123456789-  123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-  -  123456789-123456789- 
 #==(verb)===  ver  ===========(description)===========  =====(function)===========  ========================(arguments)===================================  ==(test)==  ==========================(results)=================================================================  t  ========(var)======= 
 PREP          v21  include the prototype headers                                      - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
@@ -674,10 +675,11 @@ SCRP          v21  (VISU  ) visual selection in map mode                      
      code     v21  create an output variable            - - - - - - - - - - - - -   int     z  = 0;                                                                                                                                                                                       
 
    COND       v21  set the starting conditions                                        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.014))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+     exec     v21  load a map                           yvikeys__map_load           '0'            , &g_bmap        , YVIKEYS_BMAP                          i_equal     0                                                                                                    
      exec     v21  load a map                           yvikeys__map_load           'w'            , &g_xmap        , YVIKEYS_XMAP                          i_equal     0                                                                                                    
      exec     v21  load a map                           yvikeys__map_load           '1'            , &g_ymap        , YVIKEYS_YMAP                          i_equal     0                                                                                                    
      exec     v21  load a map                           yvikeys__map_load           '0'            , &g_zmap        , YVIKEYS_ZMAP                          i_equal     0                                                                                                    
-     exec     v21  move to original                     yVIKEYS_jump                 0,    0,    0                                                          i_equal     0                                                                                                    
+     exec     v21  move to original                     yVIKEYS_jump                 0,    0,    0,    0                                                          i_equal     0                                                                                                    
      get      v21  check the visual selection           VISU__unit                  "selection"    , '-'                                                    s_equal     VISU selection   : -     0 to    0x,     0 to    0y,     0 to    0z                                  
 
    COND       v21  test a samples for the root                                  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((02.005))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
@@ -1310,10 +1312,11 @@ SCRP          v21  (VISU  ) visual selection setting, returning, and files    
      exec     v21  initialize                           MODE_init                                                                                           i_equal     0                                                                                                    
 
    COND       v21  set the starting conditions                                        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.014))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+     exec     v21  load a map                           yvikeys__map_load           '0'            , &g_bmap        , YVIKEYS_BMAP                          i_equal     0                                                                                                    
      exec     v21  load a map                           yvikeys__map_load           'w'            , &g_xmap        , YVIKEYS_XMAP                          i_equal     0                                                                                                    
      exec     v21  load a map                           yvikeys__map_load           '1'            , &g_ymap        , YVIKEYS_YMAP                          i_equal     0                                                                                                    
      exec     v21  load a map                           yvikeys__map_load           '0'            , &g_zmap        , YVIKEYS_ZMAP                          i_equal     0                                                                                                    
-     exec     v21  move to original                     yVIKEYS_jump                 0,    0,    0                                                          i_equal     0                                                                                                    
+     exec     v21  move to original                     yVIKEYS_jump                 0,    0,    0,    0                                                          i_equal     0                                                                                                    
      get      v21  check the visual selection           VISU__unit                  "selection"    , '-'                                                    s_equal     VISU selection   : -     0 to    0x,     0 to    0y,     0 to    0z                                  
 
    COND       v21  select a range                                                     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((02.005))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  

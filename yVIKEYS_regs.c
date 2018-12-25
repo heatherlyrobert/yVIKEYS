@@ -72,6 +72,7 @@ struct cREG {
    /*---(#1, ORIGIN TAB)-----------------*/
    /*   stores the tab number of the original selection so that cell          */
    /*   references can be properly adjusted when placed back into a tab.      */
+   int         b_all;
    int         z_all;
    /*---(#2, MINIMUM REACH)--------------*/
    /*   stores the column and row of the furthest upper-left cell reference   */
@@ -663,9 +664,11 @@ yvikeys_regs_clear           (void)
    return 0;
 }
 
+static int  s_boff  = 0;
 static int  s_xoff  = 0;
 static int  s_yoff  = 0;
 static int  s_zoff  = 0;
+
 static int  s_reg   = 0;
 static char s_clear = 0;
 static char s_reqs  = 0;
@@ -709,14 +712,17 @@ yvikeys__regs_paste_check    (void)
       return  rce;
    }
    /*---(get current position)-----------*/
-   yvikeys_map_current (&s_xoff, &s_yoff, &s_zoff);
+   yvikeys_map_current (NULL, &s_boff, &s_xoff, &s_yoff, &s_zoff);
+   DEBUG_REGS   yLOG_value   ("s_boff"    , s_boff);
    DEBUG_REGS   yLOG_value   ("s_xoff"    , s_xoff);
    DEBUG_REGS   yLOG_value   ("s_yoff"    , s_yoff);
    DEBUG_REGS   yLOG_value   ("s_zoff"    , s_zoff);
    /*---(make into offsets)--------------*/
+   s_boff -=  s_regs [s_reg].b_all;
    s_xoff -=  s_regs [s_reg].x_beg;
    s_yoff -=  s_regs [s_reg].y_beg;
    s_zoff -=  s_regs [s_reg].z_all;
+   DEBUG_REGS   yLOG_value   ("s_boff (*)", s_boff);
    DEBUG_REGS   yLOG_value   ("s_xoff (*)", s_xoff);
    DEBUG_REGS   yLOG_value   ("s_yoff (*)", s_yoff);
    DEBUG_REGS   yLOG_value   ("s_zoff (*)", s_zoff);
@@ -896,6 +902,7 @@ yvikeys_regs_visual          (void)
          s_regs [x_reg].y_beg + s_yoff, s_regs [x_reg].y_end + s_yoff,
          s_regs [x_reg].z_all + s_zoff);
    yVIKEYS_jump (
+         s_regs [x_reg].b_all + s_boff,
          s_regs [x_reg].x_end + s_xoff,
          s_regs [x_reg].y_end + s_yoff,
          s_regs [x_reg].z_all + s_zoff);

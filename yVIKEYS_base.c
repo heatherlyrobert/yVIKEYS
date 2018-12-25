@@ -14,18 +14,18 @@ static char  s_keys_last  [LEN_LABEL];
 
 
 /*> #define      MIN4SEC      60                                                      <* 
- *> the value                                                                         <* 
- *> 1,000,000,000                                                                     <* 
- *> 0.000000001                                                                       <* 
- *> T tera   1,000,000,000,000.0                                                      <* 
- *> G giga       1,000,000,000.0                                                      <* 
- *> M mega           1,000,000.0                                                      <* 
- *> K kilo               1,000.0                                                      <* 
- *> - base                   1.0                                                      <* 
- *> m mill                   0.001                                                    <* 
- *> u micr                   0.000'001                                                <* 
- *> n nano                   0.000'000'001                                            <* 
- *> p pico                   0.000'000'000'001                                        <*/
+ *> the value                                                                          <* 
+ *> 1,000,000,000                                                                      <* 
+ *> 0.000000001                                                                        <* 
+ *> T tera   1,000,000,000,00 0.0                                                      <* 
+ *> G giga       1,000,000,00 0.0                                                      <* 
+ *> M mega           1,000,00 0.0                                                      <* 
+ *> K kilo               1,00 0.0                                                      <* 
+ *> - base                    1.0                                                      <* 
+ *> m mill                    0.001                                                    <* 
+ *> u micr                    0.000'001                                                <* 
+ *> n nano                    0.000'000'001                                            <* 
+ *> p pico                    0.000'000'000'001                                        <*/
 
 
 /*====================------------------------------------====================*/
@@ -74,7 +74,7 @@ yVIKEYS_init         (void)
    /*----(latest)------------------------*/
    yvikeys_regs_init    ();
    SRC_REG_init ();
-   MARK_init    ();
+   yvikeys_mark_init    ();
    VISU_init    ();
    REPEAT_init  ();
    yvikeys_bufs_init    ();
@@ -121,6 +121,38 @@ BASE_dump               (char *a_what)
    return 0;
 }
 
+int
+yvikeys_abbr_shared     (char a_abbr, char *a_valid)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char       *x_abbr      = NULL;
+   int         x_index     =    0;
+   /*---(defenses)-----------------------*/
+   DEBUG_HIST   yLOG_sint    (a_abbr);
+   --rce;  if (a_abbr == 0) {
+      DEBUG_HIST   yLOG_snote   ("always invalid");
+      DEBUG_HIST   yLOG_sexitr  (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(check mark)---------------------*/
+   x_abbr = strchr (a_valid, a_abbr);
+   DEBUG_HIST   yLOG_spoint  (x_abbr);
+   --rce;  if (x_abbr == NULL) {
+      DEBUG_HIST   yLOG_snote   ("not found");
+      DEBUG_HIST   yLOG_sexitr  (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(success)------------------------*/
+   DEBUG_HIST   yLOG_schar   (a_abbr);
+   DEBUG_HIST   yLOG_snote   ("valid");
+   /*---(convert to index)---------------*/
+   x_index = (int) (x_abbr - a_valid);
+   DEBUG_MARK   yLOG_sint    (x_index);
+   /*---(complete)-----------------------*/
+   return x_index;
+}
+
 
 
 /*====================------------------------------------====================*/
@@ -153,6 +185,7 @@ BASE__unit_loud        (void)
    yURG_name  ("srch"         , YURG_ON);
    yURG_name  ("hist"         , YURG_ON);
    yURG_name  ("ystr"         , YURG_ON);
+   yURG_name  ("yparse"       , YURG_ON);
    DEBUG_YVIKEYS yLOG_info     ("yVIKEYS"    , yVIKEYS_version   ());
    yVIKEYS_init ();
    return 0;
@@ -511,7 +544,7 @@ yVIKEYS_main_handle     (uchar a_key)
       case SMOD_BUFFER   : rc = yvikeys_bufs_umode    (x_major , x_key);  break;
       case UMOD_WANDER   : rc = BASE__________stub    (x_major , x_key);  break;
       case SMOD_MAP_REG  : rc = yvikeys_regs_smode    (x_major , x_key);  break;
-      case UMOD_MARK     : rc = MARK_smode            (x_major , x_key);  break;
+      case UMOD_MARK     : rc = yvikeys_mark_smode    (x_major , x_key);  break;
       case SMOD_MENUS    : rc = BASE__________stub    (x_major , x_key);  break;
       case SMOD_MACRO    : rc = MACRO_smode           (x_major , x_key);  break;
       case UMOD_REPEAT   :                                                break;
