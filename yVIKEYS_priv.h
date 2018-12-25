@@ -35,8 +35,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "1.1i"
-#define YVIKEYS_VER_TXT   "upgraded and unit tested marks, incuding file read/write"
+#define YVIKEYS_VER_NUM   "1.1j"
+#define YVIKEYS_VER_TXT   "upgraded and unit tested map/macro sections"
 
 
 

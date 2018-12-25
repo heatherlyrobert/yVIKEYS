@@ -877,20 +877,51 @@ char
 yVIKEYS_cmds_direct     (char *a_text)
 {
    /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
    char        rc          =    0;
+   int         x_len       =    0;
    int         b, x, y, z;
+   /*---(header)-------------------------*/
+   DEBUG_CMDS   yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   DEBUG_CMDS   yLOG_point   ("a_text"    , a_text);
+   --rce;  if (a_text == NULL) {
+      DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_CMDS   yLOG_info    ("a_text"    , a_text);
+   x_len = strlen (a_text);
+   DEBUG_CMDS   yLOG_value   ("x_len"     , x_len);
    /*---(check address)------------------*/
    rc = yvikeys_map_locator (a_text + 1, &b, &x, &y, &z);
-   if (rc >= 0) {
+   DEBUG_CMDS   yLOG_value   ("locator"   , rc);
+   --rce;  if (rc >= 0) {
+      DEBUG_CMDS   yLOG_complex ("position"  , "%3db, %3dx, %3dy, %3dz", b, x, y, z);
       rc = yVIKEYS_jump (b, x, y, z);
+      DEBUG_CMDS   yLOG_value   ("jump"      , rc);
+      if (rc < 0) {
+         DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
+         return rce;
+      }
+      DEBUG_CMDS   yLOG_exit    (__FUNCTION__);
       return rc;
    }
    /*---(normal command)-----------------*/
    rc = HISTORY__load (MODE_COMMAND, a_text);
-   if (rc < 0)  return -1;
+   DEBUG_CMDS   yLOG_value   ("history"   , rc);
+   --rce;  if (rc < 0) {
+      DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    rc = HISTORY__exec (MODE_COMMAND);
+   DEBUG_CMDS   yLOG_value   ("exec"      , rc);
+   --rce;  if (rc < 0) {
+      DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    /*---(complete)-----------------------*/
-   return rc;
+   DEBUG_CMDS   yLOG_exit    (__FUNCTION__);
+   return 0;
 }
 
 char

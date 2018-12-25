@@ -1253,16 +1253,16 @@ yvikeys_map_addresser   (char *a_label, int a_buf, int a_x, int a_y, int a_z)
       return rce;
    }
    /*---(display input)------------------*/
-   DEBUG_MAP_M yLOG_point   ("a_label"   , a_label);
-   DEBUG_MAP_M yLOG_value   ("a_buf"     , a_buf);
-   DEBUG_MAP_M yLOG_value   ("a_x"       , a_x);
-   DEBUG_MAP_M yLOG_value   ("a_y"       , a_y);
-   DEBUG_MAP_M yLOG_value   ("a_z"       , a_z);
+   DEBUG_MAP   yLOG_point   ("a_label"   , a_label);
+   DEBUG_MAP   yLOG_value   ("a_buf"     , a_buf);
+   DEBUG_MAP   yLOG_value   ("a_x"       , a_x);
+   DEBUG_MAP   yLOG_value   ("a_y"       , a_y);
+   DEBUG_MAP   yLOG_value   ("a_z"       , a_z);
    /*---(call locator)-------------------*/
    rc = s_addresser (a_label, a_buf, a_x, a_y, a_z);
    DEBUG_MAP   yLOG_value   ("addresser" , rc);
    --rce;  if (rc < 0) {
-      DEBUG_MAP_M yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_MAP   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(display output)-----------------*/
@@ -2554,6 +2554,7 @@ static struct {
    { "0p12"       ,   0,  15,  11,   0 },
    { "2b5"        ,   2,   1,   4,   0 },
    { "3d6"        ,   3,   3,   5,   0 },
+   { "5b2"        ,   5,   1,   1,   0 },
    { "6d3"        ,   6,   3,   2,   0 },
    { "6g11"       ,   7,   6,  10,   0 },
    { "Ag11"       ,  10,   6,  10,   0 },
@@ -2604,8 +2605,8 @@ yvikeys__unit_map_loc   (char *a_label, int *a_buf, int *a_x, int *a_y, int *a_z
 {
    int         i           =    0;
    int         n           =   -1;
-   DEBUG_MAP_M yLOG_enter   (__FUNCTION__);
-   DEBUG_MAP_M yLOG_note    (a_label);
+   DEBUG_MAP   yLOG_senter  (__FUNCTION__);
+   DEBUG_MAP   yLOG_snote   (a_label);
    for (i = 0; i < 100; ++i) {
       if (s_map_unit_deref [i].label == NULL)                 break;
       if (s_map_unit_deref [i].label [0] != a_label [0])      continue;
@@ -2613,48 +2614,56 @@ yvikeys__unit_map_loc   (char *a_label, int *a_buf, int *a_x, int *a_y, int *a_z
       n = i;
       break;
    }
-   DEBUG_MAP_M yLOG_sint    (n);
+   DEBUG_MAP   yLOG_sint    (n);
    *a_buf = -1;
    *a_x   = -1;
    *a_y   = -1;
    *a_z   = -1;
-   DEBUG_MAP_M yLOG_sint    (*a_buf);
-   DEBUG_MAP_M yLOG_sint    (*a_x);
-   DEBUG_MAP_M yLOG_sint    (*a_y);
-   DEBUG_MAP_M yLOG_sint    (*a_z);
-   if (n < 0)  return -1;
+   if (n < 0) {
+      DEBUG_MAP   yLOG_sexitr  (__FUNCTION__, n);
+      return n;
+   }
    *a_buf = s_map_unit_deref [i].b;
    *a_x   = s_map_unit_deref [i].x;
    *a_y   = s_map_unit_deref [i].y;
    *a_z   = s_map_unit_deref [i].z;
-   DEBUG_MAP_M yLOG_sint    (*a_buf);
-   DEBUG_MAP_M yLOG_sint    (*a_x);
-   DEBUG_MAP_M yLOG_sint    (*a_y);
-   DEBUG_MAP_M yLOG_sint    (*a_z);
+   DEBUG_MAP   yLOG_sint    (*a_buf);
+   DEBUG_MAP   yLOG_sint    (*a_x);
+   DEBUG_MAP   yLOG_sint    (*a_y);
+   DEBUG_MAP   yLOG_sint    (*a_z);
    /*> yVIKEYS_source (a_label, "testing");                                           <*/
-   DEBUG_MAP_M yLOG_exit    (__FUNCTION__);
+   DEBUG_MAP   yLOG_sexit   (__FUNCTION__);
    return 0;
 }
 
 char 
-yvikeys__unit_map_addr  (char *a_label, int a_buf, int x, int y, int z)
+yvikeys__unit_map_addr  (char *a_label, int a_buf, int a_x, int a_y, int a_z)
 {
    int         i           =    0;
    int         n           =   -1;
+   DEBUG_MAP   yLOG_senter  (__FUNCTION__);
+   DEBUG_MAP   yLOG_sint    (a_buf);
+   DEBUG_MAP   yLOG_sint    (a_x);
+   DEBUG_MAP   yLOG_sint    (a_y);
+   DEBUG_MAP   yLOG_sint    (a_z);
    for (i = 0; i < 100; ++i) {
-      if (s_map_unit_deref [i].label == NULL )                break;
-      if (s_map_unit_deref [i].b     != a_buf)                continue;
-      if (s_map_unit_deref [i].x     != x    )                continue;
-      if (s_map_unit_deref [i].y     != y    )                continue;
-      if (s_map_unit_deref [i].z     != z    )                continue;
+      if (s_map_unit_deref [i].label == NULL )     break;
+      if (s_map_unit_deref [i].b     != a_buf)     continue;
+      if (s_map_unit_deref [i].x     != a_x  )     continue;
+      if (s_map_unit_deref [i].y     != a_y  )     continue;
+      if (s_map_unit_deref [i].z     != a_z  )     continue;
       n = i;
       break;
    }
+   DEBUG_MAP   yLOG_sint    (n);
    if (n < 0) {
       strlcpy (a_label, "-", LEN_LABEL);
+      DEBUG_MAP   yLOG_sexitr  (__FUNCTION__, n);
       return -1;
    }
    strlcpy (a_label, s_map_unit_deref [n].label, LEN_LABEL);
+   DEBUG_MAP   yLOG_snote   (a_label);
+   DEBUG_MAP   yLOG_sexit   (__FUNCTION__);
    return 0;
 }
 
@@ -2704,7 +2713,7 @@ yvikeys__unit_map       (char *a_question, char a_index)
       snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP vert grids   :        b %3d, c %3d, e %3d", g_ymap.gbeg, g_ymap.gcur, g_ymap.gend);
    }
    else if (strcmp (a_question, "current"        )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP current      : %3dx, %3dy, %3dz", g_xmap.gcur, g_ymap.gcur, g_zmap.gcur);
+      snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP current      : %3db, %3dx, %3dy, %3dz", g_bmap.gcur, g_xmap.gcur, g_ymap.gcur, g_zmap.gcur);
    }
    /*---(complete)-----------------------*/
    return yVIKEYS__unit_answer;
