@@ -12,7 +12,7 @@ static char s_mark_pprev  [LEN_LABEL] = "-";
 
 
 
-#define     S_MAX_MARK       150
+#define     S_MARK_MAX       150
 typedef  struct cMARK  tMARK;
 struct cMARK {
    char        label       [LEN_LABEL];
@@ -22,14 +22,10 @@ struct cMARK {
    int         z_pos;
    char        source;
 };
-tMARK       s_mark_info [S_MAX_MARK];
-static char S_MARK_LIST [S_MAX_MARK] = "'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789()";
+tMARK       s_mark_info [S_MARK_MAX];
+static char S_MARK_LIST [S_MARK_MAX];
 static int  s_nmark       = 0;
 
-#define     MARK_ALL      '*'
-#define     MARK_LOWER    'a'
-#define     MARK_UPPER    'A'
-#define     MARK_SYSTEM   '0'
 
 #define     MARK_NONE     '-'
 #define     MARK_USER     'u'
@@ -63,9 +59,14 @@ yvikeys_mark_init            (void)
       DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
+   /*---(macro abbrev list)--------------*/
+   strlcpy (S_MARK_LIST, gvikeys_lower , S_MARK_MAX);
+   strlcat (S_MARK_LIST, gvikeys_upper , S_MARK_MAX);
+   strlcat (S_MARK_LIST, gvikeys_number, S_MARK_MAX);
+   strlcat (S_MARK_LIST, "()"          , S_MARK_MAX);
+   s_nmark = strlen (S_MARK_LIST);
    /*---(clear)--------------------------*/
-   s_nmark = strllen (S_MARK_LIST, 100);
-   yvikeys_mark__purge  ('*');
+   yvikeys_mark__purge  (YVIKEYS_FULL);
    /*---(globals)------------------------*/
    myVIKEYS.mark_show = '-';
    yVIKEYS_cmds_add (YVIKEYS_M_EDIT  , "mark"        , ""    , "s"    , yvikeys_mark_direct        , "" );
@@ -81,22 +82,36 @@ yvikeys_mark_init            (void)
 char         /*-> remove marks -----------------------[ ------ [gz.642.141.12]*/ /*-[01.0000.033.3]-*/ /*-[--.---.---.--]-*/
 yvikeys_mark__purge          (char a_scope)
 {
-   /*---(locals)-----------+-----------+-*/
-   int         i           = 0;
-   char        x_mark      = 0;
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   int         i           =    0;
+   char        x_abbr      =    0;
    char       *x_upper     = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
    char       *x_lower     = "abcdefghijklmnopqrstuvwxyz";
    char       *x_sys       = "0123456789";
    /*---(header)-------------------------*/
    DEBUG_MARK   yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   DEBUG_MARK   yLOG_char    ("a_scope"   , a_scope);
+   --rce;  switch (a_scope) {
+   case YVIKEYS_LOWER  :  break;
+   case YVIKEYS_UPPER  :  break;
+   case YVIKEYS_NUMBER :  break;
+   case YVIKEYS_GREEK  :  break;
+   case YVIKEYS_FULL   :  break;
+   default           :
+      DEBUG_MARK   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    /*---(clear)--------------------------*/
    DEBUG_MARK   yLOG_value   ("nmark"     , s_nmark);
    for (i = 0; i < s_nmark; ++i) {
-      x_mark = S_MARK_LIST [i];
-      if (a_scope == MARK_UPPER  && strchr (x_upper, x_mark) == NULL)  continue;
-      if (a_scope == MARK_LOWER  && strchr (x_lower, x_mark) == NULL)  continue;
-      if (a_scope == MARK_SYSTEM && strchr (x_sys  , x_mark) == NULL)  continue;
-      yvikeys_mark__unset (x_mark);
+      x_abbr = S_MARK_LIST [i];
+      if (a_scope == YVIKEYS_UPPER  && strchr (gvikeys_upper , x_abbr) == NULL)  continue;
+      if (a_scope == YVIKEYS_LOWER  && strchr (gvikeys_lower , x_abbr) == NULL)  continue;
+      if (a_scope == YVIKEYS_NUMBER && strchr (gvikeys_number, x_abbr) == NULL)  continue;
+      if (a_scope == YVIKEYS_GREEK  && strchr (gvikeys_greek , x_abbr) == NULL)  continue;
+      yvikeys_mark__unset (x_abbr);
    }
    /*---(globals)------------------------*/
    DEBUG_MARK   yLOG_note    ("initialize globals");
@@ -118,73 +133,25 @@ yvikeys_mark__purge          (char a_scope)
 /*====================------------------------------------====================*/
 static void  o___SUPPORT_________o () { return; }
 
-char 
-yvikeys_mark__valid      (char a_abbr)
+int  
+yvikeys_mark__index     (char a_abbr)
 {
-   /*---(locals)-----------+-----------+-*/
-   char        rc          =    0;
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   int         n           =   -1;
    /*---(header)-------------------------*/
    DEBUG_HIST   yLOG_senter  (__FUNCTION__);
-   /*---(check mark)---------------------*/
-   rc = yvikeys_abbr_shared (a_abbr, S_MARK_LIST);
-   if (rc < 0) {
-      DEBUG_HIST   yLOG_sexit   (__FUNCTION__);
-      return 0;
-   }
-   /*---(complete)-----------------------*/
-   DEBUG_HIST   yLOG_sexit   (__FUNCTION__);
-   return 1;
-}
-
-int          /*-> check mark validity ----------------[ leaf   [ge.833.144.30]*/ /*-[01.0000.0A4.F]-*/ /*-[--.---.---.--]-*/
-yvikeys_mark__index      (char a_abbr)
-{
-   /*---(locals)-----------+-----------+-*/
-   char        rce         = -10;
-   int         n           =   0;
-   /*---(header)-------------------------*/
-   DEBUG_HIST   yLOG_senter  (__FUNCTION__);
-   /*---(check mark)---------------------*/
-   n  = yvikeys_abbr_shared (a_abbr, S_MARK_LIST);
+   /*---(check)--------------------------*/
+   DEBUG_HIST   yLOG_snote   ("check");
+   n  = strlchr (S_MARK_LIST, a_abbr, S_MARK_MAX);
+   DEBUG_HIST   yLOG_sint    (n);
    --rce;  if (n  < 0) {
-      DEBUG_HIST   yLOG_sexitr  (__FUNCTION__, rce);
-      return rce;
-   }
-   /*---(check limits)-------------------*/
-   --rce;  if (n >= s_nmark) {
-      DEBUG_HIST   yLOG_snote   ("over max");
-      DEBUG_HIST   yLOG_sexitr  (__FUNCTION__, rce);
-      return rce;
+      DEBUG_HIST   yLOG_sexitr  (__FUNCTION__, n);
+      return n;
    }
    /*---(complete)-----------------------*/
    DEBUG_HIST   yLOG_sexit   (__FUNCTION__);
    return n;
-}
-
-char         /*-> check mark validity ----------------[ leaf   [ge.833.144.30]*/ /*-[01.0000.0A4.F]-*/ /*-[--.---.---.--]-*/
-yvikeys_mark__abbr      (int a_pos)
-{
-   /*---(locals)-----------+-----------+-*/
-   char        rce         = -10;
-   char        x_ch        = '-';
-   /*---(header)-------------------------*/
-   DEBUG_HIST   yLOG_senter  (__FUNCTION__);
-   /*---(check limits)-------------------*/
-   --rce;  if (a_pos <  0) {
-      DEBUG_HIST   yLOG_snote   ("under min");
-      DEBUG_HIST   yLOG_sexitr  (__FUNCTION__, rce);
-      return rce;
-   }
-   --rce;  if (a_pos >= s_nmark) {
-      DEBUG_HIST   yLOG_snote   ("over max");
-      DEBUG_HIST   yLOG_sexitr  (__FUNCTION__, rce);
-      return rce;
-   }
-   /*---(get abbr)-----------------------*/
-   x_ch = S_MARK_LIST [a_pos];
-   /*---(complete)-----------------------*/
-   DEBUG_HIST   yLOG_sexit   (__FUNCTION__);
-   return x_ch;
 }
 
 
@@ -805,17 +772,17 @@ yvikeys_mark_direct     (char *a_string)
    DEBUG_MARK   yLOG_info    ("a_string"  , a_string);
    /*---(check for purge)----------------*/
    if (strcmp ("clear", a_string) == 0) {
-      yvikeys_mark__purge (MARK_LOWER);
+      yvikeys_mark__purge (YVIKEYS_LOWER);
       DEBUG_MARK   yLOG_exit    (__FUNCTION__);
       return 0;
    }
    if (strcmp ("purge", a_string) == 0) {
-      yvikeys_mark__purge (MARK_ALL);
+      yvikeys_mark__purge (YVIKEYS_FULL);
       DEBUG_MARK   yLOG_exit    (__FUNCTION__);
       return 0;
    }
    if (strcmp ("reset" , a_string) == 0) {
-      yvikeys_mark__purge (MARK_SYSTEM);
+      yvikeys_mark__purge (YVIKEYS_NUMBER);
       DEBUG_MARK   yLOG_exit    (__FUNCTION__);
       return 0;
    }

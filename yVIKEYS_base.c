@@ -5,6 +5,13 @@
 
 
 
+char *gvikeys_lower   = "abcdefghijklmnopqrstuvwxyz";
+char *gvikeys_upper   = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+char *gvikeys_number  = "0123456789";
+char *gvikeys_greek   = "èéêëìíîïðñòóôõö÷øùúûüýþÿ";
+
+
+
 static char  s_keys_log   [10000];
 static char  s_keys_multi [10000];
 static char  s_keys_mode  [10000];
@@ -68,9 +75,9 @@ yVIKEYS_init         (void)
    SRCH_init    ();
    /*----(later)-------------------------*/
    KEYS_init    ();
-   yvikeys_map_init   ();
+   yvikeys_map_init     ();
    SOURCE_init  ();
-   MACRO_init   ();
+   yvikeys_macro_init   ();
    /*----(latest)------------------------*/
    yvikeys_regs_init    ();
    SRC_REG_init ();
@@ -119,38 +126,6 @@ BASE_dump               (char *a_what)
    fclose (f);
    /*---(complete)-----------------------*/
    return 0;
-}
-
-int
-yvikeys_abbr_shared     (char a_abbr, char *a_valid)
-{
-   /*---(locals)-----------+-----+-----+-*/
-   char        rce         =  -10;
-   char       *x_abbr      = NULL;
-   int         x_index     =    0;
-   /*---(defenses)-----------------------*/
-   DEBUG_HIST   yLOG_sint    (a_abbr);
-   --rce;  if (a_abbr == 0) {
-      DEBUG_HIST   yLOG_snote   ("always invalid");
-      DEBUG_HIST   yLOG_sexitr  (__FUNCTION__, rce);
-      return rce;
-   }
-   /*---(check mark)---------------------*/
-   x_abbr = strchr (a_valid, a_abbr);
-   DEBUG_HIST   yLOG_spoint  (x_abbr);
-   --rce;  if (x_abbr == NULL) {
-      DEBUG_HIST   yLOG_snote   ("not found");
-      DEBUG_HIST   yLOG_sexitr  (__FUNCTION__, rce);
-      return rce;
-   }
-   /*---(success)------------------------*/
-   DEBUG_HIST   yLOG_schar   (a_abbr);
-   DEBUG_HIST   yLOG_snote   ("valid");
-   /*---(convert to index)---------------*/
-   x_index = (int) (x_abbr - a_valid);
-   DEBUG_MARK   yLOG_sint    (x_index);
-   /*---(complete)-----------------------*/
-   return x_index;
 }
 
 
@@ -281,7 +256,7 @@ KEYS__logger            (uchar a_key)
    ++s_nkey;
    /*---(macro)--------------------------*/
    IF_MACRO_RECORDING {
-      MACRO_rec_key (x_key);
+      yvikeys_macro_reckey (x_key);
    }
    /*---(complete)-----------------------*/
    return 0;
@@ -438,7 +413,7 @@ yVIKEYS_main_input      (char a_runmode, uchar a_key)
    DEBUG_LOOP   yLOG_enter   (__FUNCTION__);
    DEBUG_LOOP   yLOG_char    ("a_runmode" , a_runmode);
    DEBUG_LOOP   yLOG_value   ("a_key"     , a_key);
-   DEBUG_LOOP   yLOG_char    ("macromode" , MACRO_get_mode ());
+   DEBUG_LOOP   yLOG_char    ("macromode" , yvikeys_macro_modeget ());
    /*---(fixes)--------------------------*/
    if (myVIKEYS.env == YVIKEYS_OPENGL) {
       if (a_key == G_KEY_ENTER)  a_key = G_KEY_RETURN; /* X11 sends incorrently  */
@@ -447,9 +422,9 @@ yVIKEYS_main_input      (char a_runmode, uchar a_key)
    /*---(normal)-------------------------*/
    IF_MACRO_NOT_PLAYING {
       DEBUG_LOOP   yLOG_note    ("normal or macro recording");
-      if (MACRO_count ()) {
+      if (yvikeys_macro_count ()) {
          DEBUG_USER   yLOG_note    ("but, in macro repeat mode");
-         MACRO_exec_beg ('@');
+         yvikeys_macro_exebeg ('@');
          x_ch  = G_KEY_SPACE;
       } else {
          x_ch  = a_key;
@@ -462,7 +437,7 @@ yVIKEYS_main_input      (char a_runmode, uchar a_key)
    /*---(run, delay, or playback)--------*/
    else IF_MACRO_PLAYING {
       DEBUG_LOOP   yLOG_note    ("macro running, delay, or playback");
-      x_ch = MACRO_exec_key ();
+      x_ch = yvikeys_macro_exekey ();
       IF_MACRO_OFF {
          DEBUG_LOOP   yLOG_exit    (__FUNCTION__);
          /*> return -1;                                                               <*/
@@ -470,11 +445,11 @@ yVIKEYS_main_input      (char a_runmode, uchar a_key)
       }
       DEBUG_LOOP   yLOG_note    ("show screen");
       /*> if (a_runmode == RUN_USER)  CURS_main  ();                                     <*/
-      MACRO_exec_wait ();
+      yvikeys_macro_exewait ();
       DEBUG_LOOP   yLOG_note    ("read playback keystroke");
       x_play = a_key;
       DEBUG_LOOP   yLOG_value   ("x_play"    , x_play);
-      if (MACRO_exec_player (x_play) < 0) {
+      if (yvikeys_macro_exeplay (x_play) < 0) {
          DEBUG_LOOP   yLOG_exit    (__FUNCTION__);
          return -2;
       }
@@ -546,7 +521,7 @@ yVIKEYS_main_handle     (uchar a_key)
       case SMOD_MAP_REG  : rc = yvikeys_regs_smode    (x_major , x_key);  break;
       case UMOD_MARK     : rc = yvikeys_mark_smode    (x_major , x_key);  break;
       case SMOD_MENUS    : rc = BASE__________stub    (x_major , x_key);  break;
-      case SMOD_MACRO    : rc = MACRO_smode           (x_major , x_key);  break;
+      case SMOD_MACRO    : rc = yvikeys_macro_smode   (x_major , x_key);  break;
       case UMOD_REPEAT   :                                                break;
       default            : rc = -1;  x_nomode = 'y';                      break;
       }
@@ -575,7 +550,7 @@ yVIKEYS_main_handle     (uchar a_key)
    /*---(save current mode)--------------*/
    x_savemode = MODE_curr ();
    /*---(advance macros)-----------------*/
-   IF_MACRO_ON  MACRO_exec_adv ();
+   IF_MACRO_ON  yvikeys_macro_exeadv ();
    /*---(complete)-----------------------*/
    DEBUG_LOOP   yLOG_exit    (__FUNCTION__);
    return 0;

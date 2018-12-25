@@ -2584,6 +2584,17 @@ HISTORY_smode           (int  a_major, int  a_minor)
    return 0;
 }
 
+char
+SRC_INPT__addone        (char a_mode, int a_minor)
+{
+   DEBUG_USER   yLOG_note    ("add and move remaining chars to the right");
+   a_minor = chrvisible (a_minor);
+   SRC_UNDO__single (a_mode, G_CHAR_NULL, a_minor);
+   ONE__insert (a_minor);
+   ++s_cur->cpos;
+   return 0;
+}
+
 char         /*-> process keys for input mode --------[ ------ [ge.TQ5.25#.F9]*/ /*-[03.0000.122.R]-*/ /*-[--.---.---.--]-*/
 SRC_INPT_umode             (int  a_major, int  a_minor)
 {
@@ -2599,10 +2610,12 @@ SRC_INPT_umode             (int  a_major, int  a_minor)
    static char x_mode      =  '-';
    char        x_prevmode  =  '-';
    char        x_history   [LEN_LABEL];
+   static char x_quoting   =  '-';
    /*---(header)-------------------------*/
    DEBUG_USER   yLOG_enter   (__FUNCTION__);
    DEBUG_USER   yLOG_char    ("a_major"   , a_major);
    DEBUG_USER   yLOG_char    ("a_minor"   , chrvisible (a_minor));
+   DEBUG_USER   yLOG_char    ("mode"      , x_quoting);
    /*---(defenses)-----------------------*/
    DEBUG_USER   yLOG_char    ("mode"      , MODE_curr ());
    --rce;  if (MODE_not (UMOD_SRC_INPT )) {
@@ -2640,42 +2653,55 @@ SRC_INPT_umode             (int  a_major, int  a_minor)
    }
    /*---(mode changes)-------------------*/
    else if (a_minor == G_KEY_ESCAPE || a_minor == G_KEY_RETURN) {
-      DEBUG_USER   yLOG_note    ("escape/return, return to source mode");
-      x_mode  = '-';
-      rc = ONE__delete ();
-      --s_cur->cpos;
-      SRC_UNDO__end (__FUNCTION__);
-      MODE_exit ();
-      DEBUG_USER   yLOG_value   ("mode"     , MODE_curr ());
-      if (a_minor == G_KEY_RETURN && strchr (MODES_ONELINE, MODE_curr ()) != NULL) {
-         DEBUG_USER   yLOG_note    ("fast path back to map mode");
-         rc = SOURCE_mode (G_KEY_SPACE, a_minor);
+      if (x_quoting == 'y' && MODE_prev () != MODE_SOURCE) {
+         SRC_INPT__addone (x_mode, a_minor);
+      } else {
+         DEBUG_USER   yLOG_note    ("escape/return, return to source mode");
+         x_quoting = '-';
+         x_mode    = '-';
+         rc = ONE__delete ();
+         --s_cur->cpos;
+         SRC_UNDO__end (__FUNCTION__);
+         MODE_exit ();
+         DEBUG_USER   yLOG_value   ("mode"     , MODE_curr ());
+         if (a_minor == G_KEY_RETURN && strchr (MODES_ONELINE, MODE_curr ()) != NULL) {
+            DEBUG_USER   yLOG_note    ("fast path back to map mode");
+            rc = SOURCE_mode (G_KEY_SPACE, a_minor);
+         }
       }
    }
    /*---(check for backspace)------------*/
    else if (a_minor == G_KEY_BS) {
-      DEBUG_USER   yLOG_note    ("handle a backspace");
-      if (s_cur->cpos > 0) {
-         SRC_UNDO__add ('d', 'h', s_cur->cpos - 1, s_cur->contents [s_cur->cpos - 1], G_KEY_NULL);
-         rc = ONE__backspace ();
+      if (x_quoting == 'y' && MODE_prev () != MODE_SOURCE) {
+         SRC_INPT__addone (x_mode, a_minor);
+      } else {
+         DEBUG_USER   yLOG_note    ("handle a backspace");
+         if (s_cur->cpos > 0) {
+            SRC_UNDO__add ('d', 'h', s_cur->cpos - 1, s_cur->contents [s_cur->cpos - 1], G_KEY_NULL);
+            rc = ONE__backspace ();
+         }
       }
    }
    else if (a_minor == G_KEY_DEL) {
-      DEBUG_USER   yLOG_note    ("handle a delete");
-      if (s_cur->cpos < s_cur->npos - 1) {
-         ++s_cur->cpos;
-         SRC_UNDO__add ('d', 'l', s_cur->cpos, s_cur->contents [s_cur->cpos], G_KEY_NULL);
-         rc = ONE__delete ();
-         --s_cur->cpos;
+      if (x_quoting == 'y' && MODE_prev () != MODE_SOURCE) {
+         SRC_INPT__addone (x_mode, a_minor);
+      } else {
+         DEBUG_USER   yLOG_note    ("handle a delete");
+         if (s_cur->cpos < s_cur->npos - 1) {
+            ++s_cur->cpos;
+            SRC_UNDO__add ('d', 'l', s_cur->cpos, s_cur->contents [s_cur->cpos], G_KEY_NULL);
+            rc = ONE__delete ();
+            --s_cur->cpos;
+         }
       }
    }
    /*---(handle new character)-----------*/
    else if ((a_minor >= 32 && a_minor < 127) || (a_minor > 127 && a_minor < 256)) {
-      DEBUG_USER   yLOG_note    ("move remaining chars to the right");
-      if (a_minor == G_KEY_SPACE)  a_minor = G_CHAR_SPACE;
-      SRC_UNDO__single (x_mode, G_CHAR_NULL, a_minor);
-      rc = ONE__insert (a_minor);
-      ++s_cur->cpos;
+      SRC_INPT__addone (x_mode, a_minor);
+      if (a_minor == '"') {
+         if (x_quoting == 'y')  x_quoting = '-';
+         else                   x_quoting = 'y';
+      }
    }
    /*---(wrap up)------------------------*/
    SOURCE__done   ();

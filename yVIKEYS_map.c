@@ -1951,11 +1951,11 @@ yvikeys__map_mode_chg   (char a_minor)
    switch (a_minor) {
    case '@'      :
       IF_MACRO_OFF {
-         MACRO_reset  ();
+         yvikeys_macro_reset  ();
          MODE_enter  (SMOD_MACRO   );
          rc = a_minor;
       } else {
-         MACRO_reset  ();
+         yvikeys_macro_reset  ();
          rc = -1;
       }
       break;
@@ -1964,11 +1964,11 @@ yvikeys__map_mode_chg   (char a_minor)
          MODE_enter  (SMOD_MACRO   );
          rc = a_minor;
       } else {
-         rc = MACRO_rec_end ();
+         rc = yvikeys_macro_recend ();
       }
       break;
    case 'Q'      :
-      rc = MACRO_reset ();
+      rc = yvikeys_macro_reset ();
       break;
    }
    if (rc >= 0) {

@@ -856,7 +856,7 @@ REPEAT_reset            (void)
    myVIKEYS.repeating = '-';
    s_request      = 0;
    s_repeat       = 0;
-   MACRO_zero ();
+   yvikeys_macro_zero ();
    return 0;
 }
 

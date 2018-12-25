@@ -36,7 +36,7 @@
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
 #define YVIKEYS_VER_NUM   "1.1j"
-#define YVIKEYS_VER_TXT   "upgraded and unit tested map/macro sections"
+#define YVIKEYS_VER_TXT   "huge upgrade to macro functions and unit testing, including files"
 
 
 
@@ -134,22 +134,22 @@ tSHARED     myVIKEYS;
 #define     MACRO_PLAYBACK     'P'      /* macro under playback controls      */
 #define     MACRO_RECORD       'r'      /* macro recording                    */
 /*---(conditions)------*/
-#define     IF_MACRO_OFF         if (MACRO_get_mode () == MACRO_OFF      ) 
-#define     IF_MACRO_RUN         if (MACRO_get_mode () == MACRO_RUN      ) 
-#define     IF_MACRO_NOT_RUN     if (MACRO_get_mode () != MACRO_RUN      ) 
-#define     IF_MACRO_DELAY       if (MACRO_get_mode () == MACRO_DELAY    ) 
-#define     IF_MACRO_PLAYBACK    if (MACRO_get_mode () == MACRO_PLAYBACK ) 
-#define     IF_MACRO_MOVING      if (MACRO_get_mode () == MACRO_RUN      || MACRO_get_mode () == MACRO_DELAY   ) 
-#define     IF_MACRO_NOT_PLAYING if (MACRO_get_mode () == MACRO_OFF      || MACRO_get_mode () == MACRO_RECORD  )
-#define     IF_MACRO_PLAYING     if (MACRO_get_mode () != MACRO_OFF      && MACRO_get_mode () != MACRO_RECORD  )
-#define     IF_MACRO_RECORDING   if (MACRO_get_mode () == MACRO_RECORD   ) 
-#define     IF_MACRO_ON          if (MACRO_get_mode () != MACRO_OFF      ) 
+#define     IF_MACRO_OFF         if (yvikeys_macro_modeget () == MACRO_OFF      ) 
+#define     IF_MACRO_RUN         if (yvikeys_macro_modeget () == MACRO_RUN      ) 
+#define     IF_MACRO_NOT_RUN     if (yvikeys_macro_modeget () != MACRO_RUN      ) 
+#define     IF_MACRO_DELAY       if (yvikeys_macro_modeget () == MACRO_DELAY    ) 
+#define     IF_MACRO_PLAYBACK    if (yvikeys_macro_modeget () == MACRO_PLAYBACK ) 
+#define     IF_MACRO_MOVING      if (yvikeys_macro_modeget () == MACRO_RUN      || yvikeys_macro_modeget () == MACRO_DELAY   ) 
+#define     IF_MACRO_NOT_PLAYING if (yvikeys_macro_modeget () == MACRO_OFF      || yvikeys_macro_modeget () == MACRO_RECORD  )
+#define     IF_MACRO_PLAYING     if (yvikeys_macro_modeget () != MACRO_OFF      && yvikeys_macro_modeget () != MACRO_RECORD  )
+#define     IF_MACRO_RECORDING   if (yvikeys_macro_modeget () == MACRO_RECORD   ) 
+#define     IF_MACRO_ON          if (yvikeys_macro_modeget () != MACRO_OFF      ) 
 /*---(setting)---------*/
-#define     SET_MACRO_OFF        MACRO_set_mode (MACRO_OFF);
-#define     SET_MACRO_RUN        MACRO_set_mode (MACRO_RUN);
-#define     SET_MACRO_PLAYBACK   MACRO_set_mode (MACRO_PLAYBACK);
-#define     SET_MACRO_DELAY      MACRO_set_mode (MACRO_DELAY);
-#define     SET_MACRO_RECORD     MACRO_set_mode (MACRO_RECORD);
+#define     SET_MACRO_OFF        yvikeys_macro_modeset (MACRO_OFF);
+#define     SET_MACRO_RUN        yvikeys_macro_modeset (MACRO_RUN);
+#define     SET_MACRO_PLAYBACK   yvikeys_macro_modeset (MACRO_PLAYBACK);
+#define     SET_MACRO_DELAY      yvikeys_macro_modeset (MACRO_DELAY);
+#define     SET_MACRO_RECORD     yvikeys_macro_modeset (MACRO_RECORD);
 
 
 extern char        g_coord;
@@ -178,8 +178,16 @@ typedef     struct timespec   tSPEC;
 typedef     unsigned char     uchar;
 typedef     signed char       schar;
 
+#define     YVIKEYS_UPPER     'A'
+#define     YVIKEYS_LOWER     'a'
+#define     YVIKEYS_NUMBER    '0'
+#define     YVIKEYS_GREEK     'è'
+#define     YVIKEYS_FULL      '*'
 
-
+extern char *gvikeys_upper;
+extern char *gvikeys_lower;
+extern char *gvikeys_number;
+extern char *gvikeys_greek;
 
 
 
@@ -209,7 +217,6 @@ char        KEYS_unique             (void);
 char        KEYS_init               (void);
 char*       KEYS__unit              (char *a_question, char a_index);
 char        BASE_dump               (char *a_what);
-int         yvikeys_abbr_shared     (char a_abbr, char *a_valid);
 char        KEYS_dump               (FILE *a_file);
 char        BASE__unit_quiet        (void);
 char        BASE__unit_loud         (void);
@@ -348,35 +355,41 @@ char        yvikeys_mark_smode           (int a_major, int a_minor);
 
 
 /*---(program)--------------*/
-char        MACRO_init              (void);
-char        MACRO_zero              (void);
-char        MACRO_count             (void);
-char        MACRO__clear            (char a_macro);
-char        MACRO__purge            (void);
-char        MACRO_reset             (void);
-char        MACRO__name             (char a_name);
-char        MACRO__index            (char a_name);
+char        yvikeys_macro_init      (void);
+char        yvikeys_macro_zero      (void);
+char        yvikeys_macro_count     (void);
+char        yvikeys_macro__clear    (char a_macro);
+char        yvikeys_macro__purge    (char a_scope);
+char        yvikeys_macro_reset     (void);
+char        yvikeys_macro__valid    (char a_abbr);
+int         yvikeys_macro__index    (char a_abbr);
 /*---(storage)--------------*/
-char        MACRO__save             (void);
-char        MACRO__fetch            (char a_name);
+char        yvikeys_macro__save     (void);
+char        yvikeys_macro__fetch    (char a_name);
 /*---(record)---------------*/
-char        MACRO__rec_beg          (char a_name);
-char        MACRO_rec_key           (char a_key);
-char        MACRO__rec_str          (char *a_keys);
-char        MACRO_rec_end           (void);
-char        MACRO_define            (char *a_string);
-char*       MACRO__unit             (char *a_question, char a_macro);
+char        yvikeys_macro__recbeg   (char a_name);
+char        yvikeys_macro_reckey    (char a_key);
+char        yvikeys_macro__recstr   (char *a_keys);
+char        yvikeys_macro_recend    (void);
+char        yvikeys_macro__direct   (char *a_string);
+char*       yvikeys_macro__unit     (char *a_question, char a_macro);
 /*---(execute)--------------*/
-char        MACRO__delay            (char a_delay);
-char        MACRO__exec_control     (char a_key);
-char        MACRO_exec_beg          (char a_name);
-char        MACRO_exec_adv          (void);
-char        MACRO_exec_wait         (void);
-char        MACRO_exec_key          (void);
-char        MACRO_exec_player       (char a_key);
-char        MACRO_smode             (char a_major, char a_minor);
-char        MACRO_get_mode          ();
-char        MACRO_set_mode          (char a_mode);
+char        yvikeys_macro__delay    (char a_delay);
+char        yvikeys_macro__exectl   (char a_key);
+char        yvikeys_macro_exebeg    (char a_name);
+char        yvikeys_macro_exeadv    (void);
+char        yvikeys_macro_exewait   (void);
+char        yvikeys_macro_exekey    (void);
+char        yvikeys_macro_exeplay   (char a_key);
+char        yvikeys_macro_smode     (char a_major, char a_minor);
+char        yvikeys_macro_modeget   ();
+char        yvikeys_macro_modeset   (char a_mode);
+/*---(status)---------------*/
+char        yvikeys_macro_list      (int *a_count, char *a_list);
+/*---(file)-----------------*/
+char        yvikeys_macro_writer    (char a_abbr);
+char        yvikeys_macro_writer_all(void);
+char        yvikeys_macro_reader    (void);
 
 /*---(commands)-------------*/
 char        CMDS_limits             (int *a_min, int *a_max);
@@ -388,8 +401,8 @@ char*       CMDS__unit              (char *a_question, char a_index);
 int         CMDS__find              (char *a_name);
 char*       CMDS_curr               (void);
 char        CMDS__exec              (void);
-char        CMDS_valid_abbr         (char a_mark);
-int         CMDS_find_abbr          (char a_mark);
+char        yvikeys_cmds__valid     (char a_abbr);
+int         yvikeys_cmds__index     (char a_abbr);
 char        CMDS_reader             (void);
 char        CMDS_writer             (char a_abbr);
 char        CMDS_writer_all         (void);
@@ -398,8 +411,9 @@ char        CMDS__unit_null         (void);
 char        HISTORY_limits          (char a_mode, int *a_min, int *a_max);
 char        HISTORY_entry           (char a_mode, int a_index, char *a_entry, int a_max);
 char*       HISTORY_use             (char a_mode, int a_index);
-char        SRCH_valid_abbr         (char a_mark);
-int         SRCH_find_abbr          (char a_mark);
+char        yvikeys_srch__valid     (char a_abbr);
+int         yvikeys_srch__index     (char a_abbr);
+int         SRCH_find_abbr          (char a_abbr);
 char        SRCH_init               (void);
 char        SRCH__purge             (void);
 char        SRCH__exec              (void);
@@ -475,6 +489,7 @@ char*       yvikeys__unit_regs         (char *a_question, char x, char y);
 char        SRC_REG_writer          (char a_abbr);
 char        VISU_writer             (char a_abbr);
 char        MACRO_writer            (char a_abbr);
+char        yvikeys_macro_writer    (char a_abbr);
 
 char        SRC_REG_reader          (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i);
 char        VISU_reader             (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i);
