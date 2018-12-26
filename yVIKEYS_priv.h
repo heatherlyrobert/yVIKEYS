@@ -35,8 +35,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "1.1j"
-#define YVIKEYS_VER_TXT   "huge upgrade to macro functions and unit testing, including files"
+#define YVIKEYS_VER_NUM   "1.1k"
+#define YVIKEYS_VER_TXT   "added status locking to macro functions with unit testing"
 
 
 
@@ -488,12 +488,10 @@ char*       yvikeys__unit_regs         (char *a_question, char x, char y);
 
 char        SRC_REG_writer          (char a_abbr);
 char        VISU_writer             (char a_abbr);
-char        MACRO_writer            (char a_abbr);
 char        yvikeys_macro_writer    (char a_abbr);
 
 char        SRC_REG_reader          (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i);
 char        VISU_reader             (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i);
-char        MACRO_reader            (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i);
 
 
 char        yvikeys_hist_init       (void);

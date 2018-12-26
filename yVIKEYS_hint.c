@@ -60,9 +60,11 @@ yvikeys_mark_init            (void)
       return rce;
    }
    /*---(macro abbrev list)--------------*/
-   strlcpy (S_MARK_LIST, gvikeys_lower , S_MARK_MAX);
+   strlcpy (S_MARK_LIST, "'"           , S_MARK_MAX);
+   strlcat (S_MARK_LIST, gvikeys_lower , S_MARK_MAX);
    strlcat (S_MARK_LIST, gvikeys_upper , S_MARK_MAX);
    strlcat (S_MARK_LIST, gvikeys_number, S_MARK_MAX);
+   strlcat (S_MARK_LIST, gvikeys_greek , S_MARK_MAX);
    strlcat (S_MARK_LIST, "()"          , S_MARK_MAX);
    s_nmark = strlen (S_MARK_LIST);
    /*---(clear)--------------------------*/
@@ -86,20 +88,15 @@ yvikeys_mark__purge          (char a_scope)
    char        rce         =  -10;
    int         i           =    0;
    char        x_abbr      =    0;
-   char       *x_upper     = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-   char       *x_lower     = "abcdefghijklmnopqrstuvwxyz";
-   char       *x_sys       = "0123456789";
    /*---(header)-------------------------*/
    DEBUG_MARK   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
    DEBUG_MARK   yLOG_char    ("a_scope"   , a_scope);
    --rce;  switch (a_scope) {
-   case YVIKEYS_LOWER  :  break;
-   case YVIKEYS_UPPER  :  break;
-   case YVIKEYS_NUMBER :  break;
-   case YVIKEYS_GREEK  :  break;
-   case YVIKEYS_FULL   :  break;
-   default           :
+   case YVIKEYS_LOWER  : case YVIKEYS_UPPER  : case YVIKEYS_NUMBER :
+   case YVIKEYS_GREEK  : case YVIKEYS_FULL   :
+      break;
+   default :
       DEBUG_MARK   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }

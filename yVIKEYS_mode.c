@@ -148,7 +148,7 @@ MODE__by_abbr           (char a_abbr)
    }
    /*---(lookup)-------------------------*/
    n = -1;
-   for (i = 0; i < s_nmode; ++i) {
+   for (i = 0; i < MAX_MODES; ++i) {
       if (s_modes [i].abbr == '-'    )  break;
       if (s_modes [i].abbr != a_abbr)   continue;
       n = i;

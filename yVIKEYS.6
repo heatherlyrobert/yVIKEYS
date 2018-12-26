@@ -272,31 +272,26 @@ simple playback, and basic debugging.  all interactive applications need
 macros built early in development.
 .SS ---full capabilities----------------------------------------------
 
-.B named macros
-   a-z        twenty-six (26) standard macro names
-   A-Z        same twenty-six (26) macros but treated specially
-
-.B invocation of sub-mode
-   q          record a new macro in map or god mode
-   @          execute an existing macro in map or god mode
-   ¥          exits sub-mode early and forgets keys
+.B named macros (86)
+   a-z        lower case (26) are common, local use
+   A-Z        upper case (26) are common, but more premenant
+   0-9        numeric (10) are typically temporary use in scripts
+   è-ÿ        greek (24) are special internal, macro usage only
 
 .B recording new macros
-   qd...q     record live keystrokes ... into macro 'd'
+   qd...q     record live keystrokes ... into macro abbr 'd'
    qd...Q     exit recording and do not save macro
-   qD...q     appending onto macro 'd' after existing contents
-   qdq        erase macro 'd' (no keystrokes entered)
+   qdq        erase macro abbr 'd'
+   Q          reset macro recording environment (no saving)
 
 .B executing existing macros
    @d         execute macro 'd' at the current location
-   @@         re-execute the last used macro (a-z)
+   @@         re-execute the last used macro
    5@d        execute macro 'd' five times
-   @5d        execute macro 'd' in delay mode 5
    @D         execute macro 'd' in playback/debug mode
 
 .B defining macros at command line
    :macro h=...         directly input and save the macro
-   :macro H=...         append directly to the macro
    :macro i="..."       allows ¦ (ret) and ¥ (esc)
    :macro i=\\n\\e        also allows ¦ (ret) and ¥ (esc)
    :macro j=\\"..        escaped quote can go anywhere

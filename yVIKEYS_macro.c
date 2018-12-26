@@ -4,8 +4,6 @@
 #include    "yVIKEYS_priv.h"
 
 
-static char s_macro_status   = G_STAGE_NULL;
-
 
 #define     LEN_MACRO        2000
 /*---(keyboard macro)-------*/
@@ -65,11 +63,19 @@ char         /*-> initialize macro environment -------[ shoot  [gz.210.001.01]*/
 yvikeys_macro_init      (void)
 {
    /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
    char        rc          =    0;
    /*---(header)-------------------------*/
    DEBUG_PROG   yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   --rce;  if (!STATUS_check_prep  (SMOD_MACRO)) {
+      DEBUG_PROG   yLOG_note    ("status is not ready for init");
+      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    /*---(macro abbrev list)--------------*/
-   strlcpy (S_MACRO_LIST, gvikeys_lower , S_MACRO_MAX);
+   strlcpy (S_MACRO_LIST, ""            , S_MACRO_MAX);
+   strlcat (S_MACRO_LIST, gvikeys_lower , S_MACRO_MAX);
    strlcat (S_MACRO_LIST, gvikeys_upper , S_MACRO_MAX);
    strlcat (S_MACRO_LIST, gvikeys_number, S_MACRO_MAX);
    strlcat (S_MACRO_LIST, gvikeys_greek , S_MACRO_MAX);
@@ -79,9 +85,9 @@ yvikeys_macro_init      (void)
    s_loader = NULL;
    s_saver  = NULL;
    yvikeys_macro__purge (MACRO_ALL);
-   /*---(update stage)-------------------*/
+   /*---(update status)------------------*/
    DEBUG_PROG   yLOG_note    ("update status");
-   s_macro_status = G_STAGE_READY;
+   STATUS_init_set   (SMOD_MACRO);
    /*---(commands)-----------------------*/
    DEBUG_PROG   yLOG_note    ("add commands");
    yVIKEYS_cmds_add (YVIKEYS_M_CONFIG, "macro"       , ""    , "a"    , yvikeys_macro__direct, "direct definition of a keyboard macro"                       );
@@ -100,17 +106,18 @@ yVIKEYS_macro_config    (void *a_loader, void *a_saver)
    /*---(header)-------------------------*/
    DEBUG_SCRP   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
-   DEBUG_SCRP   yLOG_value   ("stage"     , s_macro_status);
-   --rce;  if (s_macro_status <  G_STAGE_INIT) {
-      DEBUG_SCRP   yLOG_note    ("must be called after init");
-      DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, -66);
-      return -66;
+   --rce;  if (!STATUS_check_needs  (SMOD_MACRO)) {
+      DEBUG_SCRP   yLOG_note    ("init must complete before config");
+      DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
    }
    /*---(save)---------------------------*/
    if (a_loader != NULL) s_loader = a_loader;
    DEBUG_SCRP   yLOG_point   ("loader"    , s_loader);
    if (a_saver  != NULL) s_saver  = a_saver;
    DEBUG_SCRP   yLOG_point   ("saver"     , s_saver);
+   /*---(update status)------------------*/
+   STATUS_conf_set   (SMOD_MACRO, '1');
    /*---(complete)-----------------------*/
    DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -166,14 +173,12 @@ yvikeys_macro__purge    (char a_scope)
    /*---(defense)------------------------*/
    DEBUG_SCRP   yLOG_char    ("a_scope"   , a_scope);
    --rce;  switch (a_scope) {
-   case YVIKEYS_LOWER  :  break;
-   case YVIKEYS_UPPER  :  break;
-   case YVIKEYS_NUMBER :  break;
-   case YVIKEYS_GREEK  :  break;
-   case YVIKEYS_FULL   :  break;
-   default           :
-                          DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
-                          return rce;
+   case YVIKEYS_LOWER  : case YVIKEYS_UPPER  : case YVIKEYS_NUMBER :
+   case YVIKEYS_GREEK  : case YVIKEYS_FULL   :
+      break;
+   default :
+      DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
    }
    /*---(clear)--------------------------*/
    DEBUG_SCRP   yLOG_value   ("s_nmacro"  , s_nmacro);
@@ -393,6 +398,12 @@ yvikeys_macro__recbeg   (char a_name)
    char        rce         =  -10;
    /*---(header)-------------------------*/
    DEBUG_SCRP   yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   --rce;  if (!STATUS_operational (SMOD_MACRO)) {
+      DEBUG_SCRP   yLOG_note    ("can not execute until operational");
+      DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    /*---(prepare)---------------------*/
    yvikeys_macro_reset ();
    s_macro_name = '-';
@@ -492,10 +503,18 @@ yvikeys_macro__direct   (char *a_string)
    char        rce         =  -10;
    char        rc          =    0;
    int         x_len       =    0;
+   char        x_ch        =  '-';
+   char       *x_valid     = "*aA0è";
    /*---(header)-------------------------*/
    DEBUG_SCRP   yLOG_enter   (__FUNCTION__);
-   DEBUG_SCRP   yLOG_point   ("a_string"  , a_string);
    /*---(defense)------------------------*/
+   --rce;  if (!STATUS_operational (SMOD_MACRO)) {
+      DEBUG_SCRP   yLOG_note    ("can not execute until operational");
+      DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(defense)------------------------*/
+   DEBUG_SCRP   yLOG_point   ("a_string"  , a_string);
    --rce;  if (a_string == NULL) {
       DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
@@ -509,27 +528,37 @@ yvikeys_macro__direct   (char *a_string)
    }
    /*---(check for purge)----------------*/
    --rce;  if (x_len == 1) {
-      switch (a_string [0]) {
-      case '*'  : yvikeys_macro__purge (YVIKEYS_FULL  ); break;
-      case 'a'  : yvikeys_macro__purge (YVIKEYS_LOWER ); break;
-      case 'A'  : yvikeys_macro__purge (YVIKEYS_UPPER ); break;
-      case '0'  : yvikeys_macro__purge (YVIKEYS_NUMBER); break;
-      case 'è'  : yvikeys_macro__purge (YVIKEYS_GREEK ); break;
-      default   :
-                  DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
-                  return rce;
+      DEBUG_SCRP   yLOG_note    ("one character option (purge)");
+      DEBUG_SCRP   yLOG_info    ("x_valid"   , x_valid);
+      x_ch = a_string [0];
+      DEBUG_SCRP   yLOG_char    ("x_ch"      , x_ch);
+      if (strchr (x_valid, x_ch) != NULL) {
+         rc = yvikeys_macro__purge (x_ch);
+         DEBUG_SCRP   yLOG_value   ("purge"     , rc);
+         if (rc < 0) {
+            DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
+            return rce;
+         }
+         DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
+         return 0;
       }
-      DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
-      return 0;
+      DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
    }
+   /*---(check for equal)----------------*/
+   DEBUG_SCRP   yLOG_note    ("check for equal sign");
+   x_ch = a_string [1];
+   DEBUG_SCRP   yLOG_char    ("x_ch"      , x_ch);
+   --rce;  if (x_ch != '=') {
+      DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   x_ch = a_string [0];
+   DEBUG_SCRP   yLOG_char    ("abbr"      , x_ch);
    /*---(check for clear)----------------*/
    --rce;  if (x_len == 2) {
-      DEBUG_SCRP   yLOG_char    ("equal"     , a_string [1]);
-      if (a_string [1] != '=') {
-         DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
-         return rce;
-      }
-      rc = yvikeys_macro__clear (a_string [0]);
+      DEBUG_SCRP   yLOG_note    ("two character option (clear)");
+      rc = yvikeys_macro__clear (x_ch);
       DEBUG_SCRP   yLOG_value   ("clear"     , rc);
       if (rc < 0) {
          DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
@@ -538,14 +567,9 @@ yvikeys_macro__direct   (char *a_string)
       DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
       return 0;
    }
-   /*---(check for define)---------------*/
-   DEBUG_SCRP   yLOG_char    ("equal"     , a_string [1]);
-   --rce;  if (a_string [1] != '=') {
-      DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
    /*---(begin recording)----------------*/
-   rc = yvikeys_macro__recbeg (a_string [0]);
+   DEBUG_SCRP   yLOG_note    ("three plus character option (define)");
+   rc = yvikeys_macro__recbeg (x_ch);
    DEBUG_SCRP   yLOG_char    ("recbeg"    , rc);
    --rce;  if (rc < 0) {
       yvikeys_macro_reset ();
@@ -625,7 +649,12 @@ yvikeys_macro_exebeg    (char a_name)
    char        rce         =  -10;
    /*---(header)-------------------------*/
    DEBUG_SCRP   yLOG_enter   (__FUNCTION__);
-   DEBUG_SCRP   yLOG_char    ("a_name"    , a_name);
+   /*---(defense)------------------------*/
+   --rce;  if (!STATUS_operational (SMOD_MACRO)) {
+      DEBUG_SCRP   yLOG_note    ("can not execute until operational");
+      DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    /*---(check macro name)------------*/
    DEBUG_SCRP   yLOG_char    ("a_name"    , a_name);
    if (yvikeys_macro__valid (a_name) <  0)  {
@@ -928,6 +957,12 @@ yvikeys_macro_writer    (char a_abbr)
    char        x_cmd       [LEN_RECD ];
    /*---(header)-------------------------*/
    DEBUG_OUTP   yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   --rce;  if (!STATUS_operational (SMOD_MACRO)) {
+      DEBUG_OUTP   yLOG_note    ("can not execute until operational");
+      DEBUG_OUTP   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    /*---(clear output)-------------------*/
    yPARSE_outclear  ();
    /*---(defense)------------------------*/
@@ -960,6 +995,14 @@ yvikeys_macro_writer_all (void)
    char        x_end       =    0;
    int         i           =    0;
    char        c           =    0;
+   /*---(header)-------------------------*/
+   DEBUG_OUTP   yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   --rce;  if (!STATUS_operational (SMOD_MACRO)) {
+      DEBUG_OUTP   yLOG_note    ("can not execute until operational");
+      DEBUG_OUTP   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    /*---(prepare)------------------------*/
    x_end = strlen (S_MACRO_LIST);
    yPARSE_verb_begin ("macro");
@@ -973,6 +1016,7 @@ yvikeys_macro_writer_all (void)
    /*---(wrap-up)------------------------*/
    yPARSE_verb_end   (c);
    /*---(complete)-----------------------*/
+   DEBUG_OUTP  yLOG_exit    (__FUNCTION__);
    return c;
 }
 
@@ -988,6 +1032,12 @@ yvikeys_macro_reader    (void)
    char        x_keys      [LEN_LABEL];
    /*---(header)-------------------------*/
    DEBUG_INPT   yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   --rce;  if (!STATUS_operational (SMOD_MACRO)) {
+      DEBUG_INPT   yLOG_note    ("can not execute until operational");
+      DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    /*---(get verb)-----------------------*/
    rc = yPARSE_popstr (x_verb);
    DEBUG_INPT   yLOG_value   ("pop verb"  , rc);
@@ -1011,92 +1061,13 @@ yvikeys_macro_reader    (void)
    DEBUG_INPT   yLOG_value   ("pop keys"  , rc);
    DEBUG_INPT   yLOG_info    ("x_keys"    , x_keys);
    /*---(save)---------------------------*/
-   DEBUG_SRCH   yLOG_note    ("saving values");
+   DEBUG_INPT   yLOG_note    ("saving values");
    yvikeys_macro__clear (x_abbr);
    strlcpy (s_macros [n].keys, x_keys, LEN_RECD );
    s_macros [n].len = strlen (x_keys);
    /*---(complete)-----------------------*/
    DEBUG_INPT  yLOG_exit    (__FUNCTION__);
    return 1;
-}
-
-
-
-char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/
-MACRO_writer           (char a_abbr)
-{
-   /*---(locals)-----------+-----+-----+-*/
-   char        rce         =  -10;
-   char        x_beg       =    0;
-   char        x_end       =    0;
-   int         i           =    0;
-   char        c           =    0;
-   /*---(prepare)----------------s-------*/
-   yVIKEYS_unit_reset ();
-   if (a_abbr == 0) {
-      x_beg = 0;
-      x_end = S_MACRO_MAX - 1;
-   } else {
-      x_beg = x_end = yvikeys_macro__index (a_abbr);
-      if (x_beg <  0)  return rce;
-   }
-   /*---(find marked entries)------------*/
-   for (i = x_beg; i <= x_end; ++i) {
-      if (s_macros [i].len <= 0)  continue;
-      yVIKEYS_file_write (SMOD_MACRO, &S_MACRO_LIST [i], &s_macros [i].count, &s_macros [i].rc, s_macros [i].keys, NULL, NULL, NULL, NULL, NULL);
-      ++c;
-   }
-   /*---(complete)-----------------------*/
-   return c;
-}
-
-char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/
-MACRO_reader            (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i)
-{
-   /*---(locals)-----------+-----------+-*/
-   char        rce         =  -11;
-   char        rc          =    0;
-   int         x_index     =    0;
-   char        x_label     [LEN_LABEL] = "";
-   /*---(header)-------------------------*/
-   DEBUG_SRCH   yLOG_enter   (__FUNCTION__);
-   /*---(check version)------------------*/
-   DEBUG_SRCH   yLOG_char    ("version"   , n);
-   --rce;  if (n != 'A') {
-      DEBUG_SRCH   yLOG_note    ("illegal version");
-      DEBUG_SRCH   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   /*---(check mark)---------------------*/
-   DEBUG_SRCH   yLOG_value   ("mark"      , a[0]);
-   --rce;  if (a[0] < 'a' || a[0] > 'z') {
-      DEBUG_SRCH   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   x_index = yvikeys_macro__index (a[0]);
-   DEBUG_SRCH   yLOG_value   ("index"     , x_index);
-   /*---(search)-------------------------*/
-   DEBUG_SRCH   yLOG_point   ("search"    , b);
-   --rce;  if (b == NULL) {
-      DEBUG_SRCH   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   /*---(save)---------------------------*/
-   DEBUG_SRCH   yLOG_note    ("saving values");
-   strlcpy (s_macros [x_index].keys, d, LEN_RECD);
-   s_macros [x_index].count  = atoi (b);
-   s_macros [x_index].rc     = atoi (c);
-   /*---(initialize other)---------------*/
-   s_macros [x_index].active = '-';
-   s_macros [x_index].pos    =   -1;
-   s_macros [x_index].len    = strlen (s_macros [x_index].keys);
-   s_macros [x_index].cur    =  ' ';
-   s_macros [x_index].repeat =    0;
-   /*---(save)---------------------------*/
-   if (s_saver != NULL)  s_saver (a[0], d);
-   /*---(complete)-----------------------*/
-   DEBUG_SRCH  yLOG_exit    (__FUNCTION__);
-   return 0;
 }
 
 

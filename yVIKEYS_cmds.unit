@@ -18,6 +18,11 @@ PREP          v21  include the prototype headers                              
 #==(verb)===  ver  ===========(description)===========  =====(function)===========  ========================(arguments)===================================  ==(test)==  ==========================(results)=================================================================  t  ========(var)======= 
 SCRP          v21  (CMDS  ) verify command configuration locking system               CMDS_init, CMDS_exec                                                    ((01.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
+   GROUP      v21  before global initialization                                       - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+
+   COND       v21  check initial status                                               - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.003))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+     get      v21  check current status                 STATUS__unit                "actual"         , MODE_COMMAND                                         s_equal     STATUS actual    : :  ----- - - ----- - ----- - ---------- - -                                       
+
    COND       v21  try to initialize out of sequence                                  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.003))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      exec     v21  configure file                       CMDS_init                                                                                           i_lesser    0                                                                                                    
 
@@ -26,6 +31,8 @@ SCRP          v21  (CMDS  ) verify command configuration locking system       
 
    COND       v21  try executing before initializing                                  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.004))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      exec     v21  direct execution                     yVIKEYS_cmds_direct         ":test 0 a"                                                             i_lesser    0                                                                                                    
+
+   GROUP      v21  after global initialization                                        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize the full system                                         - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      exec     v21  start testing                        BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
@@ -36,6 +43,8 @@ SCRP          v21  (CMDS  ) verify command configuration locking system       
 
    COND       v21  try executing also                                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.007))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      exec     v21  direct execution                     yVIKEYS_cmds_direct         ":test 0 a"                                                             i_equal     0                                                                                                    
+
+   GROUP      v21  complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.008))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      exec     v21  stop testing                         BASE__unit_end                                                                                      i_equal     0                                                                                                    

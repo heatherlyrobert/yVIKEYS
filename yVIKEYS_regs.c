@@ -64,7 +64,7 @@
  *
  */
 
-#define     MAX_REG     100
+#define     S_REG_MAX   100
 #define     LEN_BUF    1000
 
 typedef  struct  cREG   tREG;
@@ -108,10 +108,10 @@ struct cREG {
    char        type;
    /*---(end)----------------------------*/
 };
-static      tREG        s_regs       [MAX_REG];
+static      tREG        s_regs       [S_REG_MAX];
 static      int         s_nreg       =    0;
 static      char        s_creg       =  '-';
-static      char        s_regnames   [MAX_REG] = "\"abcdefghijklmnopqrstuvwxyz-+0123456789";
+static      char        S_REG_LIST   [S_REG_MAX] = "\"abcdefghijklmnopqrstuvwxyz-+0123456789";
 
 #define     S_REG_EMPTY     '-'
 #define     S_REG_ACTIVE    'y'
@@ -221,13 +221,13 @@ yvikeys__regs_by_abbr           (char a_reg)
    x_index   =   -1;
    /*---(defense)------------------------*/
    --rce;  if (a_reg == 0)                            return rce;
-   x_loc     = strchr (s_regnames, a_reg);
+   x_loc     = strchr (S_REG_LIST, a_reg);
    --rce;  if (x_loc == NULL)                         return rce;
    /*---(buffer number)------------------*/
-   x_index   = (int) (x_loc - s_regnames);
+   x_index   = (int) (x_loc - S_REG_LIST);
    /*---(defense on range)---------------*/
    --rce; if (x_index <  0      )                     return rce;
-   --rce; if (x_index >= MAX_REG)                     return rce;
+   --rce; if (x_index >= S_REG_MAX)                   return rce;
    /*---(save)---------------------------*/
    x_prev    = a_reg;
    /*---(complete)-----------------------*/
@@ -385,9 +385,9 @@ yvikeys__regs_purge             (char a_init)
    DEBUG_PROG   yLOG_enter   (__FUNCTION__);
    /*---(clear)--------------------------*/
    s_creg = '"';
-   s_nreg = strlen (s_regnames);
+   s_nreg = strlen (S_REG_LIST);
    for (i = 0; i < s_nreg; ++i) {
-      yvikeys__regs_wipe (s_regnames[i], a_init);
+      yvikeys__regs_wipe (S_REG_LIST[i], a_init);
    }
    /*---(complete)-----------------------*/
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
@@ -966,7 +966,7 @@ yvikeys_regs_smode           (int a_major, int a_minor)
          yvikeys__regs_set    (a_minor);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return a_minor;
-      } else if (strchr (s_regnames, a_minor) != 0) {
+      } else if (strchr (S_REG_LIST, a_minor) != 0) {
          yvikeys__regs_set    (a_minor);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return 0;
