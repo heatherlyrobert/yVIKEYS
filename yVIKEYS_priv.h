@@ -35,8 +35,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "1.1k"
-#define YVIKEYS_VER_TXT   "added status locking to macro functions with unit testing"
+#define YVIKEYS_VER_NUM   "1.1l"
+#define YVIKEYS_VER_TXT   "added updated registers and reg list, passes all unit testing"
 
 
 
@@ -467,7 +467,8 @@ char        yvikeys_file_writer         (void);
 
 char        yvikeys_file_reader         (void);
 
-char        yvikeys__regs_by_abbr        (char a_reg);
+char        yvikeys_regs__valid     (char a_abbr);
+int         yvikeys_regs__index     (char a_abbr);
 char        yvikeys__regs_set            (char a_reg);
 char        yvikeys_regs_init            (void);
 char        yvikeys_regs_wrap            (void);
@@ -483,6 +484,7 @@ char        yvikeys__unit_regs_clearer (char a_1st, int x, int y, int z);
 char        yvikeys__unit_regs_copier  (char a_type, long a_stamp);
 char        yvikeys__unit_regs_paster  (char a_regs, char a_pros, char a_intg, char a_1st, int a_xoff, int a_yoff, int a_zoff, void *a_thing);
 char        yvikeys__unit_regs_regkill (void *a_thing);
+char        yvikeys_regs__unit_config  (void);
 char*       yvikeys__unit_regs         (char *a_question, char x, char y);
 
 

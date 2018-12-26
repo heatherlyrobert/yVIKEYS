@@ -52,7 +52,7 @@
 #define     MODES_EDITING  "S:/triw"
 /*---(sub-modes)-------------------------*/
 #define     SMOD_ERROR     'e'    /* error reporting and actions              */
-#define     SMOD_MAP_REG   '"'    /* register actions                         */
+#define     SMOD_MREG      '"'    /* register actions                         */
 #define     SMOD_SRC_REG   't'    /* text register actions                    */
 #define     UMOD_SRC_UNDO  's'    /* incremental text change undo/redo        */
 #define     UMOD_MAP_UNDO  'm'    /* incremental map change undo/redo         */

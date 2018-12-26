@@ -1892,7 +1892,7 @@ yvikeys__map_mode_chg   (char a_minor)
       rc = a_minor;
       break;
    case '"'      :
-      MODE_enter  (SMOD_MAP_REG );
+      MODE_enter  (SMOD_MREG);
       rc = a_minor;
       break;
    case 'E'      :
@@ -2113,7 +2113,7 @@ yvikeys_map_mode        (char a_major, char a_minor)
       }
       if (strchr ("yYpP", a_minor) != 0) {
          DEBUG_USER   yLOG_note    ("switch to a map register mode");
-         MODE_enter (SMOD_MAP_REG);
+         MODE_enter (SMOD_MREG);
          rc = yvikeys_regs_smode  (G_KEY_SPACE, a_minor);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return rc;

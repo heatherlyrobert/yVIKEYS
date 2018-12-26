@@ -109,9 +109,9 @@ struct cREG {
    /*---(end)----------------------------*/
 };
 static      tREG        s_regs       [S_REG_MAX];
+static      char        S_REG_LIST   [S_REG_MAX];
 static      int         s_nreg       =    0;
 static      char        s_creg       =  '-';
-static      char        S_REG_LIST   [S_REG_MAX] = "\"abcdefghijklmnopqrstuvwxyz-+0123456789";
 
 #define     S_REG_EMPTY     '-'
 #define     S_REG_ACTIVE    'y'
@@ -207,43 +207,46 @@ static tPASTING   s_pasting [MAX_PASTING] = {
 /*====================------------------------------------====================*/
 static void  o___SUPPORT_________o () { return; }
 
-char         /*-> find a register index by abbr ------[ leaf   [fn.540.134.80]*/ /*-[00.0000.0L3.O]-*/ /*-[--.---.---.--]-*/
-yvikeys__regs_by_abbr           (char a_reg)
+char 
+yvikeys_regs__valid     (char a_abbr)
 {
-   /*---(locals)-----------+-----------+-*/
+   /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
-   char       *x_loc       = NULL;
-   static char x_prev      =    0;
-   static int  x_index     =   -1;
-   /*---(short-cut)----------------------*/
-   if (a_reg == x_prev)  return x_index;
-   x_prev    =    0;
-   x_index   =   -1;
-   /*---(defense)------------------------*/
-   --rce;  if (a_reg == 0)                            return rce;
-   x_loc     = strchr (S_REG_LIST, a_reg);
-   --rce;  if (x_loc == NULL)                         return rce;
-   /*---(buffer number)------------------*/
-   x_index   = (int) (x_loc - S_REG_LIST);
-   /*---(defense on range)---------------*/
-   --rce; if (x_index <  0      )                     return rce;
-   --rce; if (x_index >= S_REG_MAX)                   return rce;
-   /*---(save)---------------------------*/
-   x_prev    = a_reg;
+   char        rc          =    0;
+   /*---(header)-------------------------*/
+   DEBUG_HIST   yLOG_senter  (__FUNCTION__);
+   /*---(check)--------------------------*/
+   DEBUG_HIST   yLOG_snote   ("check");
+   rc = strlchr (S_REG_LIST, a_abbr, S_REG_MAX);
+   DEBUG_HIST   yLOG_sint    (rc);
+   --rce;  if (rc < 0) {
+      DEBUG_HIST   yLOG_sexitr  (__FUNCTION__, rce);
+      return rce;
+   }
    /*---(complete)-----------------------*/
-   return x_index;
+   DEBUG_HIST   yLOG_sexit   (__FUNCTION__);
+   return 0;
 }
 
-int          /*-> convert a register abbr to tab -----[ ------ [fn.420.132.11]*/ /*-[00.0000.016.7]-*/ /*-[--.---.---.--]-*/
-yvikeys__regs_abbr2tab          (char a_reg)
+int  
+yvikeys_regs__index     (char a_abbr)
 {
-   /*---(locals)-----------+-----------+-*/
-   char        x_tab       =    0;
-   /*---(get register index)-------------*/
-   x_tab = yvikeys__regs_by_abbr (a_reg);
-   if (x_tab < 0)  return x_tab;
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   int         n           =   -1;
+   /*---(header)-------------------------*/
+   DEBUG_HIST   yLOG_senter  (__FUNCTION__);
+   /*---(check)--------------------------*/
+   DEBUG_HIST   yLOG_snote   ("check");
+   n  = strlchr (S_REG_LIST, a_abbr, S_REG_MAX);
+   DEBUG_HIST   yLOG_sint    (n);
+   --rce;  if (n  < 0) {
+      DEBUG_HIST   yLOG_sexitr  (__FUNCTION__, n);
+      return n;
+   }
    /*---(complete)-----------------------*/
-   return x_tab + 128;
+   DEBUG_HIST   yLOG_sexit   (__FUNCTION__);
+   return n;
 }
 
 char
@@ -261,10 +264,16 @@ yvikeys__regs_set               (char a_reg)
    /*---(locals)-----------+-----------+-*/
    char        rce         = -10;
    int         x_reg       = 0;
+   /*---(defense)------------------------*/
+   --rce;  if (!STATUS_operational (SMOD_MREG)) {
+      DEBUG_REGS   yLOG_note    ("can not execute until operational");
+      DEBUG_REGS   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    /*---(reset)--------------------------*/
    yvikeys__regs_reset ();
    /*---(get register number)------------*/
-   x_reg  = yvikeys__regs_by_abbr  (a_reg);
+   x_reg  = yvikeys_regs__index  (a_reg);
    DEBUG_REGS   yLOG_value   ("x_reg"     , x_reg);
    --rce;  if (x_reg < 0) {
       DEBUG_REGS   yLOG_exitr   (__FUNCTION__, rce);
@@ -284,7 +293,7 @@ yVIKEYS_regs_inside     (int x, int y, int z)
    /*---(header)-------------------------*/
    DEBUG_REGS   yLOG_enter   (__FUNCTION__);
    /*---(get register number)------------*/
-   x_reg  = yvikeys__regs_by_abbr  (s_creg);
+   x_reg  = yvikeys_regs__index  (s_creg);
    DEBUG_REGS   yLOG_value   ("x_reg"     , x_reg);
    --rce;  if (x_reg < 0) {
       DEBUG_REGS   yLOG_exitr   (__FUNCTION__, rce);
@@ -324,7 +333,7 @@ yVIKEYS_regs_inside     (int x, int y, int z)
 static void  o___PROGRAM_________o () { return; }
 
 char         /*-> clear out a register ---------------[ ------ [ge.B63.253.32]*/ /*-[03.0000.043.3]-*/ /*-[--.---.---.--]-*/
-yvikeys__regs_wipe              (char a_reg, char a_init)
+yvikeys__regs_wipe              (char a_reg, char a_scope)
 {
    /*---(locals)-----------+-----------+-*/
    char        rce         = -10;
@@ -335,9 +344,9 @@ yvikeys__regs_wipe              (char a_reg, char a_init)
    /*---(header)-------------------------*/
    DEBUG_REGS   yLOG_enter   (__FUNCTION__);
    DEBUG_REGS   yLOG_char    ("a_reg"     , a_reg);
-   DEBUG_REGS   yLOG_char    ("a_init"    , a_init);
+   DEBUG_REGS   yLOG_char    ("a_scope"   , a_scope);
    /*---(get register number)------------*/
-   x_reg  = yvikeys__regs_by_abbr  (a_reg);
+   x_reg  = yvikeys_regs__index  (a_reg);
    DEBUG_REGS   yLOG_value   ("x_reg"     , x_reg);
    --rce;  if (x_reg < 0) {
       DEBUG_REGS   yLOG_exit    (__FUNCTION__);
@@ -358,7 +367,7 @@ yvikeys__regs_wipe              (char a_reg, char a_init)
    --rce;
    for (i = 0; i < LEN_BUF; ++i) {
       x_thing = s_regs [x_reg].buf [i];
-      if (s_regkill != NULL && a_init != 'y' && x_thing != NULL) {
+      if (s_regkill != NULL && a_scope != YVIKEYS_INIT && x_thing != NULL) {
          rc = s_regkill (x_thing);
          if (rc < 0) {
             DEBUG_REGS   yLOG_note    ("found a bad register position");
@@ -377,17 +386,34 @@ yvikeys__regs_wipe              (char a_reg, char a_init)
 }
 
 char         /*-> clear out all buffers --------------[ ------ [gz.421.121.01]*/ /*-[01.0000.013.!]-*/ /*-[--.---.---.--]-*/
-yvikeys__regs_purge             (char a_init)
+yvikeys_regs__purge             (char a_scope)
 {
-   /*---(locals)-----------+-----------+-*/
-   int         i           = 0;
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   int         i           =    0;
+   char        x_abbr      =  '-';
    /*---(header)-------------------------*/
    DEBUG_PROG   yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   DEBUG_SCRP   yLOG_char    ("a_scope"   , a_scope);
+   --rce;  switch (a_scope) {
+   case YVIKEYS_LOWER  : case YVIKEYS_UPPER  : case YVIKEYS_NUMBER :
+   case YVIKEYS_GREEK  : case YVIKEYS_FULL   : case YVIKEYS_INIT   :
+      break;
+   default :
+      DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    /*---(clear)--------------------------*/
    s_creg = '"';
-   s_nreg = strlen (S_REG_LIST);
+   DEBUG_SCRP   yLOG_value   ("s_nreg"    , s_nreg);
    for (i = 0; i < s_nreg; ++i) {
-      yvikeys__regs_wipe (S_REG_LIST[i], a_init);
+      x_abbr = S_REG_LIST [i];
+      if (a_scope == YVIKEYS_UPPER  && strchr (gvikeys_upper , x_abbr) == NULL)  continue;
+      if (a_scope == YVIKEYS_LOWER  && strchr (gvikeys_lower , x_abbr) == NULL)  continue;
+      if (a_scope == YVIKEYS_NUMBER && strchr (gvikeys_number, x_abbr) == NULL)  continue;
+      if (a_scope == YVIKEYS_GREEK  && strchr (gvikeys_greek , x_abbr) == NULL)  continue;
+      yvikeys__regs_wipe (x_abbr, a_scope);
    }
    /*---(complete)-----------------------*/
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
@@ -402,19 +428,27 @@ yvikeys_regs_init               (void)
    /*---(header)-------------------------*/
    DEBUG_PROG   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
-   --rce;  if (!STATUS_check_prep  (SMOD_MAP_REG)) {
+   --rce;  if (!STATUS_check_prep  (SMOD_MREG)) {
       DEBUG_PROG   yLOG_note    ("status is not ready for init");
       DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
+   /*---(macro abbrev list)--------------*/
+   strlcpy (S_REG_LIST, "\""          , S_REG_MAX);
+   strlcat (S_REG_LIST, gvikeys_lower , S_REG_MAX);
+   strlcat (S_REG_LIST, gvikeys_upper , S_REG_MAX);
+   strlcat (S_REG_LIST, gvikeys_number, S_REG_MAX);
+   strlcat (S_REG_LIST, gvikeys_greek , S_REG_MAX);
+   strlcat (S_REG_LIST, "-+"          , S_REG_MAX);
+   s_nreg   = strlen (S_REG_LIST);
    /*---(registers)----------------------*/
-   yvikeys__regs_purge    ('y');
+   yvikeys_regs__purge    (YVIKEYS_INIT);
    s_regkill  = NULL;
    s_copier  = NULL;
    s_clearer = NULL;
    s_paster  = NULL;
    /*---(update status)------------------*/
-   STATUS_init_set   (SMOD_MAP_REG);
+   STATUS_init_set   (SMOD_MREG);
    /*---(complete)-----------------------*/
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -426,7 +460,7 @@ yvikeys_regs_wrap               (void)
    /*---(header)-------------------------*/
    DEBUG_PROG   yLOG_enter   (__FUNCTION__);
    /*---(registers)----------------------*/
-   yvikeys__regs_purge    ('y');
+   yvikeys_regs__purge    (YVIKEYS_INIT);
    /*---(complete)-----------------------*/
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -440,7 +474,7 @@ yVIKEYS_regs_config       (void *a_clearer, void *a_copier, void *a_paster, void
    /*---(header)-------------------------*/
    DEBUG_REGS  yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
-   --rce;  if (!STATUS_check_needs  (SMOD_MAP_REG)) {
+   --rce;  if (!STATUS_check_needs  (SMOD_MREG)) {
       DEBUG_REGS   yLOG_note    ("init must complete before config");
       DEBUG_REGS   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
@@ -457,7 +491,7 @@ yVIKEYS_regs_config       (void *a_clearer, void *a_copier, void *a_paster, void
    DEBUG_REGS  yLOG_point   ("a_exim"    , a_exim);
    s_exim       = a_exim;
    /*---(update status)------------------*/
-   STATUS_conf_set   (SMOD_MAP_REG, '1');
+   STATUS_conf_set   (SMOD_MREG, '1');
    /*---(complete)-----------------------*/
    DEBUG_REGS  yLOG_exit    (__FUNCTION__);
    return 0;
@@ -494,7 +528,7 @@ yVIKEYS_regs_add        (void *a_thing, char *a_label, char a_note)
       return  rce;
    }
    DEBUG_REGS   yLOG_char    ("s_creg"    , s_creg);
-   x_reg  = yvikeys__regs_by_abbr  (s_creg);
+   x_reg  = yvikeys_regs__index  (s_creg);
    DEBUG_REGS   yLOG_value   ("x_reg"     , x_reg);
    --rce;  if (x_reg < 0) {
       DEBUG_REGS   yLOG_exitr   (__FUNCTION__, rce);
@@ -537,7 +571,7 @@ yvikeys_regs_save               (void)
    /*---(header)-------------------------*/
    DEBUG_REGS   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
-   --rce;  if (!STATUS_operational (SMOD_MAP_REG)) {
+   --rce;  if (!STATUS_operational (SMOD_MREG)) {
       DEBUG_REGS   yLOG_note    ("can not execute until operational");
       DEBUG_REGS   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
@@ -551,7 +585,7 @@ yvikeys_regs_save               (void)
    }
    /*---(identify register)--------------*/
    DEBUG_REGS   yLOG_char    ("s_creg"    , s_creg);
-   x_reg  = yvikeys__regs_by_abbr  (s_creg);
+   x_reg  = yvikeys_regs__index  (s_creg);
    DEBUG_REGS   yLOG_value   ("x_reg"     , x_reg);
    --rce;  if (x_reg < 0) {
       DEBUG_REGS   yLOG_exitr   (__FUNCTION__, rce);
@@ -602,7 +636,7 @@ yvikeys__regs_list            (char a_reg, char *a_list)
    /*---(identify register)--------------*/
    strlcpy (a_list, "?"                  , LEN_RECD);
    DEBUG_REGS   yLOG_char    ("a_reg"     , a_reg);
-   x_reg  = yvikeys__regs_by_abbr  (a_reg);
+   x_reg  = yvikeys_regs__index  (a_reg);
    DEBUG_REGS   yLOG_value   ("x_reg"     , x_reg);
    --rce;  if (x_reg < 0) {
       DEBUG_REGS   yLOG_exitr   (__FUNCTION__, rce);
@@ -633,7 +667,7 @@ yvikeys_regs_clear           (void)
    /*---(header)-------------------------*/
    DEBUG_REGS   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
-   --rce;  if (!STATUS_operational (SMOD_MAP_REG)) {
+   --rce;  if (!STATUS_operational (SMOD_MREG)) {
       DEBUG_REGS   yLOG_note    ("can not execute until operational");
       DEBUG_REGS   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
@@ -684,7 +718,7 @@ yvikeys__regs_paste_check    (void)
    /*---(header)-------------------------*/
    DEBUG_REGS   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
-   --rce;  if (!STATUS_operational (SMOD_MAP_REG)) {
+   --rce;  if (!STATUS_operational (SMOD_MREG)) {
       DEBUG_REGS   yLOG_note    ("can not execute until operational");
       DEBUG_REGS   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
@@ -698,7 +732,7 @@ yvikeys__regs_paste_check    (void)
    }
    /*---(identify register)--------------*/
    DEBUG_REGS   yLOG_char    ("s_creg"    , s_creg);
-   s_reg  = yvikeys__regs_by_abbr  (s_creg);
+   s_reg  = yvikeys_regs__index  (s_creg);
    DEBUG_REGS   yLOG_value   ("s_reg"     , s_reg);
    --rce;  if (s_reg < 0) {
       DEBUG_REGS   yLOG_exitr   (__FUNCTION__, rce);
@@ -921,7 +955,7 @@ yvikeys_regs_status          (char *a_status)
    /*---(defenses)-----------------------*/
    --rce;  if (a_status  == NULL)  return rce;
    /*---(identify register)--------------*/
-   x_reg  = yvikeys__regs_by_abbr  (s_creg);
+   x_reg  = yvikeys_regs__index  (s_creg);
    --rce;  if (x_reg < 0) {
       return  rce;
    }
@@ -947,7 +981,7 @@ yvikeys_regs_smode           (int a_major, int a_minor)
    myVIKEYS.info_win = '-';
    /*---(defenses)-----------------------*/
    DEBUG_USER   yLOG_char    ("mode"      , MODE_curr ());
-   --rce;  if (MODE_not (SMOD_MAP_REG)) {
+   --rce;  if (MODE_not (SMOD_MREG)) {
       DEBUG_USER   yLOG_note    ("not the correct mode");
       DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
@@ -1404,6 +1438,14 @@ yvikeys__unit_regs_paster  (char a_regs, char a_pros, char a_intg, char a_1st, i
    return 0;
 }
 
+char
+yvikeys_regs__unit_config  (void)
+{
+   char        rc          =    0;
+   rc = yVIKEYS_regs_config (yvikeys__unit_regs_clearer, yvikeys__unit_regs_copier, yvikeys__unit_regs_paster, yvikeys__unit_regs_regkill, NULL);
+   return rc;
+}
+
 char*        /*-> tbd --------------------------------[ leaf   [gs.520.202.40]*/ /*-[01.0000.00#.#]-*/ /*-[--.---.---.--]-*/
 yvikeys__unit_regs      (char *a_question, char x, char y)
 {
@@ -1414,7 +1456,7 @@ yvikeys__unit_regs      (char *a_question, char x, char y)
    strlcpy  (yVIKEYS__unit_answer, "MAP_REG unit     : question not understood", LEN_STR);
    /*---(dependency list)----------------*/
    if      (strcmp (a_question, "current"        )   == 0) {
-      x_reg = yvikeys__regs_by_abbr (s_creg);
+      x_reg = yvikeys_regs__index (s_creg);
       yvikeys__regs_list  (s_creg, t);
       snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP_REG current  : %c %2d %2d %s", s_creg, x_reg, s_regs [x_reg].nbuf, t);
    }
@@ -1440,11 +1482,11 @@ yvikeys__unit_regs      (char *a_question, char x, char y)
    }
    else if (strcmp (a_question, "inside"       )  == 0) {
       yvikeys__regs_list  (x, t);
-      x_reg = yvikeys__regs_by_abbr (x);
+      x_reg = yvikeys_regs__index (x);
       snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP_REG inside   : %c %2d %s", x, s_regs [x_reg].nbuf, t);
    }
    else if (strcmp (a_question, "range"        )  == 0) {
-      x_reg = yvikeys__regs_by_abbr (x);
+      x_reg = yvikeys_regs__index (x);
       snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP_REG range    : %c, bx=%4d, by=%4d, ex=%4d, ey=%4d, z =%4d", x, s_regs [x_reg].x_beg, s_regs [x_reg].y_beg, s_regs [x_reg].x_end, s_regs [x_reg].y_end, s_regs [x_reg].z_all);
    }
    /*---(complete)-----------------------*/

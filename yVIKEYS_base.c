@@ -518,7 +518,7 @@ yVIKEYS_main_handle     (uchar a_key)
       case XMOD_FORMAT   : rc = FORMAT_smode          (x_major , x_key);  break;
       case SMOD_BUFFER   : rc = yvikeys_bufs_umode    (x_major , x_key);  break;
       case UMOD_WANDER   : rc = BASE__________stub    (x_major , x_key);  break;
-      case SMOD_MAP_REG  : rc = yvikeys_regs_smode    (x_major , x_key);  break;
+      case SMOD_MREG     : rc = yvikeys_regs_smode    (x_major , x_key);  break;
       case UMOD_MARK     : rc = yvikeys_mark_smode    (x_major , x_key);  break;
       case SMOD_MENUS    : rc = BASE__________stub    (x_major , x_key);  break;
       case SMOD_MACRO    : rc = yvikeys_macro_smode   (x_major , x_key);  break;
