@@ -1145,7 +1145,7 @@ GOD__unit                  (char *a_question, char a_mark)
       snprintf (yVIKEYS__unit_answer, LEN_RECD, "LOOP update      : %-5s = %5.3f, %6d loop(s)", s_update_info [s_update].terse, s_update_info [s_update].update, myVIKEYS.loops);
    }
    else if (strcmp (a_question, "p_scale"     )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_RECD, "PROG scale       : %-5s = %26.12lf", s_scale_info [myVIKEYS.p_scale].terse, s_scale_info [myVIKEYS.p_scale].unit);
+      snprintf (yVIKEYS__unit_answer, LEN_RECD, "PROG scale       : %-5s = %.3e", s_scale_info [myVIKEYS.p_scale].terse, s_scale_info [myVIKEYS.p_scale].unit);
    }
    else if (strcmp (a_question, "p_speed"     )   == 0) {
       snprintf (yVIKEYS__unit_answer, LEN_RECD, "PROG speed       : %-7s = %8.2f", s_speed_info [myVIKEYS.p_speed].terse, s_speed_info [myVIKEYS.p_speed].speed);

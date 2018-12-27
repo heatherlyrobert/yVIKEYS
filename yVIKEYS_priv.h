@@ -35,8 +35,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "1.1m"
-#define YVIKEYS_VER_TXT   "fought with cmds unit testing and yparse, successful"
+#define YVIKEYS_VER_NUM   "1.1n"
+#define YVIKEYS_VER_TXT   "totally clean master unit test run"
 
 
 
