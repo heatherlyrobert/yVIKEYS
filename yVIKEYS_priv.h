@@ -35,8 +35,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "1.1l"
-#define YVIKEYS_VER_TXT   "added updated registers and reg list, passes all unit testing"
+#define YVIKEYS_VER_NUM   "1.1m"
+#define YVIKEYS_VER_TXT   "fought with cmds unit testing and yparse, successful"
 
 
 
@@ -403,9 +403,9 @@ char*       CMDS_curr               (void);
 char        CMDS__exec              (void);
 char        yvikeys_cmds__valid     (char a_abbr);
 int         yvikeys_cmds__index     (char a_abbr);
-char        CMDS_reader             (void);
-char        CMDS_writer             (char a_abbr);
-char        CMDS_writer_all         (void);
+char        yvikeys_cmds__reader    (void);
+char        yvikeys_cmds__writer    (char a_abbr);
+char        yvikeys_cmds__writer_all(void);
 char        CMDS__unit_null         (void);
 /*---(search)---------------*/
 char        HISTORY_limits          (char a_mode, int *a_min, int *a_max);
@@ -418,9 +418,9 @@ char        SRCH_init               (void);
 char        SRCH__purge             (void);
 char        SRCH__exec              (void);
 char        SRCH_next               (char a_move);
-char        SRCH_reader             (void);
-char        SRCH_writer             (char a_abbr);
-char        SRCH_writer_all         (void);
+char        yvikeys_srch__reader    (void);
+char        yvikeys_srch__writer    (char a_abbr);
+char        yvikeys_srch__writer_all(void);
 /*---(unit testing)---------*/
 char        SRCH__unit_null         (void);
 char        SRCH__unit_searcher     (char *a_search);

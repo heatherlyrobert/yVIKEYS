@@ -79,6 +79,7 @@ yvikeys_macro_init      (void)
    strlcat (S_MACRO_LIST, gvikeys_upper , S_MACRO_MAX);
    strlcat (S_MACRO_LIST, gvikeys_number, S_MACRO_MAX);
    strlcat (S_MACRO_LIST, gvikeys_greek , S_MACRO_MAX);
+   DEBUG_PROG   yLOG_info    ("LIST"      , S_MACRO_LIST);
    s_nmacro = strlen (S_MACRO_LIST);
    /*---(clear)--------------------------*/
    s_macro_name     = '-';

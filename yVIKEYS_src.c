@@ -2654,7 +2654,7 @@ SRC_INPT_umode             (int  a_major, int  a_minor)
    /*---(mode changes)-------------------*/
    else if (a_minor == G_KEY_ESCAPE || a_minor == G_KEY_RETURN) {
       if (x_quoting == 'y' && MODE_prev () != MODE_SOURCE) {
-         SRC_INPT__addone (x_mode, a_minor);
+         rc = SRC_INPT__addone (x_mode, a_minor);
       } else {
          DEBUG_USER   yLOG_note    ("escape/return, return to source mode");
          x_quoting = '-';
@@ -2673,7 +2673,7 @@ SRC_INPT_umode             (int  a_major, int  a_minor)
    /*---(check for backspace)------------*/
    else if (a_minor == G_KEY_BS) {
       if (x_quoting == 'y' && MODE_prev () != MODE_SOURCE) {
-         SRC_INPT__addone (x_mode, a_minor);
+         rc = SRC_INPT__addone (x_mode, a_minor);
       } else {
          DEBUG_USER   yLOG_note    ("handle a backspace");
          if (s_cur->cpos > 0) {
@@ -2684,7 +2684,7 @@ SRC_INPT_umode             (int  a_major, int  a_minor)
    }
    else if (a_minor == G_KEY_DEL) {
       if (x_quoting == 'y' && MODE_prev () != MODE_SOURCE) {
-         SRC_INPT__addone (x_mode, a_minor);
+         rc = SRC_INPT__addone (x_mode, a_minor);
       } else {
          DEBUG_USER   yLOG_note    ("handle a delete");
          if (s_cur->cpos < s_cur->npos - 1) {
@@ -2697,7 +2697,7 @@ SRC_INPT_umode             (int  a_major, int  a_minor)
    }
    /*---(handle new character)-----------*/
    else if ((a_minor >= 32 && a_minor < 127) || (a_minor > 127 && a_minor < 256)) {
-      SRC_INPT__addone (x_mode, a_minor);
+      rc = SRC_INPT__addone (x_mode, a_minor);
       if (a_minor == '"') {
          if (x_quoting == 'y')  x_quoting = '-';
          else                   x_quoting = 'y';

@@ -66,6 +66,7 @@ yvikeys_mark_init            (void)
    strlcat (S_MARK_LIST, gvikeys_number, S_MARK_MAX);
    strlcat (S_MARK_LIST, gvikeys_greek , S_MARK_MAX);
    strlcat (S_MARK_LIST, "()"          , S_MARK_MAX);
+   DEBUG_PROG   yLOG_info    ("LIST"      , S_MARK_LIST);
    s_nmark = strlen (S_MARK_LIST);
    /*---(clear)--------------------------*/
    yvikeys_mark__purge  (YVIKEYS_FULL);

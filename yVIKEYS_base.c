@@ -99,6 +99,7 @@ yVIKEYS_init         (void)
 char
 yVIKEYS_wrap         (void)
 {
+   yPARSE_wrap ();
    VIEW_wrap   ();
    STATUS_wrap ();
    yvikeys_regs_wrap   ();

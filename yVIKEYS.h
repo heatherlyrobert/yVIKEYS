@@ -306,7 +306,7 @@ char        yVIKEYS_cmds_direct     (char *a_command);
 
 /*---(search)---------------*/
 char        yVIKEYS_srch_config     (void *a_searcher, void *a_clearer);
-char        yVIKEYS_srch_found      (char *a_label, int x, int y, int z);
+char        yVIKEYS_srch_found      (char *a_label, int a_buf, int x, int y, int z);
 char        yVIKEYS_srch_direct     (char *a_search);
 
 /*---(files)----------------*/
