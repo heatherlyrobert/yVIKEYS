@@ -562,7 +562,7 @@ make it universal across my applications.
 .SS ---full capabilities------------------------------------------------------
 .B initiation and termination
    v          turn on selection
-   ¥ or ¦     clear selection
+   ¥          clear selection (can use proactively with no regrets)
 
 .B updating selection size
    you remain in map mode, so all movement keys are still available
@@ -573,17 +573,20 @@ make it universal across my applications.
    ey         selects full range of y
    ez         selects full range of z
    e!         selects screen contents
-   e*         selects all x,y,z for current workspace/tab
+   e*         selects all x,y,z for current buffer
 
 .B selection saving and retrieving
-   there are 52 possible selections [a-zA-Z], plus system/macro [0-9]
-   M¢         mark/save the current selection (while in visual mode)
+   there are 86 possible saved selections [a-zA-Z0-9è-ÿ]
+   M¢         mark/save the current selection (while selected)
    V¢         move to and highlight the saved selection
+   V'         re-select the last area selected
 
 .B additional features
    M?¢        show all saved selections, then save current as ¢
    V?¢        show all saved selections, then goto existing ¢
    V! or M!   change status line to debug current selection details
+
+.B keys reserved ... [vMV]
 
 .SH MAP REGISTERS (sub-mode)
 .SS ---basics---------------------------------------------------------

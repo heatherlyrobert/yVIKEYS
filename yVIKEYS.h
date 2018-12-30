@@ -271,9 +271,12 @@ char        yVIKEYS_jump              (int a_buf, int a_x, int a_y, int a_z);
 /*---(map mode)-------------*/
 char        yVIKEYS_map_config        (char a_coord, void *a_mapper, void *a_locator, void *a_address);
 char        yVIKEYS_map_refresh       (void);
-char        yVIKEYS_root              (int x, int y, int z);
-char        yVIKEYS_visual            (int x, int y, int z);
+char        yVIKEYS_root              (int b, int x, int y, int z);
+char        yVIKEYS_visual            (int b, int x, int y, int z);
 char        yVIKEYS_bufs_config       (void *a_switcher);
+
+char        yVIKEYS_first             (int *a_b, int *a_x, int *a_y, int *a_z);
+char        yVIKEYS_next              (int *a_b, int *a_x, int *a_y, int *a_z);
 
 char        yVIKEYS_src_config        (void *a_saver);
 char        yVIKEYS_source            (char *a_label, char *a_contents);

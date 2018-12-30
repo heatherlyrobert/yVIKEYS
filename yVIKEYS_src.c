@@ -2432,7 +2432,7 @@ HISTORY_infowin         (void)
          else               yCOLOR_curs ("map"          );
          switch (MODE_curr ()) {
          case UMOD_MARK      : yvikeys_mark_info    (x_entry, i);  break;
-         case UMOD_VISUAL    : VISU_infowin    (x_entry, i);  break;
+         case UMOD_VISUAL    : yvikeys_visu_info    (i, x_entry);  break;
                                /*> case SMOD_MACRO     : MACRO_infowin (x_entry, i);  break;                <*/
          case SMOD_SRC_REG   : SRC_REG_infowin (x_entry, i);  break;
          }

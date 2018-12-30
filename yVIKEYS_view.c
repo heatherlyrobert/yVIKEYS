@@ -193,7 +193,7 @@ tOPTION  s_options [MAX_OPTION ] = {
    { YVIKEYS_STATUS  , "words"        , SOURCE_status_words , "displays word breaks"        },
    { YVIKEYS_STATUS  , "select"       , SOURCE_status_select, "displays selection status"   },
    { YVIKEYS_STATUS  , "sundo"        , SRC_UNDO_status     , "source editing undo stack"   },
-   { YVIKEYS_STATUS  , "visual"       , VISU_status         , "visual selection in map"     },
+   { YVIKEYS_STATUS  , "visual"       , yvikeys_visu_status , "visual selection in map"     },
    { YVIKEYS_STATUS  , "file"         , yvikeys_file_status         , "file, control, and version"  },
    { YVIKEYS_STATUS  , "regs"         , yvikeys_regs_status , "current register information"},
    { YVIKEYS_STATUS  , "delay"        , yvikeys_delay_status, "main loop timing settings"   },

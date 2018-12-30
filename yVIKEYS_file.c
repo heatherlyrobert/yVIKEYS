@@ -202,7 +202,6 @@ yvikeys_file_init               (void)
    rc = yPARSE_handler ('·'          , "source"    , 0.1, "OSO---------", NULL          , yvikeys_file_prog_writer   , "------------" , ""                          , "source program versioning" );
    rc = yPARSE_handler ('·'          , "written"   , 0.2, "O-----------", NULL          , yvikeys_file_time_writer   , "------------" , ""                          , "data file save timestamp"  );
    rc = yPARSE_handler ('·'          , "version"   , 0.3, "cSO---------", NULL          , yvikeys_file_vers_writer   , "------------" , ""                          , "data file versioning"      );
-   /*> rc = yPARSE_handler (UMOD_VISUAL  , "visu_mark" , 7.2, "ciiiii------", VISU_reader   , VISU_writer                , "------------" , "a,xbeg,ybeg,xend,yend,zpos", "map mode visual selections");   <*/
    /*> rc = yPARSE_handler (SMOD_SRC_REG , "text_reg"  , 7.6, "cO----------", SRC_REG_reader, SRC_REG_writer             , "------------" , "a,text"                    , "text editing registers"    );   <*/
    /*---(update status)------------------*/
    STATUS_init_set   (FMOD_FILE);
@@ -1204,7 +1203,7 @@ OUTP_write              (void)
  *>    /+---(find item)----------------------+/                                                 <* 
  *>    switch (s_sections [n].abbr) {                                                           <* 
  *>    case UMOD_MARK    :  x_index = MARK_valid    (a_item);  break;                           <* 
- *>    case UMOD_VISUAL  :  x_index = VISU_valid    (a_item);  break;                           <* 
+ *>    case UMOD_VISUAL  :  x_index = yvikeys_visu_index (a_item);  break;                           <* 
  *>    case MODE_SEARCH  :  x_index = SRCH_valid    (a_item);  break;                           <* 
  *>    case MODE_COMMAND :  x_index = CMDS_valid    (a_item);  break;                           <* 
  *>    case SMOD_SRC_REG :  x_index = SRC_REG_valid (a_item);  break;                           <* 

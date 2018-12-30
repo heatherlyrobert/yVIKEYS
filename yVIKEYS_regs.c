@@ -599,7 +599,8 @@ yvikeys_regs_save               (void)
       return  rce;
    }
    /*---(save selection)-----------------*/
-   rc = VISU_range (
+   rc = yvikeys_visu_coords (
+         &s_regs [x_reg].b_all,
          &s_regs [x_reg].x_beg, &s_regs [x_reg].x_end,
          &s_regs [x_reg].y_beg, &s_regs [x_reg].y_end,
          &s_regs [x_reg].z_all);
@@ -660,6 +661,7 @@ yvikeys_regs_clear           (void)
    char        rce         =  -10;
    char        rc          =    0;
    int         x, y;
+   int         b;
    int         x_beg, x_end;
    int         y_beg, y_end;
    int         z;
@@ -673,7 +675,7 @@ yvikeys_regs_clear           (void)
       return rce;
    }
    /*---(save selection)-----------------*/
-   rc = VISU_range (&x_beg, &x_end, &y_beg, &y_end, &z);
+   rc = yvikeys_visu_coords (&b, &x_beg, &x_end, &y_beg, &y_end, &z);
    DEBUG_REGS   yLOG_value   ("visu rc"   , rc);
    --rce;  if (rc < 0) {
       DEBUG_REGS   yLOG_exitr   (__FUNCTION__, rce);
@@ -931,7 +933,8 @@ yvikeys_regs_visual          (void)
       return rce;
    }
    /*---(select)-------------------------*/
-   VISU_exact (
+   yvikeys_visu_exact (
+         s_regs [x_reg].b_all + s_boff,
          s_regs [x_reg].x_beg + s_xoff, s_regs [x_reg].x_end + s_xoff,
          s_regs [x_reg].y_beg + s_yoff, s_regs [x_reg].y_end + s_yoff,
          s_regs [x_reg].z_all + s_zoff);
@@ -1039,7 +1042,7 @@ yvikeys_regs_smode           (int a_major, int a_minor)
       case 'y'  :
          DEBUG_USER   yLOG_note    ("y for yank/copy");
          yvikeys_regs_save  ();
-         VISU_clear   ();
+         yvikeys_visu_clear   ();
          MODE_exit ();
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return 0;
@@ -1048,7 +1051,7 @@ yvikeys_regs_smode           (int a_major, int a_minor)
          DEBUG_USER   yLOG_note    ("y for yank/clear");
          yvikeys_regs_save  ();
          yvikeys_regs_clear ();
-         VISU_clear   ();
+         yvikeys_visu_clear   ();
          MODE_exit ();
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return 0;
@@ -1395,21 +1398,22 @@ yvikeys__unit_regs_copier  (char a_type, long a_stamp)
    char        rc          = 0;
    tTHING     *x_thing     = NULL;
    tTHING     *x_new       = NULL;
+   int         b           =    0;
    int         x           =    0;
    int         y           =    0;
    /*---(header)-------------------------*/
    DEBUG_REGS   yLOG_enter   (__FUNCTION__);
-   rc = yVIKEYS_first (&x, &y, NULL);
+   rc = yVIKEYS_first (&b, &x, &y, NULL);
    while (rc >= 0) {
       x_thing = s_things [x][y];
       if (x_thing != NULL) {
-         rc = yVIKEYS_visual (x, y, 0);
+         rc = yVIKEYS_visual (b, x, y, 0);
          if (rc == 1) {
             x_new = yvikeys__unit_regs_dup (x_thing);
             yVIKEYS_regs_add (x_new, x_new->l, '-');
          }
       }
-      rc = yVIKEYS_next  (&x, &y, NULL);
+      rc = yVIKEYS_next  (&b, &x, &y, NULL);
    }
    /*---(complete)-----------------------*/
    DEBUG_REGS   yLOG_exit    (__FUNCTION__);

@@ -35,8 +35,8 @@
 
 /*===[[ VERSION ]]========================================*/
 /* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "1.1n"
-#define YVIKEYS_VER_TXT   "totally clean master unit test run"
+#define YVIKEYS_VER_NUM   "1.1o"
+#define YVIKEYS_VER_TXT   "visual broken into separate file, improved, and unit tested better"
 
 
 
@@ -290,15 +290,29 @@ char        yvikeys__unit_map_map   (char a_type);
 char        yvikeys__unit_map_loc   (char *a_label, int *a_buf, int *x, int *y, int *z);
 char        yvikeys__unit_map_addr  (char *a_label, int a_buf, int x, int y, int z);
 
-char        VISU_valid              (char a_visu);
-char        VISU_status             (char *a_list);
-char        VISU_status_saved       (char *a_list);
-char        VISU_clear              (void);
-char        VISU_exact              (int a_xbeg, int a_xend, int a_ybeg, int a_yend, int a_z);
-char        VISU_range              (int *a_xbeg, int *a_xend, int *a_ybeg, int *a_yend, int *a_z);
-char        VISU_smode              (int a_major, int a_minor);
+char        yvikeys_visu__valid     (char a_abbr);
+int         yvikeys_visu__index     (char a_abbr);
+char        yvikeys_visu_islive     (void);
+char        yvikeys_visu_isdead     (void);
+char        yvikeys_visu_makelive   (void);
+char        yvikeys_visu_makedead   (void);
+char        yvikeys_visu_locking    (char a_type);
+char        yvikeys_visu_update     (void);
+
+char        yvikeys_visu_init       (void);
+char        yvikeys_visu_info       (int a_index, char *a_entry);
+
+char        yvikeys_visu_reverse    (void);
+char        yvikeys_visu_status     (char *a_list);
+char        yvikeys_visu_clear              (void);
+char        yvikeys_visu_exact      (int b, int xb, int xe, int yb, int ye, int z);
+char        yvikeys_visu_coords     (int *b, int *xb, int *xe, int *yb, int *ye, int *z);
+char        yvikeys_visu_umode      (int a_major, int a_minor);
 char        VISU_read               (char a_visu, char *a_label);
-char*       VISU__unit              (char *a_question, char a_index);
+char        yvikeys_visu__reader    (void);
+char        yvikeys_visu__writer    (char a_abbr);
+char        yvikeys_visu__writer_all(void);
+char*       yvikeys_visu__unit      (char *a_question, char a_index);
 
 
 char        yvikeys_file_status             (char *a_list);

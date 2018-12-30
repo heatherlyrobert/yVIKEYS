@@ -82,7 +82,7 @@ yVIKEYS_init         (void)
    yvikeys_regs_init    ();
    SRC_REG_init ();
    yvikeys_mark_init    ();
-   VISU_init    ();
+   yvikeys_visu_init    ();
    REPEAT_init  ();
    yvikeys_bufs_init    ();
    yvikeys_hist_init    ();
@@ -514,7 +514,7 @@ yVIKEYS_main_handle     (uchar a_key)
       case MODE_COMMAND  : rc = SOURCE_mode           (x_major , x_key);  break;
       case MODE_SEARCH   : rc = SOURCE_mode           (x_major , x_key);  break;
       case UMOD_HISTORY  : rc = HISTORY_smode         (x_major , x_key);  break;
-      case UMOD_VISUAL   : rc = VISU_smode            (x_major , x_key);  break;
+      case UMOD_VISUAL   : rc = yvikeys_visu_umode    (x_major , x_key);  break;
       case SMOD_ERROR    : rc = BASE__________stub    (x_major , x_key);  break;
       case XMOD_FORMAT   : rc = FORMAT_smode          (x_major , x_key);  break;
       case SMOD_BUFFER   : rc = yvikeys_bufs_umode    (x_major , x_key);  break;
