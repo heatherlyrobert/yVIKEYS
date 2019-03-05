@@ -84,7 +84,7 @@ static tSECTION  s_sections [MAX_SECTION] = {
    { 'i', SMOD_MACRO  , "saved macros"       , "macro"     , 'A', "ciiO------", "-a"        , "count"     , "rc"        , "command"   , ""          , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
    { 'i', MODE_SEARCH , "search history"     , "search"    , 'A', "ciiO------", "-a"        , "count"     , "found"     , "search"    , ""          , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
    { 'i', MODE_COMMAND, "command history"    , "command"   , 'A', "ciiO------", "-a"        , "count"     , "rc"        , "command"   , ""          , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
-   { 'i', SMOD_SRC_REG, "text registers"     , "text_reg"  , 'A', "cO--------", "-a"        , "data"      , ""          , ""          , ""          , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
+   { 'i', SMOD_SREG   , "text registers"     , "text_reg"  , 'A', "cO--------", "-a"        , "data"      , ""          , ""          , ""          , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
    { 'e', FILE_DEPCEL , "dependent cells"    , "cell_dep"  , 'D', "TiaTO-----", "lvl/reg"   , "seq"       , "label"     , "t-f-d-a-m" , "contents"  , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
    { 'e', FILE_FREECEL, "independent cells"  , "cell_free" , 'D', "TiaTO-----", "lvl/reg"   , "seq"       , "label"     , "t-f-d-a-m" , "contents"  , ""          , ""          , ""          , ""          , NULL  , NULL  ,   0,   0 },
    { 'e', FILE_TABS   , "tab (v-axis)"       , "tab"       , 'I', "Naaiiic---", "name"      , "min"       , "max"       , "x_size"    , "y_size"    , "z_size"    , "type"      , ""          , ""          , NULL  , NULL  ,   0,   0 },
@@ -202,7 +202,6 @@ yvikeys_file_init               (void)
    rc = yPARSE_handler ('·'          , "source"    , 0.1, "OSO---------", NULL          , yvikeys_file_prog_writer   , "------------" , ""                          , "source program versioning" );
    rc = yPARSE_handler ('·'          , "written"   , 0.2, "O-----------", NULL          , yvikeys_file_time_writer   , "------------" , ""                          , "data file save timestamp"  );
    rc = yPARSE_handler ('·'          , "version"   , 0.3, "cSO---------", NULL          , yvikeys_file_vers_writer   , "------------" , ""                          , "data file versioning"      );
-   /*> rc = yPARSE_handler (SMOD_SRC_REG , "text_reg"  , 7.6, "cO----------", SRC_REG_reader, SRC_REG_writer             , "------------" , "a,text"                    , "text editing registers"    );   <*/
    /*---(update status)------------------*/
    STATUS_init_set   (FMOD_FILE);
    /*---(complete)-----------------------*/
@@ -1118,102 +1117,17 @@ yvikeys_file_writer     (void)
    return 0;
 }
 
-int 
-OUTP_write              (void)
+char         /*-> tbd --------------------------------[ ------ [gc.320.121.32]*/ /*-[00.0000.00#.!]-*/ /*-[--.---.---.--]-*/
+yvikeys_file_writeas    (char *a_name)
 {
-   /*---(locals)-----------+-----+-----+-*/
-   char        rce         =  -10;
    char        rc          =    0;
-   char        n           =   -1;
-   /*---(header)-------------------------*/
-   DEBUG_OUTP   yLOG_enter   (__FUNCTION__);
-   /*---(defense)------------------------*/
-   --rce;  if (!STATUS_operational (FMOD_FILE)) {
-      DEBUG_OUTP   yLOG_note    ("can not execute until operational");
-      DEBUG_OUTP   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   /*---(open)---------------------------*/
-   rc = yPARSE_open_out (myVIKEYS.f_title, s_fullpath, s_fulldesc);
-   DEBUG_OUTP   yLOG_value   ("open"      , rc);
-   if (rc < 0) {
-      DEBUG_OUTP   yLOG_exitr   (__FUNCTION__, rc);
-      return rc;
-   }
-   /*---(header)-------------------------*/
-   DEBUG_OUTP   yLOG_note    ("write header");
-   yvikeys__file_intro ();
-   DEBUG_OUTP   yLOG_note    ("write header");
-   /*> TABS_writer_all ();                                                            <*/
-   /*> OUTP__write_type (FILE_TABS);                                                  <*/
-   DEBUG_OUTP   yLOG_note    ("write header");
-   /*> OUTP__write_type (FILE_COLS);                                                  <*/
-   DEBUG_OUTP   yLOG_note    ("write header");
-   /*> OUTP__write_type (FILE_ROWS);                                                  <*/
-   /*---(content)------------------------*/
-   DEBUG_OUTP   yLOG_note    ("check all primary content types");
-   /*> OUTP__write_type (FILE_DEPCEL);                                                <*/
-   /*> OUTP__write_type (FILE_FREECEL);                                               <*/
-   /*---(extras)-------------------------*/
-   DEBUG_OUTP   yLOG_note    ("check all meta-data types");
-   /*> OUTP__write_type (UMOD_MARK);                                                  <*/
-   /*> OUTP__write_type (UMOD_VISUAL);                                                <*/
-   /*> OUTP__write_type (MODE_SEARCH);                                                <*/
-   /*> OUTP__write_type (MODE_COMMAND);                                               <*/
-   /*> OUTP__write_type (SMOD_MACRO);                                                 <*/
-   /*> OUTP__write_type (SMOD_SRC_REG);                                               <*/
-   /*---(close)--------------------------*/
-   rc = yPARSE_close_out ();
-   DEBUG_OUTP   yLOG_value   ("close"     , rc);
-   if (rc < 0) {
-      DEBUG_OUTP   yLOG_exitr   (__FUNCTION__, rc);
-      return rc;
-   }
-   /*---(ocmplete)-----------------------*/
-   DEBUG_OUTP   yLOG_exit    (__FUNCTION__);
-   return 0;
+   char        x_name      [LEN_RECD]  = "";
+   strlcpy (x_name, myVIKEYS.f_name, LEN_RECD);
+   if (rc >= 0)  rc = yvikeys_file_name   (a_name);
+   if (rc >= 0)  rc = yvikeys_file_writer ();
+   if (rc >= 0)  rc = yvikeys_file_name   (x_name);
+   return rc;
 }
-
-/*> char         /+-> tbd --------------------------------[ ------ [gc.320.121.32]+/ /+-[00.0000.00#.!]-+/ /+-[--.---.---.--]-+/   <* 
- *> OUTP_writeas         (char *a_name)                                                                                            <* 
- *> {                                                                                                                              <* 
- *>    char        rc          =    0;                                                                                             <* 
- *>    char        x_name      [LEN_RECD]  = "";                                                                                   <* 
- *>    strlcpy (x_name, my.f_name, LEN_RECD);                                                                                      <* 
- *>    if (rc >= 0)  rc = yvikeys_file_name   (a_name);                                                                                    <* 
- *>    if (rc >= 0)  rc = OUTP_write  ();                                                                                          <* 
- *>    if (rc >= 0)  rc = yvikeys_file_name   (x_name);                                                                                    <* 
- *>    return rc;                                                                                                                  <* 
- *> }                                                                                                                              <*/
-
-/*> char                                                                                        <* 
- *> OUTP__unit_writer       (char a_abbr, char a_item)                                          <* 
- *> {                                                                                           <* 
- *>    /+---(locals)-----------+-----+-----+-+/                                                 <* 
- *>    char        rce         =  -10;                                                          <* 
- *>    char        rc          =    0;                                                          <* 
- *>    int         i           =    0;                                                          <* 
- *>    int         n           =   -1;                                                          <* 
- *>    int         x_index     =   -1;                                                          <* 
- *>    /+---(cleanse)------------------------+/                                                 <* 
- *>    sprintf (myVIKEYS.f_recd, "");                                                           <* 
- *>    /+---(find entry)---------------------+/                                                 <* 
- *>    n = yvikeys__file_by_abbr (a_abbr);                                                              <* 
- *>    if (n < 0)      return -1;                                                               <* 
- *>    /+---(find item)----------------------+/                                                 <* 
- *>    switch (s_sections [n].abbr) {                                                           <* 
- *>    case UMOD_MARK    :  x_index = MARK_valid    (a_item);  break;                           <* 
- *>    case UMOD_VISUAL  :  x_index = yvikeys_visu_index (a_item);  break;                           <* 
- *>    case MODE_SEARCH  :  x_index = SRCH_valid    (a_item);  break;                           <* 
- *>    case MODE_COMMAND :  x_index = CMDS_valid    (a_item);  break;                           <* 
- *>    case SMOD_SRC_REG :  x_index = SRC_REG_valid (a_item);  break;                           <* 
- *>    }                                                                                        <* 
- *>    --rce;  if (x_index < 0)  return rce;                                                    <* 
- *>    /+---(process)------------------------+/                                                 <* 
- *>    /+> rc = OUTP_writer (n, x_index);                                                 <+/   <* 
- *>    /+---(complete)-----------------------+/                                                 <* 
- *>    return rc;                                                                               <* 
- *> }                                                                                           <*/
 
 
 
@@ -1300,60 +1214,6 @@ INPT__parse              (void)
    return 0;
 }
 
-char         /*-> file reading driver ----------------[ leaf   [ge.C71.072.GA]*/ /*-[02.0000.102.!]-*/ /*-[--.---.---.--]-*/
-INPT_edit          (void)
-{
-   /*---(locals)-----------+-----------+-*/
-   char        rce         =  -10;
-   int         rc          =    0;
-   int         i           =    0;
-   int         n           =   -1;
-   int         x_celltry   = 0;
-   int         x_cellbad   = 0;
-   /*---(header)-------------------------*/
-   DEBUG_INPT  yLOG_enter   (__FUNCTION__);
-   /*---(defense)------------------------*/
-   --rce;  if (!STATUS_operational (FMOD_FILE)) {
-      DEBUG_INPT   yLOG_note    ("can not execute until operational");
-      DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   /*---(open file)----------------------*/
-   rc = yvikeys__file_open ("r");
-   --rce;  if (rc < 0) {
-      DEBUG_INPT  yLOG_exit    (__FUNCTION__);
-      return rce;
-   }
-   /*---(read lines)---------------------*/
-   DEBUG_INPT  yLOG_note    ("read lines");
-   while (s_file != NULL) {
-      /*---(read and clean)--------------*/
-      rc = INPT__read ();
-      if (rc < 0)  break;
-      rc = INPT__parse ();
-      if (rc < 0)  break;
-      /*---(find type)-------------------*/
-      DEBUG_INPT  yLOG_info    ("f_type"    , myVIKEYS.f_type);
-      n = yvikeys__file_by_label (myVIKEYS.f_type);
-      DEBUG_INPT  yLOG_value   ("n"         , n);
-      if (n < 0)  continue;
-      /*---(handle)----------------------*/
-      ++s_sections [n].try;
-      rc = -1;
-      DEBUG_INPT  yLOG_point   ("reader"    , s_sections [n].reader);
-      if (s_sections [n].reader != NULL) {
-         rc = s_sections [n].reader (myVIKEYS.f_vers, s_fields [2], s_fields [3], s_fields [4], s_fields [5], s_fields [6], s_fields [7], s_fields [8], s_fields [9], s_fields [10]);
-      }
-      if (rc < 0)  ++s_sections [n].bad;
-      /*---(done)------------------------*/
-   }
-   /*---(close file)---------------------*/
-   yvikeys__file_close ();
-   /*---(complete)-----------------------*/
-   DEBUG_INPT yLOG_exit    (__FUNCTION__);
-   return 0;
-}
-
 char
 yvikeys_file_reader     (void)
 {
@@ -1433,52 +1293,6 @@ yVIKEYS_unit_reset      (void)
    return 0;
 }
 
-char
-yVIKEYS_unit_recd       (char *a_recd)
-{
-   /*---(locals)-----------+-----+-----+-*/
-   char        rce         =  -10;
-   /*---(defense)------------------------*/
-   --rce;  if (a_recd == NULL)  return rce;
-   /*---(copy)---------------------------*/
-   strlcpy (a_recd, myVIKEYS.f_recd, LEN_RECD);
-   /*---(complete)-----------------------*/
-   return 0;
-}
-
-char
-yVIKEYS_unit_reader     (char  a_abbr, char *a_recd)
-{
-   /*---(locals)-----------+-----+-----+-*/
-   char        rce         =  -10;
-   char        rc          =    0;
-   char        n           =   -1;
-   /*---(header)-------------------------*/
-   DEBUG_INPT  yLOG_enter   (__FUNCTION__);
-   /*---(defense)------------------------*/
-   DEBUG_INPT  yLOG_point   ("a_recd"    , a_recd);
-   --rce;  if (a_recd == NULL) {
-      DEBUG_INPT  yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   /*---(find entry)---------------------*/
-   DEBUG_INPT  yLOG_char    ("a_abbr"    , a_abbr);
-   n = yvikeys__file_by_abbr (a_abbr);
-   DEBUG_INPT  yLOG_value   ("n"         , n);
-   --rce;  if (n < 0)  {
-      DEBUG_INPT  yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   DEBUG_PROG   yLOG_info    ("type"      , s_sections [n].name);
-   /*---(copy)---------------------------*/
-   strlcpy (myVIKEYS.f_recd, a_recd, LEN_RECD);
-   /*---(defense)------------------------*/
-   rc = INPT__unit_reader (a_abbr);
-   DEBUG_INPT  yLOG_value   ("rc"        , rc);
-   /*---(complete)-----------------------*/
-   DEBUG_INPT  yLOG_exit    (__FUNCTION__);
-   return rc;
-}
 
 
 

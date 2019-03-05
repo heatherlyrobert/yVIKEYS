@@ -1,4 +1,38 @@
 /*============================----beg-of-source---============================*/
+#ifndef yVIKEYS_PRIV
+#define yVIKEYS_PRIV yes
+
+
+
+/*===[[ BEG_HEADER ]]=========================================================*/
+/*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-12345678901-12345678901-*/
+
+/*===[[ ONE_LINERS ]]=========================================================*/
+
+#define     P_FOCUS     "RS (run-time support)"
+#define     P_NICHE     "us (user control)"
+#define     P_PURPOSE   "efficient, versatle, and standard keyboard mini-language"
+
+#define     P_NAMESAKE  "briareos-hecatoncheires (hundred-handed)"
+#define     P_HERITAGE  "briareos, the strong-one, is one of the three hecatoncheires" 
+#define     P_IMAGERY   "ugly, impossibly powerful, one-hundred handed, fifty headed giant"
+
+#define     P_SYSTEM    "gnu/linux   (powerful, ubiquitous, technical, and hackable)"
+#define     P_LANGUAGE  "ansi-c      (wicked, limitless, universal, and everlasting)"
+#define     P_CODESIZE  "large       (appoximately 10,000 slocl)"
+
+#define     P_AUTHOR    "heatherlyrobert"
+#define     P_CREATED   "2010-01"
+#define     P_DEPENDS   "none"
+
+#define     P_VERNUM    "1.1q"
+#define     P_VERTXT    "updated to handle the changes to yLOG"
+
+#define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
+#define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
+#define     P_REMINDER  "there are many better options, but i *own* every byte of this one"
+
+/*===[[ END_HEADER ]]=========================================================*/
 
 
 
@@ -27,16 +61,6 @@
 
 
 
-/*===[[ HEADER GUARD ]]===================================*/
-#ifndef yVIKEYS_PRIV
-#define yVIKEYS_PRIV yes
-
-
-
-/*===[[ VERSION ]]========================================*/
-/* rapidly evolving version number to aid with visual change confirmation     */
-#define YVIKEYS_VER_NUM   "1.1o"
-#define YVIKEYS_VER_TXT   "visual broken into separate file, improved, and unit tested better"
 
 
 
@@ -182,6 +206,7 @@ typedef     signed char       schar;
 #define     YVIKEYS_LOWER     'a'
 #define     YVIKEYS_NUMBER    '0'
 #define     YVIKEYS_GREEK     'è'
+#define     YVIKEYS_OTHER     '-'
 #define     YVIKEYS_FULL      '*'
 
 extern char *gvikeys_upper;
@@ -222,6 +247,7 @@ char        BASE__unit_quiet        (void);
 char        BASE__unit_loud         (void);
 char        BASE__unit_end          (void);
 
+char        yvikeys_base_direct     (char a_mode, char *a_string, void *a_purger (), void *a_clearer (), void *a_saver ());
 
 
 
@@ -316,34 +342,82 @@ char*       yvikeys_visu__unit      (char *a_question, char a_index);
 
 
 char        yvikeys_file_status             (char *a_list);
-int         OUTP_write              (void);
-char        INPT_edit               (void);
 char        INPT__unit_reader       (char a_abbr);
 
 
-char        SRC_UNDO_status            (char *a_list);
-char        SRC_UNDO__redo             (void);
-char        SRC_UNDO__undo             (void);
+char        yvikeys_sundo_purge        (int a_start);
+char        yvikeys_sundo_init         (void);
+char        yvikeys_sundo_beg          (char *a_function);
+char        yvikeys_sundo_chain        (void);
+char        yvikeys_sundo_end          (char *a_function);
+char        yvikeys_sundo_add          (char a_major, char a_minor, int a_pos, char a_before, char a_after);
+char        yvikeys_sundo_single       (char a_minor, int a_pos, char a_before, char a_after);
+char        yvikeys_sundo_status       (char *a_list);
+char        yvikeys_sundo_redo         (int *a_pos);
+char        yvikeys_sundo_undo         (int *a_pos);
+
 char*       SOURCE_label            (void);
 char        SOURCE_init             (void);
 char        SOURCE_other            (char a_type);
 char        SOURCE_formula          (void);
 char        SOURCE_command          (void);
 char        SOURCE_float            (void);
-char        SOURCE_status_select    (char *a_list);
 char*       SOURCE__unit            (char *a_question, char a_reg);
 char        SOURCE_status_words     (char *a_list);
 char        SOURCE_start            (char *a_prefix);
-char        SRC_REG_init            (void);
-char        SRC_REG_valid           (cchar a_reg);
-char        SRC_REG_status          (char *a_list);
 char        SOURCE_mode             (int a_major, int a_minor);
-char        SRC_REG_infowin         (char *a_entry, int a_index);
-char        SRC_REG_smode           (int a_major, int a_minor);
+
+/*345678901-12345678901-12345678901-1234-12345678901-12345678901-12345678901-1*/
+/*---(one-char actions)------------------*/
+char        yvikeys_src_one_replace      (char a_key);
+char        yvikeys_src_one_delete       (void);
+char        yvikeys_src_one_backspace    (void);
+char        yvikeys_src_one_insert       (char a_key);
+char        yvikeys_src_one_append       (char a_key);
+/*---(selection actions)-----------------*/
+char        yvikeys_src_clear            (char a_major, char a_minor);
+char        yvikeys_src_delete           (char a_major, char a_minor);
+char        yvikeys_src_copy             (void);
+char        yvikeys_src_replace          (void);
+char        yvikeys_src_paste            (char a_dir);
+int         yvikeys_src_current          (void);
+
+/*345678901-12345678901-12345678901-1234-12345678901-12345678901-12345678901-1*/
+char        yvikeys_sreg_init            (void);
+int         yvikeys_sreg__index          (char a_abbr);
+/*---(data)---------------------------*/
+char        yvikeys_sreg_setreg          (char a_abbr);
+char        yvikeys_sreg_setwork         (char a_abbr);
+char        yvikeys_sreg_clear           (char a_abbr);
+char        yvikeys_sreg_push            (char a_abbr, char *a_data);
+char        yvikeys_sreg_save            (char *a_label, char *a_data);
+char        yvikeys_sreg_fetch           (int *a_len, char *a_data);
+char        yvikeys_sreg_append          (char *a_data);
+/*---(selection)----------------------*/
+char        yvikeys_sreg_reset           (int a_pos);
+char        yvikeys_sreg_update          (int a_pos);
+int         yvikeys_sreg_reverse         (void);
+int         yvikeys_sreg_exact           (int a_beg, int a_end, int a_root);
+int         yvikeys_sreg_selected        (int *a_beg, int *a_end, int *a_root);
+char        yvikeys_sreg_getlive         (void);
+char        yvikeys_sreg_islive          (void);
+char        yvikeys_sreg_isdead          (void);
+char        yvikeys_sreg_makelive        (void);
+char        yvikeys_sreg_makedead        (void);
+/*---(mode)---------------------------*/
+char        yvikeys_sreg__direct         (char *a_string);
+char        yvikeys_sreg_smode           (int a_major, int a_minor);
+/*---(status)-------------------------*/
+char        yvikeys_sreg_status          (char *a_list);
+char        yvikeys_sreg_status_sel      (char *a_list);
+char        yvikeys_sreg_info            (int a_index, char *a_entry);
+/*---(unit test)----------------------*/
+char*       yvikeys_sreg__unit           (char *a_question, char a_reg);
+
+
 char        SRC_REPL_umode           (int a_major, int a_minor);
 char        SRC_INPT_umode             (int  a_major, int  a_minor);
 char        HISTORY_display         (void);
-
 char        WANDER_smode            (int  a_major, int  a_minor);
 
 
@@ -407,16 +481,16 @@ char        yvikeys_macro_reader    (void);
 
 /*---(commands)-------------*/
 char        CMDS_limits             (int *a_min, int *a_max);
-char        CMDS_purge              (void);
-char        CMDS_init               (void);
+char        yvikeys_cmds__purge     (void);
+char        yvikeys_cmds_init       (void);
 /*> char        CMDS__load              (char *a_command);                            <*/
 char        CMDS__test              (char a_mode, char a_value);
 char*       CMDS__unit              (char *a_question, char a_index);
-int         CMDS__find              (char *a_name);
 char*       CMDS_curr               (void);
-char        CMDS__exec              (void);
+char        yvikeys_cmds_exec       (void);
 char        yvikeys_cmds__valid     (char a_abbr);
 int         yvikeys_cmds__index     (char a_abbr);
+int         yvikeys_cmds__find      (char *a_name);
 char        yvikeys_cmds__reader    (void);
 char        yvikeys_cmds__writer    (char a_abbr);
 char        yvikeys_cmds__writer_all(void);
@@ -428,10 +502,10 @@ char*       HISTORY_use             (char a_mode, int a_index);
 char        yvikeys_srch__valid     (char a_abbr);
 int         yvikeys_srch__index     (char a_abbr);
 int         SRCH_find_abbr          (char a_abbr);
-char        SRCH_init               (void);
-char        SRCH__purge             (void);
+char        yvikeys_srch_init       (void);
+char        yvikeys_srch__purge     (void);
 char        SRCH__exec              (void);
-char        SRCH_next               (char a_move);
+char        yvikeys_srch_next       (char a_move);
 char        yvikeys_srch__reader    (void);
 char        yvikeys_srch__writer    (char a_abbr);
 char        yvikeys_srch__writer_all(void);
@@ -449,6 +523,8 @@ char        yvikeys_loop_update     (char *a_update);
 char        yvikeys_loop_beg        (void);
 char        yvikeys_loop_prog       (void);
 char        yvikeys_loop_sleep      (uchar a_key, char a_draw);
+char        yvikeys_loop_sprint     (void);
+char        yvikeys_loop_normal     (void);
 char        yvikeys_delay_status    (char *a_list);
 char        yvikeys_prog_status     (char *a_list);
 char        yvikeys_main_status     (char *a_list);
@@ -478,36 +554,31 @@ char        yvikeys_file_prog_writer    (void);
 char        yvikeys_file_time_writer    (void);
 char        yvikeys_file_vers_writer    (void);
 char        yvikeys_file_writer         (void);
+char        yvikeys_file_writeas        (char *a_name);
 
 char        yvikeys_file_reader         (void);
 
-char        yvikeys_regs__valid     (char a_abbr);
-int         yvikeys_regs__index     (char a_abbr);
-char        yvikeys__regs_set            (char a_reg);
-char        yvikeys_regs_init            (void);
-char        yvikeys_regs_wrap            (void);
-char        yvikeys_regs_save            (void);
-char        yvikeys_regs_visual          (void);
-char        yvikeys_regs_clear           (void);
-char        yvikeys_regs_paste      (char *a_type);
-char        yvikeys_regs_status     (char *a_status);
-char        yvikeys_regs_smode           (int a_major, int a_minor);
+char        yvikeys_mreg__valid     (char a_abbr);
+int         yvikeys_mreg__index     (char a_abbr);
+char        yvikeys_mreg__set            (char a_reg);
+char        yvikeys_mreg_init            (void);
+char        yvikeys_mreg_wrap            (void);
+char        yvikeys_mreg_save            (void);
+char        yvikeys_mreg_visual          (void);
+char        yvikeys_mreg_clear           (void);
+char        yvikeys_mreg_paste      (char *a_type);
+char        yvikeys_mreg_status     (char *a_status);
+char        yvikeys_mreg_smode           (int a_major, int a_minor);
 
-char        yvikeys__unit_regs_purge   (void);
-char        yvikeys__unit_regs_clearer (char a_1st, int x, int y, int z);
-char        yvikeys__unit_regs_copier  (char a_type, long a_stamp);
-char        yvikeys__unit_regs_paster  (char a_regs, char a_pros, char a_intg, char a_1st, int a_xoff, int a_yoff, int a_zoff, void *a_thing);
-char        yvikeys__unit_regs_regkill (void *a_thing);
-char        yvikeys_regs__unit_config  (void);
-char*       yvikeys__unit_regs         (char *a_question, char x, char y);
+char        yvikeys_mreg__unit_purge   (void);
+char        yvikeys_mreg__unit_clearer (char a_1st, int x, int y, int z);
+char        yvikeys_mreg__unit_copier  (char a_type, long a_stamp);
+char        yvikeys_mreg__unit_paster  (char a_regs, char a_pros, char a_intg, char a_1st, int a_xoff, int a_yoff, int a_zoff, void *a_thing);
+char        yvikeys_mreg__unit_regkill (void *a_thing);
+char        yvikeys_mreg__unit_config  (void);
+char*       yvikeys_mreg__unit         (char *a_question, char x, char y);
 
 
-char        SRC_REG_writer          (char a_abbr);
-char        VISU_writer             (char a_abbr);
-char        yvikeys_macro_writer    (char a_abbr);
-
-char        SRC_REG_reader          (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i);
-char        VISU_reader             (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i);
 
 
 char        yvikeys_hist_init       (void);

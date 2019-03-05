@@ -289,7 +289,6 @@ yVIKEYS_prog_cur        (char *a_pos, float *a_sec, float *a_scale, float *a_inc
 /*====================------------------------------------====================*/
 static void      o___MODES___________________o (void) {;}
 
-
 char         /*--> process keystrokes in normal mode -----[--------[--------]-*/
 GOD_mode           (char a_major, char a_minor)
 {
@@ -953,13 +952,44 @@ yvikeys_loop_delay      (char *a_delay)
    return rc;
 }
 
+static char   s_save_delay   [LEN_LABEL] = "";
+static char   s_save_update  [LEN_LABEL] = "";
+
 char
 yvikeys_loop_set        (char *a_delay, char *a_update)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rc          =    0;
-   if (rc == 0)  rc = yvikeys_loop_delay   (a_delay);
-   if (rc == 0)  rc = yvikeys_loop_update  (a_update);
+   /*---(set values)---------------------*/
+   rc = yvikeys_loop_delay   (a_delay);
+   if (rc >= 0)  strlcpy (s_save_delay , a_delay , LEN_LABEL);
+   rc = yvikeys_loop_update  (a_update);
+   if (rc >= 0)  strlcpy (s_save_update, a_update, LEN_LABEL);
+   /*---(complete)-----------------------*/
+   return rc;
+}
+
+char
+yvikeys_loop_sprint     (void)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rc          =    0;
+   /*---(return to normal)---------------*/
+   rc = yvikeys_loop_delay   ("100us");
+   rc = yvikeys_loop_update  ("100ms");
+   /*---(complete)-----------------------*/
+   return rc;
+}
+
+char
+yvikeys_loop_normal     (void)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rc          =    0;
+   /*---(return to normal)---------------*/
+   rc = yvikeys_loop_delay   (s_save_delay);
+   rc = yvikeys_loop_update  (s_save_update);
+   /*---(complete)-----------------------*/
    return rc;
 }
 

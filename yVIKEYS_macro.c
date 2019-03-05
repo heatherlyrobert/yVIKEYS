@@ -684,6 +684,8 @@ yvikeys_macro_exebeg    (char a_name)
    if (s_macro_repeat > 0)  --s_macro_repeat;
    /*---(update count)----------------*/
    ++s_macros [yvikeys_macro__index (s_macro_name)].count;
+   /*---(reset main delay)---------------*/
+   yvikeys_loop_sprint ();
    /*---(complete)--------------------*/
    DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -712,6 +714,7 @@ yvikeys_macro_exekey    (void)
    DEBUG_SCRP   yLOG_value   ("macro_pos" , s_macro_pos);
    --rce;  if (s_macro_pos >= s_macro_len) {
       yvikeys_macro_reset ();
+      yvikeys_loop_normal ();
       DEBUG_SCRP   yLOG_note    ("past the end");
       DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
@@ -727,6 +730,7 @@ yvikeys_macro_exekey    (void)
    if (x_ch == NULL) {
       DEBUG_SCRP   yLOG_note    ("end of macro");
       yvikeys_macro_reset ();
+      yvikeys_loop_normal ();
    }
    DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
    return x_ch;
@@ -804,6 +808,7 @@ yvikeys_macro_exeplay   (char a_key)
    case G_KEY_ESCAPE :
       DEBUG_SCRP   yLOG_note    ("escape");
       yvikeys_macro_reset ();
+      yvikeys_loop_normal ();
       DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
       return -1;
       break;

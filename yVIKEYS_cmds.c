@@ -320,19 +320,19 @@ yvikeys_srch__index     (char a_abbr)
    return n;
 }
 
-char CMDS__quit              (void) { myVIKEYS.done = 'y'; return 0; }
-char CMDS__write             (void) { OUTP_write ();       return 0; }
+char yvikeys_cmds__quit      (void) { myVIKEYS.done = 'y';     return 0; }
+char yvikeys_cmds__write     (void) { yvikeys_file_writer ();  return 0; }
 
 char
-CMDS__writequit         (void)
+yvikeys_cmds__writequit (void)
 {
-   OUTP_write ();
+   yvikeys_file_writer ();
    myVIKEYS.done = 'y';
    return 0;
 }
 
 int
-CMDS__find           (char *a_name)
+yvikeys_cmds__find      (char *a_name)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -619,7 +619,7 @@ HISTORY__exec           (char a_mode)
       return 0;
    }
    /*---(clear results)------------------*/
-   if (a_mode == MODE_SEARCH)  SRCH__purge  ();
+   if (a_mode == MODE_SEARCH)  yvikeys_srch__purge  ();
    if (s_len <= 0) {
       DEBUG_HIST   yLOG_note    ("empty content string, leaving");
       DEBUG_HIST   yLOG_exit    (__FUNCTION__);
@@ -671,7 +671,7 @@ HISTORY__exec           (char a_mode)
    switch (a_mode) {
    case MODE_COMMAND :
       DEBUG_HIST   yLOG_note    ("execute as command");
-      rc = CMDS__exec ();
+      rc = yvikeys_cmds_exec ();
       (x_pass + x_max - 1)->found = rc;
       break;
    case MODE_SEARCH  : 
@@ -692,7 +692,7 @@ HISTORY__exec           (char a_mode)
 static void  o___PROGRAM_________o () { return; }
 
 char
-SRCH_init               (void)
+yvikeys_srch_init       (void)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -717,7 +717,7 @@ SRCH_init               (void)
    /*---(clear current)------------------*/
    DEBUG_PROG   yLOG_note    ("initialize search results");
    s_nsrch    = MAX_SRCH;
-   SRCH__purge ();
+   yvikeys_srch__purge ();
    /*---(update status)------------------*/
    STATUS_init_set   (MODE_SEARCH);
    /*---(yparse)-------------------------*/
@@ -728,7 +728,7 @@ SRCH_init               (void)
 }
 
 char
-SRCH__purge             (void)
+yvikeys_srch__purge     (void)
 {
    int         i           = 0;
    for (i = 0; i < s_nsrch; ++i) {
@@ -746,7 +746,7 @@ SRCH__purge             (void)
 }
 
 char
-CMDS_purge              (void)
+yvikeys_cmds__purge     (void)
 {
    int         i           =    0;
    s_ncmd = 0;
@@ -768,7 +768,7 @@ CMDS_purge              (void)
 }
 
 char
-CMDS_init               (void)
+yvikeys_cmds_init       (void)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -808,7 +808,7 @@ CMDS_init               (void)
    }
    /*---(commands)-----------------------*/
    DEBUG_PROG   yLOG_note    ("initialize command system");
-   CMDS_purge ();
+   yvikeys_cmds__purge ();
    /*---(clear history)------------------*/
    DEBUG_PROG   yLOG_note    ("clear all history");
    HISTORY__load  (MODE_COMMAND, NULL);
@@ -819,11 +819,11 @@ CMDS_init               (void)
    /*---(commands)-----------------------*/
    DEBUG_PROG   yLOG_note    ("add universal commands");
    myVIKEYS.done = '-';
-   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "quit"        , "q"   , ""     , CMDS__quit           , "quit current file (if no changes), exit if the only file"    );
-   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "quitall"     , "qa"  , ""     , CMDS__quit           , "quit all files (if no changes), and exit"                    );
-   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "writequit"   , "wq"  , ""     , CMDS__writequit      , ""                                                            );
-   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "writequitall", "wqa" , ""     , CMDS__writequit      , ""                                                            );
-   rc = yVIKEYS_cmds_add (YVIKEYS_M_EDIT  , "dump"        , ""    , "s"    , BASE_dump            , "dump a specified data table to the clipboard in flat text"   );
+   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "quit"        , "q"   , ""     , yvikeys_cmds__quit     , "quit current file (if no changes), exit if the only file"    );
+   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "quitall"     , "qa"  , ""     , yvikeys_cmds__quit     , "quit all files (if no changes), and exit"                    );
+   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "writequit"   , "wq"  , ""     , yvikeys_cmds__writequit, ""                                                            );
+   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "writequitall", "wqa" , ""     , yvikeys_cmds__writequit, ""                                                            );
+   rc = yVIKEYS_cmds_add (YVIKEYS_M_EDIT  , "dump"        , ""    , "s"    , BASE_dump              , "dump a specified data table to the clipboard in flat text"   );
    /*---(yparse)-------------------------*/
    rc = yPARSE_handler (MODE_COMMAND , "command"   , 7.4, "cO----------", yvikeys_cmds__reader, yvikeys_cmds__writer_all, "------------" , "a,command-----------------", "command history"           );
    /*---(complete)-----------------------*/
@@ -943,7 +943,7 @@ yVIKEYS_cmds_direct     (char *a_text)
 }
 
 char
-SRCH_next               (char a_move)
+yvikeys_srch_next       (char a_move)
 {
    char        rce         =  -10;
    char        x_seq       = s_csrch;
@@ -1241,7 +1241,7 @@ yvikeys_srch__reader         (void)
 }
 
 char         /*-> tbd --------------------------------[ leaf   [ge.540.142.30]*/ /*-[01.0000.103.!]-*/ /*-[--.---.---.--]-*/
-SRCH_list               (char *a_list)
+yvikeys_srch_list       (char *a_list)
 {
    /*---(locals)-----------+-----------+-*/
    int         i           = 0;
@@ -1278,7 +1278,7 @@ static void  o___CMDS_UTIL_______o () { return; }
 static void  o___CMDS_PROG_______o () { return; }
 
 char
-CMDS__menu           (char a_menu, char a_action)
+yvikeys_cmds__menu          (char a_menu, char a_action)
 {
    /*---(locals)-----------+-----+-----+-*/
    int         i           =    0;
@@ -1299,7 +1299,7 @@ CMDS__menu           (char a_menu, char a_action)
 }
 
 char
-CMDS__terms          (char *a_terms, char a_action)
+yvikeys_cmds__terms  (char *a_terms, char a_action)
 {
    /*---(locals)-----------+-----+-----+-*/
    int         i           =    0;
@@ -1338,7 +1338,7 @@ yVIKEYS_cmds_add     (char a_menu, char *a_name, char *a_abbr, char *a_terms, vo
    }
    DEBUG_PROG   yLOG_note    ("after status check");
    /*---(defense)------------------------*/
-   --rce;  if (CMDS__menu  (a_menu, ACTION_FIND) < 0) {
+   --rce;  if (yvikeys_cmds__menu (a_menu, ACTION_FIND) < 0) {
       DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
@@ -1354,7 +1354,7 @@ yVIKEYS_cmds_add     (char a_menu, char *a_name, char *a_abbr, char *a_terms, vo
       return rce;
    }
    DEBUG_PROG   yLOG_point   ("a_terms"   , a_terms);
-   --rce;  if (a_terms == NULL || CMDS__terms (a_terms, ACTION_FIND) < 0) {
+   --rce;  if (a_terms == NULL || yvikeys_cmds__terms (a_terms, ACTION_FIND) < 0) {
       DEBUG_PROG   yLOG_note    ("term specification not found in inventory");
       DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
@@ -1365,13 +1365,13 @@ yVIKEYS_cmds_add     (char a_menu, char *a_name, char *a_abbr, char *a_terms, vo
       return rce;
    }
    /*---(check for dup)------------------*/
-   x_dup = CMDS__find (a_name);
+   x_dup = yvikeys_cmds__find (a_name);
    DEBUG_PROG   yLOG_value   ("dup name"  , x_dup);
    --rce;  if (x_dup >= 0) {
       DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   x_dup = CMDS__find (a_abbr);
+   x_dup = yvikeys_cmds__find (a_abbr);
    DEBUG_PROG   yLOG_value   ("dup abbr"  , x_dup);
    --rce;  if (x_dup >= 0) {
       DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
@@ -1405,7 +1405,7 @@ yVIKEYS_cmds_add     (char a_menu, char *a_name, char *a_abbr, char *a_terms, vo
 static void  o___CMDS_RUN________o () { return; }
 
 char         /*-> tbd --------------------------------[ ------ [ge.#M5.1C#.#7]*/ /*-[03.0000.013.L]-*/ /*-[--.---.---.--]-*/
-CMDS__parse           (void)
+yvikeys_cmds__parse   (void)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -1448,7 +1448,7 @@ CMDS__parse           (void)
 }
 
 char         /*-> tbd --------------------------------[ ------ [ge.#M5.1C#.#7]*/ /*-[03.0000.013.L]-*/ /*-[--.---.---.--]-*/
-CMDS__exec            (void)
+yvikeys_cmds_exec     (void)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -1472,7 +1472,7 @@ CMDS__exec            (void)
       return rc;
    }
    /*---(parse)-------------------------*/
-   rc = CMDS__parse ();
+   rc = yvikeys_cmds__parse ();
    DEBUG_CMDS   yLOG_value   ("rc"        , rc);
    --rce;  if (rc < 0) {
       DEBUG_CMDS   yLOG_note    ("could not parse");
@@ -1480,7 +1480,7 @@ CMDS__exec            (void)
       return rce;
    }
    /*---(find)---------------------------*/
-   i = CMDS__find (s_fields [0]);
+   i = yvikeys_cmds__find (s_fields [0]);
    DEBUG_CMDS   yLOG_value   ("i"         , i);
    --rce;  if (i < 0) {
       DEBUG_CMDS   yLOG_note    ("command not found");
@@ -1652,7 +1652,7 @@ SRCH__unit              (char *a_question, char a_index)
       snprintf (yVIKEYS__unit_answer, LEN_STR, "SRCH history     : %2d %c %2d %2d  %-.40s", a_index, s_passes [a_index].mark, s_passes [a_index].count, s_passes [a_index].found, s_passes [a_index].text);
    }
    else if (strcmp (a_question, "results"        )   == 0) {
-      SRCH_list (t);
+      yvikeys_srch_list (t);
       snprintf (yVIKEYS__unit_answer, LEN_STR, "SRCH results     : %2d %-.40s", s_nsrch, t);
    }
    else if (strcmp (a_question, "oneline"        )   == 0) {

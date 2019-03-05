@@ -73,6 +73,7 @@ yvikeys_mark_init            (void)
    /*---(globals)------------------------*/
    myVIKEYS.mark_show = '-';
    yVIKEYS_cmds_add (YVIKEYS_M_EDIT  , "mark"        , ""    , "s"    , yvikeys_mark_direct        , "" );
+   yVIKEYS_view_option (YVIKEYS_STATUS, "visual" , yvikeys_mark_status  , "details of visual selection"                );
    /*---(read/write)---------------------*/
    rc = yPARSE_handler (UMOD_MARK    , "loc_mark"  , 7.1, "cL----------", yvikeys_mark_reader, yvikeys_mark_writer_all, "------------" , "a,label", "map mode location marks");
    /*---(update status)------------------*/
@@ -505,42 +506,6 @@ yvikeys_mark__next      (void)
 /*===----                      location marks                          ----===*/
 /*====================------------------------------------====================*/
 static void  o___STATUS__________o () { return; }
-
-/*> char         /+-> tbd --------------------------------[ ------ [ge.833.224.31]+/ /+-[01.0000.114.!]-+/ /+-[--.---.---.--]-+/   <* 
- *> MARK_entry           (char a_mark, char *a_entry)                                                                              <* 
- *> {                                                                                                                              <* 
- *>    /+---(locals)-----------+-----------+-+/                                                                                    <* 
- *>    char        rce         = -10;                                                                                              <* 
- *>    int         x_index     =   0;                                                                                              <* 
- *>    /+---(header)-------------------------+/                                                                                    <* 
- *>    DEBUG_MARK   yLOG_enter   (__FUNCTION__);                                                                                   <* 
- *>    DEBUG_MARK   yLOG_value   ("a_mark"    , a_mark);                                                                           <* 
- *>    DEBUG_MARK   yLOG_point   ("a_entry"   , a_entry);                                                                          <* 
- *>    /+---(defense)------------------------+/                                                                                    <* 
- *>    --rce;  if (a_entry == NULL) {                                                                                              <* 
- *>       DEBUG_MARK   yLOG_exitr   (__FUNCTION__, rce);                                                                           <* 
- *>       return rce;                                                                                                              <* 
- *>    }                                                                                                                           <* 
- *>    strlcpy (a_entry, "  - :           ", LEN_DESC);                                                                            <* 
- *>    /+---(check mark)---------------------+/                                                                                    <* 
- *>    x_index = yvikeys_mark__index (a_mark);                                                                                             <* 
- *>    --rce;  if (x_index < 0) {                                                                                                  <* 
- *>       DEBUG_MARK   yLOG_exitr   (__FUNCTION__, rce);                                                                           <* 
- *>       return rce;                                                                                                              <* 
- *>    }                                                                                                                           <* 
- *>    DEBUG_MARK   yLOG_value   ("a_mark"    , a_mark);                                                                           <* 
- *>    DEBUG_MARK   yLOG_value   ("x_index"   , x_index);                                                                          <* 
- *>    /+---(copy)---------------------------+/                                                                                    <* 
- *>    sprintf (a_entry, "  %c : %-8.8s  ", a_mark, s_mark_info [x_index].label);                                                  <* 
- *>    DEBUG_MARK   yLOG_info    ("a_entry"   , a_entry);                                                                          <* 
- *>    --rce;  if (strcmp ("", s_mark_info [x_index].label) == 0) {                                                                <* 
- *>       DEBUG_MARK   yLOG_exitr   (__FUNCTION__, -(rce));                                                                        <* 
- *>       return -(rce);                                                                                                           <* 
- *>    }                                                                                                                           <* 
- *>    /+---(complete)-----------------------+/                                                                                    <* 
- *>    DEBUG_MARK   yLOG_exit    (__FUNCTION__);                                                                                   <* 
- *>    return 0;                                                                                                                   <* 
- *> }                                                                                                                              <*/
 
 char         /*-> tbd --------------------------------[ ------ [ge.420.132.11]*/ /*-[00.0000.114.!]-*/ /*-[--.---.---.--]-*/
 yvikeys_mark_info       (char *a_entry, int a_index)

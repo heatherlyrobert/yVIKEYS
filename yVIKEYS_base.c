@@ -54,11 +54,11 @@ yVIKEYS_version    (void)
 #else
    strncpy (t, "[unknown    ]", 15);
 #endif
-   snprintf (yVIKEYS_ver, 100, "%s   %s : %s", t, YVIKEYS_VER_NUM, YVIKEYS_VER_TXT);
+   snprintf (yVIKEYS_ver, 100, "%s   %s : %s", t, P_VERNUM, P_VERTXT);
    return yVIKEYS_ver;
 }
 
-char
+char         /*-> initialize all of yvikeys ----------[ leaf   [gn.530.341.50]*/ /*-[02.0000.000.!]-*/ /*-[--.---.---.--]-*/
 yVIKEYS_init         (void)
 {
    /*---(header)-------------------------*/
@@ -67,20 +67,21 @@ yVIKEYS_init         (void)
    STATUS_init  ();
    srand (time (NULL));
    /*----(early)-------------------------*/
-   yPARSE_init  (NULL, '-');
+   yPARSE_init  ('y', NULL, '-');
    MODE_init    ();
    yvikeys_file_init    ();
    /*----(middling)----------------------*/
-   CMDS_init    ();
-   SRCH_init    ();
+   yvikeys_cmds_init    ();
+   yvikeys_srch_init    ();
    /*----(later)-------------------------*/
    KEYS_init    ();
    yvikeys_map_init     ();
    SOURCE_init  ();
    yvikeys_macro_init   ();
    /*----(latest)------------------------*/
-   yvikeys_regs_init    ();
-   SRC_REG_init ();
+   yvikeys_mreg_init    ();
+   yvikeys_sreg_init    ();
+   yvikeys_sundo_init   ();
    yvikeys_mark_init    ();
    yvikeys_visu_init    ();
    REPEAT_init  ();
@@ -102,7 +103,7 @@ yVIKEYS_wrap         (void)
    yPARSE_wrap ();
    VIEW_wrap   ();
    STATUS_wrap ();
-   yvikeys_regs_wrap   ();
+   yvikeys_mreg_wrap   ();
    return 0;
 }
 
@@ -129,6 +130,139 @@ BASE_dump               (char *a_what)
    return 0;
 }
 
+char         /*-> enter a object directly ------------[ ------ [ge.850.137.A4]*/ /*-[02.0000.00#.!]-*/ /*-[--.---.---.--]-*/
+yvikeys_base_direct     (char a_mode, char *a_string, void *a_purger (), void *a_clearer (), void *a_saver ())
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   int         x_len       =    0;
+   char        x_ch        =  '-';
+   char       *x_valid     = "*aA0è";
+   int         x_beg       =    0;
+   char        x_string    [LEN_RECD];
+   /*---(header)-------------------------*/
+   DEBUG_PROG   yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   --rce;  if (!STATUS_operational (a_mode)) {
+      DEBUG_PROG   yLOG_note    ("can not execute until operational");
+      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(defense)------------------------*/
+   DEBUG_PROG   yLOG_point   ("a_string"  , a_string);
+   --rce;  if (a_string == NULL) {
+      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_PROG   yLOG_info    ("a_string"  , a_string);
+   x_len = strlen (a_string);
+   DEBUG_PROG   yLOG_value   ("x_len"     , x_len);
+   --rce;  if (x_len <= 0) {
+      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(check for purge)----------------*/
+   if (x_len == 1) {
+      DEBUG_PROG   yLOG_note    ("one character option (purge)");
+      DEBUG_PROG   yLOG_point   ("a_purger"  , a_purger);
+      --rce;  if (a_purger == NULL) {
+         DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+         return rce;
+      }
+      DEBUG_PROG   yLOG_info    ("x_valid"   , x_valid);
+      x_ch = a_string [0];
+      DEBUG_PROG   yLOG_char    ("x_ch"      , x_ch);
+      --rce;  if (strchr (x_valid, x_ch) == NULL) {
+         DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+         return rce;
+      }
+      rc = a_purger (x_ch);
+      DEBUG_PROG   yLOG_value   ("purge"     , rc);
+      --rce;  if (rc < 0) {
+         DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+         return rce;
+      }
+      DEBUG_PROG   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
+   /*---(check for equal)----------------*/
+   DEBUG_PROG   yLOG_note    ("check for equal sign");
+   x_ch = a_string [1];
+   DEBUG_PROG   yLOG_char    ("x_ch"      , x_ch);
+   --rce;  if (x_ch != '=') {
+      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   x_ch = a_string [0];
+   DEBUG_PROG   yLOG_char    ("abbr"      , x_ch);
+   /*---(check for clear)----------------*/
+   if (x_len == 2) {
+      DEBUG_PROG   yLOG_note    ("two character option (clear)");
+      DEBUG_PROG   yLOG_point   ("a_clearer" , a_clearer);
+      --rce;  if (a_clearer == NULL) {
+         DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+         return rce;
+      }
+      rc = a_clearer (x_ch);
+      DEBUG_PROG   yLOG_value   ("clear"     , rc);
+      --rce;  if (rc < 0) {
+         DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+         return rce;
+      }
+      DEBUG_PROG   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
+   /*---(handle quotes)------------------*/
+   DEBUG_PROG   yLOG_note    ("multi-char option (save)");
+   --rce;  if (a_string [2] != G_KEY_DQUOTE) {
+      DEBUG_PROG   yLOG_note    ("normal/unquoted format");
+      strlcpy (x_string, a_string + 2, LEN_RECD);
+   } else {
+      DEBUG_PROG   yLOG_note    ("quoted format");
+      if (a_string [x_len - 1] != G_KEY_DQUOTE) {
+         DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+         return rce;
+      }
+      strlcpy (x_string, a_string + 3, LEN_RECD);
+      x_string [x_len - 4] = '\0';
+   }
+   DEBUG_PROG   yLOG_info    ("x_string", x_string);
+   /*---(clear option)-------------------*/
+   x_len = strlen (x_string);
+   DEBUG_PROG   yLOG_value   ("x_len"     , x_len);
+   if (x_len == 0) {
+      DEBUG_PROG   yLOG_point   ("a_clearer" , a_clearer);
+      --rce;  if (a_clearer == NULL) {
+         DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+         return rce;
+      }
+      rc = a_clearer (x_ch);
+      DEBUG_PROG   yLOG_value   ("clear"     , rc);
+      --rce;  if (rc < 0) {
+         DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+         return rce;
+      }
+      DEBUG_PROG   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
+   /*---(save)---------------------------*/
+   DEBUG_PROG   yLOG_point   ("a_saver" , a_saver);
+   --rce;  if (a_saver == NULL) {
+      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   rc = a_saver (x_ch, x_string);
+   DEBUG_PROG   yLOG_value   ("save"      , rc);
+   --rce;  if (rc < 0) {
+      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(complete)-----------------------*/
+   DEBUG_PROG   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
 
 
 /*====================------------------------------------====================*/
@@ -142,7 +276,7 @@ char       /*----: set up program urgents/debugging --------------------------*/
 BASE__unit_quiet       (void)
 {
    ySTR_debug ('-');
-   myVIKEYS.logger = yLOG_begin ("yVIKEYS" , yLOG_SYSTEM, yLOG_QUIET);
+   myVIKEYS.logger = yLOGS_begin ("yVIKEYS" , YLOG_SYS, YLOG_QUIET);
    yVIKEYS_init ();
    return 0;
 }
@@ -151,7 +285,7 @@ char       /*----: set up program urgents/debugging --------------------------*/
 BASE__unit_loud        (void)
 {
    ySTR_debug ('y');
-   myVIKEYS.logger = yLOG_begin ("yVIKEYS" , yLOG_SYSTEM, yLOG_NOISE);
+   myVIKEYS.logger = yLOGS_begin ("yVIKEYS" , YLOG_SYS, YLOG_NOISE);
    yURG_name  ("kitchen"      , YURG_ON);
    yURG_name  ("edit"         , YURG_ON);
    yURG_name  ("mark"         , YURG_ON);
@@ -171,7 +305,7 @@ char       /*----: stop logging ----------------------------------------------*/
 BASE__unit_end         (void)
 {
    yVIKEYS_wrap ();
-   yLOG_end     ();
+   yLOGS_end    ();
    return 0;
 }
 
@@ -507,7 +641,7 @@ yVIKEYS_main_handle     (uchar a_key)
       case MODE_MAP      : rc = yvikeys_map_mode      (x_major , x_key);  break;
       case MODE_SOURCE   : rc = SOURCE_mode           (x_major , x_key);  break;
       case UMOD_SRC_INPT : rc = SRC_INPT_umode        (x_major , x_key);  break;
-      case SMOD_SRC_REG  : rc = SRC_REG_smode         (x_major , x_key);  break;
+      case SMOD_SREG     : rc = yvikeys_sreg_smode    (x_major , x_key);  break;
       case UMOD_SRC_REPL : rc = SRC_REPL_umode        (x_major , x_key);  break;
       case UMOD_SRC_UNDO : rc = BASE__________stub    (x_major , x_key);  break;
       case UMOD_MAP_UNDO : rc = BASE__________stub    (x_major , x_key);  break;
@@ -519,7 +653,7 @@ yVIKEYS_main_handle     (uchar a_key)
       case XMOD_FORMAT   : rc = FORMAT_smode          (x_major , x_key);  break;
       case SMOD_BUFFER   : rc = yvikeys_bufs_umode    (x_major , x_key);  break;
       case UMOD_WANDER   : rc = BASE__________stub    (x_major , x_key);  break;
-      case SMOD_MREG     : rc = yvikeys_regs_smode    (x_major , x_key);  break;
+      case SMOD_MREG     : rc = yvikeys_mreg_smode    (x_major , x_key);  break;
       case UMOD_MARK     : rc = yvikeys_mark_smode    (x_major , x_key);  break;
       case SMOD_MENUS    : rc = BASE__________stub    (x_major , x_key);  break;
       case SMOD_MACRO    : rc = yvikeys_macro_smode   (x_major , x_key);  break;
@@ -660,8 +794,7 @@ yVIKEYS_main            (char *a_delay, char *a_update, void *a_altinput ())
    /*---(prepare)------------------------*/
    DEBUG_TOPS   yLOG_note    ("entering main processing loop");
    DEBUG_TOPS   yLOG_break   ();
-   yvikeys_loop_delay   (a_delay);
-   yvikeys_loop_update  (a_update);
+   yvikeys_loop_set     (a_delay, a_update);
    yVIKEYS_view_all (0.0);
    /*---(main-loop)----------------------*/
    while (1) {

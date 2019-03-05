@@ -1091,8 +1091,8 @@ yvikeys__map_delete    (char a_major, char a_minor)
    }
    /*---(action)-------------------------*/
    if (a_major == 'x') {
-      yvikeys_regs_save  ();
-      yvikeys_regs_clear ();
+      yvikeys_mreg_save  ();
+      yvikeys_mreg_clear ();
       yvikeys_visu_clear    ();
    }
    /*---(move after)---------------------*/
@@ -1197,7 +1197,7 @@ yvikeys_map_mode        (char a_major, char a_minor)
       if (strchr ("yYpP", a_minor) != 0) {
          DEBUG_USER   yLOG_note    ("switch to a map register mode");
          MODE_enter (SMOD_MREG);
-         rc = yvikeys_regs_smode  (G_KEY_SPACE, a_minor);
+         rc = yvikeys_mreg_smode  (G_KEY_SPACE, a_minor);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return rc;
       }
@@ -1228,7 +1228,7 @@ yvikeys_map_mode        (char a_major, char a_minor)
          return rc;
       }
       if (strchr (g_search, a_minor) != 0) {
-         rc = SRCH_next   (a_minor);
+         rc = yvikeys_srch_next   (a_minor);
          if (rc >= 0) {
             yvikeys__screen (&g_xmap);
             yvikeys__screen (&g_ymap);
@@ -1337,13 +1337,13 @@ yvikeys_map_mode        (char a_major, char a_minor)
    /*---(paste family)-------------------*/
    if (a_major == 'p') {
       switch (a_minor) {
-      case '_' :  rc = yvikeys_regs_visual ();            break;
-      case '#' :  rc = yvikeys_regs_paste  ("clear");     break;
-      case 'n' :  rc = yvikeys_regs_paste  ("normal");    break;
-      case 'r' :  rc = yvikeys_regs_paste  ("replace");   break;
-      case 'd' :  rc = yvikeys_regs_paste  ("duplicate"); break;
-      case 'm' :  rc = yvikeys_regs_paste  ("move");      break;
-      case 'f' :  rc = yvikeys_regs_paste  ("force");     break;
+      case '_' :  rc = yvikeys_mreg_visual ();            break;
+      case '#' :  rc = yvikeys_mreg_paste  ("clear");     break;
+      case 'n' :  rc = yvikeys_mreg_paste  ("normal");    break;
+      case 'r' :  rc = yvikeys_mreg_paste  ("replace");   break;
+      case 'd' :  rc = yvikeys_mreg_paste  ("duplicate"); break;
+      case 'm' :  rc = yvikeys_mreg_paste  ("move");      break;
+      case 'f' :  rc = yvikeys_mreg_paste  ("force");     break;
       }
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return rc;
@@ -1694,13 +1694,13 @@ char
 yvikeys__unit_map_loc   (char *a_label, int *a_buf, int *a_x, int *a_y, int *a_z)
 {
    if (a_z != NULL)  *a_z = 0;
-   return str2gyges (a_label, a_buf, a_x, a_y, NULL, 0, YSTR_CHECK);
+   return str2gyges (a_label, a_buf, a_x, a_y, NULL, NULL, 0, YSTR_CHECK);
 }
 
 char 
 yvikeys__unit_map_addr  (char *a_label, int a_buf, int a_x, int a_y, int a_z)
 {
-   return str4gyges (a_buf, a_x, a_y, 0, a_label, YSTR_CHECK);
+   return str4gyges (a_buf, a_x, a_y, 0, 0, a_label, YSTR_CHECK);
 }
 
 char

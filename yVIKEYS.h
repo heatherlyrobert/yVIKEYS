@@ -1,34 +1,4 @@
 /*============================----beg-of-source---============================*/
-
-/*===[[ HEADER ]]=============================================================*/
-
-/*   focus         : (--) -----
- *   niche         : (--) -----
- *   application   : yVIKEYS
- *   purpose       : efficient, versatle, standard keyboard mini-language
- *
- *   base_system   : gnu/linux   (powerful, ubiquitous, technical, and hackable)
- *   lang_name     : ansi-c      (wicked, limitless, universal, and everlasting)
- *   dependencies  : none
- *   size          : small       (less than 500 slocL)
- * 
- *   author        : rsheatherly
- *   created       : 2010-01     (when i started defining this standard)
- *   priorities    : direct, simple, brief, vigorous, and lucid (h.w. fowler)
- *   end goal      : loosely coupled, strict interface, maintainable, portable)
- * 
- */
-/*===[[ SUMMARY ]]============================================================*/
-
-/*   yVIKEYS is a heatherly-specific standard mini-language for operating all
- *   my custom applications using a pure keyboard interface.  while it has deep roots
- *   in vi/vim, i expect it to adapt to be greater that just that.
- *
- */
-
-
-
-/*===[[ HEADER GUARD ]]===================================*/
 #ifndef yVIKEYS
 #define yKIKEYS yes
 
@@ -53,8 +23,8 @@
 /*---(sub-modes)-------------------------*/
 #define     SMOD_ERROR     'e'    /* error reporting and actions              */
 #define     SMOD_MREG      '"'    /* register actions                         */
-#define     SMOD_SRC_REG   't'    /* text register actions                    */
-#define     UMOD_SRC_UNDO  's'    /* incremental text change undo/redo        */
+#define     SMOD_SREG      's'    /* text register actions                    */
+#define     UMOD_SRC_UNDO  'u'    /* incremental text change undo/redo        */
 #define     UMOD_MAP_UNDO  'm'    /* incremental map change undo/redo         */
 #define     UMOD_HISTORY   'H'    /* dislay command/search history            */
 #define     SMOD_BUFFER    ','    /* selecting buffers                        */
@@ -318,14 +288,12 @@ char        yVIKEYS_file_add        (char  a_abbr, void *a_writer, void *a_reade
 char        yVIKEYS_file_write      (char a_abbr, void *a, void *b, void *c, void *d, void *e, void *f, void *g, void *h, void *i);
 
 /*---(registers)------------*/
-char        yVIKEYS_regs_config     (void *a_clearer, void *a_copier, void *a_paster, void *a_regkill, void *a_exim);
-char        yVIKEYS_regs_add        (void *a_thing, char *a_label, char a_note);
-char        yVIKEYS_regs_inside     (int x, int y, int z);
+char        yVIKEYS_mreg_config     (void *a_clearer, void *a_copier, void *a_paster, void *a_regkill, void *a_exim);
+char        yVIKEYS_mreg_add        (void *a_thing, char *a_label, char a_note);
+char        yVIKEYS_mreg_inside     (int b, int x, int y, int z);
 
 /*---(unit testing)---------*/
 char        yVIKEYS_unit_reset      (void);
-char        yVIKEYS_unit_recd       (char *a_recd);
-char        yVIKEYS_unit_reader     (char  a_type, char *a_recd);
 
 
 

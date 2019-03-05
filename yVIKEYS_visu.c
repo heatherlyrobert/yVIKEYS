@@ -595,6 +595,7 @@ yvikeys_visu_init       (void)
    yvikeys_visu__purge  (YVIKEYS_FULL);
    yvikeys_visu__wipe   (&s_visu);
    s_visu.active = VISU_NOT;
+   yVIKEYS_view_option (YVIKEYS_STATUS, "visual" , yvikeys_visu_status , "details of visual selection"                );
    /*---(read/write)---------------------*/
    rc = yPARSE_handler (UMOD_VISUAL  , "visu_mark" , 7.2, "cLL---------", yvikeys_visu__reader, yvikeys_visu__writer_all, "------------" , "a,beg,end", "map mode visual selections");
    /*---(update status)------------------*/
@@ -1145,92 +1146,6 @@ yvikeys_visu__reader    (void)
    return 1;
 }
 
-char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/
-VISU_writer            (char a_abbr)
-{
-   /*---(locals)-----------+-----+-----+-*/
-   char        rce         =  -10;
-   char        x_beg       =    0;
-   char        x_end       =    0;
-   int         i           =    0;
-   char        c           =    0;
-   /*---(prepare)----------------s-------*/
-   yVIKEYS_unit_reset ();
-   if (a_abbr == 0) {
-      x_beg = 1;
-      x_end = s_nvisu - 1;
-   } else {
-      x_beg = x_end = yvikeys_visu__index (a_abbr);
-      if (x_beg <= 0)  return rce;
-   }
-   /*---(find marked entries)------------*/
-   for (i = x_beg; i <= x_end; ++i) {
-      if (s_visu_info [i].active != VISU_YES)  continue;
-      yVIKEYS_file_write (UMOD_VISUAL, &(S_VISU_LIST [i]), &s_visu_info [i].x_beg, &s_visu_info [i].y_beg, &s_visu_info [i].x_end, &s_visu_info [i].y_end, &s_visu_info [i].z_all, NULL, NULL, NULL);
-      ++c;
-   }
-   /*---(complete)-----------------------*/
-   return c;
-}
-
-char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/
-VISU_reader           (char n, char *a, char *b, char *c, char *d, char *e, char *f, char *g, char *h, char *i)
-{
-   /*---(locals)-----------+-----------+-*/
-   char        rce         =  -11;
-   char        rc          =    0;
-   int         x_index     =    0;
-   char        x_label     [LEN_LABEL] = "";
-   /*---(header)-------------------------*/
-   DEBUG_VISU   yLOG_enter   (__FUNCTION__);
-   /*---(check version)------------------*/
-   DEBUG_VISU   yLOG_char    ("version"   , n);
-   --rce;  if (n != 'A') {
-      DEBUG_VISU   yLOG_note    ("illegal version");
-      DEBUG_VISU   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   /*---(check mark)---------------------*/
-   DEBUG_VISU   yLOG_value   ("mark"      , a[0]);
-   x_index = yvikeys_visu__index (a[0]);
-   DEBUG_VISU   yLOG_value   ("x_index"   , x_index);
-   --rce;  if (x_index < 0) {
-      DEBUG_VISU   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   DEBUG_VISU   yLOG_char    ("mark"      , a[0]);
-   /*---(begin)--------------------------*/
-   DEBUG_VISU   yLOG_note    ("assign values to beginning");
-   s_visu_info [x_index].x_beg = atoi (b);
-   DEBUG_VISU   yLOG_value   ("x_beg"     , s_visu_info [x_index].x_beg);
-   s_visu_info [x_index].y_beg = atoi (c);
-   DEBUG_VISU   yLOG_value   ("y_beg"     , s_visu_info [x_index].y_beg);
-   /*---(end)----------------------------*/
-   DEBUG_VISU   yLOG_note    ("assign values to ending");
-   s_visu_info [x_index].x_end = atoi (d);
-   DEBUG_VISU   yLOG_value   ("x_end"     , s_visu_info [x_index].x_end);
-   s_visu_info [x_index].y_end = atoi (e);
-   DEBUG_VISU   yLOG_value   ("y_end"     , s_visu_info [x_index].y_end);
-   /*---(z)------------------------------*/
-   s_visu_info [x_index].z_all = atoi (f);
-   DEBUG_VISU   yLOG_value   ("z_all"     , s_visu_info [x_index].z_all);
-   /*---(root)---------------------------*/
-   s_visu_info [x_index].x_root = s_visu_info [x_index].x_beg;
-   s_visu_info [x_index].y_root = s_visu_info [x_index].y_beg;
-   /*---(status)-------------------------*/
-   s_visu_info [x_index].active = VISU_YES;
-   /*---(address)------------------------*/
-   yvikeys_map_addresser (s_visu_info [x_index].b_label, s_visu_info [x_index].b_all, s_visu_info [x_index].x_beg, s_visu_info [x_index].y_beg, s_visu_info [x_index].z_all);
-   DEBUG_VISU   yLOG_info    ("b_label"   , s_visu_info [x_index].b_label);
-   yvikeys_map_addresser (s_visu_info [x_index].e_label, s_visu_info [x_index].b_all, s_visu_info [x_index].x_end, s_visu_info [x_index].y_end, s_visu_info [x_index].z_all);
-   DEBUG_VISU   yLOG_info    ("e_label"   , s_visu_info [x_index].e_label);
-   /*---(update range)-------------------*/
-   DEBUG_VISU   yLOG_note    ("update the range");
-   yvikeys_visu__range ();
-   /*---(complete)-----------------------*/
-   DEBUG_VISU  yLOG_exit    (__FUNCTION__);
-   return 0;
-}
 
 
 /*====================------------------------------------====================*/
