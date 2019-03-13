@@ -1462,41 +1462,41 @@ yvikeys_mreg__unit      (char *a_question, char x, char y)
    char        t           [LEN_RECD ];
    int         x_reg       =    0;
    /*---(preprare)-----------------------*/
-   strlcpy  (yVIKEYS__unit_answer, "MAP_REG unit     : question not understood", LEN_STR);
+   strlcpy  (yVIKEYS__unit_answer, "MAP_REG unit     : question not understood", LEN_FULL);
    /*---(dependency list)----------------*/
    if      (strcmp (a_question, "current"        )   == 0) {
       x_reg = yvikeys_mreg__index (s_creg);
       yvikeys_mreg__list  (s_creg, t);
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP_REG current  : %c %2d %2d %s", s_creg, x_reg, s_regs [x_reg].nbuf, t);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "MAP_REG current  : %c %2d %2d %s", s_creg, x_reg, s_regs [x_reg].nbuf, t);
    }
    else if (strcmp (a_question, "base"           )   == 0) {
       yvikeys_mreg__unit_base (t);
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP_REG base  %2d : %s", s_nbase, t);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "MAP_REG base  %2d : %s", s_nbase, t);
    }
    else if (strcmp (a_question, "free"           )   == 0) {
       yvikeys_mreg__unit_free (t);
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP_REG free  %2d : %s", s_nfree, t);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "MAP_REG free  %2d : %s", s_nfree, t);
    }
    else if (strcmp (a_question, "list"           )   == 0) {
       yvikeys_mreg__unit_list (t);
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP_REG list  %2d : %s", s_nthing - s_nbase - s_nfree, t);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "MAP_REG list  %2d : %s", s_nthing - s_nbase - s_nfree, t);
    }
    else if (strcmp (a_question, "A"              )   == 0) {
       yvikeys_mreg__unit_A    (t);
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "A : %s", t);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "A : %s", t);
    }
    else if (strcmp (a_question, "B"              )   == 0) {
       yvikeys_mreg__unit_B    (t);
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "B : %s", t);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "B : %s", t);
    }
    else if (strcmp (a_question, "inside"       )  == 0) {
       yvikeys_mreg__list  (x, t);
       x_reg = yvikeys_mreg__index (x);
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP_REG inside   : %c %2d %s", x, s_regs [x_reg].nbuf, t);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "MAP_REG inside   : %c %2d %s", x, s_regs [x_reg].nbuf, t);
    }
    else if (strcmp (a_question, "range"        )  == 0) {
       x_reg = yvikeys_mreg__index (x);
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP_REG range    : %c, bx=%4d, by=%4d, ex=%4d, ey=%4d, z =%4d", x, s_regs [x_reg].x_beg, s_regs [x_reg].y_beg, s_regs [x_reg].x_end, s_regs [x_reg].y_end, s_regs [x_reg].z_all);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "MAP_REG range    : %c, bx=%4d, by=%4d, ex=%4d, ey=%4d, z =%4d", x, s_regs [x_reg].x_beg, s_regs [x_reg].y_beg, s_regs [x_reg].x_end, s_regs [x_reg].y_end, s_regs [x_reg].z_all);
    }
    /*---(complete)-----------------------*/
    return yVIKEYS__unit_answer;

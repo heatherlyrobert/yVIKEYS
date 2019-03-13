@@ -25,8 +25,8 @@
 #define     P_CREATED   "2010-01"
 #define     P_DEPENDS   "none"
 
-#define     P_VERNUM    "1.1r"
-#define     P_VERTXT    "fixed backslash interpretation issues in macro unit testing"
+#define     P_VERNUM    "1.1s"
+#define     P_VERTXT    "improved mode transition by using table, modes passes unit test again"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -75,9 +75,6 @@ typedef struct timespec  tTSPEC;
  *
  */
 /*---(string lengths)-----------------*/
-#define     LEN_LABEL   20
-#define     LEN_STR     200
-#define     LEN_RECD    2000
 
 #define     G_STATUS_NULL        -1
 
@@ -233,7 +230,7 @@ char*       VIEW__unit              (char *a_question, char a_index);
 
 
 
-extern char yVIKEYS__unit_answer [LEN_STR];
+extern char yVIKEYS__unit_answer [LEN_FULL];
 
 
 char        KEYS_status             (char *a_msg);

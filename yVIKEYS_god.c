@@ -16,7 +16,7 @@ struct cSCALE {
    char        type;
    char        terse       [LEN_LABEL];
    char        label       [LEN_LABEL];
-   char        desc        [LEN_STR  ];
+   char        desc        [LEN_FULL  ];
    char        power;
    float       unit;
 };
@@ -80,7 +80,7 @@ static tSCALE s_scale_info [MAX_SCALE] = {
 typedef   struct cSPEED  tSPEED;
 struct cSPEED {
    char        terse       [LEN_LABEL];
-   char        desc        [LEN_STR  ];
+   char        desc        [LEN_FULL  ];
    float       speed;   
 };
 static tSPEED s_speed_info [MAX_SPEED] = {
@@ -295,7 +295,7 @@ GOD_mode           (char a_major, char a_minor)
    /*---(locals)-----------+-----------+-*/
    char        rce         = -10;
    char        rc          = 0;
-   char        x_minors    [LEN_STR]  = "ypdx";
+   char        x_minors    [LEN_FULL]  = "ypdx";
    /*---(header)-------------------------*/
    DEBUG_USER   yLOG_enter   (__FUNCTION__);
    DEBUG_USER   yLOG_char    ("a_major"   , a_major);
@@ -611,14 +611,14 @@ yvikeys_scale_prog      (char *a_scale)
 char
 yVIKEYS_scale_brief (char   *a_text)
 {
-   if (a_text != NULL)  snprintf (a_text, LEN_STR, "%s", s_scale_info [myVIKEYS.p_scale].label);
+   if (a_text != NULL)  snprintf (a_text, LEN_FULL, "%s", s_scale_info [myVIKEYS.p_scale].label);
    return 0;
 }
 
 char
 yVIKEYS_scale_desc (char   *a_text)
 {
-   if (a_text != NULL)  snprintf (a_text, LEN_STR, "%s %s", s_scale_info [myVIKEYS.p_scale].terse, s_scale_info [myVIKEYS.p_scale].desc);
+   if (a_text != NULL)  snprintf (a_text, LEN_FULL, "%s %s", s_scale_info [myVIKEYS.p_scale].terse, s_scale_info [myVIKEYS.p_scale].desc);
    return 0;
 }
 
@@ -726,7 +726,7 @@ yVIKEYS_speed_brief (char *a_text)
       return rce;
    }
    /*---(create text line)---------------*/
-   snprintf (a_text, LEN_STR, "%s", s_speed_info [myVIKEYS.p_speed].terse);
+   snprintf (a_text, LEN_FULL, "%s", s_speed_info [myVIKEYS.p_speed].terse);
    /*---(complete)-----------------------*/
    return 0;
 }
@@ -744,7 +744,7 @@ yVIKEYS_speed_desc (char *a_text)
       return rce;
    }
    /*---(create text line)---------------*/
-   snprintf (a_text, LEN_STR, "%s (%s)", s_speed_info [myVIKEYS.p_speed].terse, s_speed_info [myVIKEYS.p_speed].desc);
+   snprintf (a_text, LEN_FULL, "%s (%s)", s_speed_info [myVIKEYS.p_speed].terse, s_speed_info [myVIKEYS.p_speed].desc);
    /*---(complete)-----------------------*/
    return 0;
 }

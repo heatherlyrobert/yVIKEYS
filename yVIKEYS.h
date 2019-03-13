@@ -3,6 +3,7 @@
 #define yKIKEYS yes
 
 
+
 /*===[[ CONSTANTS ]]==========================================================*/
 /*---(foundation)------------------------*/
 #define     FMOD_STATUS    '5'
@@ -22,7 +23,7 @@
 #define     MODES_EDITING  "S:/triw"
 /*---(sub-modes)-------------------------*/
 #define     SMOD_ERROR     'e'    /* error reporting and actions              */
-#define     SMOD_MREG      '"'    /* register actions                         */
+#define     SMOD_MREG      '¶'    /* register actions                         */
 #define     SMOD_SREG      's'    /* text register actions                    */
 #define     UMOD_SRC_UNDO  'u'    /* incremental text change undo/redo        */
 #define     UMOD_MAP_UNDO  'm'    /* incremental map change undo/redo         */
@@ -32,7 +33,7 @@
 #define     XMOD_OBJECT    'o'    /* object formatting                        */
 #define     SMOD_HINT      ';'    /* hint labels                              */
 #define     SMOD_MACRO     '@'    /* macro processing                         */
-#define     SMOD_MENUS     '\\'   /* show menu system                         */
+#define     SMOD_MENUS     'µ'    /* show menu system                         */
 /*---(micro-modes)-----------------------*/
 #define     UMOD_MARK      '\''   /* location and object marking              */
 #define     UMOD_VISUAL    'v'    /* visual selection history                 */
@@ -59,7 +60,6 @@ typedef  const int            cint;
 typedef  const float          cfloat;
 
 
-#define LEN_MAP      10000
 typedef  struct cMAPPED  tMAPPED;
 struct cMAPPED {
    /*---(identity)-------------*/
@@ -71,8 +71,8 @@ struct cMAPPED {
    int         glmin;                       /* min for col/row                */
    int         gprev;                       /* prev change for "end"          */
    /*---(current)--------------*/
-   int         map         [LEN_MAP];       /* full col/row map               */
-   char        used        [LEN_MAP];       /* full col/row map (of usage)    */
+   int         map         [10000];         /* full col/row map               */
+   char        used        [10000];         /* full col/row map (of usage)    */
    /*---(rights)---------------*/
    int         gnext;                       /* next change for "end"          */
    int         glmax;                       /* max for col/row                */

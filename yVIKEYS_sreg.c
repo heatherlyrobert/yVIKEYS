@@ -412,7 +412,7 @@ yvikeys_sreg_status   (char *a_entry)
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    char        rc          =    0;
-   char        t           [LEN_STR]   = "";
+   char        t           [LEN_FULL]   = "";
    /*---(defense)------------------------*/
    --rce;  if (a_entry == NULL)   return rce;
    /*---(get info)-----------------------*/
@@ -694,27 +694,27 @@ yvikeys_sreg__unit      (char *a_question, char a_reg)
    char        n           =    0;
    char        t           [LEN_RECD];
    /*---(preprare)-----------------------*/
-   strlcpy  (yVIKEYS__unit_answer, "SREG unit        : question not understood", LEN_STR);
+   strlcpy  (yVIKEYS__unit_answer, "SREG unit        : question not understood", LEN_FULL);
    /*---(simple)-------------------------*/
    if      (strcmp (a_question, "selection"      )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "SREG selection   :    %c, %3db, %3de, %3dc, %3dr", s_sreg.active, s_sreg.beg, s_sreg.end, s_sreg.end - s_sreg.beg + 1, s_sreg.root);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "SREG selection   :    %c, %3db, %3de, %3dc, %3dr", s_sreg.active, s_sreg.beg, s_sreg.end, s_sreg.end - s_sreg.beg + 1, s_sreg.root);
       return yVIKEYS__unit_answer;
    }
    else if (strcmp (a_question, "register"       )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "SREG register    : %c", s_csreg);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "SREG register    : %c", s_csreg);
       return yVIKEYS__unit_answer;
    }
    /*---(complex)------------------------*/
    n = yvikeys_sreg__index  (a_reg);
    if (n < 0) {
-      strlcpy  (yVIKEYS__unit_answer, "SREG unit        : not a valid register name", LEN_STR);
+      strlcpy  (yVIKEYS__unit_answer, "SREG unit        : not a valid register name", LEN_FULL);
       return yVIKEYS__unit_answer;
    }
    if      (strcmp (a_question, "saved"          )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "SREG saved   (%c) : %c %3d[%.40s]", a_reg, s_sreg_info [n].active, s_sreg_info [n].len, s_sreg_info [n].data);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "SREG saved   (%c) : %c %3d[%.40s]", a_reg, s_sreg_info [n].active, s_sreg_info [n].len, s_sreg_info [n].data);
    }
    else if (strcmp (a_question, "source"         )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "SREG source  (%c) : %c  %c  %-12.12s  %3db  %3de  %3dr", a_reg, s_sreg_info [n].active, s_sreg_info [n].source, s_sreg_info [n].label, s_sreg_info [n].beg, s_sreg_info [n].end, s_sreg_info [n].root);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "SREG source  (%c) : %c  %c  %-12.12s  %3db  %3de  %3dr", a_reg, s_sreg_info [n].active, s_sreg_info [n].source, s_sreg_info [n].label, s_sreg_info [n].beg, s_sreg_info [n].end, s_sreg_info [n].root);
    }
    /*---(complete)-----------------------*/
    return yVIKEYS__unit_answer;

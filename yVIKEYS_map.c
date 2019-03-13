@@ -98,7 +98,7 @@ yvikeys__map_clear   (tMAPPED *a_map, char a_which)
    a_map->umax  = YVIKEYS_EMPTY;
    /*---(map)----------------------------*/
    DEBUG_MAP   yLOG_snote   ("map");
-   for (i = 0; i < LEN_MAP; ++i) {
+   for (i = 0; i < LEN_HUGE; ++i) {
       a_map->map [i] = YVIKEYS_EMPTY;
    }
    /*---(indexes)------------------------*/
@@ -125,7 +125,7 @@ yvikeys__map_print   (tMAPPED *a_map)
    int         i           =    0;
    /*---(headers)------------------------*/
    printf ("-  gmin amin lmin prev    ");
-   /*> for (i = 0; i < LEN_MAP; ++i) {                                                <* 
+   /*> for (i = 0; i < LEN_HUGE; ++i) {                                                <* 
     *>    if (a_map->map [i] == YVIKEYS_EMPTY)  break;                                <* 
     *>    printf ("%4d "  , i);                                                       <* 
     *> }                                                                              <* 
@@ -134,7 +134,7 @@ yvikeys__map_print   (tMAPPED *a_map)
    /*---(content)------------------------*/
    printf ("%c  "                        , a_map->which);
    printf ("%4d %4d %4d %4d    "         , a_map->gmin , a_map->gamin , a_map->glmin , a_map->gprev );
-   /*> for (i = 0; i < LEN_MAP; ++i) {                                                <* 
+   /*> for (i = 0; i < LEN_HUGE; ++i) {                                                <* 
     *>    if (a_map->map [i] == YVIKEYS_EMPTY)  break;                                <* 
     *>    printf ("%4d "  , a_map->map [i]);                                          <* 
     *> }                                                                              <* 
@@ -1718,10 +1718,10 @@ char*
 yVIKEYS__unit           (char *a_question, int a_num)
 {
    /*---(preprare)-----------------------*/
-   strlcpy  (yVIKEYS__unit_answer, "yVIKEYS unit     : question not understood", LEN_STR);
+   strlcpy  (yVIKEYS__unit_answer, "yVIKEYS unit     : question not understood", LEN_FULL);
    /*---(questions)----------------------*/
    if (strcmp (a_question, "map_curr"       )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "yVIKEYS map curr : %3dx, %3dy, %3dz", g_xmap.gcur, g_ymap.gcur, g_zmap.gcur);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "yVIKEYS map curr : %3dx, %3dy, %3dz", g_xmap.gcur, g_ymap.gcur, g_zmap.gcur);
    }
    /*---(complete)-----------------------*/
    return yVIKEYS__unit_answer;
@@ -1731,25 +1731,25 @@ char*        /*-> tbd --------------------------------[ leaf   [gs.520.202.40]*/
 yvikeys__unit_map       (char *a_question, char a_index)
 {
    /*---(preprare)-----------------------*/
-   strlcpy  (yVIKEYS__unit_answer, "MAP unit         : question not understood", LEN_STR);
+   strlcpy  (yVIKEYS__unit_answer, "MAP unit         : question not understood", LEN_FULL);
    /*---(dependency list)----------------*/
    if      (strcmp (a_question, "horz"           )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP horz pos     : index %3d, grid %3d", g_xmap.cur, g_xmap.gcur);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "MAP horz pos     : index %3d, grid %3d", g_xmap.cur, g_xmap.gcur);
    }
    else if (strcmp (a_question, "horz_unit"      )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP horz units   : a %3d, b %3d, c %3d, e %3d, t %3d, l %3d", g_xmap.avail, g_xmap.beg, g_xmap.cur, g_xmap.end, g_xmap.tend, g_xmap.len);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "MAP horz units   : a %3d, b %3d, c %3d, e %3d, t %3d, l %3d", g_xmap.avail, g_xmap.beg, g_xmap.cur, g_xmap.end, g_xmap.tend, g_xmap.len);
    }
    else if (strcmp (a_question, "horz_grid"      )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP horz grids   :        b %3d, c %3d, e %3d", g_xmap.gbeg, g_xmap.gcur, g_xmap.gend);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "MAP horz grids   :        b %3d, c %3d, e %3d", g_xmap.gbeg, g_xmap.gcur, g_xmap.gend);
    }
    else if (strcmp (a_question, "vert_unit"      )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP vert units   : a %3d, b %3d, c %3d, e %3d, t %3d, l %3d", g_ymap.avail, g_ymap.beg, g_ymap.cur, g_ymap.end, g_ymap.tend, g_ymap.len);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "MAP vert units   : a %3d, b %3d, c %3d, e %3d, t %3d, l %3d", g_ymap.avail, g_ymap.beg, g_ymap.cur, g_ymap.end, g_ymap.tend, g_ymap.len);
    }
    else if (strcmp (a_question, "vert_grid"      )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP vert grids   :        b %3d, c %3d, e %3d", g_ymap.gbeg, g_ymap.gcur, g_ymap.gend);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "MAP vert grids   :        b %3d, c %3d, e %3d", g_ymap.gbeg, g_ymap.gcur, g_ymap.gend);
    }
    else if (strcmp (a_question, "current"        )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "MAP current      : %3db, %3dx, %3dy, %3dz", g_bmap.gcur, g_xmap.gcur, g_ymap.gcur, g_zmap.gcur);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "MAP current      : %3db, %3dx, %3dy, %3dz", g_bmap.gcur, g_xmap.gcur, g_ymap.gcur, g_zmap.gcur);
    }
    /*---(complete)-----------------------*/
    return yVIKEYS__unit_answer;

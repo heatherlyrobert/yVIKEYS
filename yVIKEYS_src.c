@@ -1889,29 +1889,29 @@ SOURCE__unit            (char *a_question, char a_reg)
    /*---(locals)-----------+-----+-----+-*/
    char        t           [LEN_RECD];
    /*---(preprare)-----------------------*/
-   strlcpy  (yVIKEYS__unit_answer, "SRC unit         : question not understood", LEN_STR);
+   strlcpy  (yVIKEYS__unit_answer, "SRC unit         : question not understood", LEN_FULL);
    /*---(questions)----------------------*/
    if      (strcmp (a_question, "position"       )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "SRC position     : %3dw, %3da, %3db, %3dc, %3de", s_cur->wide, s_cur->apos, s_cur->bpos, s_cur->cpos, s_cur->epos);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "SRC position     : %3dw, %3da, %3db, %3dc, %3de", s_cur->wide, s_cur->apos, s_cur->bpos, s_cur->cpos, s_cur->epos);
    }
    else if (strcmp (a_question, "contents"       )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "SRC contents     : %3d:%-.40s:", s_cur->npos, s_cur->contents);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "SRC contents     : %3d:%-.40s:", s_cur->npos, s_cur->contents);
    }
    else if (strcmp (a_question, "words"          )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "SRC words        : %3d:%-.40s:", s_cur->npos, s_cur->words);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "SRC words        : %3d:%-.40s:", s_cur->npos, s_cur->words);
    }
    else if (strcmp (a_question, "source"         )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "SRC source       : %3d:%-.40s:", s_src.npos, s_src.contents);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "SRC source       : %3d:%-.40s:", s_src.npos, s_src.contents);
    }
    else if (strcmp (a_question, "command"        )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "SRC command      : %3d:%-.40s:", s_cmd.npos, s_cmd.contents);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "SRC command      : %3d:%-.40s:", s_cmd.npos, s_cmd.contents);
    }
    else if (strcmp (a_question, "label"          )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "SRC label        : %s", s_cur->label);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "SRC label        : %s", s_cur->label);
    }
    else if (strcmp (a_question, "undo"           )   == 0) {
       yvikeys_sundo_status (t);
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "SRC undo queue   : %-.50s", t);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "SRC undo queue   : %-.50s", t);
    }
    /*---(complete)-----------------------*/
    return yVIKEYS__unit_answer;

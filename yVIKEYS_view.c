@@ -247,7 +247,7 @@ VIEW__purge              (void)
    for (n = 0; n < s_npart; ++n) {
       s_parts [n].left   = s_parts [n].wide   = 0;
       s_parts [n].bott   = s_parts [n].tall   = 0;
-      strlcpy (s_parts [n].text, "", LEN_STR);
+      strlcpy (s_parts [n].text, "", LEN_FULL);
       s_parts [n].type   = YVIKEYS_FLAT;
       s_parts [n].color  = YCOLOR_GRY;
       s_parts [n].xmin   = s_parts [n].xlen   = 0;
@@ -1301,11 +1301,11 @@ yVIKEYS_view_config     (cchar *a_title, cchar *a_ver, cchar a_env, cint a_wide,
    /*---(set text data)------------------*/
    if (a_title != NULL) {
       n = VIEW__abbr (YVIKEYS_TITLE);
-      strlcpy (s_parts [n].text, a_title, LEN_STR  );
+      strlcpy (s_parts [n].text, a_title, LEN_FULL  );
    }
    if (a_ver   != NULL) {
       n = VIEW__abbr (YVIKEYS_VERSION);
-      strlcpy (s_parts [n].text, a_ver  , LEN_STR  );
+      strlcpy (s_parts [n].text, a_ver  , LEN_FULL  );
    }
    n = VIEW__abbr (YVIKEYS_COMMAND);
    MODE_message ();
@@ -1595,7 +1595,7 @@ yVIKEYS_view_text       (cchar a_part, cchar *a_text)
    int         n           =    0;
    n = VIEW__abbr (a_part);
    if (n < 0)  return -1;
-   strlcpy (s_parts [n].text, a_text, LEN_STR);
+   strlcpy (s_parts [n].text, a_text, LEN_FULL);
    return 0;
 }
 
@@ -1621,7 +1621,7 @@ yVIKEYS_view_size       (cchar a_part, int *a_left, int *a_wide, int *a_bott, in
    if (a_bott != NULL)  *a_bott  = s_parts [n].bott;
    if (a_wide != NULL)  *a_wide  = s_parts [n].wide;
    if (a_tall != NULL)  *a_tall  = s_parts [n].tall;
-   if (a_text != NULL)  strlcpy (a_text, s_parts [n].text, LEN_STR);
+   if (a_text != NULL)  strlcpy (a_text, s_parts [n].text, LEN_FULL);
    DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return s_parts [n].on;
 }
@@ -2103,7 +2103,7 @@ VIEW__layer_show         (void)
 char
 VIEW_status_default  (char *a_list)
 {
-   snprintf (a_list, LEN_STR, "  ");
+   snprintf (a_list, LEN_FULL, "  ");
    return 0;
 }
 
@@ -2286,15 +2286,15 @@ VIEW__unit              (char *a_question, char a_index)
 {
    char        n;
    /*---(preprare)-----------------------*/
-   strlcpy  (yVIKEYS__unit_answer, "VIEW unit        : question not understood", LEN_STR);
+   strlcpy  (yVIKEYS__unit_answer, "VIEW unit        : question not understood", LEN_FULL);
    /*---(dependency list)----------------*/
    if      (strcmp (a_question, "size"           )   == 0) {
       n    = VIEW__abbr   (a_index);
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "VIEW %-12.12s: on %c, left %4d, wide %4d, bott %4d, tall %4d", s_parts [n].name, s_parts [n].on, s_parts [n].left, s_parts [n].wide, s_parts [n].bott, s_parts [n].tall);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "VIEW %-12.12s: on %c, left %4d, wide %4d, bott %4d, tall %4d", s_parts [n].name, s_parts [n].on, s_parts [n].left, s_parts [n].wide, s_parts [n].bott, s_parts [n].tall);
    }
    if      (strcmp (a_question, "active"         )   == 0) {
       n    = VIEW__abbr   (a_index);
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "VIEW active      : %-12.12s, on %c", s_parts [n].name, s_parts [n].on);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "VIEW active      : %-12.12s, on %c", s_parts [n].name, s_parts [n].on);
    }
    /*---(complete)-----------------------*/
    return yVIKEYS__unit_answer;

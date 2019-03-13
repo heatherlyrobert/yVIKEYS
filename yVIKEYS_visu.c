@@ -706,7 +706,7 @@ yvikeys_visu_status   (char *a_entry)
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    char        rc          =    0;
-   char        t           [LEN_STR]   = "";
+   char        t           [LEN_FULL]   = "";
    /*---(defense)------------------------*/
    --rce;  if (a_entry == NULL)   return rce;
    /*---(get info)-----------------------*/
@@ -1244,31 +1244,31 @@ yvikeys_visu__unit      (char *a_question, char a_which)
 {
    int         n           =    0;
    /*---(preprare)-----------------------*/
-   strlcpy  (yVIKEYS__unit_answer, "VISU unit        : question not understood", LEN_STR);
+   strlcpy  (yVIKEYS__unit_answer, "VISU unit        : question not understood", LEN_FULL);
    /*---(simple)-------------------------*/
    if      (strcmp (a_question, "selection"      )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "VISU selection   : %c  %3db,  %4d to %4dx,  %4d to %4dy,  %4dz", yvikeys_visu_getlive (), s_visu.b_all, s_visu.x_beg, s_visu.x_end, s_visu.y_beg, s_visu.y_end, s_visu.z_all);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "VISU selection   : %c  %3db,  %4d to %4dx,  %4d to %4dy,  %4dz", yvikeys_visu_getlive (), s_visu.b_all, s_visu.x_beg, s_visu.x_end, s_visu.y_beg, s_visu.y_end, s_visu.z_all);
       return yVIKEYS__unit_answer;
    }
    else if (strcmp (a_question, "range"          )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "VISU range       : %c to %c,  %c", s_visu_head, s_visu_tail, s_visu_curr);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "VISU range       : %c to %c,  %c", s_visu_head, s_visu_tail, s_visu_curr);
       return yVIKEYS__unit_answer;
    }
    else if (strcmp (a_question, "cursor"         )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "VISU cursor      : %c  %3db,  %4dx,  %4dy,  %4dz", yvikeys_visu_getlive (), s_visu.b_all, s_visu.x_beg, s_visu.y_beg, s_visu.z_all);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "VISU cursor      : %c  %3db,  %4dx,  %4dy,  %4dz", yvikeys_visu_getlive (), s_visu.b_all, s_visu.x_beg, s_visu.y_beg, s_visu.z_all);
    }
    /*---(complex)------------------------*/
    n = yvikeys_visu__index (a_which);
    if (n < 0) {
-      strlcpy  (yVIKEYS__unit_answer, "VISU unit        : not a valid range name", LEN_STR);
+      strlcpy  (yVIKEYS__unit_answer, "VISU unit        : not a valid range name", LEN_FULL);
       return yVIKEYS__unit_answer;
    }
    /*---(dependency list)----------------*/
    if      (strcmp (a_question, "saved"          )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "VISU saved   (%c) : %c  %3db,  %4d to %4dx,  %4d to %4dy,  %4dz", a_which, s_visu_info [n].active, s_visu_info [n].b_all, s_visu_info [n].x_beg, s_visu_info [n].x_end, s_visu_info [n].y_beg, s_visu_info [n].y_end, s_visu_info [n].z_all);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "VISU saved   (%c) : %c  %3db,  %4d to %4dx,  %4d to %4dy,  %4dz", a_which, s_visu_info [n].active, s_visu_info [n].b_all, s_visu_info [n].x_beg, s_visu_info [n].x_end, s_visu_info [n].y_beg, s_visu_info [n].y_end, s_visu_info [n].z_all);
    }
    else if (strcmp (a_question, "labels"         )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "VISU labels  (%c) : %c    beg=%-12.12s, end=%s", a_which, s_visu_info [n].active, s_visu_info [n].b_label, s_visu_info [n].e_label);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "VISU labels  (%c) : %c    beg=%-12.12s, end=%s", a_which, s_visu_info [n].active, s_visu_info [n].b_label, s_visu_info [n].e_label);
    }
    /*---(complete)-----------------------*/
    return yVIKEYS__unit_answer;

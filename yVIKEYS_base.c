@@ -270,7 +270,7 @@ yvikeys_base_direct     (char a_mode, char *a_string, void *a_purger (), void *a
 /*====================------------------------------------====================*/
 static void  o___UNIT_TEST_______o () { return; }
 
-char          yVIKEYS__unit_answer [LEN_STR];
+char          yVIKEYS__unit_answer [LEN_FULL];
 
 char       /*----: set up program urgents/debugging --------------------------*/
 BASE__unit_quiet       (void)
@@ -845,24 +845,24 @@ KEYS__unit              (char *a_question, char a_index)
    /*---(locals)-----------+-----------+-*/
    char        t           [LEN_RECD ] = "";
    /*---(preprare)-----------------------*/
-   strlcpy  (yVIKEYS__unit_answer, "KEYS unit        : question not understood", LEN_STR);
+   strlcpy  (yVIKEYS__unit_answer, "KEYS unit        : question not understood", LEN_FULL);
    /*---(dependency list)----------------*/
    if      (strcmp (a_question, "log"            )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "KEYS log         : %2d[%-.40s]", s_nkey, s_keys_log);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "KEYS log         : %2d[%-.40s]", s_nkey, s_keys_log);
    }
    else if (strcmp (a_question, "mode"           )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "KEYS mode        : %2d[%-.40s]", s_nkey, s_keys_mode);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "KEYS mode        : %2d[%-.40s]", s_nkey, s_keys_mode);
    }
    else if (strcmp (a_question, "multi"          )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "KEYS multi       : %2d[%-.40s]", s_nkey, s_keys_multi);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "KEYS multi       : %2d[%-.40s]", s_nkey, s_keys_multi);
    }
    else if (strcmp (a_question, "error"          )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "KEYS error       : %2d[%-.40s]", s_nkey, s_keys_error);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "KEYS error       : %2d[%-.40s]", s_nkey, s_keys_error);
    }
    else if (strcmp (a_question, "status"         )   == 0) {
       KEYS_status (t);
       strltrim (t, ySTR_BOTH, LEN_RECD);
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "%-.60s", t);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "%-.60s", t);
    }
    /*---(complete)-----------------------*/
    return yVIKEYS__unit_answer;

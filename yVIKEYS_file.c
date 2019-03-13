@@ -164,8 +164,8 @@ yvikeys__file_by_label  (char *a_label)
 char
 yvikeys_file_status          (char *a_list)
 {
-   /*> snprintf (a_list, LEN_STR, "[ file %-20.20s%*.*s%30.30s %-4.4s ]", my.f_name, my.x_full - 57, my.x_full - 57, g_empty, ver_txt, ver_num);   <*/
-   snprintf (a_list, LEN_STR, "file %s", myVIKEYS.f_title);
+   /*> snprintf (a_list, LEN_FULL, "[ file %-20.20s%*.*s%30.30s %-4.4s ]", my.f_name, my.x_full - 57, my.x_full - 57, g_empty, ver_txt, ver_num);   <*/
+   snprintf (a_list, LEN_FULL, "file %s", myVIKEYS.f_title);
    return 0;
 }
 
@@ -573,8 +573,8 @@ yvikeys_file_name               (char *a_name)
    char        rce         =  -10;
    char        rc          =    0;
    char        i           =    0;
-   char        t           [LEN_STR]   = "";
-   char        d           [LEN_STR]   = "";
+   char        t           [LEN_FULL]   = "";
+   char        d           [LEN_FULL]   = "";
    char       *p           = NULL;
    int         x_len       =    0;
    int         x_extlen    =    0;
@@ -596,7 +596,7 @@ yvikeys_file_name               (char *a_name)
       DEBUG_INPT   yLOG_exit    (__FUNCTION__);
       return 0;
    }
-   strlcpy (t, a_name, LEN_STR);
+   strlcpy (t, a_name, LEN_FULL);
    DEBUG_INPT   yLOG_info    ("t"         , t);
    /*---(strip extensions)---------------*/
    DEBUG_INPT   yLOG_info    ("s_ext"     , s_ext);
@@ -1312,16 +1312,16 @@ FILE__unit         (char *a_question, int a_ref)
    strcpy  (yVIKEYS__unit_answer, "FILE             : question not understood");
    /*---(selection)----------------------*/
    if      (strcmp (a_question, "ver_num"   )    == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "FILE ver_num     : %s", ver_num);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "FILE ver_num     : %s", ver_num);
    } else if (strcmp (a_question, "version"   )    == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "FILE version     : %c %-4.4s %s", ver_ctrl, ver_num, ver_txt);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "FILE version     : %c %-4.4s %s", ver_ctrl, ver_num, ver_txt);
    } else if (strcmp (a_question, "recd"      )    == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "FILE recd        : %s", myVIKEYS.f_recd);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "FILE recd        : %s", myVIKEYS.f_recd);
    } else if (strcmp (a_question, "loc"       )    == 0) {
-      if (myVIKEYS.f_loc [0] == 0)  snprintf (yVIKEYS__unit_answer, LEN_STR, "FILE loc         : -");
-      else                          snprintf (yVIKEYS__unit_answer, LEN_STR, "FILE loc         : %s", myVIKEYS.f_loc);
+      if (myVIKEYS.f_loc [0] == 0)  snprintf (yVIKEYS__unit_answer, LEN_FULL, "FILE loc         : -");
+      else                          snprintf (yVIKEYS__unit_answer, LEN_FULL, "FILE loc         : %s", myVIKEYS.f_loc);
    } else if (strcmp (a_question, "title"     )    == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_STR, "FILE title       : %s", myVIKEYS.f_title);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "FILE title       : %s", myVIKEYS.f_title);
    }
    /*---(complete)-----------------------*/
    return yVIKEYS__unit_answer;
