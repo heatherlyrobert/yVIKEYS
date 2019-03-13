@@ -190,79 +190,80 @@ extern char yVIKEYS_ver     [500];
 
 /*===[[ FUNCTION PROTOTYPES ]]================================================*/
 /*---(debugging)------------*/
-char*       yVIKEYS_version           (void);
-char        yVIKEYS_debug             (char    a_flag  );
+char*       yVIKEYS_version         (void);
+char        yVIKEYS_debug           (char    a_flag  );
 
-char        yVIKEYS_init              (void);
-char        yVIKEYS_quit              (void);
-char        yVIKEYS_error             (void);
-char        yVIKEYS_wrap              (void);
+char        yVIKEYS_init            (void);
+char        yVIKEYS_quit            (void);
+char        yVIKEYS_error           (void);
+char        yVIKEYS_wrap            (void);
 
-int         yVIKEYS_keys_nkey         (void);
-char*       yVIKEYS_keys_last         (void);
-uchar       yVIKEYS_main_input        (char  a_runmode, uchar a_key);
-uchar       yVIKEYS_main_handle       (uchar a_key);
-uchar       yVIKEYS_main_string       (uchar *a_keys);
-char        yVIKEYS_main              (char *a_delay, char *a_update, void *a_altinput ());
+int         yVIKEYS_keys_nkey       (void);
+char*       yVIKEYS_keys_last       (void);
+uchar       yVIKEYS_main_input      (char  a_runmode, uchar a_key);
+uchar       yVIKEYS_main_handle     (uchar a_key);
+uchar       yVIKEYS_main_string     (uchar *a_keys);
+char        yVIKEYS_main            (char *a_delay, char *a_update, void *a_altinput ());
 
-char*       yVIKEYS__unit             (char *a_question, int a_num);
+char*       yVIKEYS__unit           (char *a_question, int a_num);
 
 /*---(view)-----------------*/
-char        yVIKEYS_view_font         (cchar  a_fixed);
-char        yVIKEYS_view_config       (cchar *a_title, cchar *a_ver, cchar a_env, cint a_wide, cint a_tall, cint a_alt);
-char        yVIKEYS_run_curses        (cchar *a_title, cchar *a_ver);
-char        yVIKEYS_run_opengl        (cchar *a_title, cchar *a_ver, cint a_wide, cint a_tall);
-char        yVIKEYS_view_resize       (cint   a_wide , cint   a_tall, cint a_alt);
-char        yVIKEYS_view_setup        (cchar  a_part , cchar  a_type, cchar a_anchor, cint a_xmin, cint a_xlen, cint a_ymin, cint a_ylen, cint a_zmin, cint z_len, cchar a_color, void *a_drawer);
-char        yVIKEYS_view_basic        (cchar  a_part , cchar  a_type, cchar a_anchor, cchar a_color, void *a_drawer);
-char        yVIKEYS_view_simple       (cchar  a_part , cchar  a_color, void *a_drawer);
-char        yVIKEYS_view_defsize      (cchar  a_part, cint a_wide, cint a_tall);
-char        yVIKEYS_view_palette      (cint   a_deg, cchar *a_harm, cchar *a_sat, cchar *a_val);
-char        yVIKEYS_view_colors       (cint   a_lef, cint a_bot, cint a_top, cint a_rig);
-char        yVIKEYS_view_color        (cint   a_color, cfloat a_alpha);
-char        yVIKEYS_view_color_adj    (cint   a_base, cint a_adj, cfloat a_alpha);
-char        yVIKEYS_view_color_clear  (cint   a_color);
+char        yVIKEYS_view_font       (cchar  a_fixed);
+char        yVIKEYS_view_config     (cchar *a_title, cchar *a_ver, cchar a_env, cint a_wide, cint a_tall, cint a_alt);
+char        yVIKEYS_run_curses      (cchar *a_title, cchar *a_ver);
+char        yVIKEYS_run_opengl      (cchar *a_title, cchar *a_ver, cint a_wide, cint a_tall);
+char        yVIKEYS_view_resize     (cint   a_wide , cint   a_tall, cint a_alt);
+char        yVIKEYS_view_setup      (cchar  a_part , cchar  a_type, cchar a_anchor, cint a_xmin, cint a_xlen, cint a_ymin, cint a_ylen, cint a_zmin, cint z_len, cchar a_color, void *a_drawer);
+char        yVIKEYS_view_basic      (cchar  a_part , cchar  a_type, cchar a_anchor, cchar a_color, void *a_drawer);
+char        yVIKEYS_view_simple     (cchar  a_part , cchar  a_color, void *a_drawer);
+char        yVIKEYS_view_defsize    (cchar  a_part, cint a_wide, cint a_tall);
+char        yVIKEYS_view_palette    (cint   a_deg, cchar *a_harm, cchar *a_sat, cchar *a_val);
+char        yVIKEYS_view_colors     (cint   a_lef, cint a_bot, cint a_top, cint a_rig);
+char        yVIKEYS_view_color      (cint   a_color, cfloat a_alpha);
+char        yVIKEYS_view_color_adj  (cint   a_base, cint a_adj, cfloat a_alpha);
+char        yVIKEYS_view_color_clear(cint   a_color);
 
-char        yVIKEYS_view_size         (cchar  a_part , int   *a_left, int *a_wide, int *a_bott, int *a_tall, cchar *a_text);
-char        yVIKEYS_view_bounds       (cchar  a_part , int   *a_xmin, int *a_xmax, int *a_ymin, int *a_ymax);
-char        yVIKEYS_view_coords       (cchar  a_part , int   *a_xmin, int *a_xlen, int *a_ymin, int *a_ylen);
-char        yVIKEYS_view_text         (cchar  a_part , cchar *a_text);
-char        yVIKEYS_view_all          (float a_mag);
+char        yVIKEYS_view_size       (cchar  a_part , int   *a_left, int *a_wide, int *a_bott, int *a_tall, cchar *a_text);
+char        yVIKEYS_view_bounds     (cchar  a_part , int   *a_xmin, int *a_xmax, int *a_ymin, int *a_ymax);
+char        yVIKEYS_view_coords     (cchar  a_part , int   *a_xmin, int *a_xlen, int *a_ymin, int *a_ylen);
+char        yVIKEYS_view_text       (cchar  a_part , cchar *a_text);
+char        yVIKEYS_view_all        (float a_mag);
 
-char        yVIKEYS_view_option       (char a_part, char *a_opt, void *a_source, char *a_desc);
-char        yVIKEYS_layer_add         (char *a_name, void *a_drawer, char *a_desc);
+char        yVIKEYS_view_option     (char a_part, char *a_opt, void *a_source, char *a_desc);
+char        yVIKEYS_layer_add       (char *a_name, void *a_drawer, char *a_desc);
 
 char        yVIKEYS_view_ribbon_clear (void);
-char        yVIKEYS_view_ribbon       (char *a_cat, char *a_name);
+char        yVIKEYS_view_ribbon     (char *a_cat, char *a_name);
 
 
-char        yVIKEYS_jump              (int a_buf, int a_x, int a_y, int a_z);
+char        yVIKEYS_jump            (int a_buf, int a_x, int a_y, int a_z);
 
 /*---(map mode)-------------*/
-char        yVIKEYS_map_config        (char a_coord, void *a_mapper, void *a_locator, void *a_address);
-char        yVIKEYS_map_refresh       (void);
-char        yVIKEYS_root              (int b, int x, int y, int z);
-char        yVIKEYS_visual            (int b, int x, int y, int z);
-char        yVIKEYS_bufs_config       (void *a_switcher);
+char        yVIKEYS_map_config      (char a_coord, void *a_mapper, void *a_locator, void *a_address);
+char        yVIKEYS_map_refresh     (void);
+char        yVIKEYS_root            (int b, int x, int y, int z);
+char        yVIKEYS_visual          (int b, int x, int y, int z);
+char        yVIKEYS_bufs_config     (void *a_switcher);
 
-char        yVIKEYS_first             (int *a_b, int *a_x, int *a_y, int *a_z);
-char        yVIKEYS_next              (int *a_b, int *a_x, int *a_y, int *a_z);
+char        yVIKEYS_first           (int *a_b, int *a_x, int *a_y, int *a_z);
+char        yVIKEYS_next            (int *a_b, int *a_x, int *a_y, int *a_z);
 
-char        yVIKEYS_src_config        (void *a_saver);
-char        yVIKEYS_source            (char *a_label, char *a_contents);
+char        yVIKEYS_src_config      (void *a_saver);
+char        yVIKEYS_source          (char *a_label, char *a_contents);
 
 
 char        yVIKEYS_hist_marklist   (char *a_list);
 
-char        yVIKEYS_mode_change       (char a_mode, char *a_allow, char *a_mesg);
-char        yVIKEYS_mode_formatter    (void *a_formatter);
+char        yVIKEYS_mode_change     (char a_mode, char *a_allow, char *a_mesg);
+char        yVIKEYS_mode_formatter  (void *a_formatter);
 
 /*---(speed)----------------*/
-char        yVIKEYS_speed_brief  (char   *a_text);
-char        yVIKEYS_speed_desc   (char   *a_text);
+/*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
+char        yVIKEYS_speed_brief     (char   *a_text);
+char        yVIKEYS_speed_desc      (char   *a_text);
 
 /*---(scale)----------------*/
-char        yVIKEYS_scale_brief    (char   *a_text);
+char        yVIKEYS_scale_brief     (char   *a_text);
 char        yVIKEYS_scale_desc      (char   *a_text  );
 
 

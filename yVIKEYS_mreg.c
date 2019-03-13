@@ -121,9 +121,9 @@ static char    (*s_regkill)    (void *a_thing);
 /* get a copy and put it into a register ----------------------*/
 static void*   (*s_copier)     (char a_type, long a_stamp);
 /* clear an area in the host application ----------------------*/
-static char    (*s_clearer)    (char a_1st, int x, int y, int z);
+static char    (*s_clearer)    (char a_1st, int b, int x, int y, int z);
 /* integrate something into the host application --------------*/
-static char    (*s_paster)     (char a_regs, char a_pros, char a_intg, char a_1st, int a_xoff, int a_yoff, int a_zoff, void *a_thing);
+static char    (*s_paster)     (char a_regs, char a_pros, char a_intg, char a_1st, int a_boff, int a_xoff, int a_yoff, int a_zoff, void *a_thing);
 /* data export and import -------------------------------------*/
 static char    (*s_exim)       (char a_dir, char a_style);
 
@@ -696,7 +696,7 @@ yvikeys_mreg_clear           (void)
    /*---(clear)--------------------------*/
    for (x = x_beg; x <= x_end; ++x) {
       for (y = y_beg; y <= y_end; ++y) {
-         rc = s_clearer (x_1st, x, y, z);
+         rc = s_clearer (x_1st, b, x, y, z);
          if (rc == 0)  x_1st = '-';
       }
    }
@@ -859,7 +859,7 @@ yvikeys_mreg__paste_clear    (void)
    for (x = s_regs [s_reg].x_beg; x <= s_regs [s_reg].x_end; ++x) {
       for (y = s_regs [s_reg].y_beg; y <= s_regs [s_reg].y_end; ++y) {
          DEBUG_REGS   yLOG_complex ("target"    , "%c, %3dx, %3dy, %3dz", x_1st, x + s_xoff, y + s_yoff, s_regs [s_reg].z_all + s_zoff);
-         rc = s_clearer (x_1st, x + s_xoff, y + s_yoff, s_regs [s_reg].z_all + s_zoff);
+         rc = s_clearer (x_1st, s_regs [s_reg].b_all + s_boff, x + s_xoff, y + s_yoff, s_regs [s_reg].z_all + s_zoff);
          if (rc == 0)  x_1st = '-';
       }
    }
@@ -907,7 +907,7 @@ yvikeys_mreg_paste              (char *a_type)
    DEBUG_REGS   yLOG_value   ("nbuf"      , s_regs [s_reg].nbuf);
    --rce;  for (i = 0; i < s_regs [s_reg].nbuf; ++i) {
       DEBUG_REGS   yLOG_value   ("i"         , i);
-      rc = s_paster (s_reqs, s_pros, s_intg, x_1st, s_xoff, s_yoff, s_zoff, s_regs [s_reg].buf [i]);
+      rc = s_paster (s_reqs, s_pros, s_intg, x_1st, s_boff, s_xoff, s_yoff, s_zoff, s_regs [s_reg].buf [i]);
       if (rc < 0) {
          DEBUG_REGS   yLOG_exitr   (__FUNCTION__, rce);
          return rce;
@@ -1426,7 +1426,7 @@ yvikeys_mreg__unit_copier  (char a_type, long a_stamp)
 }
 
 char
-yvikeys_mreg__unit_clearer (char a_1st, int x, int y, int z)
+yvikeys_mreg__unit_clearer (char a_1st, int b, int x, int y, int z)
 {
    tTHING     *x_thing     = NULL;
    if (s_things [x][y] == NULL)  return 0;
@@ -1436,7 +1436,7 @@ yvikeys_mreg__unit_clearer (char a_1st, int x, int y, int z)
 }
 
 char
-yvikeys_mreg__unit_paster  (char a_regs, char a_pros, char a_intg, char a_1st, int a_xoff, int a_yoff, int a_zoff, void *a_thing)
+yvikeys_mreg__unit_paster  (char a_regs, char a_pros, char a_intg, char a_1st, int a_boff, int a_xoff, int a_yoff, int a_zoff, void *a_thing)
 {
    tTHING     *x_thing;
    int         x, y;

@@ -25,8 +25,8 @@
 #define     P_CREATED   "2010-01"
 #define     P_DEPENDS   "none"
 
-#define     P_VERNUM    "1.1q"
-#define     P_VERTXT    "updated to handle the changes to yLOG"
+#define     P_VERNUM    "1.1r"
+#define     P_VERTXT    "fixed backslash interpretation issues in macro unit testing"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -219,8 +219,8 @@ extern char *gvikeys_greek;
 char        VIEW__reset             (void);
 char        VIEW__find              (cchar *a_name);
 char        VIEW__abbr              (cchar  a_abbr);
-char        VIEW_wrap                 (void);
-char        VIEW__switch             (char *a_name, char *a_opt);
+char        VIEW_wrap               (void);
+char        VIEW__switch            (char *a_name, char *a_opt);
 
 char        VIEW__widths            (cint a_wide, cint a_alt);
 char        VIEW__heights           (cint a_tall);
@@ -328,9 +328,10 @@ char        yvikeys_visu_update     (void);
 char        yvikeys_visu_init       (void);
 char        yvikeys_visu_info       (int a_index, char *a_entry);
 
+/*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
 char        yvikeys_visu_reverse    (void);
 char        yvikeys_visu_status     (char *a_list);
-char        yvikeys_visu_clear              (void);
+char        yvikeys_visu_clear      (void);
 char        yvikeys_visu_exact      (int b, int xb, int xe, int yb, int ye, int z);
 char        yvikeys_visu_coords     (int *b, int *xb, int *xe, int *yb, int *ye, int *z);
 char        yvikeys_visu_umode      (int a_major, int a_minor);
@@ -341,20 +342,20 @@ char        yvikeys_visu__writer_all(void);
 char*       yvikeys_visu__unit      (char *a_question, char a_index);
 
 
-char        yvikeys_file_status             (char *a_list);
+char        yvikeys_file_status     (char *a_list);
 char        INPT__unit_reader       (char a_abbr);
 
 
-char        yvikeys_sundo_purge        (int a_start);
-char        yvikeys_sundo_init         (void);
-char        yvikeys_sundo_beg          (char *a_function);
-char        yvikeys_sundo_chain        (void);
-char        yvikeys_sundo_end          (char *a_function);
-char        yvikeys_sundo_add          (char a_major, char a_minor, int a_pos, char a_before, char a_after);
-char        yvikeys_sundo_single       (char a_minor, int a_pos, char a_before, char a_after);
-char        yvikeys_sundo_status       (char *a_list);
-char        yvikeys_sundo_redo         (int *a_pos);
-char        yvikeys_sundo_undo         (int *a_pos);
+char        yvikeys_sundo_purge     (int a_start);
+char        yvikeys_sundo_init      (void);
+char        yvikeys_sundo_beg       (char *a_function);
+char        yvikeys_sundo_chain     (void);
+char        yvikeys_sundo_end       (char *a_function);
+char        yvikeys_sundo_add       (char a_major, char a_minor, int a_pos, char a_before, char a_after);
+char        yvikeys_sundo_single    (char a_minor, int a_pos, char a_before, char a_after);
+char        yvikeys_sundo_status    (char *a_list);
+char        yvikeys_sundo_redo      (int *a_pos);
+char        yvikeys_sundo_undo      (int *a_pos);
 
 char*       SOURCE_label            (void);
 char        SOURCE_init             (void);
@@ -571,9 +572,9 @@ char        yvikeys_mreg_status     (char *a_status);
 char        yvikeys_mreg_smode           (int a_major, int a_minor);
 
 char        yvikeys_mreg__unit_purge   (void);
-char        yvikeys_mreg__unit_clearer (char a_1st, int x, int y, int z);
+char        yvikeys_mreg__unit_clearer (char a_1st, int b, int x, int y, int z);
 char        yvikeys_mreg__unit_copier  (char a_type, long a_stamp);
-char        yvikeys_mreg__unit_paster  (char a_regs, char a_pros, char a_intg, char a_1st, int a_xoff, int a_yoff, int a_zoff, void *a_thing);
+char        yvikeys_mreg__unit_paster  (char a_regs, char a_pros, char a_intg, char a_1st, int a_boff, int a_xoff, int a_yoff, int a_zoff, void *a_thing);
 char        yvikeys_mreg__unit_regkill (void *a_thing);
 char        yvikeys_mreg__unit_config  (void);
 char*       yvikeys_mreg__unit         (char *a_question, char x, char y);

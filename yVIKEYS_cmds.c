@@ -1006,7 +1006,7 @@ yvikeys_cmds__writer    (char a_abbr)
    /*---(defense)------------------------*/
    DEBUG_OUTP   yLOG_char    ("a_abbr"    , a_abbr);
    n  = yvikeys_cmds__index (a_abbr);
-   DEBUG_OUTP   yLOG_char    ("index"     , n);
+   DEBUG_OUTP   yLOG_value   ("index"     , n);
    if (n == -1) { 
       DEBUG_OUTP   yLOG_exit    (__FUNCTION__);
       return 0;
@@ -1051,7 +1051,7 @@ yvikeys_cmds__writer_all     (void)
    x_end = strlen (S_HIST_LIST);
    yPARSE_verb_begin ("command");
    /*---(walk list)----------------------*/
-   for (i = 0; i <= x_end; ++i) {
+   for (i = 0; i < x_end; ++i) {
       rc = yvikeys_cmds__writer (S_HIST_LIST [i]);
       if (rc < 1)  continue;
       ++c;

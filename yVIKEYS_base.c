@@ -275,8 +275,10 @@ char          yVIKEYS__unit_answer [LEN_STR];
 char       /*----: set up program urgents/debugging --------------------------*/
 BASE__unit_quiet       (void)
 {
-   ySTR_debug ('-');
-   myVIKEYS.logger = yLOGS_begin ("yVIKEYS" , YLOG_SYS, YLOG_QUIET);
+   int         x_narg       = 1;
+   char       *x_args [20]  = {"yVIKEYS_unit" };
+   yURG_logger   (x_narg, x_args);
+   yURG_urgs     (x_narg, x_args);
    yVIKEYS_init ();
    return 0;
 }
@@ -284,9 +286,12 @@ BASE__unit_quiet       (void)
 char       /*----: set up program urgents/debugging --------------------------*/
 BASE__unit_loud        (void)
 {
-   ySTR_debug ('y');
-   myVIKEYS.logger = yLOGS_begin ("yVIKEYS" , YLOG_SYS, YLOG_NOISE);
+   int         x_narg       = 1;
+   char       *x_args [20]  = {"yVIKEYS_unit" };
+   yURG_logger   (x_narg, x_args);
+   yURG_urgs     (x_narg, x_args);
    yURG_name  ("kitchen"      , YURG_ON);
+   yURG_name  ("yurg"         , YURG_ON);
    yURG_name  ("edit"         , YURG_ON);
    yURG_name  ("mark"         , YURG_ON);
    yURG_name  ("mode"         , YURG_ON);
@@ -296,6 +301,7 @@ BASE__unit_loud        (void)
    yURG_name  ("hist"         , YURG_ON);
    yURG_name  ("ystr"         , YURG_ON);
    yURG_name  ("yparse"       , YURG_ON);
+   printf ("yURG_debug.yparse %c\n", yURG_debug.yparse);
    DEBUG_YVIKEYS yLOG_info     ("yVIKEYS"    , yVIKEYS_version   ());
    yVIKEYS_init ();
    return 0;
