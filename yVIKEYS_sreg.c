@@ -292,7 +292,7 @@ yvikeys_sreg_push       (char a_abbr, char *a_data)
    strlcpy (a_dst->label, "-", LEN_LABEL);
    strlcpy (a_dst->data , a_data , LEN_RECD );
    a_dst->len    = strllen (a_dst->data , LEN_RECD);
-   strldchg (a_dst->data, G_KEY_SPACE, G_CHAR_STORAGE, LEN_RECD);
+   /*> strldchg (a_dst->data, G_KEY_SPACE, G_CHAR_STORAGE, LEN_RECD);                 <*/
    /*---(complete)-----------------------*/
    return 0;
 }
@@ -314,7 +314,7 @@ yvikeys_sreg_fetch      (int *a_len, char *a_data)
    if (a_len  != NULL)  *a_len = s_sreg_info [n].len;
    if (a_data != NULL) {
       strlcpy (a_data, s_sreg_info [n].data, LEN_RECD);
-      strldchg (a_data, G_CHAR_STORAGE, G_KEY_SPACE, LEN_RECD);
+      /*> strldchg (a_data, G_CHAR_STORAGE, G_KEY_SPACE, LEN_RECD);                   <*/
    }
    /*---(complete)-----------------------*/
    return 0;
@@ -344,7 +344,7 @@ yvikeys_sreg_save       (char *a_label, char *a_data)
    a_dst->end    = s_sreg.end;
    strlcpy (a_dst->data , a_data , LEN_RECD );
    a_dst->len    = strllen (a_dst->data , LEN_RECD);
-   strldchg (a_dst->data, G_KEY_SPACE, G_CHAR_STORAGE, LEN_RECD);
+   /*> strldchg (a_dst->data, G_KEY_SPACE, G_CHAR_STORAGE, LEN_RECD);                 <*/
    /*---(complete)-----------------------*/
    return 0;
 }
@@ -367,7 +367,7 @@ yvikeys_sreg_append     (char *a_data)
    a_dst->source = S_SREG_USER;
    strlcat (a_dst->data , a_data , LEN_RECD );
    a_dst->len    = strllen (a_dst->data , LEN_RECD);
-   strldchg (a_dst->data, G_KEY_SPACE, G_CHAR_STORAGE, LEN_RECD);
+   /*> strldchg (a_dst->data, G_KEY_SPACE, G_CHAR_STORAGE, LEN_RECD);                 <*/
    /*---(complete)-----------------------*/
    return 0;
 }
@@ -697,7 +697,7 @@ yvikeys_sreg__unit      (char *a_question, char a_reg)
    strlcpy  (yVIKEYS__unit_answer, "SREG unit        : question not understood", LEN_FULL);
    /*---(simple)-------------------------*/
    if      (strcmp (a_question, "selection"      )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_FULL, "SREG selection   :    %c, %3db, %3de, %3dc, %3dr", s_sreg.active, s_sreg.beg, s_sreg.end, s_sreg.end - s_sreg.beg + 1, s_sreg.root);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "SREG selection   :    %c, %3db, %3de, %3d#, %3dr", s_sreg.active, s_sreg.beg, s_sreg.end, s_sreg.end - s_sreg.beg + 1, s_sreg.root);
       return yVIKEYS__unit_answer;
    }
    else if (strcmp (a_question, "register"       )   == 0) {

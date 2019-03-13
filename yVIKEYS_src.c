@@ -111,8 +111,8 @@ yvikeys_src_clear       (char a_major, char a_minor)
    /*---(act)----------------------------*/
    for (i = x_beg; i <= x_end; ++i) {
       s_cur->cpos = i;
-      yvikeys_sundo_add ('x', 'l', i, s_cur->contents [i], G_CHAR_SPACE);
-      yvikeys_src_one_replace (G_CHAR_SPACE);
+      yvikeys_sundo_add ('x', 'l', i, s_cur->contents [i], G_CHAR_STORAGE);
+      yvikeys_src_one_replace (G_CHAR_STORAGE);
    }
    /*---(end)----------------------------*/
    yvikeys_sundo_end (__FUNCTION__);
@@ -198,8 +198,8 @@ yvikeys_src_replace     (void)
          yvikeys_sundo_add   (G_KEY_SPACE, 'r', s_cur->cpos, s_cur->contents [s_cur->cpos], x_data [i]);
          yvikeys_src_one_replace (x_data [i]);
       } else {
-         yvikeys_sundo_add   (G_KEY_SPACE, 'r', s_cur->cpos, G_CHAR_SPACE, x_data [i]);
-         yvikeys_src_one_replace (G_CHAR_SPACE);
+         yvikeys_sundo_add   (G_KEY_SPACE, 'r', s_cur->cpos, G_CHAR_STORAGE, x_data [i]);
+         yvikeys_src_one_replace (G_CHAR_STORAGE);
       }
       ++s_cur->cpos;
    }
@@ -294,10 +294,12 @@ SOURCE__reset           (void)
    }
    strlcpy (s_cur->contents, s_cur->original, LEN_RECD);
    s_cur->npos  = s_cur->bpos  = s_cur->cpos  = s_cur->epos  = 0;
+   DEBUG_EDIT   yLOG_complex ("reset"     , "%3dn %3db %3de %3dc", s_cur->npos, s_cur->bpos, s_cur->epos, s_cur->cpos);
    yvikeys_sreg_reset  (0);
    yvikeys_sundo_purge (0);
    yVIKEYS_source (s_src.label, s_src.original);
    yvikeys_map_reposition  ();
+   DEBUG_EDIT   yLOG_complex ("post-reset", "%3dn %3db %3de %3dc", s_cur->npos, s_cur->bpos, s_cur->epos, s_cur->cpos);
    return 0;
 }
 
@@ -329,12 +331,12 @@ SOURCE__words_mode      (char a_1st, char a_curr, char a_save)
    /*---(formula)------------------------*/
    if (strchr ("=#", a_1st) != NULL) {
       if      (strchr (x_form, a_curr) != NULL)     x_mode = 'w';
-      else if (strchr ("· "  , a_curr) != NULL)     x_mode = '·';
+      else if (strchr ("² "  , a_curr) != NULL)     x_mode = '²';
       else                                          x_mode = 's';
    }
    /*---(word)---------------------------*/
    else {
-      if      (strchr ("· "  , a_curr) != NULL)     x_mode = '·';
+      if      (strchr ("² "  , a_curr) != NULL)     x_mode = '²';
       else                                          x_mode = 'w';
    }
    /*---(complete)-----------------------*/
@@ -364,35 +366,43 @@ SOURCE__words          (void)
    char        rce         =  -10;
    char        x_change    =  '-';
    int         i           =    0;
-   char        x_save      =  '·';
-   char        x_mode      =  '·';
-   /*---(prepare)------------------------*/
+   char        x_save      =  '²';
+   char        x_mode      =  '²';
+   /*---(header)-------------------------*/
    DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
    DEBUG_EDIT   yLOG_value   ("s_npos"    , s_cur->npos);
    DEBUG_EDIT   yLOG_info    ("contents"  , s_cur->contents);
+   /*---(mark tail)----------------------*/
    s_cur->words [s_cur->npos] = 0;
+   if (s_cur->npos <= 0) {
+      DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
+   /*---(walk string)--------------------*/
    for (i = 0; i < s_cur->npos; ++i) {
       /*---(initialize)------------------*/
-      s_cur->words [i] = '·';
+      s_cur->words [i] = '²';
       /*---(check)-----------------------*/
       x_mode = SOURCE__words_mode (s_cur->contents [0], s_cur->contents [i], x_save);
       if (x_mode == x_save)  continue;
       /*---(update current)--------------*/
-      if (x_save == '·' && x_mode == 'w')   SOURCE__words_update (i    , '<');
-      if (x_save == '·' && x_mode == 's')   SOURCE__words_update (i    , '<');
+      if (x_save == '²' && x_mode == 'w')   SOURCE__words_update (i    , '<');
+      if (x_save == '²' && x_mode == 's')   SOURCE__words_update (i    , '<');
       if (x_save == 'w' && x_mode == 's')   SOURCE__words_update (i    , '<');
       if (x_save == 's' && x_mode == 'w')   SOURCE__words_update (i    , '<');
       /*---(update previous)-------------*/
-      if (x_save == 'w' && x_mode == '·')   SOURCE__words_update (i - 1, '>'); 
-      if (x_save == 's' && x_mode == '·')   SOURCE__words_update (i - 1, '>'); 
+      if (x_save == 'w' && x_mode == '²')   SOURCE__words_update (i - 1, '>'); 
+      if (x_save == 's' && x_mode == '²')   SOURCE__words_update (i - 1, '>'); 
       if (x_save == 'w' && x_mode == 's')   SOURCE__words_update (i - 1, '>');
       if (x_save == 's' && x_mode == 'w')   SOURCE__words_update (i - 1, '>');
       /*---(save)------------------------*/
       x_save = x_mode;
       /*---(done)------------------------*/
    }
+   /*---(mark end)-----------------------*/
    if (x_mode != '·')  SOURCE__words_update (s_cur->npos - 1, '>');
    DEBUG_EDIT   yLOG_info    ("words"     , s_cur->words);
+   /*---(complete)-----------------------*/
    DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
    return 0;
 }
@@ -424,6 +434,7 @@ SOURCE__done            (void)
    if (s_cur->cpos >=  s_cur->npos)     s_cur->cpos = s_cur->npos - 1;
    if (s_cur->cpos <   0      )    s_cur->cpos = 0;
    if (s_cur->bpos <   0      )    s_cur->bpos = 0;
+   DEBUG_EDIT   yLOG_complex ("limits"    , "%3dn %3db %3de %3dc", s_cur->npos, s_cur->bpos, s_cur->epos, s_cur->cpos);
    /*---(small strings)---------------*/
    if (s_cur->npos == 0) {
       DEBUG_EDIT   yLOG_note    ("check and handle small string");
@@ -458,10 +469,13 @@ SOURCE__done            (void)
          s_cur->bpos = s_cur->epos - s_cur->apos + 1;
       }
    }
+   DEBUG_EDIT   yLOG_complex ("post-limit", "%3dn %3db %3de %3dc", s_cur->npos, s_cur->bpos, s_cur->epos, s_cur->cpos);
    /*---(selection update)---------------*/
    yvikeys_sreg_update (s_cur->cpos);
+   DEBUG_EDIT   yLOG_complex ("post-sreg" , "%3dn %3db %3de %3dc", s_cur->npos, s_cur->bpos, s_cur->epos, s_cur->cpos);
    /*---(update word breaks)-------------*/
    SOURCE__words ();
+   DEBUG_EDIT   yLOG_complex ("post-words", "%3dn %3db %3de %3dc", s_cur->npos, s_cur->bpos, s_cur->epos, s_cur->cpos);
    /*---(display debugging)--------------*/
    DEBUG_EDIT   yLOG_value   ("s_npos"   , s_cur->npos);
    DEBUG_EDIT   yLOG_value   ("s_apos"   , s_cur->apos);
@@ -566,8 +580,8 @@ SOURCE_init             (void)
    s_cur->type  = EDIT_NORM;
    strlcpy (s_cur->original, "" , LEN_RECD );
    strlcpy (s_cur->label   , "-", LEN_LABEL);
-   /*---(clear)--------------------------*/
    SOURCE__reset ();
+   /*---(clear)--------------------------*/
    yvikeys_sundo_purge (0);
    /*---(update status)------------------*/
    STATUS_init_set   (MODE_SOURCE);
@@ -1284,7 +1298,7 @@ SOURCE_delete          (char a_major, char a_minor)
    DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
    DEBUG_EDIT   yLOG_char    ("s_live"    , yvikeys_sreg_getlive ());
-   --rce;  if (yvikeys_sreg_isdead ()) {
+   --rce;  if (yvikeys_sreg_islive ()) {
       DEBUG_EDIT   yLOG_note    ("function only handles non-selected text");
       DEBUG_EDIT   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
@@ -1333,8 +1347,8 @@ SOURCE_delete          (char a_major, char a_minor)
          yvikeys_src_one_delete ();
       } else {
          if (a_minor == 'h')  --s_cur->cpos;
-         yvikeys_sundo_add (a_major, 'l', s_cur->cpos, s_cur->contents [s_cur->cpos], G_CHAR_SPACE);
-         yvikeys_src_one_replace (G_CHAR_SPACE);
+         yvikeys_sundo_add (a_major, 'l', s_cur->cpos, s_cur->contents [s_cur->cpos], G_CHAR_STORAGE);
+         yvikeys_src_one_replace (G_CHAR_STORAGE);
          if (a_minor != 'h')  ++s_cur->cpos;
       }
    }
@@ -1426,6 +1440,7 @@ SOURCE_mode             (int a_major, int a_minor)
          yvikeys_sreg_setreg ('"');
          MODE_enter (SMOD_SREG);
          rc = yvikeys_sreg_smode (G_KEY_SPACE, a_minor);
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return rc;
       }
       if (yvikeys_sreg_islive () && strchr ("xXdD", a_minor) != 0) {
@@ -1433,10 +1448,13 @@ SOURCE_mode             (int a_major, int a_minor)
          yvikeys_sreg_setreg ('"');
          MODE_enter (SMOD_SREG);
          rc = yvikeys_sreg_smode (G_KEY_SPACE, a_minor);
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return rc;
       }
       /*---(multikey prefixes)-----------*/
       if (strchr (g_multisrc, a_minor) != 0) {
+         DEBUG_USER   yLOG_note    ("beginning of multi-key command");
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return a_minor;
       }
       /*---(mode changes)----------------*/
@@ -1679,7 +1697,7 @@ SRC_REPL_umode    (int a_major, int a_minor)
          yvikeys_sundo_single ('r', s_cur->cpos, x_saved, chrslashed (a_minor));
          rc = yvikeys_src_one_replace (chrslashed (a_minor));
       } else if (a_minor >= 32 && a_minor < 127) {
-         if (a_minor == G_KEY_SPACE)  a_minor = G_CHAR_SPACE;
+         if (a_minor == G_KEY_SPACE)  a_minor = G_CHAR_STORAGE;
          yvikeys_sundo_single ('r', s_cur->cpos, x_saved, a_minor);
          rc = yvikeys_src_one_replace (a_minor);
       } else {
@@ -1714,7 +1732,7 @@ SRC_REPL_umode    (int a_major, int a_minor)
             yvikeys_sundo_single ('R', s_cur->cpos, x_saved, chrslashed (a_minor));
             rc = yvikeys_src_one_replace (chrslashed (a_minor));
          } else if (a_minor >= 32 && a_minor < 127) {
-            if (a_minor == G_KEY_SPACE)  a_minor = G_CHAR_SPACE;
+            if (a_minor == G_KEY_SPACE)  a_minor = G_CHAR_STORAGE;
             yvikeys_sundo_single ('R', s_cur->cpos, x_saved, a_minor);
             rc = yvikeys_src_one_replace (a_minor);
          } else {

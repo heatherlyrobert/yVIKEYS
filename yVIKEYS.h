@@ -23,8 +23,8 @@
 #define     MODES_EDITING  "S:/triw"
 /*---(sub-modes)-------------------------*/
 #define     SMOD_ERROR     'e'    /* error reporting and actions              */
-#define     SMOD_MREG      '¶'    /* register actions                         */
-#define     SMOD_SREG      's'    /* text register actions                    */
+#define     SMOD_MREG      'R'    /* register actions                         */
+#define     SMOD_SREG      't'    /* text register actions                    */
 #define     UMOD_SRC_UNDO  'u'    /* incremental text change undo/redo        */
 #define     UMOD_MAP_UNDO  'm'    /* incremental map change undo/redo         */
 #define     UMOD_HISTORY   'H'    /* dislay command/search history            */
@@ -33,7 +33,7 @@
 #define     XMOD_OBJECT    'o'    /* object formatting                        */
 #define     SMOD_HINT      ';'    /* hint labels                              */
 #define     SMOD_MACRO     '@'    /* macro processing                         */
-#define     SMOD_MENUS     'µ'    /* show menu system                         */
+#define     SMOD_MENUS     'g'    /* show menu system (gui)                   */
 /*---(micro-modes)-----------------------*/
 #define     UMOD_MARK      '\''   /* location and object marking              */
 #define     UMOD_VISUAL    'v'    /* visual selection history                 */

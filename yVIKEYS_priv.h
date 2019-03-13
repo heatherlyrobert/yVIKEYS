@@ -25,8 +25,8 @@
 #define     P_CREATED   "2010-01"
 #define     P_DEPENDS   "none"
 
-#define     P_VERNUM    "1.1s"
-#define     P_VERTXT    "improved mode transition by using table, modes passes unit test again"
+#define     P_VERNUM    "1.1t"
+#define     P_VERTXT    "fixed small bugs and unit tested first half of src unit"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"

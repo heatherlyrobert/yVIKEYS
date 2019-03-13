@@ -1022,9 +1022,8 @@ yvikeys_cmds__writer    (char a_abbr)
       return 0;
    }
    /*---(write)-----------------------*/
-   /*> strlcpy  (x_cmd, s_runs [n].text, LEN_RECD);                                   <*/
-   /*> strldchg (x_cmd, G_KEY_SPACE, G_CHAR_STORAGE, LEN_RECD);                       <*/
-   yPARSE_fullwrite ("command", s_runs [n].mark, s_runs [n].text);
+   strlcpy  (x_cmd, s_runs [n].text, LEN_RECD);
+   yPARSE_fullwrite ("command", s_runs [n].mark, x_cmd);
    /*---(complete)-----------------------*/
    DEBUG_OUTP  yLOG_exit    (__FUNCTION__);
    return 1;
@@ -1101,7 +1100,8 @@ yvikeys_srch__writer    (char a_abbr)
       return 0;
    }
    /*---(write)-----------------------*/
-   yPARSE_fullwrite ("search", s_passes [n].mark, s_passes [n].text);
+   strlcpy  (x_srch, s_passes [n].text, LEN_RECD);
+   yPARSE_fullwrite ("search", s_passes [n].mark, x_srch);
    /*---(complete)-----------------------*/
    DEBUG_OUTP  yLOG_exit    (__FUNCTION__);
    return 1;

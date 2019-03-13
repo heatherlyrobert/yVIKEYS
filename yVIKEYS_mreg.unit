@@ -13,7 +13,6 @@ PREP          v21  include the prototype headers                              
    incl       v21  include private header               yVIKEYS_priv.h              - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
 
-
 #23456789-12  123  123456789-123456789-123456789-12345  123456789-123456789-123456  123456789-123456789-123456789-123456789-123456789-123456789-123456789-  123456789-  123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-  -  123456789-123456789- 
 #==(verb)===  ver  ===========(description)===========  =====(function)===========  ========================(arguments)===================================  ==(test)==  ==========================(results)=================================================================  t  ========(var)======= 
 SCRP          v21  (REGS  ) verify register configuration locking system              yvikeys_mreg_init, yVIKEYS_mreg_config                                          ((01.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
@@ -21,11 +20,11 @@ SCRP          v21  (REGS  ) verify register configuration locking system      
    GROUP      v21  before global initialization                                       - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  check initial status                                               - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.003))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     get      v21  check current status                 STATUS__unit                "actual"         , SMOD_MREG                                            s_equal     STATUS actual    : \"  ----- - - ----- - ----- - ---------- - -                                       
+     get      v21  check current status                 STATUS__unit                "actual"         , SMOD_MREG                                            s_equal     STATUS actual    : R  ----- - - ----- - ----- - ---------- - -                                       
 
    COND       v21  try to initialize out of sequence                                  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.003))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      exec     v21  initialize capability                yvikeys_mreg_init                                                                                   i_lesser    0                                                                                                    
-     get      v21  check current status                 STATUS__unit                "actual"         , SMOD_MREG                                            s_equal     STATUS actual    : \"  ----- - - ----- - ----- - ---------- - -                                       
+     get      v21  check current status                 STATUS__unit                "actual"         , SMOD_MREG                                            s_equal     STATUS actual    : R  ----- - - ----- - ----- - ---------- - -                                       
 
    COND       v21  try configuring before initializing                                - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.003))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      exec     v21  configure capability                 yvikeys_mreg__unit_config                                                                           i_lesser    0                                                                                                    
@@ -40,7 +39,7 @@ SCRP          v21  (REGS  ) verify register configuration locking system      
 
    COND       v21  now, run the full system initialization                            - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.005))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      exec     v21  initialize                           BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
-     get      v21  check current status                 STATUS__unit                "actual"         , SMOD_MREG                                            s_equal     STATUS actual    : \"  5f--- p i ----- n ----- - 0--------- - -                                       
+     get      v21  check current status                 STATUS__unit                "actual"         , SMOD_MREG                                            s_equal     STATUS actual    : R  5f--- p i ----- n ----- - 0--------- - -                                       
 
    COND       v21  try actions before configuration                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.006))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      exec     v21  set                                  yvikeys_mreg__set           'a'                                                                     i_lesser    0                                                                                                    
@@ -52,7 +51,7 @@ SCRP          v21  (REGS  ) verify register configuration locking system      
 
    COND       v21  try configuring now                                                - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.007))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      exec     v21  configure capability                 yvikeys_mreg__unit_config                                                                           i_equal     0                                                                                                    
-     get      v21  check current status                 STATUS__unit                "actual"         , SMOD_MREG                                            s_equal     STATUS actual    : \"  5f--- p i ----- n 1---- r 0--------- - -                                       
+     get      v21  check current status                 STATUS__unit                "actual"         , SMOD_MREG                                            s_equal     STATUS actual    : R  5f--- p i ----- n 1---- r 0--------- - -                                       
 
    COND       v21  try executing after configuration                                  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.008))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      exec     v21  register set                         yvikeys_mreg__set           'a'                                                                     i_lesser    0                                                                                                    
@@ -64,7 +63,7 @@ SCRP          v21  (REGS  ) verify register configuration locking system      
 
    COND       v21  configure mapping also                                             - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.007))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      exec     v21  configure mapping (quick)            yvikeys__unit_quick                                                                                 i_equal     0                                                                                                    
-     get      v21  check current status                 STATUS__unit                "actual"         , SMOD_MREG                                            s_equal     STATUS actual    : \"  5f--- p i ----- n 1---- r 0M-------- d o                                       
+     get      v21  check current status                 STATUS__unit                "actual"         , SMOD_MREG                                            s_equal     STATUS actual    : R  5f--- p i ----- n 1---- r 0M-------- d o                                       
 
    COND       v21  try executing after configuration                                  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.008))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      exec     v21  register set                         yvikeys_mreg__set           'a'                                                                     i_equal     0                                                                                                    
