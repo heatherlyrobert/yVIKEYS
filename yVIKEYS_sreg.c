@@ -155,6 +155,7 @@ yvikeys_sreg_init               (void)
    yvikeys_sreg__purge    (YVIKEYS_FULL);
    /*---(globals)------------------------*/
    yvikeys_sreg_reset     (0);
+   s_wsreg = '"';
    /*---(commands)-----------------------*/
    DEBUG_PROG   yLOG_note    ("add commands/status");
    yVIKEYS_view_option (YVIKEYS_STATUS  , "sreg", yvikeys_sreg_status, "details of source registers");
@@ -473,7 +474,6 @@ yvikeys_sreg_reset      (int a_pos)
    yvikeys_sreg__wipe (&s_sreg);
    s_sreg.root  = s_sreg.end   = s_sreg.beg   = a_pos;
    s_csreg = '"';
-   /*> s_wsreg = '"';                                                                 <*/
    return 0;
 }
 
@@ -701,7 +701,7 @@ yvikeys_sreg__unit      (char *a_question, char a_reg)
       return yVIKEYS__unit_answer;
    }
    else if (strcmp (a_question, "register"       )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_FULL, "SREG register    : %c", s_csreg);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "SREG register    : %c  %c", s_csreg, s_wsreg);
       return yVIKEYS__unit_answer;
    }
    /*---(complex)------------------------*/
@@ -712,6 +712,9 @@ yvikeys_sreg__unit      (char *a_question, char a_reg)
    }
    if      (strcmp (a_question, "saved"          )   == 0) {
       snprintf (yVIKEYS__unit_answer, LEN_FULL, "SREG saved   (%c) : %c %3d[%.40s]", a_reg, s_sreg_info [n].active, s_sreg_info [n].len, s_sreg_info [n].data);
+   }
+   if      (strcmp (a_question, "source"         )   == 0) {
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "SREG source  (%c) : %c  %c  %-12.12s  %3db  %3de  %3dr", a_reg, s_sreg_info [n].active, s_sreg_info [n].source, s_sreg_info [n].label, s_sreg_info [n].beg, s_sreg_info [n].end, s_sreg_info [n].root);
    }
    /*---(complete)-----------------------*/
    return yVIKEYS__unit_answer;
