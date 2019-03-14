@@ -713,9 +713,6 @@ yvikeys_sreg__unit      (char *a_question, char a_reg)
    if      (strcmp (a_question, "saved"          )   == 0) {
       snprintf (yVIKEYS__unit_answer, LEN_FULL, "SREG saved   (%c) : %c %3d[%.40s]", a_reg, s_sreg_info [n].active, s_sreg_info [n].len, s_sreg_info [n].data);
    }
-   else if (strcmp (a_question, "source"         )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_FULL, "SREG source  (%c) : %c  %c  %-12.12s  %3db  %3de  %3dr", a_reg, s_sreg_info [n].active, s_sreg_info [n].source, s_sreg_info [n].label, s_sreg_info [n].beg, s_sreg_info [n].end, s_sreg_info [n].root);
-   }
    /*---(complete)-----------------------*/
    return yVIKEYS__unit_answer;
 }

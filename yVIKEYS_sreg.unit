@@ -1216,7 +1216,7 @@ SCRP          v21  (SREG  ) verify source register mode actions               
 
 
 
-##   hupacabras are a very creepy legend of a blood drinking, goat-sucking, proto-human who comes in the night and steals small children"  i_equal     0                                                                                                    
+##  chupacabras are a very creepy legend of blood drinking, goat-sucking, proto-humans who come in the night and steal small children"  i_equal     0                                                                                                    
 
 
    COND       v21  verify program teardown                                            - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((02.016))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  

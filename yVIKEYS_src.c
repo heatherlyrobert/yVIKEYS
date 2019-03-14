@@ -172,11 +172,12 @@ yvikeys_src_copy       (void)
    /*---(copy)---------------------------*/
    strlcpy (x_data, x_start, x_len + 1);
    yvikeys_sreg_save (s_cur->label, x_data);
+   yvikeys_sreg_selected (NULL, NULL, &(s_cur->cpos));
    /*---(complete)-----------------------*/
    return 0;
 }
 
-char         /*-> replace only selection long --------[ ------ [gz.740.061.21]*/ /*-[01.0000.013.!]-*/ /*-[--.---.---.--]-*/
+char         /*-> replace with register text ---------[ ------ [gz.740.061.21]*/ /*-[01.0000.013.!]-*/ /*-[--.---.---.--]-*/
 yvikeys_src_replace     (void)
 {
    /*---(locals)-----------+-----------+-*/
@@ -186,26 +187,43 @@ yvikeys_src_replace     (void)
    int         x_end       =   0;
    int         x_len       =   0;
    int         i           =   0;
+   char        x_ch        = G_CHAR_STORAGE;
+   /*---(header)-------------------------*/
+   DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
    /*---(get register data)--------------*/
    yvikeys_sreg_fetch    (&x_dlen, x_data);
+   DEBUG_EDIT   yLOG_value   ("x_dlen"    , x_dlen);
+   DEBUG_EDIT   yLOG_info    ("x_data"    , x_data);
    yvikeys_sreg_selected (&x_beg, &x_end, NULL);
+   DEBUG_EDIT   yLOG_value   ("x_beg"     , x_beg);
+   DEBUG_EDIT   yLOG_value   ("x_end"     , x_end);
    s_cur->cpos = x_beg;
-   x_len = x_end - x_beg + 1;
+   /*---(set the length)-----------------*/
+   DEBUG_EDIT   yLOG_value   ("islive"    , yvikeys_sreg_islive ());
+   if (yvikeys_sreg_islive ())  x_len = x_end - x_beg + 1;
+   else                         x_len = x_dlen;
+   DEBUG_EDIT   yLOG_value   ("x_len"     , x_len);
    /*---(set the start)------------------*/
    yvikeys_sundo_beg (__FUNCTION__);
    for (i = 0; i < x_len; ++i) {
-      if (i < x_dlen) {
-         yvikeys_sundo_add   (G_KEY_SPACE, 'r', s_cur->cpos, s_cur->contents [s_cur->cpos], x_data [i]);
-         yvikeys_src_one_replace (x_data [i]);
+      /*---(get char)--------------------*/
+       if (i < x_dlen)    x_ch = x_data [i];
+      else               x_ch = G_CHAR_STORAGE;
+      /*---(add to source)---------------*/
+      if (s_cur->cpos < s_cur->npos) {
+         yvikeys_sundo_add   (G_KEY_SPACE, 'r', s_cur->cpos, s_cur->contents [s_cur->cpos], x_ch);
+         yvikeys_src_one_replace (x_ch);
+         ++s_cur->cpos;
       } else {
-         yvikeys_sundo_add   (G_KEY_SPACE, 'r', s_cur->cpos, G_CHAR_STORAGE, x_data [i]);
-         yvikeys_src_one_replace (G_CHAR_STORAGE);
+         yvikeys_sundo_add   (G_KEY_SPACE, 'r', s_cur->cpos, s_cur->contents [s_cur->cpos], x_ch);
+         yvikeys_src_one_append  (x_ch);
       }
-      ++s_cur->cpos;
+      /*---(done)------------------------*/
    }
    yvikeys_sundo_end (__FUNCTION__);
    --s_cur->cpos;
    /*---(complete)-----------------------*/
+   DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -1436,19 +1454,17 @@ SOURCE_mode             (int a_major, int a_minor)
       }
       /*---(select related)--------------*/
       if (strchr ("yYpP", a_minor) != 0) {
-         DEBUG_USER   yLOG_note    ("switch to a text register mode");
+         DEBUG_USER   yLOG_note    ("switch to a text register mode (yYpP)");
          yvikeys_sreg_setreg ('"');
          MODE_enter (SMOD_SREG);
          rc = yvikeys_sreg_smode (G_KEY_SPACE, a_minor);
-         DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return rc;
       }
       if (yvikeys_sreg_islive () && strchr ("xXdD", a_minor) != 0) {
-         DEBUG_USER   yLOG_note    ("switch to a text register mode");
+         DEBUG_USER   yLOG_note    ("switch to a text register mode (xXdD)");
          yvikeys_sreg_setreg ('"');
          MODE_enter (SMOD_SREG);
          rc = yvikeys_sreg_smode (G_KEY_SPACE, a_minor);
-         DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return rc;
       }
       /*---(multikey prefixes)-----------*/
@@ -1488,9 +1504,8 @@ SOURCE_mode             (int a_major, int a_minor)
          rc = SOURCE__charfindrev (x_char);
          break;
       case  '"' :
-         DEBUG_USER   yLOG_note    ("switch to a text register mode");
+         DEBUG_USER   yLOG_note    ("switch to a text register mode (¶)");
          MODE_enter (SMOD_SREG);
-         DEBUG_USER   yLOG_exit    (__FUNCTION__);
          rc = a_minor;
          break;
       case  'r' :
@@ -1864,12 +1879,11 @@ SRC_INPT_umode             (int  a_major, int  a_minor)
       }
    }
    /*---(handle new character)-----------*/
-   else if ((a_minor >= 32 && a_minor < 127) || (a_minor > 127 && a_minor < 256)) {
+   else if (a_minor == G_KEY_SPACE) {
+      rc = SRC_INPT__addone (x_mode, G_CHAR_STORAGE);
+   }
+   else if ((a_minor > 32 && a_minor < 127) || (a_minor > 127 && a_minor < 256)) {
       rc = SRC_INPT__addone (x_mode, a_minor);
-      /*> if (a_minor == '"') {                                                       <* 
-       *>    if (x_quoting == 'y')  x_quoting = '-';                                  <* 
-       *>    else                   x_quoting = 'y';                                  <* 
-       *> }                                                                           <*/
    }
    /*---(wrap up)------------------------*/
    SOURCE__done   ();

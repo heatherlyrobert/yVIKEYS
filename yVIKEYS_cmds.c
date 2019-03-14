@@ -559,7 +559,7 @@ HISTORY__load           (char a_mode, char *a_text)
       return -1;
    }
    strlcpy  (s_current, a_text, LEN_COMMAND);
-   strldchg (s_current, G_KEY_SPACE, G_CHAR_SPACE, LEN_RECD);
+   strldchg (s_current, G_KEY_SPACE, G_CHAR_STORAGE, LEN_RECD);
    s_len  = strllen (s_current, LEN_COMMAND);
    return 0;
 }
@@ -667,7 +667,7 @@ HISTORY__exec           (char a_mode)
    DEBUG_HIST   yLOG_value   ("s_len"     , s_len);
    DEBUG_HIST   yLOG_info    ("s_current" , s_current);
    /*---(execute)------------------------*/
-   strldchg (s_current, G_CHAR_SPACE, G_KEY_SPACE, LEN_RECD);
+   strldchg (s_current, G_CHAR_STORAGE, G_KEY_SPACE, LEN_RECD);
    switch (a_mode) {
    case MODE_COMMAND :
       DEBUG_HIST   yLOG_note    ("execute as command");
@@ -1421,9 +1421,7 @@ yvikeys_cmds__parse   (void)
    /*---(prepare)------------------------*/
    strlcpy (x_work, s_current, LEN_COMMAND);
    x_len = strllen (x_work, LEN_COMMAND);
-   for (i = 0; i < x_len; ++i) {
-      if ((uchar) x_work [i] == G_CHAR_SPACE)   x_work [i] = G_KEY_SPACE;
-   }
+   strldchg (x_work, G_CHAR_STORAGE, G_KEY_SPACE, LEN_COMMAND);
    DEBUG_CMDS   yLOG_info    ("x_work"    , x_work);
    /*---(parse command)------------------*/
    p     = strtok_r (x_work, q, &r);
