@@ -25,8 +25,10 @@
 #define     P_CREATED   "2010-01"
 #define     P_DEPENDS   "none"
 
-#define     P_VERNUM    "1.1v"
+#define     P_VERNUM    "1.2a"
 #define     P_VERTXT    "small updates to pass all sundo unit tests"
+#define     P_VERMAJOR  "1.X = working for everyday use, features still evolving but stable"
+#define     P_VERMINOR  "1.2 = cleaning out all existing unit test bugs"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -364,6 +366,7 @@ char*       SOURCE__unit            (char *a_question, char a_reg);
 char        SOURCE_status_words     (char *a_list);
 char        SOURCE_start            (char *a_prefix);
 char        SOURCE_mode             (int a_major, int a_minor);
+char        SOURCE__done            (void);
 
 /*345678901-12345678901-12345678901-1234-12345678901-12345678901-12345678901-1*/
 /*---(one-char actions)------------------*/
@@ -378,7 +381,10 @@ char        yvikeys_src_delete           (char a_major, char a_minor);
 char        yvikeys_src_copy             (void);
 char        yvikeys_src_replace          (void);
 char        yvikeys_src_paste            (char a_dir);
-int         yvikeys_src_current          (void);
+char        yvikeys_src_swapall          (char *a_new);
+int         yvikeys_src_cpos             (void);
+int         yvikeys_src_npos             (void);
+char       *yvikeys_src_contents         (void);
 
 /*345678901-12345678901-12345678901-1234-12345678901-12345678901-12345678901-1*/
 char        yvikeys_sreg_init            (void);
@@ -396,7 +402,8 @@ char        yvikeys_sreg_reset           (int a_pos);
 char        yvikeys_sreg_update          (int a_pos);
 int         yvikeys_sreg_reverse         (void);
 int         yvikeys_sreg_exact           (int a_beg, int a_end, int a_root);
-int         yvikeys_sreg_selected        (int *a_beg, int *a_end, int *a_root);
+char        yvikeys_sreg_selected        (int *a_beg, int *a_end, int *a_root);
+char        yvikeys_sreg_all             (void);
 char        yvikeys_sreg_getlive         (void);
 char        yvikeys_sreg_islive          (void);
 char        yvikeys_sreg_isdead          (void);

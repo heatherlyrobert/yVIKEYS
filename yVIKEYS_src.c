@@ -257,6 +257,43 @@ yvikeys_src_paste       (char a_dir)
    return 0;
 }
 
+char         /*-> remove existing and add new --------[ ------ [gz.640.151.11]*/ /*-[01.0000.213.!]-*/ /*-[--.---.---.--]-*/
+yvikeys_src_swapall     (char *a_new)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   int         i           =    0;
+   int         x_len       =    0;
+   char        x_old       [LEN_RECD];
+   /*---(header)-------------------------*/
+   DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
+   DEBUG_EDIT   yLOG_info    ("a_new"     , a_new);
+   /*---(start undo logging)-------------*/
+   yvikeys_sundo_beg (__FUNCTION__);
+   /*---(remove existing)----------------*/
+   DEBUG_EDIT   yLOG_value   ("npos"      , s_cur->npos);
+   x_len = s_cur->npos;
+   s_cur->cpos = 0;
+   for (i = 0; i < x_len; ++i) {
+      DEBUG_EDIT   yLOG_complex ("delete"    , "%2d, %c", s_cur->cpos, s_cur->contents [s_cur->cpos]);
+      yvikeys_sundo_add ('d', 'l', s_cur->cpos, s_cur->contents [s_cur->cpos], G_CHAR_NULL);
+      yvikeys_src_one_delete ();
+   }
+   /*---(add new)------------------------*/
+   x_len  = strllen (a_new, LEN_RECD);
+   for (i = 0; i < x_len; ++i) {
+      DEBUG_EDIT   yLOG_complex ("append"    , "%2d, %c", i, a_new [i]);
+      yvikeys_src_one_append (a_new [i]);
+      yvikeys_sundo_add (G_KEY_SPACE, 'a', i, G_KEY_NULL, a_new [i]);
+   }
+   /*---(stop undo logging)--------------*/
+   yvikeys_sundo_end (__FUNCTION__);
+   s_cur->cpos = 1;
+   SOURCE__done ();
+   /*---(complete)-----------------------*/
+   DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
 
 /*====================------------------------------------====================*/
 /*===----                       support functions                      ----===*/
@@ -687,11 +724,9 @@ SOURCE_other            (char a_type)
    return 0;
 }
 
-int
-yvikeys_src_current     (void)
-{
-   return s_cur->cpos;
-}
+int   yvikeys_src_cpos        (void) { return s_cur->cpos; }
+int   yvikeys_src_npos        (void) { return s_cur->npos; }
+char *yvikeys_src_contents    (void) { return s_cur->contents; }
 
 
 
@@ -1517,13 +1552,13 @@ SOURCE_mode             (int a_major, int a_minor)
          } else {
             rc = a_minor;
          }
-         DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         /*> DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <*/
          break;
       case  'R' :
          DEBUG_USER   yLOG_note    ("enter replace mode");
          MODE_enter (UMOD_SRC_REPL);
          SRC_REPL_umode ('m', a_minor);
-         DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         /*> DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <*/
          rc = 0;
          break;
       case  'i' : case  'a' : case  'I' : case  'A' :
@@ -1532,7 +1567,7 @@ SOURCE_mode             (int a_major, int a_minor)
          if (a_minor == 'I')  s_cur->cpos = 0;
          MODE_enter (UMOD_SRC_INPT);
          SRC_INPT_umode ('m', tolower (a_minor));
-         DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         /*> DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <*/
          rc = tolower (a_minor);
          break;
       case  'D' :

@@ -1180,6 +1180,7 @@ yvikeys_cmds__reader (void)
    /*---(get command)--------------------*/
    rc = yPARSE_popstr (x_cmd);
    DEBUG_INPT   yLOG_value   ("pop verb"  , rc);
+   strldchg (x_cmd, G_KEY_SPACE, G_CHAR_STORAGE, LEN_COMMAND);
    DEBUG_INPT   yLOG_info    ("x_cmd"     , x_cmd);
    /*---(save)---------------------------*/
    DEBUG_SRCH   yLOG_note    ("saving values");
@@ -1229,6 +1230,7 @@ yvikeys_srch__reader         (void)
    /*---(get command)--------------------*/
    rc = yPARSE_popstr (x_srch);
    DEBUG_INPT   yLOG_value   ("pop verb"  , rc);
+   strldchg (x_srch, G_KEY_SPACE, G_CHAR_STORAGE, LEN_COMMAND);
    DEBUG_INPT   yLOG_info    ("x_srch"    , x_srch);
    /*---(save)---------------------------*/
    DEBUG_SRCH   yLOG_note    ("saving values");

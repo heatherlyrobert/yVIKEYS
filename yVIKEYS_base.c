@@ -705,6 +705,7 @@ yVIKEYS_main_string  (uchar *a_keys)
    int         i           =    0;
    int         x_len       =    0;
    uchar       x_ch        =  ' ';     /* current keystroke                   */
+   char        x_keys      [LEN_RECD];
    /*---(header)-------------------------*/
    DEBUG_LOOP   yLOG_enter   (__FUNCTION__);
    DEBUG_LOOP   yLOG_point   ("a_keys"    , a_keys);
@@ -713,7 +714,9 @@ yVIKEYS_main_string  (uchar *a_keys)
       DEBUG_LOOP   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   DEBUG_LOOP   yLOG_info    ("a_keys"    , a_keys);
+   strlcpy    (x_keys, a_keys  , LEN_RECD);
+   strlencode (x_keys, ySTR_MAX, LEN_RECD);
+   DEBUG_LOOP   yLOG_info    ("x_keys"    , x_keys);
    x_len = strlen (a_keys);
    DEBUG_LOOP   yLOG_value   ("x_len"     , x_len);
    --rce;
@@ -721,7 +724,7 @@ yVIKEYS_main_string  (uchar *a_keys)
       DEBUG_LOOP   yLOG_value   ("LOOP"      , i);
       /*---(get next char)---------------*/
       DEBUG_LOOP   yLOG_value   ("a_keys[i]" , a_keys[i]);
-      DEBUG_LOOP   yLOG_char    ("a_keys[i]" , a_keys[i]);
+      DEBUG_LOOP   yLOG_char    ("a_keys[i]" , chrvisible (a_keys[i]));
       x_ch = chrworking (a_keys [i]);
       DEBUG_LOOP   yLOG_value   ("x_ch"      , x_ch);
       /*---(handle input)----------------*/

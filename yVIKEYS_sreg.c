@@ -514,12 +514,21 @@ yvikeys_sreg_exact      (int a_beg, int a_end, int a_root)
    return 0;
 }
 
-int
+char
 yvikeys_sreg_selected   (int *a_beg, int *a_end, int *a_root)
 {
    if (a_beg  != NULL)  *a_beg  = s_sreg.beg;
    if (a_end  != NULL)  *a_end  = s_sreg.end;
    if (a_root != NULL)  *a_root = s_sreg.root;
+   return 0;
+}
+
+char
+yvikeys_sreg_all        (void)
+{
+   s_sreg.beg  = 0;
+   s_sreg.end  = yvikeys_src_npos() - 1;
+   s_sreg.root = 0;
    return 0;
 }
 
@@ -569,7 +578,7 @@ yvikeys_sreg_smode      (int a_major, int a_minor)
    /*---(escape)-------------------------*/
    if (a_minor == G_KEY_ESCAPE)  {
       DEBUG_USER   yLOG_note    ("escape and return to previous mode");
-      yvikeys_sreg_reset (yvikeys_src_current ());
+      yvikeys_sreg_reset (yvikeys_src_cpos ());
       MODE_exit ();
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return  0;

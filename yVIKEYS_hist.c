@@ -178,29 +178,29 @@ HISTORY_choose          (char* a_contents)
    /*---(locals)-----------+-----+-----+-*/
    int         i           =    0;
    int         x_len       =    0;
+   char        x_old       [LEN_RECD];
    /*---(header)-------------------------*/
    DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
    DEBUG_EDIT   yLOG_info    ("a_contents", a_contents);
    /*---(remove existing)----------------*/
-   /*> s_cur->cpos = 0;                                                               <*/
-   /*> DEBUG_EDIT   yLOG_value   ("npos"      , s_cur->npos);                         <*/
-   /*> DEBUG_EDIT   yLOG_value   ("cpos"      , s_cur->cpos);                         <*/
-   /*> x_len       = s_cur->npos;                                                     <* 
-    *> yvikeys_sundo_beg (__FUNCTION__);                                              <* 
-    *> for (i = 0; i < x_len; ++i) {                                                  <* 
-    *>    DEBUG_EDIT   yLOG_value   ("i"         , i);                                <* 
-    *>    yvikeys_sundo_add ('d', 'l', 0, s_cur->contents [0], G_CHAR_NULL);          <* 
-    *>    yvikeys_src_one_delete ();                                                             <* 
-    *>    DEBUG_EDIT   yLOG_value   ("cpos"      , s_cur->cpos);                      <* 
-    *> }                                                                              <*/
+   x_len  = yvikeys_src_npos ();
+   strlcpy (x_old, yvikeys_src_contents (), LEN_RECD);
+   DEBUG_EDIT   yLOG_value   ("x_len"     , x_len);
+   DEBUG_EDIT   yLOG_info    ("x_old"     , x_old);
+   yvikeys_sundo_beg (__FUNCTION__);
+   for (i = 0; i < x_len; ++i) {
+      DEBUG_EDIT   yLOG_complex ("delete"    , "%2d, %c", i, x_old [i]);
+      yvikeys_sundo_add ('d', 'l', 0, x_old [i], G_CHAR_NULL);
+      yvikeys_src_one_delete ();
+   }
    /*---(add new)------------------------*/
-   /*> x_len = strllen (a_contents, LEN_RECD);                                                             <* 
-    *> s_cur->cpos = 0;                                                                                    <* 
-    *> for (i = 0; i < x_len; ++i) {                                                                       <* 
-    *>    yvikeys_src_one_append (a_contents [i]);                                                                    <* 
-    *>    yvikeys_sundo_add (G_KEY_SPACE, 'a', s_cur->cpos, G_KEY_SPACE, s_cur->contents [s_cur->cpos]);   <* 
-    *> }                                                                                                   <* 
-    *> yvikeys_sundo_end (__FUNCTION__);                                                                   <*/
+   x_len  = strllen (a_contents, LEN_RECD);
+   for (i = 0; i < x_len; ++i) {
+      DEBUG_EDIT   yLOG_complex ("append"    , "%2d, %c", i, a_contents [i]);
+      yvikeys_src_one_append (a_contents [i]);
+      yvikeys_sundo_add (G_KEY_SPACE, 'a', i, G_KEY_NULL, a_contents [i]);
+   }
+   yvikeys_sundo_end (__FUNCTION__);
    /*---(complete)-----------------------*/
    DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -227,15 +227,14 @@ HISTORY_smode           (int  a_major, int  a_minor)
       DEBUG_USER   yLOG_note    ("escape, return to source mode");
       MODE_exit ();
       MODE_exit ();
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return 0;
    }
    if (a_minor == G_KEY_RETURN) {
       DEBUG_USER   yLOG_note    ("return, return to source mode");
       MODE_exit ();
-      HISTORY_choose (HISTORY_use (MODE_curr (), s_now));
-      /*> strlcpy (s_cur->contents, HISTORY_use (MODE_curr (), s_now), LEN_RECD);     <*/
-      /*> s_cur->cpos = 1;                                                            <*/
-      /*> SOURCE__done ();                                                            <*/
+      yvikeys_src_swapall (HISTORY_use (MODE_curr (), s_now));
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return 0;
    }
    switch (a_minor) {
@@ -246,9 +245,19 @@ HISTORY_smode           (int  a_major, int  a_minor)
    case 'K' : s_now -= 5;                 break;
    case '~' : s_now  = s_max - 1;         break;
    }
-   if (s_now >= s_max) { s_now = s_max - 1; return -1; }
-   if (s_now <  0    ) { s_now = 0;         return -1; }
+   DEBUG_USER   yLOG_value   ("s_now"     , s_now);
+   if (s_now >= s_max) {
+      s_now = s_max - 1;
+      DEBUG_USER   yLOG_exitr   (__FUNCTION__, -1);
+      return -1;
+   }
+   if (s_now <  0    ) {
+      s_now = 0; 
+      DEBUG_USER   yLOG_exitr   (__FUNCTION__, -1);
+      return -1;
+   }
    s_top = s_now - (s_lines / 2);
+   DEBUG_USER   yLOG_value   ("s_top"     , s_top);
    /*---(complete)-----------------------*/
    DEBUG_USER   yLOG_exit    (__FUNCTION__);
    return 0;
