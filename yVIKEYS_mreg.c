@@ -188,7 +188,7 @@ static tPASTING   s_pasting [MAX_PASTING] = {
    { '-', "yiA-", ""            , '-',    'y', 'i', 'A', '-',    "tbd" },
    { '-', "yiS-", ""            , '-',    'y', 'i', 'S', '-',    "tbd" },
    /*---*/
-   { 'D', "ybN-", "map-delete"  , '-',    'y', 'b', 'N', '-',    "tbd" },
+   { 'D', "ybN-", "map-delete"  , 'y',    'y', 'b', 'N', '-',    "tbd" },
    { 'm', "ybR-", "move"        , 'y',    'y', 'b', 'R', '-',    "tbd" },
    { 'f', "ybA-", "force"       , 'y',    'y', 'b', 'A', '-',    "tbd" },
    { '-', "ybS-", ""            , '-',    'y', 'b', 'S', '-',    "tbd" },
@@ -627,7 +627,7 @@ yvikeys_mreg_save               (void)
    }
    /*---(check counts)-------------------*/
    DEBUG_REGS   yLOG_value   ("nbuf"      , s_regs [x_reg].nbuf);
-   if (s_regs [x_reg].nbuf <= 0)  yvikeys_mreg__wipe (s_creg, '-');
+   /*> if (s_regs [x_reg].nbuf <= 0)  yvikeys_mreg__wipe (s_creg, '-');               <*/
    /*---(complete)-----------------------*/
    DEBUG_REGS   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -751,10 +751,10 @@ yvikeys_mreg__paste_check    (void)
    /*---(check for empty)----------------*/
    x_nbuf = s_regs [s_reg].nbuf;
    DEBUG_REGS   yLOG_value   ("x_nbuf"    , x_nbuf);
-   --rce;  if (x_nbuf <= 0) {
-      DEBUG_REGS   yLOG_exitr   (__FUNCTION__, rce);
-      return  rce;
-   }
+   /*> --rce;  if (x_nbuf <= 0) {                                                     <* 
+    *>    DEBUG_REGS   yLOG_exitr   (__FUNCTION__, rce);                              <* 
+    *>    return  rce;                                                                <* 
+    *> }                                                                              <*/
    /*---(get current position)-----------*/
    yvikeys_map_current (NULL, &s_boff, &s_xoff, &s_yoff, &s_zoff);
    DEBUG_REGS   yLOG_value   ("s_boff"    , s_boff);
@@ -898,6 +898,7 @@ yvikeys_mreg__paste             (char a_1st, char *a_type)
       return rce;
    }
    /*---(clearing)-----------------------*/
+   DEBUG_REGS   yLOG_char    ("s_clear"   , s_clear);
    if (s_clear == 'y') {
       yvikeys_mreg__paste_clear (a_1st);
       a_1st = '-';  /* link pasting to clearing */

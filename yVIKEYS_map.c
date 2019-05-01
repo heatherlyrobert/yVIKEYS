@@ -1072,8 +1072,15 @@ yvikeys__map_mode_chg   (char a_minor)
    return rc;
 }
 
+
+
+/*====================------------------------------------====================*/
+/*===----                       big combinations                       ----===*/
+/*====================------------------------------------====================*/
+static void  o___COMBO___________o () { return; }
+
 char         /*-> complex delete action --------------[ ------ [gz.430.031.02]*/ /*-[01.0000.213.!]-*/ /*-[--.---.---.--]-*/
-yvikeys__map_clearer   (char a_major, char a_minor)
+yvikeys__combo_clear    (char a_major, char a_minor)
 {  /*---(notes)--------------------------*/
    /*
     *  'x' by itself is not repeatable as "clear" -- would just clear same pos
@@ -1125,19 +1132,83 @@ yvikeys__map_clearer   (char a_major, char a_minor)
    return 0;
 }
 
+static  int    s_b, s_xb, s_xe, s_yb, s_ye, s_z;   /* starting selection      */
+static  int    s_xl, s_yl;                         /* starting selection size */
+static  int    s_top, s_lef;                       /* screen top/left         */
+static  int    s_xb2, s_xe2, s_yb2, s_ye2;         /* selection for copy      */
+static  int    s_xp, s_yp;                         /* top/left for paste      */
+
+char
+yvikeys__combo_prep     (char a_clear)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rc          =    0;
+   /*---(get current)--------------------*/
+   rc = yVIKEYS_visu_coords (&s_b, &s_xb, &s_xe, &s_yb, &s_ye, &s_z);
+   /*---(selection size)-----------------*/
+   s_xl   = (s_xe - s_xb) + 1;
+   s_yl   = (s_ye - s_yb) + 1;
+   /*---(clear)--------------------------*/
+   if (a_clear == 'y')  rc = yvikeys_mreg_clear ();
+   rc = yvikeys_visu_clear ();
+   /*---(save top/left)------------------*/
+   s_lef  = g_xmap.beg;
+   s_top  = g_ymap.beg;
+   /*---(copy loc default)---------------*/
+   s_xb2    = s_xb;
+   s_yb2    = s_yb;
+   s_xe2    = s_xe;
+   s_ye2    = s_ye;
+   /*---(paste loc default)--------------*/
+   s_xp   = s_xb;
+   s_yp   = s_yb;
+   /*---(complete)-----------------------*/
+   return 0;
+}
+
+char
+yvikeys__combo_wrap     (char a_clear)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rc          =    0;
+   /*---(defense on boundaries)----------*/
+   if (s_xp  <  0          )  s_xp  = 0;
+   if (s_xp  >= g_xmap.gmax)  s_xp  = g_xmap.gmax;
+   if (s_xb2 <  0          )  s_xb2 = 0;
+   if (s_xb2 >= g_xmap.gmax)  s_xb2 = g_xmap.gmax;
+   if (s_xe2 <  0          )  s_xe2 = 0;
+   if (s_xe2 >= g_xmap.gmax)  s_xe2 = g_xmap.gmax;
+   if (s_yp  <  0          )  s_yp  = 0;
+   if (s_yp  >= g_ymap.gmax)  s_yp  = g_ymap.gmax;
+   if (s_yb2 <  0          )  s_yb2 = 0;
+   if (s_yb2 >= g_ymap.gmax)  s_yb2 = g_ymap.gmax;
+   if (s_ye2 <  0          )  s_ye2 = 0;
+   if (s_ye2 >= g_ymap.gmax)  s_ye2 = g_ymap.gmax;
+   /*---(copy/clear)---------------------*/
+   rc = yvikeys_visu_exact  (s_b, s_xb2, s_xe2, s_yb2, s_ye2, s_z);
+   rc = yvikeys_mreg_save  ();
+   if (a_clear == 'y')  rc = yvikeys_mreg_clear_combo ();
+   else                 rc = yvikeys_mreg_clear ();
+   rc = yvikeys_visu_clear ();
+   /*---(paste/move)---------------------*/
+   rc = yVIKEYS_jump (s_b, s_xp, s_yp, s_z);
+   rc = yvikeys_mreg_paste_combo ("map-delete");
+   g_xmap.beg = s_lef;
+   g_ymap.beg = s_top;
+   rc = yVIKEYS_jump (s_b, s_xb, s_yb, s_z);
+   /*---(complete)-----------------------*/
+   return 0;
+}
+
 char         /*-> complex delete action --------------[ ------ [gz.430.031.02]*/ /*-[01.0000.213.!]-*/ /*-[--.---.---.--]-*/
-yvikeys__map_delete    (char a_major, char a_minor)
+yvikeys__combo_delete   (char a_major, char a_minor)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    char        rc          =    0;
    char        i           =    0;
    char        x_pos       =    0;
-   char        x_minors    [LEN_LABEL]  = "hljk";
-   int         b, xb, xe, yb, ye, z;
-   int         xb2, xe2, yb2, ye2;
-   int         xs , ys;
-   int         x_top, x_left;
+   char        x_minors    [LEN_LABEL]  = "hlx·jky·ioz";
    /*---(header)-------------------------*/
    DEBUG_MAP    yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
@@ -1154,79 +1225,56 @@ yvikeys__map_delete    (char a_major, char a_minor)
       return rce;
    }
    /*---(get and clear)------------------*/
-   rc = yVIKEYS_visu_coords (&b, &xb, &xe, &yb, &ye, &z);
-   rc = yvikeys_mreg_clear ();
-   rc = yvikeys_visu_clear ();
+   rc = yvikeys__combo_prep ('y');
    /*---(cut/yank)-----------------------*/
-   x_left = g_xmap.beg;
-   x_top  = g_ymap.beg;
-   xs  = xb;
-   ys  = yb;
-   xb2 = xb;
-   yb2 = yb;
-   xe2 = xe;
-   ye2 = ye;
    switch (a_minor) {
    case 'l' :
-      xb2 = xe + 1;
-      xe2 = g_xmap.gmax;
+      s_xb2 = s_xe + 1;
+      s_xe2 = g_xmap.gmax;
       break;
    case 'h' :
-      xb2 = g_xmap.gmin;
-      xe2 = xb - 1;
-      xs  = xe - (xe2 - xb2);
+      s_xb2 = g_xmap.gmin;
+      s_xe2 = s_xb - 1;
+      s_xp  = s_xe - (s_xe2 - s_xb2);
+      break;
+   case 'x' :
+      s_xb2 = s_xe + 1;
+      s_xe2 = g_xmap.gmax;
+      s_yp  = s_yb2 = g_ymap.gmin;
+      s_ye2 = g_ymap.gmax;
       break;
    case 'j' :
-      yb2 = ye + 1;
-      ye2 = g_ymap.gmax;
+      s_yb2 = s_ye + 1;
+      s_ye2 = g_ymap.gmax;
       break;
    case 'k' :
-      ys  = g_ymap.gmin + 1;
-      yb2 = g_ymap.gmin;
-      ye2 = ye - 1;
+      s_yp  = g_ymap.gmin + 1;
+      s_yb2 = g_ymap.gmin;
+      s_ye2 = s_ye - 1;
+      break;
+   case 'y' :
+      s_yb2 = s_ye + 1;
+      s_ye2 = g_ymap.gmax;
+      s_xp  = s_xb2 = g_xmap.gmin;
+      s_xe2 = g_xmap.gmax;
       break;
    }
-   if (xs  <  0          )  xs  = 0;
-   if (xs  >= g_xmap.gmax)  xs  = g_xmap.gmax;
-   if (xb2 <  0          )  xb2 = 0;
-   if (xb2 >= g_xmap.gmax)  xb2 = g_xmap.gmax;
-   if (xe2 <  0          )  xe2 = 0;
-   if (xe2 >= g_xmap.gmax)  xe2 = g_xmap.gmax;
-   if (ys  <  0          )  ys  = 0;
-   if (ys  >= g_ymap.gmax)  ys  = g_ymap.gmax;
-   if (yb2 <  0          )  yb2 = 0;
-   if (yb2 >= g_ymap.gmax)  yb2 = g_ymap.gmax;
-   if (ye2 <  0          )  ye2 = 0;
-   if (ye2 >= g_ymap.gmax)  ye2 = g_ymap.gmax;
-   rc = yvikeys_visu_exact  (b, xb2, xe2, yb2, ye2, z);
-   rc = yvikeys_mreg_save  ();
-   rc = yvikeys_mreg_clear_combo ();
-   rc = yvikeys_visu_clear ();
    /*---(paste/move)---------------------*/
-   rc = yVIKEYS_jump (b, xs, ys, z);
-   rc = yvikeys_mreg_paste_combo ("map-delete");
-   g_xmap.beg = x_left;
-   g_ymap.beg = x_top;
-   rc = yVIKEYS_jump (b, xb, yb, z);
+   rc = yvikeys__combo_wrap ('y');
    /*---(complete)-----------------------*/
    DEBUG_MAP    yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
 char         /*-> complex append action --------------[ ------ [gz.430.031.02]*/ /*-[01.0000.213.!]-*/ /*-[--.---.---.--]-*/
-yvikeys__map_append    (char a_major, char a_minor)
+yvikeys__combo_append   (char a_major, char a_minor)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    char        rc          =    0;
    char        i           =    0;
-   char        xl, yl;
    char        x_pos       =    0;
-   char        x_minors    [LEN_LABEL]  = "hljk·xyz";
-   int         b, xb, xe, yb, ye, z;
-   int         xb2, xe2, yb2, ye2;
-   int         xs , ys;
-   int         x_top, x_left;
+   char        x_minors    [LEN_LABEL]  = "hlx·jky·ioz";
    /*---(header)-------------------------*/
    DEBUG_MAP    yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
@@ -1243,57 +1291,35 @@ yvikeys__map_append    (char a_major, char a_minor)
       return rce;
    }
    /*---(get and clear)------------------*/
-   rc = yVIKEYS_visu_coords (&b, &xb, &xe, &yb, &ye, &z);
-   /*> rc = yvikeys_mreg_save  ();                                                    <*/
-   rc = yvikeys_visu_clear ();
-   /*---(remember window pos)------------*/
-   x_left = g_xmap.beg;
-   x_top  = g_ymap.beg;
+   rc = yvikeys__combo_prep ('-');
    /*---(cut/yank)-----------------------*/
-   xs     = xb;
-   ys     = yb;
-   xb2 = xb;
-   yb2 = yb;
-   xe2 = xe;
-   ye2 = ye;
-   xl  = (xe - xb) + 1;
-   yl  = (ye - yb) + 1;
    switch (a_minor) {
    case 'l' :
-      xb2 = xs;
-      xe2 = g_xmap.gmax - xl;
-      xs  = xb + xl;
+      s_xb2 = s_xp;
+      s_xe2 = g_xmap.gmax - s_xl;
+      s_xp  = s_xb + s_xl;
       break;
    case 'x' : /* full column push right (al) */
-      xb2 = xs;
-      xe2 = g_xmap.gmax - xl;
-      xs  = xb + xl;
-      ys  = yb2 = g_ymap.gmin;
-      ye2 = g_ymap.gmax;
+      s_xb2 = s_xp;
+      s_xe2 = g_xmap.gmax - s_xl;
+      s_xp  = s_xb + s_xl;
+      s_yp  = s_yb2 = g_ymap.gmin;
+      s_ye2 = g_ymap.gmax;
       break;
    }
-   if (xb2 <  0          )  xb2 = 0;
-   if (xb2 >= g_xmap.gmax)  xb2 = g_xmap.gmax;
-   if (xe2 <  0          )  xe2 = 0;
-   if (xe2 >= g_xmap.gmax)  xe2 = g_xmap.gmax;
-   if (yb2 <  0          )  yb2 = 0;
-   if (yb2 >= g_ymap.gmax)  yb2 = g_ymap.gmax;
-   if (ye2 <  0          )  ye2 = 0;
-   if (ye2 >= g_ymap.gmax)  ye2 = g_ymap.gmax;
-   rc = yvikeys_visu_exact  (b, xb2, xe2, yb2, ye2, z);
-   rc = yvikeys_mreg_save  ();
-   rc = yvikeys_mreg_clear ();
-   rc = yvikeys_visu_clear ();
    /*---(paste/move)---------------------*/
-   rc = yVIKEYS_jump (b, xs, ys, z);
-   rc = yvikeys_mreg_paste_combo ("map-delete");
-   g_xmap.beg = x_left;
-   g_ymap.beg = x_top;
-   rc = yVIKEYS_jump (b, xb, yb, z);
+   rc = yvikeys__combo_wrap ('-');
    /*---(complete)-----------------------*/
    DEBUG_MAP    yLOG_exit    (__FUNCTION__);
    return 0;
 }
+
+
+
+/*====================------------------------------------====================*/
+/*===----                       mode key handling                      ----===*/
+/*====================------------------------------------====================*/
+static void  o___MODE____________o () { return; }
 
 char
 yvikeys_map_mode        (char a_major, char a_minor)
@@ -1461,63 +1487,6 @@ yvikeys_map_mode        (char a_major, char a_minor)
       }
       if (strchr ("xyz*!", a_minor) != 0) {
          rc = yvikeys_visu_locking (a_minor);
-         /*> switch (a_minor) {                                                          <* 
-          *> case 'x'  :                                                                 <* 
-          *>    DEBUG_USER   yLOG_note    ("x for x_axis/col selection");                <* 
-          *>    if (s_visu.y_lock == 'y') {                                              <* 
-          *>       s_visu.y_lock = '-';                                                  <* 
-          *>       if (s_visu.y_root <= g_ymap.gcur) {                                   <* 
-          *>          s_visu.y_beg  = s_visu.y_root;                                     <* 
-          *>          s_visu.y_end  = g_ymap.gcur;                                       <* 
-          *>       } else {                                                              <* 
-          *>          s_visu.y_end  = s_visu.y_root;                                     <* 
-          *>          s_visu.y_beg  = g_ymap.gcur;                                       <* 
-          *>       }                                                                     <* 
-          *>    } else {                                                                 <* 
-          *>       s_visu.y_lock = 'y';                                                  <* 
-          *>       s_visu.y_beg  = g_ymap.gmin;                                          <* 
-          *>       s_visu.y_end  = g_ymap.gmax;                                          <* 
-          *>    }                                                                        <* 
-          *>    break;                                                                   <* 
-          *> case 'y'  :                                                                 <* 
-          *>    DEBUG_USER   yLOG_note    ("y for y-axis/row selection");                <* 
-          *>    if (s_visu.x_lock == 'y') {                                              <* 
-          *>       s_visu.x_lock = '-';                                                  <* 
-          *>       if (s_visu.x_root <= g_xmap.gcur) {                                   <* 
-          *>          s_visu.x_beg  = s_visu.x_root;                                     <* 
-          *>          s_visu.x_end  = g_xmap.gcur;                                       <* 
-          *>       } else {                                                              <* 
-          *>          s_visu.x_end  = s_visu.x_root;                                     <* 
-          *>          s_visu.x_beg  = g_xmap.gcur;                                       <* 
-          *>       }                                                                     <* 
-          *>    } else {                                                                 <* 
-          *>       s_visu.x_lock = 'y';                                                  <* 
-          *>       s_visu.x_beg  = g_xmap.gmin;                                          <* 
-          *>       s_visu.x_end  = g_xmap.gmax;                                          <* 
-          *>    }                                                                        <* 
-          *>    break;                                                                   <* 
-          *> case '!'  :                                                                 <* 
-          *>    DEBUG_USER   yLOG_note    ("! for screen selection");                    <* 
-          *>    s_visu.y_lock = '-';                                                     <* 
-          *>    s_visu.y_root = g_ymap.gbeg;                                             <* 
-          *>    s_visu.y_beg  = g_ymap.gbeg;                                             <* 
-          *>    s_visu.y_end  = g_ymap.gend;                                             <* 
-          *>    s_visu.x_lock = '-';                                                     <* 
-          *>    s_visu.x_root = g_xmap.gbeg;                                             <* 
-          *>    s_visu.x_beg  = g_xmap.gbeg;                                             <* 
-          *>    s_visu.x_end  = g_xmap.gend;                                             <* 
-          *>    yVIKEYS_jump (s_visu.b_all, s_visu.x_end, s_visu.y_end, s_visu.z_all);   <* 
-          *>    break;                                                                   <* 
-          *> case '*'  :                                                                 <* 
-          *>    DEBUG_USER   yLOG_note    ("* for all on current z selection");          <* 
-          *>    s_visu.y_lock = 'y';                                                     <* 
-          *>    s_visu.y_beg  = g_ymap.gmin;                                             <* 
-          *>    s_visu.y_end  = g_ymap.gmax;                                             <* 
-          *>    s_visu.x_lock = 'y';                                                     <* 
-          *>    s_visu.x_beg  = g_xmap.gmin;                                             <* 
-          *>    s_visu.x_end  = g_xmap.gmax;                                             <* 
-          *>    break;                                                                   <* 
-          *> }                                                                           <*/
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return rc;
       }
@@ -1538,19 +1507,19 @@ yvikeys_map_mode        (char a_major, char a_minor)
    }
    /*---(delete)-------------------------*/
    if (a_major == 'd') {
-      rc = yvikeys__map_delete  (a_major, a_minor);
+      rc = yvikeys__combo_delete  (a_major, a_minor);
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return rc;
    }
    /*---(clear)--------------------------*/
    if (a_major == 'x') {
-      rc = yvikeys__map_clearer (a_major, a_minor);
+      rc = yvikeys__combo_clear   (a_major, a_minor);
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return rc;
    }
    /*---(append)-------------------------*/
    if (a_major == 'a') {
-      rc = yvikeys__map_append  (a_major, a_minor);
+      rc = yvikeys__combo_append  (a_major, a_minor);
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return rc;
    }
@@ -1561,25 +1530,9 @@ yvikeys_map_mode        (char a_major, char a_minor)
     *>    return 0;                                                                   <* 
     *> }                                                                              <*/
    /*---(end family)---------------------*/
-   /*> if (a_major == 'e') {                                                          <* 
-    *>    rc = KEYS_e_family   (a_major, a_minor);                                    <* 
-    *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                   <* 
-    *>    return 0;                                                                   <* 
-    *> }                                                                              <*/
-   /*---(end family)---------------------*/
    /*> if (a_major == 'c') {                                                          <* 
     *>    rc = KEYS_c_family   (a_major, a_minor);                                    <* 
     *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                   <* 
-    *>    return 0;                                                                   <* 
-    *> }                                                                              <*/
-   /*---(delete family)-------------------------*/
-   /*> --rce;                                                                         <* 
-    *> if (a_major == 'd') {                                                           <* 
-    *>    switch (a_minor) {                                                           <* 
-    *>    case 'd' : --NROW;          break;                                          <* 
-    *>    case 'w' : --NCOL;     break;                                               <* 
-    *>    default  : return rce;                         break;                       <* 
-    *>    }                                                                           <* 
     *>    return 0;                                                                   <* 
     *> }                                                                              <*/
    /*---(complete)------------------------------*/
