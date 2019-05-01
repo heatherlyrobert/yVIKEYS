@@ -29,7 +29,7 @@ char   g_hscroll   [LEN_DESC ]   = " H shcle L   ";
 char   g_hword     [LEN_DESC ]   = "wbe WBE";
 
 char   g_multimap  [LEN_DESC ]   = "cgz e  dxia   ";
-char   g_multivisu [LEN_DESC ]   = "cgz e p  ia   ";
+char   g_multivisu [LEN_DESC ]   = "cgz e pd ia   ";
 
 char   g_multisrc  [LEN_DESC ]   = "cgz    dx   Ff";
 char   g_multiselc [LEN_DESC ]   = "cgz         Ff";
@@ -983,6 +983,10 @@ yvikeys__map_mode_chg   (char a_minor)
        *> DEBUG_USER   yLOG_exit    (__FUNCTION__);                                   <* 
        *> rc = a_minor;                                                               <*/
       break;
+   case 'F'      :
+      DEBUG_USER   yLOG_note    ("calling custom format mode");
+      rc = MODE_enter  (XMOD_FORMAT  );
+      break;
    }
    if (rc >= 0) {
       DEBUG_USER   yLOG_value   ("rc"        , rc);
@@ -1013,17 +1017,21 @@ yvikeys__map_mode_chg   (char a_minor)
       return rc;
    }
    /*---(source entry)----------------*/
-   switch (a_minor) {
-   case 's'      : case '='      : case '+'      : case '-'      : case '#'      :
+   if (yvikeys_visu_isdead () && strchr ("s=+-#", a_minor) != NULL) {
       if (a_minor == 's')   strlcpy (t, "", LEN_LABEL);
-      else                  sprintf     (t, "%c", a_minor);
+      else                  sprintf (t, "%c", a_minor);
       SOURCE_start   (t);
       rc = 'a';
-      break;
-   case 'F'      :
-      DEBUG_USER   yLOG_note    ("calling custom format mode");
-      rc = MODE_enter  (XMOD_FORMAT  );
-      break;
+   }
+   if (rc >= 0) {
+      DEBUG_USER   yLOG_value   ("rc"        , rc);
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return rc;
+   }
+   /*---(import/export)---------------*/
+   if (yvikeys_visu_islive () && strchr ("+-"   , a_minor) != NULL) {
+      MODE_enter (SMOD_MREG);
+      rc = yvikeys_mreg_smode  ('"', a_minor);
    }
    if (rc >= 0) {
       DEBUG_USER   yLOG_value   ("rc"        , rc);
@@ -1065,21 +1073,33 @@ yvikeys__map_mode_chg   (char a_minor)
 }
 
 char         /*-> complex delete action --------------[ ------ [gz.430.031.02]*/ /*-[01.0000.213.!]-*/ /*-[--.---.---.--]-*/
-yvikeys__map_delete    (char a_major, char a_minor)
-{
+yvikeys__map_clearer   (char a_major, char a_minor)
+{  /*---(notes)--------------------------*/
+   /*
+    *  'x' by itself is not repeatable as "clear" -- would just clear same pos
+    *  over and over :(  so, add a movement to drive repeats.  use double-x
+    *  to stay in place.  more complex clears should use visual to select rows,
+    *  cols, screen, buffer, etc then clear.
+    *
+    */
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    char        rc          =    0;
    char        i           =    0;
    char        x_len       =    0;
    char        x_pos       =    0;
-   char        x_minors    [LEN_LABEL]  = "hljk";
+   char        x_minors    [LEN_LABEL]  = "hljkx";
    /*---(header)-------------------------*/
    DEBUG_MAP    yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
    DEBUG_MAP    yLOG_char    ("visu live" , yvikeys_visu_islive ());
-   --rce;  if (yvikeys_visu_isdead ()) {
+   --rce;  if (yvikeys_visu_islive ()) {
       DEBUG_MAP    yLOG_note    ("function only handles non-selected deletes/clearing");
+      DEBUG_MAP    yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_MAP    yLOG_char    ("a_major"   , chrvisible (a_major));
+   --rce;  if (a_major != 'x') {
       DEBUG_MAP    yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
@@ -1090,11 +1110,9 @@ yvikeys__map_delete    (char a_major, char a_minor)
       return rce;
    }
    /*---(action)-------------------------*/
-   if (a_major == 'x') {
-      yvikeys_mreg_save  ();
-      yvikeys_mreg_clear ();
-      yvikeys_visu_clear    ();
-   }
+   yvikeys_mreg_save  ();
+   yvikeys_mreg_clear ();
+   yvikeys_visu_clear ();
    /*---(move after)---------------------*/
    switch (a_minor) {
    case 'h' : rc = yvikeys__map_horz (G_KEY_SPACE, a_minor);         break;
@@ -1102,6 +1120,176 @@ yvikeys__map_delete    (char a_major, char a_minor)
    case 'j' : rc = yvikeys__map_vert (G_KEY_SPACE, a_minor);         break;
    case 'k' : rc = yvikeys__map_vert (G_KEY_SPACE, a_minor);         break;
    }
+   /*---(complete)-----------------------*/
+   DEBUG_MAP    yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char         /*-> complex delete action --------------[ ------ [gz.430.031.02]*/ /*-[01.0000.213.!]-*/ /*-[--.---.---.--]-*/
+yvikeys__map_delete    (char a_major, char a_minor)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   char        i           =    0;
+   char        x_pos       =    0;
+   char        x_minors    [LEN_LABEL]  = "hljk";
+   int         b, xb, xe, yb, ye, z;
+   int         xb2, xe2, yb2, ye2;
+   int         xs , ys;
+   int         x_top, x_left;
+   /*---(header)-------------------------*/
+   DEBUG_MAP    yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   DEBUG_MAP    yLOG_char    ("visu live" , yvikeys_visu_islive ());
+   DEBUG_MAP    yLOG_char    ("a_major"   , chrvisible (a_major));
+   --rce;  if (a_major != 'd') {
+      DEBUG_MAP    yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_MAP    yLOG_char    ("a_minor"   , chrvisible (a_minor));
+   DEBUG_MAP    yLOG_info    ("valid"     , x_minors);
+   --rce;  if (a_minor == 0 || strchr (x_minors, a_minor) == NULL) {
+      DEBUG_MAP    yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(get and clear)------------------*/
+   rc = yVIKEYS_visu_coords (&b, &xb, &xe, &yb, &ye, &z);
+   rc = yvikeys_mreg_clear ();
+   rc = yvikeys_visu_clear ();
+   /*---(cut/yank)-----------------------*/
+   x_left = g_xmap.beg;
+   x_top  = g_ymap.beg;
+   xs  = xb;
+   ys  = yb;
+   xb2 = xb;
+   yb2 = yb;
+   xe2 = xe;
+   ye2 = ye;
+   switch (a_minor) {
+   case 'l' :
+      xb2 = xe + 1;
+      xe2 = g_xmap.gmax;
+      break;
+   case 'h' :
+      xb2 = g_xmap.gmin;
+      xe2 = xb - 1;
+      xs  = xe - (xe2 - xb2);
+      break;
+   case 'j' :
+      yb2 = ye + 1;
+      ye2 = g_ymap.gmax;
+      break;
+   case 'k' :
+      ys  = g_ymap.gmin + 1;
+      yb2 = g_ymap.gmin;
+      ye2 = ye - 1;
+      break;
+   }
+   if (xs  <  0          )  xs  = 0;
+   if (xs  >= g_xmap.gmax)  xs  = g_xmap.gmax;
+   if (xb2 <  0          )  xb2 = 0;
+   if (xb2 >= g_xmap.gmax)  xb2 = g_xmap.gmax;
+   if (xe2 <  0          )  xe2 = 0;
+   if (xe2 >= g_xmap.gmax)  xe2 = g_xmap.gmax;
+   if (ys  <  0          )  ys  = 0;
+   if (ys  >= g_ymap.gmax)  ys  = g_ymap.gmax;
+   if (yb2 <  0          )  yb2 = 0;
+   if (yb2 >= g_ymap.gmax)  yb2 = g_ymap.gmax;
+   if (ye2 <  0          )  ye2 = 0;
+   if (ye2 >= g_ymap.gmax)  ye2 = g_ymap.gmax;
+   rc = yvikeys_visu_exact  (b, xb2, xe2, yb2, ye2, z);
+   rc = yvikeys_mreg_save  ();
+   rc = yvikeys_mreg_clear_combo ();
+   rc = yvikeys_visu_clear ();
+   /*---(paste/move)---------------------*/
+   rc = yVIKEYS_jump (b, xs, ys, z);
+   rc = yvikeys_mreg_paste_combo ("map-delete");
+   g_xmap.beg = x_left;
+   g_ymap.beg = x_top;
+   rc = yVIKEYS_jump (b, xb, yb, z);
+   /*---(complete)-----------------------*/
+   DEBUG_MAP    yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char         /*-> complex append action --------------[ ------ [gz.430.031.02]*/ /*-[01.0000.213.!]-*/ /*-[--.---.---.--]-*/
+yvikeys__map_append    (char a_major, char a_minor)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   char        i           =    0;
+   char        xl, yl;
+   char        x_pos       =    0;
+   char        x_minors    [LEN_LABEL]  = "hljk·xyz";
+   int         b, xb, xe, yb, ye, z;
+   int         xb2, xe2, yb2, ye2;
+   int         xs , ys;
+   int         x_top, x_left;
+   /*---(header)-------------------------*/
+   DEBUG_MAP    yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   DEBUG_MAP    yLOG_char    ("visu live" , yvikeys_visu_islive ());
+   DEBUG_MAP    yLOG_char    ("a_major"   , chrvisible (a_major));
+   --rce;  if (a_major != 'a') {
+      DEBUG_MAP    yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_MAP    yLOG_char    ("a_minor"   , chrvisible (a_minor));
+   DEBUG_MAP    yLOG_info    ("valid"     , x_minors);
+   --rce;  if (a_minor == 0 || strchr (x_minors, a_minor) == NULL) {
+      DEBUG_MAP    yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(get and clear)------------------*/
+   rc = yVIKEYS_visu_coords (&b, &xb, &xe, &yb, &ye, &z);
+   /*> rc = yvikeys_mreg_save  ();                                                    <*/
+   rc = yvikeys_visu_clear ();
+   /*---(remember window pos)------------*/
+   x_left = g_xmap.beg;
+   x_top  = g_ymap.beg;
+   /*---(cut/yank)-----------------------*/
+   xs     = xb;
+   ys     = yb;
+   xb2 = xb;
+   yb2 = yb;
+   xe2 = xe;
+   ye2 = ye;
+   xl  = (xe - xb) + 1;
+   yl  = (ye - yb) + 1;
+   switch (a_minor) {
+   case 'l' :
+      xb2 = xs;
+      xe2 = g_xmap.gmax - xl;
+      xs  = xb + xl;
+      break;
+   case 'x' : /* full column push right (al) */
+      xb2 = xs;
+      xe2 = g_xmap.gmax - xl;
+      xs  = xb + xl;
+      ys  = yb2 = g_ymap.gmin;
+      ye2 = g_ymap.gmax;
+      break;
+   }
+   if (xb2 <  0          )  xb2 = 0;
+   if (xb2 >= g_xmap.gmax)  xb2 = g_xmap.gmax;
+   if (xe2 <  0          )  xe2 = 0;
+   if (xe2 >= g_xmap.gmax)  xe2 = g_xmap.gmax;
+   if (yb2 <  0          )  yb2 = 0;
+   if (yb2 >= g_ymap.gmax)  yb2 = g_ymap.gmax;
+   if (ye2 <  0          )  ye2 = 0;
+   if (ye2 >= g_ymap.gmax)  ye2 = g_ymap.gmax;
+   rc = yvikeys_visu_exact  (b, xb2, xe2, yb2, ye2, z);
+   rc = yvikeys_mreg_save  ();
+   rc = yvikeys_mreg_clear ();
+   rc = yvikeys_visu_clear ();
+   /*---(paste/move)---------------------*/
+   rc = yVIKEYS_jump (b, xs, ys, z);
+   rc = yvikeys_mreg_paste_combo ("map-delete");
+   g_xmap.beg = x_left;
+   g_ymap.beg = x_top;
+   rc = yVIKEYS_jump (b, xb, yb, z);
    /*---(complete)-----------------------*/
    DEBUG_MAP    yLOG_exit    (__FUNCTION__);
    return 0;
@@ -1163,7 +1351,7 @@ yvikeys_map_mode        (char a_major, char a_minor)
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return a_minor;
       }
-      if (yvikeys_visu_islive () && strchr ("e" , a_minor) != 0) {
+      if (yvikeys_visu_islive () && strchr (g_multivisu, a_minor) != 0) {
          DEBUG_USER   yLOG_note    ("prefix of visual multimap keystring");
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return a_minor;
@@ -1349,8 +1537,20 @@ yvikeys_map_mode        (char a_major, char a_minor)
       return rc;
    }
    /*---(delete)-------------------------*/
-   if (a_major == 'x') {
+   if (a_major == 'd') {
       rc = yvikeys__map_delete  (a_major, a_minor);
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return rc;
+   }
+   /*---(clear)--------------------------*/
+   if (a_major == 'x') {
+      rc = yvikeys__map_clearer (a_major, a_minor);
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return rc;
+   }
+   /*---(append)-------------------------*/
+   if (a_major == 'a') {
+      rc = yvikeys__map_append  (a_major, a_minor);
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return rc;
    }

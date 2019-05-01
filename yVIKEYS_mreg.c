@@ -151,7 +151,7 @@ static tPASTING   s_pasting [MAX_PASTING] = {
    { '-', "-nA-", ""            , '-',    '-', 'n', 'A', '-',    "tbd" },
    { '-', "-nS-", ""            , '-',    '-', 'n', 'S', '-',    "tbd" },
    /*---*/
-   { '-', "-rN-", "normal"      , 'y',    '-', 'r', 'N', '-',    "tbd" },
+   { 'n', "-rN-", "normal"      , 'y',    '-', 'r', 'N', '-',    "tbd" },
    { '-', "-rR-", ""            , '-',    '-', 'r', 'R', '-',    "tbd" },
    { '-', "-rA-", ""            , '-',    '-', 'r', 'A', '-',    "tbd" },
    { '-', "-rS-", ""            , '-',    '-', 'r', 'S', '-',    "tbd" },
@@ -171,26 +171,26 @@ static tPASTING   s_pasting [MAX_PASTING] = {
    { '-', "-eA-", ""            , '-',    '-', 'e', 'A', '-',    "tbd" },
    { '-', "-eS-", ""            , '-',    '-', 'e', 'S', '-',    "tbd" },
    /*---------*/
-   { '-', "y---", "clear"       , 'y',    'y', '-', '-', '-',    "tbd" },
+   { '#', "y---", "clear"       , 'y',    'y', '-', '-', '-',    "tbd" },
    /*---*/
    { '-', "ynN-", ""            , '-',    'y', 'n', 'N', '-',    "tbd" },
    { '-', "ynR-", ""            , '-',    'y', 'n', 'R', '-',    "tbd" },
    { '-', "ynA-", ""            , '-',    'y', 'n', 'A', '-',    "tbd" },
    { '-', "ynS-", ""            , '-',    'y', 'n', 'S', '-',    "tbd" },
    /*---*/
-   { '-', "yrN-", "replace"     , 'y',    'y', 'r', 'N', '-',    "tbd" },
+   { 'r', "yrN-", "replace"     , 'y',    'y', 'r', 'N', '-',    "tbd" },
    { '-', "yrR-", ""            , '-',    'y', 'r', 'R', '-',    "tbd" },
    { '-', "yrA-", ""            , '-',    'y', 'r', 'A', '-',    "tbd" },
    { '-', "yrS-", ""            , '-',    'y', 'r', 'S', '-',    "tbd" },
    /*---*/
-   { '-', "yiN-", "duplicate"   , 'y',    'y', 'i', 'N', '-',    "tbd" },
+   { 'd', "yiN-", "duplicate"   , 'y',    'y', 'i', 'N', '-',    "tbd" },
    { '-', "yiR-", ""            , '-',    'y', 'i', 'R', '-',    "tbd" },
    { '-', "yiA-", ""            , '-',    'y', 'i', 'A', '-',    "tbd" },
    { '-', "yiS-", ""            , '-',    'y', 'i', 'S', '-',    "tbd" },
    /*---*/
-   { '-', "ybN-", ""            , '-',    'y', 'b', 'N', '-',    "tbd" },
-   { '-', "ybR-", "move"        , 'y',    'y', 'b', 'R', '-',    "tbd" },
-   { '-', "ybA-", "force"       , 'y',    'y', 'b', 'A', '-',    "tbd" },
+   { 'D', "ybN-", "map-delete"  , '-',    'y', 'b', 'N', '-',    "tbd" },
+   { 'm', "ybR-", "move"        , 'y',    'y', 'b', 'R', '-',    "tbd" },
+   { 'f', "ybA-", "force"       , 'y',    'y', 'b', 'A', '-',    "tbd" },
    { '-', "ybS-", ""            , '-',    'y', 'b', 'S', '-',    "tbd" },
    /*---*/
    { '-', "yeN-", ""            , '-',    'y', 'e', 'N', '-',    "tbd" },
@@ -604,7 +604,7 @@ yvikeys_mreg_save               (void)
       return  rce;
    }
    /*---(save selection)-----------------*/
-   rc = yvikeys_visu_coords (
+   rc = yVIKEYS_visu_coords (
          &s_regs [x_reg].b_all,
          &s_regs [x_reg].x_beg, &s_regs [x_reg].x_end,
          &s_regs [x_reg].y_beg, &s_regs [x_reg].y_end,
@@ -660,7 +660,7 @@ yvikeys_mreg__list            (char a_reg, char *a_list)
 static void  o___ACTIONS_________o () { return; }
 
 char
-yvikeys_mreg_clear           (void)
+yvikeys_mreg__clear          (char a_1st)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -670,9 +670,9 @@ yvikeys_mreg_clear           (void)
    int         x_beg, x_end;
    int         y_beg, y_end;
    int         z;
-   char        x_1st       =  'y';
    /*---(header)-------------------------*/
    DEBUG_REGS   yLOG_enter   (__FUNCTION__);
+   DEBUG_REGS   yLOG_char    ("a_1st"     , a_1st);
    /*---(defense)------------------------*/
    --rce;  if (!STATUS_operational (SMOD_MREG)) {
       DEBUG_REGS   yLOG_note    ("can not execute until operational");
@@ -680,7 +680,7 @@ yvikeys_mreg_clear           (void)
       return rce;
    }
    /*---(save selection)-----------------*/
-   rc = yvikeys_visu_coords (&b, &x_beg, &x_end, &y_beg, &y_end, &z);
+   rc = yVIKEYS_visu_coords (&b, &x_beg, &x_end, &y_beg, &y_end, &z);
    DEBUG_REGS   yLOG_value   ("visu rc"   , rc);
    --rce;  if (rc < 0) {
       DEBUG_REGS   yLOG_exitr   (__FUNCTION__, rce);
@@ -696,14 +696,17 @@ yvikeys_mreg_clear           (void)
    /*---(clear)--------------------------*/
    for (x = x_beg; x <= x_end; ++x) {
       for (y = y_beg; y <= y_end; ++y) {
-         rc = s_clearer (x_1st, b, x, y, z);
-         if (rc == 0)  x_1st = '-';
+         rc = s_clearer (a_1st, b, x, y, z);
+         if (rc == 0)  a_1st = '-';
       }
    }
    /*---(complete)-----------------------*/
    DEBUG_REGS   yLOG_exit    (__FUNCTION__);
    return 0;
 }
+
+char yvikeys_mreg_clear        (void) { yvikeys_mreg__clear ('y'); }
+char yvikeys_mreg_clear_combo  (void) { yvikeys_mreg__clear ('-'); }
 
 static int  s_boff  = 0;
 static int  s_xoff  = 0;
@@ -838,15 +841,15 @@ yvikeys_mreg__paste_settings (char *a_type)
 }
 
 char         /*-> prepare for a paste ----------------[ ------ [fe.842.023.21]*/ /*-[01.0000.015.!]-*/ /*-[--.---.---.--]-*/
-yvikeys_mreg__paste_clear    (void)
+yvikeys_mreg__paste_clear    (char a_1st)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    char        rc          =    0;
    int         x, y;
-   char        x_1st       =  'y';
    /*---(header)-------------------------*/
    DEBUG_REGS   yLOG_enter   (__FUNCTION__);
+   DEBUG_REGS   yLOG_char    ("a_1st"     , a_1st);
    /*---(check clearer)------------------*/
    DEBUG_REGS   yLOG_point   ("s_clearer" , s_clearer);
    --rce;  if (s_clearer == NULL) {
@@ -858,9 +861,9 @@ yvikeys_mreg__paste_clear    (void)
    DEBUG_REGS   yLOG_complex ("range"     , "%3dx to %3dx, %3dy to %3dy", s_regs [s_reg].x_beg + s_xoff, s_regs [s_reg].x_end + s_xoff, s_regs [s_reg].y_beg + s_yoff, s_regs [s_reg].y_end + s_yoff);
    for (x = s_regs [s_reg].x_beg; x <= s_regs [s_reg].x_end; ++x) {
       for (y = s_regs [s_reg].y_beg; y <= s_regs [s_reg].y_end; ++y) {
-         DEBUG_REGS   yLOG_complex ("target"    , "%c, %3dx, %3dy, %3dz", x_1st, x + s_xoff, y + s_yoff, s_regs [s_reg].z_all + s_zoff);
-         rc = s_clearer (x_1st, s_regs [s_reg].b_all + s_boff, x + s_xoff, y + s_yoff, s_regs [s_reg].z_all + s_zoff);
-         if (rc == 0)  x_1st = '-';
+         DEBUG_REGS   yLOG_complex ("target"    , "%c, %3dx, %3dy, %3dz", a_1st, x + s_xoff, y + s_yoff, s_regs [s_reg].z_all + s_zoff);
+         rc = s_clearer (a_1st, s_regs [s_reg].b_all + s_boff, x + s_xoff, y + s_yoff, s_regs [s_reg].z_all + s_zoff);
+         if (rc == 0)  a_1st = '-';
       }
    }
    /*---(complete)-----------------------*/
@@ -869,7 +872,7 @@ yvikeys_mreg__paste_clear    (void)
 }
 
 char
-yvikeys_mreg_paste              (char *a_type)
+yvikeys_mreg__paste             (char a_1st, char *a_type)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -879,6 +882,7 @@ yvikeys_mreg_paste              (char *a_type)
    char        x_1st       =  'y';
    /*---(header)-------------------------*/
    DEBUG_REGS   yLOG_enter   (__FUNCTION__);
+   DEBUG_REGS   yLOG_char    ("a_1st"     , a_1st);
    /*---(prepare)------------------------*/
    rc = yvikeys_mreg__paste_check    ();
    DEBUG_REGS   yLOG_value   ("rc"        , rc);
@@ -895,8 +899,8 @@ yvikeys_mreg_paste              (char *a_type)
    }
    /*---(clearing)-----------------------*/
    if (s_clear == 'y') {
-      yvikeys_mreg__paste_clear ();
-      x_1st = '-';  /* link pasting to clearing */
+      yvikeys_mreg__paste_clear (a_1st);
+      a_1st = '-';  /* link pasting to clearing */
    }
    if (s_reqs == '-') {
       DEBUG_REGS   yLOG_note    ("requested clear only");
@@ -907,12 +911,12 @@ yvikeys_mreg_paste              (char *a_type)
    DEBUG_REGS   yLOG_value   ("nbuf"      , s_regs [s_reg].nbuf);
    --rce;  for (i = 0; i < s_regs [s_reg].nbuf; ++i) {
       DEBUG_REGS   yLOG_value   ("i"         , i);
-      rc = s_paster (s_reqs, s_pros, s_intg, x_1st, s_boff, s_xoff, s_yoff, s_zoff, s_regs [s_reg].buf [i]);
+      rc = s_paster (s_reqs, s_pros, s_intg, a_1st, s_boff, s_xoff, s_yoff, s_zoff, s_regs [s_reg].buf [i]);
       if (rc < 0) {
          DEBUG_REGS   yLOG_exitr   (__FUNCTION__, rce);
          return rce;
       }
-      x_1st = '-';
+      a_1st = '-';
    }
    /*---(update)-------------------------*/
    yvikeys_map_reposition  ();
@@ -920,6 +924,9 @@ yvikeys_mreg_paste              (char *a_type)
    DEBUG_REGS   yLOG_exit    (__FUNCTION__);
    return 0;
 }
+
+char  yvikeys_mreg_paste       (char *a_type) { yvikeys_mreg__paste ('y', a_type); }
+char  yvikeys_mreg_paste_combo (char *a_type) { yvikeys_mreg__paste ('-', a_type); }
 
 char
 yvikeys_mreg_visual          (void)
@@ -1069,6 +1076,7 @@ yvikeys_mreg_smode           (int a_major, int a_minor)
       DEBUG_USER   yLOG_point   ("s_exim"    , s_exim);
       if (s_exim != NULL)  rc = s_exim (a_major, a_minor);
       DEBUG_USER   yLOG_value   ("rc"        , rc);
+      yvikeys_visu_clear ();
       MODE_exit ();
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return rc;

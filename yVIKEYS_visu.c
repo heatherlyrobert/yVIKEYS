@@ -935,6 +935,24 @@ yvikeys_visu_locking    (char a_type)
    return 0;
 }
 
+char
+yvikeys_visu_ends       (char a_type)
+{
+   switch (a_type) {
+   case '0'  :
+      DEBUG_USER   yLOG_note    ("0 for left selection");
+      s_visu.x_beg  = g_xmap.gmin;
+      s_visu.x_end  = g_xmap.gcur;
+      break;
+   case '$'  :
+      DEBUG_USER   yLOG_note    ("$ for right selection");
+      s_visu.x_beg  = g_xmap.gcur;
+      s_visu.x_end  = g_xmap.gmax;
+      break;
+   }
+   return 0;
+}
+
 
 
 /*====================------------------------------------====================*/
@@ -949,7 +967,7 @@ static int     s_y = 0;
 static int     s_z = 0;
 
 char         /*-> return selection range borders -----[ leaf   [gc.730.107.C0]*/ /*-[01.0000.204.4]-*/ /*-[--.---.---.--]-*/
-yvikeys_visu_coords     (int *b, int *xb, int *xe, int *yb, int *ye, int *z)
+yVIKEYS_visu_coords     (int *b, int *xb, int *xe, int *yb, int *ye, int *z)
 {
    if (b  != NULL) *b  = s_visu.b_all;
    if (xb != NULL) *xb = s_visu.x_beg;

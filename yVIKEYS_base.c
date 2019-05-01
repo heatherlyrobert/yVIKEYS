@@ -68,6 +68,7 @@ yVIKEYS_init         (void)
    srand (time (NULL));
    /*----(early)-------------------------*/
    yPARSE_init  ('y', NULL, '-');
+   yPARSE_delimiters  ("");
    MODE_init    ();
    yvikeys_file_init    ();
    /*----(middling)----------------------*/
@@ -655,7 +656,8 @@ yVIKEYS_main_handle     (uchar a_key)
       case UMOD_HISTORY  : rc = HISTORY_smode         (x_major , x_key);  break;
       case UMOD_VISUAL   : rc = yvikeys_visu_umode    (x_major , x_key);  break;
       case SMOD_ERROR    : rc = BASE__________stub    (x_major , x_key);  break;
-      case XMOD_FORMAT   : rc = FORMAT_smode          (x_major , x_key);  break;
+      case XMOD_FORMAT   : rc = FORMAT_xmode          (x_major , x_key);  break;
+      case XMOD_UNITS    : rc = UNITS_xmode           (x_major , x_key);  break;
       case SMOD_BUFFER   : rc = yvikeys_bufs_umode    (x_major , x_key);  break;
       case UMOD_WANDER   : rc = BASE__________stub    (x_major , x_key);  break;
       case SMOD_MREG     : rc = yvikeys_mreg_smode    (x_major , x_key);  break;

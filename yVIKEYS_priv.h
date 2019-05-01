@@ -25,10 +25,10 @@
 #define     P_CREATED   "2010-01"
 #define     P_DEPENDS   "none"
 
-#define     P_VERNUM    "1.2a"
-#define     P_VERTXT    "small updates to pass all sundo unit tests"
 #define     P_VERMAJOR  "1.X = working for everyday use, features still evolving but stable"
 #define     P_VERMINOR  "1.2 = cleaning out all existing unit test bugs"
+#define     P_VERNUM    "1.2b"
+#define     P_VERTXT    "added d¢ functionality for hljk as well as supporting unit tests"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -281,7 +281,8 @@ char        REPEAT_decrement        (void);
 int         REPEAT_count            (void);
 int         REPEAT_use              (void);
 char        REPEAT_not              (void);
-char        FORMAT_smode            (int a_major, int a_minor);
+char        FORMAT_xmode            (int a_major, int a_minor);
+char        UNITS_xmode             (int a_major, int a_minor);
 
 
 char        GOD_mode                (char a_major, char a_minor);
@@ -322,6 +323,7 @@ char        yvikeys_visu_isdead     (void);
 char        yvikeys_visu_makelive   (void);
 char        yvikeys_visu_makedead   (void);
 char        yvikeys_visu_locking    (char a_type);
+char        yvikeys_visu_ends       (char a_type);
 char        yvikeys_visu_update     (void);
 
 char        yvikeys_visu_init       (void);
@@ -332,7 +334,6 @@ char        yvikeys_visu_reverse    (void);
 char        yvikeys_visu_status     (char *a_list);
 char        yvikeys_visu_clear      (void);
 char        yvikeys_visu_exact      (int b, int xb, int xe, int yb, int ye, int z);
-char        yvikeys_visu_coords     (int *b, int *xb, int *xe, int *yb, int *ye, int *z);
 char        yvikeys_visu_umode      (int a_major, int a_minor);
 char        VISU_read               (char a_visu, char *a_label);
 char        yvikeys_visu__reader    (void);
@@ -571,8 +572,10 @@ char        yvikeys_mreg_wrap            (void);
 char        yvikeys_mreg_save            (void);
 char        yvikeys_mreg_visual          (void);
 char        yvikeys_mreg_clear           (void);
-char        yvikeys_mreg_paste      (char *a_type);
-char        yvikeys_mreg_status     (char *a_status);
+char        yvikeys_mreg_clear_combo     (void);
+char        yvikeys_mreg_paste           (char *a_type);
+char        yvikeys_mreg_paste_combo     (char *a_type);
+char        yvikeys_mreg_status          (char *a_status);
 char        yvikeys_mreg_smode           (int a_major, int a_minor);
 
 char        yvikeys_mreg__unit_purge   (void);

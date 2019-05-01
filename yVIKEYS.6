@@ -60,6 +60,7 @@ a one-time, steep learning curve.
    c   char_find   linewise searching for particular characters
    ,   buffer      select a buffer/tab/document to focus
    t   text_reg    text registers to move/transfer text
+   f   units       change number auto-scaling
 
 
 provide focused capability, more limited options, specific key sequences,
@@ -146,13 +147,22 @@ all applications can use them.
 
 .B adding mathmatical charcters
    type \\ first, the one of the latin characters below
-   å æ    Ë Ì Í    Î Æ Ç È É Ê    À Á Â Ã Ä Å   ¸ ¹ º » ¼ ½ ° ± ²
-   = ~    # a r    1 2 3 4 x y    5 6 7 8 9 z   ( ) [ ] < > { } $
+   ß Ý Þ æ    Ë Ì Í    Î Æ Ç È É Ê    À Á Â Ã Ä Å   ¸ ¹ º » ¼ ½
+   = < > ~    # a r    1 2 3 4 x y    5 6 7 8 9 z   ( ) [ ] { }
 
 .B adding other useful characters
    type \\ first, the one of the latin characters below
    ´ ¢ ¡    Ô Ó Ö Õ    Ð Ñ Ò    ® ¯
    @ ? !    j k h l    & | ^    : %
+
+.SH MAP mode
+
+.B clear (remove content, leave blank)
+   x + hljkio      clear current and move one in direction
+   xx              clear and remain in place
+
+.B delete (remove content and position)
+   d + hljkio      delete and pull from direction to fill-in 
 
 .SH COMMAND mode
 .SS ---basics---------------------------------------------------------
@@ -567,6 +577,11 @@ make it universal across my applications.
 .B updating selection size
    you remain in map mode, so all movement keys are still available
 
+.B normal actions
+   y          yank/copy
+   Y          yank/clear
+   "¢         select a register for use
+
 .B special adjustments to selection
    v          reverses the selection ends to help grow/shrink
    ex         selects full range of x
@@ -771,6 +786,63 @@ text registers.
    ]a         append the current register to the new one
 
 
+.SH EXIM (export/import) pseudo-mode
+.B definition (d).  
+sharing ascii data with other tools by exporting to shared file in a standard
+format and importing elsewhere.
+
+.B current (c).
+concept is quite standard, but environments have proprietary tools and formats
+for common use.  general sharing is spotty.
+
+.B standard formats (upper case means hinting/auto-adjust)
+   v V        exact printable values in table (great for parsing)
+   d D        exact printable values with § between values
+   f F        trimmed printable values with § between values
+   c C        trimmed comma separated values of printables
+   t T        trimmed tab delimited printables
+   r R        full modified values ready for formatting/printing
+   s S        source values (meaning actual formulas too)
+   n N        native application format for full data formatting too
+
+
+.B +/- regs, reading or writing data to vi_clip.txt
+   ---examples---------------------
+   "-v        writes   format 'v' from selected area
+   "c-t       writes   format 't' from register 'c'
+   "+v        reads in format 'v' starting at current location
+   "f+c       reads in format 'c' into register 'f'
+   ---visual-----------------------
+   v s        pure-columnar  , printables , untrimmed , with empties
+   V S        pure-columnar  , printables , untrimmed , with empties
+   ---sources----------------------
+   s          separate lines , sources    , trimmed   , no empties
+   S          separate lines , (prepended addresses)
+   f          file format    , address and source only
+   F          file format    , complete
+   ---exchange---------------------
+   c          standard-csv   , printables , trimmed   , with empties
+   C          standard-csv   , sources    , trimmed   , with empties
+   t          tab-delimited  , printables , trimmed   , with empties
+   T          tab-delimited  , sources    , trimmed   , with empties
+   r          ascii-records  , printables , untrimmed , with empties
+   R          ascii-records  , sources    , untrimmed , with empties
+   ---other------------------------
+   p          post-script
+
+.B + regs, reading vi_clip.txt
+   v          pure-columnar  , printables only, no adjust
+   s          space-delimited, sources or printables, no adjust
+   c          standard-csv   , sources or printables, no adjust
+   t          tab-delimited  , sources or printables, no adjust
+   r          ascii-records  , sources or printables, no adjust
+   V          same as v only column widths adjust (sizer only)
+   S C T R    same as s, c, t, r only column widths adjust/sizer
+
+
+
+
+
 
 
 
@@ -968,29 +1040,22 @@ a vast majority of all users.
 
 .B situation (S)
 
-.SH DATA FORMATTING (sub-mode)
+.SH FORMAT (sub-mode)
+.B define (D)
+data formatting helps users digest, make connections, and generate insights
+leading to clearer, better, and more decisive decisions.
 
-the purpose of data formatting, including, fonts, alignment, numerical
-formats, etc., is to allow users to easily and quickly consume data in order
-to discover useful insights, concepts, and conclusions.
+.B current situation (S)
+this is a well explored area with many standard formats defined for various
+user populations, such as accountants, engineers, scientists, etc.
 
-.B situation (S)
-most allications fall in the range of having a narrow, specific data set and
-fixed formatting; or they providing a range of custom formatting options to
-help user with complex situations.
+.B concern (S)
+these capabilties are typically supported uniquely by each application and
+either narrow and standard (man), or legion and mostly superficial (ppt).
 
-.B complication (C)
-often, formatting is viewed as the critical element rather than the icing on
-the top of great analysis and insight.  formatting often means superfluous
-presentation elements like fonts types, sizes, and colors.
-
-.B question (Q)
-how to standardize usage of both data and analysis focused formatting that
-can be learned once and added easily to any application ?
-
-.B answer (A)
-easy, take lessions from old-school terminal and text-based analytical tools
-like lotus 123 and visicalc to develop a new standard.
+.B choice (R)
+build once and force completely standard data formats across my applications
+based on lessons learned in mathmatics, management, and statistics.
 
 .B allowed from which modes...
    map        on a single cell
@@ -998,39 +1063,30 @@ like lotus 123 and visicalc to develop a new standard.
 
 .B invoking data formatting
    F          format sub-mode
-   f          format sub-mode for a single action
-   <es>       return to normal mode
+   ¥ or ¦     return to normal mode (no difference)
 
 .B horizontal alignment
-   <          left
-   [          left with brackets []
-   {          left, indented, with brackets []
-   >          right
-   ]          right with brackets []
-   }          right, indented, with brackets []
-   |          center
-   ^          center with brackets []
+   < [ { :    left, with [, [ indent, or colon
+   > ] } '    right, with [, [ indent, or colon
+   | ^        center, with [
 
 .B numeric
    /*---(normal)-----------------------*/
-   i          integer
-   r          real/float
-   ,          commas in thousands, millions
-   s          commas and sign
-   a          accounting (commas and parens for negative)
-   $          currency (commas and currency sign)
+   i          integer (capital is indented)
+   f          real/float
+   , s a $    real/float with commas, signed comma, acct, currency
+   F          add unit-of-measure scaling to real/floats
    p          percentage (shows a tailing 'p' as '%' is problematic
    /*---(technical)--------------------*/
    e          exponential (E means with spaces)
-   #          technical (commas, decimal commas, signs)
+   ;          technical (commas, decimal commas, signs)
    x          hexadecimal (X means with separators every byte)
    b          binary (B means with separators every four bits)
    o          octal (O means with separators every byte)
+   z          mongo (base-62)
+   r          roman (R means upper case)
    /*---(time)-------------------------*/
-   t          time
-   d          date
-   T          timestamp
-   D          time and date
+   t d T D    time, date, timestamp, time and date
    /*---(other)------------------------*/
    P          point/bullet
 
@@ -1038,22 +1094,24 @@ like lotus 123 and visicalc to develop a new standard.
    0-9        number of decimals shown
 
 .B filler for strings
-   <sp>       space filled (default)
-   -          dashes
-   =          equals
-   _          underscores
-   .          periods
-   +          pluses
+   !          empty fill (default)
+   - = _      basic fills
+   . @ / +    extended space (@/+ means symbol every three/five)
+   ~ #        ruler (very cool) or number scale
+   q Q        two kinds of arrows (both ways)
 
-.B used letters
-    + ++         ++   +   +   ++++++++++ ++    + ++  +
-   ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789 ,.:;!?_ +-*/= cr bs  50
-   abcdefghijklmnopqrstuvwxyz &#|@ ~^$% '`" (){}[]<> sp es \\  49
-   ++ ++   +     ++ +++   +    ++   ++        ++++++ +  
+.B column widths (9 options)
+   h l        change by single unit
+   H L        change by units of five
+   m          minimal
+   n N        normal and normal-plus
+   w W        wide and very wide
 
-.B used letters
-   ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789 ,.:;!?_ +-*/= cr bs  50
-   abcdefghijklmnopqrstuvwxyz &#|@ ~^$% '`" (){}[]<> sp es \\  49
+.B row heights (4 options)
+   j k        change by single unit
+   J K        change by units of five
+
+
 
 .SH OBJECT SIZING
 
@@ -1251,8 +1309,8 @@ them to add new text, and replace mode allows them to overtype exising text.
    found character is saved between searches for quick reuse
 
 .B delete, clear, and change
-   Å             deletes the previous character
-   Ä             deletes the current character
+   ¿             deletes the previous character
+   ¾             deletes the current character
    d + hlwbe0$   delete a character(s) in the given direction
    x + hlwbe0$   clear a character(s) in the given direction
    c + hlwbe0$   delete a character(s) then enter input micro-mode
@@ -1270,7 +1328,7 @@ them to add new text, and replace mode allows them to overtype exising text.
    R             replace a string of characters until exiting
 
 .B repeats and counts
-   Æ             all commands can take a prefixed count
+   Ë             all commands can take a prefixed count
 
 .SH INPUT micro-mode
 .SS ---basics---------------------------------------------------------

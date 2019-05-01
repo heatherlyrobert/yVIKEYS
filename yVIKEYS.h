@@ -30,6 +30,7 @@
 #define     UMOD_HISTORY   'H'    /* dislay command/search history            */
 #define     SMOD_BUFFER    ','    /* selecting buffers                        */
 #define     XMOD_FORMAT    '$'    /* content formatting                       */
+#define     XMOD_UNITS     'K'    /* content units for scaling                */
 #define     XMOD_OBJECT    'o'    /* object formatting                        */
 #define     SMOD_HINT      ';'    /* hint labels                              */
 #define     SMOD_MACRO     '@'    /* macro processing                         */
@@ -245,6 +246,7 @@ char        yVIKEYS_root            (int b, int x, int y, int z);
 char        yVIKEYS_visual          (int b, int x, int y, int z);
 char        yVIKEYS_bufs_config     (void *a_switcher);
 
+char        yVIKEYS_visu_coords     (int *b, int *xb, int *xe, int *yb, int *ye, int *z);
 char        yVIKEYS_first           (int *a_b, int *a_x, int *a_y, int *a_z);
 char        yVIKEYS_next            (int *a_b, int *a_x, int *a_y, int *a_z);
 
@@ -255,7 +257,7 @@ char        yVIKEYS_source          (char *a_label, char *a_contents);
 char        yVIKEYS_hist_marklist   (char *a_list);
 
 char        yVIKEYS_mode_change     (char a_mode, char *a_allow, char *a_mesg);
-char        yVIKEYS_mode_formatter  (void *a_formatter);
+char        yVIKEYS_mode_formatter  (void *a_formatter, void *a_uniter);
 
 /*---(speed)----------------*/
 /*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/

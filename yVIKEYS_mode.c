@@ -18,6 +18,7 @@ static char    s_message  [LEN_RECD];
 
 
 static char    (*s_formatter) (int a_major, int a_minor);
+static char    (*s_uniter)    (int a_major, int a_minor);
 
 
 /*===[[ FILE-WIDE VARIABLES ]]================================================*/
@@ -59,6 +60,7 @@ struct cMODE_INFO {
  */
 #define       MODE_MAJOR    'M'
 
+
 static tMODE_INFO  s_modes [MAX_MODES] = {
    /*-abbr-------- type show  -tla- ---terse----- cat allow  ---expected-status----------------------    ---actual-status-------------------------   ---description--------------------------------------- ---message-------------------------------------------------------------------------------    use */
    /*---(fundamental)-----------------------------------*//* prep--- - needs-- conf--- deps-------- -    prep--- - needs-- conf--- deps-------- -*/
@@ -73,6 +75,7 @@ static tMODE_INFO  s_modes [MAX_MODES] = {
    { UMOD_MARK    , 'u', 'y', "mrk", "mark"      , 1, ""  , "5f:-- p i ----- n ----- r 0M-------- d o", "----- - - ----- - ----- - ---------- - -", "object and location marking"                        , "names=a-zA-Z0-9  actions=#!?_  special='[()]  wander=@  range=<>*"                       ,    0 },
    { SMOD_MACRO   , 's', 'y', "mac", "macro"     , 1, ""  , "5f:-- p i ----- n ----- r 0--------- d o", "----- - - ----- - ----- - ---------- - -", "macro recording, execution, and maintenance"        , "run=a-z"                                                                                 ,    0 },
    { XMOD_FORMAT  , 'x', 'y', "frm", "format"    , 1, ""  , "5---- p i ----- n ----- r 0--------- d o", "----- - - ----- - ----- - ---------- - -", "content formatting options"                         , ""                                                                                        ,    0 },
+   { XMOD_UNITS   , 'x', 'y', "unt", "units"     , 1, ""  , "5---- p i ----- n ----- r 0--------- d o", "----- - - ----- - ----- - ---------- - -", "content formatting options"                         , "off -, (+24) Y Z E P T G M K H D . d c m u n p f a z y (-24)"                            ,    0 },
    { XMOD_OBJECT  , 'x', 'y', "obj", "object"    , 1, ""  , "5---- p i ----- n ----- r 0--------- d o", "----- - - ----- - ----- - ---------- - -", "object formatting and sizing options"               , ""                                                                                        ,    0 },
    { UMOD_MAP_UNDO, 's', 'y', "mun", "map-undo"  , 1, ""  , "5---- p i ----- n 1---- r 0--------- d o", "----- - - ----- - ----- - ---------- - -", "map level undo and redo"                            , ""                                                                                        ,    0 },
    /*---(source)----------------------------------------*//* prep--- - needs-- conf--- deps-------- -    prep--- - needs-- conf--- deps-------- -*/
@@ -104,22 +107,24 @@ static int  s_nmode   = 0;
 
 
 s_modechanges  [MAX_MODES][LEN_TERSE] = {
-    /*    base              1               2               3               4               5               6               7               8               9               10       */
-    /*12345678901234  12345678901234  12345678901234  12345678901234  12345678901234  12345678901234  12345678901234  12345678901234  12345678901234  12345678901234  12345678901234 */
-    /*---(major mode-to-mode)---------*/
-    { MODE_MAP      , UMOD_REPEAT   , MODE_GOD      , MODE_OMNI     , MODE_PROGRESS , MODE_SOURCE   , MODE_COMMAND  , MODE_SEARCH   , 0             , 0             , 0             },  /* all other modes */
-    { MODE_GOD      , UMOD_REPEAT   , MODE_OMNI     , MODE_PROGRESS , MODE_SOURCE   , MODE_COMMAND  , MODE_SEARCH   , 0             , 0             , 0             , 0             },  /* all other modes */
-    /*---(sub/umode/xmode)------------*/
-    { MODE_MAP      , UMOD_VISUAL   , SMOD_MREG     , UMOD_MAP_UNDO , SMOD_BUFFER   , UMOD_MARK     , UMOD_MARK     , 0             , 0             , 0             , 0             },
-    { MODE_MAP      , SMOD_MACRO    , XMOD_FORMAT   , XMOD_OBJECT   , SMOD_HINT     , SMOD_MENUS    , 0             , 0             , 0             , 0             , 0             },
-    { MODE_PROGRESS , UMOD_REPEAT   , 0             , 0             , 0             , 0             , 0             , 0             , 0             , 0             , 0             },
-    { MODE_OMNI     , UMOD_REPEAT   , 0             , 0             , 0             , 0             , 0             , 0             , 0             , 0             , 0             },
-    /*---(source-related)-------------*/
-    { MODE_SOURCE   , UMOD_REPEAT   , UMOD_SRC_INPT , UMOD_SRC_REPL , UMOD_SRC_UNDO , SMOD_SREG     , UMOD_WANDER   , 0             , 0             , 0             , 0             },
-    { MODE_COMMAND  , UMOD_REPEAT   , UMOD_SRC_INPT , UMOD_SRC_REPL , UMOD_SRC_UNDO , SMOD_SREG     , UMOD_HISTORY  , 0             , 0             , 0             , 0             },
-    { MODE_SEARCH   , UMOD_REPEAT   , UMOD_SRC_INPT , UMOD_SRC_REPL , UMOD_SRC_UNDO , SMOD_SREG     , UMOD_HISTORY  , 0             , 0             , 0             , 0             },
-    /*---(done)-----------------------*/
-    { 0             , 0             , 0             , 0             , 0             , 0             , 0             , 0             , 0             , 0             , 0             },
+   /*    base              1               2               3               4               5               6               7               8               9               10       */
+   /*12345678901234  12345678901234  12345678901234  12345678901234  12345678901234  12345678901234  12345678901234  12345678901234  12345678901234  12345678901234  12345678901234 */
+   /*---(major mode-to-mode)---------*/
+   { MODE_MAP      , UMOD_REPEAT   , MODE_GOD      , MODE_OMNI     , MODE_PROGRESS , MODE_SOURCE   , MODE_COMMAND  , MODE_SEARCH   , 0             , 0             , 0             },  /* all other modes */
+   { MODE_GOD      , UMOD_REPEAT   , MODE_OMNI     , MODE_PROGRESS , MODE_SOURCE   , MODE_COMMAND  , MODE_SEARCH   , 0             , 0             , 0             , 0             },  /* all other modes */
+   /*---(sub/umode/xmode)------------*/
+   { MODE_MAP      , UMOD_VISUAL   , SMOD_MREG     , UMOD_MAP_UNDO , SMOD_BUFFER   , UMOD_MARK     , UMOD_MARK     , 0             , 0             , 0             , 0             },
+   { MODE_MAP      , SMOD_MACRO    , XMOD_FORMAT   , XMOD_OBJECT   , SMOD_HINT     , SMOD_MENUS    , 0             , 0             , 0             , 0             , 0             },
+   { MODE_PROGRESS , UMOD_REPEAT   , 0             , 0             , 0             , 0             , 0             , 0             , 0             , 0             , 0             },
+   { MODE_OMNI     , UMOD_REPEAT   , 0             , 0             , 0             , 0             , 0             , 0             , 0             , 0             , 0             },
+   /*---(source-related)-------------*/
+   { MODE_SOURCE   , UMOD_REPEAT   , UMOD_SRC_INPT , UMOD_SRC_REPL , UMOD_SRC_UNDO , SMOD_SREG     , UMOD_WANDER   , 0             , 0             , 0             , 0             },
+   { MODE_COMMAND  , UMOD_REPEAT   , UMOD_SRC_INPT , UMOD_SRC_REPL , UMOD_SRC_UNDO , SMOD_SREG     , UMOD_HISTORY  , 0             , 0             , 0             , 0             },
+   { MODE_SEARCH   , UMOD_REPEAT   , UMOD_SRC_INPT , UMOD_SRC_REPL , UMOD_SRC_UNDO , SMOD_SREG     , UMOD_HISTORY  , 0             , 0             , 0             , 0             },
+   /*---(other)----------------------*/
+   { XMOD_FORMAT   , XMOD_UNITS    , 0             , 0             , 0             , 0             , 0             , 0             , 0             , 0             , 0             },
+   /*---(done)-----------------------*/
+   { 0             , 0             , 0             , 0             , 0             , 0             , 0             , 0             , 0             , 0             , 0             },
 };
 
 static      char        s_majors       [MAX_MODES] = "";
@@ -150,6 +155,7 @@ static      char        s_majors       [MAX_MODES] = "";
 static void  o___SHARED__________o () { return; }
 
 static  s_last       = '-';
+
 char
 MODE__by_abbr           (char a_abbr)
 {
@@ -710,6 +716,7 @@ MODE_init          (void)
    s_mode_curr = '-';
    /*---(custom functions)---------------*/
    s_formatter = NULL;
+   s_uniter    = NULL;
    /*---(update status)------------------*/
    STATUS_init_set   (FMOD_MODE);
    /*---(go to default mode)-------------*/
@@ -989,14 +996,15 @@ char REPEAT_not         (void) { if (myVIKEYS.repeating == '-')  return 1; if (s
 static void  o___CUSTOM__________o () { return; }
 
 char
-yVIKEYS_mode_formatter  (void *a_formatter)
+yVIKEYS_mode_formatter  (void *a_formatter, void *a_uniter)
 {
    s_formatter = a_formatter;
+   s_uniter    = a_uniter;
    return 0;
 }
 
-char         /*-> keys for formatting sub-mode -------[ ------ [gc.MT0.202.C7]*/ /*-[01.0000.112.!]-*/ /*-[--.---.---.--]-*/
-FORMAT_smode            (int a_major, int a_minor)
+char         /*-> keys for formatting micro-mode -----[ ------ [gc.MT0.202.C7]*/ /*-[01.0000.112.!]-*/ /*-[--.---.---.--]-*/
+FORMAT_xmode            (int a_major, int a_minor)
 {
    /*---(locals)-----------+-----------+-*/
    char        rce         =  -10;
@@ -1023,6 +1031,42 @@ FORMAT_smode            (int a_major, int a_minor)
    DEBUG_USER   yLOG_point   ("formatter" , s_formatter);
    if (s_formatter != NULL)  rc = s_formatter (a_major, a_minor);
    else                      MODE_exit   ();
+   /*---(units)--------------------------*/
+   if (a_minor == 'F') {
+      MODE_enter (XMOD_UNITS);
+   }
+   /*---(complete)-----------------------*/
+   DEBUG_USER   yLOG_value   ("rc"        , rc);
+   DEBUG_USER   yLOG_exit    (__FUNCTION__);
+   return rc;
+}
+
+char         /*-> keys for units micro-mode ----------[ ------ [gc.MT0.202.C7]*/ /*-[01.0000.112.!]-*/ /*-[--.---.---.--]-*/
+UNITS_xmode             (int a_major, int a_minor)
+{
+   /*---(locals)-----------+-----------+-*/
+   char        rce         =  -10;
+   char        rc          =   -1;
+   char       *x_valid     = "-YZEPTGMKHD.dcmunpfazy";
+   /*---(header)-------------------------*/
+   DEBUG_USER   yLOG_enter   (__FUNCTION__);
+   DEBUG_USER   yLOG_char    ("a_major"   , a_major);
+   DEBUG_USER   yLOG_char    ("a_minor"   , chrvisible (a_minor));
+   /*---(defenses)-----------------------*/
+   DEBUG_USER   yLOG_char    ("mode"      , MODE_curr ());
+   --rce;  if (MODE_not (XMOD_UNITS)) {
+      DEBUG_USER   yLOG_note    ("not the correct mode");
+      DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(call-out)-----------------------*/
+   if (strchr (x_valid, a_minor) != NULL) {
+      DEBUG_USER   yLOG_point   ("uniter"    , s_uniter);
+      if (s_uniter != NULL)  rc = s_uniter (a_major, a_minor);
+   } else {
+      rc = rce;
+   }
+   MODE_exit   ();
    /*---(complete)-----------------------*/
    DEBUG_USER   yLOG_value   ("rc"        , rc);
    DEBUG_USER   yLOG_exit    (__FUNCTION__);
