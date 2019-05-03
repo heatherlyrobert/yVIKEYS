@@ -227,7 +227,7 @@ yvikeys_visu_update       (void)
       return 0;
    }
    /*---(x)------------------------------*/
-   if (s_visu.x_lock != 'y') {
+   if (s_visu.y_lock != 'y') {
       if (x < s_visu.x_root) {
          s_visu.x_beg  = x;
          s_visu.x_end  = s_visu.x_root;
@@ -237,7 +237,7 @@ yvikeys_visu_update       (void)
       }
    }
    /*---(y)------------------------------*/
-   if (s_visu.y_lock != 'y') {
+   if (s_visu.x_lock != 'y') {
       if (y < s_visu.y_root) {
          s_visu.y_beg  = y;
          s_visu.y_end  = s_visu.y_root;
@@ -748,7 +748,7 @@ char
 yvikeys_visu_reverse    (void)
 {
    /*---(if x locked)--------------------*/
-   if (s_visu.x_lock == 'y') {
+   if (s_visu.y_lock == 'y') {
       if (s_visu.y_root == s_visu.y_beg) {
          s_visu.y_root = s_visu.y_end;
          yVIKEYS_jump (s_visu.b_all, s_visu.x_root, s_visu.y_beg, s_visu.z_all);
@@ -760,7 +760,7 @@ yvikeys_visu_reverse    (void)
       return 0;
    }
    /*---(if y locked)--------------------*/
-   if (s_visu.y_lock == 'y') {
+   if (s_visu.x_lock == 'y') {
       if (s_visu.x_root == s_visu.x_beg) {
          s_visu.x_root = s_visu.x_end;
          yVIKEYS_jump (s_visu.b_all, s_visu.x_beg, s_visu.y_root, s_visu.z_all);
@@ -797,9 +797,9 @@ yvikeys_visu_clear          (void)
    yvikeys_visu__set ('\'');
    /*---(backup)-------------------------*/
    s_visu.active  = VISU_NOT;
-   if (s_visu.x_lock == 'y')  x = s_visu.x_root;
+   if (s_visu.y_lock == 'y')  x = s_visu.x_root;
    else                       x = s_visu.x_beg;
-   if (s_visu.y_lock == 'y')  y = s_visu.y_root;
+   if (s_visu.x_lock == 'y')  y = s_visu.y_root;
    else                       y = s_visu.y_beg;
    yVIKEYS_jump (s_visu.b_all, x, y, s_visu.z_all);
    s_visu.x_lock = '-';
@@ -868,23 +868,6 @@ yvikeys_visu_locking    (char a_type)
       DEBUG_USER   yLOG_note    ("x for x_axis/col selection");
       if (s_visu.x_lock == 'y') {
          s_visu.x_lock = '-';
-         if (s_visu.x_root <= g_xmap.gcur) {
-            s_visu.x_beg  = s_visu.x_root;
-            s_visu.x_end  = g_xmap.gcur;
-         } else {
-            s_visu.x_end  = s_visu.x_root;
-            s_visu.x_beg  = g_xmap.gcur;
-         }
-      } else {
-         s_visu.x_lock = 'y';
-         s_visu.x_beg  = g_xmap.gmin;
-         s_visu.x_end  = g_xmap.gmax;
-      }
-      break;
-   case 'y'  :
-      DEBUG_USER   yLOG_note    ("y for y-axis/row selection");
-      if (s_visu.y_lock == 'y') {
-         s_visu.y_lock = '-';
          if (s_visu.y_root <= g_ymap.gcur) {
             s_visu.y_beg  = s_visu.y_root;
             s_visu.y_end  = g_ymap.gcur;
@@ -893,9 +876,26 @@ yvikeys_visu_locking    (char a_type)
             s_visu.y_beg  = g_ymap.gcur;
          }
       } else {
-         s_visu.y_lock = 'y';
+         s_visu.x_lock = 'y';
          s_visu.y_beg  = g_ymap.gmin;
          s_visu.y_end  = g_ymap.gmax;
+      }
+      break;
+   case 'y'  :
+      DEBUG_USER   yLOG_note    ("y for y-axis/row selection");
+      if (s_visu.y_lock == 'y') {
+         s_visu.y_lock = '-';
+         if (s_visu.x_root <= g_xmap.gcur) {
+            s_visu.x_beg  = s_visu.x_root;
+            s_visu.x_end  = g_xmap.gcur;
+         } else {
+            s_visu.x_end  = s_visu.x_root;
+            s_visu.x_beg  = g_xmap.gcur;
+         }
+      } else {
+         s_visu.y_lock = 'y';
+         s_visu.x_beg  = g_xmap.gmin;
+         s_visu.x_end  = g_xmap.gmax;
       }
       break;
    case '!'  :

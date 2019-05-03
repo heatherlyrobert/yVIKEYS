@@ -188,7 +188,7 @@ static tPASTING   s_pasting [MAX_PASTING] = {
    { '-', "yiA-", ""            , '-',    'y', 'i', 'A', '-',    "tbd" },
    { '-', "yiS-", ""            , '-',    'y', 'i', 'S', '-',    "tbd" },
    /*---*/
-   { 'D', "ybN-", "map-delete"  , 'y',    'y', 'b', 'N', '-',    "tbd" },
+   { 'c', "ybN-", "combo"       , 'y',    'y', 'b', 'N', '-',    "tbd" },
    { 'm', "ybR-", "move"        , 'y',    'y', 'b', 'R', '-',    "tbd" },
    { 'f', "ybA-", "force"       , 'y',    'y', 'b', 'A', '-',    "tbd" },
    { '-', "ybS-", ""            , '-',    'y', 'b', 'S', '-',    "tbd" },
@@ -1069,6 +1069,14 @@ yvikeys_mreg_smode           (int a_major, int a_minor)
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return 0;
          break;
+      case 'x'  :
+         DEBUG_USER   yLOG_note    ("x for clear");
+         yvikeys_mreg_clear ();
+         yvikeys_visu_clear ();
+         MODE_exit ();
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         return 0;
+         break;
       }
    }
    /*---(export-import)------------------*/
@@ -1090,6 +1098,7 @@ yvikeys_mreg_smode           (int a_major, int a_minor)
       case 'n' :  rc = yvikeys_mreg_paste  ("normal");    break;
       case 'r' :  rc = yvikeys_mreg_paste  ("replace");   break;
       case 'd' :  rc = yvikeys_mreg_paste  ("duplicate"); break;
+      case 'c' :  rc = yvikeys_mreg_paste  ("combo");     break;
       case 'm' :  rc = yvikeys_mreg_paste  ("move");      break;
       case 'f' :  rc = yvikeys_mreg_paste  ("force");     break;
       default  :  rc = rce;                               break;

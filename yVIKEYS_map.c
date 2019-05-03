@@ -28,8 +28,8 @@ char   g_hscroll   [LEN_DESC ]   = " H shcle L   ";
 
 char   g_hword     [LEN_DESC ]   = "wbe WBE";
 
-char   g_multimap  [LEN_DESC ]   = "cgz e  dxia   ";
-char   g_multivisu [LEN_DESC ]   = "cgz e pd ia   ";
+char   g_multimap  [LEN_DESC ]   = "cgz e  dx a   ";
+char   g_multivisu [LEN_DESC ]   = "cgz e pd  a   ";
 
 char   g_multisrc  [LEN_DESC ]   = "cgz    dx   Ff";
 char   g_multiselc [LEN_DESC ]   = "cgz         Ff";
@@ -1079,59 +1079,6 @@ yvikeys__map_mode_chg   (char a_minor)
 /*====================------------------------------------====================*/
 static void  o___COMBO___________o () { return; }
 
-char         /*-> complex delete action --------------[ ------ [gz.430.031.02]*/ /*-[01.0000.213.!]-*/ /*-[--.---.---.--]-*/
-yvikeys__combo_clear    (char a_major, char a_minor)
-{  /*---(notes)--------------------------*/
-   /*
-    *  'x' by itself is not repeatable as "clear" -- would just clear same pos
-    *  over and over :(  so, add a movement to drive repeats.  use double-x
-    *  to stay in place.  more complex clears should use visual to select rows,
-    *  cols, screen, buffer, etc then clear.
-    *
-    */
-   /*---(locals)-----------+-----+-----+-*/
-   char        rce         =  -10;
-   char        rc          =    0;
-   char        i           =    0;
-   char        x_len       =    0;
-   char        x_pos       =    0;
-   char        x_minors    [LEN_LABEL]  = "hljkx";
-   /*---(header)-------------------------*/
-   DEBUG_MAP    yLOG_enter   (__FUNCTION__);
-   /*---(defense)------------------------*/
-   DEBUG_MAP    yLOG_char    ("visu live" , yvikeys_visu_islive ());
-   --rce;  if (yvikeys_visu_islive ()) {
-      DEBUG_MAP    yLOG_note    ("function only handles non-selected deletes/clearing");
-      DEBUG_MAP    yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   DEBUG_MAP    yLOG_char    ("a_major"   , chrvisible (a_major));
-   --rce;  if (a_major != 'x') {
-      DEBUG_MAP    yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   DEBUG_MAP    yLOG_char    ("a_minor"   , chrvisible (a_minor));
-   DEBUG_MAP    yLOG_info    ("valid"     , x_minors);
-   --rce;  if (a_minor == 0 || strchr (x_minors, a_minor) == NULL) {
-      DEBUG_MAP    yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   /*---(action)-------------------------*/
-   yvikeys_mreg_save  ();
-   yvikeys_mreg_clear ();
-   yvikeys_visu_clear ();
-   /*---(move after)---------------------*/
-   switch (a_minor) {
-   case 'h' : rc = yvikeys__map_horz (G_KEY_SPACE, a_minor);         break;
-   case 'l' : rc = yvikeys__map_horz (G_KEY_SPACE, a_minor);         break;
-   case 'j' : rc = yvikeys__map_vert (G_KEY_SPACE, a_minor);         break;
-   case 'k' : rc = yvikeys__map_vert (G_KEY_SPACE, a_minor);         break;
-   }
-   /*---(complete)-----------------------*/
-   DEBUG_MAP    yLOG_exit    (__FUNCTION__);
-   return 0;
-}
-
 static  int    s_b, s_xb, s_xe, s_yb, s_ye, s_z;   /* starting selection      */
 static  int    s_xl, s_yl;                         /* starting selection size */
 static  int    s_top, s_lef;                       /* screen top/left         */
@@ -1155,10 +1102,10 @@ yvikeys__combo_prep     (char a_clear)
    s_lef  = g_xmap.beg;
    s_top  = g_ymap.beg;
    /*---(copy loc default)---------------*/
-   s_xb2    = s_xb;
-   s_yb2    = s_yb;
-   s_xe2    = s_xe;
-   s_ye2    = s_ye;
+   s_xb2  = s_xb;
+   s_yb2  = s_yb;
+   s_xe2  = s_xe;
+   s_ye2  = s_ye;
    /*---(paste loc default)--------------*/
    s_xp   = s_xb;
    s_yp   = s_yb;
@@ -1186,17 +1133,76 @@ yvikeys__combo_wrap     (char a_clear)
    if (s_ye2 >= g_ymap.gmax)  s_ye2 = g_ymap.gmax;
    /*---(copy/clear)---------------------*/
    rc = yvikeys_visu_exact  (s_b, s_xb2, s_xe2, s_yb2, s_ye2, s_z);
-   rc = yvikeys_mreg_save  ();
+   if (a_clear != 'c')  rc = yvikeys_mreg_save  ();
    if (a_clear == 'y')  rc = yvikeys_mreg_clear_combo ();
    else                 rc = yvikeys_mreg_clear ();
    rc = yvikeys_visu_clear ();
    /*---(paste/move)---------------------*/
-   rc = yVIKEYS_jump (s_b, s_xp, s_yp, s_z);
-   rc = yvikeys_mreg_paste_combo ("map-delete");
+   if (a_clear != 'c') {
+      rc = yVIKEYS_jump (s_b, s_xp, s_yp, s_z);
+      rc = yvikeys_mreg_paste_combo ("combo");
+   }
    g_xmap.beg = s_lef;
    g_ymap.beg = s_top;
    rc = yVIKEYS_jump (s_b, s_xb, s_yb, s_z);
    /*---(complete)-----------------------*/
+   return 0;
+}
+
+char         /*-> complex delete action --------------[ ------ [gz.430.031.02]*/ /*-[01.0000.213.!]-*/ /*-[--.---.---.--]-*/
+yvikeys__combo_clear    (char a_major, char a_minor)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   char        i           =    0;
+   char        x_len       =    0;
+   char        x_pos       =    0;
+   char        x_minors    [LEN_LABEL]  = "lhxX··jkyY··iozZ·.";
+   /*---(header)-------------------------*/
+   DEBUG_MAP    yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   DEBUG_MAP    yLOG_char    ("visu live" , yvikeys_visu_islive ());
+   --rce;  if (yvikeys_visu_islive ()) {
+      DEBUG_MAP    yLOG_note    ("function only handles non-selected deletes/clearing");
+      DEBUG_MAP    yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_MAP    yLOG_char    ("a_major"   , chrvisible (a_major));
+   --rce;  if (a_major != 'x') {
+      DEBUG_MAP    yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_MAP    yLOG_char    ("a_minor"   , chrvisible (a_minor));
+   DEBUG_MAP    yLOG_info    ("valid"     , x_minors);
+   --rce;  if (a_minor == 0 || strchr (x_minors, a_minor) == NULL) {
+      DEBUG_MAP    yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(get and clear)------------------*/
+   rc = yvikeys__combo_prep ('-');
+   /*---(full lines)---------------------*/
+   switch (a_minor) {
+   case 'x' : case 'X' :
+      s_yp  = s_yb2 = g_ymap.gmin;
+      s_ye2 = g_ymap.gmax;
+      break;
+   case 'y' : case 'Y' :
+      s_xp  = s_xb2 = g_xmap.gmin;
+      s_xe2 = g_xmap.gmax;
+      break;
+   }
+   /*---(clear)--------------------------*/
+   rc = yvikeys__combo_wrap ('c');
+   /*---(move after)---------------------*/
+   switch (a_minor) {
+   case 'l' : case 'x' :  rc = yvikeys__map_horz (G_KEY_SPACE, 'l');   break;
+   case 'h' : case 'X' :  rc = yvikeys__map_horz (G_KEY_SPACE, 'h');   break;
+   case 'j' : case 'y' :  rc = yvikeys__map_vert (G_KEY_SPACE, 'j');   break;
+   case 'k' : case 'Y' :  rc = yvikeys__map_vert (G_KEY_SPACE, 'k');   break;
+   }
+   /*---(complete)-----------------------*/
+   DEBUG_MAP    yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -1208,7 +1214,7 @@ yvikeys__combo_delete   (char a_major, char a_minor)
    char        rc          =    0;
    char        i           =    0;
    char        x_pos       =    0;
-   char        x_minors    [LEN_LABEL]  = "hlx·jky·ioz";
+   char        x_minors    [LEN_LABEL]  = "lhxX·jkyY·iozZ";
    /*---(header)-------------------------*/
    DEBUG_MAP    yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
@@ -1226,39 +1232,43 @@ yvikeys__combo_delete   (char a_major, char a_minor)
    }
    /*---(get and clear)------------------*/
    rc = yvikeys__combo_prep ('y');
-   /*---(cut/yank)-----------------------*/
+   /*---(horizontal)---------------------*/
    switch (a_minor) {
-   case 'l' :
+   case 'l' : case 'x' :
       s_xb2 = s_xe + 1;
       s_xe2 = g_xmap.gmax;
-      break;
-   case 'h' :
-      s_xb2 = g_xmap.gmin;
-      s_xe2 = s_xb - 1;
-      s_xp  = s_xe - (s_xe2 - s_xb2);
-      break;
-   case 'x' :
-      s_xb2 = s_xe + 1;
-      s_xe2 = g_xmap.gmax;
+      if (a_minor == 'l')  break;
       s_yp  = s_yb2 = g_ymap.gmin;
       s_ye2 = g_ymap.gmax;
       break;
-   case 'j' :
-      s_yb2 = s_ye + 1;
+   case 'h' : case 'X' :
+      s_xb2 = g_xmap.gmin;
+      s_xe2 = s_xb - 1;
+      s_xp  = s_xe - (s_xe2 - s_xb2);
+      if (a_minor == 'h')  break;
+      s_yp  = s_yb2 = g_ymap.gmin;
       s_ye2 = g_ymap.gmax;
       break;
-   case 'k' :
+   }
+   /*---(vertical)-----------------------*/
+   switch (a_minor) {
+   case 'j' : case 'y' :
+      s_yb2 = s_ye + 1;
+      s_ye2 = g_ymap.gmax;
+      if (a_minor == 'j')  break;
+      s_xp  = s_xb2 = g_xmap.gmin;
+      s_xe2 = g_xmap.gmax;
+      break;
+   case 'k' : case 'Y' :
       s_yp  = g_ymap.gmin + 1;
-      s_yb2 = g_ymap.gmin;
       s_ye2 = s_ye - 1;
-      break;
-   case 'y' :
-      s_yb2 = s_ye + 1;
-      s_ye2 = g_ymap.gmax;
+      s_yb2 = g_ymap.gmin;
+      if (a_minor == 'k')  break;
       s_xp  = s_xb2 = g_xmap.gmin;
       s_xe2 = g_xmap.gmax;
       break;
    }
+   /*---(zoom)---------------------------*/
    /*---(paste/move)---------------------*/
    rc = yvikeys__combo_wrap ('y');
    /*---(complete)-----------------------*/
@@ -1274,7 +1284,7 @@ yvikeys__combo_append   (char a_major, char a_minor)
    char        rc          =    0;
    char        i           =    0;
    char        x_pos       =    0;
-   char        x_minors    [LEN_LABEL]  = "hlx·jky·ioz";
+   char        x_minors    [LEN_LABEL]  = "lhxX·jkyY·iozZ";
    /*---(header)-------------------------*/
    DEBUG_MAP    yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
@@ -1292,21 +1302,47 @@ yvikeys__combo_append   (char a_major, char a_minor)
    }
    /*---(get and clear)------------------*/
    rc = yvikeys__combo_prep ('-');
-   /*---(cut/yank)-----------------------*/
+   /*---(horizontal)---------------------*/
    switch (a_minor) {
-   case 'l' :
-      s_xb2 = s_xp;
-      s_xe2 = g_xmap.gmax - s_xl;
-      s_xp  = s_xb + s_xl;
+   case 'l' : case 'x' :  /* insert to right, and full column version         */
+      s_xb2 = s_xb + 1;
+      s_xe2 = g_xmap.gmax - s_xl + 1;
+      s_xp  = s_xb + s_xl + 1;
+      ++s_xb;
+      if (a_minor == 'l')  break;
+      s_yp  = s_yb2 = g_ymap.gmin;
+      s_ye2 = g_ymap.gmax;
       break;
-   case 'x' : /* full column push right (al) */
-      s_xb2 = s_xp;
+   case 'h' : case 'X' :  /* insert to left, and full column version          */
+      s_xb2 = s_xb;
       s_xe2 = g_xmap.gmax - s_xl;
       s_xp  = s_xb + s_xl;
+      if (a_minor == 'h')  break;
       s_yp  = s_yb2 = g_ymap.gmin;
       s_ye2 = g_ymap.gmax;
       break;
    }
+   /*---(vertical)-----------------------*/
+   switch (a_minor) {
+   case 'j' : case 'y' :  /* insert below, and full column version            */
+      s_yb2 = s_yb + 1;
+      s_ye2 = g_ymap.gmax - s_yl + 1;
+      s_yp  = s_yb + s_yl + 1;
+      ++s_yb;
+      if (a_minor == 'j')  break;
+      s_xp  = s_xb2 = g_xmap.gmin;
+      s_xe2 = g_xmap.gmax;
+      break;
+   case 'k' : case 'Y' :  /* insert above, and full column version            */
+      s_yb2 = s_yb;
+      s_ye2 = g_ymap.gmax - s_yl;
+      s_yp  = s_yb + s_yl;
+      if (a_minor == 'k')  break;
+      s_xp  = s_xb2 = g_xmap.gmin;
+      s_xe2 = g_xmap.gmax;
+      break;
+   }
+   /*---(zoom)---------------------------*/
    /*---(paste/move)---------------------*/
    rc = yvikeys__combo_wrap ('-');
    /*---(complete)-----------------------*/
@@ -1408,7 +1444,7 @@ yvikeys_map_mode        (char a_major, char a_minor)
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return rc;
       }
-      if (strchr ("yYpP", a_minor) != 0) {
+      if (strchr ("yYpPx", a_minor) != 0) {
          DEBUG_USER   yLOG_note    ("switch to a map register mode");
          MODE_enter (SMOD_MREG);
          rc = yvikeys_mreg_smode  (G_KEY_SPACE, a_minor);

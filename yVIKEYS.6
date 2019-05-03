@@ -157,9 +157,109 @@ all applications can use them.
 
 .SH MAP mode
 
+.SS universal movement keys
+.B horizontal movements
+   0HhlL$          horizontal
+   Ë|              move to col (x)
+   g [SsHhclLeE]   goto a fixed location
+   z [shcle]       bring current to fixed position
+   e [sHhCclLe]    goto the end of content
+   c [shle]        full and half page jumps
+
+.B vertical movements
+   _KkjJ~          verical
+   Ë:              move to row (y)
+   g [TtKkmjJbB]   goto a fixed location
+   z [tkmjb]       bring current to fixed position
+   e [tKkMmjJb]    goto the end of content
+   c [tkjb]        full and half page jumps
+
+.B zoom movements
+   IioO            zoom
+   Ë%              move to zoom level (z)
+   g [NnOopiIfF]   goto a fixed location
+   z [nopif]       bring current to fixed position
+   e [nOoPpiIf]    goto the end of content
+   c [noif]        full and half page jumps
+   g [123456789]   zoom one level in using 3x3 grid
+   g0              zoom out one grid level
+
+.B combination (horz/vert) movements
+   g.              goto xy center (same as gcgm)
+   g [AaUuDdZz]    goto a fixed corner
+   z [audz]        bring current to a fixed corner
+   e [audz]        goto the end of content
+
+.SS major changes
+.B no selection
+   x¢              clear and move ¢ direction
+   d¢              delete and fill from ¢ direction
+   a¢              append/insert in ¢ direction
+   y Y             yank/copy or yank/clear
+   p P             paste (paste special) to current selection
+
+.B with selection
+   x               clear selection
+   d¢              delete selection and fill from ¢ direction
+   a¢              append/insert size of selection in ¢ direction
+   y Y             yank/copy or yank/clear
+   r R             repace from register into current size only
+
+.SS mode changes
+   G       change to god mode
+   :       change to command mode
+   /       change to search mode
+   ,p      change to progress window/mode
+
+.SS sub-mode changes
+   ,       change to buffer sub-mode
+   \\      change to menu sub-mode
+   "       change to register sub-mode
+   @       change to macro sub-mode
+   E       change to error sub-mode
+   F       change to formatting sub-mode
+
+.SS micro-mode changes
+   v       begin visual selection
+   M V     change to visual micro-mode
+   ' m     change to mark micro-mode
+   ;       change to hint micro-mode
+
+.SS editing a single cell/object
+   -       clear cell, begin a negative number
+   +       clear cell, begin a positive number
+   =       clear cell, begin a numeric formula
+   #       clear cell, begin a string formula
+   s       clear cell, begin a string
+   ¦       change to source mode to edit existing contents
+
+.SS undo and redo changes at map-level
+   u       undo last change
+   U       redo last change
+
+.SS changes (change.txt)
+clear        (x)
+delete       (d)
+replace      (rsc)
+copy         (y)
+paste        (p)
+filter/sort
+
+
+g~  switch case
+
+.SS simple movements
+
+.SS copy and move text
+
 .B clear (remove content, leave blank)
-   x + hljkio      clear current and move one in direction
-   xx              clear and remain in place
+   x + [hljkio]    clear current and move one in direction
+   x + [xyzXYZ]    clear full cols, rows, or silos
+   x.              clear and remain in place
+
+
+
+
 
 .B delete (remove content and position)
    d + hljkio      delete and pull from direction to fill-in 
@@ -576,19 +676,19 @@ make it universal across my applications.
 
 .B updating selection size
    you remain in map mode, so all movement keys are still available
-
-.B normal actions
-   y          yank/copy
-   Y          yank/clear
-   "¢         select a register for use
+   v          reverses the selection ends to help grow/shrink
 
 .B special adjustments to selection
-   v          reverses the selection ends to help grow/shrink
    ex         selects full range of x
    ey         selects full range of y
    ez         selects full range of z
    e!         selects screen contents
    e*         selects all x,y,z for current buffer
+
+.B normal actions
+   y          yank/copy
+   Y          yank/clear
+   "¢         select a register for use
 
 .B selection saving and retrieving
    there are 86 possible saved selections [a-zA-Z0-9è-ÿ]
@@ -659,8 +759,9 @@ text registers.
 
 .B most basic register actions (work without register reference)
    y          yank/copy  to register
-   d          delete/cut to register
-   x          clear/copy to register
+   d¢         delete/cut to register (fill from ¢ direction)
+   x¢         clear/copy to register (fill with nothing)
+   a¢         append/insert space (push in ¢ direction)
    p          paste after current position
    P          paste before current position
 

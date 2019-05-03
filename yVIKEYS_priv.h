@@ -27,8 +27,8 @@
 
 #define     P_VERMAJOR  "1.X = working for everyday use, features still evolving but stable"
 #define     P_VERMINOR  "1.2 = cleaning out all existing unit test bugs"
-#define     P_VERNUM    "1.2c"
-#define     P_VERTXT    "basic combo append in place, consolidated most code with delete"
+#define     P_VERNUM    "1.2d"
+#define     P_VERTXT    "updated 'x' clean command and fixed e+xy in visual mode to match"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
