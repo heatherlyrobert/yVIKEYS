@@ -81,12 +81,12 @@ struct cMAPPED {
    int         gmax;                        /* global max, used or not        */
    int         umax;                        /* global max, used or not        */
    /*---(screen)---------------*/
-   int         beg;                         /* beginning of screen            */
-   int         cur;                         /* current index                  */
-   int         end;                         /* end of screen                  */
-   int         len;                         /* screen len                     */
-   int         avail;                       /* full size of screen            */
-   int         tend;                        /* true end of screen             */
+   int         ubeg;                        /* beginning of screen            */
+   int         ucur;                        /* current index                  */
+   int         uend;                        /* end of screen                  */
+   int         ulen;                        /* screen len                     */
+   int         uavail;                      /* full size of screen            */
+   int         utend;                       /* true end of screen             */
    /*---(grids)----------------*/
    int         gbeg;                        /* grid at start of screen        */
    int         gcur;                        /* current grid position          */

@@ -27,8 +27,8 @@
 
 #define     P_VERMAJOR  "1.X = working for everyday use, features still evolving but stable"
 #define     P_VERMINOR  "1.2 = cleaning out all existing unit test bugs"
-#define     P_VERNUM    "1.2d"
-#define     P_VERTXT    "updated 'x' clean command and fixed e+xy in visual mode to match"
+#define     P_VERNUM    "1.2e"
+#define     P_VERTXT    "cleaned up horz/vert movements and added better unit testing"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -299,6 +299,9 @@ char        yvikeys_map_init        (void);
 char        yvikeys__map_load       (char a_style, tMAPPED *a_map, char a_which);
 char        yvikeys__screen         (tMAPPED *a_map);
 char        yvikeys__map_move       (int  a_target, tMAPPED *a_map);
+
+char        yvikeys__map_office     (char a_dir, char *a_minor);
+char        yvikeys__map_page       (char a_dir, char *a_minor);
 char        yvikeys_map_mode        (char a_major, char a_minor);
 char        yvikeys_map_xstatus     (char *a_list);
 char        yvikeys_map_ystatus     (char *a_list);

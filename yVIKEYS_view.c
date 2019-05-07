@@ -889,8 +889,8 @@ VIEW__resize             (cchar a_type)
    myVIKEYS.redraw = 'y';
    /*---(update map)---------------------*/
    n = VIEW__abbr (YVIKEYS_MAIN);
-   g_xmap.avail = s_parts [n].wide;
-   g_ymap.avail = s_parts [n].tall;
+   g_xmap.uavail = s_parts [n].wide;
+   g_ymap.uavail = s_parts [n].tall;
    yVIKEYS_map_refresh ();
    /*---(complete)-----------------------*/
    DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
@@ -1686,8 +1686,8 @@ static void  o___DRAWING_________o () { return; }
 char          /*----: draw the saved status ----------------------------------*/
 VIEW__cursor             (void)
 {
-   int         x_lef   = g_xmap.cur / s_mag;
-   int         x_bot   = g_ymap.cur / s_mag;
+   int         x_lef   = g_xmap.ucur / s_mag;
+   int         x_bot   = g_ymap.ucur / s_mag;
    int         x_rig   = x_lef + (g_gsizex / s_mag);
    int         x_top   = x_bot + (g_gsizey / s_mag);
    char        n           = 0;

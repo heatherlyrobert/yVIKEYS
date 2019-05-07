@@ -141,69 +141,70 @@ all applications can use them.
    \\0     £     visible null
 
 .B adding greek characters
-   type \\ first, the one of the latin characters below
+   type \\ first, then one of the latin characters below
    è é ê ë   ì í î ï   ð ñ ò ó   ô õ ö ÷   ø ù ú û   ü ý þ ÿ 
    A B G D   E Z H Y   I K L M   N X O P   R S T U   F C Q W
 
 .B adding mathmatical charcters
-   type \\ first, the one of the latin characters below
+   type \\ first, then one of the latin characters below
    ß Ý Þ æ    Ë Ì Í    Î Æ Ç È É Ê    À Á Â Ã Ä Å   ¸ ¹ º » ¼ ½
    = < > ~    # a r    1 2 3 4 x y    5 6 7 8 9 z   ( ) [ ] { }
 
 .B adding other useful characters
-   type \\ first, the one of the latin characters below
+   type \\ first, then one of the latin characters below
    ´ ¢ ¡    Ô Ó Ö Õ    Ð Ñ Ò    ® ¯
    @ ? !    j k h l    & | ^    : %
 
-.SH MAP mode
+.SH MAP mode (movements)
 
-.SS universal movement keys
 .B horizontal movements
-   0HhlL$          horizontal
-   Ë|              move to col (x)
-   g [SsHhclLeE]   goto a fixed location
-   z [shcle]       bring current to fixed position
-   e [sHhCclLe]    goto the end of content
-   c [shle]        full and half page jumps
+   basic      0HhlL$          left full, 5x, 1x; right 1x, 5x, full
+   exact      Ë|              move to specific col (x)
+   goto       g [SHshcleLE]   goto a fixed location on screen
+   scroll     z [shcle]       bring current to fixed position
+   ends       e [sHhCclLe]    goto the end of content
+   pages      c [shle]        full and half page jumps
 
 .B vertical movements
-   _KkjJ~          verical
-   Ë:              move to row (y)
-   g [TtKkmjJbB]   goto a fixed location
-   z [tkmjb]       bring current to fixed position
-   e [tKkMmjJb]    goto the end of content
-   c [tkjb]        full and half page jumps
+   basic      _KkjJ~          up full, 5x, 1x; down 1x, 5x, full
+   exact      Ë:              move to specific row (y)
+   goto       g [TKtkmjbJB]   goto a fixed location on screen
+   scroll     z [tkmjb]       bring current to fixed position
+   ends       e [tKkMmjJb]    goto the end of content
+   pages      c [tkjb]        full and half page jumps
 
 .B zoom movements
-   IioO            zoom
-   Ë%              move to zoom level (z)
-   g [NnOopiIfF]   goto a fixed location
-   z [nopif]       bring current to fixed position
-   e [nOoPpiIf]    goto the end of content
-   c [noif]        full and half page jumps
-   g [123456789]   zoom one level in using 3x3 grid
-   g0              zoom out one grid level
+   basic      <OoiI>          zoom
+   exact      Ë%              move to specific zoom level (z)
+   goto       g [NOnopifIF]   goto a fixed location on screen
+   scroll     z [nopif]       bring current to fixed position
+   ends       e [nOoPpiIf]    goto the end of content
+   pages      c [noif]        full and half page jumps
+   grid       g [0123456789]  zoom one level in (0=out) using 3x3 grid
 
 .B combination (horz/vert) movements
-   g.              goto xy center (same as gcgm)
-   g [AaUuDdZz]    goto a fixed corner
-   z [audz]        bring current to a fixed corner
-   e [audz]        goto the end of content
+   goto       g [AaUuDdZz.]   goto a fixed corner or center
+   scroll     z [audz.]       bring current to a fixed corner/center
+   ends       e [audz]        goto the end of content
+   pages      c [AaUuDdZz]    full and half page jumps
+
+
+.SH MAP mode
 
 .SS major changes
 .B no selection
-   x¢              clear and move ¢ direction
-   d¢              delete and fill from ¢ direction
-   a¢              append/insert in ¢ direction
-   y Y             yank/copy or yank/clear
-   p P             paste (paste special) to current selection
+   x¢         clear and move ¢ direction
+   d¢         delete and fill from ¢ direction
+   a¢         append/insert in ¢ direction
+   y Y        yank/copy or yank/clear
+   p P        paste (paste special) to current selection
 
 .B with selection
-   x               clear selection
-   d¢              delete selection and fill from ¢ direction
-   a¢              append/insert size of selection in ¢ direction
-   y Y             yank/copy or yank/clear
-   r R             repace from register into current size only
+   x          clear selection
+   d¢         delete selection and fill from ¢ direction
+   a¢         append/insert size of selection in ¢ direction
+   y Y        yank/copy or yank/clear
+   r R        repace from register into current size only
 
 .SS mode changes
    G       change to god mode
