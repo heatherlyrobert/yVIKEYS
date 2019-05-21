@@ -1,0 +1,371 @@
+·# this is a design document for all dreamed of functionality ;)
+·
+·
+·# macro to convert to a table entry
+·#@  a  ,x··0··i   { '¥··2li',¥2li'¥··2li',¥2li'¥····2li',¥··lvwhd··32|P··20|i "¥··37|BEa"¥··wi, '¥2li',¥··2li'¥2li',¥··wi"¥··68|BEa"¥··wi, "¥··$a"¥··60a ¥··125|Da},¥··0j··,y
+·
+·
+·
+·# one program instance, one workspace
+· · · +=+=+======     = = ===handling=====  ===description===================================
+f · · file            y > -                 workspace, its file, and external environment
+f w ·   new           y · :new¦             create a new, nameless workspace
+f o ·   open          y · :edit·            open a workspace from a file
+f d ·   chdir         y · :cd·              change the current working directory
+f b ·   browse        · ! -                 find directory and file using autocomplete
+f - ·   recent        · ! -                 review recent files using autocomplete
+f m ·   import        y > -                 import clipboard to current location
+f m a     auto        y v ++                interpret the import records, one-by-one
+f m v     values      y v +v                pure values, parsed by cell widths
+f m V     values+     y v +V                pure values, with hints
+f m d     coldel      y v +d                pure values, col/field del
+f m D     coldel+     y v +D                pure values, col/field del, with hints
+f m f     field       y v +f                pure values, field del
+f m F     field+      y v +F                pure values, field del, with hints
+f m t     tab         y v +t                pure values, tab del
+f m T     tab+        y v +T                pure values, tab del, with hints
+f m N     native      y v +N                native format, field del, with hints
+· · ·   ---------     - - -------------     -------------------------------------------------
+f n ·   rename        y · :file·            change the name of the current workspace
+f r ·   revert        · · -                 return to the original workspace state
+f f ·   refresh       y · -                 reread the source file, replacing existing
+f i ·   info          · · -                 display key workspace statistics
+f v ·   version       y > -                 workspace and file versioning
+f v c     ctrl        y · :control¦         turn on version control
+f v n     noctrl      y · :nocontrol¦       turn off version control
+f v j     major       y · :major¦           bump major value up by one
+f v n     minor       y · :minor¦           bump minor value up by one
+f v b     bump        y · :bump¦            bump sub value up by one
+f v t     vertxt      y · :vertxt·          enter text for most recent version
+f v m     manual      y · :version·         set version number manually
+· · ·   ---------     - - -------------     -------------------------------------------------
+f s ·   save          y · :w                write the current workspace
+f a ·   saveas        y = -                 write current workspace using temp name
+f x ·   export        y > -                 export current selection to clipboard
+f x v     values      y v -v                final values
+f x V     values+     y v -V                final values, plus hints
+f x d     coldel      y v -d                final values, col/field delimited
+f x D     coldel+     y v -D                final values, col/field del, plus hints
+f x f     field       y v -f                final values, field del
+f x F     field+      y v -F                final values, field del, plus hints
+f x c     csv         y v -c                final values, csv del
+f x C     csv+        y v -C                final values, csv del, plus hints
+f x t     tab         y v -t                final values, tab del
+f x T     tab+        y v -T                final values, tab del, plus hints
+f x r     result      y v -r                calculated results, field del
+f x R     result+     y v -R                calculated results, field del, plus hints
+f x S     source      y v -S                full source, field del, plus hints
+f x N     native      y v -N                native format, field del, plus hints
+· · ·   ---------     - - -------------     -------------------------------------------------
+f c ·   close         y · -                 close current workspace
+f q ·   quit          y · :qa               quit the program
+·
+·
+·
+· · · +=+=+=========  ===handling=========  ===description===================================
+e · · edit            y > -                 -
+e u ·   undo          y · u                 undo the very last action
+e U ·   redo          y · U                 redo the last action undone
+e _ ·   status        y · -                 -
+e ? ·   history       y · -                 -
+e ? t     track       y · -                 -
+e ? u     untrack     y · -                 -
+e ? c     clear       y · -                 -
+e ? r     review      y · -                 -
+· · ·   ---------     - - -------------     -------------------------------------------------
+e y ·   copy          y · y                 -
+e Y ·   cut           y · Y                 -
+e p ·   paste         y · p                 -
+e P ·   special       y > -                 -
+e P n     normal      y · Pn                -
+e P #     clear       y · P#                -
+e P r     replace     y · Pr                -
+e P d     duplicate   y · Pd                -
+e P c     combo       y · Pc                -
+e P m     move        y · Pm                -
+e P f     force       y · Pf                -
+e P v     values      y · Pv                -
+· · ·   ---------     - - -------------     -------------------------------------------------
+e x ·   clear         y > -                 -
+e x .     inplace     y · x.                -
+e x l     left        y · xl                -
+e x h     right       y · xh                -
+e x k     up          y · xk                -
+e x j     down        y · xj                -
+e x i     in          y · xi                -
+e x o     out         y · xo                -
+e x x     col_lef     y · xx                -
+e x X     col_rig     y · xX                -
+e x y     row_abo     y · xy                -
+e x Y     row_bel     y · xY                -
+e x z     lvl_in      y · xz                -
+e x Z     lvl_out     y · xZ                -
+e d ·   delete        y > -                 -
+e d l     left        y · dl                -
+e d h     right       y · dh                -
+e d k     up          y · dk                -
+e d j     down        y · dj                -
+e d i     in          y · di                -
+e d o     out         y · do                -
+e d x     col_left    y · dx                -
+e d X     col_right   y · dX                -
+e d y     row_above   y · dy                -
+e d Y     row_below   y · dY                -
+e d z     lvl_in      y · dz                -
+e d Z     lvl_out     y · dZ                -
+e i ·   insert        y > -                 -
+e i l     left        y · al                -
+e i h     right       y · ah                -
+e i k     up          y · ak                -
+e i j     down        y · aj                -
+e i i     in          y · ai                -
+e i o     out         y · ao                -
+e i x     col_lef     y · ax                -
+e i X     col_rig     y · aX                -
+e i y     row_abo     y · ay                -
+e i Y     row_bel     y · aY                -
+e i z     lvl_in      y · az                -
+e i Z     lvl_out     y · aZ                -
+· · ·   ---------     - - -------------     -------------------------------------------------
+e g ·   group         y > -                 -
+e g g     group       y · -                 group selected items into a new group
+e g u     ungroup     y · -                 take all items out of any touched groups
+e g r     regroup     y · -                 put items back into last ungrouped group
+e g m     merge       y · -                 combine/merge seleced groups into one
+e g f     free        y · -                 take selected items out any group
+e g b     boundary    y · -                 show boundary marker around selected groups
+e a ·   align         y > -                 -
+e a k     top         y · -                 -
+e a j     bottom      y · -                 -
+e a h     left        y · -                 -
+e a l     right       y · -                 -
+e a o     front       y · -                 -
+e a i     back        y · -                 -
+e a x     dist-x      y · -                 -
+e a y     dist-y      y · -                 -
+e a z     dist-z      y · -                 -
+e o ·   order         y > -                 -
+e o n     front       y · -                 -
+e o i     forward     y · -                 -
+e o o     backward    y · -                 -
+e o f     back        y · -                 -
+e o r     reverse     y · -                 -
+e l ·   layer         y = -                 -
+
+
+
+· · · +=+=+=========  ===handling=========  ===description===================================
+v · · view            y > -                 display and layout of application elements
+v l ·   layout        y > -                 common combinations of application elements
+v l n     minimal     y > -                 bare bones layout
+v l x     maximum     y > -                 kitchen sink layout
+v p ·   place         y > -                 -
+v - ·   color         y > -                 -
+v - ·   title         y > -                 -
+v - ·   version       y > -                 -
+v - ·   buffers       y > -                 -
+v - ·   formula       y > -                 -
+v - ·   nav           y > -                 -
+v - ·   progress      y > -                 -
+v - ·   status        y > -                 -
+v - ·   keys          y > -                 -
+v - ·   command       y > -                 -
+v - ·   alt           y > -                 -
+v - ·   details       y > -                 -
+v - ·   ribbon        y > -                 -
+v - ·   grid          y > -                 -
+v - ·   edges         y > -                 -
+v - ·   guides        y > -                 -
+v - ·   overlay       y > -                 -
+
+
+
+· · · +=+=+=========  ===handling=========  ===description===================================
+i · · insert          y > -                 add various shapes, symbols, and objects
+i t ·   text          y > -                 text boxes
+i l ·   lines         y > -                 lines and connectors
+i e ·   ellises       y > -                 ellipses, circles, arcs, rings, pipes, spheres
+i t ·   tris          y > -                 equal, right, rounded, iso, cones, pyramids
+i r ·   rects         y > -                 rects, squares, rounded, trapazoid, cubes
+· · ·   ---------     - - -------------     -------------------------------------------------
+i h ·   hexagons      y > -                 -
+i p ·   polygons      y > -                 -
+i s ·   stars         y > -                 -
+i a ·   arrows        y > -                 -
+i f ·   flowchart     y > -                 flowcharting symbols
+· · ·   ---------     - - -------------     -------------------------------------------------
+i j ·   joiners       y > -                 direct connectors linking two objects
+i n ·   notes         y > -                 note boxes and callouts
+i m ·   misc          y > -                 -
+i - ·   nurbs         y > -                 nurb curves
+i - ·   tiling        y > -                 various forms of two-dimensional tiling
+· · ·   ---------     - - -------------     -------------------------------------------------
+i b ·   beziers       y > -                 2, 3, 4, 5, and 6 control point bezier curves
+i - ·   3d            y > -                 various forms of three-dimensional tiling
+i - ·   surfaces      y > -                 -
+i - ·   meshes        y > -                 -
+
+
+
+· · · +=+=+=========  ===handling=========  ===description===================================
+s · · select          y > -                 choosing one or more things for common action
+s ! ·   highlight     y · -                 show selection (by abbr) in background
+s _ ·   status        y · -                 show selection status bar
+s c ·   clear         y · -                 clear current selection
+s a ·   all           y · -                 select absolutely everything
+s b ·   buffer        y · -                 select everything in current buffer
+s w ·   window        y · -                 select everything visible in current window
+· · ·   ---------     - - -------------     -------------------------------------------------
+s l ·   layer         y · -                 select everything on current layer
+s g ·   geometry      y = -                 select using geometry description (loc/pos)
+s t ·   type          y = -                 select by attribute/type                      
+s x ·   regex         y = -                 select by text search
+s u ·   touch         y · -                 select everything touching current selection
+· · ·   ---------     - - -------------     -------------------------------------------------
+s s ·   save          y · -                 save current selection by abbr
+s r ·   reselect      y · -                 make saved selection current by abbr
+s j ·   join          y · -                 join/merge current into saved selection
+s d ·   deselect      y · -                 clear/delete current from saved selection
+· · ·   ---------     - - -------------     -------------------------------------------------
+s i ·   inverse       y · -                 swap selected and unselected
+s x ·   all_on_x      y · -                 select everything on current x selection
+s y ·   all_on_y      y · -                 select everything on current y selection
+s z ·   all_on_z      y · -                 select everything on current z selection
+·
+·
+·
+· · · +=+=+=========  ===handling=========  ===description===================================
+o · · format          y > -                 change the display of text and numbers
+o f ·   face          y > -                 font face
+o p ·   point         y > -                 font points
+o s ·   spacing       y > -                 interline spacing
+o i ·   indent        y > -                 indentation from aligned sides
+o c ·   color         y > -                 text coloration 
+o a ·   align         y > -                 text alignment without bounds
+o n ·   numbers       y > -                 numeric format
+o z ·   sfill         y > -                 string fills
+o d ·   decimals      y > -                 number of decimals
+o u ·   units         y > -                 numeric display units
+o l ·   lists         y > -                 bullets, ordered lists, etc
+o y ·   style         y > -                 tied to a named format
+·
+·
+·
+· · · +=+=+=========  ===handling=========  ===description===================================
+m · · modify          y > -                 change non-text objects characteristics
+m - ·   resize        y = -                 resize
+m - ·   dims          y = -                 various markers to clarify
+m - ·   extent        y = -                 various extent markers and lines to clarify
+m - ·   scale         y = -                 scale and stretch
+m - ·   trim          y > -                 crop, trimp
+m - ·   join          y > -                 union, intersection, disunion, mask
+m - ·   move          y - -                 adjust position
+m - ·   arrray        y - -                 tile or array of duplicate objects
+m - ·   rotate        y > -                 left, right, degree, mirror horz/vert
+m - ·   snap          y - -                 grids or guides
+m - ·   fill          y > -                 colors, and textures
+m - ·   hatching      y > -                 hatching and tectures
+m - ·   outline       y > -                 colors, sizes, formats
+m - ·   centers       y - -                 centerline, cross, center mark, angle line
+m - ·   ends          y - -                 truncate, balls, arrows, etc
+·
+·
+·
+· · · +=+=+=========  ===handling=========  ===description===================================
+d · · dataset         y > -                 -
+d - ·   sort          y - -                 choose a sorting order
+d - ·   filter        y - -                 choose a data filter
+d - ·   blur          y - -                 -
+d - ·   enhance       y - -                 -
+d - ·   distort       y - -                 -
+d - ·   noise         y - -                 -
+d - ·   edges         y - -                 -
+d - ·   combine       y - -                 -
+d - ·   light         y - -                 -
+d - ·   shadow        y - -                 -
+d - ·   pixelate      y - -                 -
+d - ·   render        y - -                 -
+d - ·   sharpen       y - -                 -
+d - ·   stylize       y - -                 -
+d - ·   liquify       y - -                 -
+d - ·   oils          y - -                 -
+d - ·   map           y - -                 -
+d - ·   decor         y - -                 -
+d - ·   vanish        y - -                 -
+·
+·
+·
+· · · +=+=+=========  ===handling=========  ===description===================================
+t · · tools           y > -                 -
+·
+·
+·
+· · · +=+=+=========  ===handling=========  ===description===================================
+p · · palette         y > -                 -
+·
+·
+·
+· · · +=+=+=========  ===handling=========  ===description===================================
+b · · buffers         y > -                 -
+b - ·   showall       y - -                 show list of buffers
+b - ·   status        y - -                 show buffer status bar
+b - ·   new           y - -                 create a new, empty, nameless buffer
+b - ·   rename        y - -                 change the name of the buffer
+b - ·   type          y - -                 -
+b - ·   size          y - -                 -
+b - ·   scale         y - -                 architectural scale, e.g., 0.25in = 1foot
+b - ·   delete        y - -                 delete or remove a buffer
+b - ·   freeze        y - -                 freeze certain areas from movement
+b - ·   split         y - -                 split the buffer window
+b - ·   hiding        y - -                 do not show buffer
+b - ·   locking       y - -                 protect or unprotect buffer
+·
+·
+·
+· · · +=+=+=========  ===handling=========  ===description===================================
+l · · layers          y > -                 -
+l - ·   saved         y - -                 show list of all layers
+l - ·   highlight     y - -                 highlight specific layer contents (by abbr
+l - ·   status        y - -                 show layer status bar
+l - ·   new           y - -                 create a new, empty, nameless layer
+l - ·   rename        y - -                 change the name of the layer
+l - ·   copy_all      y - -                 copy/duplicate the layer to a new one
+l - ·   copy_with     y - -                 create a new layer with selected contents
+l - ·   join          y - -                 join/merge contents of multiple layers
+l - ·   flatten       y - -                 -
+l - ·   delete        y - -                 delete or remove a layer
+l - ·   type          y - -                 -
+l - ·   hide          y - -                 -
+l - ·   mask          y - -                 -
+l - ·   alignment     y - -                 line up two or more layers
+l - ·   locking       y - -                 lock or unlock layers
+·
+·
+·
+· · · +=+=+=========  ===handling=========  ===description===================================
+a · · analyze         y > -                 -
+a s ·   spell         y - -                 -
+a d ·   dump          y - -                 internal data reporting
+·
+·
+·
+· · · +=+=+=========  ===handling=========  ===description===================================
+x · · execute         y > -                 -
+·
+·
+·
+· · · +=+=+=========  ===handling=========  ===description===================================
+c · · config          y > -                 -
+·
+·
+·
+· · · +=+=+=========  ===handling=========  ===description===================================
+r · · macros          y > -                 -
+·
+·
+·
+· · · +=+=+=========  ===handling=========  ===description===================================
+h · · show            y > -                 -
+·
+·
+·

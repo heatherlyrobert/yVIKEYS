@@ -3,42 +3,436 @@
 #include    "yVIKEYS.h"
 #include    "yVIKEYS_priv.h"
 
+/*============================---- METIS TASKS ---============================*/
+/*
+ *
+ * metis  wn1··  sort cells found into a understandable, responsible order 
+ * metis  dw2··  third tier menu items need to set and use next field
+ * metis  dw2··  allow additions to menu and automatically link them
+ * metis  tn2··  simple example menu item to execute when complete
+ * metis  tn2#·  menus to display error and keep locked until <esc>
+ * metis  tn2#·  menus error to display last valid menu behind error
+ * metis  dn4··  menu activate/deactive using menu paths (cant active if master not active)
+ *
+ *
+ */
+
+/*  menu structure
+ *     -- chose wider (unweildy), not deeper (spooky)
+ *     -- three layer ending in automatic exec, hitting enter, or text entry
+ *     -- standard on first two layers
+ *     -- layer one is locked, keys standard
+ *     -- layer two 90% standard, can be added to, keys sometimes changed
+ *     -- layer three is semi-standard and last available layer
+ *     -- any layer can be searched and selected using /<text>¦
+ *     -- multi-select is done through multiple iterations
+ *
+ *     \fs            --> saves the current file under the existing name
+ *     \fa<name>¦     --> saves current file under a temporary name
+ *     \fr<name>¦     --> changes the name of the current file
+ *
+ */
+/*
+ *  ppt   file, edit, view, insert, format, tools, slideshow, window, help, acrobat
+ *        (home, insert, design, transitions, animations, slideshow, review, view, help)
+ *
+ *  xls   file, edit, view, insert, format, tools, data, window, help
+ *        (home, insert, layout, formulas, data, review, view, help)
+ *
+ *  word  file, edit, view, insert, format, tools, table, reference, mailings, window, help
+ *        (home, insert, layout, reference, mailings, review, view, help)
+ *  
+ *  123   worksheet, range, copy, move, file, print, graph, data, quit
+ *
+ *  gimp  file, edit, select, view, image, layer, colors, tools, filters, python-fu, windows, help
+ *
+ *  photoshop  file, edit, image, layer, select, filter, analysis, 3d, view, window, help
+ *  
+ *  numbers    file, edit, insert, table, organize, format, arrange, view, share, window, help
+ *
+ *  illustrator file, edit, object, type, select, effect, view, window, help
+ *
+ *  autocad   file edit, view, insert, format, tools, draw, dimension, modify, parametric, window, help
+ *            (home, insert, annotate, parametric, view, manage, output, addins, ...)
+ *
+ *  access   file, edit, view, insert, format, records, tools, windows, help
+ *
+ *  pimavera  file, edit, view, project, enterprise, tools, admin, help
+ *
+ *  gnumeric    file, edit, view, insert, format, tools, statiscs, data, help
+ *
+ *  oocalc    file, edit, view, insert, format, tools, data, window
+ *  oowriter  file, edit, view, insert, format, table, tools, window
+ *  ooimpress file, edit, view, insert, format, tools, slideshow, window
+ *  oodraw    file, edit, view, insert, format, tools, modify, window
+ *
+ *  mysql   file, edit, view, query, database, server, tools, scripting, help
+ *
+ *  visual studio   file, edit, view, project, build, debug, data, format, tools, window, help
+ *
+ */
 
 
+#define     DEG2RAD  (3.1415927 / 180.0)
+#define     RAD2DEG  (180.0 / 3.1415927)
+
+
+/*> a  ,x··0··i   { '¥··2li',¥2li'¥··2li',¥2li'¥····2li',¥··lvwhd··32|P··20|i "¥··37|BEa"¥··wi, '¥2li',¥··2li'¥2li',¥··wi"¥··68|BEa"¥··wi, "¥··$a"¥··60a ¥··125|Da},¥··0j··,y   <*/
+/*> a  ,x··0··i   { '¥··2li',¥2li'¥··2li',¥2li'¥····2li',¥··lvwhd··32|P··20|i "¥··37|BEa"¥··wi, '¥2li',¥··,y   */
+/*> a  ,x··0··i   { '¥··2li',¥2li'¥··2li',¥2li'¥····2li',¥··lvwhd··,y   */
 
 #define      S_HIST_MAX    100
 static char  S_HIST_LIST [S_HIST_MAX];
 
 /*===[[ MENUS ]]==============================================================*/
-#define    MAX_MENU        20
+#define    MAX_MENU        1000
 typedef    struct   cMENU   tMENU;
 struct cMENU {
-   cchar       abbr;
+   cchar       top;
+   cchar       mid;
+   cchar       bot;
    cchar       name        [LEN_LABEL];
+   cchar       active;
+   cchar       type;
+   cchar       keys        [LEN_LABEL];
    cchar       desc        [LEN_DESC ];
-   int         count;
 };
-static tMENU  s_menus [MAX_MENU] = {
-   { YVIKEYS_M_FILE  , "file"      , "files, folders, printing, and exporting"      , 0},
-   { YVIKEYS_M_EDIT  , "edit"      , "cut, copy, paste, find, clear, etc"           , 0},
-   { YVIKEYS_M_SELECT, "select"    , ""                                             , 0},
-   { YVIKEYS_M_VIEW  , "view"      , "display and layout of application elements"   , 0},
-   { YVIKEYS_M_INSERT, "insert"    , "add space, symbols, object, image, etc"       , 0},
-   { YVIKEYS_M_OBJECT, "object"    , "resize, change, shape, move, grouping"        , 0},
-   { YVIKEYS_M_FORMAT, "format"    , "themes, styles, formatting, data format"      , 0},
-   { YVIKEYS_M_PIXEL , "pixel"     , "painting kind of actions"                     , 0},
-   { YVIKEYS_M_DRAW  , "draw"      , "drawing/drafting kind of actions"             , 0},
-   { YVIKEYS_M_DATA  , "data"      , ""                                             , 0},
-   { YVIKEYS_M_LAYER , "layers"    , ""                                             , 0},
-   { YVIKEYS_M_LAYOUT, "layout"    , ""                                             , 0},
-   { YVIKEYS_M_TOOL  , "tools"     , "spelling, error checks, macros, controls"     , 0},
-   { YVIKEYS_M_BUFFER, "buffers"   , ""                                             , 0},
-   { YVIKEYS_M_AUDIT , "audit"     , ""                                             , 0},
-   { YVIKEYS_M_CONFIG, "config"    , ""                                             , 0},
-   { YVIKEYS_M_NONE  , ""          , ""                                             , 0},
+static int          s_nmenu  = 0;
+static int          s_ntops  = 0;
+static const tMENU  s_menus [MAX_MENU] = {
+   /*---(file menu)----------------------------------------------*/
+   { 'f', '·', '·', "file"             , 'y', '>', "-"                 , "workspace, its file, and external environment"    },
+   { 'f', 'w', '·', "new"              , 'y', '·', ":new¦"             , "create a new, nameless workspace"                 },
+   { 'f', 'o', '·', "open"             , 'y', '=', ":edit·"            , "open a workspace from a file"                     },
+   { 'f', 'd', '·', "chdir"            , 'y', '=', ":cd·"              , "change the current working directory"             },
+   { 'f', 'b', '·', "browse"           , '·', '!', "-"                 , "find directory and file using autocomplete"       },
+   { 'f', '-', '·', "recent"           , '·', '!', "-"                 , "review recent files using autocomplete"           },
+   { 'f', 'm', '·', "import"           , 'y', '>', "-"                 , "import clipboard to current location"             },
+   { 'f', 'm', 'a', "auto"             , 'y', '·', "++"                , "interpret the import records, one-by-one"         },
+   { 'f', 'm', 'v', "values"           , 'y', '·', "+v"                , "pure values, parsed by cell widths"               },
+   { 'f', 'm', 'V', "values+"          , 'y', '·', "+V"                , "pure values, with hints"                          },
+   { 'f', 'm', 'd', "coldel"           , 'y', '·', "+d"                , "pure values, col/field del"                       },
+   { 'f', 'm', 'D', "coldel+"          , 'y', '·', "+D"                , "pure values, col/field del, with hints"           },
+   { 'f', 'm', 'f', "field"            , 'y', '·', "+f"                , "pure values, field del"                           },
+   { 'f', 'm', 'F', "field+"           , 'y', '·', "+F"                , "pure values, field del, with hints"               },
+   { 'f', 'm', 't', "tab"              , 'y', '·', "+t"                , "pure values, tab del"                             },
+   { 'f', 'm', 'T', "tab+"             , 'y', '·', "+T"                , "pure values, tab del, with hints"                 },
+   { 'f', 'm', 'N', "native"           , 'y', '·', "+N"                , "native format, field del, with hints"             },
+   { '·', '·', '·', "---------"        , '-', '-', "-------------"     , "-------------------------------------------------"},
+   { 'f', 'n', '·', "rename"           , 'y', '·', ":file·"            , "change the name of the current workspace"         },
+   { 'f', 'r', '·', "revert"           , '·', '·', "-"                 , "return to the original workspace state"           },
+   { 'f', 'f', '·', "refresh"          , 'y', '·', "-"                 , "reread the source file, replacing existing"       },
+   { 'f', 'i', '·', "info"             , '·', '·', "-"                 , "display key workspace statistics"                 },
+   { 'f', 'v', '·', "version"          , 'y', '>', "-"                 , "workspace and file versioning"                    },
+   { 'f', 'v', 'c', "ctrl"             , 'y', '·', ":control¦"         , "turn on version control"                          },
+   { 'f', 'v', 'n', "noctrl"           , 'y', '·', ":nocontrol¦"       , "turn off version control"                         },
+   { 'f', 'v', 'j', "major"            , 'y', '·', ":major¦"           , "bump major value up by one"                       },
+   { 'f', 'v', 'n', "minor"            , 'y', '·', ":minor¦"           , "bump minor value up by one"                       },
+   { 'f', 'v', 'b', "bump"             , 'y', '·', ":bump¦"            , "bump sub value up by one"                         },
+   { 'f', 'v', 't', "vertxt"           , 'y', '·', ":vertxt·"          , "enter text for most recent version"               },
+   { 'f', 'v', 'm', "manual"           , 'y', '·', ":version·"         , "set version number manually"                      },
+   { '·', '·', '·', "---------"        , '-', '-', "-------------"     , "-------------------------------------------------"},
+   { 'f', 's', '·', "save"             , 'y', '·', ":w"                , "write the current workspace"                      },
+   { 'f', 'a', '·', "saveas"           , 'y', '=', "-"                 , "write current workspace using temp name"          },
+   { 'f', 'x', '·', "export"           , 'y', '>', "-"                 , "export current selection to clipboard"            },
+   { 'f', 'x', 'v', "values"           , 'y', 'v', "-v"                , "final values"                                     },
+   { 'f', 'x', 'V', "values+"          , 'y', 'v', "-V"                , "final values, plus hints"                         },
+   { 'f', 'x', 'd', "coldel"           , 'y', 'v', "-d"                , "final values, col/field delimited"                },
+   { 'f', 'x', 'D', "coldel+"          , 'y', 'v', "-D"                , "final values, col/field del, plus hints"          },
+   { 'f', 'x', 'f', "field"            , 'y', 'v', "-f"                , "final values, field del"                          },
+   { 'f', 'x', 'F', "field+"           , 'y', 'v', "-F"                , "final values, field del, plus hints"              },
+   { 'f', 'x', 'c', "csv"              , 'y', 'v', "-c"                , "final values, csv del"                            },
+   { 'f', 'x', 'C', "csv+"             , 'y', 'v', "-C"                , "final values, csv del, plus hints"                },
+   { 'f', 'x', 't', "tab"              , 'y', 'v', "-t"                , "final values, tab del"                            },
+   { 'f', 'x', 'T', "tab+"             , 'y', 'v', "-T"                , "final values, tab del, plus hints"                },
+   { 'f', 'x', 'r', "result"           , 'y', 'v', "-r"                , "calculated results, field del"                    },
+   { 'f', 'x', 'R', "result+"          , 'y', 'v', "-R"                , "calculated results, field del, plus hints"        },
+   { 'f', 'x', 'S', "source"           , 'y', 'v', "-S"                , "full source, field del, plus hints"               },
+   { 'f', 'x', 'N', "native"           , 'y', 'v', "-N"                , "native format, field del, plus hints"             },
+   { '·', '·', '·', "---------"        , '-', '-', "-------------"     , "-------------------------------------------------"},
+   { 'f', 'c', '·', "close"            , 'y', '·', "-"                 , "close current workspace"                          },
+   { 'f', 'q', '·', "quit"             , 'y', '·', ":qa"               , "quit the program"                                 },
+   { 'f', 'Q', '·', "wqa"              , 'y', '·', ":wqa"              , "write all workspaces and quit program"            },
+   /*---(edit menu)----------------------------------------------*/
+   { 'e', '·', '·', "edit"             , 'y', '>', "-"                 , "-"                                                },
+   { 'e', 'u', '·', "undo"             , 'y', '·', "u"                 , "undo the very last action"                        },
+   { 'e', 'U', '·', "redo"             , 'y', '·', "U"                 , "redo the last action undone"                      },
+   { 'e', '_', '·', "status"           , 'y', '·', "-"                 , "-"                                                },
+   { 'e', '?', '·', "history"          , 'y', '·', "-"                 , "-"                                                },
+   { 'e', '?', 't', "track"            , 'y', '·', "-"                 , "-"                                                },
+   { 'e', '?', 'u', "untrack"          , 'y', '·', "-"                 , "-"                                                },
+   { 'e', '?', 'c', "clear"            , 'y', '·', "-"                 , "-"                                                },
+   { 'e', '?', 'r', "review"           , 'y', '·', "-"                 , "-"                                                },
+   { '·', '·', '·', "---------"        , '-', '-', "-------------"     , "-------------------------------------------------"},
+   { 'e', 'y', '·', "copy"             , 'y', '·', "y"                 , "-"                                                },
+   { 'e', 'Y', '·', "cut"              , 'y', '·', "Y"                 , "-"                                                },
+   { 'e', 'p', '·', "paste"            , 'y', '·', "p"                 , "-"                                                },
+   { 'e', 'P', '·', "special"          , 'y', '>', "-"                 , "-"                                                },
+   { 'e', 'P', 'n', "normal"           , 'y', '·', "Pn"                , "-"                                                },
+   { 'e', 'P', '#', "clear"            , 'y', '·', "P#"                , "-"                                                },
+   { 'e', 'P', 'r', "replace"          , 'y', '·', "Pr"                , "-"                                                },
+   { 'e', 'P', 'd', "duplicate"        , 'y', '·', "Pd"                , "-"                                                },
+   { 'e', 'P', 'c', "combo"            , 'y', '·', "Pc"                , "-"                                                },
+   { 'e', 'P', 'm', "move"             , 'y', '·', "Pm"                , "-"                                                },
+   { 'e', 'P', 'f', "force"            , 'y', '·', "Pf"                , "-"                                                },
+   { 'e', 'P', 'v', "values"           , 'y', '·', "Pv"                , "-"                                                },
+   { '·', '·', '·', "---------"        , '-', '-', "-------------"     , "-------------------------------------------------"},
+   { 'e', 'x', '·', "clear"            , 'y', '>', "-"                 , "-"                                                },
+   { 'e', 'x', '.', "inplace"          , 'y', '·', "x."                , "-"                                                },
+   { 'e', 'x', 'l', "left"             , 'y', '·', "xl"                , "-"                                                },
+   { 'e', 'x', 'h', "right"            , 'y', '·', "xh"                , "-"                                                },
+   { 'e', 'x', 'k', "up"               , 'y', '·', "xk"                , "-"                                                },
+   { 'e', 'x', 'j', "down"             , 'y', '·', "xj"                , "-"                                                },
+   { 'e', 'x', 'i', "in"               , 'y', '·', "xi"                , "-"                                                },
+   { 'e', 'x', 'o', "out"              , 'y', '·', "xo"                , "-"                                                },
+   { 'e', 'x', 'x', "col_lef"          , 'y', '·', "xx"                , "-"                                                },
+   { 'e', 'x', 'X', "col_rig"          , 'y', '·', "xX"                , "-"                                                },
+   { 'e', 'x', 'y', "row_abo"          , 'y', '·', "xy"                , "-"                                                },
+   { 'e', 'x', 'Y', "row_bel"          , 'y', '·', "xY"                , "-"                                                },
+   { 'e', 'x', 'z', "lvl_in"           , 'y', '·', "xz"                , "-"                                                },
+   { 'e', 'x', 'Z', "lvl_out"          , 'y', '·', "xZ"                , "-"                                                },
+   { 'e', 'd', '·', "delete"           , 'y', '>', "-"                 , "-"                                                },
+   { 'e', 'd', 'l', "left"             , 'y', '·', "dl"                , "-"                                                },
+   { 'e', 'd', 'h', "right"            , 'y', '·', "dh"                , "-"                                                },
+   { 'e', 'd', 'k', "up"               , 'y', '·', "dk"                , "-"                                                },
+   { 'e', 'd', 'j', "down"             , 'y', '·', "dj"                , "-"                                                },
+   { 'e', 'd', 'i', "in"               , 'y', '·', "di"                , "-"                                                },
+   { 'e', 'd', 'o', "out"              , 'y', '·', "do"                , "-"                                                },
+   { 'e', 'd', 'x', "col_left"         , 'y', '·', "dx"                , "-"                                                },
+   { 'e', 'd', 'X', "col_right"        , 'y', '·', "dX"                , "-"                                                },
+   { 'e', 'd', 'y', "row_above"        , 'y', '·', "dy"                , "-"                                                },
+   { 'e', 'd', 'Y', "row_below"        , 'y', '·', "dY"                , "-"                                                },
+   { 'e', 'd', 'z', "lvl_in"           , 'y', '·', "dz"                , "-"                                                },
+   { 'e', 'd', 'Z', "lvl_out"          , 'y', '·', "dZ"                , "-"                                                },
+   { 'e', 'i', '·', "insert"           , 'y', '>', "-"                 , "-"                                                },
+   { 'e', 'i', 'l', "left"             , 'y', '·', "al"                , "-"                                                },
+   { 'e', 'i', 'h', "right"            , 'y', '·', "ah"                , "-"                                                },
+   { 'e', 'i', 'k', "up"               , 'y', '·', "ak"                , "-"                                                },
+   { 'e', 'i', 'j', "down"             , 'y', '·', "aj"                , "-"                                                },
+   { 'e', 'i', 'i', "in"               , 'y', '·', "ai"                , "-"                                                },
+   { 'e', 'i', 'o', "out"              , 'y', '·', "ao"                , "-"                                                },
+   { 'e', 'i', 'x', "col_lef"          , 'y', '·', "ax"                , "-"                                                },
+   { 'e', 'i', 'X', "col_rig"          , 'y', '·', "aX"                , "-"                                                },
+   { 'e', 'i', 'y', "row_abo"          , 'y', '·', "ay"                , "-"                                                },
+   { 'e', 'i', 'Y', "row_bel"          , 'y', '·', "aY"                , "-"                                                },
+   { 'e', 'i', 'z', "lvl_in"           , 'y', '·', "az"                , "-"                                                },
+   { 'e', 'i', 'Z', "lvl_out"          , 'y', '·', "aZ"                , "-"                                                },
+   { '·', '·', '·', "---------"        , '-', '-', "-------------"     , "-------------------------------------------------"},
+   { 'e', 'g', '·', "group"            , 'y', '>', "-"                 , "-"                                                },
+   { 'e', 'g', 'g', "group"            , 'y', '·', "-"                 , "group selected items into a new group"            },
+   { 'e', 'g', 'u', "ungroup"          , 'y', '·', "-"                 , "take all items out of any touched groups"         },
+   { 'e', 'g', 'r', "regroup"          , 'y', '·', "-"                 , "put items back into last ungrouped group"         },
+   { 'e', 'g', 'm', "merge"            , 'y', '·', "-"                 , "combine/merge seleced groups into one"            },
+   { 'e', 'g', 'f', "free"             , 'y', '·', "-"                 , "take selected items out any group"                },
+   { 'e', 'g', 'b', "boundary"         , 'y', '·', "-"                 , "show boundary marker around selected groups"      },
+   { 'e', 'a', '·', "align"            , 'y', '>', "-"                 , "-"                                                },
+   { 'e', 'a', 'k', "top"              , 'y', '·', "-"                 , "-"                                                },
+   { 'e', 'a', 'j', "bottom"           , 'y', '·', "-"                 , "-"                                                },
+   { 'e', 'a', 'h', "left"             , 'y', '·', "-"                 , "-"                                                },
+   { 'e', 'a', 'l', "right"            , 'y', '·', "-"                 , "-"                                                },
+   { 'e', 'a', 'o', "front"            , 'y', '·', "-"                 , "-"                                                },
+   { 'e', 'a', 'i', "back"             , 'y', '·', "-"                 , "-"                                                },
+   { 'e', 'a', 'x', "dist-x"           , 'y', '·', "-"                 , "-"                                                },
+   { 'e', 'a', 'y', "dist-y"           , 'y', '·', "-"                 , "-"                                                },
+   { 'e', 'a', 'z', "dist-z"           , 'y', '·', "-"                 , "-"                                                },
+   { 'e', 'o', '·', "order"            , 'y', '>', "-"                 , "-"                                                },
+   { 'e', 'o', 'n', "front"            , 'y', '·', "-"                 , "-"                                                },
+   { 'e', 'o', 'i', "forward"          , 'y', '·', "-"                 , "-"                                                },
+   { 'e', 'o', 'o', "backward"         , 'y', '·', "-"                 , "-"                                                },
+   { 'e', 'o', 'f', "back"             , 'y', '·', "-"                 , "-"                                                },
+   { 'e', 'o', 'r', "reverse"          , 'y', '·', "-"                 , "-"                                                },
+   { 'e', 'l', '·', "layer"            , 'y', '=', "-"                 , "-"                                                },
+   /*---(view menu)----------------------------------------------*/
+   { 'v', '·', '·', "view"             , 'y', '>', "-"                 , "-"                                                },
+   { 'v', '-', '·', "color"            , 'y', '>', "-"                 , "-"                                                },
+   { 'v', '-', '·', "title"            , 'y', '>', "-"                 , "-"                                                },
+   { 'v', '-', '·', "version"          , 'y', '>', "-"                 , "-"                                                },
+   { 'v', '-', '·', "buffers"          , 'y', '>', "-"                 , "-"                                                },
+   { 'v', '-', '·', "formula"          , 'y', '>', "-"                 , "-"                                                },
+   { 'v', '-', '·', "nav"              , 'y', '>', "-"                 , "-"                                                },
+   { 'v', '-', '·', "progress"         , 'y', '>', "-"                 , "-"                                                },
+   { 'v', '-', '·', "status"           , 'y', '>', "-"                 , "-"                                                },
+   { 'v', '-', '·', "keys"             , 'y', '>', "-"                 , "-"                                                },
+   { 'v', '-', '·', "command"          , 'y', '>', "-"                 , "-"                                                },
+   { 'v', '-', '·', "alt"              , 'y', '>', "-"                 , "-"                                                },
+   { 'v', '-', '·', "details"          , 'y', '>', "-"                 , "-"                                                },
+   { 'v', '-', '·', "ribbon"           , 'y', '>', "-"                 , "-"                                                },
+   { 'v', '-', '·', "grid"             , 'y', '>', "-"                 , "-"                                                },
+   { 'v', '-', '·', "edges"            , 'y', '>', "-"                 , "-"                                                },
+   { 'v', '-', '·', "guides"           , 'y', '>', "-"                 , "-"                                                },
+   { 'v', '-', '·', "overlay"          , 'y', '>', "-"                 , "-"                                                },
+   /*---(insert menu)--------------------------------------------*/
+   { 'i', '·', '·', "insert"           , 'y', '>', "-"                 , "-"                                                },
+   { 'i', 't', '·', "text"             , 'y', '>', "-"                 , "-"                                                },
+   { 'i', 'l', '·', "line"             , 'y', '>', "-"                 , "lines and connectors"                             },
+   { 'i', 'e', '·', "ellises"          , 'y', '>', "-"                 , "ellipses, circles, arcs, rings, donuts"           },
+   { 'i', 't', '·', "tris"             , 'y', '>', "-"                 , "equal, right, rounded, iso, etc"                  },
+   { 'i', 'r', '·', "rects"            , 'y', '>', "-"                 , "rects, squares, rounded, trapazoid"               },
+   { '·', '·', '·', "---------"        , '-', '-', "-------------"     , "-------------------------------------------------"},
+   { 'i', 'h', '·', "hexagons"         , 'y', '>', "-"                 , "-"                                                },
+   { 'i', 'p', '·', "polygons"         , 'y', '>', "-"                 , "-"                                                },
+   { 'i', 's', '·', "stars"            , 'y', '>', "-"                 , "-"                                                },
+   { 'i', 'a', '·', "arrows"           , 'y', '>', "-"                 , "-"                                                },
+   { 'i', 'f', '·', "flowschart"       , 'y', '>', "-"                 , "flowcharting symbols"                             },
+   { '·', '·', '·', "---------"        , '-', '-', "-------------"     , "-------------------------------------------------"},
+   { 'i', 'j', '·', "joiners"          , 'y', '>', "-"                 , "direct connectors linking two objects"            },
+   { 'i', 'n', '·', "notes"            , 'y', '>', "-"                 , "note boxes and callouts"                          },
+   { 'i', 'm', '·', "misc"             , 'y', '>', "-"                 , "-"                                                },
+   { 'i', '-', '·', "nurbs"            , 'y', '>', "-"                 , "nurb curves"                                      },
+   { 'i', '-', '·', "tiling"           , 'y', '>', "-"                 , "various forms of two-dimensional tiling"          },
+   { '·', '·', '·', "---------"        , '-', '-', "-------------"     , "-------------------------------------------------"},
+   { 'i', 'b', '·', "beziers"          , 'y', '>', "-"                 , "2, 3, 4, 5, and 6 control point bezier curves"    },
+   { 'i', '-', '·', "3d"               , 'y', '>', "-"                 , "various forms of two-dimensional tiling"          },
+   { 'i', '-', '·', "surfaces"         , 'y', '>', "-"                 , "-"                                                },
+   { 'i', '-', '·', "meshes"           , 'y', '>', "-"                 , "-"                                                },
+   /*---(select menu)--------------------------------------------*/
+   { 's', '·', '·', "select"           , 'y', '>', "-"                 , "choosing one or more things for common action"    },
+   { 's', '!', '·', "highlight"        , 'y', '·', "-"                 , "show selection (by abbr) in background"           },
+   { 's', '_', '·', "status"           , 'y', '·', "-"                 , "show selection status bar"                        },
+   { 's', 'c', '·', "clear"            , 'y', '·', "-"                 , "clear current selection"                          },
+   { '·', '·', '·', "---------"        , '-', '-', "-------------"     , "-------------------------------------------------"},
+   { 's', 'a', '·', "all"              , 'y', '·', "-"                 , "select absolutely everything"                     },
+   { 's', 'b', '·', "buffer"           , 'y', '·', "-"                 , "select everything in current buffer"              },
+   { 's', 'w', '·', "window"           , 'y', '·', "-"                 , "select everything visible in current window"      },
+   { 's', 'l', '·', "layer"            , 'y', '·', "-"                 , "select everything on current layer"               },
+   { 's', 'g', '·', "geometry"         , 'y', '=', "-"                 , "select using geometry description (loc/pos)"      },
+   { 's', 't', '·', "type"             , 'y', '=', "-"                 , "select by attribute/type                      "   },
+   { 's', 'x', '·', "regex"            , 'y', '=', "-"                 , "select by text search"                            },
+   { 's', '-', '·', "touch"            , 'y', '·', "-"                 , "select everything touching current selection"     },
+   { '·', '·', '·', "---------"        , '-', '-', "-------------"     , "-------------------------------------------------"},
+   { 's', 's', '·', "save"             , 'y', '·', "-"                 , "save current selection by abbr"                   },
+   { 's', 'r', '·', "reselect"         , 'y', '·', "-"                 , "make saved selection current by abbr"             },
+   { 's', 'j', '·', "join"             , 'y', '·', "-"                 , "join/merge current into saved selection"          },
+   { 's', 'd', '·', "deselect"         , 'y', '·', "-"                 , "clear/delete current from saved selection"        },
+   { '·', '·', '·', "---------"        , '-', '-', "-------------"     , "-------------------------------------------------"},
+   { 's', 'i', '·', "inverse"          , 'y', '·', "-"                 , "swap selected and unselected"                     },
+   { 's', 'x', '·', "all_on_x"         , 'y', '·', "-"                 , "select everything on current x selection"         },
+   { 's', 'y', '·', "all_on_y"         , 'y', '·', "-"                 , "select everything on current y selection"         },
+   { 's', 'z', '·', "all_on_z"         , 'y', '·', "-"                 , "select everything on current z selection"         },
+   /*---(format menu)--------------------------------------------*/
+   { 'o', '·', '·', "format"           , 'y', '>', "-"                 , "-"                                                },
+   { 'o', 'f', '·', "font"             , 'y', '>', "-"                 , "-"                                                },
+   { 'o', 'z', '·', "size"             , 'y', '>', "-"                 , "-"                                                },
+   { 'o', 'p', '·', "spacing"          , 'y', '>', "-"                 , "-"                                                },
+   { 'o', 'i', '·', "indent"           , 'y', '>', "-"                 , "-"                                                },
+   { 'o', 'c', '·', "color"            , 'y', '>', "-"                 , "-"                                                },
+   { 'o', 'a', '·', "align"            , 'y', '>', "-"                 , "-"                                                },
+   { 'o', 'n', '·', "numbers"          , 'y', '>', "-"                 , "numeric format"                                   },
+   { 'o', 'i', '·', "fill"             , 'y', '>', "-"                 , "string fills"                                     },
+   { 'o', 'd', '·', "decimals"         , 'y', '>', "-"                 , "number of decimals"                               },
+   { 'o', 'u', '·', "units"            , 'y', '>', "-"                 , "numeric display units"                            },
+   { 'o', 'l', '·', "lists"            , 'y', '>', "-"                 , "bullets, ordered lists, etc"                      },
+   { 'o', 's', '·', "style"            , 'y', '>', "-"                 , "tied to a named format"                           },
+   /*---(modify menu)--------------------------------------------*/
+   { 'm', '·', '·', "modify"           , 'y', '>', "-"                 , "-"                                                },
+   { 'm', '-', '·', "resize"           , 'y', '=', "-"                 , "resize"                                           },
+   { 'm', '-', '·', "dims"             , 'y', '=', "-"                 , "various markers to clarify"                       },
+   { 'm', '-', '·', "extent"           , 'y', '=', "-"                 , "various extent markers and lines to clarify"      },
+   { 'm', '-', '·', "scale"            , 'y', '=', "-"                 , "scale and stretch"                                },
+   { 'm', '-', '·', "trim"             , 'y', '>', "-"                 , "crop, trimp"                                      },
+   { 'm', '-', '·', "join"             , 'y', '>', "-"                 , "union, intersection, disunion, mask"              },
+   { 'm', '-', '·', "move"             , 'y', '-', "-"                 , "adjust position"                                  },
+   { 'm', '-', '·', "arrray"           , 'y', '-', "-"                 , "tile or array of duplicate objects"               },
+   { 'm', '-', '·', "rotate"           , 'y', '>', "-"                 , "left, right, degree, mirror horz/vert"            },
+   { 'm', '-', '·', "snap"             , 'y', '-', "-"                 , "grids or guides"                                  },
+   { 'm', '-', '·', "fill"             , 'y', '>', "-"                 , "colors, and textures"                             },
+   { 'm', '-', '·', "hatching"         , 'y', '>', "-"                 , "hatching and tectures"                            },
+   { 'm', '-', '·', "outline"          , 'y', '>', "-"                 , "colors, sizes, formats"                           },
+   { 'm', '-', '·', "centerline"       , 'y', '-', "-"                 , "centerline, cross, center mark, angle line"       },
+   { 'm', '-', '·', "endpoints"        , 'y', '-', "-"                 , "truncate, balls, arrows, etc"                     },
+   /*---(dataset menu)-------------------------------------------*/
+   { 'd', '·', '·', "dataset"          , 'y', '>', "-"                 , "data filtering, manipulation, and sorting"        },
+   { 'd', '-', '·', "sort"             , 'y', '-', "-"                 , "choose a sorting order"                           },
+   { 'd', '-', '·', "filter"           , 'y', '-', "-"                 , "choose a data filter"                             },
+   { 'd', '-', '·', "blur"             , 'y', '-', "-"                 , "-"                                                },
+   { 'd', '-', '·', "enhance"          , 'y', '-', "-"                 , "-"                                                },
+   { 'd', '-', '·', "distort"          , 'y', '-', "-"                 , "-"                                                },
+   { 'd', '-', '·', "noise"            , 'y', '-', "-"                 , "-"                                                },
+   { 'd', '-', '·', "edges"            , 'y', '-', "-"                 , "-"                                                },
+   { 'd', '-', '·', "combine"          , 'y', '-', "-"                 , "-"                                                },
+   { 'd', '-', '·', "light"            , 'y', '-', "-"                 , "-"                                                },
+   { 'd', '-', '·', "shadow"           , 'y', '-', "-"                 , "-"                                                },
+   { 'd', '-', '·', "pixelate"         , 'y', '-', "-"                 , "-"                                                },
+   { 'd', '-', '·', "render"           , 'y', '-', "-"                 , "-"                                                },
+   { 'd', '-', '·', "sharpen"          , 'y', '-', "-"                 , "-"                                                },
+   { 'd', '-', '·', "stylize"          , 'y', '-', "-"                 , "-"                                                },
+   { 'd', '-', '·', "liquify"          , 'y', '-', "-"                 , "-"                                                },
+   { 'd', '-', '·', "oils"             , 'y', '-', "-"                 , "-"                                                },
+   { 'd', '-', '·', "map"              , 'y', '-', "-"                 , "-"                                                },
+   { 'd', '-', '·', "decor"            , 'y', '-', "-"                 , "-"                                                },
+   { 'd', '-', '·', "vanish"           , 'y', '-', "-"                 , "-"                                                },
+   /*---(tools menu)---------------------------------------------*/
+   { 't', '·', '·', "tools"            , '·', '>', "-"                 , "brushes and othre hand-analog tools"              },
+   /*---(palette menu)-------------------------------------------*/
+   { 'p', '·', '·', "palette"          , '·', '>', "-"                 , "visual, audio, olfactory, ... palettes"           },
+   /*---(buffers menu)-------------------------------------------*/
+   { 'b', '·', '·', "buffers"          , 'y', '>', "-"                 , "-"                                                },
+   { 'b', '-', '·', "show_all"         , 'y', '-', "-"                 , "show list of buffers"                             },
+   { 'b', '-', '·', "status"           , 'y', '-', "-"                 , "show buffer status bar"                           },
+   { 'b', '-', '·', "new"              , 'y', '-', "-"                 , "create a new, empty, nameless buffer"             },
+   { 'b', '-', '·', "rename"           , 'y', '-', "-"                 , "change the name of the buffer"                    },
+   { 'b', '-', '·', "type"             , 'y', '-', "-"                 , "-"                                                },
+   { 'b', '-', '·', "size"             , 'y', '-', "-"                 , "-"                                                },
+   { 'b', '-', '·', "scale"            , 'y', '-', "-"                 , "architectural scale, e.g., 0.25in = 1foot"        },
+   { 'b', '-', '·', "delete"           , 'y', '-', "-"                 , "delete or remove a buffer"                        },
+   { 'b', '-', '·', "freeze"           , 'y', '-', "-"                 , "freeze certain areas from movement"               },
+   { 'b', '-', '·', "split"            , 'y', '-', "-"                 , "split the buffer window"                          },
+   { 'b', '-', '·', "hiding"           , 'y', '-', "-"                 , "do not show buffer"                               },
+   { 'b', '-', '·', "locking"          , 'y', '-', "-"                 , "protect or unprotect buffer"                      },
+   /*---(layers menu)--------------------------------------------*/
+   { 'l', '·', '·', "layers"           , 'y', '>', "-"                 , "-"                                                },
+   { 'l', '-', '·', "saved"            , 'y', '-', "-"                 , "show list of all layers"                          },
+   { 'l', '-', '·', "highlight"        , 'y', '-', "-"                 , "highlight specific layer contents (by abbr"       },
+   { 'l', '-', '·', "status"           , 'y', '-', "-"                 , "show layer status bar"                            },
+   { 'l', '-', '·', "new"              , 'y', '-', "-"                 , "create a new, empty, nameless layer"              },
+   { 'l', '-', '·', "rename"           , 'y', '-', "-"                 , "change the name of the layer"                     },
+   { 'l', '-', '·', "copy_all"         , 'y', '-', "-"                 , "copy/duplicate the layer to a new one"            },
+   { 'l', '-', '·', "copy_with"        , 'y', '-', "-"                 , "create a new layer with selected contents"        },
+   { 'l', '-', '·', "join"             , 'y', '-', "-"                 , "join/merge contents of multiple layers"           },
+   { 'l', '-', '·', "flatten"          , 'y', '-', "-"                 , "-"                                                },
+   { 'l', '-', '·', "delete"           , 'y', '-', "-"                 , "delete or remove a layer"                         },
+   { 'l', '-', '·', "type"             , 'y', '-', "-"                 , "-"                                                },
+   { 'l', '-', '·', "hide"             , 'y', '-', "-"                 , "-"                                                },
+   { 'l', '-', '·', "mask"             , 'y', '-', "-"                 , "-"                                                },
+   { 'l', '-', '·', "alignment"        , 'y', '-', "-"                 , "line up two or more layers"                       },
+   { 'l', '-', '·', "locking"          , 'y', '-', "-"                 , "lock or unlock layers"                            },
+   /*---(analyze menu)-------------------------------------------*/
+   { 'a', '·', '·', "analyze"          , '·', '>', "-"                 , "checks, debugging, testing, and validation"       },
+   /*---(execute menu)-------------------------------------------*/
+   { 'x', '·', '·', "execute"          , '·', '>', "-"                 , "building, simulation, and execution"              },
+   /*---(config menu)--------------------------------------------*/
+   { 'c', '·', '·', "config"           , '·', '>', "-"                 , "changing system settings and configuration"       },
+   /*---(macros menu)--------------------------------------------*/
+   { 'r', '·', '·', "macros"           , '·', '>', "-"                 , "keyboard macros, scripts, and addons"             },
+   /*---(show menu)----------------------------------------------*/
+   { 'h', '·', '·', "show"             , '·', '>', "-"                 , "presentation, reporting, printing, and demos"     },
+   /*---(footer)-------------------------------------------------*/
+   {  0 ,  0 ,  0 , NULL               ,  0 ,  0 , NULL                , NULL                                               },
+   /*---(done)---------------------------------------------------*/
 };
-static  int s_nmenu  = 0;
 
+
+typedef struct cDMENU tDMENU;
+struct cDMENU {
+   char        active;
+   short       next;                        /* next sibling                   */
+   short       start;                       /* first child                    */
+   short       count;                       /* count of children              */
+   char        bump;                        /* sub-group break                */
+};
+tDMENU     s_dmenu [MAX_MENU];
+
+
+
+
+/*
+ *  canvas  > full editing area changes, all layers and contents
+ *  layers  > list, select, reorder, rename layers, move objects up, down, to specific layer
+ *
+ *
+ *
+ *
+ */
 
 
 /*===[[ TERMS ]]==============================================================*/
@@ -790,14 +1184,6 @@ yvikeys_cmds_init       (void)
    /*> strlcat (S_HIST_LIST, gvikeys_number, S_HIST_MAX);                             <*/
    strlcat (S_HIST_LIST, gvikeys_greek , S_HIST_MAX);
    DEBUG_PROG   yLOG_info    ("LIST"      , S_HIST_LIST);
-   /*---(menus)--------------------------*/
-   DEBUG_PROG   yLOG_note    ("initialize menu system");
-   s_nmenu = 0;
-   for (i = 0; i < MAX_MENU; ++i) {
-      if (s_menus [i].name [0] == NULL)  break;
-      s_menus [i].count = 0;
-      ++s_nmenu;
-   }
    /*---(terms)--------------------------*/
    DEBUG_PROG   yLOG_note    ("initialize term system");
    s_nterm = 0;
@@ -1284,19 +1670,19 @@ yvikeys_cmds__menu          (char a_menu, char a_action)
 {
    /*---(locals)-----------+-----+-----+-*/
    int         i           =    0;
-   for (i = 0; i < s_nmenu; ++i) {
-      if (a_menu != s_menus [i].abbr)   continue;
-      switch (a_action) {
-      case '+' :
-         ++(s_menus [i].count);
-         break;
-      case '-' :
-         if (s_menus [i].count < 1)  return -1;
-         --(s_menus [i].count);
-         break;
-      }
-      return 0;
-   }
+   /*> for (i = 0; i < s_nmenu; ++i) {                                                <* 
+    *>    if (a_menu != s_menus [i].abbr)   continue;                                 <* 
+    *>    switch (a_action) {                                                         <* 
+    *>    case '+' :                                                                  <* 
+    *>       ++(s_menus [i].count);                                                   <* 
+    *>       break;                                                                   <* 
+    *>    case '-' :                                                                  <* 
+    *>       if (s_menus [i].count < 1)  return -1;                                   <* 
+    *>       --(s_menus [i].count);                                                   <* 
+    *>       break;                                                                   <* 
+    *>    }                                                                           <* 
+    *>    return 0;                                                                   <* 
+    *> }                                                                              <*/
    return -3;
 }
 
@@ -1340,10 +1726,10 @@ yVIKEYS_cmds_add     (char a_menu, char *a_name, char *a_abbr, char *a_terms, vo
    }
    DEBUG_PROG   yLOG_note    ("after status check");
    /*---(defense)------------------------*/
-   --rce;  if (yvikeys_cmds__menu (a_menu, ACTION_FIND) < 0) {
-      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
+   /*> --rce;  if (yvikeys_cmds__menu (a_menu, ACTION_FIND) < 0) {                    <* 
+    *>    DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);                              <* 
+    *>    return rce;                                                                 <* 
+    *> }                                                                              <*/
    DEBUG_PROG   yLOG_point   ("a_name"    , a_name);
    --rce;  if (a_name  == NULL || strllen (a_name, LEN_LABEL) <  1) {
       DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
@@ -1543,6 +1929,463 @@ yvikeys_cmds_exec     (void)
 
 
 /*====================------------------------------------====================*/
+/*===----                         menu display                         ----===*/
+/*====================------------------------------------====================*/
+static void  o___MENUS___________o () { return; }
+
+char
+yvikeys_menu_init       (void)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   int         i           =    0;
+   char         x_top_sav  =  '·';
+   int          x_top_last =   -1;
+   char         x_top_beg  =  '-';
+   char         x_mid_sav  =  '·';
+   int          x_mid_last =   -1;
+   char         x_mid_beg  =  '-';
+   char         x_mid_grp  =  '-';
+   /*---(header)-------------------------*/
+   DEBUG_PROG   yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   --rce;  if (!STATUS_check_prep  (MODE_COMMAND)) {
+      DEBUG_PROG   yLOG_note    ("status is not ready for init");
+      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(menus)--------------------------*/
+   DEBUG_PROG   yLOG_note    ("initialize menu system");
+   s_nmenu = s_ntops = 0;
+   for (i = 0; i < MAX_MENU; ++i) {
+      /*---(find end)--------------------*/
+      if (s_menus [i].name [0] == NULL)  break;
+      /*---(init detail)-----------------*/
+      s_dmenu [i].active = 'y';
+      s_dmenu [i].next   = -1;
+      s_dmenu [i].start  = -1;
+      s_dmenu [i].count  =  0;
+      s_dmenu [i].bump   = '-';
+      /*---(filter)----------------------*/
+      ++s_nmenu;
+      if (s_menus [i].top  == '·') {
+         if (s_menus [i].name [0] == '-')  x_mid_grp = 'y';
+         continue;
+      }
+      /*---(prep tops)-------------------*/
+      if (s_menus [i].top != x_top_sav) {
+         /*---(sibling link)-------------*/
+         if (x_top_last >= 0)  s_dmenu [x_top_last].next = i;
+         x_top_last = i;
+         /*---(flags)--------------------*/
+         ++s_ntops;
+         x_top_beg  = '-';
+         x_mid_beg  = '-';
+         x_top_sav  = s_menus [i].top;
+         x_mid_sav  = s_menus [i].mid;
+         x_mid_last = -1;
+         /*---(done)---------------------*/
+         continue;
+      }
+      /*---(prep mids)-------------------*/
+      if (s_menus [i].mid == '-' || s_menus [i].mid != x_mid_sav) {
+         /*---(sibling link)-------------*/
+         if (x_mid_last >= 0)  s_dmenu [x_mid_last].next = i;
+         x_mid_last = i;
+         /*---(first child)--------------*/
+         if (x_top_beg != 'y') {
+            s_dmenu [x_top_last].start = i;
+            x_top_beg = 'y';
+         }
+         /*---(flags)--------------------*/
+         ++s_dmenu [x_top_last].count;
+         x_mid_beg  = '-';
+         x_mid_sav  = s_menus [i].mid;
+         s_dmenu [i].bump = x_mid_grp;
+         x_mid_grp = '-';
+         /*---(done)---------------------*/
+         continue;
+      }
+      /*---(prep bots)-------------------*/
+      /*---(first child)-----------------*/
+      if (x_mid_beg != 'y') {
+         s_dmenu [x_mid_last].start = i;
+         x_mid_beg = 'y';
+      }
+      /*---(flags)-----------------------*/
+      ++s_dmenu [x_mid_last].count;
+      /*---(done)------------------------*/
+   }
+   /*---(show menus)---------------------*/
+   for (i = 0; i < s_nmenu; ++i) {
+      DEBUG_PROG   yLOG_complex ("entry"     , "%3d %c %c %c %-10.10s %3d %3d %3d %c", i, s_menus [i].top, s_menus [i].mid, s_menus [i].bot, s_menus [i].name, s_dmenu [i].next, s_dmenu [i].start, s_dmenu [i].count, s_dmenu [i].bump);
+   }
+   /*---(complete)-----------------------*/
+   DEBUG_PROG   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+int
+yvikeys__menu_find      (char *a_keys, char *a_level, int *a_last)
+{
+   char        rce         =  -10;
+   int         i           =    0;
+   char        x_ch        =  '-';
+   if (a_level != NULL)  *a_level =  0;
+   if (a_last  != NULL)  *a_last  = -1;
+   --rce;  if (a_keys  == NULL)        return rce;
+   --rce;  if (a_level == NULL)        return rce;
+   --rce;  if (a_last  == NULL)        return rce;
+   --rce;  if (a_keys [0] != '\\')     return rce;
+   /*---(level one)----------------------*/
+   x_ch = a_keys [1];
+   --rce;  if (x_ch == '\0')  return rce;
+   while (i >= 0) {
+      if (s_menus [i].top == x_ch)   break;
+      i = s_dmenu [i].next;
+   }
+   --rce;  if (i < 0) return rce;
+   *a_level = 1;
+   *a_last  = i;
+   /*---(level two)----------------------*/
+   x_ch = a_keys [2];
+   if (x_ch == '\0')  return i;
+   i = s_dmenu [i].start;
+   while (i >= 0) {
+      if (s_menus [i].mid == x_ch)   break;
+      i = s_dmenu [i].next;
+   }
+   --rce;  if (i < 0) return rce;
+   *a_level = 2;
+   *a_last  = i;
+   /*---(level three)--------------------*/
+   x_ch = a_keys [3];
+   if (x_ch == '\0')  return i;
+   i = s_dmenu [i].start;
+   while (i >= 0) {
+      if (s_menus [i].bot == x_ch)   break;
+      i = s_dmenu [i].next;
+   }
+   --rce;  if (i < 0) return rce;
+   *a_level = 3;
+   *a_last  = i;
+   /*---(too long)-----------------------*/
+   --rce;  if (strlen (a_keys) > 4)    return rce;
+   /*---(complete)-----------------------*/
+   return i;
+}
+
+char
+yvikyes__menu_level     (char *a_keys)
+{
+   int         i           =    0;
+   for (i = 2; i <= 4; ++i) {
+   }
+}
+
+static int     s_xpos   [LEN_LABEL] = {  15,  40,  50,  55,  55,  50,  40,  15,   0, -15, -40, -50, -55, -55, -50, -40, -15,   0 };
+static int     s_ypos   [LEN_LABEL] = { -15, -30, -45, -60, -75, -90,-105,-120,-135,-120,-105, -90, -75, -60, -45, -30, -15,   0 };
+static int     s_align  [LEN_LABEL] = {   1,   1,   1,   1,   1,   1,   1,   1,   2,   3,   3,   3,   3,   3,   3,   3,   3,   2 };
+static int     s_abbr   [LEN_LABEL] = {   0,   0,   0,   0,   0,   0,   0,   0,  15,   0,   0,   0,   0,   0,   0,   0,   0, -15 };
+
+char
+yvikeys__menu_back      (char *a_prog, char *a_ver, int a_font, int a_point, int a_len, int a_level, int a_last)
+{
+   int         t           [LEN_LABEL];
+   DEBUG_CMDS   yLOG_enter   (__FUNCTION__);
+   /*---(black background)---------------*/
+   glColor4f (0.0f, 0.0f, 0.0f, 1.0f);
+   glBegin(GL_POLYGON); {
+      glVertex3f (  10.0,   -70.0,    90.0);
+      glVertex3f ( 290.0,   -70.0,    90.0);
+      glVertex3f ( 290.0,  -270.0,    90.0);
+      glVertex3f (  10.0,  -270.0,    90.0);
+   } glEnd();
+   /*---(color fill)---------------------*/
+   if (a_len != a_level) {
+      glColor4f (0.8f, 0.0f, 0.0f, 1.0f);
+   } else {
+      switch (a_level) {
+      case  0 :  glColor4f (0.0f, 0.8f, 0.8f, 1.0f);  break;
+      case  1 :  glColor4f (0.7f, 0.5f, 0.3f, 1.0f);  break;
+      case  2 :  glColor4f (0.3f, 0.8f, 0.3f, 1.0f);  break;
+      }
+   }
+   glBegin(GL_POLYGON); {
+      glVertex3f (  12.0,   -72.0,   100.0);
+      glVertex3f ( 288.0,   -72.0,   100.0);
+      glVertex3f ( 288.0,  -268.0,   100.0);
+      glVertex3f (  12.0,  -268.0,   100.0);
+   } glEnd();
+   /*---(labels)-------------------------*/
+   glPushMatrix(); {
+      glColor4f (0.0, 0.0, 0.0, 1.0);
+      switch (a_level) {
+      case  0 :
+         glTranslatef( 150.0, -105.0, 120.0);
+         yFONT_print (a_font, a_point + 2, YF_BASCEN, "main menu");
+         glTranslatef(-130.0,   20.0,   0.0);
+         break;
+      case  1 :
+         glTranslatef( 150.0,  -90.0, 120.0);
+         sprintf (t, "\\%c (%s) sub-menu", s_menus [a_last].top, s_menus [a_last].name);
+         yFONT_print (a_font, a_point + 2, YF_BASCEN, t);
+         glTranslatef(-130.0,    5.0,   0.0);
+         break;
+      case  2 :
+         glTranslatef( 150.0,  -90.0, 120.0);
+         sprintf (t, "\\%c%c (%s) options", s_menus [a_last].top, s_menus [a_last].mid, s_menus [a_last].name);
+         yFONT_print (a_font, a_point + 2, YF_BASCEN, t);
+         glTranslatef(-130.0,    5.0,   0.0);
+         break;
+      }
+      yFONT_print (a_font, a_point + 2, YF_BASLEF, a_prog);
+      glTranslatef( 260.0,    0.0,   0.0);
+      yFONT_print (a_font, a_point + 2, YF_BASRIG, a_ver);
+      glTranslatef(-130.0, -180.0,   0.0);
+      glColor4f (0.3, 0.3, 0.3, 1.0);
+      yFONT_print  (a_font, a_point, YF_BASCEN, "yvikeys menus -- wider, flatter, and universal");
+      if (a_len != a_level) {
+         glColor4f    (1.0f, 1.0f, 1.0f, 1.0f);
+         glTranslatef (   0.0,   50.0,  50.0);
+         yFONT_print  (a_font, 16, YF_BASCEN, "ERROR KEYS");
+         glTranslatef (   0.0,  -15.0,   0.0);
+         yFONT_print  (a_font, 10, YF_BASCEN, "menu locked, <esc> to exit");
+      }
+   } glPopMatrix();
+   /*---(complete)-----------------------*/
+   DEBUG_CMDS   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char
+yvikeys__menu_main      (int a_font, int a_point)
+{
+   int         i           =   0;
+   int         c           =    0;
+   int         t           [LEN_LABEL];
+   DEBUG_CMDS   yLOG_enter   (__FUNCTION__);
+   glPushMatrix(); {
+      /*---(round)-----------------------*/
+      glPushMatrix(); {
+         glColor4f (0.0, 0.0, 0.7, 1.0);
+         glTranslatef( 150.0, -168.0, 120.0);
+         yFONT_print  (a_font, a_point, YF_MIDCEN, "+" );
+         for (i = 0; i < 18; ++i) {
+            glPushMatrix(); {
+               glRotatef    (20.0 * i + 90.0, 0.0, 0.0, 1.0);
+               glTranslatef (40.0, 0.0, 0.0);
+               yFONT_print  (a_font, a_point, YF_MIDCEN, ">" );
+            } glPopMatrix();
+         }
+      } glPopMatrix();
+      i = 0;
+      glPushMatrix(); {
+         glTranslatef( 150.0, -105.0, 120.0);
+         while (i >= 0) {
+            DEBUG_CMDS   yLOG_value   ("i"         , i);
+            DEBUG_CMDS   yLOG_char    ("abbr"      , s_menus [i].top);
+            DEBUG_CMDS   yLOG_info    ("name"      , s_menus [i].name);
+            glPushMatrix (); {
+               glTranslatef (s_xpos [c], s_ypos [c], 0.0);
+               if (s_menus [i].active == 'y')   glColor4f (0.0, 0.0, 0.0, 1.0);
+               else                             glColor4f (0.3, 0.3, 0.3, 1.0);
+               sprintf (t, "%c", s_menus [i].top);
+               switch (s_align [c]) {
+               case 1 :
+                  yFONT_print  (a_font, a_point, s_align [c], t);
+                  glTranslatef ( 15.0, 0.0, 0.0);
+                  yFONT_print  (a_font, a_point, s_align [c], s_menus [i].name);
+                  break;
+               case 2 :
+                  yFONT_print  (a_font, a_point, s_align [c], s_menus [i].name);
+                  glTranslatef ( 0.0, s_abbr [c], 0.0);
+                  yFONT_print  (a_font, a_point, s_align [c], t);
+                  break;
+               case 3 :
+                  yFONT_print  (a_font, a_point, s_align [c], t);
+                  glTranslatef (-15.0, 0.0, 0.0);
+                  yFONT_print  (a_font, a_point, s_align [c], s_menus [i].name);
+                  break;
+               }
+            } glPopMatrix();
+            i = s_dmenu [i].next;
+            ++c;
+            DEBUG_CMDS   yLOG_value   ("next"      , i);
+         }
+         /*> yvikeys_menu__round (a_font);                                            <*/
+      } glPopMatrix();
+   } glPopMatrix();
+   DEBUG_CMDS   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char
+yvikeys__menu_subs      (int a_font, int a_point, int a_last)
+{
+   int         i           =    0;
+   int         c           =    0;
+   int         a           =    0;
+   int         t           [LEN_LABEL];
+   int         x_group     =    0;
+   int         x_entry     =    0;
+   /*---(header)-------------------------*/
+   DEBUG_CMDS   yLOG_enter   (__FUNCTION__);
+   /*---(draw)---------------------------*/
+   if (a_last < 0) {
+      DEBUG_CMDS   yLOG_exit    (__FUNCTION__);
+      return -1;
+   }
+   i = s_dmenu [a_last].start;
+   a = s_dmenu [a_last].count;
+   if (a / 12.0 < 2.0) a = a / 2.0 + 1;
+   c = 0;
+   glPushMatrix(); {
+      while (i >= 0) {
+         glPushMatrix(); {
+            glTranslatef( 150.0, -105.0, 120.0);
+            switch (x_group) {
+            case 0 : glTranslatef ( -75.0, -12.0 * x_entry,   0.0);  break;
+            case 1 : glTranslatef (  15.0, -12.0 * x_entry,   0.0);  break;
+            }
+            if (s_dmenu [i].active == 'y')   glColor4f (0.0, 0.0, 0.0, 1.0);
+            else                             glColor4f (0.3, 0.3, 0.3, 1.0);
+            sprintf (t, "%c", s_menus [i].mid);
+            yFONT_print (a_font, a_point, YF_BASLEF, t);
+            glTranslatef (  15.0, 0.0, 0.0);
+            yFONT_print (a_font, a_point, YF_BASLEF, s_menus [i].name);
+            glTranslatef ( -15.0, 0.0, 0.0);
+            i = s_dmenu [i].next;
+            ++c;
+            ++x_entry;
+            if (c != 0 && c % a == 0) {
+               ++x_group;
+               x_entry = 0;
+            }
+         } glPopMatrix();
+      }
+   } glPopMatrix();
+   /*---(complete)-----------------------*/
+   DEBUG_CMDS   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char
+yvikeys__menu_opts      (int a_font, int a_point, int a_last)
+{
+   int         i           =    0;
+   int         j           =    0;
+   int         c           =    0;
+   int         a           =    0;
+   int         t           [LEN_LABEL];
+   int         x_group     =    0;
+   int         x_entry     =    0;
+   a = s_dmenu [j].count;
+   /*---(header)-------------------------*/
+   DEBUG_CMDS   yLOG_enter   (__FUNCTION__);
+   /*---(dots)---------------------------*/
+   if (a_last < 0) {
+      DEBUG_CMDS   yLOG_exit    (__FUNCTION__);
+      return -1;
+   }
+   c = 0;
+   glPushMatrix(); {
+      for (x_group = 0; x_group < 4; ++x_group) {
+         for (x_entry = 0; x_entry < 6; ++x_entry) {
+            glPushMatrix(); {
+               glTranslatef( 150.0, -105.0, 120.0);
+               switch (x_group) {
+               case 0 : glTranslatef ( -15.0 - (x_entry * 10.0), -12.0 * (5 - x_entry),   0.0);  break;
+               case 1 : glTranslatef (  15.0 + (x_entry * 10.0), -12.0 * (5 - x_entry),   0.0);  break;
+               case 2 : glTranslatef ( -15.0 - (x_entry * 10.0), -12.0 * (7 + x_entry),   0.0);  break;
+               case 3 : glTranslatef (  15.0 + (x_entry * 10.0), -12.0 * (7 + x_entry),   0.0);  break;
+               }
+               glColor4f (0.0, 0.0, 0.0, 1.0);
+               yFONT_print (a_font, a_point, YF_BASCEN, "+");
+            } glPopMatrix();
+         }
+      }
+   } glPopMatrix();
+   /*---(draw)---------------------------*/
+   x_group = x_entry = c = 0;
+   i = s_dmenu [a_last].start;
+   a = s_dmenu [a_last].count;
+   a = a / 4.0;
+   if (a * 4 < s_dmenu [a_last].count)  ++a;
+   glPushMatrix(); {
+      for (i = s_dmenu [a_last].start; i <= a_last + s_dmenu [a_last].count; ++i) {
+         glPushMatrix(); {
+            glTranslatef( 150.0, -105.0, 120.0);
+            switch (x_group) {
+            case 0 : glTranslatef (  30.0 + (x_entry * 10.0), -12.0 * (5 - x_entry),   0.0);  break;
+            case 1 : glTranslatef (  30.0 + (x_entry * 10.0), -12.0 * (7 + x_entry),   0.0);  break;
+            case 2 : glTranslatef ( -30.0 - (x_entry * 10.0), -12.0 * (7 + x_entry),   0.0);  break;
+            case 3 : glTranslatef ( -30.0 - (x_entry * 10.0), -12.0 * (5 - x_entry),   0.0);  break;
+            }
+            if (s_dmenu [i].active == 'y')   glColor4f (0.0, 0.0, 0.0, 1.0);
+            else                             glColor4f (0.3, 0.3, 0.3, 1.0);
+            sprintf (t, "%c", s_menus [i].bot);
+            if (x_group == 2 || x_group == 3) {
+               yFONT_print (a_font, a_point, YF_BASRIG, t);
+               glTranslatef ( -15.0, 0.0, 0.0);
+               yFONT_print (a_font, a_point, YF_BASRIG, s_menus [i].name);
+               glTranslatef (  15.0, 0.0, 0.0);
+            } else {
+               yFONT_print (a_font, a_point, YF_BASLEF, t);
+               glTranslatef (  15.0, 0.0, 0.0);
+               yFONT_print (a_font, a_point, YF_BASLEF, s_menus [i].name);
+               glTranslatef ( -15.0, 0.0, 0.0);
+            }
+            ++c;
+            ++x_entry;
+            if (c != 0 && c % a == 0) {
+               ++x_group;
+               x_entry = 0;
+            }
+         } glPopMatrix();
+      }
+   } glPopMatrix();
+   /*---(complete)-----------------------*/
+   return 0;
+}
+
+char
+yVIKEYS_menu            (char *a_prog, char *a_ver, int a_font, char *a_keys)
+{
+   int         rce         =  -10;
+   int         n           =   -1;
+   int         x_point     =    8;
+   int         x_len       =    0;
+   char        x_level     =    0;
+   int         x_last      =    0;
+   DEBUG_CMDS   yLOG_enter   (__FUNCTION__);
+   DEBUG_CMDS   yLOG_point   ("a_keys"    , a_keys);
+   if (a_keys != NULL) {
+      x_len = strlen (a_keys);
+      DEBUG_CMDS   yLOG_info    ("a_keys"    , a_keys);
+   }
+   DEBUG_CMDS   yLOG_value   ("x_len"     , x_len);
+   n = yvikeys__menu_find (a_keys, &x_level, &x_last);
+   DEBUG_CMDS   yLOG_value   ("n"         , n);
+   DEBUG_CMDS   yLOG_value   ("x_level"   , x_level);
+   DEBUG_CMDS   yLOG_value   ("x_last"    , x_last);
+   /*---(draw back)----------------------*/
+   yvikeys__menu_back (a_prog, a_ver, a_font, x_point, x_len - 1, x_level, x_last);
+   /*---(main menu)----------------------*/
+   switch (x_level) {
+   case 0 :  yvikeys__menu_main (a_font, x_point);          break;
+   case 1 :  yvikeys__menu_subs (a_font, x_point, x_last);  break;
+   case 2 :  yvikeys__menu_opts (a_font, x_point, x_last);  break;
+   }
+   /*---(complete)-----------------------*/
+   DEBUG_CMDS   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+
+
+/*====================------------------------------------====================*/
 /*===----                         unit testing                         ----===*/
 /*====================------------------------------------====================*/
 static void  o___UNIT_TEST_______o () { return; }
@@ -1581,7 +2424,7 @@ CMDS__unit              (char *a_question, char a_index)
       snprintf (yVIKEYS__unit_answer, LEN_FULL, "CMDS menu count  : %d", s_nmenu);
    }
    else if (strcmp (a_question, "menu"           )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_FULL, "CMDS menu    (%2d): %c %-12.12s %d", a_index, s_menus [a_index].abbr, s_menus [a_index].name, s_menus [a_index].count);
+      /*> snprintf (yVIKEYS__unit_answer, LEN_FULL, "CMDS menu    (%2d): %c %-12.12s %d", a_index, s_menus [a_index].abbr, s_menus [a_index].name, s_menus [a_index].count);   <*/
    }
    else if (strcmp (a_question, "term_count"     )   == 0) {
       snprintf (yVIKEYS__unit_answer, LEN_FULL, "CMDS term count  : %d", s_nterm);
@@ -1662,6 +2505,27 @@ SRCH__unit              (char *a_question, char a_index)
    return yVIKEYS__unit_answer;
 }
 
+char*        /*-> tbd --------------------------------[ leaf   [gs.520.202.40]*/ /*-[01.0000.00#.#]-*/ /*-[--.---.---.--]-*/
+MENU__unit              (char *a_question, char *a_path)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   int         i           =    0;
+   char        x_level     =    0;
+   int         x_last      =    0;
+   /*---(preprare)-----------------------*/
+   strlcpy  (yVIKEYS__unit_answer, "MENU unit        : question not understood", LEN_FULL);
+   /*---(questions)----------------------*/
+   i = yvikeys__menu_find (a_path, &x_level, &x_last);
+   if (i < 0 && x_last < 0) {
+      strlcpy  (yVIKEYS__unit_answer, "MENU unit        : menu item not found", LEN_FULL);
+   }
+   else if (strcmp (a_question, "entry"          )   == 0) {
+      if (i >= 0)  snprintf (yVIKEYS__unit_answer, LEN_FULL, "MENU entry       : %1d %3d %-10.10s  %c  %c  %s", x_level, i     , s_menus [i].name, s_menus [i].active, s_menus [i].type, s_menus [i].keys);
+      else         snprintf (yVIKEYS__unit_answer, LEN_FULL, "MENU last        : %1d %3d %-10.10s  %c  %c  %s", x_level, x_last, s_menus [x_last].name, s_menus [x_last].active, s_menus [x_last].type, s_menus [x_last].keys);
+   }
+   /*---(complete)-----------------------*/
+   return yVIKEYS__unit_answer;
+}
 
 
 

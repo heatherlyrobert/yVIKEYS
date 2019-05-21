@@ -167,24 +167,34 @@ tMAPPED     g_zmap;
 #define      YVIKEYS_CURSES      'c'
 
 
+/*> File Edit View Insert fOrmat Buffers Dataset Tools Layers Select Modify Palette Analyze eXecute Config sHOw macRos   <*/
 
-#define      YVIKEYS_M_FILE    'F'
-#define      YVIKEYS_M_BUFFER  'B'
-#define      YVIKEYS_M_EDIT    'E'
-#define      YVIKEYS_M_SELECT  'S'
-#define      YVIKEYS_M_VIEW    'V'
-#define      YVIKEYS_M_INSERT  'I'
-#define      YVIKEYS_M_OBJECT  'O'
-#define      YVIKEYS_M_FORMAT  'f'
-#define      YVIKEYS_M_DRAW    'D'
-#define      YVIKEYS_M_PIXEL   'P'
-#define      YVIKEYS_M_LAYER   'L'
-#define      YVIKEYS_M_LAYOUT  'W'
-#define      YVIKEYS_M_TOOL    't'
-#define      YVIKEYS_M_DATA    'd'
-#define      YVIKEYS_M_AUDIT   'a'
-#define      YVIKEYS_M_CONFIG  'c'
-#define      YVIKEYS_M_NONE    ' '
+/* abcdef_hi__lm_op_rstuv_x__ */ 
+
+/*---(primary menus)------------------*//* microsoft, google, gnu, apple */
+#define      YVIKEYS_M_FILE        'f'
+#define      YVIKEYS_M_EDIT        'e'
+#define      YVIKEYS_M_VIEW        'v'
+#define      YVIKEYS_M_INSERT      'i'
+#define      YVIKEYS_M_FORMAT      'o'
+/*---(extended menus)-----------------*//* microsoft, google, gnu, apple */
+#define      YVIKEYS_M_BUFFERS     'b'   /* replaces window */
+#define      YVIKEYS_M_DATASET     'd'   /* includes filters menu */
+#define      YVIKEYS_M_TOOLS       't'
+/*---(more advanced)------------------*/
+#define      YVIKEYS_M_LAYERS      'l'   /* gimp  */
+#define      YVIKEYS_M_SELECT      's'   /* gimp  */
+#define      YVIKEYS_M_MODIFY      'm'
+#define      YVIKEYS_M_PALETTE     'p'
+#define      YVIKEYS_M_ANALYZE     'a'
+#define      YVIKEYS_M_EXECUTE     'x'   /* build, test, and execute (use) */
+#define      YVIKEYS_M_CONFIG      'c'
+/*---(perhaps useful)-----------------*/
+#define      YVIKEYS_M_MACROS      'r'   /* keyboard macros and scripts      */
+#define      YVIKEYS_M_SHOW        'h'   /* slideshow, present, printing     */
+/*---(default)------------------------*/
+#define      YVIKEYS_M_NONE        ' '
+/*---(done)---------------------------*/
 
 
 extern char yVIKEYS_ver     [500];
@@ -235,6 +245,8 @@ char        yVIKEYS_layer_add       (char *a_name, void *a_drawer, char *a_desc)
 
 char        yVIKEYS_view_ribbon_clear (void);
 char        yVIKEYS_view_ribbon     (char *a_cat, char *a_name);
+
+char        yVIKEYS_menu            (char *a_prog, char *a_ver, int a_font, char *a_keys);
 
 
 char        yVIKEYS_jump            (int a_buf, int a_x, int a_y, int a_z);

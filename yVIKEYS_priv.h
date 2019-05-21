@@ -27,8 +27,8 @@
 
 #define     P_VERMAJOR  "1.X = working for everyday use, features still evolving but stable"
 #define     P_VERMINOR  "1.2 = cleaning out all existing unit test bugs"
-#define     P_VERNUM    "1.2e"
-#define     P_VERTXT    "cleaned up horz/vert movements and added better unit testing"
+#define     P_VERNUM    "1.2f"
+#define     P_VERTXT    "added external menu functionality (not to main loop) and basic testing"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -492,6 +492,7 @@ char        yvikeys_macro_reader    (void);
 char        CMDS_limits             (int *a_min, int *a_max);
 char        yvikeys_cmds__purge     (void);
 char        yvikeys_cmds_init       (void);
+char        yvikeys_menu_init       (void);
 /*> char        CMDS__load              (char *a_command);                            <*/
 char        CMDS__test              (char a_mode, char a_value);
 char*       CMDS__unit              (char *a_question, char a_index);
@@ -523,6 +524,8 @@ char        SRCH__unit_null         (void);
 char        SRCH__unit_searcher     (char *a_search);
 char        SRCH__unit_clearer      (char *a_label);
 char*       SRCH__unit              (char *a_question, char a_index);
+char*       MENU__unit              (char *a_question, char *a_path);
+int         yvikeys__menu_find      (char *a_keys, char *a_level, int *a_last);
 
 
 char        yvikeys_loop_init       (void);
