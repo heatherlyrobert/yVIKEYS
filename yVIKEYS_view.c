@@ -82,7 +82,7 @@ static tWIN   s_win;
 #define      OWN_HIDE         "ypso"
 #define      OWN_REANCHOR     "yp"
 
-#define      OWN_COMPLEX      "ms"
+#define      OWN_COMPLEX      "mso"
 #define      OWN_MODERATE     "msp"
 #define      OWN_SIMPLE       "po"
 
@@ -146,7 +146,7 @@ static tPARTS  s_parts [MAX_PARTS] = {
    { YVIKEYS_YAXIS   , "yaxis"       , OWN_PARTLY , '-',   4, 3, 0, 0, '-', '/', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_TOPLEF, 0              , 0, 0, 0, 0, 0, 0,  "show the y-axis labels left of the main screen"     },
    { YVIKEYS_OVERLAY , "overlay"     , OWN_OVERLAY, '-',   0, 0, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_MIDCEN, YCOLOR_CLEAR   , 0, 0, 0, 0, 0, 0,  "shown over the working screen"                      },
    { YVIKEYS_LAYERS  , "layers"      , OWN_OVERLAY, '-',   0, 0, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_MIDCEN, YCOLOR_CLEAR   , 0, 0, 0, 0, 0, 0,  "displays all selected laysers over working"         },
-   { YVIKEYS_FLOAT   , "float"       , OWN_OVERLAY, '-',   0, 0, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_MIDCEN, YCOLOR_CLEAR   , 0, 0, 0, 0, 0, 0,  "shown over the working screen"                      },
+   { YVIKEYS_FLOAT   , "float"       , OWN_OVERLAY, '-',   0, 0, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_CUSTOM, YVIKEYS_BOTLEF, YCOLOR_CLEAR   , 0, 0, 0, 0, 0, 0,  "shown over the working screen"                      },
    { YVIKEYS_HISTORY , "history"     , OWN_OVERLAY, '-',   0, 0, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_MIDCEN, YCOLOR_CLEAR   , 0, 0, 0, 0, 0, 0,  "list of command/search history"                     },
    { YVIKEYS_WINDOW  , "window"      , OWN_DATA   , '-',   0, 0, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , 0             , 0              , 0, 0, 0, 0, 0, 0,  "full screen width and height"                       },
    { YVIKEYS_MAIN    , "main"        , OWN_MAIN   , 'y',   4, 4, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_MIDCEN, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "main working area in the middle"                    },
@@ -518,6 +518,7 @@ VIEW__widths_left        (void)
    int         a           =    0;          /* alternate part                 */
    int         w           =    0;          /* widest at level                */
    int         x_cum       =    0;          /* cumulative width               */
+   int         x_opengl    =    0;          /* cumulative coords              */
    char        x_skip      =  '-';
    /*---(header)-------------------------*/
    DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
@@ -549,13 +550,17 @@ VIEW__widths_left        (void)
    }
    /*---(floater)------------------------*/
    n = VIEW__abbr (YVIKEYS_MAIN  );
-   x_cum = s_parts [n].left;
+   x_cum    = s_parts [n].left;
+   x_opengl = s_parts [n].xmin;
+   DEBUG_GRAF   yLOG_complex ("left"      , "%c %-12.12s %3d left (cum %3d)", s_parts [n].abbr, s_parts [n].name, s_parts [n].left, x_cum);
    n = VIEW__abbr (YVIKEYS_FLOAT );
-   if (myVIKEYS.env == YVIKEYS_OPENGL )  s_parts [n].left = x_cum + 20;
-   if (myVIKEYS.env == YVIKEYS_CURSES )  s_parts [n].left = x_cum +  2;
+   if (myVIKEYS.env == YVIKEYS_OPENGL )  s_parts [n].left = x_opengl + 20;
+   if (myVIKEYS.env == YVIKEYS_CURSES )  s_parts [n].left = x_cum    +  2;
+   DEBUG_GRAF   yLOG_complex ("left"      , "%c %-12.12s %3d left (cum %3d)", s_parts [n].abbr, s_parts [n].name, s_parts [n].left, x_cum);
    n = VIEW__abbr (YVIKEYS_HISTORY );
-   if (myVIKEYS.env == YVIKEYS_OPENGL )  s_parts [n].left = x_cum + 30;
-   if (myVIKEYS.env == YVIKEYS_CURSES )  s_parts [n].left = x_cum +  3;
+   if (myVIKEYS.env == YVIKEYS_OPENGL )  s_parts [n].left = x_opengl + 30;
+   if (myVIKEYS.env == YVIKEYS_CURSES )  s_parts [n].left = x_cum    +  3;
+   DEBUG_GRAF   yLOG_complex ("left"      , "%c %-12.12s %3d left (cum %3d)", s_parts [n].abbr, s_parts [n].name, s_parts [n].left, x_cum);
    /*---(complete)-----------------------*/
    DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -670,11 +675,14 @@ VIEW__heights_tall       (cint a_tall)
    /*---(floater)------------------------*/
    n = VIEW__abbr (YVIKEYS_MAIN  );
    x_cum = s_parts [n].tall;
+   DEBUG_GRAF   yLOG_complex ("both"      , "%c %-12.12s %3d tall", s_parts [n].abbr, s_parts [n].name, s_parts [n].tall);
    n = VIEW__abbr (YVIKEYS_FLOAT );
    s_parts [n].tall = s_parts [n].def_tall;
+   DEBUG_GRAF   yLOG_complex ("both"      , "%c %-12.12s %3d tall", s_parts [n].abbr, s_parts [n].name, s_parts [n].tall);
    n = VIEW__abbr (YVIKEYS_HISTORY );
    if (myVIKEYS.env == YVIKEYS_OPENGL )  s_parts [n].tall = (int) ((x_cum - 60) / 15) * 15;
    if (myVIKEYS.env == YVIKEYS_CURSES )  s_parts [n].tall = x_cum -  4;
+   DEBUG_GRAF   yLOG_complex ("both"      , "%c %-12.12s %3d tall", s_parts [n].abbr, s_parts [n].name, s_parts [n].tall);
    /*---(complete)-----------------------*/
    DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -689,6 +697,7 @@ VIEW__heights_bott       (void)
    int         a           =    0;          /* alternate part                 */
    int         h           =    0;          /* widest at level                */
    int         x_cum       =    0;          /* cumulative width               */
+   int         x_opengl    =    0;          /* cumulative position            */
    char        x_skip      =  '-';
    /*---(header)-------------------------*/
    DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
@@ -721,13 +730,17 @@ VIEW__heights_bott       (void)
    }
    /*---(floater)------------------------*/
    n = VIEW__abbr (YVIKEYS_MAIN  );
-   x_cum = s_parts [n].bott;
+   x_cum    = s_parts [n].bott;
+   x_opengl = s_parts [n].xmin;
+   DEBUG_GRAF   yLOG_complex ("bott"      , "%c %-12.12s %3d bott (cum %3d)", s_parts [n].abbr, s_parts [n].name, s_parts [n].bott, x_cum);
    n = VIEW__abbr (YVIKEYS_FLOAT );
-   if (myVIKEYS.env == YVIKEYS_OPENGL )  s_parts [n].bott = x_cum + 60;
-   if (myVIKEYS.env == YVIKEYS_CURSES )  s_parts [n].bott = x_cum +  6;
+   if (myVIKEYS.env == YVIKEYS_OPENGL )  s_parts [n].bott = x_opengl + 75;
+   if (myVIKEYS.env == YVIKEYS_CURSES )  s_parts [n].bott = x_cum    +  6;
+   DEBUG_GRAF   yLOG_complex ("bott"      , "%c %-12.12s %3d bott (cum %3d)", s_parts [n].abbr, s_parts [n].name, s_parts [n].bott, x_cum);
    n = VIEW__abbr (YVIKEYS_HISTORY );
-   if (myVIKEYS.env == YVIKEYS_OPENGL )  s_parts [n].bott = x_cum + 30;
-   if (myVIKEYS.env == YVIKEYS_CURSES )  s_parts [n].bott = x_cum +  2;
+   if (myVIKEYS.env == YVIKEYS_OPENGL )  s_parts [n].bott = x_opengl + 30;
+   if (myVIKEYS.env == YVIKEYS_CURSES )  s_parts [n].bott = x_cum    +  2;
+   DEBUG_GRAF   yLOG_complex ("bott"      , "%c %-12.12s %3d bott (cum %3d)", s_parts [n].abbr, s_parts [n].name, s_parts [n].bott, x_cum);
    /*---(complete)-----------------------*/
    DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -1522,11 +1535,11 @@ yVIKEYS_view_setup         (cchar a_part, cchar a_type, cchar a_anchor, cint a_x
    else                                s_parts [n].type = YVIKEYS_FLAT;
    DEBUG_PROG   yLOG_char    ("type"      , s_parts [n].type);
    /*---(anchor)-------------------------*/
-   DEBUG_PROG   yLOG_char    ("a_anchor"  , a_anchor);
+   DEBUG_PROG   yLOG_value   ("a_anchor"  , a_anchor);
    if      (a_anchor <  0  )  s_parts [n].anchor = YVIKEYS_MIDCEN;
    else if (a_anchor >= 10 )  s_parts [n].anchor = YVIKEYS_MIDCEN;
    else                       s_parts [n].anchor = a_anchor;
-   DEBUG_PROG   yLOG_char    ("anchor"    , s_parts [n].anchor);
+   DEBUG_PROG   yLOG_value   ("anchor"    , s_parts [n].anchor);
    /*---(save x-coords)------------------*/
    DEBUG_PROG   yLOG_value   ("a_xmin"    , a_xmin);
    DEBUG_PROG   yLOG_value   ("a_xlen"    , a_xlen);

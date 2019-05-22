@@ -9,27 +9,35 @@ yVIKEYS is a standardized, fullsome, vi/vim-like, purely keyboard-centric,
 modal interface and application framework to provide wicked, powerful, and
 high-end features to ALL my applications.
 
-.SH PHASE I: minimal setup
-only six lines need to be added to bring up a simple environment and functioning
-event loop.  after compiling, the program will run, show a status and command
-line, and accept basic vikeys commands, like ":qa".
+.SH PHASE I: start minimal (baby steps)
+the goal is to compile without errors, display the screen correctly, and accept
+":qa¦" to exit.
 
-.B getting access to the library
-   1) put "#include <yVIKEYS.h>" in the private header file
-   2) include "-lyVIKEYS_debug" on LIB_MINE line in the Makefile
+.B Makefile
+   LIB_MINE = ... -lyVIKEYS_debug ...
 
-.B setup and teardown
-   3) call "yVIKEYS_init" from the PROG_init function (early)
-   4) call "yVIKEYS_wrap" from the PROG_end function (late)
+.B header
+   #include <yVIKEYS.h>
 
-.B main loop
-   5) replace loop with "rc = yVIKEYS_main  (¸keys¸, ¸every¸, NULL)"
+.B PROG_init, info line is for debugging purposes
+   DEBUG_PROG   yLOG_info     ("yVIKEYS" , yVIKEYS_version ());
+   yVIKEYS_init ();
 
-.B tiniest configuration to start
-   6) call "yVIKEYS_run_curses (¸<title>¸, VER_NUM)" in PROG_final
-   .) for opengl call "yVIKEYS_run_opengl (¸<title>¸, VER_NUM, ...)"
+.B PROG_end
+   yVIKEYS_wrap ();
 
-do this part first to test the environment is stable.
+.B PROG_final
+   yVIKEYS_view_config (<title>, <ver>, <environ>, <wide>, ...);
+   yVIKEYS_view_setup  (YVIKEYS_MAIN, <mode>, <anchor>, <x>, ...);
+
+.B DRAW_show, to aid in early debugging (trust me)
+   yVIKEYS_view_size     (YVIKEYS_MAIN, &x_left, &x_wide, ...);
+   DEBUG_GRAF   yLOG_complex  ("size"      , "%3dl, %3dw, ...);
+   yVIKEYS_view_bounds   (YVIKEYS_MAIN, &x_xmin, &x_xmax, ...);
+   DEBUG_GRAF   yLOG_complex  ("bounds"    , "%3dx to %3dx...);
+
+.B instead of a loop in main
+   rc = yVIKEYS_main  (<speed>, <update>, NULL);
 
 .SH PHASE II: basic main window configuration and drawing
 only a single configuration call and a new function are required to draw the

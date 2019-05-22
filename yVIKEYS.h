@@ -151,6 +151,7 @@ tMAPPED     g_zmap;
 
 #define      YVIKEYS_AUTO        'a'
 #define      YVIKEYS_CUSTOM      'c'
+
 #define      YVIKEYS_TOPLEF       1
 #define      YVIKEYS_TOPCEN       2
 #define      YVIKEYS_TOPRIG       3
@@ -246,7 +247,7 @@ char        yVIKEYS_layer_add       (char *a_name, void *a_drawer, char *a_desc)
 char        yVIKEYS_view_ribbon_clear (void);
 char        yVIKEYS_view_ribbon     (char *a_cat, char *a_name);
 
-char        yVIKEYS_menu            (char *a_prog, char *a_ver, int a_font, char *a_keys);
+char        yVIKEYS_menu            (char *a_prog, char *a_ver, int a_font, char *a_path, char *a_keys);
 
 
 char        yVIKEYS_jump            (int a_buf, int a_x, int a_y, int a_z);

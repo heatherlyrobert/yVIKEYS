@@ -152,7 +152,7 @@ static const tMENU  s_menus [MAX_MENU] = {
    { '·', '·', '·', "---------"        , '-', '-', "-------------"     , "-------------------------------------------------"},
    { 'f', 'c', '·', "close"            , 'y', '·', "-"                 , "close current workspace"                          },
    { 'f', 'q', '·', "quit"             , 'y', '·', ":qa"               , "quit the program"                                 },
-   { 'f', 'Q', '·', "wqa"              , 'y', '·', ":wqa"              , "write all workspaces and quit program"            },
+   { 'f', 'Q', '·', "quiter"           , 'y', '·', "Q"                 , "write all workspaces and quit program"            },
    /*---(edit menu)----------------------------------------------*/
    { 'e', '·', '·', "edit"             , 'y', '>', "-"                 , "-"                                                },
    { 'e', 'u', '·', "undo"             , 'y', '·', "u"                 , "undo the very last action"                        },
@@ -243,7 +243,17 @@ static const tMENU  s_menus [MAX_MENU] = {
    { 'e', 'o', 'r', "reverse"          , 'y', '·', "-"                 , "-"                                                },
    { 'e', 'l', '·', "layer"            , 'y', '=', "-"                 , "-"                                                },
    /*---(view menu)----------------------------------------------*/
-   { 'v', '·', '·', "view"             , 'y', '>', "-"                 , "-"                                                },
+   { 'v', '·', '·', "view"             , 'y', '>', "-"                 , "display and layout of application elements"       },
+   { 'v', 'l', '·', "layout"           , 'y', '>', "-"                 , "common combinations of application elements"      },
+   { 'v', 'l', 'n', "minimal"          , 'y', '·', "-"                 , "bare bones layout"                                },
+   { 'v', 'l', 'x', "maximum"          , 'y', '·', "-"                 , "kitchen sink layout"                              },
+   { 'v', 'p', '·', "place"            , 'y', '>', "-"                 , "-"                                                },
+   { 'v', 'l', 'c', "rcol"             , 'y', '·', "C"                 , "right normal column (12)"                         },
+   { 'v', 'l', 'C', "rlong"            , 'y', '·', "L"                 , "right long column (25)"                           },
+   { 'v', 'l', 'l', "lcol"             , 'y', '·', "1"                 , "left normal column (12)"                          },
+   { 'v', 'l', 'L', "llong"            , 'y', '·', "2"                 , "left long column (25)"                            },
+   { 'v', 'l', 't', "ticker"           , 'y', '·', "B"                 , "bottom ticke"                                     },
+   { 'v', 'l', 'T', "base"             , 'y', '·', "T"                 , "bottom ticker (with spaces)"                      },
    { 'v', '-', '·', "color"            , 'y', '>', "-"                 , "-"                                                },
    { 'v', '-', '·', "title"            , 'y', '>', "-"                 , "-"                                                },
    { 'v', '-', '·', "version"          , 'y', '>', "-"                 , "-"                                                },
@@ -2027,19 +2037,19 @@ yvikeys_menu_init       (void)
 }
 
 int
-yvikeys__menu_find      (char *a_keys, char *a_level, int *a_last)
+yvikeys__menu_find      (char *a_path, char *a_level, int *a_last)
 {
    char        rce         =  -10;
    int         i           =    0;
    char        x_ch        =  '-';
    if (a_level != NULL)  *a_level =  0;
    if (a_last  != NULL)  *a_last  = -1;
-   --rce;  if (a_keys  == NULL)        return rce;
+   --rce;  if (a_path  == NULL)        return rce;
    --rce;  if (a_level == NULL)        return rce;
    --rce;  if (a_last  == NULL)        return rce;
-   --rce;  if (a_keys [0] != '\\')     return rce;
+   --rce;  if (a_path [0] != '\\')     return rce;
    /*---(level one)----------------------*/
-   x_ch = a_keys [1];
+   x_ch = a_path [1];
    --rce;  if (x_ch == '\0')  return rce;
    while (i >= 0) {
       if (s_menus [i].top == x_ch)   break;
@@ -2049,7 +2059,7 @@ yvikeys__menu_find      (char *a_keys, char *a_level, int *a_last)
    *a_level = 1;
    *a_last  = i;
    /*---(level two)----------------------*/
-   x_ch = a_keys [2];
+   x_ch = a_path [2];
    if (x_ch == '\0')  return i;
    i = s_dmenu [i].start;
    while (i >= 0) {
@@ -2060,7 +2070,7 @@ yvikeys__menu_find      (char *a_keys, char *a_level, int *a_last)
    *a_level = 2;
    *a_last  = i;
    /*---(level three)--------------------*/
-   x_ch = a_keys [3];
+   x_ch = a_path [3];
    if (x_ch == '\0')  return i;
    i = s_dmenu [i].start;
    while (i >= 0) {
@@ -2071,18 +2081,13 @@ yvikeys__menu_find      (char *a_keys, char *a_level, int *a_last)
    *a_level = 3;
    *a_last  = i;
    /*---(too long)-----------------------*/
-   --rce;  if (strlen (a_keys) > 4)    return rce;
+   --rce;  if (strlen (a_path) > 4)    return rce;
    /*---(complete)-----------------------*/
    return i;
 }
 
-char
-yvikyes__menu_level     (char *a_keys)
-{
-   int         i           =    0;
-   for (i = 2; i <= 4; ++i) {
-   }
-}
+char yvikeys__menu_exec      (char *a_keys) { return yVIKEYS_main_string (a_keys); }
+
 
 static int     s_xpos   [LEN_LABEL] = {  15,  40,  50,  55,  55,  50,  40,  15,   0, -15, -40, -50, -55, -55, -50, -40, -15,   0 };
 static int     s_ypos   [LEN_LABEL] = { -15, -30, -45, -60, -75, -90,-105,-120,-135,-120,-105, -90, -75, -60, -45, -30, -15,   0 };
@@ -2140,9 +2145,9 @@ yvikeys__menu_back      (char *a_prog, char *a_ver, int a_font, int a_point, int
          glTranslatef(-130.0,    5.0,   0.0);
          break;
       }
-      yFONT_print (a_font, a_point + 2, YF_BASLEF, a_prog);
+      if (a_prog != NULL)  yFONT_print (a_font, a_point + 2, YF_BASLEF, a_prog);
       glTranslatef( 260.0,    0.0,   0.0);
-      yFONT_print (a_font, a_point + 2, YF_BASRIG, a_ver);
+      if (a_ver  != NULL)  yFONT_print (a_font, a_point + 2, YF_BASRIG, a_ver);
       glTranslatef(-130.0, -180.0,   0.0);
       glColor4f (0.3, 0.3, 0.3, 1.0);
       yFONT_print  (a_font, a_point, YF_BASCEN, "yvikeys menus -- wider, flatter, and universal");
@@ -2351,25 +2356,46 @@ yvikeys__menu_opts      (int a_font, int a_point, int a_last)
 }
 
 char
-yVIKEYS_menu            (char *a_prog, char *a_ver, int a_font, char *a_keys)
+yVIKEYS_menu            (char *a_prog, char *a_ver, int a_font, char *a_path, char *a_keys)
 {
-   int         rce         =  -10;
+   char        rce         =  -10;
+   char        rc          =    0;
    int         n           =   -1;
    int         x_point     =    8;
    int         x_len       =    0;
    char        x_level     =    0;
    int         x_last      =    0;
+   /*---(header)-------------------------*/
    DEBUG_CMDS   yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
    DEBUG_CMDS   yLOG_point   ("a_keys"    , a_keys);
-   if (a_keys != NULL) {
-      x_len = strlen (a_keys);
-      DEBUG_CMDS   yLOG_info    ("a_keys"    , a_keys);
+   --rce;  if (a_keys == NULL) {
+      DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_CMDS   yLOG_point   ("a_path"    , a_path);
+   if (a_path != NULL) {
+      x_len = strlen (a_path);
+      DEBUG_CMDS   yLOG_info    ("a_path"    , a_path);
    }
    DEBUG_CMDS   yLOG_value   ("x_len"     , x_len);
-   n = yvikeys__menu_find (a_keys, &x_level, &x_last);
+   /*---(find path)----------------------*/
+   n = yvikeys__menu_find (a_path, &x_level, &x_last);
    DEBUG_CMDS   yLOG_value   ("n"         , n);
    DEBUG_CMDS   yLOG_value   ("x_level"   , x_level);
    DEBUG_CMDS   yLOG_value   ("x_last"    , x_last);
+   /*---(check exec)---------------------*/
+   DEBUG_CMDS   yLOG_char    ("type"      , s_menus [n].type);
+   if (n >= 0 && s_menus [n].type == '·') {
+      DEBUG_CMDS   yLOG_info    ("keys"      , s_menus [n].keys);
+      if (strlen (s_menus [n].keys) == 1 && s_menus [n].keys [0] == '-') {
+         DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, -1);
+         return -1;
+      }
+      strlcpy (a_keys, s_menus [n].keys, LEN_LABEL);
+      DEBUG_CMDS   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
    /*---(draw back)----------------------*/
    yvikeys__menu_back (a_prog, a_ver, a_font, x_point, x_len - 1, x_level, x_last);
    /*---(main menu)----------------------*/

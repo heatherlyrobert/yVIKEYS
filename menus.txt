@@ -27,9 +27,9 @@ f m T     tab+        y v +T                pure values, tab del, with hints
 f m N     native      y v +N                native format, field del, with hints
 · · ·   ---------     - - -------------     -------------------------------------------------
 f n ·   rename        y · :file·            change the name of the current workspace
-f r ·   revert        · · -                 return to the original workspace state
-f f ·   refresh       y · -                 reread the source file, replacing existing
-f i ·   info          · · -                 display key workspace statistics
+f r ·   revert        · ! -                 return to the original workspace state
+f f ·   refresh       y ! -                 reread the source file, replacing existing
+f i ·   info          · ! -                 display key workspace statistics
 f v ·   version       y > -                 workspace and file versioning
 f v c     ctrl        y · :control¦         turn on version control
 f v n     noctrl      y · :nocontrol¦       turn off version control
@@ -39,8 +39,8 @@ f v b     bump        y · :bump¦            bump sub value up by one
 f v t     vertxt      y · :vertxt·          enter text for most recent version
 f v m     manual      y · :version·         set version number manually
 · · ·   ---------     - - -------------     -------------------------------------------------
-f s ·   save          y · :w                write the current workspace
-f a ·   saveas        y = -                 write current workspace using temp name
+f s ·   save          y ! :w                write the current workspace
+f a ·   saveas        y ! -                 write current workspace using temp name
 f x ·   export        y > -                 export current selection to clipboard
 f x v     values      y v -v                final values
 f x V     values+     y v -V                final values, plus hints
@@ -57,8 +57,9 @@ f x R     result+     y v -R                calculated results, field del, plus 
 f x S     source      y v -S                full source, field del, plus hints
 f x N     native      y v -N                native format, field del, plus hints
 · · ·   ---------     - - -------------     -------------------------------------------------
-f c ·   close         y · -                 close current workspace
-f q ·   quit          y · :qa               quit the program
+f c ·   close         y ! -                 close current workspace
+f q ·   quit          y · :qa¦              quit the program
+f Q ·   quiter        y · Q                 quit the program
 ·
 ·
 ·
@@ -157,9 +158,15 @@ e l ·   layer         y = -                 -
 · · · +=+=+=========  ===handling=========  ===description===================================
 v · · view            y > -                 display and layout of application elements
 v l ·   layout        y > -                 common combinations of application elements
-v l n     minimal     y > -                 bare bones layout
-v l x     maximum     y > -                 kitchen sink layout
+v l n     minimal     y · -                 bare bones layout
+v l x     maximum     y · -                 kitchen sink layout
 v p ·   place         y > -                 -
+v l c     rcol        y · C                 right normal column (12)
+v l C     rlong       y · L                 right long column (25)
+v l l     lcol        y · 1                 left normal column (12)
+v l L     llong       y · 2                 left long column (25)
+v l t     ticker      y · B                 bottom ticke
+v l T     base        y · T                 bottom ticker (with spaces)
 v - ·   color         y > -                 -
 v - ·   title         y > -                 -
 v - ·   version       y > -                 -

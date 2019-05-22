@@ -822,7 +822,7 @@ SOURCE__color           (char a_display)
 }
 
 char
-SOURCE__opengl          (tEDIT *a_cur, int a_left, int a_wide, int a_bott, int a_tall, char a_edit)
+SOURCE__opengl          (tEDIT *a_cur, int a_lef, int a_rig, int a_bot, int a_top, char a_edit)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        t           [LEN_RECD];
@@ -845,13 +845,24 @@ SOURCE__opengl          (tEDIT *a_cur, int a_left, int a_wide, int a_bott, int a
       DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
       return 0;
    }
+   DEBUG_GRAF   yLOG_complex  ("bounds"    , "%3dl to %3dr, %3db to %3dt", a_lef, a_rig, a_bot, a_top);
    /*---(background)---------------------*/
+   glColor4f   (0.0, 0.0, 0.0, 1.0);   /* DEBUGGING ONLY */
    glPushMatrix    (); {
       glBegin         (GL_POLYGON); {
-         glVertex3f  (0     , a_tall, -50.0f);
-         glVertex3f  (a_wide, a_tall, -50.0f);
-         glVertex3f  (a_wide, 0     , -50.0f);
-         glVertex3f  (0     , 0     , -50.0f);
+         glVertex3f  (a_lef - 2, a_top + 2, 100.0f);
+         glVertex3f  (a_rig + 2, a_top + 2, 100.0f);
+         glVertex3f  (a_rig + 2, a_bot - 2, 100.0f);
+         glVertex3f  (a_lef - 2, a_bot - 2, 100.0f);
+      } glEnd   ();
+   } glPopMatrix   ();
+   SOURCE__color (YVIKEYS_OPENGL);
+   glPushMatrix    (); {
+      glBegin         (GL_POLYGON); {
+         glVertex3f  (a_lef, a_top, 100.0f);
+         glVertex3f  (a_rig, a_top, 100.0f);
+         glVertex3f  (a_rig, a_bot, 100.0f);
+         glVertex3f  (a_lef, a_bot, 100.0f);
       } glEnd   ();
    } glPopMatrix   ();
    /*---(selection)----------------------*/
@@ -868,10 +879,10 @@ SOURCE__opengl          (tEDIT *a_cur, int a_left, int a_wide, int a_bott, int a
       glColor4f   (0.8, 0.8, 0.8, 1.0);
       glPushMatrix    (); {
          glBegin         (GL_POLYGON); {
-            glVertex3f  (x_beg , a_tall, -40.0f);
-            glVertex3f  (x_end , a_tall, -40.0f);
-            glVertex3f  (x_end , 0     , -40.0f);
-            glVertex3f  (x_beg , 0     , -40.0f);
+            glVertex3f  (a_lef + x_beg, a_top, 110.0f);
+            glVertex3f  (a_lef + x_end, a_top, 110.0f);
+            glVertex3f  (a_lef + x_end, a_bot, 110.0f);
+            glVertex3f  (a_lef + x_beg, a_bot, 110.0f);
          } glEnd   ();
       } glPopMatrix   ();
    }
@@ -882,10 +893,10 @@ SOURCE__opengl          (tEDIT *a_cur, int a_left, int a_wide, int a_bott, int a
       glColor4f   (0.8, 0.8, 0.0, 1.0);
       glPushMatrix    (); {
          glBegin         (GL_POLYGON); {
-            glVertex3f  (x_beg , a_tall, -30.0f);
-            glVertex3f  (x_end , a_tall, -30.0f);
-            glVertex3f  (x_end , 0     , -30.0f);
-            glVertex3f  (x_beg , 0     , -30.0f);
+            glVertex3f  (a_lef + x_beg , a_top, 120.0f);
+            glVertex3f  (a_lef + x_end , a_top, 120.0f);
+            glVertex3f  (a_lef + x_end , a_bot, 120.0f);
+            glVertex3f  (a_lef + x_beg , a_bot, 120.0f);
          } glEnd   ();
       } glPopMatrix   ();
    }
@@ -904,8 +915,8 @@ SOURCE__opengl          (tEDIT *a_cur, int a_left, int a_wide, int a_bott, int a
    if (a_cur->npos == 0) sprintf (t, "   %c", G_CHAR_NULL);
    else                  sprintf (t, "%4d%c%-*.*s%c"  , a_cur->cpos, c1, a_cur->apos, a_cur->apos, a_cur->contents + a_cur->bpos, c2);
    glPushMatrix    (); {
-      glTranslatef ( 0.0f, 1.0f, 0.0f);
-      glColor4f   (0.0, 0.0, 0.0, 1.0);
+      glTranslatef (a_lef, a_bot + 3, 130.0f);
+      glColor4f   (1.0, 1.0, 1.0, 1.0);
       yFONT_print (myVIKEYS.font, myVIKEYS.point, YF_BOTLEF, t);
    } glPopMatrix   ();
    /*---(complete)-----------------------*/
@@ -976,10 +987,15 @@ SOURCE_display             (tEDIT *a_cur, char a_mode)
    int         x_tall      =    0;
    char        x_edit      =  ' ';
    char        x_on        =  '-';
+   int         x_xmin, x_xmax;
+   int         x_ymin, x_ymax;
    /*---(header)-------------------------*/
    DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
    /*---(get sizes)----------------------*/
    x_on = yVIKEYS_view_size     (a_mode, &x_left, &x_wide, &x_bott, &x_tall, NULL);
+   DEBUG_GRAF   yLOG_complex  ("size"      , "%3dl, %3dw, %3db, %3dt", x_left, x_wide, x_bott, x_tall);
+   yVIKEYS_view_bounds   (a_mode, &x_xmin, &x_xmax, &x_ymin, &x_ymax);
+   DEBUG_GRAF   yLOG_complex  ("bounds"    , "%3dx to %3dx, %3dy to %3dy", x_xmin, x_xmax, x_ymin, x_ymax);
    if (myVIKEYS.env == YVIKEYS_CURSES)  a_cur->wide = x_wide;
    else                                 a_cur->wide = x_wide / myVIKEYS.font_scale;
    a_cur->apos = a_cur->wide - 6;
@@ -1000,7 +1016,7 @@ SOURCE_display             (tEDIT *a_cur, char a_mode)
    if (myVIKEYS.env == YVIKEYS_CURSES) {
       SOURCE__curses (a_cur, x_left, x_bott, x_edit);
    } else {
-      SOURCE__opengl (a_cur, x_left, x_wide, x_bott, x_tall, x_edit);
+      SOURCE__opengl (a_cur, x_xmin, x_xmax, x_ymin, x_ymax, x_edit);
    }
    /*---(complete)-----------------------*/
    DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
