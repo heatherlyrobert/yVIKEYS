@@ -95,7 +95,7 @@ static tMODE_INFO  s_modes [MAX_MODES] = {
    { MODE_GOD     , 'M', 'y', "GOD", "god"       , 4, ""  , "5---- p i ----- n ----- r 0--------- d o", "----- - - ----- - ----- - ---------- - -", "god-mode allowing 3D omnicient viewing"             , "linear=LnhHJjkKIioO  rotate=PpaAYytTRrwW"                                                ,    0 },
    { MODE_OMNI    , 's', 'y', "OMN", "omni"      , 4, ""  , "5---- p i ----- n ----- r 0--------- d o", "----- - - ----- - ----- - ---------- - -", "omnipotent 3D manipulation mode"                    , "linear=LnhHJjkKIioO  rotate=PpaAYytTRrwW"                                                ,    0 },
    { SMOD_BUFFER  , 's', 'y', "buf", "buffer"    , 4, ""  , "5---- p i ----- n 1---- r M--------- d o", "----- - - ----- - ----- - ---------- - -", "moving and selecting between buffers and windows"   , "select=0...9  modes={ret}(esc}"                                                          ,    0 },
-   { SMOD_MENUS   , 's', 'y', "mnu", "menus"     , 4, ""  , "5---- p i ----- n ----- r 0--------- d o", "----- - - ----- - ----- - ---------- - -", "menu system"                                        , ""                                                                                        ,    0 },
+   { SMOD_MENUS   , 's', 'y', "mnu", "menus"     , 4, ""  , "5---- p i ----- n ----- r 0--------- d o", "----- - - ----- - ----- - ---------- - -", "interactive menu system for accessing commands"     , ""                                                                                        ,    0 },
    { SMOD_HINT    , 's', 'y', "hnt", "hint"      , 4, ""  , "5---- p i ----- n ----- r 0M-------- d o", "----- - - ----- - ----- - ---------- - -", "provides automatic and manual labeling hints"       , ""                                                                                        ,    0 },
    { UMOD_REPEAT  , 'u', 'y', "rep", "repeat"    , 4, ""  , "5---- p i ----- n ----- r 0--------- d o", "----- - - ----- - ----- - ---------- - -", "accumulate multiplier"                              , "range 1-99"                                                                              ,    0 },
    /*---(time)------------------------------------------*//* prep--- - needs-- conf--- deps-------- -    prep--- - needs-- conf--- deps-------- -*/
@@ -783,6 +783,12 @@ MODE_exit          (void)
 
 char
 MODE_curr          (void)
+{
+   return s_mode_curr;
+}
+
+char
+yVIKEYS_mode       (void)
 {
    return s_mode_curr;
 }

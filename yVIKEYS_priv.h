@@ -27,8 +27,8 @@
 
 #define     P_VERMAJOR  "1.X = working for everyday use, features still evolving but stable"
 #define     P_VERMINOR  "1.2 = cleaning out all existing unit test bugs"
-#define     P_VERNUM    "1.2g"
-#define     P_VERTXT    "view/src changes to better control floating command/search in opengl"
+#define     P_VERNUM    "1.2h"
+#define     P_VERTXT    "menu display and sub-mode now integrated"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -99,6 +99,11 @@ typedef struct timespec  tTSPEC;
 
 typedef    struct    cSHARED    tSHARED;
 struct cSHARED {
+   /*---(using prog)------*/
+   char        s_prog      [LEN_LABEL];     /* source program name            */
+   char        s_ext       [LEN_LABEL];     /* source file extension          */
+   char        s_vernum    [LEN_LABEL];     /* source program version number  */
+   char        s_vertxt    [LEN_DESC ];     /* source program version text    */
    /*---(debugging)-------*/
    int         logger;
    long long   last;
@@ -140,6 +145,9 @@ struct cSHARED {
    int         point;                       /* yFONT font point to use        */
    float       font_scale;                  /* width of char in opengl coords */
    /*---(file hanndling)--*/
+   char        f_control;                   /* file version control flag      */
+   char        f_vernum    [LEN_LABEL];     /* file version number            */
+   char        f_vertxt    [LEN_HUND];      /* file version text              */
    char        f_loc       [LEN_RECD];      /* specific file location         */
    char        f_name      [LEN_RECD];      /* full file name                 */
    char        f_title     [LEN_RECD];      /* specific file base name        */
@@ -147,6 +155,9 @@ struct cSHARED {
    char        f_recd      [LEN_RECD];      /* current file record            */
    char        f_type      [LEN_RECD];      /* current record verb            */
    char        f_vers;                      /* current record version         */
+   /*---(menus)-----------*/
+   char        m_path     [LEN_LABEL];      /* key path in menu               */
+   char        m_keys     [LEN_LABEL];      /* resulting keys from menu       */
 };
 tSHARED     myVIKEYS;
 
@@ -492,7 +503,6 @@ char        yvikeys_macro_reader    (void);
 char        CMDS_limits             (int *a_min, int *a_max);
 char        yvikeys_cmds__purge     (void);
 char        yvikeys_cmds_init       (void);
-char        yvikeys_menu_init       (void);
 /*> char        CMDS__load              (char *a_command);                            <*/
 char        CMDS__test              (char a_mode, char a_value);
 char*       CMDS__unit              (char *a_question, char a_index);
@@ -525,7 +535,12 @@ char        SRCH__unit_searcher     (char *a_search);
 char        SRCH__unit_clearer      (char *a_label);
 char*       SRCH__unit              (char *a_question, char a_index);
 char*       MENU__unit              (char *a_question, char *a_path);
+
+char        yvikeys_menu_init       (void);
 int         yvikeys__menu_find      (char *a_keys, char *a_level, int *a_last);
+char        yvikeys_menu_start      (void);
+char        yvikeys_menu_smode      (int  a_major, int  a_minor);
+char        yvikeys_menu_draw       (void);
 
 
 char        yvikeys_loop_init       (void);

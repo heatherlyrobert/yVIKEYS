@@ -152,7 +152,6 @@ static const tMENU  s_menus [MAX_MENU] = {
    { '·', '·', '·', "---------"        , '-', '-', "-------------"     , "-------------------------------------------------"},
    { 'f', 'c', '·', "close"            , 'y', '·', "-"                 , "close current workspace"                          },
    { 'f', 'q', '·', "quit"             , 'y', '·', ":qa"               , "quit the program"                                 },
-   { 'f', 'Q', '·', "quiter"           , 'y', '·', "Q"                 , "write all workspaces and quit program"            },
    /*---(edit menu)----------------------------------------------*/
    { 'e', '·', '·', "edit"             , 'y', '>', "-"                 , "-"                                                },
    { 'e', 'u', '·', "undo"             , 'y', '·', "u"                 , "undo the very last action"                        },
@@ -2095,10 +2094,13 @@ static int     s_align  [LEN_LABEL] = {   1,   1,   1,   1,   1,   1,   1,   1, 
 static int     s_abbr   [LEN_LABEL] = {   0,   0,   0,   0,   0,   0,   0,   0,  15,   0,   0,   0,   0,   0,   0,   0,   0, -15 };
 
 char
-yvikeys__menu_back      (char *a_prog, char *a_ver, int a_font, int a_point, int a_len, int a_level, int a_last)
+yvikeys__menu_back      (int a_len, int a_level, int a_last)
 {
    int         t           [LEN_LABEL];
    DEBUG_CMDS   yLOG_enter   (__FUNCTION__);
+   DEBUG_CMDS   yLOG_value   ("a_len"     , a_len);
+   DEBUG_CMDS   yLOG_value   ("a_level"   , a_level);
+   DEBUG_CMDS   yLOG_value   ("a_last"    , a_last);
    /*---(black background)---------------*/
    glColor4f (0.0f, 0.0f, 0.0f, 1.0f);
    glBegin(GL_POLYGON); {
@@ -2129,34 +2131,34 @@ yvikeys__menu_back      (char *a_prog, char *a_ver, int a_font, int a_point, int
       switch (a_level) {
       case  0 :
          glTranslatef( 150.0, -105.0, 120.0);
-         yFONT_print (a_font, a_point + 2, YF_BASCEN, "main menu");
+         yFONT_print (myVIKEYS.font, myVIKEYS.point, YF_BASCEN, "main menu");
          glTranslatef(-130.0,   20.0,   0.0);
          break;
       case  1 :
          glTranslatef( 150.0,  -90.0, 120.0);
          sprintf (t, "\\%c (%s) sub-menu", s_menus [a_last].top, s_menus [a_last].name);
-         yFONT_print (a_font, a_point + 2, YF_BASCEN, t);
+         yFONT_print (myVIKEYS.font, myVIKEYS.point, YF_BASCEN, t);
          glTranslatef(-130.0,    5.0,   0.0);
          break;
       case  2 :
          glTranslatef( 150.0,  -90.0, 120.0);
          sprintf (t, "\\%c%c (%s) options", s_menus [a_last].top, s_menus [a_last].mid, s_menus [a_last].name);
-         yFONT_print (a_font, a_point + 2, YF_BASCEN, t);
+         yFONT_print (myVIKEYS.font, myVIKEYS.point, YF_BASCEN, t);
          glTranslatef(-130.0,    5.0,   0.0);
          break;
       }
-      if (a_prog != NULL)  yFONT_print (a_font, a_point + 2, YF_BASLEF, a_prog);
+      yFONT_print (myVIKEYS.font, myVIKEYS.point, YF_BASLEF, myVIKEYS.s_prog);
       glTranslatef( 260.0,    0.0,   0.0);
-      if (a_ver  != NULL)  yFONT_print (a_font, a_point + 2, YF_BASRIG, a_ver);
+      yFONT_print (myVIKEYS.font, myVIKEYS.point, YF_BASRIG, myVIKEYS.s_vernum);
       glTranslatef(-130.0, -180.0,   0.0);
       glColor4f (0.3, 0.3, 0.3, 1.0);
-      yFONT_print  (a_font, a_point, YF_BASCEN, "yvikeys menus -- wider, flatter, and universal");
+      yFONT_print  (myVIKEYS.font, myVIKEYS.point, YF_BASCEN, "yvikeys menus -- wider and flatter");
       if (a_len != a_level) {
          glColor4f    (1.0f, 1.0f, 1.0f, 1.0f);
          glTranslatef (   0.0,   50.0,  50.0);
-         yFONT_print  (a_font, 16, YF_BASCEN, "ERROR KEYS");
+         yFONT_print  (myVIKEYS.font, 16, YF_BASCEN, "ERROR KEYS");
          glTranslatef (   0.0,  -15.0,   0.0);
-         yFONT_print  (a_font, 10, YF_BASCEN, "menu locked, <esc> to exit");
+         yFONT_print  (myVIKEYS.font, 10, YF_BASCEN, "menu locked, <esc> to exit");
       }
    } glPopMatrix();
    /*---(complete)-----------------------*/
@@ -2165,7 +2167,7 @@ yvikeys__menu_back      (char *a_prog, char *a_ver, int a_font, int a_point, int
 }
 
 char
-yvikeys__menu_main      (int a_font, int a_point)
+yvikeys__menu_main      (void)
 {
    int         i           =   0;
    int         c           =    0;
@@ -2176,12 +2178,12 @@ yvikeys__menu_main      (int a_font, int a_point)
       glPushMatrix(); {
          glColor4f (0.0, 0.0, 0.7, 1.0);
          glTranslatef( 150.0, -168.0, 120.0);
-         yFONT_print  (a_font, a_point, YF_MIDCEN, "+" );
+         yFONT_print  (myVIKEYS.font, myVIKEYS.point, YF_MIDCEN, "+" );
          for (i = 0; i < 18; ++i) {
             glPushMatrix(); {
                glRotatef    (20.0 * i + 90.0, 0.0, 0.0, 1.0);
                glTranslatef (40.0, 0.0, 0.0);
-               yFONT_print  (a_font, a_point, YF_MIDCEN, ">" );
+               yFONT_print  (myVIKEYS.font, myVIKEYS.point, YF_MIDCEN, ">" );
             } glPopMatrix();
          }
       } glPopMatrix();
@@ -2199,19 +2201,19 @@ yvikeys__menu_main      (int a_font, int a_point)
                sprintf (t, "%c", s_menus [i].top);
                switch (s_align [c]) {
                case 1 :
-                  yFONT_print  (a_font, a_point, s_align [c], t);
+                  yFONT_print  (myVIKEYS.font, myVIKEYS.point, s_align [c], t);
                   glTranslatef ( 15.0, 0.0, 0.0);
-                  yFONT_print  (a_font, a_point, s_align [c], s_menus [i].name);
+                  yFONT_print  (myVIKEYS.font, myVIKEYS.point, s_align [c], s_menus [i].name);
                   break;
                case 2 :
-                  yFONT_print  (a_font, a_point, s_align [c], s_menus [i].name);
+                  yFONT_print  (myVIKEYS.font, myVIKEYS.point, s_align [c], s_menus [i].name);
                   glTranslatef ( 0.0, s_abbr [c], 0.0);
-                  yFONT_print  (a_font, a_point, s_align [c], t);
+                  yFONT_print  (myVIKEYS.font, myVIKEYS.point, s_align [c], t);
                   break;
                case 3 :
-                  yFONT_print  (a_font, a_point, s_align [c], t);
+                  yFONT_print  (myVIKEYS.font, myVIKEYS.point, s_align [c], t);
                   glTranslatef (-15.0, 0.0, 0.0);
-                  yFONT_print  (a_font, a_point, s_align [c], s_menus [i].name);
+                  yFONT_print  (myVIKEYS.font, myVIKEYS.point, s_align [c], s_menus [i].name);
                   break;
                }
             } glPopMatrix();
@@ -2219,7 +2221,7 @@ yvikeys__menu_main      (int a_font, int a_point)
             ++c;
             DEBUG_CMDS   yLOG_value   ("next"      , i);
          }
-         /*> yvikeys_menu__round (a_font);                                            <*/
+         /*> yvikeys_menu__round (myVIKEYS.font);                                            <*/
       } glPopMatrix();
    } glPopMatrix();
    DEBUG_CMDS   yLOG_exit    (__FUNCTION__);
@@ -2227,7 +2229,7 @@ yvikeys__menu_main      (int a_font, int a_point)
 }
 
 char
-yvikeys__menu_subs      (int a_font, int a_point, int a_last)
+yvikeys__menu_subs      (int a_last)
 {
    int         i           =    0;
    int         c           =    0;
@@ -2257,9 +2259,9 @@ yvikeys__menu_subs      (int a_font, int a_point, int a_last)
             if (s_dmenu [i].active == 'y')   glColor4f (0.0, 0.0, 0.0, 1.0);
             else                             glColor4f (0.3, 0.3, 0.3, 1.0);
             sprintf (t, "%c", s_menus [i].mid);
-            yFONT_print (a_font, a_point, YF_BASLEF, t);
+            yFONT_print (myVIKEYS.font, myVIKEYS.point, YF_BASLEF, t);
             glTranslatef (  15.0, 0.0, 0.0);
-            yFONT_print (a_font, a_point, YF_BASLEF, s_menus [i].name);
+            yFONT_print (myVIKEYS.font, myVIKEYS.point, YF_BASLEF, s_menus [i].name);
             glTranslatef ( -15.0, 0.0, 0.0);
             i = s_dmenu [i].next;
             ++c;
@@ -2277,7 +2279,7 @@ yvikeys__menu_subs      (int a_font, int a_point, int a_last)
 }
 
 char
-yvikeys__menu_opts      (int a_font, int a_point, int a_last)
+yvikeys__menu_opts      (int a_last)
 {
    int         i           =    0;
    int         j           =    0;
@@ -2307,7 +2309,7 @@ yvikeys__menu_opts      (int a_font, int a_point, int a_last)
                case 3 : glTranslatef (  15.0 + (x_entry * 10.0), -12.0 * (7 + x_entry),   0.0);  break;
                }
                glColor4f (0.0, 0.0, 0.0, 1.0);
-               yFONT_print (a_font, a_point, YF_BASCEN, "+");
+               yFONT_print (myVIKEYS.font, myVIKEYS.point, YF_BASCEN, "+");
             } glPopMatrix();
          }
       }
@@ -2332,14 +2334,14 @@ yvikeys__menu_opts      (int a_font, int a_point, int a_last)
             else                             glColor4f (0.3, 0.3, 0.3, 1.0);
             sprintf (t, "%c", s_menus [i].bot);
             if (x_group == 2 || x_group == 3) {
-               yFONT_print (a_font, a_point, YF_BASRIG, t);
+               yFONT_print (myVIKEYS.font, myVIKEYS.point, YF_BASRIG, t);
                glTranslatef ( -15.0, 0.0, 0.0);
-               yFONT_print (a_font, a_point, YF_BASRIG, s_menus [i].name);
+               yFONT_print (myVIKEYS.font, myVIKEYS.point, YF_BASRIG, s_menus [i].name);
                glTranslatef (  15.0, 0.0, 0.0);
             } else {
-               yFONT_print (a_font, a_point, YF_BASLEF, t);
+               yFONT_print (myVIKEYS.font, myVIKEYS.point, YF_BASLEF, t);
                glTranslatef (  15.0, 0.0, 0.0);
-               yFONT_print (a_font, a_point, YF_BASLEF, s_menus [i].name);
+               yFONT_print (myVIKEYS.font, myVIKEYS.point, YF_BASLEF, s_menus [i].name);
                glTranslatef ( -15.0, 0.0, 0.0);
             }
             ++c;
@@ -2355,57 +2357,159 @@ yvikeys__menu_opts      (int a_font, int a_point, int a_last)
    return 0;
 }
 
+/*> char                                                                                          <* 
+ *> yVIKEYS_menu            (char *a_prog, char *a_ver, int a_font, char *a_path, char *a_keys)   <* 
+ *> {                                                                                             <* 
+ *>    char        rce         =  -10;                                                            <* 
+ *>    char        rc          =    0;                                                            <* 
+ *>    int         n           =   -1;                                                            <* 
+ *>    int         x_point     =    8;                                                            <* 
+ *>    int         x_len       =    0;                                                            <* 
+ *>    char        x_level     =    0;                                                            <* 
+ *>    int         x_last      =    0;                                                            <* 
+ *>    /+---(header)-------------------------+/                                                   <* 
+ *>    DEBUG_CMDS   yLOG_enter   (__FUNCTION__);                                                  <* 
+ *>    /+---(defense)------------------------+/                                                   <* 
+ *>    DEBUG_CMDS   yLOG_point   ("a_keys"    , a_keys);                                          <* 
+ *>    --rce;  if (a_keys == NULL) {                                                              <* 
+ *>       DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);                                          <* 
+ *>       return rce;                                                                             <* 
+ *>    }                                                                                          <* 
+ *>    DEBUG_CMDS   yLOG_point   ("a_path"    , a_path);                                          <* 
+ *>    if (a_path != NULL) {                                                                      <* 
+ *>       x_len = strlen (a_path);                                                                <* 
+ *>       DEBUG_CMDS   yLOG_info    ("a_path"    , a_path);                                       <* 
+ *>    }                                                                                          <* 
+ *>    DEBUG_CMDS   yLOG_value   ("x_len"     , x_len);                                           <* 
+ *>    /+---(find path)----------------------+/                                                   <* 
+ *>    n = yvikeys__menu_find (a_path, &x_level, &x_last);                                        <* 
+ *>    DEBUG_CMDS   yLOG_value   ("n"         , n);                                               <* 
+ *>    DEBUG_CMDS   yLOG_value   ("x_level"   , x_level);                                         <* 
+ *>    DEBUG_CMDS   yLOG_value   ("x_last"    , x_last);                                          <* 
+ *>    /+---(check exec)---------------------+/                                                   <* 
+ *>    DEBUG_CMDS   yLOG_char    ("type"      , s_menus [n].type);                                <* 
+ *>    if (n >= 0 && s_menus [n].type == '·') {                                                   <* 
+ *>       DEBUG_CMDS   yLOG_info    ("keys"      , s_menus [n].keys);                             <* 
+ *>       if (strlen (s_menus [n].keys) == 1 && s_menus [n].keys [0] == '-') {                    <* 
+ *>          DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, -1);                                        <* 
+ *>          return -1;                                                                           <* 
+ *>       }                                                                                       <* 
+ *>       strlcpy (a_keys, s_menus [n].keys, LEN_LABEL);                                          <* 
+ *>       DEBUG_CMDS   yLOG_exit    (__FUNCTION__);                                               <* 
+ *>       return 0;                                                                               <* 
+ *>    }                                                                                          <* 
+ *>    /+---(draw back)----------------------+/                                                   <* 
+ *>    yvikeys__menu_back (a_prog, a_ver, a_font, x_point, x_len - 1, x_level, x_last);           <* 
+ *>    /+---(main menu)----------------------+/                                                   <* 
+ *>    switch (x_level) {                                                                         <* 
+ *>    case 0 :  yvikeys__menu_main (a_font, x_point);          break;                            <* 
+ *>    case 1 :  yvikeys__menu_subs (a_font, x_point, x_last);  break;                            <* 
+ *>    case 2 :  yvikeys__menu_opts (a_font, x_point, x_last);  break;                            <* 
+ *>    }                                                                                          <* 
+ *>    /+---(complete)-----------------------+/                                                   <* 
+ *>    DEBUG_CMDS   yLOG_exit    (__FUNCTION__);                                                  <* 
+ *>    return 0;                                                                                  <* 
+ *> }                                                                                             <*/
+
 char
-yVIKEYS_menu            (char *a_prog, char *a_ver, int a_font, char *a_path, char *a_keys)
+yvikeys_menu_start      (void)
 {
+   DEBUG_USER   yLOG_enter   (__FUNCTION__);
+   strlcpy (myVIKEYS.m_path, "\\", LEN_LABEL);
+   strlcpy (myVIKEYS.m_keys, ""  , LEN_LABEL);
+   /*> OPENGL_mask ();                                                                <*/
+   DEBUG_USER   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char         /*-> allow menu selection ---------------[ ------ [ge.TQ5.25#.F9]*/ /*-[03.0000.122.R]-*/ /*-[--.---.---.--]-*/
+yvikeys_menu_smode      (int  a_major, int  a_minor)
+{
+   /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    char        rc          =    0;
+   char        t           [LEN_LABEL];
+   /*---(header)-------------------------*/
+   DEBUG_USER   yLOG_enter   (__FUNCTION__);
+   DEBUG_USER   yLOG_char    ("a_major"   , a_major);
+   DEBUG_USER   yLOG_char    ("a_minor"   , chrvisible (a_minor));
+   /*---(defenses)-----------------------*/
+   DEBUG_USER   yLOG_char    ("mode"      , MODE_curr ());
+   --rce;  if (MODE_not (SMOD_MENUS  )) {
+      DEBUG_USER   yLOG_note    ("not the correct mode");
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return rce;
+   }
+   if (a_minor == G_KEY_ESCAPE) {
+      DEBUG_USER   yLOG_note    ("escape, return to map mode");
+      MODE_exit ();
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
+   if (a_minor == G_KEY_RETURN) {
+      DEBUG_USER   yLOG_note    ("return, return to map mode");
+      MODE_exit ();
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
+   /*---(add to menu)--------------------*/
+   sprintf (t, "%c", a_minor);
+   strlcat (myVIKEYS.m_path, t, LEN_LABEL);
+   DEBUG_USER   yLOG_info    ("m_path"    , myVIKEYS.m_path);
+   /*---(complete)-----------------------*/
+   DEBUG_USER   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char
+yvikeys_menu_draw          (void)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
    int         n           =   -1;
    int         x_point     =    8;
    int         x_len       =    0;
    char        x_level     =    0;
    int         x_last      =    0;
-   /*---(header)-------------------------*/
-   DEBUG_CMDS   yLOG_enter   (__FUNCTION__);
-   /*---(defense)------------------------*/
-   DEBUG_CMDS   yLOG_point   ("a_keys"    , a_keys);
-   --rce;  if (a_keys == NULL) {
-      DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
+   /*---(header)----------------------*/
+   DEBUG_USER   yLOG_enter   (__FUNCTION__);
+   /*---(defenses)-----------------------*/
+   DEBUG_USER   yLOG_char    ("mode"      , MODE_curr ());
+   if (MODE_not (SMOD_MENUS  )) {
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return 0;
    }
-   DEBUG_CMDS   yLOG_point   ("a_path"    , a_path);
-   if (a_path != NULL) {
-      x_len = strlen (a_path);
-      DEBUG_CMDS   yLOG_info    ("a_path"    , a_path);
-   }
-   DEBUG_CMDS   yLOG_value   ("x_len"     , x_len);
    /*---(find path)----------------------*/
-   n = yvikeys__menu_find (a_path, &x_level, &x_last);
-   DEBUG_CMDS   yLOG_value   ("n"         , n);
-   DEBUG_CMDS   yLOG_value   ("x_level"   , x_level);
-   DEBUG_CMDS   yLOG_value   ("x_last"    , x_last);
+   n = yvikeys__menu_find (myVIKEYS.m_path, &x_level, &x_last);
+   DEBUG_USER   yLOG_value   ("n"         , n);
+   DEBUG_USER   yLOG_value   ("x_level"   , x_level);
+   DEBUG_USER   yLOG_value   ("x_last"    , x_last);
    /*---(check exec)---------------------*/
-   DEBUG_CMDS   yLOG_char    ("type"      , s_menus [n].type);
+   DEBUG_USER   yLOG_char    ("type"      , s_menus [n].type);
    if (n >= 0 && s_menus [n].type == '·') {
-      DEBUG_CMDS   yLOG_info    ("keys"      , s_menus [n].keys);
+      DEBUG_USER   yLOG_info    ("keys"      , s_menus [n].keys);
       if (strlen (s_menus [n].keys) == 1 && s_menus [n].keys [0] == '-') {
-         DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, -1);
+         DEBUG_USER   yLOG_exitr   (__FUNCTION__, -1);
          return -1;
       }
-      strlcpy (a_keys, s_menus [n].keys, LEN_LABEL);
-      DEBUG_CMDS   yLOG_exit    (__FUNCTION__);
+      strlcpy (myVIKEYS.m_keys, s_menus [n].keys, LEN_LABEL);
+      yVIKEYS_main_string (myVIKEYS.m_keys);
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return 0;
    }
    /*---(draw back)----------------------*/
-   yvikeys__menu_back (a_prog, a_ver, a_font, x_point, x_len - 1, x_level, x_last);
+   DEBUG_USER   yLOG_info    ("m_path"    , myVIKEYS.m_path);
+   x_len = strlen (myVIKEYS.m_path);
+   DEBUG_USER   yLOG_value   ("x_len"     , x_len);
+   yvikeys__menu_back (x_len - 1, x_level, x_last);
    /*---(main menu)----------------------*/
    switch (x_level) {
-   case 0 :  yvikeys__menu_main (a_font, x_point);          break;
-   case 1 :  yvikeys__menu_subs (a_font, x_point, x_last);  break;
-   case 2 :  yvikeys__menu_opts (a_font, x_point, x_last);  break;
+   case 0 :  yvikeys__menu_main ();        break;
+   case 1 :  yvikeys__menu_subs (x_last);  break;
+   case 2 :  yvikeys__menu_opts (x_last);  break;
    }
-   /*---(complete)-----------------------*/
-   DEBUG_CMDS   yLOG_exit    (__FUNCTION__);
+   /*---(complete)--------------------*/
+   DEBUG_USER   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 

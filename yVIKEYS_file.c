@@ -54,9 +54,6 @@
  *
  */
 /*---(globals)----------+-----------+-*/
-char        ver_ctrl    = '-';
-char        ver_num     [10]        = "----";
-char        ver_txt     [100]       = "-----";
 
 #define     FILE_BLANK  "untitled"
 #define     FILE_CALL_ONCE    '1'
@@ -99,10 +96,6 @@ static FILE    *s_file      = NULL;          /* file pointer                   *
 static char     s_fields    [20][LEN_RECD];
 static int      s_nfield    =    0;
 static int      s_lines     =    0;
-static char     s_prog      [LEN_LABEL]   = "-";
-static char     s_ext       [LEN_LABEL]   = "";
-static char     s_vernum    [LEN_LABEL]   = "-.--";
-static char     s_vertxt    [LEN_DESC ]   = "----";
 static char     s_fullpath  [LEN_DESC ]   = "(not set)";
 static char     s_fulldesc  [LEN_DESC ]   = "(not set)";
 
@@ -164,7 +157,7 @@ yvikeys__file_by_label  (char *a_label)
 char
 yvikeys_file_status          (char *a_list)
 {
-   /*> snprintf (a_list, LEN_FULL, "[ file %-20.20s%*.*s%30.30s %-4.4s ]", my.f_name, my.x_full - 57, my.x_full - 57, g_empty, ver_txt, ver_num);   <*/
+   /*> snprintf (a_list, LEN_FULL, "[ file %-20.20s%*.*s%30.30s %-4.4s ]", my.f_name, my.x_full - 57, my.x_full - 57, g_empty, myVIKEYS.f_vertxt, myVIKEYS.f_vernum);   <*/
    snprintf (a_list, LEN_FULL, "file %s", myVIKEYS.f_title);
    return 0;
 }
@@ -192,12 +185,12 @@ yvikeys_file_init               (void)
    }
    /*---(reset globals)------------------*/
    DEBUG_PROG   yLOG_note    ("set defaults");
-   strlcpy (ver_num , "----" , LEN_LABEL);
-   strlcpy (ver_txt , "-----", LEN_DESC );
-   strlcpy (s_prog  , "-"    , LEN_DESC );
-   strlcpy (s_ext   , "-"    , LEN_DESC );
-   strlcpy (s_vernum, "-"    , LEN_DESC );
-   strlcpy (s_vertxt, "-"    , LEN_DESC );
+   strlcpy (myVIKEYS.f_vernum , "----" , LEN_LABEL);
+   strlcpy (myVIKEYS.f_vertxt , "-----", LEN_DESC );
+   strlcpy (myVIKEYS.s_prog  , "-"    , LEN_DESC );
+   strlcpy (myVIKEYS.s_ext   , ""     , LEN_DESC );
+   strlcpy (myVIKEYS.s_vernum, "-.--" , LEN_DESC );
+   strlcpy (myVIKEYS.s_vertxt, "----" , LEN_DESC );
    /*---(yPARSE verbs)-------------------*/
    rc = yPARSE_handler ('·'          , "source"    , 0.1, "OSO---------", NULL          , yvikeys_file_prog_writer   , "------------" , ""                          , "source program versioning" );
    rc = yPARSE_handler ('·'          , "written"   , 0.2, "O-----------", NULL          , yvikeys_file_time_writer   , "------------" , ""                          , "data file save timestamp"  );
@@ -230,8 +223,8 @@ yVIKEYS_file_config     (char *a_prog, char *a_ext, char *a_vernum, char *a_vert
       DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   strlcpy (s_prog, a_prog, LEN_LABEL);
-   DEBUG_PROG   yLOG_info    ("s_prog"    , s_prog);
+   strlcpy (myVIKEYS.s_prog, a_prog, LEN_LABEL);
+   DEBUG_PROG   yLOG_info    ("s_prog"    , myVIKEYS.s_prog);
    /*---(default extension)--------------*/
    DEBUG_PROG   yLOG_point   ("a_ext"     , a_ext);
    --rce;  if (a_ext == NULL) {
@@ -239,19 +232,19 @@ yVIKEYS_file_config     (char *a_prog, char *a_ext, char *a_vernum, char *a_vert
       DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   strlcpy (s_ext, a_ext, LEN_LABEL);
-   DEBUG_PROG   yLOG_info    ("s_ext"     , s_ext);
+   strlcpy (myVIKEYS.s_ext, a_ext, LEN_LABEL);
+   DEBUG_PROG   yLOG_info    ("s_ext"     , myVIKEYS.s_ext);
    /*---(calling program version)--------*/
    DEBUG_PROG   yLOG_point   ("a_vernum"  , a_vernum);
    --rce;  if (a_vernum != NULL) {
-      strlcpy (s_vernum, a_vernum, LEN_LABEL);
-      DEBUG_PROG   yLOG_info    ("s_vernum"  , s_vernum);
+      strlcpy (myVIKEYS.s_vernum, a_vernum, LEN_LABEL);
+      DEBUG_PROG   yLOG_info    ("s_vernum"  , myVIKEYS.s_vernum);
    }
    /*---(calling program ver desc)-------*/
    DEBUG_PROG   yLOG_point   ("a_vertxt"  , a_vertxt);
    --rce;  if (a_vertxt != NULL) {
-      strlcpy (s_vertxt, a_vertxt, LEN_DESC);
-      DEBUG_PROG   yLOG_info    ("s_vertxt"  , s_vertxt);
+      strlcpy (myVIKEYS.s_vertxt, a_vertxt, LEN_DESC);
+      DEBUG_PROG   yLOG_info    ("s_vertxt"  , myVIKEYS.s_vertxt);
    }
    /*---(calling full executable)--------*/
    DEBUG_PROG   yLOG_point   ("a_full"    , a_full);
@@ -353,7 +346,7 @@ yvikeys_file_bump          (char *a_type)
       return rce;
    }
    /*---(defense : not controlled)-------*/
-   --rce;  if (ver_ctrl != 'y')  return rce;
+   --rce;  if (myVIKEYS.f_control != 'y')  return rce;
    /*---(defense: a_type)----------------*/
    --rce;  if (a_type == NULL)                   return rce;
    --rce;  if (a_type [0] == '\0')               return rce;
@@ -362,45 +355,45 @@ yvikeys_file_bump          (char *a_type)
    yvikeys_file_vertxt (NULL);
    /*---(tiny)---------------------------*/
    if (strchr ("i", x_type) != NULL) {
-      if (ver_num [3] <  'z') {
-         ++ver_num[3];
+      if (myVIKEYS.f_vernum [3] <  'z') {
+         ++myVIKEYS.f_vernum[3];
          return 0;
       }
    }
-   ver_num [3] = 'a';
+   myVIKEYS.f_vernum [3] = 'a';
    /*---(minor)--------------------------*/
    if (strchr ("mi", x_type) != NULL) {
-      if (ver_num [2] <  '9') {
-         ++ver_num[2];
+      if (myVIKEYS.f_vernum [2] <  '9') {
+         ++myVIKEYS.f_vernum[2];
          return 0;
       }
-      if (ver_num [2] == '9') {
-         ver_num  [2] =  'A';
+      if (myVIKEYS.f_vernum [2] == '9') {
+         myVIKEYS.f_vernum  [2] =  'A';
          return 0;
       }
-      if (ver_num [2] <  'Z') {
-         ++ver_num[2];
+      if (myVIKEYS.f_vernum [2] <  'Z') {
+         ++myVIKEYS.f_vernum[2];
          return 0;
       }
    }
-   ver_num [2] = '0';
+   myVIKEYS.f_vernum [2] = '0';
    /*---(major)--------------------------*/
    if (strchr ("Mmi", x_type) != NULL) {
-      if (ver_num [0] <  '9') {
-         ++ver_num[0];
+      if (myVIKEYS.f_vernum [0] <  '9') {
+         ++myVIKEYS.f_vernum[0];
          return 0;
       }
-      if (ver_num [0] == '9') {
-         ver_num  [0] =  'A';
+      if (myVIKEYS.f_vernum [0] == '9') {
+         myVIKEYS.f_vernum  [0] =  'A';
          return 0;
       }
-      if (ver_num [0] <  'Z') {
-         ++ver_num[0];
+      if (myVIKEYS.f_vernum [0] <  'Z') {
+         ++myVIKEYS.f_vernum[0];
          return 0;
       }
    }
    /*---(complete)-----------------------*/
-   strlcpy (ver_num, "Z.Zz", LEN_LABEL);
+   strlcpy (myVIKEYS.f_vernum, "Z.Zz", LEN_LABEL);
    --rce;  return  rce;
 }
 
@@ -420,16 +413,16 @@ yvikeys_file_controlled    (char *a_yes)
    }
    yvikeys_file_vertxt (NULL);
    if (a_yes [0] == 'n') {
-      if (ver_ctrl == 'y') {
-         ver_ctrl = '-';
-         strlcpy (ver_num, "----", LEN_LABEL);
+      if (myVIKEYS.f_control == 'y') {
+         myVIKEYS.f_control = '-';
+         strlcpy (myVIKEYS.f_vernum, "----", LEN_LABEL);
       }
       return 0;
    }
    if (a_yes [0] == 'y') {
-      if (ver_ctrl == '-') {
-         ver_ctrl = 'y';
-         strlcpy (ver_num, "0.0a", LEN_LABEL);
+      if (myVIKEYS.f_control == '-') {
+         myVIKEYS.f_control = 'y';
+         strlcpy (myVIKEYS.f_vernum, "0.0a", LEN_LABEL);
       }
       return 0;
    }
@@ -450,7 +443,7 @@ yvikeys_file_version       (char *a_ver)
       return rce;
    }
    /*---(defense : not controlled)-------*/
-   --rce;  if (ver_ctrl != 'y')  return rce;
+   --rce;  if (myVIKEYS.f_control != 'y')  return rce;
    /*---(defense : empty)----------------*/
    --rce;  if (a_ver == NULL)               return rce;
    x_len = strlen (a_ver);
@@ -467,16 +460,16 @@ yvikeys_file_version       (char *a_ver)
    --rce;  if (x_work [1] != '.')                       return rce;
    --rce;  if (strchr ("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", x_work [0]) == 0)  return rce;
    /*---(check increase only)------------*/
-   --rce;  if (x_work [0] <  ver_num [0])    return rce;
-   if (x_work [0] == ver_num [0]) {
-      --rce;  if (x_work [2] <  ver_num [2])    return rce;
-      if (x_work [2] == ver_num [2]) {
-         --rce;  if (x_work [3] <  ver_num [3])    return rce;
-         --rce;  if (x_work [3] == ver_num [3])    return rce;
+   --rce;  if (x_work [0] <  myVIKEYS.f_vernum [0])    return rce;
+   if (x_work [0] == myVIKEYS.f_vernum [0]) {
+      --rce;  if (x_work [2] <  myVIKEYS.f_vernum [2])    return rce;
+      if (x_work [2] == myVIKEYS.f_vernum [2]) {
+         --rce;  if (x_work [3] <  myVIKEYS.f_vernum [3])    return rce;
+         --rce;  if (x_work [3] == myVIKEYS.f_vernum [3])    return rce;
       }
    }
    /*---(finalize)-----------------------*/
-   strlcpy (ver_num, x_work, LEN_LABEL);
+   strlcpy (myVIKEYS.f_vernum, x_work, LEN_LABEL);
    yvikeys_file_vertxt (NULL);
    /*---(complete)-----------------------*/
    return 0;
@@ -492,11 +485,11 @@ yvikeys_file_vertxt        (char *a_txt)
       DEBUG_HIST   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   strlcpy (ver_txt, "-----", LEN_DESC);
-   --rce;  if (ver_ctrl   != 'y' )  return rce;
+   strlcpy (myVIKEYS.f_vertxt, "-----", LEN_DESC);
+   --rce;  if (myVIKEYS.f_control   != 'y' )  return rce;
    --rce;  if (a_txt      == NULL)  return rce;
    --rce;  if (a_txt [0]  == '\0')  return rce;
-   strlcpy (ver_txt, a_txt, LEN_DESC);
+   strlcpy (myVIKEYS.f_vertxt, a_txt, LEN_DESC);
    return 0;
 }
 
@@ -592,15 +585,15 @@ yvikeys_file_name               (char *a_name)
    if (a_name == NULL || a_name [0] == 0) {
       DEBUG_INPT   yLOG_note    ("a_name was null, using defaults");
       strlcpy (myVIKEYS.f_name , FILE_BLANK, LEN_RECD);
-      sprintf (myVIKEYS.f_title, "%s%s.%s"   , myVIKEYS.f_loc, myVIKEYS.f_name, s_ext);
+      sprintf (myVIKEYS.f_title, "%s%s.%s"   , myVIKEYS.f_loc, myVIKEYS.f_name, myVIKEYS.s_ext);
       DEBUG_INPT   yLOG_exit    (__FUNCTION__);
       return 0;
    }
    strlcpy (t, a_name, LEN_FULL);
    DEBUG_INPT   yLOG_info    ("t"         , t);
    /*---(strip extensions)---------------*/
-   DEBUG_INPT   yLOG_info    ("s_ext"     , s_ext);
-   x_extlen = strllen (s_ext, LEN_LABEL);
+   DEBUG_INPT   yLOG_info    ("s_ext"     , myVIKEYS.s_ext);
+   x_extlen = strllen (myVIKEYS.s_ext, LEN_LABEL);
    DEBUG_INPT   yLOG_value   ("x_extlen"  , x_extlen);
    while (1) {
       DEBUG_INPT   yLOG_info    ("t"         , t);
@@ -608,7 +601,7 @@ yvikeys_file_name               (char *a_name)
       DEBUG_INPT   yLOG_value   ("x_len"     , x_len);
       if (x_len < x_extlen + 1)                        break;
       DEBUG_INPT   yLOG_info    ("tail end"  , t + x_len - x_extlen - 1);
-      if (strcmp (t + x_len - x_extlen, s_ext) != 0)   break;
+      if (strcmp (t + x_len - x_extlen, myVIKEYS.s_ext) != 0)   break;
       if (t [x_len - x_extlen - 1] != '.')             break;
       t [x_len - x_extlen - 1] = 0;
    }
@@ -640,7 +633,7 @@ yvikeys_file_name               (char *a_name)
    if (x_len == 0)  strlcpy (myVIKEYS.f_name , FILE_BLANK, LEN_RECD);
    else             strlcpy (myVIKEYS.f_name , t         , LEN_RECD);
    /*---(report out)---------------------*/
-   sprintf (myVIKEYS.f_title, "%s%s.%s", myVIKEYS.f_loc, myVIKEYS.f_name, s_ext);
+   sprintf (myVIKEYS.f_title, "%s%s.%s", myVIKEYS.f_loc, myVIKEYS.f_name, myVIKEYS.s_ext);
    DEBUG_INPT   yLOG_info    ("f_loc"     , myVIKEYS.f_loc);
    DEBUG_INPT   yLOG_info    ("f_name"    , myVIKEYS.f_name);
    DEBUG_INPT   yLOG_info    ("f_title"   , myVIKEYS.f_title);
@@ -728,7 +721,7 @@ yvikeys__file_intro      (void)
    /*---(write header)---------------------*/
    yPARSE_section ("GENERAL");
    /*---(format identifiers)---------------*/
-   rc = yPARSE_fullwrite ("source"   , s_prog, s_vernum, s_vertxt);
+   rc = yPARSE_fullwrite ("source"   , myVIKEYS.s_prog, myVIKEYS.s_vernum, myVIKEYS.s_vertxt);
    DEBUG_INPT   yLOG_value   ("source"    , rc);
    /*---(timestamp)------------------------*/
    x_time = time (NULL);
@@ -736,8 +729,8 @@ yvikeys__file_intro      (void)
    rc = yPARSE_fullwrite ("written"  , x_temp);
    DEBUG_INPT   yLOG_value   ("written"   , rc);
    /*---(version)------------------------*/
-   if (ver_ctrl == 'y') {
-      rc = yPARSE_fullwrite ("version"  , ver_num, ver_txt);
+   if (myVIKEYS.f_control == 'y') {
+      rc = yPARSE_fullwrite ("version"  , myVIKEYS.f_vernum, myVIKEYS.f_vertxt);
       DEBUG_INPT   yLOG_value   ("version"   , rc);
    } else {
       rc = yPARSE_fullwrite ("version"  , "n/a", "untracked");
@@ -1009,7 +1002,7 @@ yvikeys_file_prog_writer (void)
    /*---(clear output)-------------------*/
    yPARSE_outclear  ();
    /*---(write line)---------------------*/
-   rc = yPARSE_fullwrite ("source"   , s_prog, s_vernum, s_vertxt);
+   rc = yPARSE_fullwrite ("source"   , myVIKEYS.s_prog, myVIKEYS.s_vernum, myVIKEYS.s_vertxt);
    DEBUG_INPT   yLOG_value   ("source"    , rc);
    --rce; if (rc < 0) { 
       DEBUG_OUTP   yLOG_exitr   (__FUNCTION__, rce);
@@ -1057,8 +1050,8 @@ yvikeys_file_vers_writer (void)
    /*---(clear output)-------------------*/
    yPARSE_outclear  ();
    /*---(version)------------------------*/
-   if (ver_ctrl == 'y') {
-      rc = yPARSE_fullwrite ("version"  , 'y', ver_num, ver_txt);
+   if (myVIKEYS.f_control == 'y') {
+      rc = yPARSE_fullwrite ("version"  , 'y', myVIKEYS.f_vernum, myVIKEYS.f_vertxt);
    } else {
       rc = yPARSE_fullwrite ("version"  , '-', "n/a", "untracked");
    }
@@ -1312,9 +1305,9 @@ FILE__unit         (char *a_question, int a_ref)
    strcpy  (yVIKEYS__unit_answer, "FILE             : question not understood");
    /*---(selection)----------------------*/
    if      (strcmp (a_question, "ver_num"   )    == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_FULL, "FILE ver_num     : %s", ver_num);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "FILE ver_num     : %s", myVIKEYS.f_vernum);
    } else if (strcmp (a_question, "version"   )    == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_FULL, "FILE version     : %c %-4.4s %s", ver_ctrl, ver_num, ver_txt);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "FILE version     : %c %-4.4s %s", myVIKEYS.f_control, myVIKEYS.f_vernum, myVIKEYS.f_vertxt);
    } else if (strcmp (a_question, "recd"      )    == 0) {
       snprintf (yVIKEYS__unit_answer, LEN_FULL, "FILE recd        : %s", myVIKEYS.f_recd);
    } else if (strcmp (a_question, "loc"       )    == 0) {

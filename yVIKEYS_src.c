@@ -910,13 +910,14 @@ SOURCE__opengl          (tEDIT *a_cur, int a_lef, int a_rig, int a_bot, int a_to
       else                                c2 = '[';
    }
    /*---(text)---------------------------*/
+   DEBUG_GRAF   yLOG_info     ("contents"  , a_cur->contents);
    /*> if (a_cur->npos == 0) sprintf (t, "   %c", G_CHAR_NULL);                                                                              <* 
     *> else                  sprintf (t, "%4d%c%-*.*s%c"  , a_cur->npos, c1, a_cur->apos, a_cur->apos, a_cur->contents + a_cur->bpos, c2);   <*/
    if (a_cur->npos == 0) sprintf (t, "   %c", G_CHAR_NULL);
    else                  sprintf (t, "%4d%c%-*.*s%c"  , a_cur->cpos, c1, a_cur->apos, a_cur->apos, a_cur->contents + a_cur->bpos, c2);
    glPushMatrix    (); {
       glTranslatef (a_lef, a_bot + 3, 130.0f);
-      glColor4f   (1.0, 1.0, 1.0, 1.0);
+      glColor4f   (0.0, 0.0, 0.0, 1.0);
       yFONT_print (myVIKEYS.font, myVIKEYS.point, YF_BOTLEF, t);
    } glPopMatrix   ();
    /*---(complete)-----------------------*/

@@ -40,7 +40,7 @@ char   g_repeat    [LEN_DESC ]   = "123456789";
 char   g_search    [LEN_DESC ]   = "[<>]";
 
 
-static char *s_map_modes = ":/,\" vMVm' s=+-#F @qQG";
+static char *s_map_modes = ":/\\,\" vMVm' s=+-#F @qQG";
 
 
 
@@ -1788,6 +1788,12 @@ yvikeys__map_mode_chg   (char a_minor)
    case ':'      :
       SOURCE_start   (":");
       rc = 'a';
+      break;
+   case '\\'     :
+      DEBUG_USER   yLOG_note    ("entering menu sub-mode");
+      MODE_enter  (SMOD_MENUS   );
+      yvikeys_menu_start  ();
+      rc = a_minor;
       break;
    case '/'      :
       SOURCE_start   ("/");
