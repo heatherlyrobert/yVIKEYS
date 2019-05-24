@@ -3,9 +3,55 @@
 #include    "yVIKEYS.h"
 #include    "yVIKEYS_priv.h"
 
+/*===[[ DESIGN NOTES ]]=======================================================*/
+/*
+ * definition
+ *
+ * situation
+ *
+ * challenge
+ *
+ * response
+ *
+ * known thine user, and tailor accordingly
+ *
+ * history -- applications were purely keyboard-driven, unforgiving, required
+ * extensive training, but were extremely productive for users.  users were
+ * employees, computer time was expensive, speed and accuracy was paramount.
+ * keystroke focused, zero menus, zero buttons, zero mice, manuals.
+ *
+ * trend -- as expected, sales volume generates profit so the valuable user
+ * base is the non-technical, novice, casual user.  users are typically not
+ * even computer literate and a simple, carefree user experience is paramount.
+ * visually oriented, iconbars and ribbons, simple functionality.
+ *
+ * blending -- some applications have retained their deep capabilities but
+ * "skinned" themselves with buttons and ribbons for more casual users.  this
+ * is the best of both, but it is rare and typically a labor of love.
+ *
+ * there are two ways of getting things done in yVIKEYS -- keys and commands.
+ * keys and modes are used for all common activities.  commands are used for
+ * complex requests.
+ *
+ * menus are a commmand classification system that allows a user to "look up"
+ * a command through a standard system.  no menu item should exist without a
+ * command or key to back it up.  menus are a front-end only.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */
 
 /*===[[ METIS BACKLOG ]]======================================================*
- * metis  dn2··  create a masking config for a callback -- needed for float, history, menu
+ * metis  dn2x·  create a masking config for a callback -- needed for float, history, menu
  *
  */
 

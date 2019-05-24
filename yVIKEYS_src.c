@@ -911,6 +911,10 @@ SOURCE__opengl          (tEDIT *a_cur, int a_lef, int a_rig, int a_bot, int a_to
    }
    /*---(text)---------------------------*/
    DEBUG_GRAF   yLOG_info     ("contents"  , a_cur->contents);
+   DEBUG_GRAF   yLOG_value    ("apos"      , a_cur->apos);
+   DEBUG_GRAF   yLOG_value    ("bpos"      , a_cur->bpos);
+   DEBUG_GRAF   yLOG_value    ("cpos"      , a_cur->cpos);
+   DEBUG_GRAF   yLOG_value    ("npos"      , a_cur->npos);
    /*> if (a_cur->npos == 0) sprintf (t, "   %c", G_CHAR_NULL);                                                                              <* 
     *> else                  sprintf (t, "%4d%c%-*.*s%c"  , a_cur->npos, c1, a_cur->apos, a_cur->apos, a_cur->contents + a_cur->bpos, c2);   <*/
    if (a_cur->npos == 0) sprintf (t, "   %c", G_CHAR_NULL);
@@ -1090,6 +1094,35 @@ SOURCE_float               (void)
    DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
    return 0;
 }
+
+char
+SOURCE_menu_prep        (void)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        x_on        =  '-';
+   int         x_wide      =    0;
+   tEDIT      *x_cur       = NULL;
+   /*---(header)----------------------*/
+   DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
+   /*---(get wide)--------------------*/
+   x_on = yVIKEYS_view_size     (YVIKEYS_COMMAND, NULL, &x_wide, NULL, NULL, NULL);
+   DEBUG_EDIT   yLOG_char    ("on"        , x_on);
+   if (x_on != 'y') yVIKEYS_view_size     (YVIKEYS_FLOAT, NULL, &x_wide, NULL, NULL, NULL);
+   DEBUG_EDIT   yLOG_char    ("x_wide"    , x_wide);
+   /*---(set current)-----------------*/
+   x_cur  = &s_cmd;
+   /*---(set wide)--------------------*/
+   DEBUG_EDIT   yLOG_char    ("env"       , myVIKEYS.env);
+   if (myVIKEYS.env == YVIKEYS_CURSES)  x_cur->wide = x_wide;
+   else                                 x_cur->wide = x_wide / myVIKEYS.font_scale;
+   /*---(set apos)--------------------*/
+   x_cur->apos = x_cur->wide - 6;
+   DEBUG_EDIT   yLOG_char    ("apos"      , x_cur->apos);
+   /*---(complete)--------------------*/
+   DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
 
 
 char

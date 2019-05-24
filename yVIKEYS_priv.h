@@ -27,8 +27,8 @@
 
 #define     P_VERMAJOR  "1.X = working for everyday use, features still evolving but stable"
 #define     P_VERMINOR  "1.2 = cleaning out all existing unit test bugs"
-#define     P_VERNUM    "1.2h"
-#define     P_VERTXT    "menu display and sub-mode now integrated"
+#define     P_VERNUM    "1.2i"
+#define     P_VERTXT    "file control updated with menu access testing"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -47,6 +47,7 @@
 #include    <unistd.h>            /* clibc  linux/unix standard environment   */
 #include    <time.h>              /* clibc  time related functions            */
 #include    <math.h>              /* clibc  mathematical functions            */
+#include    <dirent.h>            /* clibc  directory reading and decoding    */
 /*---(posix standard)--------------------*/
 #include    <GL/gl.h>             /* opengl standard primary header           */
 #include    <GL/glx.h>            /* opengl standard X11 integration          */
@@ -60,6 +61,7 @@
 #include    <yCOLOR.h>             /* heatherly opengl color handling         */
 #include    <yGOD.h>               /* heatherly opengl godview                */
 #include    <yPARSE.h>             /* heatherly file reading and writing      */
+#include    <yREGEX.h>             /* heatherly regular expressions           */
 
 
 
@@ -207,6 +209,7 @@ extern char  g_multisrc  [LEN_DESC ];
 extern char  g_repeat    [LEN_DESC ];
 
 
+typedef     struct dirent     tDIRENT;
 typedef     struct stat       tSTAT;
 typedef     struct timespec   tSPEC;
 typedef     unsigned char     uchar;
@@ -377,6 +380,7 @@ char        SOURCE_other            (char a_type);
 char        SOURCE_formula          (void);
 char        SOURCE_command          (void);
 char        SOURCE_float            (void);
+char        SOURCE_menu_prep        (void);
 char*       SOURCE__unit            (char *a_question, char a_reg);
 char        SOURCE_status_words     (char *a_list);
 char        SOURCE_start            (char *a_prefix);
@@ -561,20 +565,21 @@ char*       GOD__unit               (char *a_question, char a_mark);
 
 
 
-char        yvikeys_file_init               (void);
-char        yvikeys_file_controlled         (char  *a_yes);
-char        yvikeys_file_control            (void);
-char        yvikeys_file_nocontrol          (void);
-char        yvikeys_file_version            (char  *a_ver);
-char        yvikeys_file_vertxt             (char  *a_txt);
-char        yvikeys_file_bump               (char  *a_type);
-char        yvikeys_file_bump_major         (void);
-char        yvikeys_file_bump_minor         (void);
-char        yvikeys_file_bump_inc           (void);
-char        yvikeys_file_loc                (char  *a_loc);
-char        yvikeys_file_name               (char  *a_name);
-char        FILE__unit_null         (void);
-char*       FILE__unit              (char *a_question, int a_ref);
+char        yvikeys_file_init            (void);
+char        yvikeys_file_controlled      (char  *a_yes);
+char        yvikeys_file_control         (void);
+char        yvikeys_file_nocontrol       (void);
+char        yvikeys_file_version         (char  *a_ver);
+char        yvikeys_file_vertxt          (char  *a_txt);
+char        yvikeys_file_bump            (char  *a_type);
+char        yvikeys_file_bump_major      (void);
+char        yvikeys_file_bump_minor      (void);
+char        yvikeys_file_bump_inc        (void);
+int         yvikeys__file_regex          (char a_type, char *a_ext, char *a_entry, char *a_match);
+char        yvikeys_file_loc             (char  *a_loc);
+char        yvikeys_file_name            (char  *a_name);
+char        FILE__unit_null              (void);
+char*       FILE__unit                   (char *a_question, int a_ref);
 
 /*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
 char        yvikeys_file_prog_writer    (void);

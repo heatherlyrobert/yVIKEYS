@@ -7,9 +7,9 @@
 /*
  *
  * metis  wn1··  sort cells found into a understandable, responsible order 
- * metis  dw2··  third tier menu items need to set and use next field
+ * metis  dw2#·  third tier menu items need to set and use next field
  * metis  dw2··  allow additions to menu and automatically link them
- * metis  tn2··  simple example menu item to execute when complete
+ * metis  tn2#·  simple example menu item to execute when complete
  * metis  tn2#·  menus to display error and keep locked until <esc>
  * metis  tn2#·  menus error to display last valid menu behind error
  * metis  dn4··  menu activate/deactive using menu paths (cant active if master not active)
@@ -119,18 +119,18 @@ static const tMENU  s_menus [MAX_MENU] = {
    { 'f', 'm', 'T', "tab+"             , 'y', '·', "+T"                , "pure values, tab del, with hints"                 },
    { 'f', 'm', 'N', "native"           , 'y', '·', "+N"                , "native format, field del, with hints"             },
    { '·', '·', '·', "---------"        , '-', '-', "-------------"     , "-------------------------------------------------"},
-   { 'f', 'n', '·', "rename"           , 'y', '·', ":file·"            , "change the name of the current workspace"         },
+   { 'f', 'n', '·', "rename"           , 'y', '=', ":file·"            , "change the name of the current workspace"         },
    { 'f', 'r', '·', "revert"           , '·', '·', "-"                 , "return to the original workspace state"           },
    { 'f', 'f', '·', "refresh"          , 'y', '·', "-"                 , "reread the source file, replacing existing"       },
    { 'f', 'i', '·', "info"             , '·', '·', "-"                 , "display key workspace statistics"                 },
    { 'f', 'v', '·', "version"          , 'y', '>', "-"                 , "workspace and file versioning"                    },
    { 'f', 'v', 'c', "ctrl"             , 'y', '·', ":control¦"         , "turn on version control"                          },
    { 'f', 'v', 'n', "noctrl"           , 'y', '·', ":nocontrol¦"       , "turn off version control"                         },
-   { 'f', 'v', 'j', "major"            , 'y', '·', ":major¦"           , "bump major value up by one"                       },
-   { 'f', 'v', 'n', "minor"            , 'y', '·', ":minor¦"           , "bump minor value up by one"                       },
-   { 'f', 'v', 'b', "bump"             , 'y', '·', ":bump¦"            , "bump sub value up by one"                         },
-   { 'f', 'v', 't', "vertxt"           , 'y', '·', ":vertxt·"          , "enter text for most recent version"               },
-   { 'f', 'v', 'm', "manual"           , 'y', '·', ":version·"         , "set version number manually"                      },
+   { 'f', 'v', '1', "major"            , 'y', '·', ":major¦"           , "bump major value up by one"                       },
+   { 'f', 'v', '2', "minor"            , 'y', '·', ":minor¦"           , "bump minor value up by one"                       },
+   { 'f', 'v', '3', "bump"             , 'y', '·', ":bump¦"            , "bump sub value up by one"                         },
+   { 'f', 'v', 't', "vertxt"           , 'y', '=', ":vertxt·"          , "enter text for most recent version"               },
+   { 'f', 'v', 'm', "manual"           , 'y', '=', ":version·"         , "set version number manually"                      },
    { '·', '·', '·', "---------"        , '-', '-', "-------------"     , "-------------------------------------------------"},
    { 'f', 's', '·', "save"             , 'y', '·', ":w"                , "write the current workspace"                      },
    { 'f', 'a', '·', "saveas"           , 'y', '=', "-"                 , "write current workspace using temp name"          },
@@ -151,7 +151,7 @@ static const tMENU  s_menus [MAX_MENU] = {
    { 'f', 'x', 'N', "native"           , 'y', 'v', "-N"                , "native format, field del, plus hints"             },
    { '·', '·', '·', "---------"        , '-', '-', "-------------"     , "-------------------------------------------------"},
    { 'f', 'c', '·', "close"            , 'y', '·', "-"                 , "close current workspace"                          },
-   { 'f', 'q', '·', "quit"             , 'y', '·', ":qa"               , "quit the program"                                 },
+   { 'f', 'q', '·', "quit"             , 'y', '·', ":qa¦"              , "quit the program"                                 },
    /*---(edit menu)----------------------------------------------*/
    { 'e', '·', '·', "edit"             , 'y', '>', "-"                 , "-"                                                },
    { 'e', 'u', '·', "undo"             , 'y', '·', "u"                 , "undo the very last action"                        },
@@ -1956,6 +1956,7 @@ yvikeys_menu_init       (void)
    int          x_mid_last =   -1;
    char         x_mid_beg  =  '-';
    char         x_mid_grp  =  '-';
+   int          x_bot_last =   -1;
    /*---(header)-------------------------*/
    DEBUG_PROG   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
@@ -2021,8 +2022,11 @@ yvikeys_menu_init       (void)
       if (x_mid_beg != 'y') {
          s_dmenu [x_mid_last].start = i;
          x_mid_beg = 'y';
+         x_bot_last = -1;
       }
       /*---(flags)-----------------------*/
+      if (x_bot_last >= 0)  s_dmenu [x_bot_last].next = i;
+      x_bot_last = i;
       ++s_dmenu [x_mid_last].count;
       /*---(done)------------------------*/
    }
@@ -2281,6 +2285,7 @@ yvikeys__menu_subs      (int a_last)
 char
 yvikeys__menu_opts      (int a_last)
 {
+   char        rce         =  -10;
    int         i           =    0;
    int         j           =    0;
    int         c           =    0;
@@ -2292,9 +2297,21 @@ yvikeys__menu_opts      (int a_last)
    /*---(header)-------------------------*/
    DEBUG_CMDS   yLOG_enter   (__FUNCTION__);
    /*---(dots)---------------------------*/
-   if (a_last < 0) {
-      DEBUG_CMDS   yLOG_exit    (__FUNCTION__);
-      return -1;
+   DEBUG_CMDS   yLOG_value   ("a_last"    , a_last);
+   --rce;  if (a_last < 0) {
+      DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_CMDS   yLOG_char    ("type"      , s_menus [a_last].type);
+   --rce;  if (s_menus [a_last].type != '>') {
+      DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   a = s_dmenu [a_last].count;
+   DEBUG_CMDS   yLOG_value   ("a"         , a);
+   --rce;  if (a <= 0) {
+      DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
    }
    c = 0;
    glPushMatrix(); {
@@ -2429,6 +2446,11 @@ yvikeys_menu_smode      (int  a_major, int  a_minor)
    char        rce         =  -10;
    char        rc          =    0;
    char        t           [LEN_LABEL];
+   int         n           =    0;
+   int         x_len       =    0;
+   char        x_level     =    0;
+   int         x_last      =    0;
+   char        x_on        =    0;
    /*---(header)-------------------------*/
    DEBUG_USER   yLOG_enter   (__FUNCTION__);
    DEBUG_USER   yLOG_char    ("a_major"   , a_major);
@@ -2456,6 +2478,31 @@ yvikeys_menu_smode      (int  a_major, int  a_minor)
    sprintf (t, "%c", a_minor);
    strlcat (myVIKEYS.m_path, t, LEN_LABEL);
    DEBUG_USER   yLOG_info    ("m_path"    , myVIKEYS.m_path);
+   /*---(find path)----------------------*/
+   n = yvikeys__menu_find (myVIKEYS.m_path, &x_level, &x_last);
+   DEBUG_USER   yLOG_value   ("n"         , n);
+   DEBUG_USER   yLOG_value   ("x_level"   , x_level);
+   DEBUG_USER   yLOG_value   ("x_last"    , x_last);
+   /*---(draw back)----------------------*/
+   DEBUG_USER   yLOG_info    ("m_path"    , myVIKEYS.m_path);
+   x_len = strlen (myVIKEYS.m_path);
+   /*---(check exec)---------------------*/
+   if (n >= 0 && x_len - 1 == x_level) {
+      DEBUG_USER   yLOG_char    ("type"      , s_menus [n].type);
+      if (n >= 0 && strchr ("·=", s_menus [n].type) != NULL) {
+         MODE_exit ();
+         DEBUG_USER   yLOG_info    ("keys"      , s_menus [n].keys);
+         if (strlen (s_menus [n].keys) == 1 && s_menus [n].keys [0] == '-') {
+            DEBUG_USER   yLOG_exitr   (__FUNCTION__, -1);
+            return -1;
+         }
+         SOURCE_menu_prep ();
+         strlcpy (myVIKEYS.m_keys, s_menus [n].keys, LEN_LABEL);
+         yVIKEYS_main_string (myVIKEYS.m_keys);
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         return 0;
+      }
+   }
    /*---(complete)-----------------------*/
    DEBUG_USER   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -2484,19 +2531,6 @@ yvikeys_menu_draw          (void)
    DEBUG_USER   yLOG_value   ("n"         , n);
    DEBUG_USER   yLOG_value   ("x_level"   , x_level);
    DEBUG_USER   yLOG_value   ("x_last"    , x_last);
-   /*---(check exec)---------------------*/
-   DEBUG_USER   yLOG_char    ("type"      , s_menus [n].type);
-   if (n >= 0 && s_menus [n].type == '·') {
-      DEBUG_USER   yLOG_info    ("keys"      , s_menus [n].keys);
-      if (strlen (s_menus [n].keys) == 1 && s_menus [n].keys [0] == '-') {
-         DEBUG_USER   yLOG_exitr   (__FUNCTION__, -1);
-         return -1;
-      }
-      strlcpy (myVIKEYS.m_keys, s_menus [n].keys, LEN_LABEL);
-      yVIKEYS_main_string (myVIKEYS.m_keys);
-      DEBUG_USER   yLOG_exit    (__FUNCTION__);
-      return 0;
-   }
    /*---(draw back)----------------------*/
    DEBUG_USER   yLOG_info    ("m_path"    , myVIKEYS.m_path);
    x_len = strlen (myVIKEYS.m_path);

@@ -299,8 +299,10 @@ BASE__unit_loud        (void)
    yURG_name  ("mode"         , YURG_ON);
    yURG_name  ("map"          , YURG_ON);
    yURG_name  ("map_mas"      , YURG_ON);
+   yURG_name  ("cmds"         , YURG_ON);
    yURG_name  ("srch"         , YURG_ON);
    yURG_name  ("hist"         , YURG_ON);
+   yURG_name  ("graf"         , YURG_ON);
    yURG_name  ("ystr"         , YURG_ON);
    yURG_name  ("yparse"       , YURG_ON);
    DEBUG_YVIKEYS yLOG_info     ("yVIKEYS"    , yVIKEYS_version   ());

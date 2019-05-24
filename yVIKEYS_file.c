@@ -39,6 +39,18 @@
  */
 
 
+/*============================---- METIS TASKS ---============================*/
+/*
+ * metis  tn1··  add menu control to version unit testing (units 01-05)
+ * metis  tn1··  add menu control to file naming/renaming and change directory
+ * metis  tn1··  add menu control to file writing, save as, etc
+ * metis  tn1··  add menu control to file reading, updating, etc
+ * metis  dw2··  update change directory to expect regex (and take first)
+ * metis  dw2··  update file open to expect regex (and take first)
+ *
+ *
+ */
+
 
 
 /*
@@ -185,6 +197,7 @@ yvikeys_file_init               (void)
    }
    /*---(reset globals)------------------*/
    DEBUG_PROG   yLOG_note    ("set defaults");
+   myVIKEYS.f_control = '-';
    strlcpy (myVIKEYS.f_vernum , "----" , LEN_LABEL);
    strlcpy (myVIKEYS.f_vertxt , "-----", LEN_DESC );
    strlcpy (myVIKEYS.s_prog  , "-"    , LEN_DESC );
@@ -346,7 +359,7 @@ yvikeys_file_bump          (char *a_type)
       return rce;
    }
    /*---(defense : not controlled)-------*/
-   --rce;  if (myVIKEYS.f_control != 'y')  return rce;
+   --rce;  if (myVIKEYS.f_control != 'y')        return rce;
    /*---(defense: a_type)----------------*/
    --rce;  if (a_type == NULL)                   return rce;
    --rce;  if (a_type [0] == '\0')               return rce;
@@ -443,7 +456,7 @@ yvikeys_file_version       (char *a_ver)
       return rce;
    }
    /*---(defense : not controlled)-------*/
-   --rce;  if (myVIKEYS.f_control != 'y')  return rce;
+   --rce;  if (myVIKEYS.f_control != 'y')   return rce;
    /*---(defense : empty)----------------*/
    --rce;  if (a_ver == NULL)               return rce;
    x_len = strlen (a_ver);
@@ -489,7 +502,8 @@ yvikeys_file_vertxt        (char *a_txt)
    --rce;  if (myVIKEYS.f_control   != 'y' )  return rce;
    --rce;  if (a_txt      == NULL)  return rce;
    --rce;  if (a_txt [0]  == '\0')  return rce;
-   strlcpy (myVIKEYS.f_vertxt, a_txt, LEN_DESC);
+   strlcpy  (myVIKEYS.f_vertxt, a_txt, LEN_DESC);
+   strltrim (myVIKEYS.f_vertxt, ySTR_BOTH, LEN_DESC);
    return 0;
 }
 
@@ -499,6 +513,108 @@ yvikeys_file_vertxt        (char *a_txt)
 /*===----                        file name updates                     ----===*/
 /*====================------------------------------------====================*/
 static void  o___NAMING__________o () { return; }
+
+int
+yvikeys__file_regex             (char a_type, char *a_ext, char *a_entry, char *a_match)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   DIR        *x_dir       = NULL;          /* directory pointer              */
+   tDIRENT    *x_file      = NULL;          /* directory entry pointer        */
+   tSTAT       s;
+   int         x_extlen    =    0;
+   int         x_len       =    0;
+   int         x_checked   =    0;
+   int         x_matches   =    0;
+   /*---(header)-------------------------*/
+   DEBUG_INPT   yLOG_enter   (__FUNCTION__);
+   DEBUG_INPT   yLOG_point   ("a_match"   , a_match);
+   if (a_match != NULL)  strlcpy (a_match, "", LEN_RECD);
+   /*---(defense)--------------------s---*/
+   DEBUG_INPT   yLOG_char    ("a_type"    , a_type);
+   --rce;  if (strchr ("fd", a_type) == NULL) {
+      DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_INPT   yLOG_point   ("a_entry"   , a_entry);
+   --rce;  if (a_entry == NULL || a_entry [0] == 0) {
+      DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_INPT   yLOG_info    ("a_entry"   , a_entry);
+   DEBUG_INPT   yLOG_point   ("a_ext"     , a_ext);
+   if (a_type == 'f' && a_ext != NULL && a_ext [0] != '\0') {
+      DEBUG_INPT   yLOG_info    ("a_ext"     , a_ext);
+      x_extlen = strlen (a_ext);
+      DEBUG_INPT   yLOG_value   ("x_extlen"  , x_extlen);
+   }
+   /*---(compile search)-----------------*/
+   rc = yREGEX_comp (a_entry);
+   DEBUG_SRCH   yLOG_value   ("comp"      , rc);
+   --rce;  if (rc < 0) {
+      DEBUG_SRCH   yLOG_note    ("could not compile search");
+      DEBUG_SRCH   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(open dir)-----------------------*/
+   x_dir = opendir(".");
+   DEBUG_INPT   yLOG_point   ("x_dir"      , x_dir);
+   --rce;  if (x_dir == NULL) {
+      DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
+      return  rce;
+   }
+   DEBUG_INPT   yLOG_note    ("openned successfully");
+   while (1) {
+      DEBUG_INPT   yLOG_note    ("processing entries");
+      /*---(read a directory entry)------*/
+      x_file = readdir (x_dir);
+      DEBUG_INPT   yLOG_point   ("x_file"    , x_file);
+      if (x_file == NULL)  break;
+      ++x_checked;
+      /*---(filter basics)------------------*/
+      x_len = strlen (x_file->d_name);
+      DEBUG_INPT   yLOG_value   ("x_len"     , x_len);
+      if (x_len < 1) continue;
+      DEBUG_INPT   yLOG_info    ("->d_name"  , x_file->d_name);
+      if (x_file->d_name [0] == '.' && strcmp (x_file->d_name, "..") != 0) continue;
+      /*---(stat it)------------------------*/
+      rc = stat (x_file->d_name, &s);
+      DEBUG_INPT   yLOG_value   ("rc"        , rc);
+      if (rc < 0) continue;
+      DEBUG_INPT   yLOG_value   ("mode"      , s.st_mode);
+      if (a_type == 'd' && !S_ISDIR (s.st_mode))  continue;
+      if (a_type == 'f' && !S_ISREG (s.st_mode))  continue;
+      /*---(filter by extension)---------*/
+      if (x_extlen > 0) {
+         DEBUG_INPT   yLOG_info    ("p.ext"     , x_file->d_name + x_len - x_extlen);
+         if (strncmp (x_file->d_name + x_len - x_extlen, a_ext, x_extlen) != 0) {
+            DEBUG_INPT   yLOG_note    ("suffix does not match, SKIP");
+            continue;
+         }
+      }
+      /*---(filter by name)--------------*/
+      rc = yREGEX_exec (x_file->d_name);
+      DEBUG_INPT   yLOG_value   ("exec"      , rc);
+      if (rc <= 0) continue;
+      /*---(save)------------------------*/
+      DEBUG_INPT   yLOG_note    ("found a match");
+      ++x_matches;
+      if (x_matches == 1 && a_match != NULL) {
+         strlcpy (a_match, x_file->d_name, LEN_RECD);
+      }
+      /*---(done)------------------------*/
+   }
+   DEBUG_INPT   yLOG_value   ("x_checked" , x_checked);
+   DEBUG_INPT   yLOG_value   ("x_matches" , x_matches);
+   /*---(close dir)----------------------*/
+   DEBUG_INPT   yLOG_note    ("closing directory");
+   rc = closedir (x_dir);
+   DEBUG_INPT   yLOG_value   ("close_rc"  , rc);
+   /*---(complete)-----------------------*/
+   DEBUG_INPT   yLOG_exit    (__FUNCTION__);
+   return x_matches;
+}
 
 char         /*-> tbd --------------------------------[ leaf   [gc.C55.124.30]*/ /*-[01.0000.112.!]-*/ /*-[--.---.---.--]-*/
 yvikeys_file_loc                (char *a_loc)
