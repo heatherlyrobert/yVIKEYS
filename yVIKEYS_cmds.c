@@ -2103,60 +2103,90 @@ static int     s_abbr   [LEN_LABEL] = { -15,   0,   0,   0,   0,   0,   0,   0, 
 char
 yvikeys__menu_back      (int a_len, int a_level, int a_last)
 {
+   /*---(locals)-----------+-----+-----+-*/
+   char        x_on        =  '-';
+   int         x_left, x_wide, x_bott, x_tall, x_top, x_mid;
+   int         x_xmin, x_xmax, x_ymin, x_ymax;
+   int         x, y;
    int         t           [LEN_LABEL];
+   int         x_len       =    0;
+   /*---(header)-------------------------*/
    DEBUG_CMDS   yLOG_enter   (__FUNCTION__);
    DEBUG_CMDS   yLOG_value   ("a_len"     , a_len);
    DEBUG_CMDS   yLOG_value   ("a_level"   , a_level);
    DEBUG_CMDS   yLOG_value   ("a_last"    , a_last);
-   /*---(black background)---------------*/
-   glColor4f (0.0f, 0.0f, 0.0f, 1.0f);
-   glBegin(GL_POLYGON); {
-      glVertex3f (  10.0,   -70.0,    90.0);
-      glVertex3f ( 290.0,   -70.0,    90.0);
-      glVertex3f ( 290.0,  -270.0,    90.0);
-      glVertex3f (  10.0,  -270.0,    90.0);
-   } glEnd();
-   /*---(color fill)---------------------*/
-   if (a_len != a_level) {
-      glColor4f (0.8f, 0.0f, 0.0f, 1.0f);
-   } else {
-      switch (a_level) {
-      case  0 :  glColor4f (0.0f, 0.8f, 0.8f, 1.0f);  break;
-      case  1 :  glColor4f (0.7f, 0.5f, 0.3f, 1.0f);  break;
-      case  2 :  glColor4f (0.3f, 0.8f, 0.3f, 1.0f);  break;
+   DEBUG_CMDS   yLOG_char    ("env"       , myVIKEYS.env);
+   /*---(get sizes)----------------------*/
+   x_on = yVIKEYS_view_size   (YVIKEYS_MENUS, &x_left, &x_wide, &x_bott, &x_tall, NULL);
+   DEBUG_CMDS   yLOG_complex  ("size"      , "%3dl, %3dw, %3db, %3dt", x_left, x_wide, x_bott, x_tall);
+   x_on = yVIKEYS_view_bounds (YVIKEYS_MENUS, &x_xmin, &x_xmax, &x_ymin, &x_ymax);
+   DEBUG_CMDS   yLOG_complex  ("bounds"    , "%3dx to %3dx, %3dy to %3dy", x_xmin, x_xmax, x_ymin, x_ymax);
+   /*---(opengl)-------------------------*/
+   if (myVIKEYS.env == YVIKEYS_OPENGL) {
+      /*---(black background)---------------*/
+      glColor4f (0.0f, 0.0f, 0.0f, 1.0f);
+      glBegin(GL_POLYGON); {
+         glVertex3f (  10.0,   -70.0,    90.0);
+         glVertex3f ( 290.0,   -70.0,    90.0);
+         glVertex3f ( 290.0,  -270.0,    90.0);
+         glVertex3f (  10.0,  -270.0,    90.0);
+      } glEnd();
+      /*---(color fill)---------------------*/
+      if (a_len != a_level) {
+         glColor4f (0.8f, 0.0f, 0.0f, 1.0f);
+      } else {
+         switch (a_level) {
+         case  0 :  glColor4f (0.0f, 0.8f, 0.8f, 1.0f);  break;
+         case  1 :  glColor4f (0.7f, 0.5f, 0.3f, 1.0f);  break;
+         case  2 :  glColor4f (0.3f, 0.8f, 0.3f, 1.0f);  break;
+         }
       }
+      glBegin(GL_POLYGON); {
+         glVertex3f (  12.0,   -72.0,   100.0);
+         glVertex3f ( 288.0,   -72.0,   100.0);
+         glVertex3f ( 288.0,  -268.0,   100.0);
+         glVertex3f (  12.0,  -268.0,   100.0);
+      } glEnd();
+      /*---(labels)-------------------------*/
+      glPushMatrix(); {
+         glColor4f (0.0, 0.0, 0.0, 1.0);
+         glTranslatef( 150.0,  -85.0, 120.0);
+         switch (a_level) {
+         case  0 : strlcpy (t, "main menu", LEN_LABEL); break;
+         case  1 : sprintf (t, "\\%c (%s) sub-menu", s_menus [a_last].top, s_menus [a_last].name); break;
+         case  2 : sprintf (t, "\\%c%c (%s) options", s_menus [a_last].top, s_menus [a_last].mid, s_menus [a_last].name); break;
+         }
+         yFONT_print (myVIKEYS.font, myVIKEYS.point, YF_BASCEN, t);
+         glTranslatef(-130.0,    0.0,   0.0);
+         yFONT_print (myVIKEYS.font, myVIKEYS.point, YF_BASLEF, myVIKEYS.s_prog);
+         glTranslatef( 260.0,    0.0,   0.0);
+         yFONT_print (myVIKEYS.font, myVIKEYS.point, YF_BASRIG, myVIKEYS.s_vernum);
+         glTranslatef(-130.0, -180.0,   0.0);
+         glColor4f (0.3, 0.3, 0.3, 1.0);
+         yFONT_print  (myVIKEYS.font, myVIKEYS.point, YF_BASCEN, "yvikeys menus -- wider and flatter");
+         if (a_len != a_level) {
+            glColor4f    (1.0f, 1.0f, 1.0f, 1.0f);
+            glTranslatef (   0.0,   50.0,  50.0);
+            yFONT_print  (myVIKEYS.font, 16, YF_BASCEN, "ERROR KEYS");
+            glTranslatef (   0.0,  -15.0,   0.0);
+            yFONT_print  (myVIKEYS.font, 10, YF_BASCEN, "menu locked, <esc> to exit");
+         }
+      } glPopMatrix();
    }
-   glBegin(GL_POLYGON); {
-      glVertex3f (  12.0,   -72.0,   100.0);
-      glVertex3f ( 288.0,   -72.0,   100.0);
-      glVertex3f ( 288.0,  -268.0,   100.0);
-      glVertex3f (  12.0,  -268.0,   100.0);
-   } glEnd();
-   /*---(labels)-------------------------*/
-   glPushMatrix(); {
-      glColor4f (0.0, 0.0, 0.0, 1.0);
-      glTranslatef( 150.0,  -85.0, 120.0);
+   if (myVIKEYS.env == YVIKEYS_CURSES) {
+      x_top = x_bott - x_tall;
+      x_mid = x_left + (x_wide / 2);
       switch (a_level) {
       case  0 : strlcpy (t, "main menu", LEN_LABEL); break;
       case  1 : sprintf (t, "\\%c (%s) sub-menu", s_menus [a_last].top, s_menus [a_last].name); break;
       case  2 : sprintf (t, "\\%c%c (%s) options", s_menus [a_last].top, s_menus [a_last].mid, s_menus [a_last].name); break;
       }
-      yFONT_print (myVIKEYS.font, myVIKEYS.point, YF_BASCEN, t);
-      glTranslatef(-130.0,    0.0,   0.0);
-      yFONT_print (myVIKEYS.font, myVIKEYS.point, YF_BASLEF, myVIKEYS.s_prog);
-      glTranslatef( 260.0,    0.0,   0.0);
-      yFONT_print (myVIKEYS.font, myVIKEYS.point, YF_BASRIG, myVIKEYS.s_vernum);
-      glTranslatef(-130.0, -180.0,   0.0);
-      glColor4f (0.3, 0.3, 0.3, 1.0);
-      yFONT_print  (myVIKEYS.font, myVIKEYS.point, YF_BASCEN, "yvikeys menus -- wider and flatter");
-      if (a_len != a_level) {
-         glColor4f    (1.0f, 1.0f, 1.0f, 1.0f);
-         glTranslatef (   0.0,   50.0,  50.0);
-         yFONT_print  (myVIKEYS.font, 16, YF_BASCEN, "ERROR KEYS");
-         glTranslatef (   0.0,  -15.0,   0.0);
-         yFONT_print  (myVIKEYS.font, 10, YF_BASCEN, "menu locked, <esc> to exit");
-      }
-   } glPopMatrix();
+      x_len = strlen (t);
+      mvprintw   (x_top, x_mid - (x_len / 2), "%s", t);
+      mvprintw   (x_top, x_left, "%s", myVIKEYS.s_prog);
+      x_len = strlen (myVIKEYS.s_vernum);
+      mvprintw   (x_top, x_left + x_wide - x_len, "%s", myVIKEYS.s_vernum);
+   }
    /*---(complete)-----------------------*/
    DEBUG_CMDS   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -2235,8 +2265,9 @@ yvikeys__menu_main      (void)
             /*> yvikeys_menu__round (myVIKEYS.font);                                            <*/
          } glPopMatrix();
       } glPopMatrix();
-   } else {
-      x_top = x_bott - x_tall + 1;
+   }
+   if (myVIKEYS.env == YVIKEYS_CURSES) {
+      x_top = x_bott - x_tall + 2;
       x_mid = x_left + (x_wide / 2);
       while (i >= 0) {
          DEBUG_CMDS   yLOG_value   ("i"         , i);
@@ -2274,48 +2305,82 @@ yvikeys__menu_main      (void)
 char
 yvikeys__menu_subs      (int a_last)
 {
+   /*---(locals)-----------+-----+-----+-*/
    int         i           =    0;
    int         c           =    0;
    int         a           =    0;
    int         t           [LEN_LABEL];
    int         x_group     =    0;
    int         x_entry     =    0;
+   char        x_on        =  '-';
+   int         x_left, x_wide, x_bott, x_tall, x_top, x_mid;
+   int         x_xmin, x_xmax, x_ymin, x_ymax;
+   int         x, y;
    /*---(header)-------------------------*/
    DEBUG_CMDS   yLOG_enter   (__FUNCTION__);
-   /*---(draw)---------------------------*/
+   DEBUG_CMDS   yLOG_char    ("env"       , myVIKEYS.env);
+   /*---(get sizes)----------------------*/
+   x_on = yVIKEYS_view_size   (YVIKEYS_MENUS, &x_left, &x_wide, &x_bott, &x_tall, NULL);
+   DEBUG_CMDS   yLOG_complex  ("size"      , "%3dl, %3dw, %3db, %3dt", x_left, x_wide, x_bott, x_tall);
+   x_on = yVIKEYS_view_bounds (YVIKEYS_MENUS, &x_xmin, &x_xmax, &x_ymin, &x_ymax);
+   DEBUG_CMDS   yLOG_complex  ("bounds"    , "%3dx to %3dx, %3dy to %3dy", x_xmin, x_xmax, x_ymin, x_ymax);
+   /*---(defenses)-----------------------*/
    if (a_last < 0) {
       DEBUG_CMDS   yLOG_exit    (__FUNCTION__);
       return -1;
    }
+   /*---(prepare)------------------------*/
    i = s_dmenu [a_last].start;
    a = s_dmenu [a_last].count;
    if (a / 12.0 < 2.0) a = a / 2.0 + 1;
    c = 0;
-   glPushMatrix(); {
+   /*---(opengl)-------------------------*/
+   if (myVIKEYS.env == YVIKEYS_OPENGL) {
+      glPushMatrix(); {
+         while (i >= 0) {
+            glPushMatrix(); {
+               glTranslatef( 150.0, -105.0, 120.0);
+               switch (x_group) {
+               case 0 : glTranslatef ( -75.0, -12.0 * x_entry,   0.0);  break;
+               case 1 : glTranslatef (  15.0, -12.0 * x_entry,   0.0);  break;
+               }
+               if (s_dmenu [i].active == 'y')   glColor4f (0.0, 0.0, 0.0, 1.0);
+               else                             glColor4f (0.3, 0.3, 0.3, 1.0);
+               sprintf (t, "%c", s_menus [i].mid);
+               yFONT_print (myVIKEYS.font, myVIKEYS.point, YF_BASLEF, t);
+               glTranslatef (  15.0, 0.0, 0.0);
+               yFONT_print (myVIKEYS.font, myVIKEYS.point, YF_BASLEF, s_menus [i].name);
+               glTranslatef ( -15.0, 0.0, 0.0);
+               i = s_dmenu [i].next;
+               ++c;
+               ++x_entry;
+               if (c != 0 && c % a == 0) {
+                  ++x_group;
+                  x_entry = 0;
+               }
+            } glPopMatrix();
+         }
+      } glPopMatrix();
+   }
+   if (myVIKEYS.env == YVIKEYS_CURSES) {
+      x_top = x_bott - x_tall + 2;
+      x_mid = x_left + (x_wide / 2);
       while (i >= 0) {
-         glPushMatrix(); {
-            glTranslatef( 150.0, -105.0, 120.0);
-            switch (x_group) {
-            case 0 : glTranslatef ( -75.0, -12.0 * x_entry,   0.0);  break;
-            case 1 : glTranslatef (  15.0, -12.0 * x_entry,   0.0);  break;
-            }
-            if (s_dmenu [i].active == 'y')   glColor4f (0.0, 0.0, 0.0, 1.0);
-            else                             glColor4f (0.3, 0.3, 0.3, 1.0);
-            sprintf (t, "%c", s_menus [i].mid);
-            yFONT_print (myVIKEYS.font, myVIKEYS.point, YF_BASLEF, t);
-            glTranslatef (  15.0, 0.0, 0.0);
-            yFONT_print (myVIKEYS.font, myVIKEYS.point, YF_BASLEF, s_menus [i].name);
-            glTranslatef ( -15.0, 0.0, 0.0);
-            i = s_dmenu [i].next;
-            ++c;
-            ++x_entry;
-            if (c != 0 && c % a == 0) {
-               ++x_group;
-               x_entry = 0;
-            }
-         } glPopMatrix();
+         switch (x_group) {
+         case 0 : x = x_mid - 12; y = x_top + x_entry;    break;
+         case 1 : x = x_mid +  2; y = x_top + x_entry;    break;
+         }
+         sprintf (t, "%c %s", s_menus [i].mid, s_menus [i].name);
+         mvprintw   (y, x, "%s", t);
+         i = s_dmenu [i].next;
+         ++c;
+         ++x_entry;
+         if (c != 0 && c % a == 0) {
+            ++x_group;
+            x_entry = 0;
+         }
       }
-   } glPopMatrix();
+   }
    /*---(complete)-----------------------*/
    DEBUG_CMDS   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -2332,9 +2397,18 @@ yvikeys__menu_opts      (int a_last)
    int         t           [LEN_LABEL];
    int         x_group     =    0;
    int         x_entry     =    0;
-   a = s_dmenu [j].count;
+   char        x_on        =  '-';
+   int         x_left, x_wide, x_bott, x_tall, x_top, x_mid;
+   int         x_xmin, x_xmax, x_ymin, x_ymax;
+   int         x, y;
    /*---(header)-------------------------*/
    DEBUG_CMDS   yLOG_enter   (__FUNCTION__);
+   DEBUG_CMDS   yLOG_char    ("env"       , myVIKEYS.env);
+   /*---(get sizes)----------------------*/
+   x_on = yVIKEYS_view_size   (YVIKEYS_MENUS, &x_left, &x_wide, &x_bott, &x_tall, NULL);
+   DEBUG_CMDS   yLOG_complex  ("size"      , "%3dl, %3dw, %3db, %3dt", x_left, x_wide, x_bott, x_tall);
+   x_on = yVIKEYS_view_bounds (YVIKEYS_MENUS, &x_xmin, &x_xmax, &x_ymin, &x_ymax);
+   DEBUG_CMDS   yLOG_complex  ("bounds"    , "%3dx to %3dx, %3dy to %3dy", x_xmin, x_xmax, x_ymin, x_ymax);
    /*---(dots)---------------------------*/
    DEBUG_CMDS   yLOG_value   ("a_last"    , a_last);
    --rce;  if (a_last < 0) {
@@ -2353,62 +2427,89 @@ yvikeys__menu_opts      (int a_last)
       return rce;
    }
    c = 0;
-   glPushMatrix(); {
-      for (x_group = 0; x_group < 4; ++x_group) {
-         for (x_entry = 0; x_entry < 6; ++x_entry) {
+   /*---(opengl)-------------------------*/
+   if (myVIKEYS.env == YVIKEYS_OPENGL) {
+      glPushMatrix(); {
+         for (x_group = 0; x_group < 4; ++x_group) {
+            for (x_entry = 0; x_entry < 6; ++x_entry) {
+               glPushMatrix(); {
+                  glTranslatef( 150.0, -105.0, 120.0);
+                  switch (x_group) {
+                  case 0 : glTranslatef ( -15.0 - (x_entry * 10.0), -12.0 * (5 - x_entry),   0.0);  break;
+                  case 1 : glTranslatef (  15.0 + (x_entry * 10.0), -12.0 * (5 - x_entry),   0.0);  break;
+                  case 2 : glTranslatef ( -15.0 - (x_entry * 10.0), -12.0 * (7 + x_entry),   0.0);  break;
+                  case 3 : glTranslatef (  15.0 + (x_entry * 10.0), -12.0 * (7 + x_entry),   0.0);  break;
+                  }
+                  glColor4f (0.0, 0.0, 0.0, 1.0);
+                  yFONT_print (myVIKEYS.font, myVIKEYS.point, YF_BASCEN, "+");
+               } glPopMatrix();
+            }
+         }
+      } glPopMatrix();
+      /*---(draw)---------------------------*/
+      x_group = x_entry = c = 0;
+      i = s_dmenu [a_last].start;
+      a = s_dmenu [a_last].count;
+      a = a / 4.0;
+      if (a * 4 < s_dmenu [a_last].count)  ++a;
+      glPushMatrix(); {
+         for (i = s_dmenu [a_last].start; i <= a_last + s_dmenu [a_last].count; ++i) {
             glPushMatrix(); {
                glTranslatef( 150.0, -105.0, 120.0);
                switch (x_group) {
-               case 0 : glTranslatef ( -15.0 - (x_entry * 10.0), -12.0 * (5 - x_entry),   0.0);  break;
-               case 1 : glTranslatef (  15.0 + (x_entry * 10.0), -12.0 * (5 - x_entry),   0.0);  break;
-               case 2 : glTranslatef ( -15.0 - (x_entry * 10.0), -12.0 * (7 + x_entry),   0.0);  break;
-               case 3 : glTranslatef (  15.0 + (x_entry * 10.0), -12.0 * (7 + x_entry),   0.0);  break;
+               case 0 : glTranslatef (  30.0 + (x_entry * 10.0), -12.0 * (5 - x_entry),   0.0);  break;
+               case 1 : glTranslatef (  30.0 + (x_entry * 10.0), -12.0 * (7 + x_entry),   0.0);  break;
+               case 2 : glTranslatef ( -30.0 - (x_entry * 10.0), -12.0 * (7 + x_entry),   0.0);  break;
+               case 3 : glTranslatef ( -30.0 - (x_entry * 10.0), -12.0 * (5 - x_entry),   0.0);  break;
                }
-               glColor4f (0.0, 0.0, 0.0, 1.0);
-               yFONT_print (myVIKEYS.font, myVIKEYS.point, YF_BASCEN, "+");
+               if (s_dmenu [i].active == 'y')   glColor4f (0.0, 0.0, 0.0, 1.0);
+               else                             glColor4f (0.3, 0.3, 0.3, 1.0);
+               sprintf (t, "%c", s_menus [i].bot);
+               if (x_group == 2 || x_group == 3) {
+                  yFONT_print (myVIKEYS.font, myVIKEYS.point, YF_BASRIG, t);
+                  glTranslatef ( -15.0, 0.0, 0.0);
+                  yFONT_print (myVIKEYS.font, myVIKEYS.point, YF_BASRIG, s_menus [i].name);
+                  glTranslatef (  15.0, 0.0, 0.0);
+               } else {
+                  yFONT_print (myVIKEYS.font, myVIKEYS.point, YF_BASLEF, t);
+                  glTranslatef (  15.0, 0.0, 0.0);
+                  yFONT_print (myVIKEYS.font, myVIKEYS.point, YF_BASLEF, s_menus [i].name);
+                  glTranslatef ( -15.0, 0.0, 0.0);
+               }
+               ++c;
+               ++x_entry;
+               if (c != 0 && c % a == 0) {
+                  ++x_group;
+                  x_entry = 0;
+               }
             } glPopMatrix();
          }
+      } glPopMatrix();
+   }
+   if (myVIKEYS.env == YVIKEYS_CURSES) {
+      x_group = x_entry = c = 0;
+      i = s_dmenu [a_last].start;
+      a = s_dmenu [a_last].count;
+      a = a / 4.0;
+      if (a * 4 < s_dmenu [a_last].count)  ++a;
+      x_top = x_bott - x_tall + 2;
+      x_mid = x_left + (x_wide / 2);
+      while (i >= 0) {
+         switch (x_group) {
+         case 0 : x = x_mid - 12; y = x_top + x_entry;    break;
+         case 1 : x = x_mid +  2; y = x_top + x_entry;    break;
+         }
+         sprintf (t, "%c %s", s_menus [i].bot, s_menus [i].name);
+         mvprintw   (y, x, "%s", t);
+         i = s_dmenu [i].next;
+         ++c;
+         ++x_entry;
+         if (c != 0 && c % a == 0) {
+            ++x_group;
+            x_entry = 0;
+         }
       }
-   } glPopMatrix();
-   /*---(draw)---------------------------*/
-   x_group = x_entry = c = 0;
-   i = s_dmenu [a_last].start;
-   a = s_dmenu [a_last].count;
-   a = a / 4.0;
-   if (a * 4 < s_dmenu [a_last].count)  ++a;
-   glPushMatrix(); {
-      for (i = s_dmenu [a_last].start; i <= a_last + s_dmenu [a_last].count; ++i) {
-         glPushMatrix(); {
-            glTranslatef( 150.0, -105.0, 120.0);
-            switch (x_group) {
-            case 0 : glTranslatef (  30.0 + (x_entry * 10.0), -12.0 * (5 - x_entry),   0.0);  break;
-            case 1 : glTranslatef (  30.0 + (x_entry * 10.0), -12.0 * (7 + x_entry),   0.0);  break;
-            case 2 : glTranslatef ( -30.0 - (x_entry * 10.0), -12.0 * (7 + x_entry),   0.0);  break;
-            case 3 : glTranslatef ( -30.0 - (x_entry * 10.0), -12.0 * (5 - x_entry),   0.0);  break;
-            }
-            if (s_dmenu [i].active == 'y')   glColor4f (0.0, 0.0, 0.0, 1.0);
-            else                             glColor4f (0.3, 0.3, 0.3, 1.0);
-            sprintf (t, "%c", s_menus [i].bot);
-            if (x_group == 2 || x_group == 3) {
-               yFONT_print (myVIKEYS.font, myVIKEYS.point, YF_BASRIG, t);
-               glTranslatef ( -15.0, 0.0, 0.0);
-               yFONT_print (myVIKEYS.font, myVIKEYS.point, YF_BASRIG, s_menus [i].name);
-               glTranslatef (  15.0, 0.0, 0.0);
-            } else {
-               yFONT_print (myVIKEYS.font, myVIKEYS.point, YF_BASLEF, t);
-               glTranslatef (  15.0, 0.0, 0.0);
-               yFONT_print (myVIKEYS.font, myVIKEYS.point, YF_BASLEF, s_menus [i].name);
-               glTranslatef ( -15.0, 0.0, 0.0);
-            }
-            ++c;
-            ++x_entry;
-            if (c != 0 && c % a == 0) {
-               ++x_group;
-               x_entry = 0;
-            }
-         } glPopMatrix();
-      }
-   } glPopMatrix();
+   }
    /*---(complete)-----------------------*/
    return 0;
 }
