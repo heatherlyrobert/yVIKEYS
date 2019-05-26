@@ -13,6 +13,7 @@
  * metis  tn2#·  menus to display error and keep locked until <esc>
  * metis  tn2#·  menus error to display last valid menu behind error
  * metis  dn4··  menu activate/deactive using menu paths (cant active if master not active)
+ * metis  dn4··  menu to support ncurses display and tested in gyges
  *
  *
  */
@@ -101,7 +102,7 @@ static int          s_nmenu  = 0;
 static int          s_ntops  = 0;
 static const tMENU  s_menus [MAX_MENU] = {
    /*---(file menu)----------------------------------------------*/
-   { 'f', '·', '·', "file"             , 'y', '>', "-"                 , "workspace, its file, and external environment"    },
+   { 'f', '·', '·', "files"            , 'y', '>', "-"                 , "workspace, its file, and external environment"    },
    { 'f', 'w', '·', "new"              , 'y', '·', ":new¦"             , "create a new, nameless workspace"                 },
    { 'f', 'o', '·', "open"             , 'y', '=', ":edit·"            , "open a workspace from a file"                     },
    { 'f', 'd', '·', "chdir"            , 'y', '=', ":cd·"              , "change the current working directory"             },
@@ -374,20 +375,6 @@ static const tMENU  s_menus [MAX_MENU] = {
    { 't', '·', '·', "tools"            , '·', '>', "-"                 , "brushes and othre hand-analog tools"              },
    /*---(palette menu)-------------------------------------------*/
    { 'p', '·', '·', "palette"          , '·', '>', "-"                 , "visual, audio, olfactory, ... palettes"           },
-   /*---(buffers menu)-------------------------------------------*/
-   { 'b', '·', '·', "buffers"          , 'y', '>', "-"                 , "-"                                                },
-   { 'b', '-', '·', "show_all"         , 'y', '-', "-"                 , "show list of buffers"                             },
-   { 'b', '-', '·', "status"           , 'y', '-', "-"                 , "show buffer status bar"                           },
-   { 'b', '-', '·', "new"              , 'y', '-', "-"                 , "create a new, empty, nameless buffer"             },
-   { 'b', '-', '·', "rename"           , 'y', '-', "-"                 , "change the name of the buffer"                    },
-   { 'b', '-', '·', "type"             , 'y', '-', "-"                 , "-"                                                },
-   { 'b', '-', '·', "size"             , 'y', '-', "-"                 , "-"                                                },
-   { 'b', '-', '·', "scale"            , 'y', '-', "-"                 , "architectural scale, e.g., 0.25in = 1foot"        },
-   { 'b', '-', '·', "delete"           , 'y', '-', "-"                 , "delete or remove a buffer"                        },
-   { 'b', '-', '·', "freeze"           , 'y', '-', "-"                 , "freeze certain areas from movement"               },
-   { 'b', '-', '·', "split"            , 'y', '-', "-"                 , "split the buffer window"                          },
-   { 'b', '-', '·', "hiding"           , 'y', '-', "-"                 , "do not show buffer"                               },
-   { 'b', '-', '·', "locking"          , 'y', '-', "-"                 , "protect or unprotect buffer"                      },
    /*---(layers menu)--------------------------------------------*/
    { 'l', '·', '·', "layers"           , 'y', '>', "-"                 , "-"                                                },
    { 'l', '-', '·', "saved"            , 'y', '-', "-"                 , "show list of all layers"                          },
@@ -405,14 +392,30 @@ static const tMENU  s_menus [MAX_MENU] = {
    { 'l', '-', '·', "mask"             , 'y', '-', "-"                 , "-"                                                },
    { 'l', '-', '·', "alignment"        , 'y', '-', "-"                 , "line up two or more layers"                       },
    { 'l', '-', '·', "locking"          , 'y', '-', "-"                 , "lock or unlock layers"                            },
+   /*---(buffers menu)-------------------------------------------*/
+   { 'b', '·', '·', "buffers"          , 'y', '>', "-"                 , "-"                                                },
+   { 'b', '-', '·', "show_all"         , 'y', '-', "-"                 , "show list of buffers"                             },
+   { 'b', '-', '·', "status"           , 'y', '-', "-"                 , "show buffer status bar"                           },
+   { 'b', '-', '·', "new"              , 'y', '-', "-"                 , "create a new, empty, nameless buffer"             },
+   { 'b', '-', '·', "rename"           , 'y', '-', "-"                 , "change the name of the buffer"                    },
+   { 'b', '-', '·', "type"             , 'y', '-', "-"                 , "-"                                                },
+   { 'b', '-', '·', "size"             , 'y', '-', "-"                 , "-"                                                },
+   { 'b', '-', '·', "scale"            , 'y', '-', "-"                 , "architectural scale, e.g., 0.25in = 1foot"        },
+   { 'b', '-', '·', "delete"           , 'y', '-', "-"                 , "delete or remove a buffer"                        },
+   { 'b', '-', '·', "freeze"           , 'y', '-', "-"                 , "freeze certain areas from movement"               },
+   { 'b', '-', '·', "split"            , 'y', '-', "-"                 , "split the buffer window"                          },
+   { 'b', '-', '·', "hiding"           , 'y', '-', "-"                 , "do not show buffer"                               },
+   { 'b', '-', '·', "locking"          , 'y', '-', "-"                 , "protect or unprotect buffer"                      },
    /*---(analyze menu)-------------------------------------------*/
-   { 'a', '·', '·', "analyze"          , '·', '>', "-"                 , "checks, debugging, testing, and validation"       },
+   { 'n', '·', '·', "snippet"          , '·', '>', "-"                 , "checks, debugging, testing, and validation"       },
+   /*---(analyze menu)-------------------------------------------*/
+   { 'a', '·', '·', "auditor"          , '·', '>', "-"                 , "checks, debugging, testing, and validation"       },
    /*---(execute menu)-------------------------------------------*/
    { 'x', '·', '·', "execute"          , '·', '>', "-"                 , "building, simulation, and execution"              },
    /*---(config menu)--------------------------------------------*/
    { 'c', '·', '·', "config"           , '·', '>', "-"                 , "changing system settings and configuration"       },
    /*---(macros menu)--------------------------------------------*/
-   { 'r', '·', '·', "macros"           , '·', '>', "-"                 , "keyboard macros, scripts, and addons"             },
+   { 'r', '·', '·', "macro"            , '·', '>', "-"                 , "keyboard macros, scripts, and addons"             },
    /*---(show menu)----------------------------------------------*/
    { 'h', '·', '·', "show"             , '·', '>', "-"                 , "presentation, reporting, printing, and demos"     },
    /*---(footer)-------------------------------------------------*/
@@ -2092,10 +2095,10 @@ yvikeys__menu_find      (char *a_path, char *a_level, int *a_last)
 char yvikeys__menu_exec      (char *a_keys) { return yVIKEYS_main_string (a_keys); }
 
 
-static int     s_xpos   [LEN_LABEL] = {  15,  40,  50,  55,  55,  50,  40,  15,   0, -15, -40, -50, -55, -55, -50, -40, -15,   0 };
-static int     s_ypos   [LEN_LABEL] = { -15, -30, -45, -60, -75, -90,-105,-120,-135,-120,-105, -90, -75, -60, -45, -30, -15,   0 };
-static int     s_align  [LEN_LABEL] = {   1,   1,   1,   1,   1,   1,   1,   1,   2,   3,   3,   3,   3,   3,   3,   3,   3,   2 };
-static int     s_abbr   [LEN_LABEL] = {   0,   0,   0,   0,   0,   0,   0,   0,  15,   0,   0,   0,   0,   0,   0,   0,   0, -15 };
+static int     s_xpos   [LEN_LABEL] = {   0,  15,  40,  50,  55,  55,  50,  40,  15,   0, -15, -40, -50, -55, -55, -50, -40, -15 };
+static int     s_ypos   [LEN_LABEL] = {   0, -15, -30, -45, -60, -75, -90,-105,-120,-135,-120,-105, -90, -75, -60, -45, -30, -15 };
+static int     s_align  [LEN_LABEL] = {   2,   1,   1,   1,   1,   1,   1,   1,   1,   2,   3,   3,   3,   3,   3,   3,   3,   3 };
+static int     s_abbr   [LEN_LABEL] = { -15,   0,   0,   0,   0,   0,   0,   0,   0,  15,   0,   0,   0,   0,   0,   0,   0,   0 };
 
 char
 yvikeys__menu_back      (int a_len, int a_level, int a_last)
@@ -2132,25 +2135,14 @@ yvikeys__menu_back      (int a_len, int a_level, int a_last)
    /*---(labels)-------------------------*/
    glPushMatrix(); {
       glColor4f (0.0, 0.0, 0.0, 1.0);
+      glTranslatef( 150.0,  -85.0, 120.0);
       switch (a_level) {
-      case  0 :
-         glTranslatef( 150.0, -105.0, 120.0);
-         yFONT_print (myVIKEYS.font, myVIKEYS.point, YF_BASCEN, "main menu");
-         glTranslatef(-130.0,   20.0,   0.0);
-         break;
-      case  1 :
-         glTranslatef( 150.0,  -90.0, 120.0);
-         sprintf (t, "\\%c (%s) sub-menu", s_menus [a_last].top, s_menus [a_last].name);
-         yFONT_print (myVIKEYS.font, myVIKEYS.point, YF_BASCEN, t);
-         glTranslatef(-130.0,    5.0,   0.0);
-         break;
-      case  2 :
-         glTranslatef( 150.0,  -90.0, 120.0);
-         sprintf (t, "\\%c%c (%s) options", s_menus [a_last].top, s_menus [a_last].mid, s_menus [a_last].name);
-         yFONT_print (myVIKEYS.font, myVIKEYS.point, YF_BASCEN, t);
-         glTranslatef(-130.0,    5.0,   0.0);
-         break;
+      case  0 : strlcpy (t, "main menu", LEN_LABEL); break;
+      case  1 : sprintf (t, "\\%c (%s) sub-menu", s_menus [a_last].top, s_menus [a_last].name); break;
+      case  2 : sprintf (t, "\\%c%c (%s) options", s_menus [a_last].top, s_menus [a_last].mid, s_menus [a_last].name); break;
       }
+      yFONT_print (myVIKEYS.font, myVIKEYS.point, YF_BASCEN, t);
+      glTranslatef(-130.0,    0.0,   0.0);
       yFONT_print (myVIKEYS.font, myVIKEYS.point, YF_BASLEF, myVIKEYS.s_prog);
       glTranslatef( 260.0,    0.0,   0.0);
       yFONT_print (myVIKEYS.font, myVIKEYS.point, YF_BASRIG, myVIKEYS.s_vernum);
@@ -2173,61 +2165,108 @@ yvikeys__menu_back      (int a_len, int a_level, int a_last)
 char
 yvikeys__menu_main      (void)
 {
+   /*---(locals)-----------+-----+-----+-*/
    int         i           =   0;
    int         c           =    0;
    int         t           [LEN_LABEL];
+   char        x_on        =  '-';
+   int         x_left, x_wide, x_bott, x_tall, x_top, x_mid;
+   int         x_xmin, x_xmax, x_ymin, x_ymax;
+   int         x, y;
+   int         x_len       =    0;
+   /*---(header)-------------------------*/
    DEBUG_CMDS   yLOG_enter   (__FUNCTION__);
-   glPushMatrix(); {
-      /*---(round)-----------------------*/
+   DEBUG_CMDS   yLOG_char    ("env"       , myVIKEYS.env);
+   /*---(get sizes)----------------------*/
+   x_on = yVIKEYS_view_size   (YVIKEYS_MENUS, &x_left, &x_wide, &x_bott, &x_tall, NULL);
+   DEBUG_CMDS   yLOG_complex  ("size"      , "%3dl, %3dw, %3db, %3dt", x_left, x_wide, x_bott, x_tall);
+   x_on = yVIKEYS_view_bounds (YVIKEYS_MENUS, &x_xmin, &x_xmax, &x_ymin, &x_ymax);
+   DEBUG_CMDS   yLOG_complex  ("bounds"    , "%3dx to %3dx, %3dy to %3dy", x_xmin, x_xmax, x_ymin, x_ymax);
+   /*---(opengl)-------------------------*/
+   if (myVIKEYS.env == YVIKEYS_OPENGL) {
       glPushMatrix(); {
-         glColor4f (0.0, 0.0, 0.7, 1.0);
-         glTranslatef( 150.0, -168.0, 120.0);
-         yFONT_print  (myVIKEYS.font, myVIKEYS.point, YF_MIDCEN, "+" );
-         for (i = 0; i < 18; ++i) {
-            glPushMatrix(); {
-               glRotatef    (20.0 * i + 90.0, 0.0, 0.0, 1.0);
-               glTranslatef (40.0, 0.0, 0.0);
-               yFONT_print  (myVIKEYS.font, myVIKEYS.point, YF_MIDCEN, ">" );
-            } glPopMatrix();
-         }
+         /*---(round)-----------------------*/
+         glPushMatrix(); {
+            glColor4f (0.0, 0.0, 0.7, 1.0);
+            glTranslatef( 150.0, -168.0, 120.0);
+            yFONT_print  (myVIKEYS.font, myVIKEYS.point, YF_MIDCEN, "+" );
+            for (i = 0; i < 18; ++i) {
+               glPushMatrix(); {
+                  glRotatef    (20.0 * i + 90.0, 0.0, 0.0, 1.0);
+                  glTranslatef (40.0, 0.0, 0.0);
+                  yFONT_print  (myVIKEYS.font, myVIKEYS.point, YF_MIDCEN, ">" );
+               } glPopMatrix();
+            }
+         } glPopMatrix();
+         i = 0;
+         glPushMatrix(); {
+            glTranslatef( 150.0, -105.0, 120.0);
+            while (i >= 0) {
+               DEBUG_CMDS   yLOG_value   ("i"         , i);
+               DEBUG_CMDS   yLOG_char    ("abbr"      , s_menus [i].top);
+               DEBUG_CMDS   yLOG_info    ("name"      , s_menus [i].name);
+               glPushMatrix (); {
+                  glTranslatef (s_xpos [c], s_ypos [c], 0.0);
+                  if (s_menus [i].active == 'y')   glColor4f (0.0, 0.0, 0.0, 1.0);
+                  else                             glColor4f (0.3, 0.3, 0.3, 1.0);
+                  sprintf (t, "%c", s_menus [i].top);
+                  switch (s_align [c]) {
+                  case 1 :
+                     yFONT_print  (myVIKEYS.font, myVIKEYS.point, s_align [c], t);
+                     glTranslatef ( 15.0, 0.0, 0.0);
+                     yFONT_print  (myVIKEYS.font, myVIKEYS.point, s_align [c], s_menus [i].name);
+                     break;
+                  case 2 :
+                     yFONT_print  (myVIKEYS.font, myVIKEYS.point, s_align [c], s_menus [i].name);
+                     glTranslatef ( 0.0, s_abbr [c], 0.0);
+                     yFONT_print  (myVIKEYS.font, myVIKEYS.point, s_align [c], t);
+                     break;
+                  case 3 :
+                     yFONT_print  (myVIKEYS.font, myVIKEYS.point, s_align [c], t);
+                     glTranslatef (-15.0, 0.0, 0.0);
+                     yFONT_print  (myVIKEYS.font, myVIKEYS.point, s_align [c], s_menus [i].name);
+                     break;
+                  }
+               } glPopMatrix();
+               i = s_dmenu [i].next;
+               ++c;
+               DEBUG_CMDS   yLOG_value   ("next"      , i);
+            }
+            /*> yvikeys_menu__round (myVIKEYS.font);                                            <*/
+         } glPopMatrix();
       } glPopMatrix();
-      i = 0;
-      glPushMatrix(); {
-         glTranslatef( 150.0, -105.0, 120.0);
-         while (i >= 0) {
-            DEBUG_CMDS   yLOG_value   ("i"         , i);
-            DEBUG_CMDS   yLOG_char    ("abbr"      , s_menus [i].top);
-            DEBUG_CMDS   yLOG_info    ("name"      , s_menus [i].name);
-            glPushMatrix (); {
-               glTranslatef (s_xpos [c], s_ypos [c], 0.0);
-               if (s_menus [i].active == 'y')   glColor4f (0.0, 0.0, 0.0, 1.0);
-               else                             glColor4f (0.3, 0.3, 0.3, 1.0);
-               sprintf (t, "%c", s_menus [i].top);
-               switch (s_align [c]) {
-               case 1 :
-                  yFONT_print  (myVIKEYS.font, myVIKEYS.point, s_align [c], t);
-                  glTranslatef ( 15.0, 0.0, 0.0);
-                  yFONT_print  (myVIKEYS.font, myVIKEYS.point, s_align [c], s_menus [i].name);
-                  break;
-               case 2 :
-                  yFONT_print  (myVIKEYS.font, myVIKEYS.point, s_align [c], s_menus [i].name);
-                  glTranslatef ( 0.0, s_abbr [c], 0.0);
-                  yFONT_print  (myVIKEYS.font, myVIKEYS.point, s_align [c], t);
-                  break;
-               case 3 :
-                  yFONT_print  (myVIKEYS.font, myVIKEYS.point, s_align [c], t);
-                  glTranslatef (-15.0, 0.0, 0.0);
-                  yFONT_print  (myVIKEYS.font, myVIKEYS.point, s_align [c], s_menus [i].name);
-                  break;
-               }
-            } glPopMatrix();
-            i = s_dmenu [i].next;
-            ++c;
-            DEBUG_CMDS   yLOG_value   ("next"      , i);
+   } else {
+      x_top = x_bott - x_tall + 1;
+      x_mid = x_left + (x_wide / 2);
+      while (i >= 0) {
+         DEBUG_CMDS   yLOG_value   ("i"         , i);
+         DEBUG_CMDS   yLOG_char    ("abbr"      , s_menus [i].top);
+         DEBUG_CMDS   yLOG_info    ("name"      , s_menus [i].name);
+         x = x_mid + s_xpos [c] /  5;
+         y = x_top - s_ypos [c] / 15;
+         DEBUG_CMDS   yLOG_complex ("coords"    , "%3dx, %3dy, %3d, %3d", x, y, s_align [c], s_abbr [c]);
+         switch (s_align [c]) {
+         case 1 :
+            sprintf (t, "%c %s", s_menus [i].top, s_menus [i].name);
+            x_len = strlen (t);
+            mvprintw   (y, x, "%s", t);
+            break;
+         case 2 :
+            x_len = strlen (s_menus [i].name);
+            mvprintw   (y, x - (x_len / 2), "%s", s_menus [i].name);
+            mvprintw   (y - (s_abbr [c] / 15), x, "%c", s_menus [i].top);
+            break;
+         case 3 :
+            sprintf (t, "%s %c", s_menus [i].name, s_menus [i].top);
+            x_len = strlen (t);
+            mvprintw   (y, x - x_len + 1, "%s", t);
+            break;
          }
-         /*> yvikeys_menu__round (myVIKEYS.font);                                            <*/
-      } glPopMatrix();
-   } glPopMatrix();
+         i = s_dmenu [i].next;
+         ++c;
+         DEBUG_CMDS   yLOG_value   ("next"      , i);
+      }
+   }
    DEBUG_CMDS   yLOG_exit    (__FUNCTION__);
    return 0;
 }

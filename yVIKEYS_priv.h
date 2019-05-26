@@ -27,8 +27,8 @@
 
 #define     P_VERMAJOR  "1.X = working for everyday use, features still evolving but stable"
 #define     P_VERMINOR  "1.2 = cleaning out all existing unit test bugs"
-#define     P_VERNUM    "1.2i"
-#define     P_VERTXT    "file control updated with menu access testing"
+#define     P_VERNUM    "1.2j"
+#define     P_VERTXT    "base main menu up in ncurses/gyges"              
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -575,7 +575,9 @@ char        yvikeys_file_bump            (char  *a_type);
 char        yvikeys_file_bump_major      (void);
 char        yvikeys_file_bump_minor      (void);
 char        yvikeys_file_bump_inc        (void);
-int         yvikeys__file_regex          (char a_type, char *a_ext, char *a_entry, char *a_match);
+int         yvikeys__file_regex          (char a_type, char *a_ext, char *a_base, char *a_entry, char *a_match);
+char        yvikeys__file_stripext       (char *a_loc);
+char        yvikeys__file_path           (char *a_path);
 char        yvikeys_file_loc             (char  *a_loc);
 char        yvikeys_file_name            (char  *a_name);
 char        FILE__unit_null              (void);

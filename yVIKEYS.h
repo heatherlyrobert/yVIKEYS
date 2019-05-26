@@ -188,7 +188,8 @@ tMAPPED     g_zmap;
 #define      YVIKEYS_M_SELECT      's'   /* gimp  */
 #define      YVIKEYS_M_MODIFY      'm'
 #define      YVIKEYS_M_PALETTE     'p'
-#define      YVIKEYS_M_ANALYZE     'a'
+#define      YVIKEYS_M_SNIPPETS    'n'
+#define      YVIKEYS_M_AUDIT       'a'
 #define      YVIKEYS_M_EXECUTE     'x'   /* build, test, and execute (use) */
 #define      YVIKEYS_M_CONFIG      'c'
 /*---(perhaps useful)-----------------*/
@@ -301,7 +302,7 @@ char        yVIKEYS_srch_found      (char *a_label, int a_buf, int x, int y, int
 char        yVIKEYS_srch_direct     (char *a_search);
 
 /*---(files)----------------*/
-char        yVIKEYS_file_config     (char *a_prog, char *a_ext, char *a_vernum, char *a_vertxt, char *a_full, char *a_desc);
+char        yVIKEYS_whoami          (char *a_prog, char *a_ext, char *a_vernum, char *a_vertxt, char *a_full, char *a_desc);
 char        yVIKEYS_file_add        (char  a_abbr, void *a_writer, void *a_reader);
 char        yVIKEYS_file_write      (char a_abbr, void *a, void *b, void *c, void *d, void *e, void *f, void *g, void *h, void *i);
 

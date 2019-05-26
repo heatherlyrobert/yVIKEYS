@@ -525,17 +525,19 @@ VIEW__widths_wide        (cint a_wide, cint a_alt)
    DEBUG_GRAF   yLOG_char    ("s_env"     , myVIKEYS.env);
    if (myVIKEYS.env == YVIKEYS_OPENGL) {
       s_full_wide = x_cum + a_wide + a_alt;
+      s_main_wide = a_wide;
+      s_alt_wide  = a_alt;
       for (n = 0; n < s_npart; ++n) {
          /*---(filter)-------------------*/
          if (s_parts [n].on   != 'y')            continue;
          if (s_parts [n].mgmt != YVIKEYS_AUTO)   continue;
          /*---(set)----------------------*/
          switch (s_parts [n].abbr) {
-         case YVIKEYS_MAIN     : s_parts [n].wide = s_main_wide = a_wide;     break;
-         case YVIKEYS_FLOAT    : s_parts [n].wide = a_wide - 40;              break;
-         case YVIKEYS_HISTORY  : s_parts [n].wide = a_wide - 60;              break;
-         case YVIKEYS_MENUS    : s_parts [n].wide = a_wide - 40;              break;
-         case YVIKEYS_ALT      : s_parts [n].wide = s_alt_wide  = a_alt;      break;
+         case YVIKEYS_MAIN     : s_parts [n].wide = s_main_wide;              break;
+         case YVIKEYS_FLOAT    : s_parts [n].wide = s_main_wide - 40;         break;
+         case YVIKEYS_HISTORY  : s_parts [n].wide = s_main_wide - 60;         break;
+         case YVIKEYS_MENUS    : s_parts [n].wide = s_main_wide - 40;         break;
+         case YVIKEYS_ALT      : s_parts [n].wide = s_alt_wide;               break;
          case YVIKEYS_PROGRESS : s_parts [n].wide = a_wide + a_alt;           break;
          case YVIKEYS_XAXIS    : s_parts [n].wide = a_wide + a_alt + x_yaxis; break;
          default               : continue;                                    break;
@@ -545,17 +547,19 @@ VIEW__widths_wide        (cint a_wide, cint a_alt)
       }
    } else {
       s_full_wide = a_wide;
+      s_main_wide = a_wide - x_cum - a_alt;
+      s_alt_wide  = a_alt;
       for (n = 0; n < s_npart; ++n) {
          /*---(filter)-------------------*/
          if (s_parts [n].on != 'y')  continue;
          if (s_parts [n].mgmt != YVIKEYS_AUTO)   continue;
          /*---(set)----------------------*/
          switch (s_parts [n].abbr) {
-         case YVIKEYS_MAIN     : s_parts [n].wide = s_main_wide = a_wide - x_cum - a_alt;  break;
-         case YVIKEYS_FLOAT    : s_parts [n].wide = a_wide - x_cum - a_alt - 4;            break;
-         case YVIKEYS_MENUS    : s_parts [n].wide = a_wide - x_cum - a_alt - 4;            break;
-         case YVIKEYS_HISTORY  : s_parts [n].wide = a_wide - x_cum - a_alt - 6;            break;
-         case YVIKEYS_ALT      : s_parts [n].wide = s_alt_wide  = a_alt;                   break;
+         case YVIKEYS_MAIN     : s_parts [n].wide = s_main_wide;              break;
+         case YVIKEYS_FLOAT    : s_parts [n].wide = s_main_wide - 4;          break;
+         case YVIKEYS_MENUS    : s_parts [n].wide = s_main_wide - 4;          break;
+         case YVIKEYS_HISTORY  : s_parts [n].wide = s_main_wide - 6;          break;
+         case YVIKEYS_ALT      : s_parts [n].wide = s_alt_wide;               break;
          case YVIKEYS_PROGRESS : s_parts [n].wide = a_wide - x_cum;           break;
          case YVIKEYS_XAXIS    : s_parts [n].wide = a_wide - x_cum + x_yaxis; break;
          default               : continue;                                    break;
@@ -615,19 +619,19 @@ VIEW__widths_left        (void)
    x_opengl = s_parts [n].xmin;
    DEBUG_GRAF   yLOG_complex ("left"      , "%c %-12.12s %3d left (cum %3d)", s_parts [n].abbr, s_parts [n].name, s_parts [n].left, x_cum);
    n = VIEW__abbr (YVIKEYS_FLOAT );
-   if (s_parts [n].mgmt != YVIKEYS_AUTO) {
+   if (s_parts [n].mgmt == YVIKEYS_AUTO) {
       if (myVIKEYS.env == YVIKEYS_OPENGL )  s_parts [n].left = x_opengl + 20;
       if (myVIKEYS.env == YVIKEYS_CURSES )  s_parts [n].left = x_cum    +  2;
    }
    DEBUG_GRAF   yLOG_complex ("left"      , "%c %-12.12s %3d left (cum %3d)", s_parts [n].abbr, s_parts [n].name, s_parts [n].left, x_cum);
    n = VIEW__abbr (YVIKEYS_MENUS );
-   if (s_parts [n].mgmt != YVIKEYS_AUTO) {
+   if (s_parts [n].mgmt == YVIKEYS_AUTO) {
       if (myVIKEYS.env == YVIKEYS_OPENGL )  s_parts [n].left = x_opengl + 20;
       if (myVIKEYS.env == YVIKEYS_CURSES )  s_parts [n].left = x_cum    +  2;
    }
    DEBUG_GRAF   yLOG_complex ("left"      , "%c %-12.12s %3d left (cum %3d)", s_parts [n].abbr, s_parts [n].name, s_parts [n].left, x_cum);
    n = VIEW__abbr (YVIKEYS_HISTORY );
-   if (s_parts [n].mgmt != YVIKEYS_AUTO) {
+   if (s_parts [n].mgmt == YVIKEYS_AUTO) {
       if (myVIKEYS.env == YVIKEYS_OPENGL )  s_parts [n].left = x_opengl + 30;
       if (myVIKEYS.env == YVIKEYS_CURSES )  s_parts [n].left = x_cum    +  3;
    }

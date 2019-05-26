@@ -8,8 +8,17 @@
 ·#  active : · no, y yes
 ·#  type   : > has sub-menu, ! tbd, · immediate execution, = will ask for more info
 ·#
+
 ·
-·
+##  17  FEVISOMDTPLBAXCRH
+##  20  FEVI SOMD TPLB AXCRH
+##  33  F E V I S O M D T P L B N A X C R H
+##  50  Fi Ed Vi In Se fO Mo Da To Pa La Bu sN Au eX Co mR sH
+##  67  Fil Edi Vie Ins Sel fOr Mod Dat Too Pal Lay Buf sNi Aud eXe Con maR sHo
+##  84  File Edit View Inse Sele fOrm Modi Data Tool Pale Laya Buff sNip Audi eXec Conf macR sHow
+
+
+
 ·# macro to convert to a table entry
 ·#@  a  ,x··0··i   { '¥··2li',¥2li'¥··2li',¥2li'¥····2li',¥··lvwhd··32|P··20|i "¥··37|BEa"¥··wi, '¥2li',¥··2li'¥2li',¥··wi"¥··68|BEa"¥··wi, "¥··$a"¥··60a ¥··125|Da},¥··0j··,y
 ·
@@ -17,7 +26,7 @@
 ·
 ·# one program instance, one workspace
 · · · +=+=+======     = = ===handling=====  ===description===================================
-f · · file            y > -                 workspace, its file, and external environment
+f · · files           y > -                 workspace, its file, and external environment
 f w ·   new           y · :new¦             create a new, nameless workspace
 f o ·   open          y · :edit·            open a workspace from a file
 f d ·   chdir         y · :cd·              change the current working directory
@@ -322,23 +331,6 @@ p · · palette         y > -                 -
 ·
 ·
 · · · +=+=+=========  ===handling=========  ===description===================================
-b · · buffers         y > -                 -
-b - ·   showall       y - -                 show list of buffers
-b - ·   status        y - -                 show buffer status bar
-b - ·   new           y - -                 create a new, empty, nameless buffer
-b - ·   rename        y - -                 change the name of the buffer
-b - ·   type          y - -                 -
-b - ·   size          y - -                 -
-b - ·   scale         y - -                 architectural scale, e.g., 0.25in = 1foot
-b - ·   delete        y - -                 delete or remove a buffer
-b - ·   freeze        y - -                 freeze certain areas from movement
-b - ·   split         y - -                 split the buffer window
-b - ·   hiding        y - -                 do not show buffer
-b - ·   locking       y - -                 protect or unprotect buffer
-·
-·
-·
-· · · +=+=+=========  ===handling=========  ===description===================================
 l · · layers          y > -                 -
 l - ·   saved         y - -                 show list of all layers
 l - ·   highlight     y - -                 highlight specific layer contents (by abbr
@@ -359,7 +351,29 @@ l - ·   locking       y - -                 lock or unlock layers
 ·
 ·
 · · · +=+=+=========  ===handling=========  ===description===================================
-a · · analyze         y > -                 -
+b · · buffers         y > -                 -
+b - ·   showall       y - -                 show list of buffers
+b - ·   status        y - -                 show buffer status bar
+b - ·   new           y - -                 create a new, empty, nameless buffer
+b - ·   rename        y - -                 change the name of the buffer
+b - ·   type          y - -                 -
+b - ·   size          y - -                 -
+b - ·   scale         y - -                 architectural scale, e.g., 0.25in = 1foot
+b - ·   delete        y - -                 delete or remove a buffer
+b - ·   freeze        y - -                 freeze certain areas from movement
+b - ·   split         y - -                 split the buffer window
+b - ·   hiding        y - -                 do not show buffer
+b - ·   locking       y - -                 protect or unprotect buffer
+·
+·
+·
+· · · +=+=+=========  ===handling=========  ===description===================================
+n · · snippet         y > -                 small, useful elements of prepackaged content
+·
+·
+·
+· · · +=+=+=========  ===handling=========  ===description===================================
+a · · auditor         y > -                 -
 a s ·   spell         y - -                 -
 a d ·   dump          y - -                 internal data reporting
 ·
@@ -376,7 +390,7 @@ c · · config          y > -                 -
 ·
 ·
 · · · +=+=+=========  ===handling=========  ===description===================================
-r · · macros          y > -                 -
+r · · macro           y > -                 -
 ·
 ·
 ·

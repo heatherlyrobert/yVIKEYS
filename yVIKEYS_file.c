@@ -41,12 +41,13 @@
 
 /*============================---- METIS TASKS ---============================*/
 /*
- * metis  tn1··  add menu control to version unit testing (units 01-05)
+ * metis  tn1#·  add menu control to version unit testing (units 01-05)
  * metis  tn1··  add menu control to file naming/renaming and change directory
  * metis  tn1··  add menu control to file writing, save as, etc
  * metis  tn1··  add menu control to file reading, updating, etc
+ * metis  dw2#·  build and test regex directory entry function and unit test
+ * metis  dw2··  update file open to use regex support function and unit test
  * metis  dw2··  update change directory to expect regex (and take first)
- * metis  dw2··  update file open to expect regex (and take first)
  *
  *
  */
@@ -200,10 +201,12 @@ yvikeys_file_init               (void)
    myVIKEYS.f_control = '-';
    strlcpy (myVIKEYS.f_vernum , "----" , LEN_LABEL);
    strlcpy (myVIKEYS.f_vertxt , "-----", LEN_DESC );
-   strlcpy (myVIKEYS.s_prog  , "-"    , LEN_DESC );
-   strlcpy (myVIKEYS.s_ext   , ""     , LEN_DESC );
-   strlcpy (myVIKEYS.s_vernum, "-.--" , LEN_DESC );
-   strlcpy (myVIKEYS.s_vertxt, "----" , LEN_DESC );
+   strlcpy (myVIKEYS.s_prog  , "-"     , LEN_DESC );
+   strlcpy (myVIKEYS.s_ext   , ""      , LEN_DESC );
+   strlcpy (myVIKEYS.s_vernum, "-.--"  , LEN_DESC );
+   strlcpy (myVIKEYS.s_vertxt, "----"  , LEN_DESC );
+   sprintf (myVIKEYS.f_loc   , "%s/", getcwd (NULL, 0));
+   DEBUG_PROG   yLOG_info    ("f_loc"     , myVIKEYS.f_loc);
    /*---(yPARSE verbs)-------------------*/
    rc = yPARSE_handler ('·'          , "source"    , 0.1, "OSO---------", NULL          , yvikeys_file_prog_writer   , "------------" , ""                          , "source program versioning" );
    rc = yPARSE_handler ('·'          , "written"   , 0.2, "O-----------", NULL          , yvikeys_file_time_writer   , "------------" , ""                          , "data file save timestamp"  );
@@ -216,7 +219,7 @@ yvikeys_file_init               (void)
 }
 
 char
-yVIKEYS_file_config     (char *a_prog, char *a_ext, char *a_vernum, char *a_vertxt, char *a_full, char *a_desc)
+yVIKEYS_whoami          (char *a_prog, char *a_ext, char *a_vernum, char *a_vertxt, char *a_full, char *a_desc)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -288,7 +291,6 @@ yVIKEYS_file_config     (char *a_prog, char *a_ext, char *a_vernum, char *a_vert
    rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "read"        , "e"   , ""     , yvikeys_file_reader          , "clear existing contents and open/read new file"              );
    rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "edit"        , "e"   , ""     , yvikeys_file_reader          , "clear existing contents and open/read new file"              );
    /*---(default file name)--------------*/
-   yvikeys_file_loc  (NULL);
    yvikeys_file_name (NULL);
    /*---(complete)-----------------------*/
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
@@ -515,18 +517,21 @@ yvikeys_file_vertxt        (char *a_txt)
 static void  o___NAMING__________o () { return; }
 
 int
-yvikeys__file_regex             (char a_type, char *a_ext, char *a_entry, char *a_match)
+yvikeys__file_regex             (char a_type, char *a_ext, char *a_base, char *a_entry, char *a_match)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    char        rc          =    0;
    DIR        *x_dir       = NULL;          /* directory pointer              */
    tDIRENT    *x_file      = NULL;          /* directory entry pointer        */
+   char        x_full      [LEN_RECD];
    tSTAT       s;
    int         x_extlen    =    0;
    int         x_len       =    0;
    int         x_checked   =    0;
    int         x_matches   =    0;
+   int         i           =    0;
+   int        *x_valid     = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.";
    /*---(header)-------------------------*/
    DEBUG_INPT   yLOG_enter   (__FUNCTION__);
    DEBUG_INPT   yLOG_point   ("a_match"   , a_match);
@@ -542,13 +547,19 @@ yvikeys__file_regex             (char a_type, char *a_ext, char *a_entry, char *
       DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   DEBUG_INPT   yLOG_info    ("a_entry"   , a_entry);
+   DEBUG_INPT   yLOG_delim   ("a_entry"   , a_entry);
    DEBUG_INPT   yLOG_point   ("a_ext"     , a_ext);
    if (a_type == 'f' && a_ext != NULL && a_ext [0] != '\0') {
       DEBUG_INPT   yLOG_info    ("a_ext"     , a_ext);
       x_extlen = strlen (a_ext);
       DEBUG_INPT   yLOG_value   ("x_extlen"  , x_extlen);
    }
+   DEBUG_INPT   yLOG_point   ("a_bas"     , a_base);
+   --rce;  if (a_base == NULL || a_base [0] == '\0') {
+      DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_INPT   yLOG_info    ("a_bas"     , a_base);
    /*---(compile search)-----------------*/
    rc = yREGEX_comp (a_entry);
    DEBUG_SRCH   yLOG_value   ("comp"      , rc);
@@ -558,7 +569,7 @@ yvikeys__file_regex             (char a_type, char *a_ext, char *a_entry, char *
       return rce;
    }
    /*---(open dir)-----------------------*/
-   x_dir = opendir(".");
+   x_dir = opendir (a_base);
    DEBUG_INPT   yLOG_point   ("x_dir"      , x_dir);
    --rce;  if (x_dir == NULL) {
       DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
@@ -576,15 +587,25 @@ yvikeys__file_regex             (char a_type, char *a_ext, char *a_entry, char *
       x_len = strlen (x_file->d_name);
       DEBUG_INPT   yLOG_value   ("x_len"     , x_len);
       if (x_len < 1) continue;
-      DEBUG_INPT   yLOG_info    ("->d_name"  , x_file->d_name);
-      if (x_file->d_name [0] == '.' && strcmp (x_file->d_name, "..") != 0) continue;
+      DEBUG_INPT   yLOG_delim   ("->d_name"  , x_file->d_name);
+      if (x_file->d_name [0] == '.' && strcmp (x_file->d_name, "..") != 0) {
+         DEBUG_INPT   yLOG_note    ("hidden file, prefixed with dot (.)");
+         continue;
+      }
       /*---(stat it)------------------------*/
-      rc = stat (x_file->d_name, &s);
-      DEBUG_INPT   yLOG_value   ("rc"        , rc);
+      sprintf (x_full, "%s%s", a_base, x_file->d_name);
+      rc = stat (x_full, &s);
+      DEBUG_INPT   yLOG_value   ("stat"      , rc);
       if (rc < 0) continue;
       DEBUG_INPT   yLOG_value   ("mode"      , s.st_mode);
-      if (a_type == 'd' && !S_ISDIR (s.st_mode))  continue;
-      if (a_type == 'f' && !S_ISREG (s.st_mode))  continue;
+      if (a_type == 'd' && !S_ISDIR (s.st_mode)) {
+         DEBUG_INPT   yLOG_note    ("looking for dirs, this is not one");
+         continue;
+      }
+      if (a_type == 'f' && !S_ISREG (s.st_mode)) {
+         DEBUG_INPT   yLOG_note    ("looking for reg files, this is not one");
+         continue;
+      }
       /*---(filter by extension)---------*/
       if (x_extlen > 0) {
          DEBUG_INPT   yLOG_info    ("p.ext"     , x_file->d_name + x_len - x_extlen);
@@ -596,7 +617,16 @@ yvikeys__file_regex             (char a_type, char *a_ext, char *a_entry, char *
       /*---(filter by name)--------------*/
       rc = yREGEX_exec (x_file->d_name);
       DEBUG_INPT   yLOG_value   ("exec"      , rc);
-      if (rc <= 0) continue;
+      if (rc <= 0) {
+         DEBUG_INPT   yLOG_note    ("regex failed to match");
+         continue;
+      }
+      /*---(check for bad characters)-------*/
+      for (i = 0; i < x_len; ++i) {
+         if (strchr (x_valid, x_file->d_name [i]) != NULL)   continue;
+         DEBUG_INPT   yLOG_note    ("bad character in target name");
+         continue;
+      }
       /*---(save)------------------------*/
       DEBUG_INPT   yLOG_note    ("found a match");
       ++x_matches;
@@ -616,8 +646,134 @@ yvikeys__file_regex             (char a_type, char *a_ext, char *a_entry, char *
    return x_matches;
 }
 
+char
+yvikeys__file_stripext    (char *a_loc)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   int         x_len       =    0;
+   int         x_extlen    =    0;
+   /*---(header)-------------------------*/
+   DEBUG_INPT   yLOG_enter   (__FUNCTION__);
+   /*---(check extension)----------------*/
+   DEBUG_INPT   yLOG_info    ("s_ext"     , myVIKEYS.s_ext);
+   x_extlen = strllen (myVIKEYS.s_ext, LEN_LABEL);
+   DEBUG_INPT   yLOG_value   ("x_extlen"  , x_extlen);
+   if (x_extlen <= 0) {
+      DEBUG_INPT   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
+   /*---(deal with null/empty)-----------*/
+   DEBUG_INPT   yLOG_point   ("a_loc"     , a_loc);
+   --rce;  if (a_loc == NULL || a_loc [0] == 0) {
+      DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_INPT   yLOG_info    ("a_loc"     , a_loc);
+   /*---(check lengths)------------------*/
+   x_len    = strllen (a_loc, LEN_RECD);
+   DEBUG_INPT   yLOG_value   ("x_len"     , x_len);
+   --rce;  if (x_len < 2) {
+      DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   --rce;  if (x_len < x_extlen + 1) {
+      DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(check extension)----------------*/
+   DEBUG_INPT   yLOG_info    ("tail end"  , a_loc + x_len - x_extlen - 1);
+   --rce;  if (strcmp (a_loc + x_len - x_extlen, myVIKEYS.s_ext) != 0)  {
+      DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_INPT   yLOG_char    ("dot place" , a_loc [x_len - x_extlen - 1]);
+   --rce;  if (a_loc [x_len - x_extlen - 1] != '.') {
+      DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(update)-------------------------*/
+   a_loc [x_len - x_extlen - 1] = '\0';
+   /*---(complete)-----------------------*/
+   DEBUG_INPT   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char
+yvikeys__file_path      (char *a_path)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   char        x_curr      [LEN_RECD];
+   char        x_work      [LEN_RECD];
+   char        t           [LEN_RECD];
+   char        x_final     [LEN_RECD];
+   int         x_len       =    0;
+   char       *p           = NULL;               /* strtok pointer            */
+   char       *q           = "/";                /* strtok delimeters         */
+   char       *r           = NULL;               /* strtok context variable   */
+   int         c           =    0;
+   /*---(header)-------------------------*/
+   DEBUG_INPT   yLOG_enter   (__FUNCTION__);
+   /*---(deal with null/empty)-----------*/
+   DEBUG_INPT   yLOG_point   ("a_path"    , a_path);
+   --rce;  if (a_path == NULL || a_path [0] == 0) {
+      DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_INPT   yLOG_info    ("a_path"    , a_path);
+   strlcpy (x_work, a_path, LEN_RECD);
+   /*---(absolute marker)----------------*/
+   getcwd (x_curr, LEN_RECD);
+   if (strncmp (x_work, "./", 2) == 0) {
+      strlcpy (x_final, x_curr, LEN_RECD);
+      strlcat (x_final, "/"   , LEN_RECD);
+      x_work [0] = '/';
+   } else if (x_work [0] == '/')  strlcpy (x_final, "/", LEN_RECD);
+   else                           strlcpy (x_final, myVIKEYS.f_loc, LEN_RECD);
+   DEBUG_INPT   yLOG_info    ("x_final"   , x_final);
+   x_len = strlen (x_final);
+   /*---(loop)---------------------------*/
+   p = strtok_r (x_work, q, &r);
+   --rce;  while (p != NULL) {
+      /*---(head)------------------------*/
+      DEBUG_INPT   yLOG_info    ("p"         , p);
+      /*---(goto parent)-----------------*/
+      if (strcmp (p, "..") == 0) {
+         if (x_len > 1)  x_final [--x_len] = '\0';
+         p = strrchr (x_final, '/');
+         if (p != NULL)  p [1] = '\0';
+      }
+      /*---(goto child)------------------*/
+      else {
+         rc = yvikeys__file_regex ('d', NULL, x_final, p, t);
+         DEBUG_INPT   yLOG_value   ("matches"   , rc);
+         if (rc != 1)  {
+            DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
+            return rce;
+         }
+         strlcat (x_final, t  , LEN_RECD);
+         strlcat (x_final, "/", LEN_RECD);
+      }
+      /*---(next)------------------------*/
+      DEBUG_INPT   yLOG_info    ("x_final"   , x_final);
+      ++c;
+      x_len = strlen (x_final);
+      p = strtok_r (NULL, q, &r);
+      /*---(done)------------------------*/
+   }
+   /*---(save)---------------------------*/
+   DEBUG_INPT   yLOG_value   ("levels"    , c);
+   strlcpy (a_path, x_final, LEN_RECD);
+   /*---(complete)-----------------------*/
+   DEBUG_INPT   yLOG_exit    (__FUNCTION__);
+   return c;
+}
+
 char         /*-> tbd --------------------------------[ leaf   [gc.C55.124.30]*/ /*-[01.0000.112.!]-*/ /*-[--.---.---.--]-*/
-yvikeys_file_loc                (char *a_loc)
+yvikeys__file_temploc           (char *a_path)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -634,41 +790,58 @@ yvikeys_file_loc                (char *a_loc)
       return rce;
    }
    /*---(deal with null/empty)-----------*/
-   DEBUG_INPT   yLOG_point   ("a_loc"     , a_loc);
-   if (a_loc == NULL || a_loc [0] == 0) {
-      DEBUG_INPT   yLOG_note    ("a_loc was null, clear loc");
-      strlcpy (myVIKEYS.f_loc  , ""        , LEN_RECD);
-      DEBUG_INPT   yLOG_exit    (__FUNCTION__);
-      return 0;
+   DEBUG_INPT   yLOG_point   ("a_path"    , a_path);
+   --rce;  if (a_path == NULL || a_path [0] == 0) {
+      DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
    }
-   /*---(check for current)--------------*/
-   DEBUG_INPT   yLOG_point   ("a_loc"     , a_loc);
-   if (strcmp (a_loc, "./") == 0) {
-      DEBUG_INPT   yLOG_note    ("a_loc set to current");
-      getcwd (t, LEN_RECD);
-      sprintf (myVIKEYS.f_loc  , "%s/", t);
-      DEBUG_INPT   yLOG_exit    (__FUNCTION__);
-      return 0;
-   }
-   /*---(stat it)------------------------*/
-   rc = stat (a_loc, &s);
-   DEBUG_INPT   yLOG_value   ("rc"        , rc);
+   DEBUG_INPT   yLOG_info    ("a_path"    , a_path);
+   /*---(update)-------------------------*/
+   rc = yvikeys__file_path (a_path);
+   DEBUG_HIST   yLOG_value   ("path"      , rc);
    --rce;  if (rc < 0) {
-      DEBUG_INPT   yLOG_note    ("a_loc does not exist");
-      DEBUG_INPT   yLOG_exit    (__FUNCTION__);
+      DEBUG_HIST   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   DEBUG_INPT   yLOG_value   ("mode"      , s.st_mode);
-   --rce;  if (!S_ISDIR (s.st_mode)) {
-      DEBUG_INPT   yLOG_note    ("a_loc is not a directory");
-      DEBUG_INPT   yLOG_exit    (__FUNCTION__);
+   /*---(complete)-----------------------*/
+   DEBUG_INPT   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char         /*-> tbd --------------------------------[ leaf   [gc.C55.124.30]*/ /*-[01.0000.112.!]-*/ /*-[--.---.---.--]-*/
+yvikeys_file_loc                (char *a_path)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   tSTAT       s;
+   int         x_len       =    0;
+   char        t           [LEN_RECD];
+   /*---(header)-------------------------*/
+   DEBUG_INPT   yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   --rce;  if (!STATUS_operational (FMOD_FILE)) {
+      DEBUG_HIST   yLOG_note    ("can not execute until operational");
+      DEBUG_HIST   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   /*---(save directory)-----------------*/
-   x_len = strllen (a_loc, LEN_RECD);
-   if (a_loc [x_len - 1] == '/')  strlcpy (myVIKEYS.f_loc  , a_loc     , LEN_RECD);
-   else                           sprintf (myVIKEYS.f_loc  , "%s/", a_loc);
-   /*---(report out)---------------------*/
+   /*---(deal with null/empty)-----------*/
+   DEBUG_INPT   yLOG_point   ("a_path"    , a_path);
+   --rce;  if (a_path == NULL || a_path [0] == 0) {
+      DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_INPT   yLOG_info    ("a_path"    , a_path);
+   /*---(save)---------------------------*/
+   strlcpy (t, a_path, LEN_RECD);
+   rc = yvikeys__file_path (t);
+   DEBUG_HIST   yLOG_value   ("path"      , rc);
+   --rce;  if (rc < 0) {
+      DEBUG_HIST   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(save)---------------------------*/
+   strlcpy (myVIKEYS.f_loc  , t, LEN_RECD);
    DEBUG_INPT   yLOG_info    ("f_loc"     , myVIKEYS.f_loc);
    /*---(complete)-----------------------*/
    DEBUG_INPT   yLOG_exit    (__FUNCTION__);
@@ -682,11 +855,10 @@ yvikeys_file_name               (char *a_name)
    char        rce         =  -10;
    char        rc          =    0;
    char        i           =    0;
-   char        t           [LEN_FULL]   = "";
-   char        d           [LEN_FULL]   = "";
+   char        x_work      [LEN_RECD]   = "";
+   char        x_dir       [LEN_RECD]   = "";
    char       *p           = NULL;
    int         x_len       =    0;
-   int         x_extlen    =    0;
    int        *x_valid     = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.";
    /*---(header)-------------------------*/
    DEBUG_INPT   yLOG_enter   (__FUNCTION__);
@@ -705,51 +877,42 @@ yvikeys_file_name               (char *a_name)
       DEBUG_INPT   yLOG_exit    (__FUNCTION__);
       return 0;
    }
-   strlcpy (t, a_name, LEN_FULL);
-   DEBUG_INPT   yLOG_info    ("t"         , t);
+   if (a_name [0] == '/')  strlcpy  (x_work, a_name, LEN_RECD);
+   else                    snprintf (x_work, LEN_RECD, "%s%s", myVIKEYS.f_loc, a_name);
+   DEBUG_INPT   yLOG_info    ("x_work"    , x_work);
    /*---(strip extensions)---------------*/
-   DEBUG_INPT   yLOG_info    ("s_ext"     , myVIKEYS.s_ext);
-   x_extlen = strllen (myVIKEYS.s_ext, LEN_LABEL);
-   DEBUG_INPT   yLOG_value   ("x_extlen"  , x_extlen);
-   while (1) {
-      DEBUG_INPT   yLOG_info    ("t"         , t);
-      x_len = strllen (t, LEN_RECD);
-      DEBUG_INPT   yLOG_value   ("x_len"     , x_len);
-      if (x_len < x_extlen + 1)                        break;
-      DEBUG_INPT   yLOG_info    ("tail end"  , t + x_len - x_extlen - 1);
-      if (strcmp (t + x_len - x_extlen, myVIKEYS.s_ext) != 0)   break;
-      if (t [x_len - x_extlen - 1] != '.')             break;
-      t [x_len - x_extlen - 1] = 0;
-   }
+   rc = yvikeys__file_stripext (x_work);
+   DEBUG_INPT   yLOG_value   ("stripext"  , rc);
    /*---(divide out location)------------*/
-   p = strrchr (t, '/');
+   p = strrchr (x_work, '/');
    DEBUG_INPT   yLOG_point   ("p"         , p);
-   if (p != NULL) {
+   --rce;  if (p != NULL) {
       DEBUG_INPT   yLOG_note    ("fully qualified name, with directory");
       *p = 0;
-      sprintf (d, "%s/", t  , LEN_RECD);
-      rc = yvikeys_file_loc (d);
+      sprintf (x_dir, "%s/", x_work, LEN_RECD);
+      rc = yvikeys__file_temploc (x_dir);
       if (rc < 0) {
          DEBUG_INPT   yLOG_exit    (__FUNCTION__);
          return rc;
       }
-      strlcpy (t, p + 1     , LEN_RECD);
    } else {
-      DEBUG_INPT   yLOG_note    ("no directory assigned");
+      DEBUG_HIST   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
    }
    /*---(check for bad characters)-------*/
-   x_len = strllen (t, LEN_RECD);
+   p++;
+   x_len = strllen (p, LEN_RECD);
    --rce;  for (i = 0; i < x_len; ++i) {
-      if (strchr (x_valid, t [i]) != NULL)   continue;
+      if (strchr (x_valid, p [i]) != NULL)   continue;
       DEBUG_INPT   yLOG_note    ("bad character in file name");
       DEBUG_INPT   yLOG_exit    (__FUNCTION__);
       return rce;
    }
    /*---(check for empty, again)---------*/
    if (x_len == 0)  strlcpy (myVIKEYS.f_name , FILE_BLANK, LEN_RECD);
-   else             strlcpy (myVIKEYS.f_name , t         , LEN_RECD);
+   else             strlcpy (myVIKEYS.f_name , p         , LEN_RECD);
    /*---(report out)---------------------*/
-   sprintf (myVIKEYS.f_title, "%s%s.%s", myVIKEYS.f_loc, myVIKEYS.f_name, myVIKEYS.s_ext);
+   sprintf (myVIKEYS.f_title, "%s%s.%s", x_dir, myVIKEYS.f_name, myVIKEYS.s_ext);
    DEBUG_INPT   yLOG_info    ("f_loc"     , myVIKEYS.f_loc);
    DEBUG_INPT   yLOG_info    ("f_name"    , myVIKEYS.f_name);
    DEBUG_INPT   yLOG_info    ("f_title"   , myVIKEYS.f_title);
