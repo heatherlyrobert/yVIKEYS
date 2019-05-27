@@ -365,6 +365,7 @@ static const tMENU  s_menus [MAX_MENU] = {
    { 'd', '-', '·', "pixelate"         , 'y', '-', "-"                 , "-"                                                },
    { 'd', '-', '·', "render"           , 'y', '-', "-"                 , "-"                                                },
    { 'd', '-', '·', "sharpen"          , 'y', '-', "-"                 , "-"                                                },
+   { 'd', '-', '·', "smooth"           , 'y', '-', "-"                 , "-"                                                },
    { 'd', '-', '·', "stylize"          , 'y', '-', "-"                 , "-"                                                },
    { 'd', '-', '·', "liquify"          , 'y', '-', "-"                 , "-"                                                },
    { 'd', '-', '·', "oils"             , 'y', '-', "-"                 , "-"                                                },
@@ -417,7 +418,7 @@ static const tMENU  s_menus [MAX_MENU] = {
    /*---(macros menu)--------------------------------------------*/
    { 'r', '·', '·', "macro"            , '·', '>', "-"                 , "keyboard macros, scripts, and addons"             },
    /*---(show menu)----------------------------------------------*/
-   { 'h', '·', '·', "show"             , '·', '>', "-"                 , "presentation, reporting, printing, and demos"     },
+   { 'h', '·', '·', "share"            , '·', '>', "-"                 , "presentation, reporting, printing, and demos"     },
    /*---(footer)-------------------------------------------------*/
    {  0 ,  0 ,  0 , NULL               ,  0 ,  0 , NULL                , NULL                                               },
    /*---(done)---------------------------------------------------*/
@@ -2108,7 +2109,8 @@ yvikeys__menu_back      (int a_len, int a_level, int a_last)
    int         x_left, x_wide, x_bott, x_tall, x_top, x_mid;
    int         x_xmin, x_xmax, x_ymin, x_ymax;
    int         x, y;
-   int         t           [LEN_LABEL];
+   int         i           =    0;
+   int         t           [LEN_RECD];
    int         x_len       =    0;
    /*---(header)-------------------------*/
    DEBUG_CMDS   yLOG_enter   (__FUNCTION__);
@@ -2176,6 +2178,10 @@ yvikeys__menu_back      (int a_len, int a_level, int a_last)
    if (myVIKEYS.env == YVIKEYS_CURSES) {
       x_top = x_bott - x_tall;
       x_mid = x_left + (x_wide / 2);
+      yCOLOR_curs ("menu"   );
+      for (i = 0; i < x_tall; ++i) {
+         mvprintw   (x_top + i, x_left, "%*.*s", x_wide, x_wide, "                                                  ");
+      }
       switch (a_level) {
       case  0 : strlcpy (t, "main menu", LEN_LABEL); break;
       case  1 : sprintf (t, "\\%c (%s) sub-menu", s_menus [a_last].top, s_menus [a_last].name); break;
@@ -2186,6 +2192,17 @@ yvikeys__menu_back      (int a_len, int a_level, int a_last)
       mvprintw   (x_top, x_left, "%s", myVIKEYS.s_prog);
       x_len = strlen (myVIKEYS.s_vernum);
       mvprintw   (x_top, x_left + x_wide - x_len, "%s", myVIKEYS.s_vernum);
+      strlcpy (t, "yvikeys menus -- wider and flatter", LEN_RECD);
+      x_len = strlen (t);
+      mvprintw   (x_bott - 1, x_mid - (x_len / 2), "%s", t);
+      if (a_len != a_level) {
+         strlcpy (t, "ERROR KEY", LEN_RECD);
+         x_len = strlen (t);
+         mvprintw   (x_bott - 9, x_mid - (x_len / 2), "%s", t);
+         strlcpy (t, "press <esc>", LEN_RECD);
+         x_len = strlen (t);
+         mvprintw   (x_bott - 8, x_mid - (x_len / 2), "%s", t);
+      }
    }
    /*---(complete)-----------------------*/
    DEBUG_CMDS   yLOG_exit    (__FUNCTION__);

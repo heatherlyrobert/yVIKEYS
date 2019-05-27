@@ -477,7 +477,7 @@ VIEW_defaults            (cchar a_env)
          case YVIKEYS_LAYERS  : p->on = '-';                      break;
          case YVIKEYS_FLOAT   : p->on = 'y';  p->def_tall =   1;  p->drawer = SOURCE_float;     break;
          case YVIKEYS_HISTORY : p->on = 'y';  p->drawer = HISTORY_display;  break;
-         case YVIKEYS_MENUS   : p->on = 'y';  p->def_wide =  40;    p->def_tall =  15;  p->drawer = yvikeys_menu_draw; break;
+         case YVIKEYS_MENUS   : p->on = 'y';  p->def_wide =  40;    p->def_tall =  14;  p->drawer = yvikeys_menu_draw; break;
          case YVIKEYS_WINDOW  : p->on = '-';                      break;
          case YVIKEYS_MAIN    : p->on = 'y';                      break;
          }
@@ -827,7 +827,7 @@ VIEW__heights_bott       (void)
    n = VIEW__abbr (YVIKEYS_MENUS );
    if (s_parts [n].mgmt == YVIKEYS_AUTO) {
       if (myVIKEYS.env == YVIKEYS_OPENGL )  s_parts [n].bott = x_opengl + 30;
-      if (myVIKEYS.env == YVIKEYS_CURSES )  s_parts [n].bott = x_top - s_parts [n].tall;
+      if (myVIKEYS.env == YVIKEYS_CURSES )  s_parts [n].bott = x_top - s_parts [n].tall - 1;
    }
    DEBUG_GRAF   yLOG_complex ("bott"      , "%c %-12.12s %3d bott (cum %3d)", s_parts [n].abbr, s_parts [n].name, s_parts [n].bott, x_cum);
    n = VIEW__abbr (YVIKEYS_HISTORY );

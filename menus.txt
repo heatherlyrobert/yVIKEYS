@@ -311,6 +311,7 @@ d - ·   shadow        y - -                 -
 d - ·   pixelate      y - -                 -
 d - ·   render        y - -                 -
 d - ·   sharpen       y - -                 -
+d - ·   smooth        y - -                 -
 d - ·   stylize       y - -                 -
 d - ·   liquify       y - -                 -
 d - ·   oils          y - -                 -
@@ -395,7 +396,7 @@ r · · macro           y > -                 -
 ·
 ·
 · · · +=+=+=========  ===handling=========  ===description===================================
-h · · show            y > -                 -
+h · · share           y > -                 -
 ·
 ·
 ·
