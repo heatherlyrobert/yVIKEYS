@@ -578,6 +578,7 @@ SOURCE_start       (char *a_prefix)
    /*---(clear sundo)--------------------*/
    yvikeys_sundo_purge (0);
    /*---(populate globals)---------------*/
+   SOURCE_menu_prep ();
    if (a_prefix [0] != '¦')  strlcpy (s_cur->contents, a_prefix , LEN_RECD);
    s_cur->npos = strllen (s_cur->contents, LEN_RECD);
    s_cur->bpos = s_cur->cpos = 0;

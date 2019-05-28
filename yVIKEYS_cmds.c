@@ -13,7 +13,7 @@
  * metis  tn2#·  menus to display error and keep locked until <esc>
  * metis  tn2#·  menus error to display last valid menu behind error
  * metis  dn4··  menu activate/deactive using menu paths (cant active if master not active)
- * metis  dn4··  menu to support ncurses display and tested in gyges
+ * metis  dn4#·  menu to support ncurses display and tested in gyges
  *
  *
  */

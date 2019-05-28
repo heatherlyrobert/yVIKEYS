@@ -61,10 +61,30 @@ typedef  const int            cint;
 typedef  const float          cfloat;
 
 
+/*===[[ SCREEN MAPS ]]========================================================*/
+/*
+ *  screen maps transpose artificial width blocks in an application to screen
+ *  locations -- chars or pixels.  this is less important for things like
+ *  pixel editors, but what makes movement in something like a spreadsheet
+ *  possible.
+ *
+ *  u prefix means in screen units, which are characters in ncurses
+ *  g prefix means in application units, which are cells in spreadsheets
+ *
+ *  if the range is 0 - 15
+ *     count = 16
+ *     min   =  0
+ *     max   = 15
+ *
+ *
+ *
+ *
+ */
+
 typedef  struct cMAPPED  tMAPPED;
 struct cMAPPED {
    /*---(identity)-------------*/
-   char        which;                       /* x, y, z, or t                  */
+   char        which;                       /* b, x, y, or z                  */
    /*---(lefts)----------------*/
    int         umin;                        /* global min, used or not        */
    int         gmin;                        /* global min, used or not        */

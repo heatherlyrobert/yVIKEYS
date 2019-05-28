@@ -790,13 +790,12 @@ yvikeys__screen         (tMAPPED *a_map)
    char        rce         =  -10;
    char        rc          =    0;
    int         i           =    0;
-   int         j           =    0;
-   int         w           =    0;
    int         x_curr      =    0;
-   int         x_next      =    0;
    int         x_prev      =    0;
    /*---(defense)------------------------*/
    rce;  if (a_map == NULL)     return rce;
+   /*---(header)-------------------------*/
+   DEBUG_MAP   yLOG_enter   (__FUNCTION__);
    /*---(limits)-------------------------*/
    /*> printf ("ucur  = %3d\n", a_map->ucur);                                           <*/
    if (a_map->ucur < a_map->umin)  a_map->ucur = a_map->umin;
@@ -811,15 +810,16 @@ yvikeys__screen         (tMAPPED *a_map)
    }
    /*> printf ("ucur  = %3d\n", a_map->ucur);                                           <*/
    /*---(screen fits all)----------------*/
-   if (a_map->umax - a_map->umin <= a_map->uavail) {
-      /*> printf ("processing a small\n");                                            <*/
+   if (a_map->umax - a_map->umin <  a_map->uavail) {
+      DEBUG_MAP   yLOG_note    ("small format, all content fits");
       rc = yvikeys__screen_small (a_map);
+      DEBUG_MAP   yLOG_exit    (__FUNCTION__);
       return rc;
    }
    /*---(from beginning)-----------------*/
    if (a_map->ucur < a_map->ubeg) {
+      DEBUG_MAP   yLOG_note    ("map from beginning");
       myVIKEYS.redraw = 'y';
-      /*> printf ("processing a left\n");                                             <*/
       a_map->ubeg = a_map->ucur;
       for (i = a_map->ucur; i >= a_map->umin; --i) {
          a_map->ubeg = i;
@@ -829,8 +829,8 @@ yvikeys__screen         (tMAPPED *a_map)
    }
    /*---(from ending)--------------------*/
    else if (a_map->ucur > a_map->uend) {
+      DEBUG_MAP   yLOG_note    ("map from end");
       myVIKEYS.redraw = 'y';
-      /*> printf ("processing a right\n");                                            <*/
       a_map->uend   = a_map->ucur;
       a_map->utend  = a_map->ucur;
       /*> printf ("uend  = %3d\n", a_map->uend);                                        <*/
@@ -838,15 +838,16 @@ yvikeys__screen         (tMAPPED *a_map)
    }
    /*---(just a refresh)-----------------*/
    else {
-      /*> printf ("processing a refresh\n");                                          <*/
+      DEBUG_MAP   yLOG_note    ("just a refresh");
       rc = yvikeys__screen_beg (a_map);
    }
    /*---(align grid)---------------------*/
-   a_map->ulen   = a_map->uend - a_map->ubeg + 1;
+   a_map->ulen  = a_map->uend - a_map->ubeg + 1;
    a_map->gbeg  = a_map->map [a_map->ubeg];
    a_map->gcur  = a_map->map [a_map->ucur];
    a_map->gend  = a_map->map [a_map->uend];
    /*---(complete)-----------------------*/
+   DEBUG_MAP   yLOG_exit    (__FUNCTION__);
    return rc;
 }
 
@@ -1021,7 +1022,7 @@ yvikeys__map_basic       (char a_dir, char a_minor, int *a_grid, int a_gmin, int
    /*---(outcome)------------------------*/
    DEBUG_MAP   yLOG_value   ("x_grid"    , x_grid);
    *a_grid = x_grid;
-   DEBUG_MAP   yLOG_value   ("a_grid"    , a_grid);
+   DEBUG_MAP   yLOG_value   ("*a_grid"   , *a_grid);
    /*---(complete)-----------------------*/
    DEBUG_MAP   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -1355,14 +1356,17 @@ yvikeys__map_vert     (char a_major, char a_minor)
    /*---(prepare)------------------------*/
    x_grid      = g_ymap.gcur;
    DEBUG_MAP   yLOG_value   ("x_grid"    , x_grid);
+   DEBUG_MAP   yLOG_value   ("umin"      , g_ymap.umin);
    x_gmin      = g_ymap.map [g_ymap.umin];
    DEBUG_MAP   yLOG_value   ("x_gmin"    , x_gmin);
    DEBUG_MAP   yLOG_value   ("ulen"       , g_ymap.ulen);
+   DEBUG_MAP   yLOG_value   ("uavail"     , g_ymap.uavail);
    x_qtr       = (g_ymap.ulen   - 1) / 4.0;
    DEBUG_MAP   yLOG_double  ("x_qtr"     , x_qtr);
    x_bqtr      = (g_ymap.uavail - 1) / 4.0;
    DEBUG_MAP   yLOG_double  ("x_bqtr"    , x_bqtr);
-   x_gmax  = g_ymap.map [g_ymap.umax - g_gsizey];
+   DEBUG_MAP   yLOG_value   ("umax"      , g_ymap.umax);
+   x_gmax  = g_ymap.map [g_ymap.umax];
    DEBUG_MAP   yLOG_value   ("x_gmax"    , x_gmax);
    /*---(movement type)------------------*/
    switch (a_major) {
@@ -1428,7 +1432,8 @@ yvikeys__map_horz     (char a_major, char a_minor)
    DEBUG_MAP   yLOG_double  ("x_qtr"     , x_qtr);
    x_bqtr      = (g_xmap.uavail - 1) / 4.0;
    DEBUG_MAP   yLOG_double  ("x_bqtr"    , x_bqtr);
-   x_gmax      = g_xmap.gmax;
+   DEBUG_MAP   yLOG_value   ("umax"      , g_xmap.umax);
+   x_gmax  = g_xmap.map [g_xmap.umax];
    DEBUG_MAP   yLOG_value   ("x_gmax"    , x_gmax);
    /*---(movement type)------------------*/
    switch (a_major) {

@@ -202,6 +202,7 @@ v g ·   grid          y > -                 -
 v e ·   edges         y > -                 -
 v u ·   guides        y > -                 -
 v o ·   overlay       y > -                 -
+v - ·   notes         y > -                 -
 
 
 
@@ -285,7 +286,7 @@ m - ·   scale         y = -                 scale and stretch
 m - ·   trim          y > -                 crop, trimp
 m - ·   join          y > -                 union, intersection, disunion, mask
 m - ·   move          y - -                 adjust position
-m - ·   arrray        y - -                 tile or array of duplicate objects
+m - ·   array         y - -                 tile or array of duplicate objects
 m - ·   rotate        y > -                 left, right, degree, mirror horz/vert
 m - ·   snap          y - -                 grids or guides
 m - ·   fill          y > -                 colors, and textures
@@ -298,8 +299,15 @@ m - ·   ends          y - -                 truncate, balls, arrows, etc
 ·
 · · · +=+=+=========  ===handling=========  ===description===================================
 d · · dataset         y > -                 -
-d - ·   sort          y - -                 choose a sorting order
-d - ·   filter        y - -                 choose a data filter
+d s ·   sort          y > -                 choose a sorting order
+d s o     original    y · -                 original ordering as originally read
+d s a     ascend      y · -                 smallest records appear first
+d s d     descend     y · -                 largest records appear first
+d f ·   filter        y > -                 show or hide data based on various criteria
+d f u     urgency     y · -                 -
+d f i     import      y · -                 -
+d f e     estimate    y · -                 -
+d f f     flag        y · -                 -
 d - ·   blur          y - -                 -
 d - ·   enhance       y - -                 -
 d - ·   distort       y - -                 -

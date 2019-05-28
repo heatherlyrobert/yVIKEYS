@@ -40,6 +40,33 @@ the goal is to compile without errors, display the screen correctly, and accept
 .B instead of a loop in main
    rc = yVIKEYS_main  (<speed>, <update>, NULL);
 
+.SH PHASE II: movements
+the goal is to allow all the map mode movement keys to function properly.
+
+.B PROG_final
+   yVIKEYS_map_config    (YVIKEYS_OFFICE, <mapper>, <locator>, ...);
+   yVIKEYS_map_refresh   ();
+
+.B api_vikeys_mapper
+   create function to populate map data structure for b, x, y, and z
+
+.B api_vikeys_locator (char *a_label, int *a_buf, ...);
+   unless you have some type of standard addresses, just return -1
+
+.B api_vikeys_addressor (char *a_label, int a_buf, ...);
+   unless you have some type of standard addresses, just return -1
+
+
+
+
+
+
+
+
+
+
+
+
 .SH PHASE II: basic main window configuration and drawing
 only a single configuration call and a new function are required to draw the
 main window.  after compiling, the program will display a static version of
