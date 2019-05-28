@@ -89,363 +89,363 @@ static char  S_HIST_LIST [S_HIST_MAX];
 #define    MAX_MENU        1000
 typedef    struct   cMENU   tMENU;
 struct cMENU {
-   cchar       top;
-   cchar       mid;
-   cchar       bot;
-   cchar       name        [LEN_LABEL];
-   cchar       active;
-   cchar       type;
-   cchar       keys        [LEN_LABEL];
-   cchar       desc        [LEN_DESC ];
+   /*---(organize)----------*/
+   cchar       top;                         /* first level key                */
+   cchar       mid;                         /* second level key               */
+   cchar       bot;                         /* third level key                */
+   /*---(master)------------*/
+   cchar       name        [LEN_LABEL];     /* name for use on screens        */
+   cchar       mgmt;                        /* changes allowed (y/n)          */
+   cchar       def;                         /* default active flag            */
+   char        active;                      /* program activation             */
+   cchar       type;                        /* entry type   > ! = ·           */
+   cchar       keys        [LEN_LABEL];     /* command or keys to execute     */
+   /*---(traverse)----------*/
+   short       next;                        /* next sibling                   */
+   short       start;                       /* first child                    */
+   short       count;                       /* count of children              */
+   /*---(done)--------------*/
 };
-static int          s_nmenu  = 0;
-static int          s_ntops  = 0;
-static const tMENU  s_menus [MAX_MENU] = {
+static int    s_nmenu  = 0;
+static int    s_ntops  = 0;
+static tMENU  s_menus [MAX_MENU] = {
    /*---(file menu)----------------------------------------------*/
-   { 'f', '·', '·', "files"            , 'y', '>', "-"                 , "workspace, its file, and external environment"    },
-   { 'f', 'w', '·', "new"              , 'y', '·', ":new¦"             , "create a new, nameless workspace"                 },
-   { 'f', 'o', '·', "open"             , 'y', '=', ":edit·"            , "open a workspace from a file"                     },
-   { 'f', 'd', '·', "chdir"            , 'y', '=', ":cd·"              , "change the current working directory"             },
-   { 'f', 'b', '·', "browse"           , '·', '!', "-"                 , "find directory and file using autocomplete"       },
-   { 'f', '-', '·', "recent"           , '·', '!', "-"                 , "review recent files using autocomplete"           },
-   { 'f', 'm', '·', "import"           , 'y', '>', "-"                 , "import clipboard to current location"             },
-   { 'f', 'm', 'a', "auto"             , 'y', '·', "++"                , "interpret the import records, one-by-one"         },
-   { 'f', 'm', 'v', "values"           , 'y', '·', "+v"                , "pure values, parsed by cell widths"               },
-   { 'f', 'm', 'V', "values+"          , 'y', '·', "+V"                , "pure values, with hints"                          },
-   { 'f', 'm', 'd', "coldel"           , 'y', '·', "+d"                , "pure values, col/field del"                       },
-   { 'f', 'm', 'D', "coldel+"          , 'y', '·', "+D"                , "pure values, col/field del, with hints"           },
-   { 'f', 'm', 'f', "field"            , 'y', '·', "+f"                , "pure values, field del"                           },
-   { 'f', 'm', 'F', "field+"           , 'y', '·', "+F"                , "pure values, field del, with hints"               },
-   { 'f', 'm', 't', "tab"              , 'y', '·', "+t"                , "pure values, tab del"                             },
-   { 'f', 'm', 'T', "tab+"             , 'y', '·', "+T"                , "pure values, tab del, with hints"                 },
-   { 'f', 'm', 'N', "native"           , 'y', '·', "+N"                , "native format, field del, with hints"             },
-   { '·', '·', '·', "---------"        , '-', '-', "-------------"     , "-------------------------------------------------"},
-   { 'f', 'n', '·', "rename"           , 'y', '=', ":file·"            , "change the name of the current workspace"         },
-   { 'f', 'r', '·', "revert"           , '·', '·', "-"                 , "return to the original workspace state"           },
-   { 'f', 'f', '·', "refresh"          , 'y', '·', "-"                 , "reread the source file, replacing existing"       },
-   { 'f', 'i', '·', "info"             , '·', '·', "-"                 , "display key workspace statistics"                 },
-   { 'f', 'v', '·', "version"          , 'y', '>', "-"                 , "workspace and file versioning"                    },
-   { 'f', 'v', 'c', "ctrl"             , 'y', '·', ":control¦"         , "turn on version control"                          },
-   { 'f', 'v', 'n', "noctrl"           , 'y', '·', ":nocontrol¦"       , "turn off version control"                         },
-   { 'f', 'v', '1', "major"            , 'y', '·', ":major¦"           , "bump major value up by one"                       },
-   { 'f', 'v', '2', "minor"            , 'y', '·', ":minor¦"           , "bump minor value up by one"                       },
-   { 'f', 'v', '3', "bump"             , 'y', '·', ":bump¦"            , "bump sub value up by one"                         },
-   { 'f', 'v', 't', "vertxt"           , 'y', '=', ":vertxt·"          , "enter text for most recent version"               },
-   { 'f', 'v', 'm', "manual"           , 'y', '=', ":version·"         , "set version number manually"                      },
-   { '·', '·', '·', "---------"        , '-', '-', "-------------"     , "-------------------------------------------------"},
-   { 'f', 's', '·', "save"             , 'y', '·', ":w"                , "write the current workspace"                      },
-   { 'f', 'a', '·', "saveas"           , 'y', '=', "-"                 , "write current workspace using temp name"          },
-   { 'f', 'x', '·', "export"           , 'y', '>', "-"                 , "export current selection to clipboard"            },
-   { 'f', 'x', 'v', "values"           , 'y', 'v', "-v"                , "final values"                                     },
-   { 'f', 'x', 'V', "values+"          , 'y', 'v', "-V"                , "final values, plus hints"                         },
-   { 'f', 'x', 'd', "coldel"           , 'y', 'v', "-d"                , "final values, col/field delimited"                },
-   { 'f', 'x', 'D', "coldel+"          , 'y', 'v', "-D"                , "final values, col/field del, plus hints"          },
-   { 'f', 'x', 'f', "field"            , 'y', 'v', "-f"                , "final values, field del"                          },
-   { 'f', 'x', 'F', "field+"           , 'y', 'v', "-F"                , "final values, field del, plus hints"              },
-   { 'f', 'x', 'c', "csv"              , 'y', 'v', "-c"                , "final values, csv del"                            },
-   { 'f', 'x', 'C', "csv+"             , 'y', 'v', "-C"                , "final values, csv del, plus hints"                },
-   { 'f', 'x', 't', "tab"              , 'y', 'v', "-t"                , "final values, tab del"                            },
-   { 'f', 'x', 'T', "tab+"             , 'y', 'v', "-T"                , "final values, tab del, plus hints"                },
-   { 'f', 'x', 'r', "result"           , 'y', 'v', "-r"                , "calculated results, field del"                    },
-   { 'f', 'x', 'R', "result+"          , 'y', 'v', "-R"                , "calculated results, field del, plus hints"        },
-   { 'f', 'x', 'S', "source"           , 'y', 'v', "-S"                , "full source, field del, plus hints"               },
-   { 'f', 'x', 'N', "native"           , 'y', 'v', "-N"                , "native format, field del, plus hints"             },
-   { '·', '·', '·', "---------"        , '-', '-', "-------------"     , "-------------------------------------------------"},
-   { 'f', 'c', '·', "close"            , 'y', '·', "-"                 , "close current workspace"                          },
-   { 'f', 'q', '·', "quit"             , 'y', '·', ":qa¦"              , "quit the program"                                 },
+   { 'f', '·', '·', "files"            , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'f', 'w', '·', "new"              , '´', 'y', 'y', '·', ":new¦"             , 0, 0, 0 },
+   { 'f', 'o', '·', "open"             , '´', 'y', 'y', '·', ":edit·"            , 0, 0, 0 },
+   { 'f', 'd', '·', "chdir"            , '´', 'y', 'y', '·', ":cd·"              , 0, 0, 0 },
+   { 'f', 'b', '·', "browse"           , '´', '·', '·', '!', "-"                 , 0, 0, 0 },
+   { 'f', '-', '·', "recent"           , '´', '·', '·', '!', "-"                 , 0, 0, 0 },
+   { 'f', 'm', '·', "import"           , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'f', 'm', 'a', "auto"             , '·', 'y', 'y', '·', "v++"               , 0, 0, 0 },
+   { 'f', 'm', 'v', "values"           , '·', 'y', 'y', '·', "v+v"               , 0, 0, 0 },
+   { 'f', 'm', 'V', "values+"          , '·', 'y', 'y', '·', "v+V"               , 0, 0, 0 },
+   { 'f', 'm', 'd', "coldel"           , '·', 'y', 'y', '·', "v+d"               , 0, 0, 0 },
+   { 'f', 'm', 'D', "coldel+"          , '·', 'y', 'y', '·', "v+D"               , 0, 0, 0 },
+   { 'f', 'm', 'f', "field"            , '·', 'y', 'y', '·', "v+f"               , 0, 0, 0 },
+   { 'f', 'm', 'F', "field+"           , '·', 'y', 'y', '·', "v+F"               , 0, 0, 0 },
+   { 'f', 'm', 't', "tab"              , '·', 'y', 'y', '·', "v+t"               , 0, 0, 0 },
+   { 'f', 'm', 'T', "tab+"             , '·', 'y', 'y', '·', "v+T"               , 0, 0, 0 },
+   { 'f', 'm', 'N', "native"           , '·', 'y', 'y', '·', "v+N"               , 0, 0, 0 },
+   { '·', '·', '·', "---------"        , '-', '-', '-', '-', "-------------"     , 0, 0, 0 },
+   { 'f', 'n', '·', "rename"           , '´', 'y', 'y', '·', ":file·"            , 0, 0, 0 },
+   { 'f', 'r', '·', "revert"           , '´', '·', '·', '!', "-"                 , 0, 0, 0 },
+   { 'f', 'f', '·', "refresh"          , '´', 'y', 'y', '!', "-"                 , 0, 0, 0 },
+   { 'f', 'i', '·', "info"             , '´', '·', '·', '!', "-"                 , 0, 0, 0 },
+   { 'f', 'v', '·', "version"          , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'f', 'v', 'c', "ctrl"             , '´', 'y', 'y', '·', ":control¦"         , 0, 0, 0 },
+   { 'f', 'v', 'n', "noctrl"           , '´', 'y', 'y', '·', ":nocontrol¦"       , 0, 0, 0 },
+   { 'f', 'v', '1', "major+"           , '´', 'y', 'y', '·', ":major¦"           , 0, 0, 0 },
+   { 'f', 'v', '2', "minor+"           , '´', 'y', 'y', '·', ":minor¦"           , 0, 0, 0 },
+   { 'f', 'v', '3', "step+"            , '´', 'y', 'y', '·', ":bump¦"            , 0, 0, 0 },
+   { 'f', 'v', 't', "vertxt"           , '´', 'y', 'y', '·', ":vertxt·"          , 0, 0, 0 },
+   { 'f', 'v', 'm', "manual"           , '´', 'y', 'y', '·', ":version·"         , 0, 0, 0 },
+   { '·', '·', '·', "---------"        , '-', '-', '-', '-', "-------------"     , 0, 0, 0 },
+   { 'f', 's', '·', "save"             , '´', 'y', 'y', '!', ":w"                , 0, 0, 0 },
+   { 'f', 'a', '·', "saveas"           , '´', 'y', 'y', '!', "-"                 , 0, 0, 0 },
+   { 'f', 'x', '·', "export"           , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'f', 'x', 'v', "values"           , '·', 'y', 'y', '·', "v-v"               , 0, 0, 0 },
+   { 'f', 'x', 'V', "values+"          , '·', 'y', 'y', '·', "v-V"               , 0, 0, 0 },
+   { 'f', 'x', 'd', "coldel"           , '·', 'y', 'y', '·', "v-d"               , 0, 0, 0 },
+   { 'f', 'x', 'D', "coldel+"          , '·', 'y', 'y', '·', "v-D"               , 0, 0, 0 },
+   { 'f', 'x', 'f', "field"            , '·', 'y', 'y', '·', "v-f"               , 0, 0, 0 },
+   { 'f', 'x', 'F', "field+"           , '·', 'y', 'y', '·', "v-F"               , 0, 0, 0 },
+   { 'f', 'x', 'c', "csv"              , '·', 'y', 'y', '·', "v-c"               , 0, 0, 0 },
+   { 'f', 'x', 'C', "csv+"             , '·', 'y', 'y', '·', "v-C"               , 0, 0, 0 },
+   { 'f', 'x', 't', "tab"              , '·', 'y', 'y', '·', "v-t"               , 0, 0, 0 },
+   { 'f', 'x', 'T', "tab+"             , '·', 'y', 'y', '·', "v-T"               , 0, 0, 0 },
+   { 'f', 'x', 'r', "result"           , '·', 'y', 'y', '·', "v-r"               , 0, 0, 0 },
+   { 'f', 'x', 'R', "result+"          , '·', 'y', 'y', '·', "v-R"               , 0, 0, 0 },
+   { 'f', 'x', 'S', "source"           , '·', 'y', 'y', '·', "v-S"               , 0, 0, 0 },
+   { 'f', 'x', 'N', "native"           , '·', 'y', 'y', '·', "v-N"               , 0, 0, 0 },
+   { '·', '·', '·', "---------"        , '-', '-', '-', '-', "-------------"     , 0, 0, 0 },
+   { 'f', 'c', '·', "close"            , '´', 'y', 'y', '!', "-"                 , 0, 0, 0 },
+   { 'f', 'q', '·', "quit"             , '´', 'y', 'y', '·', ":qa¦"              , 0, 0, 0 },
    /*---(edit menu)----------------------------------------------*/
-   { 'e', '·', '·', "edit"             , 'y', '>', "-"                 , "-"                                                },
-   { 'e', 'u', '·', "undo"             , 'y', '·', "u"                 , "undo the very last action"                        },
-   { 'e', 'U', '·', "redo"             , 'y', '·', "U"                 , "redo the last action undone"                      },
-   { 'e', '_', '·', "status"           , 'y', '·', "-"                 , "-"                                                },
-   { 'e', '?', '·', "history"          , 'y', '·', "-"                 , "-"                                                },
-   { 'e', '?', 't', "track"            , 'y', '·', "-"                 , "-"                                                },
-   { 'e', '?', 'u', "untrack"          , 'y', '·', "-"                 , "-"                                                },
-   { 'e', '?', 'c', "clear"            , 'y', '·', "-"                 , "-"                                                },
-   { 'e', '?', 'r', "review"           , 'y', '·', "-"                 , "-"                                                },
-   { '·', '·', '·', "---------"        , '-', '-', "-------------"     , "-------------------------------------------------"},
-   { 'e', 'y', '·', "copy"             , 'y', '·', "y"                 , "-"                                                },
-   { 'e', 'Y', '·', "cut"              , 'y', '·', "Y"                 , "-"                                                },
-   { 'e', 'p', '·', "paste"            , 'y', '·', "p"                 , "-"                                                },
-   { 'e', 'P', '·', "special"          , 'y', '>', "-"                 , "-"                                                },
-   { 'e', 'P', 'n', "normal"           , 'y', '·', "Pn"                , "-"                                                },
-   { 'e', 'P', '#', "clear"            , 'y', '·', "P#"                , "-"                                                },
-   { 'e', 'P', 'r', "replace"          , 'y', '·', "Pr"                , "-"                                                },
-   { 'e', 'P', 'd', "duplicate"        , 'y', '·', "Pd"                , "-"                                                },
-   { 'e', 'P', 'c', "combo"            , 'y', '·', "Pc"                , "-"                                                },
-   { 'e', 'P', 'm', "move"             , 'y', '·', "Pm"                , "-"                                                },
-   { 'e', 'P', 'f', "force"            , 'y', '·', "Pf"                , "-"                                                },
-   { 'e', 'P', 'v', "values"           , 'y', '·', "Pv"                , "-"                                                },
-   { '·', '·', '·', "---------"        , '-', '-', "-------------"     , "-------------------------------------------------"},
-   { 'e', 'x', '·', "clear"            , 'y', '>', "-"                 , "-"                                                },
-   { 'e', 'x', '.', "inplace"          , 'y', '·', "x."                , "-"                                                },
-   { 'e', 'x', 'l', "left"             , 'y', '·', "xl"                , "-"                                                },
-   { 'e', 'x', 'h', "right"            , 'y', '·', "xh"                , "-"                                                },
-   { 'e', 'x', 'k', "up"               , 'y', '·', "xk"                , "-"                                                },
-   { 'e', 'x', 'j', "down"             , 'y', '·', "xj"                , "-"                                                },
-   { 'e', 'x', 'i', "in"               , 'y', '·', "xi"                , "-"                                                },
-   { 'e', 'x', 'o', "out"              , 'y', '·', "xo"                , "-"                                                },
-   { 'e', 'x', 'x', "col_lef"          , 'y', '·', "xx"                , "-"                                                },
-   { 'e', 'x', 'X', "col_rig"          , 'y', '·', "xX"                , "-"                                                },
-   { 'e', 'x', 'y', "row_abo"          , 'y', '·', "xy"                , "-"                                                },
-   { 'e', 'x', 'Y', "row_bel"          , 'y', '·', "xY"                , "-"                                                },
-   { 'e', 'x', 'z', "lvl_in"           , 'y', '·', "xz"                , "-"                                                },
-   { 'e', 'x', 'Z', "lvl_out"          , 'y', '·', "xZ"                , "-"                                                },
-   { 'e', 'd', '·', "delete"           , 'y', '>', "-"                 , "-"                                                },
-   { 'e', 'd', 'l', "left"             , 'y', '·', "dl"                , "-"                                                },
-   { 'e', 'd', 'h', "right"            , 'y', '·', "dh"                , "-"                                                },
-   { 'e', 'd', 'k', "up"               , 'y', '·', "dk"                , "-"                                                },
-   { 'e', 'd', 'j', "down"             , 'y', '·', "dj"                , "-"                                                },
-   { 'e', 'd', 'i', "in"               , 'y', '·', "di"                , "-"                                                },
-   { 'e', 'd', 'o', "out"              , 'y', '·', "do"                , "-"                                                },
-   { 'e', 'd', 'x', "col_left"         , 'y', '·', "dx"                , "-"                                                },
-   { 'e', 'd', 'X', "col_right"        , 'y', '·', "dX"                , "-"                                                },
-   { 'e', 'd', 'y', "row_above"        , 'y', '·', "dy"                , "-"                                                },
-   { 'e', 'd', 'Y', "row_below"        , 'y', '·', "dY"                , "-"                                                },
-   { 'e', 'd', 'z', "lvl_in"           , 'y', '·', "dz"                , "-"                                                },
-   { 'e', 'd', 'Z', "lvl_out"          , 'y', '·', "dZ"                , "-"                                                },
-   { 'e', 'i', '·', "insert"           , 'y', '>', "-"                 , "-"                                                },
-   { 'e', 'i', 'l', "left"             , 'y', '·', "al"                , "-"                                                },
-   { 'e', 'i', 'h', "right"            , 'y', '·', "ah"                , "-"                                                },
-   { 'e', 'i', 'k', "up"               , 'y', '·', "ak"                , "-"                                                },
-   { 'e', 'i', 'j', "down"             , 'y', '·', "aj"                , "-"                                                },
-   { 'e', 'i', 'i', "in"               , 'y', '·', "ai"                , "-"                                                },
-   { 'e', 'i', 'o', "out"              , 'y', '·', "ao"                , "-"                                                },
-   { 'e', 'i', 'x', "col_lef"          , 'y', '·', "ax"                , "-"                                                },
-   { 'e', 'i', 'X', "col_rig"          , 'y', '·', "aX"                , "-"                                                },
-   { 'e', 'i', 'y', "row_abo"          , 'y', '·', "ay"                , "-"                                                },
-   { 'e', 'i', 'Y', "row_bel"          , 'y', '·', "aY"                , "-"                                                },
-   { 'e', 'i', 'z', "lvl_in"           , 'y', '·', "az"                , "-"                                                },
-   { 'e', 'i', 'Z', "lvl_out"          , 'y', '·', "aZ"                , "-"                                                },
-   { '·', '·', '·', "---------"        , '-', '-', "-------------"     , "-------------------------------------------------"},
-   { 'e', 'g', '·', "group"            , 'y', '>', "-"                 , "-"                                                },
-   { 'e', 'g', 'g', "group"            , 'y', '·', "-"                 , "group selected items into a new group"            },
-   { 'e', 'g', 'u', "ungroup"          , 'y', '·', "-"                 , "take all items out of any touched groups"         },
-   { 'e', 'g', 'r', "regroup"          , 'y', '·', "-"                 , "put items back into last ungrouped group"         },
-   { 'e', 'g', 'm', "merge"            , 'y', '·', "-"                 , "combine/merge seleced groups into one"            },
-   { 'e', 'g', 'f', "free"             , 'y', '·', "-"                 , "take selected items out any group"                },
-   { 'e', 'g', 'b', "boundary"         , 'y', '·', "-"                 , "show boundary marker around selected groups"      },
-   { 'e', 'a', '·', "align"            , 'y', '>', "-"                 , "-"                                                },
-   { 'e', 'a', 'k', "top"              , 'y', '·', "-"                 , "-"                                                },
-   { 'e', 'a', 'j', "bottom"           , 'y', '·', "-"                 , "-"                                                },
-   { 'e', 'a', 'h', "left"             , 'y', '·', "-"                 , "-"                                                },
-   { 'e', 'a', 'l', "right"            , 'y', '·', "-"                 , "-"                                                },
-   { 'e', 'a', 'o', "front"            , 'y', '·', "-"                 , "-"                                                },
-   { 'e', 'a', 'i', "back"             , 'y', '·', "-"                 , "-"                                                },
-   { 'e', 'a', 'x', "dist-x"           , 'y', '·', "-"                 , "-"                                                },
-   { 'e', 'a', 'y', "dist-y"           , 'y', '·', "-"                 , "-"                                                },
-   { 'e', 'a', 'z', "dist-z"           , 'y', '·', "-"                 , "-"                                                },
-   { 'e', 'o', '·', "order"            , 'y', '>', "-"                 , "-"                                                },
-   { 'e', 'o', 'n', "front"            , 'y', '·', "-"                 , "-"                                                },
-   { 'e', 'o', 'i', "forward"          , 'y', '·', "-"                 , "-"                                                },
-   { 'e', 'o', 'o', "backward"         , 'y', '·', "-"                 , "-"                                                },
-   { 'e', 'o', 'f', "back"             , 'y', '·', "-"                 , "-"                                                },
-   { 'e', 'o', 'r', "reverse"          , 'y', '·', "-"                 , "-"                                                },
-   { 'e', 'l', '·', "layer"            , 'y', '=', "-"                 , "-"                                                },
+   { 'e', '·', '·', "edit"             , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'e', 'u', '·', "undo"             , '´', 'y', 'y', '·', "u"                 , 0, 0, 0 },
+   { 'e', 'U', '·', "redo"             , '´', 'y', 'y', '·', "U"                 , 0, 0, 0 },
+   { 'e', '_', '·', "status"           , '´', 'y', 'y', '·', "-"                 , 0, 0, 0 },
+   { 'e', '?', '·', "history"          , '´', 'y', 'y', '·', "-"                 , 0, 0, 0 },
+   { 'e', '?', 't', "track"            , '´', 'y', 'y', '·', "-"                 , 0, 0, 0 },
+   { 'e', '?', 'u', "untrack"          , '´', 'y', 'y', '·', "-"                 , 0, 0, 0 },
+   { 'e', '?', 'c', "clear"            , '´', 'y', 'y', '·', "-"                 , 0, 0, 0 },
+   { 'e', '?', 'r', "review"           , '´', 'y', 'y', '·', "-"                 , 0, 0, 0 },
+   { '·', '·', '·', "---------"        , '-', '-', '-', '-', "-------------"     , 0, 0, 0 },
+   { 'e', 'y', '·', "copy"             , '´', 'y', 'y', '·', "y"                 , 0, 0, 0 },
+   { 'e', 'Y', '·', "cut"              , '´', 'y', 'y', '·', "Y"                 , 0, 0, 0 },
+   { 'e', 'p', '·', "paste"            , '´', 'y', 'y', '·', "p"                 , 0, 0, 0 },
+   { 'e', 'P', '·', "special"          , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'e', 'P', 'n', "normal"           , '·', 'y', 'y', '·', "Pn"                , 0, 0, 0 },
+   { 'e', 'P', '#', "clear"            , '·', 'y', 'y', '·', "P#"                , 0, 0, 0 },
+   { 'e', 'P', 'r', "replace"          , '·', 'y', 'y', '·', "Pr"                , 0, 0, 0 },
+   { 'e', 'P', 'd', "duplicate"        , '·', 'y', 'y', '·', "Pd"                , 0, 0, 0 },
+   { 'e', 'P', 'c', "combo"            , '·', 'y', 'y', '·', "Pc"                , 0, 0, 0 },
+   { 'e', 'P', 'm', "move"             , '·', 'y', 'y', '·', "Pm"                , 0, 0, 0 },
+   { 'e', 'P', 'f', "force"            , '·', 'y', 'y', '·', "Pf"                , 0, 0, 0 },
+   { 'e', 'P', 'v', "values"           , '·', 'y', 'y', '·', "Pv"                , 0, 0, 0 },
+   { '·', '·', '·', "---------"        , '-', '-', '-', '-', "-------------"     , 0, 0, 0 },
+   { 'e', 'x', '·', "clear"            , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'e', 'x', '.', "inplace"          , '·', 'y', 'y', '·', "x."                , 0, 0, 0 },
+   { 'e', 'x', 'l', "left"             , '·', 'y', 'y', '·', "xl"                , 0, 0, 0 },
+   { 'e', 'x', 'h', "right"            , '·', 'y', 'y', '·', "xh"                , 0, 0, 0 },
+   { 'e', 'x', 'k', "up"               , '·', 'y', 'y', '·', "xk"                , 0, 0, 0 },
+   { 'e', 'x', 'j', "down"             , '·', 'y', 'y', '·', "xj"                , 0, 0, 0 },
+   { 'e', 'x', 'i', "in"               , '·', 'y', 'y', '·', "xi"                , 0, 0, 0 },
+   { 'e', 'x', 'o', "out"              , '·', 'y', 'y', '·', "xo"                , 0, 0, 0 },
+   { 'e', 'x', 'x', "col_lef"          , '·', 'y', 'y', '·', "xx"                , 0, 0, 0 },
+   { 'e', 'x', 'X', "col_rig"          , '·', 'y', 'y', '·', "xX"                , 0, 0, 0 },
+   { 'e', 'x', 'y', "row_abo"          , '·', 'y', 'y', '·', "xy"                , 0, 0, 0 },
+   { 'e', 'x', 'Y', "row_bel"          , '·', 'y', 'y', '·', "xY"                , 0, 0, 0 },
+   { 'e', 'x', 'z', "lvl_in"           , '·', 'y', 'y', '·', "xz"                , 0, 0, 0 },
+   { 'e', 'x', 'Z', "lvl_out"          , '·', 'y', 'y', '·', "xZ"                , 0, 0, 0 },
+   { 'e', 'd', '·', "delete"           , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'e', 'd', 'l', "left"             , '·', 'y', 'y', '·', "dl"                , 0, 0, 0 },
+   { 'e', 'd', 'h', "right"            , '·', 'y', 'y', '·', "dh"                , 0, 0, 0 },
+   { 'e', 'd', 'k', "up"               , '·', 'y', 'y', '·', "dk"                , 0, 0, 0 },
+   { 'e', 'd', 'j', "down"             , '·', 'y', 'y', '·', "dj"                , 0, 0, 0 },
+   { 'e', 'd', 'i', "in"               , '·', 'y', 'y', '·', "di"                , 0, 0, 0 },
+   { 'e', 'd', 'o', "out"              , '·', 'y', 'y', '·', "do"                , 0, 0, 0 },
+   { 'e', 'd', 'x', "col_left"         , '·', 'y', 'y', '·', "dx"                , 0, 0, 0 },
+   { 'e', 'd', 'X', "col_right"        , '·', 'y', 'y', '·', "dX"                , 0, 0, 0 },
+   { 'e', 'd', 'y', "row_above"        , '·', 'y', 'y', '·', "dy"                , 0, 0, 0 },
+   { 'e', 'd', 'Y', "row_below"        , '·', 'y', 'y', '·', "dY"                , 0, 0, 0 },
+   { 'e', 'd', 'z', "lvl_in"           , '·', 'y', 'y', '·', "dz"                , 0, 0, 0 },
+   { 'e', 'd', 'Z', "lvl_out"          , '·', 'y', 'y', '·', "dZ"                , 0, 0, 0 },
+   { 'e', 'i', '·', "insert"           , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'e', 'i', 'l', "left"             , '·', 'y', 'y', '·', "al"                , 0, 0, 0 },
+   { 'e', 'i', 'h', "right"            , '·', 'y', 'y', '·', "ah"                , 0, 0, 0 },
+   { 'e', 'i', 'k', "up"               , '·', 'y', 'y', '·', "ak"                , 0, 0, 0 },
+   { 'e', 'i', 'j', "down"             , '·', 'y', 'y', '·', "aj"                , 0, 0, 0 },
+   { 'e', 'i', 'i', "in"               , '·', 'y', 'y', '·', "ai"                , 0, 0, 0 },
+   { 'e', 'i', 'o', "out"              , '·', 'y', 'y', '·', "ao"                , 0, 0, 0 },
+   { 'e', 'i', 'x', "col_lef"          , '·', 'y', 'y', '·', "ax"                , 0, 0, 0 },
+   { 'e', 'i', 'X', "col_rig"          , '·', 'y', 'y', '·', "aX"                , 0, 0, 0 },
+   { 'e', 'i', 'y', "row_abo"          , '·', 'y', 'y', '·', "ay"                , 0, 0, 0 },
+   { 'e', 'i', 'Y', "row_bel"          , '·', 'y', 'y', '·', "aY"                , 0, 0, 0 },
+   { 'e', 'i', 'z', "lvl_in"           , '·', 'y', 'y', '·', "az"                , 0, 0, 0 },
+   { 'e', 'i', 'Z', "lvl_out"          , '·', 'y', 'y', '·', "aZ"                , 0, 0, 0 },
+   { '·', '·', '·', "---------"        , '-', '-', '-', '-', "-------------"     , 0, 0, 0 },
+   { 'e', 'g', '·', "group"            , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'e', 'g', 'g', "group"            , '´', 'y', 'y', '·', "-"                 , 0, 0, 0 },
+   { 'e', 'g', 'u', "ungroup"          , '´', 'y', 'y', '·', "-"                 , 0, 0, 0 },
+   { 'e', 'g', 'r', "regroup"          , '´', 'y', 'y', '·', "-"                 , 0, 0, 0 },
+   { 'e', 'g', 'm', "merge"            , '´', 'y', 'y', '·', "-"                 , 0, 0, 0 },
+   { 'e', 'g', 'f', "free"             , '´', 'y', 'y', '·', "-"                 , 0, 0, 0 },
+   { 'e', 'g', 'b', "boundary"         , '´', 'y', 'y', '·', "-"                 , 0, 0, 0 },
+   { 'e', 'a', '·', "align"            , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'e', 'a', 'k', "top"              , '´', 'y', 'y', '·', "-"                 , 0, 0, 0 },
+   { 'e', 'a', 'j', "bottom"           , '´', 'y', 'y', '·', "-"                 , 0, 0, 0 },
+   { 'e', 'a', 'h', "left"             , '´', 'y', 'y', '·', "-"                 , 0, 0, 0 },
+   { 'e', 'a', 'l', "right"            , '´', 'y', 'y', '·', "-"                 , 0, 0, 0 },
+   { 'e', 'a', 'o', "front"            , '´', 'y', 'y', '·', "-"                 , 0, 0, 0 },
+   { 'e', 'a', 'i', "back"             , '´', 'y', 'y', '·', "-"                 , 0, 0, 0 },
+   { 'e', 'a', 'x', "dist-x"           , '´', 'y', 'y', '·', "-"                 , 0, 0, 0 },
+   { 'e', 'a', 'y', "dist-y"           , '´', 'y', 'y', '·', "-"                 , 0, 0, 0 },
+   { 'e', 'a', 'z', "dist-z"           , '´', 'y', 'y', '·', "-"                 , 0, 0, 0 },
+   { 'e', 'o', '·', "order"            , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'e', 'o', 'n', "front"            , '´', 'y', 'y', '·', "-"                 , 0, 0, 0 },
+   { 'e', 'o', 'i', "forward"          , '´', 'y', 'y', '·', "-"                 , 0, 0, 0 },
+   { 'e', 'o', 'o', "backward"         , '´', 'y', 'y', '·', "-"                 , 0, 0, 0 },
+   { 'e', 'o', 'f', "back"             , '´', 'y', 'y', '·', "-"                 , 0, 0, 0 },
+   { 'e', 'o', 'r', "reverse"          , '´', 'y', 'y', '·', "-"                 , 0, 0, 0 },
+   { 'e', 'l', '·', "layer"            , '´', 'y', 'y', '=', "-"                 , 0, 0, 0 },
    /*---(view menu)----------------------------------------------*/
-   { 'v', '·', '·', "view"             , 'y', '>', "-"                 , "display and layout of application elements"       },
-   { 'v', 'l', '·', "layout"           , 'y', '>', "-"                 , "common combinations of application elements"      },
-   { 'v', 'l', 'n', "minimal"          , 'y', '·', "-"                 , "bare bones layout"                                },
-   { 'v', 'l', 'x', "maximum"          , 'y', '·', "-"                 , "kitchen sink layout"                              },
-   { 'v', 'p', '·', "place"            , 'y', '>', "-"                 , "-"                                                },
-   { 'v', 'l', 'c', "rcol"             , 'y', '·', "C"                 , "right normal column (12)"                         },
-   { 'v', 'l', 'C', "rlong"            , 'y', '·', "L"                 , "right long column (25)"                           },
-   { 'v', 'l', 'l', "lcol"             , 'y', '·', "1"                 , "left normal column (12)"                          },
-   { 'v', 'l', 'L', "llong"            , 'y', '·', "2"                 , "left long column (25)"                            },
-   { 'v', 'l', 't', "ticker"           , 'y', '·', "B"                 , "bottom ticke"                                     },
-   { 'v', 'l', 'T', "base"             , 'y', '·', "T"                 , "bottom ticker (with spaces)"                      },
-   { 'v', '-', '·', "color"            , 'y', '>', "-"                 , "-"                                                },
-   { 'v', '-', '·', "title"            , 'y', '>', "-"                 , "-"                                                },
-   { 'v', '-', '·', "version"          , 'y', '>', "-"                 , "-"                                                },
-   { 'v', '-', '·', "buffers"          , 'y', '>', "-"                 , "-"                                                },
-   { 'v', '-', '·', "formula"          , 'y', '>', "-"                 , "-"                                                },
-   { 'v', '-', '·', "nav"              , 'y', '>', "-"                 , "-"                                                },
-   { 'v', '-', '·', "progress"         , 'y', '>', "-"                 , "-"                                                },
-   { 'v', '-', '·', "status"           , 'y', '>', "-"                 , "-"                                                },
-   { 'v', '-', '·', "keys"             , 'y', '>', "-"                 , "-"                                                },
-   { 'v', '-', '·', "command"          , 'y', '>', "-"                 , "-"                                                },
-   { 'v', '-', '·', "alt"              , 'y', '>', "-"                 , "-"                                                },
-   { 'v', '-', '·', "details"          , 'y', '>', "-"                 , "-"                                                },
-   { 'v', '-', '·', "ribbon"           , 'y', '>', "-"                 , "-"                                                },
-   { 'v', '-', '·', "grid"             , 'y', '>', "-"                 , "-"                                                },
-   { 'v', '-', '·', "edges"            , 'y', '>', "-"                 , "-"                                                },
-   { 'v', '-', '·', "guides"           , 'y', '>', "-"                 , "-"                                                },
-   { 'v', '-', '·', "overlay"          , 'y', '>', "-"                 , "-"                                                },
+   { 'v', '·', '·', "view"             , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'v', 'l', '·', "layout"           , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'v', 'l', 'n', "minimal"          , '´', 'y', 'y', '·', ":layout min¦"      , 0, 0, 0 },
+   { 'v', 'l', 'w', "work"             , '´', 'y', 'y', '·', ":layout work¦"     , 0, 0, 0 },
+   { 'v', 'l', 'x', "maximum"          , '´', 'y', 'y', '·', ":layout max¦"      , 0, 0, 0 },
+   { 'v', 'm', '·', "format"           , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'v', 'm', 'c', "rcol"             , '·', 'y', 'y', '·', "C"                 , 0, 0, 0 },
+   { 'v', 'm', 'C', "rlong"            , '·', 'y', 'y', '·', "L"                 , 0, 0, 0 },
+   { 'v', 'm', 'l', "lcol"             , '·', 'y', 'y', '·', "1"                 , 0, 0, 0 },
+   { 'v', 'm', 'L', "llong"            , '·', 'y', 'y', '·', "2"                 , 0, 0, 0 },
+   { 'v', 'm', 't', "ticker"           , '·', 'y', 'y', '·', "B"                 , 0, 0, 0 },
+   { 'v', 'm', 'T', "base"             , '·', 'y', 'y', '·', "T"                 , 0, 0, 0 },
+   { 'v', '-', '·', "color"            , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'v', 't', '·', "title"            , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'v', 'v', '·', "version"          , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'v', 'b', '·', "buffers"          , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'v', 'f', '·', "formula"          , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'v', 'n', '·', "nav"              , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'v', 'p', '·', "progress"         , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'v', 's', '·', "status"           , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'v', 'k', '·', "keys"             , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'v', 'c', '·', "command"          , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'v', 'a', '·', "alt"              , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'v', 'd', '·', "details"          , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'v', 'r', '·', "ribbon"           , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'v', 'g', '·', "grid"             , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'v', 'e', '·', "edges"            , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'v', 'u', '·', "guides"           , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'v', 'o', '·', "overlay"          , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'v', '-', '·', "notes"            , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
    /*---(insert menu)--------------------------------------------*/
-   { 'i', '·', '·', "insert"           , 'y', '>', "-"                 , "-"                                                },
-   { 'i', 't', '·', "text"             , 'y', '>', "-"                 , "-"                                                },
-   { 'i', 'l', '·', "line"             , 'y', '>', "-"                 , "lines and connectors"                             },
-   { 'i', 'e', '·', "ellises"          , 'y', '>', "-"                 , "ellipses, circles, arcs, rings, donuts"           },
-   { 'i', 't', '·', "tris"             , 'y', '>', "-"                 , "equal, right, rounded, iso, etc"                  },
-   { 'i', 'r', '·', "rects"            , 'y', '>', "-"                 , "rects, squares, rounded, trapazoid"               },
-   { '·', '·', '·', "---------"        , '-', '-', "-------------"     , "-------------------------------------------------"},
-   { 'i', 'h', '·', "hexagons"         , 'y', '>', "-"                 , "-"                                                },
-   { 'i', 'p', '·', "polygons"         , 'y', '>', "-"                 , "-"                                                },
-   { 'i', 's', '·', "stars"            , 'y', '>', "-"                 , "-"                                                },
-   { 'i', 'a', '·', "arrows"           , 'y', '>', "-"                 , "-"                                                },
-   { 'i', 'f', '·', "flowschart"       , 'y', '>', "-"                 , "flowcharting symbols"                             },
-   { '·', '·', '·', "---------"        , '-', '-', "-------------"     , "-------------------------------------------------"},
-   { 'i', 'j', '·', "joiners"          , 'y', '>', "-"                 , "direct connectors linking two objects"            },
-   { 'i', 'n', '·', "notes"            , 'y', '>', "-"                 , "note boxes and callouts"                          },
-   { 'i', 'm', '·', "misc"             , 'y', '>', "-"                 , "-"                                                },
-   { 'i', '-', '·', "nurbs"            , 'y', '>', "-"                 , "nurb curves"                                      },
-   { 'i', '-', '·', "tiling"           , 'y', '>', "-"                 , "various forms of two-dimensional tiling"          },
-   { '·', '·', '·', "---------"        , '-', '-', "-------------"     , "-------------------------------------------------"},
-   { 'i', 'b', '·', "beziers"          , 'y', '>', "-"                 , "2, 3, 4, 5, and 6 control point bezier curves"    },
-   { 'i', '-', '·', "3d"               , 'y', '>', "-"                 , "various forms of two-dimensional tiling"          },
-   { 'i', '-', '·', "surfaces"         , 'y', '>', "-"                 , "-"                                                },
-   { 'i', '-', '·', "meshes"           , 'y', '>', "-"                 , "-"                                                },
+   { 'i', '·', '·', "insert"           , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'i', 't', '·', "text"             , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'i', 'l', '·', "lines"            , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'i', 'e', '·', "ellises"          , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'i', 't', '·', "tris"             , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'i', 'r', '·', "rects"            , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { '·', '·', '·', "---------"        , '-', '-', '-', '-', "-------------"     , 0, 0, 0 },
+   { 'i', 'h', '·', "hexagons"         , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'i', 'p', '·', "polygons"         , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'i', 's', '·', "stars"            , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'i', 'a', '·', "arrows"           , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'i', 'f', '·', "flowchart"        , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { '·', '·', '·', "---------"        , '-', '-', '-', '-', "-------------"     , 0, 0, 0 },
+   { 'i', 'j', '·', "joiners"          , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'i', 'n', '·', "notes"            , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'i', 'm', '·', "misc"             , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'i', '-', '·', "nurbs"            , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'i', '-', '·', "tiling"           , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { '·', '·', '·', "---------"        , '-', '-', '-', '-', "-------------"     , 0, 0, 0 },
+   { 'i', 'b', '·', "beziers"          , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'i', '-', '·', "3d"               , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'i', '-', '·', "surfaces"         , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'i', '-', '·', "meshes"           , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { '·', '·', '·', "---------"        , '-', '-', '-', '-', "-------------"     , 0, 0, 0 },
+   { 'i', 'i', '·', "image"            , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
    /*---(select menu)--------------------------------------------*/
-   { 's', '·', '·', "select"           , 'y', '>', "-"                 , "choosing one or more things for common action"    },
-   { 's', '!', '·', "highlight"        , 'y', '·', "-"                 , "show selection (by abbr) in background"           },
-   { 's', '_', '·', "status"           , 'y', '·', "-"                 , "show selection status bar"                        },
-   { 's', 'c', '·', "clear"            , 'y', '·', "-"                 , "clear current selection"                          },
-   { '·', '·', '·', "---------"        , '-', '-', "-------------"     , "-------------------------------------------------"},
-   { 's', 'a', '·', "all"              , 'y', '·', "-"                 , "select absolutely everything"                     },
-   { 's', 'b', '·', "buffer"           , 'y', '·', "-"                 , "select everything in current buffer"              },
-   { 's', 'w', '·', "window"           , 'y', '·', "-"                 , "select everything visible in current window"      },
-   { 's', 'l', '·', "layer"            , 'y', '·', "-"                 , "select everything on current layer"               },
-   { 's', 'g', '·', "geometry"         , 'y', '=', "-"                 , "select using geometry description (loc/pos)"      },
-   { 's', 't', '·', "type"             , 'y', '=', "-"                 , "select by attribute/type                      "   },
-   { 's', 'x', '·', "regex"            , 'y', '=', "-"                 , "select by text search"                            },
-   { 's', '-', '·', "touch"            , 'y', '·', "-"                 , "select everything touching current selection"     },
-   { '·', '·', '·', "---------"        , '-', '-', "-------------"     , "-------------------------------------------------"},
-   { 's', 's', '·', "save"             , 'y', '·', "-"                 , "save current selection by abbr"                   },
-   { 's', 'r', '·', "reselect"         , 'y', '·', "-"                 , "make saved selection current by abbr"             },
-   { 's', 'j', '·', "join"             , 'y', '·', "-"                 , "join/merge current into saved selection"          },
-   { 's', 'd', '·', "deselect"         , 'y', '·', "-"                 , "clear/delete current from saved selection"        },
-   { '·', '·', '·', "---------"        , '-', '-', "-------------"     , "-------------------------------------------------"},
-   { 's', 'i', '·', "inverse"          , 'y', '·', "-"                 , "swap selected and unselected"                     },
-   { 's', 'x', '·', "all_on_x"         , 'y', '·', "-"                 , "select everything on current x selection"         },
-   { 's', 'y', '·', "all_on_y"         , 'y', '·', "-"                 , "select everything on current y selection"         },
-   { 's', 'z', '·', "all_on_z"         , 'y', '·', "-"                 , "select everything on current z selection"         },
+   { 's', '·', '·', "select"           , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 's', '!', '·', "highlight"        , '´', 'y', 'y', '·', "-"                 , 0, 0, 0 },
+   { 's', '_', '·', "status"           , '´', 'y', 'y', '·', "-"                 , 0, 0, 0 },
+   { 's', 'c', '·', "clear"            , '´', 'y', 'y', '·', "-"                 , 0, 0, 0 },
+   { 's', 'a', '·', "all"              , '´', 'y', 'y', '·', "-"                 , 0, 0, 0 },
+   { 's', 'b', '·', "buffer"           , '´', 'y', 'y', '·', "-"                 , 0, 0, 0 },
+   { 's', 'w', '·', "window"           , '´', 'y', 'y', '·', "-"                 , 0, 0, 0 },
+   { '·', '·', '·', "---------"        , '-', '-', '-', '-', "-------------"     , 0, 0, 0 },
+   { 's', 'l', '·', "layer"            , '´', 'y', 'y', '·', "-"                 , 0, 0, 0 },
+   { 's', 'g', '·', "geometry"         , '´', 'y', 'y', '=', "-"                 , 0, 0, 0 },
+   { 's', 't', '·', "type"             , '´', 'y', 'y', '=', "-"                 , 0, 0, 0 },
+   { 's', 'x', '·', "regex"            , '´', 'y', 'y', '=', "-"                 , 0, 0, 0 },
+   { 's', 'u', '·', "touching"         , '´', 'y', 'y', '·', "-"                 , 0, 0, 0 },
+   { '·', '·', '·', "---------"        , '-', '-', '-', '-', "-------------"     , 0, 0, 0 },
+   { 's', 's', '·', "save"             , '´', 'y', 'y', '·', "-"                 , 0, 0, 0 },
+   { 's', 'r', '·', "reselect"         , '´', 'y', 'y', '·', "-"                 , 0, 0, 0 },
+   { 's', 'j', '·', "join"             , '´', 'y', 'y', '·', "-"                 , 0, 0, 0 },
+   { 's', 'd', '·', "deselect"         , '´', 'y', 'y', '·', "-"                 , 0, 0, 0 },
+   { '·', '·', '·', "---------"        , '-', '-', '-', '-', "-------------"     , 0, 0, 0 },
+   { 's', 'i', '·', "inverse"          , '´', 'y', 'y', '·', "-"                 , 0, 0, 0 },
+   { 's', 'x', '·', "all_on_x"         , '´', 'y', 'y', '·', "-"                 , 0, 0, 0 },
+   { 's', 'y', '·', "all_on_y"         , '´', 'y', 'y', '·', "-"                 , 0, 0, 0 },
+   { 's', 'z', '·', "all_on_z"         , '´', 'y', 'y', '·', "-"                 , 0, 0, 0 },
    /*---(format menu)--------------------------------------------*/
-   { 'o', '·', '·', "format"           , 'y', '>', "-"                 , "-"                                                },
-   { 'o', 'f', '·', "font"             , 'y', '>', "-"                 , "-"                                                },
-   { 'o', 'z', '·', "size"             , 'y', '>', "-"                 , "-"                                                },
-   { 'o', 'p', '·', "spacing"          , 'y', '>', "-"                 , "-"                                                },
-   { 'o', 'i', '·', "indent"           , 'y', '>', "-"                 , "-"                                                },
-   { 'o', 'c', '·', "color"            , 'y', '>', "-"                 , "-"                                                },
-   { 'o', 'a', '·', "align"            , 'y', '>', "-"                 , "-"                                                },
-   { 'o', 'n', '·', "numbers"          , 'y', '>', "-"                 , "numeric format"                                   },
-   { 'o', 'i', '·', "fill"             , 'y', '>', "-"                 , "string fills"                                     },
-   { 'o', 'd', '·', "decimals"         , 'y', '>', "-"                 , "number of decimals"                               },
-   { 'o', 'u', '·', "units"            , 'y', '>', "-"                 , "numeric display units"                            },
-   { 'o', 'l', '·', "lists"            , 'y', '>', "-"                 , "bullets, ordered lists, etc"                      },
-   { 'o', 's', '·', "style"            , 'y', '>', "-"                 , "tied to a named format"                           },
+   { 'o', '·', '·', "format"           , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'o', 'f', '·', "face"             , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'o', 'p', '·', "point"            , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'o', 's', '·', "spacing"          , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'o', 'i', '·', "indent"           , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'o', 'c', '·', "color"            , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'o', 'a', '·', "align"            , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'o', 'n', '·', "numbers"          , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'o', 'z', '·', "sfill"            , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'o', 'd', '·', "decimals"         , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'o', 'u', '·', "units"            , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'o', 'l', '·', "lists"            , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'o', 'y', '·', "style"            , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
    /*---(modify menu)--------------------------------------------*/
-   { 'm', '·', '·', "modify"           , 'y', '>', "-"                 , "-"                                                },
-   { 'm', '-', '·', "resize"           , 'y', '=', "-"                 , "resize"                                           },
-   { 'm', '-', '·', "dims"             , 'y', '=', "-"                 , "various markers to clarify"                       },
-   { 'm', '-', '·', "extent"           , 'y', '=', "-"                 , "various extent markers and lines to clarify"      },
-   { 'm', '-', '·', "scale"            , 'y', '=', "-"                 , "scale and stretch"                                },
-   { 'm', '-', '·', "trim"             , 'y', '>', "-"                 , "crop, trimp"                                      },
-   { 'm', '-', '·', "join"             , 'y', '>', "-"                 , "union, intersection, disunion, mask"              },
-   { 'm', '-', '·', "move"             , 'y', '-', "-"                 , "adjust position"                                  },
-   { 'm', '-', '·', "arrray"           , 'y', '-', "-"                 , "tile or array of duplicate objects"               },
-   { 'm', '-', '·', "rotate"           , 'y', '>', "-"                 , "left, right, degree, mirror horz/vert"            },
-   { 'm', '-', '·', "snap"             , 'y', '-', "-"                 , "grids or guides"                                  },
-   { 'm', '-', '·', "fill"             , 'y', '>', "-"                 , "colors, and textures"                             },
-   { 'm', '-', '·', "hatching"         , 'y', '>', "-"                 , "hatching and tectures"                            },
-   { 'm', '-', '·', "outline"          , 'y', '>', "-"                 , "colors, sizes, formats"                           },
-   { 'm', '-', '·', "centerline"       , 'y', '-', "-"                 , "centerline, cross, center mark, angle line"       },
-   { 'm', '-', '·', "endpoints"        , 'y', '-', "-"                 , "truncate, balls, arrows, etc"                     },
+   { 'm', '·', '·', "modify"           , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'm', '-', '·', "resize"           , '´', 'y', 'y', '=', "-"                 , 0, 0, 0 },
+   { 'm', '-', '·', "dims"             , '´', 'y', 'y', '=', "-"                 , 0, 0, 0 },
+   { 'm', '-', '·', "extent"           , '´', 'y', 'y', '=', "-"                 , 0, 0, 0 },
+   { 'm', '-', '·', "scale"            , '´', 'y', 'y', '=', "-"                 , 0, 0, 0 },
+   { 'm', '-', '·', "trim"             , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'm', '-', '·', "join"             , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'm', '-', '·', "move"             , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
+   { 'm', '-', '·', "array"            , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
+   { 'm', '-', '·', "rotate"           , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'm', '-', '·', "snap"             , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
+   { 'm', '-', '·', "fill"             , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'm', '-', '·', "hatching"         , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'm', '-', '·', "outline"          , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'm', '-', '·', "centers"          , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
+   { 'm', '-', '·', "ends"             , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
    /*---(dataset menu)-------------------------------------------*/
-   { 'd', '·', '·', "dataset"          , 'y', '>', "-"                 , "data filtering, manipulation, and sorting"        },
-   { 'd', '-', '·', "sort"             , 'y', '-', "-"                 , "choose a sorting order"                           },
-   { 'd', '-', '·', "filter"           , 'y', '-', "-"                 , "choose a data filter"                             },
-   { 'd', '-', '·', "blur"             , 'y', '-', "-"                 , "-"                                                },
-   { 'd', '-', '·', "enhance"          , 'y', '-', "-"                 , "-"                                                },
-   { 'd', '-', '·', "distort"          , 'y', '-', "-"                 , "-"                                                },
-   { 'd', '-', '·', "noise"            , 'y', '-', "-"                 , "-"                                                },
-   { 'd', '-', '·', "edges"            , 'y', '-', "-"                 , "-"                                                },
-   { 'd', '-', '·', "combine"          , 'y', '-', "-"                 , "-"                                                },
-   { 'd', '-', '·', "light"            , 'y', '-', "-"                 , "-"                                                },
-   { 'd', '-', '·', "shadow"           , 'y', '-', "-"                 , "-"                                                },
-   { 'd', '-', '·', "pixelate"         , 'y', '-', "-"                 , "-"                                                },
-   { 'd', '-', '·', "render"           , 'y', '-', "-"                 , "-"                                                },
-   { 'd', '-', '·', "sharpen"          , 'y', '-', "-"                 , "-"                                                },
-   { 'd', '-', '·', "smooth"           , 'y', '-', "-"                 , "-"                                                },
-   { 'd', '-', '·', "stylize"          , 'y', '-', "-"                 , "-"                                                },
-   { 'd', '-', '·', "liquify"          , 'y', '-', "-"                 , "-"                                                },
-   { 'd', '-', '·', "oils"             , 'y', '-', "-"                 , "-"                                                },
-   { 'd', '-', '·', "map"              , 'y', '-', "-"                 , "-"                                                },
-   { 'd', '-', '·', "decor"            , 'y', '-', "-"                 , "-"                                                },
-   { 'd', '-', '·', "vanish"           , 'y', '-', "-"                 , "-"                                                },
+   { 'd', '·', '·', "dataset"          , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'd', 's', '·', "sort"             , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'd', 's', 'o', "original"         , '·', 'y', 'y', '·', "-"                 , 0, 0, 0 },
+   { 'd', 's', 'a', "ascend"           , '·', 'y', 'y', '·', "-"                 , 0, 0, 0 },
+   { 'd', 's', 'd', "descend"          , '·', 'y', 'y', '·', "-"                 , 0, 0, 0 },
+   { 'd', 'f', '·', "filter"           , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'd', 'f', 'u', "urgency"          , '·', 'y', 'y', '·', "-"                 , 0, 0, 0 },
+   { 'd', 'f', 'i', "import"           , '·', 'y', 'y', '·', "-"                 , 0, 0, 0 },
+   { 'd', 'f', 'e', "estimate"         , '·', 'y', 'y', '·', "-"                 , 0, 0, 0 },
+   { 'd', 'f', 'f', "flag"             , '·', 'y', 'y', '·', "-"                 , 0, 0, 0 },
+   { 'd', '-', '·', "blur"             , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
+   { 'd', '-', '·', "enhance"          , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
+   { 'd', '-', '·', "distort"          , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
+   { 'd', '-', '·', "noise"            , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
+   { 'd', '-', '·', "edges"            , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
+   { 'd', '-', '·', "combine"          , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
+   { 'd', '-', '·', "light"            , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
+   { 'd', '-', '·', "shadow"           , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
+   { 'd', '-', '·', "pixelate"         , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
+   { 'd', '-', '·', "render"           , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
+   { 'd', '-', '·', "sharpen"          , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
+   { 'd', '-', '·', "smooth"           , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
+   { 'd', '-', '·', "stylize"          , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
+   { 'd', '-', '·', "liquify"          , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
+   { 'd', '-', '·', "oils"             , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
+   { 'd', '-', '·', "map"              , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
+   { 'd', '-', '·', "decor"            , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
+   { 'd', '-', '·', "vanish"           , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
    /*---(tools menu)---------------------------------------------*/
-   { 't', '·', '·', "tools"            , '·', '>', "-"                 , "brushes and othre hand-analog tools"              },
-   /*---(palette menu)-------------------------------------------*/
-   { 'p', '·', '·', "palette"          , '·', '>', "-"                 , "visual, audio, olfactory, ... palettes"           },
+   { 't', '·', '·', "tools"            , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   /*---(pallette menu)------------------------------------------*/
+   { 'p', '·', '·', "palette"          , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
    /*---(layers menu)--------------------------------------------*/
-   { 'l', '·', '·', "layers"           , 'y', '>', "-"                 , "-"                                                },
-   { 'l', '-', '·', "saved"            , 'y', '-', "-"                 , "show list of all layers"                          },
-   { 'l', '-', '·', "highlight"        , 'y', '-', "-"                 , "highlight specific layer contents (by abbr"       },
-   { 'l', '-', '·', "status"           , 'y', '-', "-"                 , "show layer status bar"                            },
-   { 'l', '-', '·', "new"              , 'y', '-', "-"                 , "create a new, empty, nameless layer"              },
-   { 'l', '-', '·', "rename"           , 'y', '-', "-"                 , "change the name of the layer"                     },
-   { 'l', '-', '·', "copy_all"         , 'y', '-', "-"                 , "copy/duplicate the layer to a new one"            },
-   { 'l', '-', '·', "copy_with"        , 'y', '-', "-"                 , "create a new layer with selected contents"        },
-   { 'l', '-', '·', "join"             , 'y', '-', "-"                 , "join/merge contents of multiple layers"           },
-   { 'l', '-', '·', "flatten"          , 'y', '-', "-"                 , "-"                                                },
-   { 'l', '-', '·', "delete"           , 'y', '-', "-"                 , "delete or remove a layer"                         },
-   { 'l', '-', '·', "type"             , 'y', '-', "-"                 , "-"                                                },
-   { 'l', '-', '·', "hide"             , 'y', '-', "-"                 , "-"                                                },
-   { 'l', '-', '·', "mask"             , 'y', '-', "-"                 , "-"                                                },
-   { 'l', '-', '·', "alignment"        , 'y', '-', "-"                 , "line up two or more layers"                       },
-   { 'l', '-', '·', "locking"          , 'y', '-', "-"                 , "lock or unlock layers"                            },
+   { 'l', '·', '·', "layers"           , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'l', '-', '·', "saved"            , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
+   { 'l', '-', '·', "highlight"        , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
+   { 'l', '-', '·', "status"           , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
+   { 'l', '-', '·', "new"              , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
+   { 'l', '-', '·', "rename"           , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
+   { 'l', '-', '·', "copy_all"         , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
+   { 'l', '-', '·', "copy_with"        , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
+   { 'l', '-', '·', "join"             , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
+   { 'l', '-', '·', "flatten"          , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
+   { 'l', '-', '·', "delete"           , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
+   { 'l', '-', '·', "type"             , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
+   { 'l', '-', '·', "hide"             , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
+   { 'l', '-', '·', "mask"             , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
+   { 'l', '-', '·', "alignment"        , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
+   { 'l', '-', '·', "locking"          , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
    /*---(buffers menu)-------------------------------------------*/
-   { 'b', '·', '·', "buffers"          , 'y', '>', "-"                 , "-"                                                },
-   { 'b', '-', '·', "show_all"         , 'y', '-', "-"                 , "show list of buffers"                             },
-   { 'b', '-', '·', "status"           , 'y', '-', "-"                 , "show buffer status bar"                           },
-   { 'b', '-', '·', "new"              , 'y', '-', "-"                 , "create a new, empty, nameless buffer"             },
-   { 'b', '-', '·', "rename"           , 'y', '-', "-"                 , "change the name of the buffer"                    },
-   { 'b', '-', '·', "type"             , 'y', '-', "-"                 , "-"                                                },
-   { 'b', '-', '·', "size"             , 'y', '-', "-"                 , "-"                                                },
-   { 'b', '-', '·', "scale"            , 'y', '-', "-"                 , "architectural scale, e.g., 0.25in = 1foot"        },
-   { 'b', '-', '·', "delete"           , 'y', '-', "-"                 , "delete or remove a buffer"                        },
-   { 'b', '-', '·', "freeze"           , 'y', '-', "-"                 , "freeze certain areas from movement"               },
-   { 'b', '-', '·', "split"            , 'y', '-', "-"                 , "split the buffer window"                          },
-   { 'b', '-', '·', "hiding"           , 'y', '-', "-"                 , "do not show buffer"                               },
-   { 'b', '-', '·', "locking"          , 'y', '-', "-"                 , "protect or unprotect buffer"                      },
-   /*---(analyze menu)-------------------------------------------*/
-   { 'n', '·', '·', "snippet"          , '·', '>', "-"                 , "checks, debugging, testing, and validation"       },
-   /*---(analyze menu)-------------------------------------------*/
-   { 'a', '·', '·', "auditor"          , '·', '>', "-"                 , "checks, debugging, testing, and validation"       },
+   { 'b', '·', '·', "buffers"          , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'b', '-', '·', "showall"          , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
+   { 'b', '-', '·', "status"           , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
+   { 'b', '-', '·', "new"              , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
+   { 'b', '-', '·', "rename"           , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
+   { 'b', '-', '·', "type"             , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
+   { 'b', '-', '·', "size"             , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
+   { 'b', '-', '·', "scale"            , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
+   { 'b', '-', '·', "delete"           , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
+   { 'b', '-', '·', "freeze"           , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
+   { 'b', '-', '·', "split"            , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
+   { 'b', '-', '·', "hiding"           , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
+   { 'b', '-', '·', "locking"          , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
+   /*---(snippet menu)-------------------------------------------*/
+   { 'g', '·', '·', "language"         , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   /*---(auditor menu)-------------------------------------------*/
+   { 'a', '·', '·', "auditor"          , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 'a', 's', '·', "spell"            , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
+   { 'a', 'd', '·', "dump"             , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
    /*---(execute menu)-------------------------------------------*/
-   { 'x', '·', '·', "execute"          , '·', '>', "-"                 , "building, simulation, and execution"              },
+   { 'x', '·', '·', "execute"          , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
    /*---(config menu)--------------------------------------------*/
-   { 'c', '·', '·', "config"           , '·', '>', "-"                 , "changing system settings and configuration"       },
-   /*---(macros menu)--------------------------------------------*/
-   { 'r', '·', '·', "macro"            , '·', '>', "-"                 , "keyboard macros, scripts, and addons"             },
-   /*---(show menu)----------------------------------------------*/
-   { 'h', '·', '·', "share"            , '·', '>', "-"                 , "presentation, reporting, printing, and demos"     },
+   { 'c', '·', '·', "config"           , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   /*---(macro menu)---------------------------------------------*/
+   { 'r', '·', '·', "script"           , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   /*---(share menu)---------------------------------------------*/
+   { 'h', '·', '·', "share"            , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
    /*---(footer)-------------------------------------------------*/
-   {  0 ,  0 ,  0 , NULL               ,  0 ,  0 , NULL                , NULL                                               },
+   {  0 ,  0 ,  0 , NULL               ,  0 ,  0 ,  0,   0, NULL                 , 0, 0, 0 },
    /*---(done)---------------------------------------------------*/
 };
 
 
-typedef struct cDMENU tDMENU;
-struct cDMENU {
-   char        active;
-   short       next;                        /* next sibling                   */
-   short       start;                       /* first child                    */
-   short       count;                       /* count of children              */
-   char        bump;                        /* sub-group break                */
-};
-tDMENU     s_dmenu [MAX_MENU];
-
-
-
-
-/*
- *  canvas  > full editing area changes, all layers and contents
- *  layers  > list, select, reorder, rename layers, move objects up, down, to specific layer
- *
- *
- *
- *
- */
 
 
 /*===[[ TERMS ]]==============================================================*/
@@ -1946,6 +1946,156 @@ yvikeys_cmds_exec     (void)
 /*====================------------------------------------====================*/
 static void  o___MENUS___________o () { return; }
 
+
+static int  *s_valid     = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789?!-_.";
+
+char
+yvikeys__menu_wipe      (void)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   int         i           =    0;
+   /*---(header)-------------------------*/
+   DEBUG_CMDS   yLOG_enter   (__FUNCTION__);
+   /*---(handle total)-------------------*/
+   s_nmenu = 0;
+   for (i = 0; i < MAX_MENU; ++i) {
+      if (s_menus [i].name [0] == NULL)  break;
+      ++s_nmenu;
+      s_menus [i].active  = s_menus [i].def;
+      s_menus [i].next    = -1;
+      s_menus [i].start   = -1;
+      s_menus [i].count   =  0;
+   }
+   DEBUG_CMDS   yLOG_value   ("s_nmenu"   , s_nmenu);
+   /*---(complete)-----------------------*/
+   DEBUG_CMDS   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char
+yvikeys__menu_tops      (void)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   int         i           =    0;
+   int         x_last      =    0;
+   /*---(header)-------------------------*/
+   DEBUG_CMDS   yLOG_enter   (__FUNCTION__);
+   /*---(handle tops)--------------------*/
+   s_ntops =  0;
+   x_last  = -1;
+   for (i = 0; i < s_nmenu; ++i) {
+      /*---(filter)------------*/
+      if (s_menus [i].top ==  0 )                     continue;
+      if (s_menus [i].top == '·')                     continue;
+      if (s_menus [i].mid != '·')                     continue;
+      if (strchr (s_valid, s_menus [i].top) == NULL)  continue;
+      /*---(update)------------*/
+      if (x_last >= 0)  s_menus [x_last].next = i;
+      x_last = i;
+      ++s_ntops;
+      /*---(done)--------------*/
+   }
+   DEBUG_CMDS   yLOG_value   ("s_ntops"   , s_ntops);
+   /*---(complete)-----------------------*/
+   DEBUG_CMDS   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char
+yvikeys__menu_mids      (void)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   int         i           =    0;
+   int         x_ctop      =    0;
+   char        x_atop      =  '·';
+   int         x_last      =    0;
+   /*---(header)-------------------------*/
+   DEBUG_CMDS   yLOG_enter   (__FUNCTION__);
+   /*---(handle mids)--------------------*/
+   x_ctop  =  0;
+   while (x_ctop >= 0) {
+      x_atop  = s_menus [x_ctop].top;
+      x_last  = -1;
+      for (i = 0; i < s_nmenu; ++i) {
+         /*---(filter)------------*/
+         if (s_menus [i].top != x_atop)                  continue;
+         if (s_menus [i].mid ==  0 )                     continue;
+         if (s_menus [i].mid == '·')                     continue;
+         if (s_menus [i].bot != '·')                     continue;
+         if (strchr (s_valid, s_menus [i].mid) == NULL)  continue;
+         /*---(update)------------*/
+         if (x_last <  0)  s_menus [x_ctop].start = i;
+         else              s_menus [x_last].next  = i;;
+         ++s_menus [x_ctop].count;
+         x_last = i;
+         /*---(done)--------------*/
+      }
+      x_ctop = s_menus [x_ctop].next;
+   }
+   /*---(complete)-----------------------*/
+   DEBUG_CMDS   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char
+yvikeys__menu_bots      (void)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   int         i           =    0;
+   int         x_ctop      =    0;
+   char        x_atop      =  '·';
+   int         x_cmid      =    0;
+   char        x_amid      =  '·';
+   int         x_last      =    0;
+   /*---(header)-------------------------*/
+   DEBUG_CMDS   yLOG_enter   (__FUNCTION__);
+   /*---(handle bots)--------------------*/
+   x_ctop  =  0;
+   while (x_ctop >= 0) {
+      x_atop  = s_menus [x_ctop].top;
+      x_cmid  = s_menus [x_ctop].start;
+      while (x_cmid >= 0) {
+         x_amid  = s_menus [x_cmid].mid;
+         x_last  = -1;
+         for (i = 0; i < s_nmenu; ++i) {
+            /*---(filter)------------*/
+            if (s_menus [i].top != x_atop)                  continue;
+            if (s_menus [i].mid != x_amid)                  continue;
+            if (s_menus [i].bot ==  0 )                     continue;
+            if (s_menus [i].bot == '·')                     continue;
+            if (strchr (s_valid, s_menus [i].bot) == NULL)  continue;
+            /*---(update)------------*/
+            if (x_last <  0)  s_menus [x_cmid].start = i;
+            else              s_menus [x_last].next  = i;;
+            ++s_menus [x_cmid].count;
+            x_last = i;
+            /*---(done)--------------*/
+         }
+         x_cmid = s_menus [x_cmid].next;
+      }
+      x_ctop = s_menus [x_ctop].next;
+   }
+   /*---(complete)-----------------------*/
+   DEBUG_CMDS   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char
+yvikeys__menu_rptg      (void)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   int         i           =    0;
+   /*---(header)-------------------------*/
+   DEBUG_CMDS   yLOG_enter   (__FUNCTION__);
+   /*---(reporting)----------------------*/
+   for (i = 0; i < s_nmenu; ++i) {
+      DEBUG_PROG   yLOG_complex ("entry"     , "%3d %c %c %c %-10.10s %3d %3d %3d", i, s_menus [i].top, s_menus [i].mid, s_menus [i].bot, s_menus [i].name, s_menus [i].next, s_menus [i].start, s_menus [i].count);
+   }
+   /*---(complete)-----------------------*/
+   DEBUG_PROG   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
 char
 yvikeys_menu_init       (void)
 {
@@ -1971,73 +2121,11 @@ yvikeys_menu_init       (void)
    }
    /*---(menus)--------------------------*/
    DEBUG_PROG   yLOG_note    ("initialize menu system");
-   s_nmenu = s_ntops = 0;
-   for (i = 0; i < MAX_MENU; ++i) {
-      /*---(find end)--------------------*/
-      if (s_menus [i].name [0] == NULL)  break;
-      /*---(init detail)-----------------*/
-      s_dmenu [i].active = 'y';
-      s_dmenu [i].next   = -1;
-      s_dmenu [i].start  = -1;
-      s_dmenu [i].count  =  0;
-      s_dmenu [i].bump   = '-';
-      /*---(filter)----------------------*/
-      ++s_nmenu;
-      if (s_menus [i].top  == '·') {
-         if (s_menus [i].name [0] == '-')  x_mid_grp = 'y';
-         continue;
-      }
-      /*---(prep tops)-------------------*/
-      if (s_menus [i].top != x_top_sav) {
-         /*---(sibling link)-------------*/
-         if (x_top_last >= 0)  s_dmenu [x_top_last].next = i;
-         x_top_last = i;
-         /*---(flags)--------------------*/
-         ++s_ntops;
-         x_top_beg  = '-';
-         x_mid_beg  = '-';
-         x_top_sav  = s_menus [i].top;
-         x_mid_sav  = s_menus [i].mid;
-         x_mid_last = -1;
-         /*---(done)---------------------*/
-         continue;
-      }
-      /*---(prep mids)-------------------*/
-      if (s_menus [i].mid == '-' || s_menus [i].mid != x_mid_sav) {
-         /*---(sibling link)-------------*/
-         if (x_mid_last >= 0)  s_dmenu [x_mid_last].next = i;
-         x_mid_last = i;
-         /*---(first child)--------------*/
-         if (x_top_beg != 'y') {
-            s_dmenu [x_top_last].start = i;
-            x_top_beg = 'y';
-         }
-         /*---(flags)--------------------*/
-         ++s_dmenu [x_top_last].count;
-         x_mid_beg  = '-';
-         x_mid_sav  = s_menus [i].mid;
-         s_dmenu [i].bump = x_mid_grp;
-         x_mid_grp = '-';
-         /*---(done)---------------------*/
-         continue;
-      }
-      /*---(prep bots)-------------------*/
-      /*---(first child)-----------------*/
-      if (x_mid_beg != 'y') {
-         s_dmenu [x_mid_last].start = i;
-         x_mid_beg = 'y';
-         x_bot_last = -1;
-      }
-      /*---(flags)-----------------------*/
-      if (x_bot_last >= 0)  s_dmenu [x_bot_last].next = i;
-      x_bot_last = i;
-      ++s_dmenu [x_mid_last].count;
-      /*---(done)------------------------*/
-   }
-   /*---(show menus)---------------------*/
-   for (i = 0; i < s_nmenu; ++i) {
-      DEBUG_PROG   yLOG_complex ("entry"     , "%3d %c %c %c %-10.10s %3d %3d %3d %c", i, s_menus [i].top, s_menus [i].mid, s_menus [i].bot, s_menus [i].name, s_dmenu [i].next, s_dmenu [i].start, s_dmenu [i].count, s_dmenu [i].bump);
-   }
+   yvikeys__menu_wipe ();
+   yvikeys__menu_tops ();
+   yvikeys__menu_mids ();
+   yvikeys__menu_bots ();
+   yvikeys__menu_rptg ();
    /*---(complete)-----------------------*/
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -2060,7 +2148,7 @@ yvikeys__menu_find      (char *a_path, char *a_level, int *a_last)
    --rce;  if (x_ch == '\0')  return rce;
    while (i >= 0) {
       if (s_menus [i].top == x_ch)   break;
-      i = s_dmenu [i].next;
+      i = s_menus [i].next;
    }
    --rce;  if (i < 0) return rce;
    *a_level = 1;
@@ -2068,10 +2156,10 @@ yvikeys__menu_find      (char *a_path, char *a_level, int *a_last)
    /*---(level two)----------------------*/
    x_ch = a_path [2];
    if (x_ch == '\0')  return i;
-   i = s_dmenu [i].start;
+   i = s_menus [i].start;
    while (i >= 0) {
       if (s_menus [i].mid == x_ch)   break;
-      i = s_dmenu [i].next;
+      i = s_menus [i].next;
    }
    --rce;  if (i < 0) return rce;
    *a_level = 2;
@@ -2079,10 +2167,10 @@ yvikeys__menu_find      (char *a_path, char *a_level, int *a_last)
    /*---(level three)--------------------*/
    x_ch = a_path [3];
    if (x_ch == '\0')  return i;
-   i = s_dmenu [i].start;
+   i = s_menus [i].start;
    while (i >= 0) {
       if (s_menus [i].bot == x_ch)   break;
-      i = s_dmenu [i].next;
+      i = s_menus [i].next;
    }
    --rce;  if (i < 0) return rce;
    *a_level = 3;
@@ -2275,7 +2363,7 @@ yvikeys__menu_main      (void)
                      break;
                   }
                } glPopMatrix();
-               i = s_dmenu [i].next;
+               i = s_menus [i].next;
                ++c;
                DEBUG_CMDS   yLOG_value   ("next"      , i);
             }
@@ -2310,7 +2398,7 @@ yvikeys__menu_main      (void)
             mvprintw   (y, x - x_len + 1, "%s", t);
             break;
          }
-         i = s_dmenu [i].next;
+         i = s_menus [i].next;
          ++c;
          DEBUG_CMDS   yLOG_value   ("next"      , i);
       }
@@ -2347,8 +2435,8 @@ yvikeys__menu_subs      (int a_last)
       return -1;
    }
    /*---(prepare)------------------------*/
-   i = s_dmenu [a_last].start;
-   a = s_dmenu [a_last].count;
+   i = s_menus [a_last].start;
+   a = s_menus [a_last].count;
    if (a / 12.0 < 2.0) a = a / 2.0 + 1;
    c = 0;
    /*---(opengl)-------------------------*/
@@ -2361,14 +2449,14 @@ yvikeys__menu_subs      (int a_last)
                case 0 : glTranslatef ( -75.0, -12.0 * x_entry,   0.0);  break;
                case 1 : glTranslatef (  15.0, -12.0 * x_entry,   0.0);  break;
                }
-               if (s_dmenu [i].active == 'y')   glColor4f (0.0, 0.0, 0.0, 1.0);
+               if (s_menus [i].active == 'y')   glColor4f (0.0, 0.0, 0.0, 1.0);
                else                             glColor4f (0.3, 0.3, 0.3, 1.0);
                sprintf (t, "%c", s_menus [i].mid);
                yFONT_print (myVIKEYS.font, myVIKEYS.point, YF_BASLEF, t);
                glTranslatef (  15.0, 0.0, 0.0);
                yFONT_print (myVIKEYS.font, myVIKEYS.point, YF_BASLEF, s_menus [i].name);
                glTranslatef ( -15.0, 0.0, 0.0);
-               i = s_dmenu [i].next;
+               i = s_menus [i].next;
                ++c;
                ++x_entry;
                if (c != 0 && c % a == 0) {
@@ -2389,7 +2477,7 @@ yvikeys__menu_subs      (int a_last)
          }
          sprintf (t, "%c %s", s_menus [i].mid, s_menus [i].name);
          mvprintw   (y, x, "%s", t);
-         i = s_dmenu [i].next;
+         i = s_menus [i].next;
          ++c;
          ++x_entry;
          if (c != 0 && c % a == 0) {
@@ -2437,7 +2525,7 @@ yvikeys__menu_opts      (int a_last)
       DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   a = s_dmenu [a_last].count;
+   a = s_menus [a_last].count;
    DEBUG_CMDS   yLOG_value   ("a"         , a);
    --rce;  if (a <= 0) {
       DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
@@ -2465,12 +2553,12 @@ yvikeys__menu_opts      (int a_last)
       } glPopMatrix();
       /*---(draw)---------------------------*/
       x_group = x_entry = c = 0;
-      i = s_dmenu [a_last].start;
-      a = s_dmenu [a_last].count;
+      i = s_menus [a_last].start;
+      a = s_menus [a_last].count;
       a = a / 4.0;
-      if (a * 4 < s_dmenu [a_last].count)  ++a;
+      if (a * 4 < s_menus [a_last].count)  ++a;
       glPushMatrix(); {
-         for (i = s_dmenu [a_last].start; i <= a_last + s_dmenu [a_last].count; ++i) {
+         for (i = s_menus [a_last].start; i <= a_last + s_menus [a_last].count; ++i) {
             glPushMatrix(); {
                glTranslatef( 150.0, -105.0, 120.0);
                switch (x_group) {
@@ -2479,7 +2567,7 @@ yvikeys__menu_opts      (int a_last)
                case 2 : glTranslatef ( -30.0 - (x_entry * 10.0), -12.0 * (7 + x_entry),   0.0);  break;
                case 3 : glTranslatef ( -30.0 - (x_entry * 10.0), -12.0 * (5 - x_entry),   0.0);  break;
                }
-               if (s_dmenu [i].active == 'y')   glColor4f (0.0, 0.0, 0.0, 1.0);
+               if (s_menus [i].active == 'y')   glColor4f (0.0, 0.0, 0.0, 1.0);
                else                             glColor4f (0.3, 0.3, 0.3, 1.0);
                sprintf (t, "%c", s_menus [i].bot);
                if (x_group == 2 || x_group == 3) {
@@ -2505,10 +2593,10 @@ yvikeys__menu_opts      (int a_last)
    }
    if (myVIKEYS.env == YVIKEYS_CURSES) {
       x_group = x_entry = c = 0;
-      i = s_dmenu [a_last].start;
-      a = s_dmenu [a_last].count;
+      i = s_menus [a_last].start;
+      a = s_menus [a_last].count;
       a = a / 4.0;
-      if (a * 4 < s_dmenu [a_last].count)  ++a;
+      if (a * 4 < s_menus [a_last].count)  ++a;
       x_top = x_bott - x_tall + 2;
       x_mid = x_left + (x_wide / 2);
       while (i >= 0) {
@@ -2518,7 +2606,7 @@ yvikeys__menu_opts      (int a_last)
          }
          sprintf (t, "%c %s", s_menus [i].bot, s_menus [i].name);
          mvprintw   (y, x, "%s", t);
-         i = s_dmenu [i].next;
+         i = s_menus [i].next;
          ++c;
          ++x_entry;
          if (c != 0 && c % a == 0) {
