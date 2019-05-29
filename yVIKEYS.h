@@ -315,6 +315,7 @@ char        yVIKEYS_macro_config    (void *a_loader, void *a_saver);
 /*---(commands)-------------*/
 char        yVIKEYS_cmds_add        (char a_cat, char *a_name, char *a_abbr, char *a_terms, void *a_func, char *a_desc);
 char        yVIKEYS_cmds_direct     (char *a_command);
+char        yVIKEYS_menu_add        (char *a_path, char *a_name, char *a_keys);
 
 /*---(search)---------------*/
 char        yVIKEYS_srch_config     (void *a_searcher, void *a_clearer);

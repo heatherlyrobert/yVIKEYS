@@ -384,22 +384,7 @@ g - ·   clean         ´ y > -                 -
 g - ·   pretty        ´ y > -                 -
 g - ·   refactor      ´ y > -                 -
 g - ·   snippets      ´ y > -                 -
-g - ·     comment     ´ y · -                 -
-g - ·     for loop    ´ y · -                 -
 g - ·   poly          ´ y - -                 update polyhmnia
-·
-·
-·
-· · · +=+=+======     = = = ===handling=====  ===description===================================
-n · · snippet         ´ y > -                 small, useful elements of prepackaged content
-n - ·   comment       ´ y > -                 -
-n - ·     program     ´ y · -                 -
-n - ·     file        ´ y · -                 -
-n - ·     function    ´ y · -                 -
-n - ·     toggle      ´ y · -                 -
-n - ·   blocks        ´ y > -                 -
-n - ·     function    ´ y · -                 -
-n - ·     for loop    ´ y · -                 -
 ·
 ·
 ·

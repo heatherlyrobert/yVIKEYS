@@ -27,8 +27,8 @@
 
 #define     P_VERMAJOR  "1.X = working for everyday use, features still evolving but stable"
 #define     P_VERMINOR  "1.2 = cleaning out all existing unit test bugs"
-#define     P_VERNUM    "1.2n"
-#define     P_VERTXT    "changed menu linking to prepare for run-time additions"
+#define     P_VERNUM    "1.2o"
+#define     P_VERTXT    "added run-time menu addition abilty and tested with metis data sort"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
