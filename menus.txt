@@ -175,9 +175,6 @@ e l ·   layer         ´ y = -                 -
 · · · +=+=+======     = = = ===handling=====  ===description===================================
 v · · view            ´ y > -                 display and layout of application elements
 v l ·   layout        ´ y > -                 common combinations of application elements
-v l n     minimal     ´ y · :layout min¦      main only, bare bones layout
-v l w     work        ´ y · :layout work¦     status, command, keys, title, and version
-v l x     maximum     ´ y · :layout max¦      kitchen sink layout
 v m ·   format        ´ y > -                 application size and location
 v m c     rcol        · y · C                 right normal column (12)
 v m C     rlong       · y · L                 right long column (25)
