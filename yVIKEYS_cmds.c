@@ -7,13 +7,7 @@
 /*
  *
  * metis  wn1··  sort cells found into a understandable, responsible order 
- * metis  dw2#·  third tier menu items need to set and use next field
- * metis  dw2··  allow additions to menu and automatically link them
- * metis  tn2#·  simple example menu item to execute when complete
- * metis  tn2#·  menus to display error and keep locked until <esc>
- * metis  tn2#·  menus error to display last valid menu behind error
- * metis  dn4··  menu activate/deactive using menu paths (cant active if master not active)
- * metis  dn4#·  menu to support ncurses display and tested in gyges
+ * metis  dw2#·  speed reindexing menu items by only re-running specifics
  *
  *
  */
@@ -129,8 +123,8 @@ static tMENU  s_menus [MAX_MENU] = {
    { 'f', 'm', 'N', "native"           , '·', 'y', 'y', '·', "v+N"               , 0, 0, 0 },
    { '·', '·', '·', "---------"        , '-', '-', '-', '-', "-------------"     , 0, 0, 0 },
    { 'f', 'n', '·', "rename"           , '´', 'y', 'y', '·', ":file·"            , 0, 0, 0 },
-   { 'f', 'r', '·', "revert"           , '´', '·', '·', '!', "-"                 , 0, 0, 0 },
-   { 'f', 'f', '·', "refresh"          , '´', 'y', 'y', '!', "-"                 , 0, 0, 0 },
+   { 'f', 'f', '·', "refresh"          , '´', 'y', 'y', '·', ":refresh¦"         , 0, 0, 0 },
+   { 'f', 'r', '·', "restore"          , '´', '·', '·', '!', "-"                 , 0, 0, 0 },
    { 'f', 'i', '·', "info"             , '´', '·', '·', '!', "-"                 , 0, 0, 0 },
    { 'f', 'v', '·', "version"          , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
    { 'f', 'v', 'c', "ctrl"             , '´', 'y', 'y', '·', ":control¦"         , 0, 0, 0 },
@@ -360,10 +354,6 @@ static tMENU  s_menus [MAX_MENU] = {
    { 'd', '·', '·', "dataset"          , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
    { 'd', 's', '·', "sort"             , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
    { 'd', 'f', '·', "filter"           , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
-   { 'd', 'f', 'u', "urgency"          , '·', 'y', 'y', '·', "-"                 , 0, 0, 0 },
-   { 'd', 'f', 'i', "import"           , '·', 'y', 'y', '·', "-"                 , 0, 0, 0 },
-   { 'd', 'f', 'e', "estimate"         , '·', 'y', 'y', '·', "-"                 , 0, 0, 0 },
-   { 'd', 'f', 'f', "flag"             , '·', 'y', 'y', '·', "-"                 , 0, 0, 0 },
    { 'd', '-', '·', "blur"             , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
    { 'd', '-', '·', "enhance"          , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
    { 'd', '-', '·', "distort"          , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
@@ -384,6 +374,28 @@ static tMENU  s_menus [MAX_MENU] = {
    { 'd', '-', '·', "vanish"           , '´', 'y', 'y', '-', "-"                 , 0, 0, 0 },
    /*---(tools menu)---------------------------------------------*/
    { 't', '·', '·', "tools"            , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 't', '-', '·', "pen"              , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 't', '-', '·', "callig"           , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 't', '-', '·', "pencil"           , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 't', '-', '·', "airbrush"         , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 't', '-', '·', "chalk"            , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 't', '-', '·', "brush"            , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 't', '-', '·', "roller"           , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 't', '-', '·', "spray"            , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 't', '-', '·', "fill"             , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 't', '-', '·', "sponge"           , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 't', '-', '·', "blob"             , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 't', '-', '·', "blur"             , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 't', '-', '·', "sharpen"          , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 't', '-', '·', "smudge"           , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 't', '-', '·', "burn"             , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 't', '-', '·', "eraser"           , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 't', '-', '·', "magic_e"          , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 't', '-', '·', "healer"           , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 't', '-', '·', "highlight"        , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 't', '-', '·', "zoom"             , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 't', '-', '·', "move"             , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
+   { 't', '-', '·', "lasso"            , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
    /*---(pallette menu)------------------------------------------*/
    { 'p', '·', '·', "palette"          , '´', 'y', 'y', '>', "-"                 , 0, 0, 0 },
    /*---(layers menu)--------------------------------------------*/
@@ -2088,9 +2100,28 @@ yvikeys__menu_rptg      (void)
 }
 
 char
-yvikeys__menu_update    (void)
+yvikeys__menu_update    (int n)
 {
-   yvikeys__menu_bots ();
+   /*---(locals)-----------+-----+-----+-*/
+   int         i           =    0;
+   int         x_last      =    0;
+   s_menus [n].start = -1;
+   s_menus [n].count =  0;
+   x_last  = -1;
+   for (i = 0; i < s_nmenu; ++i) {
+      /*---(filter)------------*/
+      if (s_menus [i].top != s_menus [n].top)         continue;
+      if (s_menus [i].mid != s_menus [n].mid)         continue;
+      if (s_menus [i].bot ==  0 )                     continue;
+      if (s_menus [i].bot == '·')                     continue;
+      if (strchr (s_valid, s_menus [i].bot) == NULL)  continue;
+      /*---(update)------------*/
+      if (x_last <  0)  s_menus [n].start = i;
+      else              s_menus [x_last].next  = i;;
+      ++s_menus [n].count;
+      x_last = i;
+      /*---(done)--------------*/
+   }
    yvikeys__menu_rptg ();
    return 0;
 }
@@ -2950,11 +2981,13 @@ yVIKEYS_menu_add        (char *a_path, char *a_name, char *a_keys)
    /*---(update count)-------------------*/
    ++s_nmenu;
    DEBUG_CMDS   yLOG_value   ("SUCCESS"   , s_nmenu);
-   yvikeys__menu_update ();
+   yvikeys__menu_update (n);
    /*---(complete)-----------------------*/
    DEBUG_CMDS   yLOG_exit    (__FUNCTION__);
    return 0;
 }
+
+
 
 
 

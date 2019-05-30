@@ -46,8 +46,8 @@
  * metis  tn1··  add menu control to file writing, save as, etc
  * metis  tn1··  add menu control to file reading, updating, etc
  * metis  dw2#·  build and test regex directory entry function and unit test
- * metis  dw2··  update file open to use regex support function and unit test
- * metis  dw2··  update change directory to expect regex (and take first)
+ * metis  dw2#·  update file open to use regex support function and unit test
+ * metis  dw2#·  update change directory to expect regex (and take first)
  *
  *
  */
