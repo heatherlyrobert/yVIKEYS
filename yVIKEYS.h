@@ -208,12 +208,12 @@ tMAPPED     g_zmap;
 #define      YVIKEYS_M_SELECT      's'   /* gimp  */
 #define      YVIKEYS_M_MODIFY      'm'
 #define      YVIKEYS_M_PALETTE     'p'
-#define      YVIKEYS_M_SNIPPETS    'n'
+#define      YVIKEYS_M_LANG        'g'
 #define      YVIKEYS_M_AUDIT       'a'
 #define      YVIKEYS_M_EXECUTE     'x'   /* build, test, and execute (use) */
 #define      YVIKEYS_M_CONFIG      'c'
 /*---(perhaps useful)-----------------*/
-#define      YVIKEYS_M_MACROS      'r'   /* keyboard macros and scripts      */
+#define      YVIKEYS_M_SCRIPT      'r'   /* keyboard macros and scripts      */
 #define      YVIKEYS_M_SHOW        'h'   /* slideshow, present, printing     */
 /*---(default)------------------------*/
 #define      YVIKEYS_M_NONE        ' '

@@ -25,9 +25,10 @@
  * even computer literate and a simple, carefree user experience is paramount.
  * visually oriented, iconbars and ribbons, simple functionality.
  *
- * blending -- some applications have retained their deep capabilities but
+ * skinning -- some applications have retained their deep capabilities but
  * "skinned" themselves with buttons and ribbons for more casual users.  this
  * is the best of both, but it is rare and typically a labor of love.
+ *
  *
  * there are two ways of getting things done in yVIKEYS -- keys and commands.
  * keys and modes are used for all common activities.  commands are used for
@@ -192,17 +193,20 @@ static tPARTS  s_parts [MAX_PARTS] = {
    { YVIKEYS_RIBBON  , "ribbon"      , OWN_FULLY  , '-',   3, 7, 0, 0, '-', '-', 'y',  0, 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_TOPLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "menu and icon display for navigation of commands"   },
    { YVIKEYS_VERSION , "version"     , OWN_FULLY  , 'y',   8, 1, 0, 0, '-', 't', '-',  0, 0, 0, 0,  'r', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_BOTRIG, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "version display with debugging notice"              },
    { YVIKEYS_KEYS    , "keys"        , OWN_FULLY  , 'y',   1, 8, 0, 0, 'c', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_BOTLEF, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "latest keyboard characters typed"                   },
-   { YVIKEYS_GRID    , "grid"        , OWN_OVERLAY, '-',   0, 0, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , 0             , 0              , 0, 0, 0, 0, 0, 0,  "overlay main drawing with a grid"                   },
-   { YVIKEYS_CURSOR  , "cursor"      , OWN_OVERLAY, '-',   0, 0, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , 0             , 0              , 0, 0, 0, 0, 0, 0,  "cursor display on screen"                           },
    { YVIKEYS_XAXIS   , "xaxis"       , OWN_PARTLY , '-',   5, 3, 0, 0, '/', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_BOTLEF, 0              , 0, 0, 0, 0, 0, 0,  "show the x-axis labels above the main screen"       },
    { YVIKEYS_YAXIS   , "yaxis"       , OWN_PARTLY , '-',   4, 3, 0, 0, '-', '/', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_TOPLEF, 0              , 0, 0, 0, 0, 0, 0,  "show the y-axis labels left of the main screen"     },
+   /*---abbr---------   ---name-----   ---own-----  on    bt lr dw dt  x_t  y_t  und  wi ta le bo   ori  source, txt  drawer  type---------  ---mgmt-------  ---anchor-----  ---color------- xm xl ym yl zm zl    12345678901234567890123456789012345678901234567890  */
+   { YVIKEYS_GRID    , "grid"        , OWN_OVERLAY, '-',   0, 0, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , 0             , 0              , 0, 0, 0, 0, 0, 0,  "overlay main drawing with a grid"                   },
+   { YVIKEYS_CURSOR  , "cursor"      , OWN_OVERLAY, '-',   0, 0, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , 0             , 0              , 0, 0, 0, 0, 0, 0,  "cursor display on screen"                           },
    { YVIKEYS_OVERLAY , "overlay"     , OWN_OVERLAY, '-',   0, 0, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_MIDCEN, YCOLOR_CLEAR   , 0, 0, 0, 0, 0, 0,  "shown over the working screen"                      },
    { YVIKEYS_LAYERS  , "layers"      , OWN_OVERLAY, '-',   0, 0, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_MIDCEN, YCOLOR_CLEAR   , 0, 0, 0, 0, 0, 0,  "displays all selected laysers over working"         },
    { YVIKEYS_FLOAT   , "float"       , OWN_OVERLAY, '-',   0, 0, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_BOTLEF, YCOLOR_CLEAR   , 0, 0, 0, 0, 0, 0,  "shown over the working screen"                      },
    { YVIKEYS_HISTORY , "history"     , OWN_OVERLAY, '-',   0, 0, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_MIDCEN, YCOLOR_CLEAR   , 0, 0, 0, 0, 0, 0,  "list of command/search history"                     },
    { YVIKEYS_MENUS   , "menus"       , OWN_OVERLAY, 'y',   0, 0, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_TOPLEF, YCOLOR_CLEAR   , 0, 0, 0, 0, 0, 0,  "interactive menu overlay"                           },
+   /*---abbr---------   ---name-----   ---own-----  on    bt lr dw dt  x_t  y_t  und  wi ta le bo   ori  source, txt  drawer  type---------  ---mgmt-------  ---anchor-----  ---color------- xm xl ym yl zm zl    12345678901234567890123456789012345678901234567890  */
    { YVIKEYS_WINDOW  , "window"      , OWN_DATA   , '-',   0, 0, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , 0             , 0              , 0, 0, 0, 0, 0, 0,  "full screen width and height"                       },
    { YVIKEYS_MAIN    , "main"        , OWN_MAIN   , 'y',   4, 4, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_MIDCEN, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "main working area in the middle"                    },
+   /*---abbr---------   ---name-----   ---own-----  on    bt lr dw dt  x_t  y_t  und  wi ta le bo   ori  source, txt  drawer  type---------  ---mgmt-------  ---anchor-----  ---color------- xm xl ym yl zm zl    12345678901234567890123456789012345678901234567890  */
    { 0               , ""            , 0          , '-',   0, 0, 0, 0, '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , 0             , 0              , 0, 0, 0, 0, 0, 0,  ""                                                   },
 };
 static int  s_npart     = 0;
@@ -613,7 +617,7 @@ VIEW__widths_left        (void)
       }
       x_cum += w;
    }
-   /*---(floater)------------------------*/
+   /*---(overlays)-----------------------*/
    n = VIEW__abbr (YVIKEYS_MAIN  );
    x_cum    = s_parts [n].left;
    x_opengl = s_parts [n].xmin;
@@ -627,7 +631,6 @@ VIEW__widths_left        (void)
    n = VIEW__abbr (YVIKEYS_MENUS );
    if (s_parts [n].mgmt == YVIKEYS_AUTO) {
       if (myVIKEYS.env == YVIKEYS_OPENGL )  s_parts [n].left = x_opengl + 20;
-      /*> if (myVIKEYS.env == YVIKEYS_CURSES )  s_parts [n].left = x_cum    +  2;     <*/
       if (myVIKEYS.env == YVIKEYS_CURSES )  s_parts [n].left = x_cum + (s_main_wide - s_parts [n].wide) /  2;
    }
    DEBUG_GRAF   yLOG_complex ("left"      , "%c %-12.12s %c %3d left (cum %3d)", s_parts [n].abbr, s_parts [n].name, s_parts [n].mgmt, s_parts [n].left, x_cum);
@@ -815,12 +818,12 @@ VIEW__heights_bott       (void)
    /*---(floater)------------------------*/
    n = VIEW__abbr (YVIKEYS_MAIN  );
    x_cum    = s_parts [n].bott;
-   x_opengl = s_parts [n].xmin;
+   x_opengl = s_parts [n].ymin;
    x_top    = s_parts [n].bott + s_parts [n].tall - 1;
    DEBUG_GRAF   yLOG_complex ("bott"      , "%c %-12.12s %3d bott (cum %3d)", s_parts [n].abbr, s_parts [n].name, s_parts [n].bott, x_cum);
    n = VIEW__abbr (YVIKEYS_FLOAT );
    if (s_parts [n].mgmt == YVIKEYS_AUTO) {
-      if (myVIKEYS.env == YVIKEYS_OPENGL )  s_parts [n].bott = x_opengl + 75;
+      if (myVIKEYS.env == YVIKEYS_OPENGL )  s_parts [n].bott = x_opengl + 40;
       if (myVIKEYS.env == YVIKEYS_CURSES )  s_parts [n].bott = x_cum    +  6;
    }
    DEBUG_GRAF   yLOG_complex ("bott"      , "%c %-12.12s %3d bott (cum %3d)", s_parts [n].abbr, s_parts [n].name, s_parts [n].bott, x_cum);

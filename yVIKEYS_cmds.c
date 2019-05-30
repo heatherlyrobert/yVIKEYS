@@ -1733,7 +1733,11 @@ yVIKEYS_cmds_add     (char a_menu, char *a_name, char *a_abbr, char *a_terms, vo
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
+   int         n           =   -1;
    char        x_dup       =    0;
+   char        t           [LEN_LABEL];
+   char        x_level     =    0;
+   int         x_last      =    0;
    /*---(header)-------------------------*/
    DEBUG_PROG   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
@@ -1745,10 +1749,18 @@ yVIKEYS_cmds_add     (char a_menu, char *a_name, char *a_abbr, char *a_terms, vo
    }
    DEBUG_PROG   yLOG_note    ("after status check");
    /*---(defense)------------------------*/
-   /*> --rce;  if (yvikeys_cmds__menu (a_menu, ACTION_FIND) < 0) {                    <* 
-    *>    DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);                              <* 
-    *>    return rce;                                                                 <* 
-    *> }                                                                              <*/
+   --rce;  if (a_menu == 0) {
+      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   sprintf (t, "µ%c", a_menu);
+   DEBUG_PROG   yLOG_info    ("t"         , t);
+   n  = yvikeys__menu_find (t, &x_level, &x_last);
+   DEBUG_PROG   yLOG_value   ("menu"      , n);
+   --rce;  if (n < 0) {
+      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    DEBUG_PROG   yLOG_point   ("a_name"    , a_name);
    --rce;  if (a_name  == NULL || strllen (a_name, LEN_LABEL) <  1) {
       DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
@@ -3170,8 +3182,8 @@ MENU__unit              (char *a_question, char *a_path)
       if (i < 0 && x_last < 0) {
          strlcpy  (yVIKEYS__unit_answer, "MENU unit        : menu item not found", LEN_FULL);
       }
-      if (i >= 0)  snprintf (yVIKEYS__unit_answer, LEN_FULL, "MENU entry       : %1d %3d %-10.10s  %c  %c  %s", x_level, i     , s_menus [i].name, s_menus [i].active, s_menus [i].type, s_menus [i].keys);
-      else         snprintf (yVIKEYS__unit_answer, LEN_FULL, "MENU last        : %1d %3d %-10.10s  %c  %c  %s", x_level, x_last, s_menus [x_last].name, s_menus [x_last].active, s_menus [x_last].type, s_menus [x_last].keys);
+      else if (i >= 0)  snprintf (yVIKEYS__unit_answer, LEN_FULL, "MENU entry       : %1d %3d %-10.10s  %c  %c  %s", x_level, i     , s_menus [i].name, s_menus [i].active, s_menus [i].type, s_menus [i].keys);
+      else              snprintf (yVIKEYS__unit_answer, LEN_FULL, "MENU last        : %1d %3d %-10.10s  %c  %c  %s", x_level, x_last, s_menus [x_last].name, s_menus [x_last].active, s_menus [x_last].type, s_menus [x_last].keys);
    }
    /*---(complete)-----------------------*/
    return yVIKEYS__unit_answer;

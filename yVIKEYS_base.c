@@ -72,8 +72,8 @@ yVIKEYS_init         (void)
    MODE_init    ();
    yvikeys_file_init    ();
    /*----(middling)----------------------*/
-   yvikeys_cmds_init    ();
    yvikeys_menu_init    ();
+   yvikeys_cmds_init    ();
    yvikeys_srch_init    ();
    /*----(later)-------------------------*/
    KEYS_init    ();
