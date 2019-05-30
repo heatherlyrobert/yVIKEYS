@@ -26,9 +26,9 @@
 #define     P_DEPENDS   "none"
 
 #define     P_VERMAJOR  "1.X = working for everyday use, features still evolving but stable"
-#define     P_VERMINOR  "1.2 = cleaning out all existing unit test bugs"
-#define     P_VERNUM    "1.2s"
-#define     P_VERTXT    "fixed code and updated all unit testing (all) to pass"
+#define     P_VERMINOR  "1.3 = build out commands to support menus"
+#define     P_VERNUM    "1.3a"
+#define     P_VERTXT    "moved menu fv options into menu adds from file_init, unit tested"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"

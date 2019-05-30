@@ -9,9 +9,19 @@
 ·#  type   : > has sub-menu, ! tbd, · immediate execution, = will ask for more info
 ·#
 
-·
-##  17  FEVISOMDTPLBAXCRH
-##  20  FEVI SOMD TPLB AXCRH
+##
+##     FEVISOM
+##     H     D
+##     R     T       FE
+##     CXAGBLP      VISO
+##                 MDTPLB
+##     FEVI GC      GAXC
+##     SOMD AR       RH
+##     TPLB XH
+##
+##
+##  18  FEVISOMDTPLBGAXCRH
+##  21  FEVI SOMD TPLB GAXCRH
 ##  33  F E V I S O M D T P L B G A X C R H
 ##  50  Fi Ed Vi In Se fO Mo Da To Pa La Bu lG Au eX Co sR sH
 ##  67  Fil Edi Vie Ins Sel fOr Mod Dat Too Pal Lay Buf laG Aud eXe Con scR sHo
@@ -24,58 +34,46 @@
 ·
 ·
 ·
-·# one program instance, one workspace
+·# one program instance, one workspace (never nothing)
+##  do not require save all, close all, close, no browse/recent (interactive)
 · · · +=+=+======     = = = ===handling=====  ===description===================================
 f · · files           ´ y > -                 workspace, its file, and external environment
 f w ·   new           ´ y · :new¦             create a new, nameless workspace
 f o ·   open          ´ y · :edit·            open a workspace from a file
-f d ·   chdir         ´ y · :cd·              change the current working directory
-f b ·   browse        ´ · ! -                 find directory and file using autocomplete
-f - ·   recent        ´ · ! -                 review recent files using autocomplete
-f m ·   import        ´ y > -                 import clipboard to current location
-f m a     auto        · y · v++               interpret the import records, one-by-one
-f m v     values      · y · v+v               pure values, parsed by cell widths
-f m V     values+     · y · v+V               pure values, with hints
-f m d     coldel      · y · v+d               pure values, col/field del
-f m D     coldel+     · y · v+D               pure values, col/field del, with hints
-f m f     field       · y · v+f               pure values, field del
-f m F     field+      · y · v+F               pure values, field del, with hints
-f m t     tab         · y · v+t               pure values, tab del
-f m T     tab+        · y · v+T               pure values, tab del, with hints
-f m N     native      · y · v+N               native format, field del, with hints
-· · ·   ---------     - - - -------------     -------------------------------------------------
+f c ·   chdir         ´ y · :cd·              change the current working directory
+f i ·   import        ´ y > -                 import clipboard to current location
+f i a     auto        · y · v++               interpret the import records, one-by-one
+f i v     values      · y · v+v               pure values, parsed by cell widths
+f i V     values+     · y · v+V               pure values, with hints
+f i d     coldel      · y · v+d               pure values, col/field del
+f i D     coldel+     · y · v+D               pure values, col/field del, with hints
+f i f     field       · y · v+f               pure values, field del
+f i F     field+      · y · v+F               pure values, field del, with hints
+f i t     tab         · y · v+t               pure values, tab del
+f i T     tab+        · y · v+T               pure values, tab del, with hints
+f i N     native      · y · v+N               native format, field del, with hints
 f n ·   rename        ´ y · :file·            change the name of the current workspace
 f f ·   refresh       ´ y · :refresh¦         reread the source file, replacing existing
 f r ·   restore       ´ · ! -                 restore the original workspace (from backup)
-f i ·   info          ´ · ! -                 display key workspace statistics
+f p ·   protect       ´ y ! -                 view only (stop updates)
 f v ·   version       ´ y > -                 workspace and file versioning
-f v c     ctrl        ´ y · :control¦         turn on version control
-f v n     noctrl      ´ y · :nocontrol¦       turn off version control
-f v 1     major+      ´ y · :major¦           bump major value up by one
-f v 2     minor+      ´ y · :minor¦           bump minor value up by one
-f v 3     step+       ´ y · :bump¦            bump sub value up by one
-f v t     vertxt      ´ y · :vertxt·          enter text for most recent version
-f v m     manual      ´ y · :version·         set version number manually
-· · ·   ---------     - - - -------------     -------------------------------------------------
 f s ·   save          ´ y ! :w                write the current workspace
 f a ·   saveas        ´ y ! -                 write current workspace using temp name
-f x ·   export        ´ y > -                 export current selection to clipboard
-f x v     values      · y · v-v               final values
-f x V     values+     · y · v-V               final values, plus hints
-f x d     coldel      · y · v-d               final values, col/field delimited
-f x D     coldel+     · y · v-D               final values, col/field del, plus hints
-f x f     field       · y · v-f               final values, field del
-f x F     field+      · y · v-F               final values, field del, plus hints
-f x c     csv         · y · v-c               final values, csv del
-f x C     csv+        · y · v-C               final values, csv del, plus hints
-f x t     tab         · y · v-t               final values, tab del
-f x T     tab+        · y · v-T               final values, tab del, plus hints
-f x r     result      · y · v-r               calculated results, field del
-f x R     result+     · y · v-R               calculated results, field del, plus hints
-f x S     source      · y · v-S               full source, field del, plus hints
-f x N     native      · y · v-N               native format, field del, plus hints
-· · ·   ---------     - - - -------------     -------------------------------------------------
-f c ·   close         ´ y ! -                 close current workspace
+f e ·   export        ´ y > -                 export current selection to clipboard
+f e v     values      · y · v-v               final values
+f e V     values+     · y · v-V               final values, plus hints
+f e d     coldel      · y · v-d               final values, col/field delimited
+f e D     coldel+     · y · v-D               final values, col/field del, plus hints
+f e f     field       · y · v-f               final values, field del
+f e F     field+      · y · v-F               final values, field del, plus hints
+f e c     csv         · y · v-c               final values, csv del
+f e C     csv+        · y · v-C               final values, csv del, plus hints
+f e t     tab         · y · v-t               final values, tab del
+f e T     tab+        · y · v-T               final values, tab del, plus hints
+f e r     result      · y · v-r               calculated results, field del
+f e R     result+     · y · v-R               calculated results, field del, plus hints
+f e S     source      · y · v-S               full source, field del, plus hints
+f e N     native      · y · v-N               native format, field del, plus hints
 f q ·   quit          ´ y · :qa¦              quit the program
 
 

@@ -290,6 +290,14 @@ yVIKEYS_whoami          (char *a_prog, char *a_ext, char *a_vernum, char *a_vert
    rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "writeall"    , "wa"  , ""     , yvikeys_file_writer          , "quit all files (if no changes), and exit"                    );
    rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "read"        , "e"   , ""     , yvikeys_file_reader          , "clear existing contents and open/read new file"              );
    rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "edit"        , "e"   , ""     , yvikeys_file_reader          , "clear existing contents and open/read new file"              );
+   /*---(menu entries)-------------------*/
+   yVIKEYS_menu_add ("µfvc", "ctrl"      , ":control¦");
+   yVIKEYS_menu_add ("µfvn", "noctrl"    , ":nocontrol¦");
+   yVIKEYS_menu_add ("µfv1", "major"     , ":major¦");
+   yVIKEYS_menu_add ("µfv2", "minor"     , ":minor¦");
+   yVIKEYS_menu_add ("µfv3", "step"      , ":bump¦");
+   yVIKEYS_menu_add ("µfvt", "vertxt"    , ":vertxt·");
+   yVIKEYS_menu_add ("µfvm", "manual"    , ":version·");
    /*---(default file name)--------------*/
    yvikeys_file_name (NULL);
    /*---(complete)-----------------------*/
