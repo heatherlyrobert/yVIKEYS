@@ -8,6 +8,9 @@
  *
  * metis  wn1··  sort cells found into a understandable, responsible order 
  * metis  dw2#·  speed reindexing menu items by only re-running specifics
+ * metis  tw1·   create unit test support to cleanse all menu items (blank start)
+ * metis  tw1·   create unit test support to add level 1 and 2 menu items (testing)
+ * metis  tw1·   create unit test for menu item addition and updates
  *
  *
  */
@@ -1962,7 +1965,8 @@ yvikeys__menu_wipe      (void)
    /*---(handle total)-------------------*/
    s_nmenu = 0;
    for (i = 0; i < MAX_MENU; ++i) {
-      if (s_menus [i].name [0] == NULL)  break;
+      if (s_menus [i].name [0] == NULL)         break;
+      if (strcmp (s_menus [i].name, "-") == 0)  break;
       ++s_nmenu;
       s_menus [i].active  = s_menus [i].def;
       s_menus [i].next    = -1;
@@ -2132,16 +2136,6 @@ yvikeys_menu_init       (void)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
-   char        rc          =    0;
-   int         i           =    0;
-   char         x_top_sav  =  '·';
-   int          x_top_last =   -1;
-   char         x_top_beg  =  '-';
-   char         x_mid_sav  =  '·';
-   int          x_mid_last =   -1;
-   char         x_mid_beg  =  '-';
-   char         x_mid_grp  =  '-';
-   int          x_bot_last =   -1;
    /*---(header)-------------------------*/
    DEBUG_CMDS   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
@@ -2997,6 +2991,49 @@ yVIKEYS_menu_add        (char *a_path, char *a_name, char *a_keys)
 static void  o___UNIT_TEST_______o () { return; }
 
 char
+yvikeys__menu_cleanse   (void)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   int         i           =    0;
+   /*---(header)-------------------------*/
+   DEBUG_CMDS   yLOG_enter   (__FUNCTION__);
+   /*---(handle total)-------------------*/
+   s_nmenu = 0;
+   for (i = 0; i < MAX_MENU; ++i) {
+      s_menus [i].top     = '·';
+      s_menus [i].mid     = '·';
+      s_menus [i].bot     = '·';
+      strlcpy (s_menus [i].name, "-", LEN_LABEL);
+      s_menus [i].mgmt    = '·';
+      s_menus [i].def     = '-';
+      s_menus [i].active  = s_menus [i].def;
+      s_menus [i].type    = '·';
+      strlcpy (s_menus [i].keys, "-", LEN_LABEL);
+      s_menus [i].next    = -1;
+      s_menus [i].start   = -1;
+      s_menus [i].count   =  0;
+   }
+   DEBUG_CMDS   yLOG_value   ("s_nmenu"   , s_nmenu);
+   /*---(complete)-----------------------*/
+   DEBUG_CMDS   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char
+yvikeys__menu_addgroup  (char a_top, char a_mid, char *a_name)
+{
+   s_menus [s_nmenu].top    = a_top;
+   s_menus [s_nmenu].mid    = a_mid;
+   strlcpy (s_menus [s_nmenu].name, a_name, LEN_LABEL);
+   s_menus [s_nmenu].type   = '>';
+   s_menus [s_nmenu].def    = 'y';
+   s_menus [s_nmenu].active = s_menus [s_nmenu].def;
+   strlcpy (s_menus [s_nmenu].keys, "-"   , LEN_LABEL);
+   yvikeys_menu_init ();
+   return 0;
+}
+
+char
 CMDS__test              (char a_mode, char a_value)
 {
    switch (a_mode) {
@@ -3121,11 +3158,18 @@ MENU__unit              (char *a_question, char *a_path)
    /*---(preprare)-----------------------*/
    strlcpy  (yVIKEYS__unit_answer, "MENU unit        : question not understood", LEN_FULL);
    /*---(questions)----------------------*/
-   i = yvikeys__menu_find (a_path, &x_level, &x_last);
-   if (i < 0 && x_last < 0) {
-      strlcpy  (yVIKEYS__unit_answer, "MENU unit        : menu item not found", LEN_FULL);
+   if (strcmp (a_question, "count"          )   == 0) {
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "MENU count       : %d", s_nmenu);
+   }
+   else if (strcmp (a_question, "index"          )   == 0) {
+      i = a_path;
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "MENU index       : %-2d %c %c %c %-10.10s %c %c %-10.10s %3d %3d %3d", i, s_menus [i].top, s_menus [i].mid, s_menus [i].bot, s_menus [i].name, s_menus [i].active, s_menus [i].type, s_menus [i].keys, s_menus [i].next, s_menus [i].start, s_menus [i].count);
    }
    else if (strcmp (a_question, "entry"          )   == 0) {
+      i = yvikeys__menu_find (a_path, &x_level, &x_last);
+      if (i < 0 && x_last < 0) {
+         strlcpy  (yVIKEYS__unit_answer, "MENU unit        : menu item not found", LEN_FULL);
+      }
       if (i >= 0)  snprintf (yVIKEYS__unit_answer, LEN_FULL, "MENU entry       : %1d %3d %-10.10s  %c  %c  %s", x_level, i     , s_menus [i].name, s_menus [i].active, s_menus [i].type, s_menus [i].keys);
       else         snprintf (yVIKEYS__unit_answer, LEN_FULL, "MENU last        : %1d %3d %-10.10s  %c  %c  %s", x_level, x_last, s_menus [x_last].name, s_menus [x_last].active, s_menus [x_last].type, s_menus [x_last].keys);
    }

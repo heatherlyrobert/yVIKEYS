@@ -27,8 +27,8 @@
 
 #define     P_VERMAJOR  "1.X = working for everyday use, features still evolving but stable"
 #define     P_VERMINOR  "1.2 = cleaning out all existing unit test bugs"
-#define     P_VERNUM    "1.2q"
-#define     P_VERTXT    "sped up menu updates when new items are added"
+#define     P_VERNUM    "1.2r"
+#define     P_VERTXT    "added unit testing for yVIKEYS_menu_add and restructuring"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -545,6 +545,8 @@ int         yvikeys__menu_find      (char *a_keys, char *a_level, int *a_last);
 char        yvikeys_menu_start      (void);
 char        yvikeys_menu_smode      (int  a_major, int  a_minor);
 char        yvikeys_menu_draw       (void);
+char        yvikeys__menu_cleanse   (void);
+char        yvikeys__menu_addgroup  (char a_top, char a_mid, char *a_name);
 
 
 char        yvikeys_loop_init       (void);
