@@ -38,43 +38,21 @@
 ##  do not require save all, close all, close, no browse/recent (interactive)
 · · · +=+=+======     = = = ===handling=====  ===description===================================
 f · · files           ´ y > -                 workspace, its file, and external environment
+f W ·   workspace     ´ y > -                 manage a bundle of files (where necessary)
 f w ·   new           ´ y · :new¦             create a new, nameless workspace
 f o ·   open          ´ y · :edit·            open a workspace from a file
 f c ·   chdir         ´ y · :cd·              change the current working directory
-f i ·   import        ´ y > -                 import clipboard to current location
-f i a     auto        · y · v++               interpret the import records, one-by-one
-f i v     values      · y · v+v               pure values, parsed by cell widths
-f i V     values+     · y · v+V               pure values, with hints
-f i d     coldel      · y · v+d               pure values, col/field del
-f i D     coldel+     · y · v+D               pure values, col/field del, with hints
-f i f     field       · y · v+f               pure values, field del
-f i F     field+      · y · v+F               pure values, field del, with hints
-f i t     tab         · y · v+t               pure values, tab del
-f i T     tab+        · y · v+T               pure values, tab del, with hints
-f i N     native      · y · v+N               native format, field del, with hints
+f m ·   import        ´ y > -                 import clipboard to current location
 f n ·   rename        ´ y · :file·            change the name of the current workspace
-f f ·   refresh       ´ y · :refresh¦         reread the source file, replacing existing
-f r ·   restore       ´ · ! -                 restore the original workspace (from backup)
-f p ·   protect       ´ y ! -                 view only (stop updates)
+f f ·   refresh       · y · :refresh¦         reread the source file, replacing existing
+f r ·   restore       · · ! -                 restore the original workspace (from backup)
 f v ·   version       ´ y > -                 workspace and file versioning
-f s ·   save          ´ y ! :w                write the current workspace
+f p ·   protect       ´ y > -                 toggle view only, file permissions, etc
+f s ·   save          ´ y ! :w¦               write the current buffer
 f a ·   saveas        ´ y ! -                 write current workspace using temp name
-f e ·   export        ´ y > -                 export current selection to clipboard
-f e v     values      · y · v-v               final values
-f e V     values+     · y · v-V               final values, plus hints
-f e d     coldel      · y · v-d               final values, col/field delimited
-f e D     coldel+     · y · v-D               final values, col/field del, plus hints
-f e f     field       · y · v-f               final values, field del
-f e F     field+      · y · v-F               final values, field del, plus hints
-f e c     csv         · y · v-c               final values, csv del
-f e C     csv+        · y · v-C               final values, csv del, plus hints
-f e t     tab         · y · v-t               final values, tab del
-f e T     tab+        · y · v-T               final values, tab del, plus hints
-f e r     result      · y · v-r               calculated results, field del
-f e R     result+     · y · v-R               calculated results, field del, plus hints
-f e S     source      · y · v-S               full source, field del, plus hints
-f e N     native      · y · v-N               native format, field del, plus hints
-f q ·   quit          ´ y · :qa¦              quit the program
+f S ·   saveall       ´ y ! :wa¦              write the full workspace
+f x ·   export        ´ y > -                 export current selection to clipboard
+f q ·   quit          ´ y · :q¦               quit the program
 
 
 
@@ -82,8 +60,8 @@ f q ·   quit          ´ y · :qa¦              quit the program
 e · · edit            ´ y > -                 -
 e u ·   undo          ´ y · u                 undo the very last action
 e U ·   redo          ´ y · U                 redo the last action undone
-e _ ·   status        ´ y · -                 -
-e ? ·   history       ´ y · -                 -
+e _ ·   status        ´ y · :status mundo¦    map undo history
+e ? ·   history       ´ y > -                 -
 e ? t     track       ´ y · -                 -
 e ? u     untrack     ´ y · -                 -
 e ? c     clear       ´ y · -                 -
