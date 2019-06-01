@@ -27,8 +27,8 @@
 
 #define     P_VERMAJOR  "1.X = working for everyday use, features still evolving but stable"
 #define     P_VERMINOR  "1.3 = build out commands to support menus"
-#define     P_VERNUM    "1.3c"
-#define     P_VERTXT    "extracted menu code into a separate file (all unit tests work)"
+#define     P_VERNUM    "1.3d"
+#define     P_VERTXT    "fixed file new, name, browse, write, and read"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -547,6 +547,7 @@ char        yvikeys_menu_smode      (int  a_major, int  a_minor);
 char        yvikeys_menu_draw       (void);
 char        yvikeys__menu_cleanse   (void);
 char        yvikeys__menu_addgroup  (char a_top, char a_mid, char *a_name);
+/*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
 
 
 char        yvikeys_loop_init       (void);
@@ -580,8 +581,9 @@ char        yvikeys_file_bump_inc        (void);
 int         yvikeys__file_regex          (char a_type, char *a_ext, char *a_base, char *a_entry, char *a_match);
 char        yvikeys__file_stripext       (char *a_loc);
 char        yvikeys__file_path           (char *a_path);
-char        yvikeys_file_loc             (char  *a_loc);
-char        yvikeys_file_name            (char  *a_name);
+char        yvikeys_file_loc             (char *a_loc);
+char        yvikeys_file_name            (char *a_name);
+char        yvikeys_file_browse          (char *a_name);
 char        FILE__unit_null              (void);
 char*       FILE__unit                   (char *a_question, int a_ref);
 

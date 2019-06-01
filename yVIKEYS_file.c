@@ -48,6 +48,11 @@
  * metis  dw2#·  build and test regex directory entry function and unit test
  * metis  dw2#·  update file open to use regex support function and unit test
  * metis  dw2#·  update change directory to expect regex (and take first)
+ * metis  dw1#·  update file status bar to have current directory too
+ * metis  dw2··  add file status to unit testing, like with other statuses
+ * metis  dw8··  add protect option for file compression, meaning gzip
+ * metis  dw8··  add protect option for file encryption, one standard
+ * metis  dw8··  add protect option for file passwords
  *
  *
  */
@@ -170,8 +175,7 @@ yvikeys__file_by_label  (char *a_label)
 char
 yvikeys_file_status          (char *a_list)
 {
-   /*> snprintf (a_list, LEN_FULL, "[ file %-20.20s%*.*s%30.30s %-4.4s ]", my.f_name, my.x_full - 57, my.x_full - 57, g_empty, myVIKEYS.f_vertxt, myVIKEYS.f_vernum);   <*/
-   snprintf (a_list, LEN_FULL, "file %s", myVIKEYS.f_title);
+   snprintf (a_list, LEN_FULL, "file    %-45.45s %-25.25s", myVIKEYS.f_title, myVIKEYS.f_loc);
    return 0;
 }
 
@@ -279,6 +283,7 @@ yVIKEYS_whoami          (char *a_prog, char *a_ext, char *a_vernum, char *a_vert
    /*---(add commands)-------------------*/
    rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "cd"          , ""    , "a"    , yvikeys_file_loc             , "set the default directory for file reading and writing"      );
    rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "file"        , ""    , "a"    , yvikeys_file_name            , "rename a file for reading and writing"                       );
+   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "browse"      , ""    , "a"    , yvikeys_file_browse          , "find existing file name for reading and writing"             );
    rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "control"     , ""    , ""     , yvikeys_file_control         , "turn version control ON for current file"                    );
    rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "nocontrol"   , ""    , ""     , yvikeys_file_nocontrol       , "turn version control OFF for current file"                   );
    rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "version"     , ""    , "s"    , yvikeys_file_version         , "set a specific file version ([0-9A-Z].[0-9A-Z][a-z])"        );
@@ -287,7 +292,7 @@ yVIKEYS_whoami          (char *a_prog, char *a_ext, char *a_vernum, char *a_vert
    rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "minor"       , ""    , ""     , yvikeys_file_bump_minor      , "increment the version number by a MINOR version"             );
    rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "bump"        , ""    , ""     , yvikeys_file_bump_inc        , "increment the version number by a INC version"               );
    rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "write"       , "w"   , ""     , yvikeys_file_writer          , "write/update the current file"                               );
-   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "writeall"    , "wa"  , ""     , yvikeys_file_writer          , "quit all files (if no changes), and exit"                    );
+   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "writeas"     , "was" , "s"    , yvikeys_file_writeas         , "write/update the current file"                               );
    rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "read"        , "e"   , ""     , yvikeys_file_reader          , "clear existing contents and open/read new file"              );
    rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "edit"        , "e"   , ""     , yvikeys_file_reader          , "clear existing contents and open/read new file"              );
    /*---(menu entries)-------------------*/
@@ -857,7 +862,7 @@ yvikeys_file_loc                (char *a_path)
 }
 
 char         /*-> tbd --------------------------------[ leaf   [gc.C55.124.30]*/ /*-[01.0000.112.!]-*/ /*-[--.---.---.--]-*/
-yvikeys_file_name               (char *a_name)
+yvikeys__file_namer     (char a_type, char *a_name)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -865,6 +870,7 @@ yvikeys_file_name               (char *a_name)
    char        i           =    0;
    char        x_work      [LEN_RECD]   = "";
    char        x_dir       [LEN_RECD]   = "";
+   char        t           [LEN_RECD];
    char       *p           = NULL;
    int         x_len       =    0;
    int        *x_valid     = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.";
@@ -910,15 +916,37 @@ yvikeys_file_name               (char *a_name)
    /*---(check for bad characters)-------*/
    p++;
    x_len = strllen (p, LEN_RECD);
+   DEBUG_HIST   yLOG_value   ("x_len"     , x_len);
    --rce;  for (i = 0; i < x_len; ++i) {
       if (strchr (x_valid, p [i]) != NULL)   continue;
       DEBUG_INPT   yLOG_note    ("bad character in file name");
       DEBUG_INPT   yLOG_exit    (__FUNCTION__);
       return rce;
    }
+   /*---(check for regex)----------------*/
+   --rce;  if (a_type == 'r' && x_len > 0) {
+      if (x_len <= 0) {
+         DEBUG_INPT   yLOG_note    ("file regex empty");
+         DEBUG_INPT   yLOG_exit    (__FUNCTION__);
+         return rce;
+      }
+      rc = yvikeys__file_regex ('f', myVIKEYS.s_ext, x_dir, p, t);
+      if (rc <= 0) {
+         DEBUG_INPT   yLOG_note    ("regex not found");
+         DEBUG_INPT   yLOG_exit    (__FUNCTION__);
+         return rce;
+      }
+      rc = yvikeys__file_stripext (t);
+      strlcpy (myVIKEYS.f_name , t, LEN_RECD);
+   }
+   /*---(check for fixed name)-----------*/
+   else if (x_len > 0) {
+      strlcpy (myVIKEYS.f_name , p         , LEN_RECD);
+   }
    /*---(check for empty, again)---------*/
-   if (x_len == 0)  strlcpy (myVIKEYS.f_name , FILE_BLANK, LEN_RECD);
-   else             strlcpy (myVIKEYS.f_name , p         , LEN_RECD);
+   else {
+      strlcpy (myVIKEYS.f_name , FILE_BLANK, LEN_RECD);
+   }
    /*---(report out)---------------------*/
    sprintf (myVIKEYS.f_title, "%s%s.%s", x_dir, myVIKEYS.f_name, myVIKEYS.s_ext);
    DEBUG_INPT   yLOG_info    ("f_loc"     , myVIKEYS.f_loc);
@@ -928,6 +956,9 @@ yvikeys_file_name               (char *a_name)
    DEBUG_INPT   yLOG_exit    (__FUNCTION__);
    return 0;
 }
+
+char yvikeys_file_name   (char *a_name) { return yvikeys__file_namer ('-', a_name); }
+char yvikeys_file_browse (char *a_name) { return yvikeys__file_namer ('r', a_name); }
 
 
 
@@ -1405,7 +1436,7 @@ yvikeys_file_writeas    (char *a_name)
    strlcpy (x_name, myVIKEYS.f_name, LEN_RECD);
    if (rc >= 0)  rc = yvikeys_file_name   (a_name);
    if (rc >= 0)  rc = yvikeys_file_writer ();
-   if (rc >= 0)  rc = yvikeys_file_name   (x_name);
+   yvikeys_file_name   (x_name);
    return rc;
 }
 

@@ -7,4 +7,10 @@ KEY LOGGER (:status keys)
 title-- tot-- recent-----------------------------------------------------------
 keys    79    jl:st¿tatus·mundo¦jjjjjjjjjjjjkkkkkkkkkkkkkkk+10¦j=+x*10¿2¦k+15¦¥
 
+MODE STACK (:status mode)
+title-- dep stack--------------------------------------------------------------
+mode    1   - - - - - - - - - -
 
+FILE (:status file)
+title-- ---file-------------------------------------- ---directory-------------
+file    /root/solar_system.gyges                      /home/member

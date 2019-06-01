@@ -317,6 +317,8 @@ char        yVIKEYS_cmds_add        (char a_cat, char *a_name, char *a_abbr, cha
 char        yVIKEYS_cmds_direct     (char *a_command);
 char        yVIKEYS_menu_alter      (char *a_path, char *a_keys);
 char        yVIKEYS_menu_add        (char *a_path, char *a_name, char *a_keys);
+int         yVIKEYS_menu_active     (char *a_path);
+int         yVIKEYS_menu_deactive   (char *a_path);
 
 /*---(search)---------------*/
 char        yVIKEYS_srch_config     (void *a_searcher, void *a_clearer);

@@ -7,8 +7,6 @@
 /*
  *
  * metis  wn1··  sort cells found into a understandable, responsible order 
- * metis  tn4··  add function to alter level two menu items type and keys
- * metis  dn4··  add functions to activate and deactive menu trees
  *
  *
  */
