@@ -27,8 +27,8 @@
 
 #define     P_VERMAJOR  "1.X = working for everyday use, features still evolving but stable"
 #define     P_VERMINOR  "1.3 = build out commands to support menus"
-#define     P_VERNUM    "1.3b"
-#define     P_VERTXT    "stripped duplicate code from menus and created shared routines"
+#define     P_VERNUM    "1.3c"
+#define     P_VERTXT    "extracted menu code into a separate file (all unit tests work)"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"

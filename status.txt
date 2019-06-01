@@ -1,0 +1,10 @@
+
+MAP UNDO (:status mundo)
+title-- cur tot t addr-- before--------------------- after----------------------
+mundo    21/ 25 S 2c8    [??0--··+10               ] [??0--··=2e10*15+6        ]
+
+KEY LOGGER (:status keys)
+title-- tot-- recent-----------------------------------------------------------
+keys    79    jl:st¿tatus·mundo¦jjjjjjjjjjjjkkkkkkkkkkkkkkk+10¦j=+x*10¿2¦k+15¦¥
+
+

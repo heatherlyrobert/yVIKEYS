@@ -9,16 +9,16 @@
 ·#  type   : > has sub-menu, ! tbd, · immediate execution, = will ask for more info
 ·#
 
-##
-##     FEVISOM
-##     H     D
-##     R     T       FE
-##     CXAGBLP      VISO
-##                 MDTPLB
-##     FEVI GC      GAXC
-##     SOMD AR       RH
-##     TPLB XH
-##
+##                                   e    t w e e m    i
+##     FEVISOM                        l   i e s l r   d
+##     H     D                         i  d i n e O  o
+##     R     T       FE                 F E V I S f M   
+##     CXAGBLP      VISO             raHs           Data 
+##                 MDTPLB            iRcs           Tool
+##     FEVI GC      GAXC                C e A l B L P
+##     SOMD AR       RH                o  X u a u a  a
+##     TPLB XH                        n   e d n f y   l
+##                                   f    c i G f a    e
 ##
 ##  18  FEVISOMDTPLBGAXCRH
 ##  21  FEVI SOMD TPLB GAXCRH
@@ -27,12 +27,24 @@
 ##  67  Fil Edi Vie Ins Sel fOr Mod Dat Too Pal Lay Buf laG Aud eXe Con scR sHo
 ##  84  File Edit View Inse Sele fOrm Modi Data Tool Pale Laya Buff lanG Audi eXec Conf scRi sHow
 
+##  44  File Edit View Inse Sele fOrm Modi Data Tool
+##      Pale Laya Buff lanG Audi eXec Conf scRi sHow
 
+##  39  File Edit View Inse Sele fOrm ···· ····
+##      Modi Data Tool Pale Laya Buff ···· ····
+##      lanG Audi eXec Conf scRi sHow ···· ····
 
 ·# macro to convert to a table entry
 ·#@  a  ,x··0··i   { '¥··2li',¥2li'¥··2li',¥2li'¥····2li',¥··lvwhd··32|P··20|i "¥··37|BEa"¥··wi, '¥··2li',¥2li'¥··2li',¥2li'¥··2li',¥··wi"¥··74|BEa"¥··wi, ¥··lDa0, 0, 0 },¥··0j··,y
 ·
 ·
+##    file = wrk new ope chd imp ren res ref ver pro sav sas sal exp qui
+##    file = work new· open chdr impo rena rest refr vers prot save saas saal expo quit
+##
+##      Work neW· Open Chdr iMpo reNa ···· ····
+##      Rest reFr Vers Prot Save sAas ···· ····
+##      Saal eXpo Quit ···· ···· ···· ···· ····
+##
 ·
 ·# one program instance, one workspace (never nothing)
 ##  do not require save all, close all, close, no browse/recent (interactive)
