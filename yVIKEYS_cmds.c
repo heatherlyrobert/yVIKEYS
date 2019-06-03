@@ -868,33 +868,33 @@ yVIKEYS_srch_config     (void *a_searcher, void *a_clearer)
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    /*---(header)-------------------------*/
-   DEBUG_PROG  yLOG_enter   (__FUNCTION__);
+   DEBUG_SRCH  yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
    --rce;  if (!STATUS_check_needs  (MODE_SEARCH)) {
-      DEBUG_PROG   yLOG_note    ("init must complete before config");
-      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_SRCH   yLOG_note    ("init must complete before config");
+      DEBUG_SRCH   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(update searcher)----------------*/
-   DEBUG_PROG   yLOG_point   ("searcher"  , a_searcher);
+   DEBUG_SRCH   yLOG_point   ("searcher"  , a_searcher);
    --rce;  if (a_searcher == NULL) {
-      DEBUG_PROG   yLOG_note    ("without searcher callback, search can not function");
-      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_SRCH   yLOG_note    ("without searcher callback, search can not function");
+      DEBUG_SRCH   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    s_searcher = a_searcher;
    /*---(update clearer)-----------------*/
-   DEBUG_PROG   yLOG_point   ("clearer"   , a_clearer);
+   DEBUG_SRCH   yLOG_point   ("clearer"   , a_clearer);
    --rce;  if (a_clearer == NULL) {
-      DEBUG_PROG   yLOG_note    ("without clearer callback, search can not function");
-      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_SRCH   yLOG_note    ("without clearer callback, search can not function");
+      DEBUG_SRCH   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    s_clearer  = a_clearer;
    /*---(update status)------------------*/
    STATUS_conf_set   (MODE_SEARCH, '1');
    /*---(complete)-----------------------*/
-   DEBUG_PROG   yLOG_exit    (__FUNCTION__);
+   DEBUG_SRCH   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -1365,61 +1365,61 @@ yVIKEYS_cmds_add     (char a_menu, char *a_name, char *a_abbr, char *a_terms, vo
    char        x_level     =    0;
    int         x_last      =    0;
    /*---(header)-------------------------*/
-   DEBUG_PROG   yLOG_enter   (__FUNCTION__);
+   DEBUG_CMDS   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
-   DEBUG_PROG   yLOG_note    ("before status check");
+   DEBUG_CMDS   yLOG_note    ("before status check");
    --rce;  if (!STATUS_operational (MODE_COMMAND)) {
-      DEBUG_PROG   yLOG_note    ("can not configure until operational");
-      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_CMDS   yLOG_note    ("can not configure until operational");
+      DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   DEBUG_PROG   yLOG_note    ("after status check");
+   DEBUG_CMDS   yLOG_note    ("after status check");
    /*---(defense)------------------------*/
    --rce;  if (a_menu == 0) {
-      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    sprintf (t, "µ%c", a_menu);
-   DEBUG_PROG   yLOG_info    ("t"         , t);
+   DEBUG_CMDS   yLOG_info    ("t"         , t);
    n  = yvikeys__menu_find (t, &x_level, &x_last);
-   DEBUG_PROG   yLOG_value   ("menu"      , n);
+   DEBUG_CMDS   yLOG_value   ("menu"      , n);
    --rce;  if (n < 0) {
-      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   DEBUG_PROG   yLOG_point   ("a_name"    , a_name);
+   DEBUG_CMDS   yLOG_point   ("a_name"    , a_name);
    --rce;  if (a_name  == NULL || strllen (a_name, LEN_LABEL) <  1) {
-      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   DEBUG_PROG   yLOG_info    ("a_name"    , a_name);
-   DEBUG_PROG   yLOG_point   ("a_abbr"    , a_abbr);
+   DEBUG_CMDS   yLOG_info    ("a_name"    , a_name);
+   DEBUG_CMDS   yLOG_point   ("a_abbr"    , a_abbr);
    --rce;  if (a_abbr  == NULL || strllen (a_abbr, LEN_LABEL) >  4) {
-      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   DEBUG_PROG   yLOG_point   ("a_terms"   , a_terms);
+   DEBUG_CMDS   yLOG_point   ("a_terms"   , a_terms);
    --rce;  if (a_terms == NULL || yvikeys_cmds__terms (a_terms, ACTION_FIND) < 0) {
-      DEBUG_PROG   yLOG_note    ("term specification not found in inventory");
-      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_CMDS   yLOG_note    ("term specification not found in inventory");
+      DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   DEBUG_PROG   yLOG_point   ("a_func"    , a_func);
+   DEBUG_CMDS   yLOG_point   ("a_func"    , a_func);
    --rce;  if (a_func  == NULL) {
-      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(check for dup)------------------*/
    x_dup = yvikeys_cmds__find (a_name);
-   DEBUG_PROG   yLOG_value   ("dup name"  , x_dup);
+   DEBUG_CMDS   yLOG_value   ("dup name"  , x_dup);
    --rce;  if (x_dup >= 0) {
-      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    x_dup = yvikeys_cmds__find (a_abbr);
-   DEBUG_PROG   yLOG_value   ("dup abbr"  , x_dup);
+   DEBUG_CMDS   yLOG_value   ("dup abbr"  , x_dup);
    --rce;  if (x_dup >= 0) {
-      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(add data)-----------------------*/
@@ -1436,9 +1436,9 @@ yVIKEYS_cmds_add     (char a_menu, char *a_name, char *a_abbr, char *a_terms, vo
    s_cmds [s_ncmd].f.v   = a_func;
    /*---(update count)-------------------*/
    ++s_ncmd;
-   DEBUG_PROG   yLOG_value   ("SUCCESS"   , s_ncmd);
+   DEBUG_CMDS   yLOG_value   ("SUCCESS"   , s_ncmd);
    /*---(complete)-----------------------*/
-   DEBUG_PROG   yLOG_exit    (__FUNCTION__);
+   DEBUG_CMDS   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 

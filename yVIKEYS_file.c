@@ -42,17 +42,17 @@
 /*============================---- METIS TASKS ---============================*/
 /*
  * metis  tn1#·  add menu control to version unit testing (units 01-05)
- * metis  tn1··  add menu control to file naming/renaming and change directory
- * metis  tn1··  add menu control to file writing, save as, etc
- * metis  tn1··  add menu control to file reading, updating, etc
+ * metis  tn1#·  add menu control to file naming/renaming and change directory
+ * metis  tn1#·  add menu control to file writing, save as, etc
+ * metis  tn1#·  add menu control to file reading, updating, etc
  * metis  dw2#·  build and test regex directory entry function and unit test
  * metis  dw2#·  update file open to use regex support function and unit test
  * metis  dw2#·  update change directory to expect regex (and take first)
  * metis  dw1#·  update file status bar to have current directory too
  * metis  dw2··  add file status to unit testing, like with other statuses
- * metis  dw8··  add protect option for file compression, meaning gzip
- * metis  dw8··  add protect option for file encryption, one standard
- * metis  dw8··  add protect option for file passwords
+ * metis  wl8··  add protect option for file compression, meaning gzip
+ * metis  wl8··  add protect option for file encryption, one standard
+ * metis  wl8··  add protect option for file passwords
  *
  *
  */
@@ -175,7 +175,7 @@ yvikeys__file_by_label  (char *a_label)
 char
 yvikeys_file_status          (char *a_list)
 {
-   snprintf (a_list, LEN_FULL, "file    %-45.45s %-25.25s", myVIKEYS.f_title, myVIKEYS.f_loc);
+   snprintf (a_list, LEN_FULL, "file    [%-43.43s] [%-23.23s]", myVIKEYS.f_title, myVIKEYS.f_loc);
    return 0;
 }
 
@@ -210,6 +210,7 @@ yvikeys_file_init               (void)
    strlcpy (myVIKEYS.s_vernum, "-.--"  , LEN_DESC );
    strlcpy (myVIKEYS.s_vertxt, "----"  , LEN_DESC );
    sprintf (myVIKEYS.f_loc   , "%s/", getcwd (NULL, 0));
+   if (strcmp (myVIKEYS.f_loc, "//") == 0)  strlcpy (myVIKEYS.f_loc, "/", LEN_LABEL);
    DEBUG_PROG   yLOG_info    ("f_loc"     , myVIKEYS.f_loc);
    /*---(yPARSE verbs)-------------------*/
    rc = yPARSE_handler ('·'          , "source"    , 0.1, "OSO---------", NULL          , yvikeys_file_prog_writer   , "------------" , ""                          , "source program versioning" );
@@ -293,7 +294,7 @@ yVIKEYS_whoami          (char *a_prog, char *a_ext, char *a_vernum, char *a_vert
    rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "bump"        , ""    , ""     , yvikeys_file_bump_inc        , "increment the version number by a INC version"               );
    rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "write"       , "w"   , ""     , yvikeys_file_writer          , "write/update the current file"                               );
    rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "writeas"     , "was" , "s"    , yvikeys_file_writeas         , "write/update the current file"                               );
-   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "read"        , "e"   , ""     , yvikeys_file_reader          , "clear existing contents and open/read new file"              );
+   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "read"        , ""    , ""     , yvikeys_file_reader          , "clear existing contents and open/read new file"              );
    rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "edit"        , "e"   , ""     , yvikeys_file_reader          , "clear existing contents and open/read new file"              );
    /*---(menu entries)-------------------*/
    yVIKEYS_menu_add ("µfvc", "ctrl"      , ":control¦");
@@ -917,12 +918,6 @@ yvikeys__file_namer     (char a_type, char *a_name)
    p++;
    x_len = strllen (p, LEN_RECD);
    DEBUG_HIST   yLOG_value   ("x_len"     , x_len);
-   --rce;  for (i = 0; i < x_len; ++i) {
-      if (strchr (x_valid, p [i]) != NULL)   continue;
-      DEBUG_INPT   yLOG_note    ("bad character in file name");
-      DEBUG_INPT   yLOG_exit    (__FUNCTION__);
-      return rce;
-   }
    /*---(check for regex)----------------*/
    --rce;  if (a_type == 'r' && x_len > 0) {
       if (x_len <= 0) {
@@ -936,11 +931,22 @@ yvikeys__file_namer     (char a_type, char *a_name)
          DEBUG_INPT   yLOG_exit    (__FUNCTION__);
          return rce;
       }
+      if (rc >  1) {
+         DEBUG_INPT   yLOG_note    ("too many matches found");
+         DEBUG_INPT   yLOG_exit    (__FUNCTION__);
+         return rce;
+      }
       rc = yvikeys__file_stripext (t);
       strlcpy (myVIKEYS.f_name , t, LEN_RECD);
    }
    /*---(check for fixed name)-----------*/
    else if (x_len > 0) {
+      for (i = 0; i < x_len; ++i) {
+         if (strchr (x_valid, p [i]) != NULL)   continue;
+         DEBUG_INPT   yLOG_note    ("bad character in file name");
+         DEBUG_INPT   yLOG_exit    (__FUNCTION__);
+         return rce;
+      }
       strlcpy (myVIKEYS.f_name , p         , LEN_RECD);
    }
    /*---(check for empty, again)---------*/
