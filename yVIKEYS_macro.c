@@ -4,6 +4,16 @@
 #include    "yVIKEYS_priv.h"
 
 
+/*===[[ METIS ]]==============================================================*/
+/*
+ * metis  tn1··  @@ is not working on last macro executed
+ * metis  tn2··  repeat value on macros appears to lock up the application
+ * metis  dw4··  create a repeat stack controlled by parens in macros (maybe special parens)
+ *
+ *
+ *
+ */
+
 
 #define     LEN_MACRO        2000
 /*---(keyboard macro)-------*/
@@ -76,7 +86,7 @@ yvikeys_macro_init      (void)
    /*---(macro abbrev list)--------------*/
    strlcpy (S_MACRO_LIST, ""            , S_MACRO_MAX);
    strlcat (S_MACRO_LIST, gvikeys_lower , S_MACRO_MAX);
-   strlcat (S_MACRO_LIST, gvikeys_upper , S_MACRO_MAX);
+   /*> strlcat (S_MACRO_LIST, gvikeys_upper , S_MACRO_MAX);                           <*/
    strlcat (S_MACRO_LIST, gvikeys_number, S_MACRO_MAX);
    strlcat (S_MACRO_LIST, gvikeys_greek , S_MACRO_MAX);
    DEBUG_PROG   yLOG_info    ("LIST"      , S_MACRO_LIST);
@@ -92,6 +102,7 @@ yvikeys_macro_init      (void)
    /*---(commands)-----------------------*/
    DEBUG_PROG   yLOG_note    ("add commands");
    yVIKEYS_cmds_add (YVIKEYS_M_CONFIG, "macro"       , ""    , "a"    , yvikeys_macro__direct, "direct definition of a keyboard macro"                       );
+   yVIKEYS_view_option (YVIKEYS_STATUS, "macro"  , yvikeys_macro_status , "details of macro playback"                );
    /*---(read/write)---------------------*/
    rc = yPARSE_handler (SMOD_MACRO   , "macro"     , 7.3, "cO----------", yvikeys_macro_reader, yvikeys_macro_writer_all, "------------" , "a,keys", "keyboard macros"           );
    /*---(complete)-----------------------*/
@@ -185,7 +196,7 @@ yvikeys_macro__purge    (char a_scope)
    DEBUG_SCRP   yLOG_value   ("s_nmacro"  , s_nmacro);
    for (i = 0; i < s_nmacro; ++i) {
       x_abbr = S_MACRO_LIST [i];
-      if (a_scope == YVIKEYS_UPPER  && strchr (gvikeys_upper , x_abbr) == NULL)  continue;
+      /*> if (a_scope == YVIKEYS_UPPER  && strc(gvikeys_upper , x_abbr) == NULL)  continue;   <*/
       if (a_scope == YVIKEYS_LOWER  && strchr (gvikeys_lower , x_abbr) == NULL)  continue;
       if (a_scope == YVIKEYS_NUMBER && strchr (gvikeys_number, x_abbr) == NULL)  continue;
       if (a_scope == YVIKEYS_GREEK  && strchr (gvikeys_greek , x_abbr) == NULL)  continue;
@@ -248,6 +259,21 @@ yvikeys_macro__index    (char a_abbr)
 }
 
 char         /*-> fully reset macro mode -------------[ leaf   [gz.532.011.00]*/ /*-[00.0000.183.!]-*/ /*-[--.---.---.--]-*/
+yvikeys_macro_restart   (void)
+{
+   /*---(header)-------------------------*/
+   DEBUG_SCRP   yLOG_senter  (__FUNCTION__);
+   /*---(macro values)-------------------*/
+   DEBUG_SCRP   yLOG_snote   ("reset values");
+   s_macro_pos    =   0;
+   /*---(update repeat)---------------*/
+   if (s_macro_repeat > 0)  --s_macro_repeat;
+   /*---(complete)-----------------------*/
+   DEBUG_SCRP   yLOG_sexit   (__FUNCTION__);
+   return 0;
+}
+
+char         /*-> fully reset macro mode -------------[ leaf   [gz.532.011.00]*/ /*-[00.0000.183.!]-*/ /*-[--.---.---.--]-*/
 yvikeys_macro_reset     (void)
 {
    /*---(locals)-----------+-----+-----+-*/
@@ -266,6 +292,7 @@ yvikeys_macro_reset     (void)
    DEBUG_SCRP   yLOG_snote   ("null macro keys");
    for (i = 0; i < LEN_MACRO; ++i)  s_macro_keys [i] = G_KEY_NULL;
    s_macro_char   =   0;
+   DEBUG_SCRP   yLOG_schar   (s_macro_name);
    /*---(complete)-----------------------*/
    DEBUG_SCRP   yLOG_sexit   (__FUNCTION__);
    return 0;
@@ -658,24 +685,24 @@ yvikeys_macro_exebeg    (char a_name)
    }
    /*---(check macro name)------------*/
    DEBUG_SCRP   yLOG_char    ("a_name"    , a_name);
-   if (yvikeys_macro__valid (a_name) <  0)  {
+   if (yvikeys_macro__valid (tolower (a_name)) <  0)  {
       s_macro_name = '-';
       DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(normal)----------------------*/
-   /*> if (a_name == tolower (a_name)) {                                              <*/
-   DEBUG_SCRP   yLOG_note    ("normal execution");
-   if (s_macro_delay    != '0'       )  SET_MACRO_DELAY;
-   IF_MACRO_OFF                         SET_MACRO_RUN;
-   if (a_name != '@')  s_macro_name = a_name;
-   /*> }                                                                              <*/
+   if (a_name == tolower (a_name)) {
+      DEBUG_SCRP   yLOG_note    ("normal execution");
+      if (s_macro_delay    != '0'       )  SET_MACRO_DELAY;
+      IF_MACRO_OFF                         SET_MACRO_RUN;
+      if (a_name != '@')  s_macro_name = a_name;
+   }
    /*---(debugging/playback)----------*/
-   /*> else {                                                                         <* 
-    *>    DEBUG_SCRP   yLOG_note    ("debug execution");                              <* 
-    *>    SET_MACRO_PLAYBACK;                                                         <* 
-    *>    s_macro_name     = tolower (a_name);                                        <* 
-    *> }                                                                              <*/
+   else {
+      DEBUG_SCRP   yLOG_note    ("debug execution");
+      SET_MACRO_PLAYBACK;
+      s_macro_name     = tolower (a_name);
+   }
    /*---(macro name)------------------*/
    DEBUG_SCRP   yLOG_char    ("macro_name", s_macro_name);
    /*---(get macro)-------------------*/
@@ -712,12 +739,18 @@ yvikeys_macro_exekey    (void)
    IF_MACRO_OFF   return 0;
    DEBUG_SCRP   yLOG_enter   (__FUNCTION__);
    DEBUG_SCRP   yLOG_value   ("macro_pos" , s_macro_pos);
-   --rce;  if (s_macro_pos >= s_macro_len) {
-      yvikeys_macro_reset ();
-      yvikeys_loop_normal ();
-      DEBUG_SCRP   yLOG_note    ("past the end");
-      DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
+   DEBUG_SCRP   yLOG_value   ("macro_cnt" , yvikeys_macro_count ());
+   --rce;  if (s_macro_pos >= s_macro_len - 1) {
+      if (yvikeys_macro_count ()) {
+         DEBUG_SCRP   yLOG_note    ("end of macro, repeats left, so restart");
+         yvikeys_macro_restart ();
+      } else {
+         DEBUG_SCRP   yLOG_note    ("end of macro, no repeats, so reset");
+         yvikeys_macro_reset ();
+         yvikeys_loop_normal ();
+         DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
+         return rce;
+      }
    }
    x_ch = s_macro_keys [s_macro_pos];
    DEBUG_SCRP   yLOG_value   ("x_ch"      , x_ch);
@@ -727,11 +760,16 @@ yvikeys_macro_exekey    (void)
    if (x_ch < 0) {
       x_ch = yvikeys_macro__exectl (x_ch);
    }
-   if (x_ch == NULL) {
-      DEBUG_SCRP   yLOG_note    ("end of macro");
-      yvikeys_macro_reset ();
-      yvikeys_loop_normal ();
-   }
+   /*> if (x_ch == NULL) {                                                            <* 
+    *>    if (yvikeys_macro_count ()) {                                               <* 
+    *>       DEBUG_SCRP   yLOG_note    ("past the end, repeat so restart");           <* 
+    *>       yvikeys_macro_restart ();                                                <* 
+    *>    } else {                                                                    <* 
+    *>    DEBUG_SCRP   yLOG_note    ("hit null, no repeat so reset");                 <* 
+    *>    yvikeys_macro_reset ();                                                     <* 
+    *>    yvikeys_loop_normal ();                                                     <* 
+    *> }                                                                              <*/
+   /*---(complete)--------------------*/
    DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
    return x_ch;
 }
@@ -881,14 +919,17 @@ yvikeys_macro_smode     (char a_major, char a_minor)
    --rce;  if (a_major == '@') {
       DEBUG_USER   yLOG_note    ("macro execution");
       /*---(playback speed)--------------*/
-      if (a_minor >= '0' && a_minor <= '9') {
-         yvikeys_macro__delay (a_minor);
-         DEBUG_USER   yLOG_char    ("delay"     , a_minor);
-         DEBUG_USER   yLOG_exit    (__FUNCTION__);
-         return a_major;
-      }
+      /*> if (a_minor >= '0' && a_minor <= '9') {                                     <* 
+       *>    yvikeys_macro__delay (a_minor);                                          <* 
+       *>    DEBUG_USER   yLOG_char    ("delay"     , a_minor);                       <* 
+       *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                <* 
+       *>    return a_major;                                                          <* 
+       *> }                                                                           <*/
       /*---(check macro name)------------*/
-      if (yvikeys_macro__valid (a_minor) < 0)  {
+      if (a_minor == '@') {
+         DEBUG_USER   yLOG_note    ("rerun previously used macro");
+         a_minor = s_macro_name;
+      } else if (yvikeys_macro__valid (tolower (a_minor)) < 0)  {
          MODE_exit  ();
          DEBUG_USER   yLOG_note    ("bad name");
          DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
@@ -897,6 +938,7 @@ yvikeys_macro_smode     (char a_major, char a_minor)
       /*---(execute)---------------------*/
       MODE_exit  ();
       s_macro_repeat = REPEAT_count () + 1;
+      REPEAT_macro ();
       DEBUG_USER   yLOG_value   ("repeat_m"  , s_macro_repeat);
       yvikeys_macro_exebeg  (a_minor);
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
@@ -913,6 +955,13 @@ yvikeys_macro_smode     (char a_major, char a_minor)
 
 char yvikeys_macro_modeget   (void)         { return s_macro_mode; }
 char yvikeys_macro_modeset   (char a_mode) { s_macro_mode = a_mode; return 0; }
+
+char
+yvikeys_macro_status         (char *a_list)
+{
+   snprintf (a_list, LEN_FULL, "macro   %c %2d %c %c %3d %3d [%-53.53s]", s_macro_name, s_macro_repeat, s_macro_mode, s_macro_delay, s_macro_pos, s_macro_len, s_macro_keys);
+   return 0;
+}
 
 
 

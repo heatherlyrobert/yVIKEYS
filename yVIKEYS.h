@@ -279,7 +279,7 @@ char        yVIKEYS_map_config      (char a_coord, void *a_mapper, void *a_locat
 char        yVIKEYS_map_refresh     (void);
 char        yVIKEYS_root            (int b, int x, int y, int z);
 char        yVIKEYS_visual          (int b, int x, int y, int z);
-char        yVIKEYS_bufs_config     (void *a_switcher);
+char        yVIKEYS_bufs_config     (void *a_switcher, void *a_browser);
 
 char        yVIKEYS_visu_coords     (int *b, int *xb, int *xe, int *yb, int *ye, int *z);
 char        yVIKEYS_first           (int *a_b, int *a_x, int *a_y, int *a_z);

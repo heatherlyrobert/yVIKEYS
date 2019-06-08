@@ -383,9 +383,14 @@ simple playback, and basic debugging.  all interactive applications need
 macros built early in development.
 .SS ---full capabilities----------------------------------------------
 
-.B named macros (86)
+.B limitations
+   -- macros can call other macros
+   -- can not be recursive, .i.e., call themselves
+   -- can not be circular, i.e., be called while already running
+
+.B named macros (36)
    a-z        lower case (26) are common, local use
-   A-Z        upper case (26) are common, but more premenant
+   A-Z        same macros as lower case, only signify debug mode
    0-9        numeric (10) are typically temporary use in scripts
    è-ÿ        greek (24) are special internal, macro usage only
 
@@ -589,80 +594,73 @@ port from vimperator.
 .SH BUFFERS (AND PANELS) MICRO-MODE
 .SS ---basics---------------------------------------------------------
  ,a         switch to the main editing panel
- ,0         switch file labeled 0 into the current panel
-
+ ,3         show the fourth file in the current panel
 .SS ---overview-------------------------------------------------------
 .B definition (D).  
-buffers and panels are data files/tabs and screen regions respectively.
-this sub-mode allows users to move quickly to a specific screen panel and
-choose the data to display/edit there.
+buffers and panels are datasets and screen regions respectively.  this is
+about rapid movement and perspective changes.
 
-.B value (V).   
-easily, quickly, and clearly moving between views, panels, and data sets
-is critical for efficiency, advanced editing, clever data manipulation,
-and complex user interaction.
+.B situation (S).  
+changing editing areas and their contents is usually done with a mouse for
+pointing and drop-down menus for selection.
 
 .B complication (C).  
-most users blunder around using the mouse and then switch to the keyboard
-to do real work.  switching data sets, positions, and panels requires slow
-acting mouse and menu actions.
+this feature is normally cumbersome and not easily scriptable, therefore
+much less useful to an advanced user.
 
 .B answer (A).  
-i will standardize on my simple vim-ide keyboard interface and make it universal
-to all my applications while adding a greater range of file access and more
-potential panel areas.
+create a micro mode that manages rapid buffer changes, and marry that with
+commands and menus for less frequent activities.
 
-.B top five requirements (5) to get it right
-   -- must be very quick and simple to justify usage
-   -- easy user interface that can be universally used
-   -- must allow for a large number of data sets
-   -- needs to accomodate nearly all screen interface areas
-   -- automatically updating to stay current
 .SS ---full capabilities------------------------------------------------------
 
 .B invocation
-   ,          enters buffer sub-mode
-   ¥          exits sub-mode early and forgets action
-   µb         buffers menu
+   ,          enters buffer micro-mode (from map mode)
+   ¥          exits micro-mode early and forgets action
+   µb         call up buffers menu
 
 .B standard identifiers
-   0-9A-Z     thirty-six (36) standard tabs and/or buffers
-   ® and ¯    summary and system buffers for some applications
+   0-9A-Z     thirty-six (36) standard buffers
+   ® ¯        summary and system buffers for some applications
+   è-ÿ ° ¡ ¢  can expand later to greek and special chars
    a-z        standard panel/work-area identifiers
    [ < > ]    first, prev, next, and last buffer
-   ,          last used
+   ,          last used buffer
 
 .B switching...
    ,a         switch to primary editing window/panel
    ,0         view the first buffer in current window/panel
    ,]         switch to the last legal buffer/tab
    ,,         return to previous buffer
+   ,/´´´¦     search by buffer name
 
 .B information...
-   ,?         update and show buffer list
-   ,!         buffer status line
+   ,_         display buffer content in status line
+   ,?         update and show buffer overview and list
 
 .B standard windows/panels...
    a          main editing window
-   b          secondary editing window
-   c          context window to right
-   d          debug window
+   b          buffer listing area
    g          global find and search
    p          progress bar/timeline
    q          compilation and build
    t          tag window to left
-   v          execution/visualization
-   :          command line/window
-   /          normal search line/window
 
 .B major menu items
    µb         buffer menu
    µb_        change status line to buffer option
-   µbw        change the current buffer name
+   µbw·´´´¦   change the current buffer name
+   µbz·´´´¦   update current buffer size
    µbg¢       goto first, prev, next, last, specific buffer
+   µbd¢       update col, row, and layer defaults
 
 .B major commands
-   :btitle <new>¦  change the current buffer's title
+   :btitle·´´´¦    rename current buffer
+   :bmax·Ë¦        update max number of buffers
+   :bsize·´´´¦     set size of current buffer
+   :defwide·Ë¦     default col width
+   :deftall·Ë¦     default row height
+   :defdeep·Ë¦     default layer thickness
 
 
 

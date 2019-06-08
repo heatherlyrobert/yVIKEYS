@@ -630,6 +630,7 @@ yVIKEYS_main_handle     (uchar a_key)
    }
    /*---(main loop)----------------------*/
    while (1) {
+      DEBUG_LOOP   yLOG_char    ("MODE bef"  , MODE_curr ());
       /*---(handle keystroke)------------*/
       switch (MODE_curr ()) {
       case MODE_GOD      : rc = GOD_mode              (x_major , x_key);  break;
@@ -658,17 +659,21 @@ yVIKEYS_main_handle     (uchar a_key)
       default            : rc = -1;  x_nomode = 'y';                      break;
       }
       DEBUG_USER   yLOG_value   ("rc"        , rc);
+      DEBUG_LOOP   yLOG_char    ("MODE aft"  , MODE_curr ());
       /*---(translate unprintable)-------*/
       x_repeat = REPEAT_count ();
+      DEBUG_USER   yLOG_value   ("x_repeat"  , x_repeat);
       /*> snprintf (x_keys,   9, "%2d %c%c"  , x_repeat, x_major, chrvisible (x_key));   <*/
       snprintf (x_keys,   9, "%2x %c%c"  , x_key, x_major, chrvisible (x_key));
       /*---(loop repeats)----------------*/
       if (rc == 0 && x_repeat > 0 && MODE_curr () != UMOD_REPEAT) {
+         DEBUG_USER   yLOG_note    ("repeating");
          REPEAT_decrement ();
          continue;
       }
       /*---(loop repeats)----------------*/
       if (rc <= 0 && MODE_curr () != UMOD_REPEAT) {
+         DEBUG_USER   yLOG_note    ("complete repeat");
          REPEAT_done ();
       }
       break;
@@ -715,17 +720,34 @@ yVIKEYS_main_string  (uchar *a_keys)
    for (i = 0; i < x_len; ++i) {
       DEBUG_LOOP   yLOG_value   ("LOOP"      , i);
       /*---(get next char)---------------*/
-      DEBUG_LOOP   yLOG_value   ("a_keys[i]" , a_keys[i]);
-      DEBUG_LOOP   yLOG_char    ("a_keys[i]" , chrvisible (a_keys[i]));
-      x_ch = chrworking (a_keys [i]);
-      DEBUG_LOOP   yLOG_value   ("x_ch"      , x_ch);
-      /*---(handle input)----------------*/
-      x_ch = yVIKEYS_main_input (RUN_TEST, x_ch);
-      DEBUG_LOOP   yLOG_value   ("x_ch"      , x_ch);
-      if (x_ch == -1) continue;
+      IF_MACRO_NOT_PLAYING {
+         DEBUG_LOOP   yLOG_value   ("a_keys[i]" , a_keys[i]);
+         DEBUG_LOOP   yLOG_char    ("a_keys[i]" , chrvisible (a_keys[i]));
+         x_ch = chrworking (a_keys [i]);
+         DEBUG_LOOP   yLOG_value   ("x_ch"      , x_ch);
+         /*---(handle input)----------------*/
+         x_ch = yVIKEYS_main_input (RUN_TEST, x_ch);
+         DEBUG_LOOP   yLOG_value   ("x_ch"      , x_ch);
+         if (x_ch == -1) continue;
+      } else {
+         x_ch = yVIKEYS_main_input (RUN_TEST, 0);
+         DEBUG_LOOP   yLOG_value   ("x_ch"      , x_ch);
+      }
       /*---(handle keystroke)------------*/
       rc = yVIKEYS_main_handle (x_ch);
       DEBUG_LOOP   yLOG_value   ("rc"        , rc);
+      /*---(check for macro)-------------*/
+      DEBUG_LOOP   yLOG_char    ("macro mode", yvikeys_macro_modeget ());
+      DEBUG_LOOP   yLOG_value   ("macro cnt" , yvikeys_macro_count ());
+      IF_MACRO_MOVING  {
+         DEBUG_LOOP   yLOG_note    ("macro running and used step, back up loop counter");
+         --i;
+      } else {
+         if (yvikeys_macro_count ()) {
+            DEBUG_LOOP   yLOG_note    ("macro repeating and used step, back up loop counter");
+            --i;
+         }
+      }
       /*---(done)------------------------*/
    }
    DEBUG_LOOP   yLOG_note    ("main loop done");
@@ -824,7 +846,7 @@ yVIKEYS_main            (char *a_delay, char *a_update, void *a_altinput ())
          yVIKEYS_view_all (0.0);
       }
       /*---(sleeping)--------------------*/
-      yvikeys_loop_sleep (x_key, x_draw);
+      IF_MACRO_NOT_MOVING   yvikeys_loop_sleep (x_key, x_draw);
       /*---(done)------------------------*/
    }
    DEBUG_TOPS  yLOG_break   ();

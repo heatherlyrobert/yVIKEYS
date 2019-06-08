@@ -10,6 +10,7 @@ static char    (*s_locator)   (char *a_label, int *a_buf, int *a_x, int *a_y, in
 static char*   (*s_addresser) (char *a_label, int  a_buf, int  a_x, int  a_y, int  a_z);
 
 static char*   (*s_switcher ) (char  a_label);
+static char*   (*s_browser  ) (char *a_regex);
 
 
 
@@ -2314,6 +2315,7 @@ yvikeys_bufs_init       (void)
    /*---(clear callbacks)----------------*/
    DEBUG_PROG   yLOG_note    ("clear callbacks");
    s_switcher = NULL;
+   s_browser  = NULL;
    /*---(update status)------------------*/
    STATUS_init_set   (SMOD_BUFFER);
    /*---(complete)-----------------------*/
@@ -2322,7 +2324,7 @@ yvikeys_bufs_init       (void)
 }
 
 char
-yVIKEYS_bufs_config     (void *a_switcher)
+yVIKEYS_bufs_config     (void *a_switcher, void *a_browser)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -2336,6 +2338,7 @@ yVIKEYS_bufs_config     (void *a_switcher)
    }
    /*---(globals)------------------------*/
    s_switcher   = a_switcher;
+   s_browser    = a_browser;
    /*---(update status)------------------*/
    STATUS_conf_set   (SMOD_BUFFER, '1');
    /*---(complete)-----------------------*/
@@ -2353,6 +2356,8 @@ yvikeys_bufs_umode  (uchar a_major, uchar a_minor)
    /*---(locals)-----------+-----------+-*/
    char        rce         = -10;
    char        rc          =   0;
+   char        t           [LEN_LABEL];
+   static char x_regex     [LEN_LABEL];
    /*---(header)-------------------------*/
    DEBUG_USER   yLOG_enter   (__FUNCTION__);
    DEBUG_USER   yLOG_char    ("a_major"   , a_major);
@@ -2370,11 +2375,6 @@ yvikeys_bufs_umode  (uchar a_major, uchar a_minor)
       DEBUG_USER   yLOG_note    ("force enter buffer mode");
       MODE_enter  (SMOD_BUFFER  );
    }
-   --rce;  if (a_major != ',') {
-      DEBUG_USER   yLOG_note    ("a_major is wrong)");
-      DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
    --rce;  if (MODE_not (SMOD_BUFFER)) {
       DEBUG_USER   yLOG_note    ("not in buffer mode");
       DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
@@ -2384,9 +2384,25 @@ yvikeys_bufs_umode  (uchar a_major, uchar a_minor)
    if (a_minor == G_KEY_ESCAPE) {
       DEBUG_USER   yLOG_note    ("escape, choose nothing");
       /*> my.menu = ' ';                                                              <*/
+      strlcpy (x_regex, "", LEN_LABEL);
       MODE_exit ();
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return 0;
+   }
+   /*---(search mode)--------------------*/
+   if (a_major == '/') {
+      if (a_minor == G_KEY_RETURN) {
+         DEBUG_USER   yLOG_note    ("conduct regex search");
+         if (s_browser != NULL)  s_browser (x_regex);
+         MODE_exit ();
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         return 0;
+      }
+      DEBUG_USER   yLOG_note    ("continue regex search mode");
+      sprintf (t, "%c", a_minor);
+      strlcat (x_regex, t, LEN_LABEL);
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return a_major;
    }
    /*---(check for control keys)---------*/
    --rce;
@@ -2405,6 +2421,11 @@ yvikeys_bufs_umode  (uchar a_major, uchar a_minor)
       DEBUG_USER   yLOG_note    ("absolute mode");
       rc  = s_switcher (a_minor);
       MODE_exit  ();
+   } else if (a_minor == '/') {
+      DEBUG_USER   yLOG_note    ("start regex search mode");
+      strlcpy (x_regex, "", LEN_LABEL);
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return a_minor;
    } else {
       MODE_exit  ();
       DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);

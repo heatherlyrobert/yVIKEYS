@@ -27,8 +27,8 @@
 
 #define     P_VERMAJOR  "1.X = working for everyday use, features still evolving but stable"
 #define     P_VERMINOR  "1.3 = build out commands to support menus"
-#define     P_VERNUM    "1.3f"
-#define     P_VERTXT    "updates to buffer movements, browsing, and menus"
+#define     P_VERNUM    "1.3g"
+#define     P_VERTXT    "macros working again, including basic repeating.  added more tests"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -176,6 +176,7 @@ tSHARED     myVIKEYS;
 #define     IF_MACRO_DELAY       if (yvikeys_macro_modeget () == MACRO_DELAY    ) 
 #define     IF_MACRO_PLAYBACK    if (yvikeys_macro_modeget () == MACRO_PLAYBACK ) 
 #define     IF_MACRO_MOVING      if (yvikeys_macro_modeget () == MACRO_RUN      || yvikeys_macro_modeget () == MACRO_DELAY   ) 
+#define     IF_MACRO_NOT_MOVING  if (yvikeys_macro_modeget () != MACRO_RUN      && yvikeys_macro_modeget () != MACRO_DELAY   ) 
 #define     IF_MACRO_NOT_PLAYING if (yvikeys_macro_modeget () == MACRO_OFF      || yvikeys_macro_modeget () == MACRO_RECORD  )
 #define     IF_MACRO_PLAYING     if (yvikeys_macro_modeget () != MACRO_OFF      && yvikeys_macro_modeget () != MACRO_RECORD  )
 #define     IF_MACRO_RECORDING   if (yvikeys_macro_modeget () == MACRO_RECORD   ) 
@@ -287,6 +288,7 @@ char*       MODE_message            (void);
 char*       MODE__unit              (char *a_question);
 /*---(repeat)---------------*/
 char        REPEAT_reset            (void);
+char        REPEAT_macro            (void);
 char        REPEAT_init             (void);
 char        REPEAT_done             (void);
 char        REPEAT_umode            (uchar a_major, uchar a_minor);
@@ -473,6 +475,7 @@ char        yvikeys_macro_zero      (void);
 char        yvikeys_macro_count     (void);
 char        yvikeys_macro__clear    (char a_macro);
 char        yvikeys_macro__purge    (char a_scope);
+char        yvikeys_macro_restart   (void);
 char        yvikeys_macro_reset     (void);
 char        yvikeys_macro__valid    (char a_abbr);
 int         yvikeys_macro__index    (char a_abbr);
@@ -495,6 +498,7 @@ char        yvikeys_macro_exewait   (void);
 char        yvikeys_macro_exekey    (void);
 char        yvikeys_macro_exeplay   (char a_key);
 char        yvikeys_macro_smode     (char a_major, char a_minor);
+char        yvikeys_macro_status    (char *a_list);
 char        yvikeys_macro_modeget   ();
 char        yvikeys_macro_modeset   (char a_mode);
 /*---(status)---------------*/

@@ -435,7 +435,7 @@ yvikeys_view_init        (void)
    for (i = 0; i < LEN_LABEL; ++i)  s_win.r_icons [i] = -1;
    s_win.r_nicon = 0;
    /*---(complete)-----------------------*/
-   DEBUG_PROG   yLOG_sexit   (__FUNCTION__);
+   DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 

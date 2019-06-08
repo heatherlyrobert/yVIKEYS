@@ -912,6 +912,15 @@ REPEAT_reset            (void)
 }
 
 char
+REPEAT_macro            (void)
+{
+   myVIKEYS.repeating = '-';
+   s_request      = 0;
+   s_repeat       = 0;
+   return 0;
+}
+
+char
 REPEAT_init             (void)
 {
    /*---(locals)-----------+-----------+-*/

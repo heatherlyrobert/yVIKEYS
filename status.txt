@@ -23,3 +23,7 @@ BUFFER (:status buffer)
 title-- n name-------- size------ cnt t 12345678 12345678 ww hh
 buffer  0 tab_00       26x100       - y 0a1      0z100     8  1
 
+MACRO PLAYBACK (:status macro)
+title-- n re s d pos len keys---------------------------------------------------
+macro   ë  0 P 5  -1  16 [lljjkkhhlljjkkhh]
+macro   ë  0 P 5  -1  16 [123456789-123456789-123456789-123456789-123456789-1234]
