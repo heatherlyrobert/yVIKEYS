@@ -14,3 +14,12 @@ mode    1   - - - - - - - - - -
 FILE (:status file)
 title-- ---file-------------------------------------- ---directory-------------
 file    /root/solar_system.gyges                      /home/member
+
+VERSION (:status version)
+title-- c number text----------------------------------------------------------
+version y [2.5a] [this is a minor update with better table formatting         ]
+
+BUFFER (:status buffer)
+title-- n name-------- size------ cnt t 12345678 12345678 ww hh
+buffer  0 tab_00       26x100       - y 0a1      0z100     8  1
+

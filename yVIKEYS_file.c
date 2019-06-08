@@ -49,10 +49,14 @@
  * metis  dw2#·  update file open to use regex support function and unit test
  * metis  dw2#·  update change directory to expect regex (and take first)
  * metis  dw1#·  update file status bar to have current directory too
- * metis  dw2··  add file status to unit testing, like with other statuses
+ * metis  dw2#·  add file status to unit testing, like with other statuses
+ * metis  dw2#·  add unit testing for file...browse option
  * metis  wl8··  add protect option for file compression, meaning gzip
  * metis  wl8··  add protect option for file encryption, one standard
  * metis  wl8··  add protect option for file passwords
+ * metis  ww1··  file read needs undo history for merges (likely clean opens)
+ * metis  dn1··  unit testing for file new to make sure really fresh
+ * metis  dn1#·  unit testing for file browse to test regex link
  *
  *
  */
@@ -285,13 +289,13 @@ yVIKEYS_whoami          (char *a_prog, char *a_ext, char *a_vernum, char *a_vert
    rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "cd"          , ""    , "a"    , yvikeys_file_loc             , "set the default directory for file reading and writing"      );
    rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "file"        , ""    , "a"    , yvikeys_file_name            , "rename a file for reading and writing"                       );
    rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "browse"      , ""    , "a"    , yvikeys_file_browse          , "find existing file name for reading and writing"             );
-   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "control"     , ""    , ""     , yvikeys_file_control         , "turn version control ON for current file"                    );
-   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "nocontrol"   , ""    , ""     , yvikeys_file_nocontrol       , "turn version control OFF for current file"                   );
-   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "version"     , ""    , "s"    , yvikeys_file_version         , "set a specific file version ([0-9A-Z].[0-9A-Z][a-z])"        );
-   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "vertxt"      , ""    , "a"    , yvikeys_file_vertxt          , "set a file version description"                              );
-   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "major"       , ""    , ""     , yvikeys_file_bump_major      , "increment the version number by a MAJOR version"             );
-   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "minor"       , ""    , ""     , yvikeys_file_bump_minor      , "increment the version number by a MINOR version"             );
-   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "bump"        , ""    , ""     , yvikeys_file_bump_inc        , "increment the version number by a INC version"               );
+   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "control"     , ""    , ""     , yvikeys_vers_control         , "turn version control ON for current file"                    );
+   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "nocontrol"   , ""    , ""     , yvikeys_vers_nocontrol       , "turn version control OFF for current file"                   );
+   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "version"     , ""    , "s"    , yvikeys_vers_version         , "set a specific file version ([0-9A-Z].[0-9A-Z][a-z])"        );
+   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "vertxt"      , ""    , "a"    , yvikeys_vers_vertxt          , "set a file version description"                              );
+   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "major"       , ""    , ""     , yvikeys_vers_bump_major      , "increment the version number by a MAJOR version"             );
+   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "minor"       , ""    , ""     , yvikeys_vers_bump_minor      , "increment the version number by a MINOR version"             );
+   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "bump"        , ""    , ""     , yvikeys_vers_bump_inc        , "increment the version number by a INC version"               );
    rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "write"       , "w"   , ""     , yvikeys_file_writer          , "write/update the current file"                               );
    rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "writeas"     , "was" , "s"    , yvikeys_file_writeas         , "write/update the current file"                               );
    rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "read"        , ""    , ""     , yvikeys_file_reader          , "clear existing contents and open/read new file"              );
@@ -304,6 +308,9 @@ yVIKEYS_whoami          (char *a_prog, char *a_ext, char *a_vernum, char *a_vert
    yVIKEYS_menu_add ("µfv3", "step"      , ":bump¦");
    yVIKEYS_menu_add ("µfvt", "vertxt"    , ":vertxt·");
    yVIKEYS_menu_add ("µfvm", "manual"    , ":version·");
+   /*---(status options)-----------------*/
+   rc = yVIKEYS_view_option (YVIKEYS_STATUS, "file"   , yvikeys_file_status  , "current fully qualified file name and default location");
+   rc = yVIKEYS_view_option (YVIKEYS_STATUS, "version", yvikeys_vers_status  , "current file verion control status, number and text");
    /*---(default file name)--------------*/
    yvikeys_file_name (NULL);
    /*---(complete)-----------------------*/
@@ -357,12 +364,12 @@ yVIKEYS_file_add        (char a_abbr, void *a_writer, void *a_reader)
 /*====================------------------------------------====================*/
 static void  o___VERSIONING______o () { return; }
 
-char yvikeys_file_bump_major    (void)  { return yvikeys_file_bump ("M"); }
-char yvikeys_file_bump_minor    (void)  { return yvikeys_file_bump ("m"); }
-char yvikeys_file_bump_inc      (void)  { return yvikeys_file_bump ("i"); }
+char yvikeys_vers_bump_major    (void)  { return yvikeys_vers_bump ("M"); }
+char yvikeys_vers_bump_minor    (void)  { return yvikeys_vers_bump ("m"); }
+char yvikeys_vers_bump_inc      (void)  { return yvikeys_vers_bump ("i"); }
 
 char         /*-> tbd --------------------------------[ ------ [ge.C70.13#.E1]*/ /*-[02.0000.03#.T]-*/ /*-[--.---.---.--]-*/
-yvikeys_file_bump          (char *a_type)
+yvikeys_vers_bump          (char *a_type)
 {
    /*---(locals)-----------+-----------+-*/
    char        rc          = 0;
@@ -381,7 +388,7 @@ yvikeys_file_bump          (char *a_type)
    --rce;  if (a_type [0] == '\0')               return rce;
    x_type = a_type [0];
    --rce;  if (strchr ("Mmi", x_type) == NULL)   return rce;
-   yvikeys_file_vertxt (NULL);
+   yvikeys_vers_vertxt (NULL);
    /*---(tiny)---------------------------*/
    if (strchr ("i", x_type) != NULL) {
       if (myVIKEYS.f_vernum [3] <  'z') {
@@ -426,11 +433,8 @@ yvikeys_file_bump          (char *a_type)
    --rce;  return  rce;
 }
 
-char yvikeys_file_control       (void)  { return yvikeys_file_controlled ("y"); }
-char yvikeys_file_nocontrol     (void)  { return yvikeys_file_controlled ("n"); }
-
 char         /*-> tbd --------------------------------[ ------ [gc.520.103.41]*/ /*-[02.0000.02#.G]-*/ /*-[--.---.---.--]-*/
-yvikeys_file_controlled    (char *a_yes)
+yvikeys_vers_controlled    (char *a_yes)
 {
    /*---(locals)-----------+-----------+-*/
    char        rce         =  -10;
@@ -440,7 +444,7 @@ yvikeys_file_controlled    (char *a_yes)
       DEBUG_HIST   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   yvikeys_file_vertxt (NULL);
+   yvikeys_vers_vertxt (NULL);
    if (a_yes [0] == 'n') {
       if (myVIKEYS.f_control == 'y') {
          myVIKEYS.f_control = '-';
@@ -458,8 +462,11 @@ yvikeys_file_controlled    (char *a_yes)
    return -1;
 }
 
+char yvikeys_vers_control       (void)  { return yvikeys_vers_controlled ("y"); }
+char yvikeys_vers_nocontrol     (void)  { return yvikeys_vers_controlled ("n"); }
+
 char         /*-> tbd --------------------------------[ ------ [ge.880.13#.G1]*/ /*-[02.0000.00#.#]-*/ /*-[--.---.---.--]-*/
-yvikeys_file_version       (char *a_ver)
+yvikeys_vers_version       (char *a_ver)
 {
    /*---(locals)-----------+-----------+-*/
    int         x_len       = 0;
@@ -499,13 +506,13 @@ yvikeys_file_version       (char *a_ver)
    }
    /*---(finalize)-----------------------*/
    strlcpy (myVIKEYS.f_vernum, x_work, LEN_LABEL);
-   yvikeys_file_vertxt (NULL);
+   yvikeys_vers_vertxt (NULL);
    /*---(complete)-----------------------*/
    return 0;
 }
 
 char         /*-> tbd --------------------------------[ leaf   [ge.330.114.30]*/ /*-[00.0000.03#.7]-*/ /*-[--.---.---.--]-*/
-yvikeys_file_vertxt        (char *a_txt)
+yvikeys_vers_vertxt        (char *a_txt)
 {
    char        rce         =  -10;
    /*---(defense)------------------------*/
@@ -520,6 +527,13 @@ yvikeys_file_vertxt        (char *a_txt)
    --rce;  if (a_txt [0]  == '\0')  return rce;
    strlcpy  (myVIKEYS.f_vertxt, a_txt, LEN_DESC);
    strltrim (myVIKEYS.f_vertxt, ySTR_BOTH, LEN_DESC);
+   return 0;
+}
+
+char
+yvikeys_vers_status          (char *a_list)
+{
+   snprintf (a_list, LEN_FULL, "version %c [%-4.4s] [%-60.60s]", myVIKEYS.f_control, myVIKEYS.f_vernum, myVIKEYS.f_vertxt);
    return 0;
 }
 

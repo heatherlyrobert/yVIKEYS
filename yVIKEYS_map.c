@@ -1077,9 +1077,9 @@ yvikeys__map_page        (char a_dir, char *a_minor)
    case 'z' :  if (a_dir == 'h')  *a_minor = 'L'; else *a_minor = 'J';  break;
    case 'Z' :  if (a_dir == 'h')  *a_minor = 'E'; else *a_minor = 'B';  break;
    case ' ' : case '·' : default  :
-               *a_minor = ' ';
-               DEBUG_MAP   yLOG_exitr   (__FUNCTION__, rce);
-               return rce;
+                  *a_minor = ' ';
+                  DEBUG_MAP   yLOG_exitr   (__FUNCTION__, rce);
+                  return rce;
    }
    /*---(outcome)------------------------*/
    DEBUG_MAP   yLOG_char    ("*a_minor"  , *a_minor);
@@ -1282,8 +1282,8 @@ yvikeys__map_ends        (char a_dir, char a_minor, int *a_grid, float a_qtr, in
    case 'h' : x_map = &g_xmap; break;
    case 'v' : x_map = &g_ymap; break;
    default  :
-      DEBUG_MAP   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
+              DEBUG_MAP   yLOG_exitr   (__FUNCTION__, rce);
+              return rce;
    }
    yvikeys__map_corner ('e', a_dir, &a_minor);
    DEBUG_MAP   yLOG_char    ("a_minor"   , a_minor);
@@ -2359,7 +2359,7 @@ yvikeys_bufs_umode  (uchar a_major, uchar a_minor)
    DEBUG_USER   yLOG_char    ("a_minor"   , a_minor);
    /*---(request buffer mode)------------*/
    DEBUG_USER   yLOG_value   ("SMOD_BUF"  , MODE_not (SMOD_BUFFER));
-   if (a_major != ' ' && a_minor == ',') {
+   if (strchr (" ,", a_major) == NULL && a_minor == ',') {
       DEBUG_USER   yLOG_note    ("enter buffer mode");
       if (MODE_not (SMOD_BUFFER))  MODE_enter  (SMOD_BUFFER  );
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
@@ -2390,13 +2390,20 @@ yvikeys_bufs_umode  (uchar a_major, uchar a_minor)
    }
    /*---(check for control keys)---------*/
    --rce;
-   if (strchr ("[<>]", a_minor) != NULL) {
+   if (a_minor == '_') {
+      yVIKEYS_cmds_direct (":status buffer");
+      MODE_exit ();
+   } else if (a_minor == ',') {
+      DEBUG_USER   yLOG_note    ("previous mode");
+      rc  = s_switcher (a_minor);
+      MODE_exit  ();
+   } else if (strchr ("[<>]", a_minor) != NULL) {
       DEBUG_USER   yLOG_note    ("relative mode");
-      rc = s_switcher (a_minor);
+      rc  = s_switcher (a_minor);
       MODE_exit  ();
    } else if (strchr ("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ®¯", a_minor) != NULL) {
       DEBUG_USER   yLOG_note    ("absolute mode");
-      rc = s_switcher (a_minor);
+      rc  = s_switcher (a_minor);
       MODE_exit  ();
    } else {
       MODE_exit  ();

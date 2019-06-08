@@ -418,6 +418,8 @@ c · · config          y > -                 -
 r · · macro           y > -                 macros, scripts, and add-ons
 r - ·   new           y - -                 -
 r - ·   open          y - -                 -
+r m ·   import        y - -                 -
+r x ·   export        y - -                 -
 r - ·   save          y - -                 -
 r - ·   debug         y - -                 -
 r - ·   execute       y - -                 -

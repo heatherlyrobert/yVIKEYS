@@ -56,6 +56,7 @@ yVIKEYS_init         (void)
    yPARSE_init  ('y', NULL, '-');
    yPARSE_delimiters  ("");
    MODE_init    ();
+   yvikeys_view_init    ();
    yvikeys_file_init    ();
    /*----(middling)----------------------*/
    yvikeys_menu_init    ();

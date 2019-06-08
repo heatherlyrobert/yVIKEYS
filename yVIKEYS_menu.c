@@ -14,9 +14,8 @@
  * metis  dn4#·  add function to hide a menu tree and children
  * metis  tw1#·  suffix menus keys which require further input with =
  * metis  dw1··  look at linear menu search instead of my indexed way
- * metis  ww1··  file read needs undo history for merges (likely clean opens)
- * metis  dn1··  unit testing for file new to make sure really fresh
- * metis  dn1··  unit testing for file browse to test regex link
+ * metis  wl1··  assign unique greek letters to unassigned menu items (to index them)
+ * metis  wl2··  build menu search for each level to get at unassigned options
  *
  *
  */
@@ -225,21 +224,21 @@ static tMENU  s_menus [MAX_MENU] = {
    { 'o', 'y', '·', "style"            , 'y', '>', "-"                 , 0, 0, 0 },
    /*---(modify menu)--------------------------------------------*/
    { 'm', '·', '·', "modify"           , 'y', '>', "-"                 , 0, 0, 0 },
-   { 'm', '-', '·', "resize"           , 'y', '=', "-"                 , 0, 0, 0 },
-   { 'm', '-', '·', "dims"             , 'y', '=', "-"                 , 0, 0, 0 },
-   { 'm', '-', '·', "extent"           , 'y', '=', "-"                 , 0, 0, 0 },
-   { 'm', '-', '·', "scale"            , 'y', '=', "-"                 , 0, 0, 0 },
-   { 'm', '-', '·', "trim"             , 'y', '>', "-"                 , 0, 0, 0 },
-   { 'm', '-', '·', "join"             , 'y', '>', "-"                 , 0, 0, 0 },
-   { 'm', '-', '·', "move"             , 'y', '-', "-"                 , 0, 0, 0 },
-   { 'm', '-', '·', "array"            , 'y', '-', "-"                 , 0, 0, 0 },
-   { 'm', '-', '·', "rotate"           , 'y', '>', "-"                 , 0, 0, 0 },
-   { 'm', '-', '·', "snap"             , 'y', '-', "-"                 , 0, 0, 0 },
-   { 'm', '-', '·', "fill"             , 'y', '>', "-"                 , 0, 0, 0 },
-   { 'm', '-', '·', "hatching"         , 'y', '>', "-"                 , 0, 0, 0 },
-   { 'm', '-', '·', "outline"          , 'y', '>', "-"                 , 0, 0, 0 },
-   { 'm', '-', '·', "centers"          , 'y', '-', "-"                 , 0, 0, 0 },
-   { 'm', '-', '·', "ends"             , 'y', '-', "-"                 , 0, 0, 0 },
+   { 'm', 'è', '·', "resize"           , 'y', '=', "-"                 , 0, 0, 0 },
+   { 'm', 'é', '·', "dims"             , 'y', '=', "-"                 , 0, 0, 0 },
+   { 'm', 'ê', '·', "extent"           , 'y', '=', "-"                 , 0, 0, 0 },
+   { 'm', 'ë', '·', "scale"            , 'y', '=', "-"                 , 0, 0, 0 },
+   { 'm', 'ì', '·', "trim"             , 'y', '>', "-"                 , 0, 0, 0 },
+   { 'm', 'í', '·', "join"             , 'y', '>', "-"                 , 0, 0, 0 },
+   { 'm', 'î', '·', "move"             , 'y', '-', "-"                 , 0, 0, 0 },
+   { 'm', 'ï', '·', "array"            , 'y', '-', "-"                 , 0, 0, 0 },
+   { 'm', 'ð', '·', "rotate"           , 'y', '>', "-"                 , 0, 0, 0 },
+   { 'm', 'ñ', '·', "snap"             , 'y', '-', "-"                 , 0, 0, 0 },
+   { 'm', 'ò', '·', "fill"             , 'y', '>', "-"                 , 0, 0, 0 },
+   { 'm', 'ó', '·', "hatching"         , 'y', '>', "-"                 , 0, 0, 0 },
+   { 'm', 'ô', '·', "outline"          , 'y', '>', "-"                 , 0, 0, 0 },
+   { 'm', 'õ', '·', "centers"          , 'y', '-', "-"                 , 0, 0, 0 },
+   { 'm', 'ö', '·', "ends"             , 'y', '-', "-"                 , 0, 0, 0 },
    /*---(dataset menu)-------------------------------------------*/
    { 'd', '·', '·', "dataset"          , 'y', '>', "-"                 , 0, 0, 0 },
    { 'd', 's', '·', "sort"             , 'y', '>', "-"                 , 0, 0, 0 },
@@ -307,12 +306,27 @@ static tMENU  s_menus [MAX_MENU] = {
    { 'l', '-', '·', "locking"          , 'y', '-', "-"                 , 0, 0, 0 },
    /*---(buffers menu)-------------------------------------------*/
    { 'b', '·', '·', "buffers"          , 'y', '>', "-"                 , 0, 0, 0 },
+   { 'b', '_', '·', "status"           , 'y', '·', ":status buffer¦"   , 0, 0, 0 },
+   { 'b', 'x', '·', "maximum"          , 'y', '=', ":bmax·"            , 0, 0, 0 },
+   { 'b', 'b', '·', "browse"           , 'y', '·', ":bbrowse·"         , 0, 0, 0 },
+   { 'b', 'g', '·', "goto"             , 'y', '>', "-"                 , 0, 0, 0 },
+   { 'b', 'g', 'a', "abbrev"           , 'y', '=', ":buf·"             , 0, 0, 0 },
+   { 'b', 'g', 'r', "return"           , 'y', '·', ",,"                , 0, 0, 0 },
+   { 'b', 'g', 'f', "first"            , 'y', '·', ",["                , 0, 0, 0 },
+   { 'b', 'g', 'p', "prev"             , 'y', '·', ",<"                , 0, 0, 0 },
+   { 'b', 'g', 'n', "next"             , 'y', '·', ",>"                , 0, 0, 0 },
+   { 'b', 'g', 'l', "last"             , 'y', '·', ",]"                , 0, 0, 0 },
+   { 'b', 'g', 'u', "summary"          , 'y', '·', ",®"                , 0, 0, 0 },
+   { 'b', 'g', 'y', "system"           , 'y', '·', ",¯"                , 0, 0, 0 },
    { 'b', '-', '·', "showall"          , 'y', '-', "-"                 , 0, 0, 0 },
-   { 'b', '-', '·', "status"           , 'y', '-', "-"                 , 0, 0, 0 },
-   { 'b', '-', '·', "new"              , 'y', '-', "-"                 , 0, 0, 0 },
-   { 'b', '-', '·', "rename"           , 'y', '-', "-"                 , 0, 0, 0 },
-   { 'b', '-', '·', "type"             , 'y', '-', "-"                 , 0, 0, 0 },
-   { 'b', '-', '·', "size"             , 'y', '-', "-"                 , 0, 0, 0 },
+   { 'b', 'w', '·', "new"              , 'y', '-', "-"                 , 0, 0, 0 },
+   { 'b', 'n', '·', "rename"           , 'y', '=', ":btitle·"          , 0, 0, 0 },
+   { 'b', 'z', '·', "size"             , 'y', '=', ":bsize·"           , 0, 0, 0 },
+   { 'b', 't', '·', "type"             , 'y', '-', "-"                 , 0, 0, 0 },
+   { 'b', 'f', '·', "defaults"         , 'y', '>', "-"                 , 0, 0, 0 },
+   { 'b', 'f', 'w', "col_wide"         , 'y', '=', ":defwide·"         , 0, 0, 0 },
+   { 'b', 'f', 't', "row_tall"         , 'y', '=', ":deftall·"         , 0, 0, 0 },
+   { 'b', 'f', 'd', "dep_thick"        , 'y', '!', "-"                 , 0, 0, 0 },
    { 'b', '-', '·', "scale"            , 'y', '-', "-"                 , 0, 0, 0 },
    { 'b', '-', '·', "delete"           , 'y', '-', "-"                 , 0, 0, 0 },
    { 'b', '-', '·', "freeze"           , 'y', '-', "-"                 , 0, 0, 0 },
@@ -331,10 +345,13 @@ static tMENU  s_menus [MAX_MENU] = {
    { 'c', '·', '·', "config"           , '-', '>', "-"                 , 0, 0, 0 },
    /*---(macro menu)---------------------------------------------*/
    { 'r', '·', '·', "script"           , '-', '>', "-"                 , 0, 0, 0 },
-   { 'r', '-', '·', "new"              , '-', '·', "-"                 , 0, 0, 0 },
-   { 'r', '-', '·', "open"             , '-', '·', "-"                 , 0, 0, 0 },
-   { 'r', '-', '·', "save"             , '-', '·', "-"                 , 0, 0, 0 },
-   { 'r', '-', '·', "list"             , '-', '·', "-"                 , 0, 0, 0 },
+   { 'r', 'w', '·', "new"              , '-', '·', "-"                 , 0, 0, 0 },
+   { 'r', 'o', '·', "open"             , '-', '·', "-"                 , 0, 0, 0 },
+   { 'r', 'm', '·', "import"           , '-', '·', "-"                 , 0, 0, 0 },
+   { 'r', 's', '·', "save"             , '-', '·', "-"                 , 0, 0, 0 },
+   { 'r', 'x', '·', "export"           , '-', '·', "-"                 , 0, 0, 0 },
+   { 'r', 'i', '·', "list"             , '-', '·', "-"                 , 0, 0, 0 },
+   { 'r', 'g', '·', "globals"          , '-', '·', "-"                 , 0, 0, 0 },
    /*---(share menu)---------------------------------------------*/
    { 'h', '·', '·', "share"            , '-', '>', "-"                 , 0, 0, 0 },
    /*---(footer)-------------------------------------------------*/
@@ -350,8 +367,7 @@ static tMENU  s_menus [MAX_MENU] = {
 /*====================------------------------------------====================*/
 static void  o___MENUS___________o () { return; }
 
-
-static int  *s_valid     = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789?!-_.";
+static int  *s_valid     = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_?!#,.èéêëìíîïðñòóôõö÷øùúûüýþÿ";
 
 char
 yvikeys__menu_count     (void)
@@ -924,6 +940,8 @@ yvikeys__menu_entry_nc  (int i, int a_mid, int a_top, int a_level, int a_group, 
    }
    DEBUG_CMDS   yLOG_complex ("position"  , "%3dg, %3de, %3dm, %3dt, %3dx, %3dy", a_group, a_entry, a_mid, a_top, x, y);
    /*---(prepare)------------------------*/
+   if (t [0] < 0)  strcpy (t, "-");
+   if (strchr ("èéêëìíîïðñòóôõö÷øùúûüýþÿ", t [0]) != NULL)  strcpy (t, "-");
    mvprintw   (y, x, "%s", t);
    /*---(prepare)------------------------*/
    sprintf (t, "%.9s", s_menus [i].name);
@@ -1175,6 +1193,11 @@ yvikeys_menu_smode      (int  a_major, int  a_minor)
    if (a_minor == G_KEY_RETURN) {
       DEBUG_USER   yLOG_note    ("return, return to map mode");
       MODE_exit ();
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
+   if (a_minor == G_KEY_SPACE || a_minor == G_CHAR_SPACE) {
+      DEBUG_USER   yLOG_note    ("ignore spaces");
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return 0;
    }

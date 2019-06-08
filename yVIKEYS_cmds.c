@@ -1473,13 +1473,17 @@ yvikeys_cmds__parse   (void)
    ++p;
    x_len = strllen (p, LEN_COMMAND);
    DEBUG_CMDS   yLOG_info    ("g_cmd"     , p);
-   if (strllen (x_work, LEN_COMMAND) > x_len)  strlcpy (s_all, p + x_len + 1, LEN_COMMAND);
+   if (strllen (x_work, LEN_COMMAND) > x_len) {
+      strlcpy (s_all, p + x_len + 1, LEN_COMMAND);
+      strltrim (s_all, ySTR_BOTH, LEN_COMMAND);
+   }
    DEBUG_CMDS   yLOG_info    ("s_all"     , s_all);
    /*---(parse)--------------------------*/
    for (i = 0; i < 10; ++i)  strlcpy (s_fields [i], "", LEN_COMMAND);
    for (i = 0; i < 10; ++i) {
       DEBUG_CMDS   yLOG_value   ("i"         , i);
       DEBUG_CMDS   yLOG_info    ("p"         , p);
+      strltrim (p, ySTR_BOTH, LEN_COMMAND);
       strlcpy (s_fields [i], p, LEN_COMMAND);
       s_nfield = i + 1;
       p = strtok_r (NULL  , q, &r);

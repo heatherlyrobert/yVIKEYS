@@ -393,14 +393,50 @@ VIEW__abbr              (cchar  a_abbr)
       n = i;
       break;
    }
-   DEBUG_GRAF   yLOG_snote   (s_parts [i].name);
+   DEBUG_GRAF   yLOG_sint    (n);
    --rce;  if (n < 0) {
       DEBUG_GRAF   yLOG_sexitr  (__FUNCTION__, rce);
       return rce;
    }
+   DEBUG_GRAF   yLOG_snote   (s_parts [n].name);
    /*---(complete)-----------------------*/
    DEBUG_GRAF   yLOG_sexit   (__FUNCTION__);
    return n;
+}
+
+char
+yvikeys_view_init        (void)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        i           =    0;
+   /*---(header)-------------------------*/
+   DEBUG_PROG   yLOG_enter   (__FUNCTION__);
+   /*---(screen parts)-------------------*/
+   s_npart = 0;
+   for (i = 0; i < MAX_PARTS; ++i) {
+      if (s_parts [i].abbr == 0)  break;
+      DEBUG_PROG   yLOG_info    ("name"      , s_parts [i].name);
+      ++s_npart;
+   }
+   DEBUG_PROG   yLOG_value   ("s_npart"   , s_npart);
+   /*---(screen layouts)-----------------*/
+   s_nlayout = 0;
+   for (i = 0; i < MAX_LAYOUT; ++i) {
+      if (s_layouts [i].name [0] == 0)  break;
+      ++s_nlayout;
+   }
+   /*---(part options)-------------------*/
+   s_noption = 0;
+   for (i = 0; i < MAX_OPTION; ++i) {
+      if (s_options [i].part == 0)  break;
+      ++s_noption;
+   }
+   /*---(ribbon)-------------------------*/
+   for (i = 0; i < LEN_LABEL; ++i)  s_win.r_icons [i] = -1;
+   s_win.r_nicon = 0;
+   /*---(complete)-----------------------*/
+   DEBUG_PROG   yLOG_sexit   (__FUNCTION__);
+   return 0;
 }
 
 
@@ -1365,16 +1401,8 @@ yVIKEYS_view_config     (cchar *a_title, cchar *a_ver, cchar a_env, cint a_wide,
       DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   /*---(screen parts)-------------------*/
-   s_npart = 0;
-   for (i = 0; i < MAX_PARTS; ++i) {
-      if (s_parts [i].abbr == 0)  break;
-      DEBUG_PROG   yLOG_info    ("name"      , s_parts [i].name);
-      ++s_npart;
-   }
-   DEBUG_PROG   yLOG_value   ("s_npart"   , s_npart);
-   VIEW__purge ();
    /*---(set defaults)-------------------*/
+   VIEW__purge ();
    VIEW_defaults (a_env);
    /*---(screen commands)----------------*/
    for (i = 0; i < s_npart; ++i) {
@@ -1385,21 +1413,6 @@ yVIKEYS_view_config     (cchar *a_title, cchar *a_ver, cchar a_env, cint a_wide,
          yVIKEYS_cmds_add (YVIKEYS_M_VIEW  , s_parts [i].name , ""    , "Cs"   , VIEW__switch               , "" );
       }
    }
-   /*---(screen layouts)-----------------*/
-   s_nlayout = 0;
-   for (i = 0; i < MAX_LAYOUT; ++i) {
-      if (s_layouts [i].name [0] == 0)  break;
-      ++s_nlayout;
-   }
-   /*---(part options)-------------------*/
-   s_noption = 0;
-   for (i = 0; i < MAX_OPTION; ++i) {
-      if (s_options [i].part == 0)  break;
-      ++s_noption;
-   }
-   /*---(ribbon)-------------------------*/
-   for (i = 0; i < LEN_LABEL; ++i)  s_win.r_icons [i] = -1;
-   s_win.r_nicon = 0;
    /*---(commands)-----------------------*/
    yVIKEYS_cmds_add (YVIKEYS_M_VIEW  , "gridoff"     , ""    , "iii"  , VIEW__grid_offset          , "" );
    yVIKEYS_cmds_add (YVIKEYS_M_VIEW  , "gridsize"    , ""    , "iii"  , VIEW__grid_size            , "" );

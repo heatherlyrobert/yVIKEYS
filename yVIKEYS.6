@@ -586,7 +586,7 @@ port from vimperator.
 .B limits/warnings
    changes to marks can not be undone (they are simple/quick)
 
-.SH BUFFERS (AND PANELS) SUB-MODE
+.SH BUFFERS (AND PANELS) MICRO-MODE
 .SS ---basics---------------------------------------------------------
  ,a         switch to the main editing panel
  ,0         switch file labeled 0 into the current panel
@@ -623,19 +623,22 @@ potential panel areas.
 .B invocation
    ,          enters buffer sub-mode
    ¥          exits sub-mode early and forgets action
+   µb         buffers menu
 
 .B standard identifiers
    0-9A-Z     thirty-six (36) standard tabs and/or buffers
+   ® and ¯    summary and system buffers for some applications
    a-z        standard panel/work-area identifiers
    [ < > ]    first, prev, next, and last buffer
+   ,          last used
 
 .B switching...
    ,a         switch to primary editing window/panel
    ,0         view the first buffer in current window/panel
-   ']         switch to the last legal buffer/tab
+   ,]         switch to the last legal buffer/tab
+   ,,         return to previous buffer
 
 .B information...
-   ,,         for applications that can, show all buffers/files
    ,?         update and show buffer list
    ,!         buffer status line
 
@@ -651,6 +654,15 @@ potential panel areas.
    v          execution/visualization
    :          command line/window
    /          normal search line/window
+
+.B major menu items
+   µb         buffer menu
+   µb_        change status line to buffer option
+   µbw        change the current buffer name
+   µbg¢       goto first, prev, next, last, specific buffer
+
+.B major commands
+   :btitle <new>¦  change the current buffer's title
 
 
 

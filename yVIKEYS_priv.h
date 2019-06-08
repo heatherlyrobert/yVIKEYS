@@ -27,8 +27,8 @@
 
 #define     P_VERMAJOR  "1.X = working for everyday use, features still evolving but stable"
 #define     P_VERMINOR  "1.3 = build out commands to support menus"
-#define     P_VERNUM    "1.3e"
-#define     P_VERTXT    "unit testing on file status and browse, fixed some small issues"
+#define     P_VERNUM    "1.3f"
+#define     P_VERTXT    "updates to buffer movements, browsing, and menus"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -229,6 +229,7 @@ extern char *gvikeys_greek;
 
 
 
+char        yvikeys_view_init       (void);
 char        VIEW__reset             (void);
 char        VIEW__find              (cchar *a_name);
 char        VIEW__abbr              (cchar  a_abbr);
@@ -569,15 +570,16 @@ char*       GOD__unit               (char *a_question, char a_mark);
 
 
 char        yvikeys_file_init            (void);
-char        yvikeys_file_controlled      (char  *a_yes);
-char        yvikeys_file_control         (void);
-char        yvikeys_file_nocontrol       (void);
-char        yvikeys_file_version         (char  *a_ver);
-char        yvikeys_file_vertxt          (char  *a_txt);
-char        yvikeys_file_bump            (char  *a_type);
-char        yvikeys_file_bump_major      (void);
-char        yvikeys_file_bump_minor      (void);
-char        yvikeys_file_bump_inc        (void);
+char        yvikeys_vers_controlled      (char  *a_yes);
+char        yvikeys_vers_control         (void);
+char        yvikeys_vers_nocontrol       (void);
+char        yvikeys_vers_version         (char  *a_ver);
+char        yvikeys_vers_vertxt          (char  *a_txt);
+char        yvikeys_vers_bump            (char  *a_type);
+char        yvikeys_vers_bump_major      (void);
+char        yvikeys_vers_bump_minor      (void);
+char        yvikeys_vers_bump_inc        (void);
+char        yvikeys_vers_status          (char *a_list);
 int         yvikeys__file_regex          (char a_type, char *a_ext, char *a_base, char *a_entry, char *a_match);
 char        yvikeys__file_stripext       (char *a_loc);
 char        yvikeys__file_path           (char *a_path);
