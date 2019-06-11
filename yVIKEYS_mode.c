@@ -893,6 +893,10 @@ static void  o___REPEAT__________o () { return; }
 static   int   s_request  = 0;
 static   int   s_repeat   = 0;
 
+static   int   s_level                 = 0;;
+static   int   s_rep     [LEN_LABEL];
+static   int   s_pos     [LEN_LABEL];
+
 char
 REPEAT_done             (void)
 {
@@ -925,6 +929,7 @@ REPEAT_init             (void)
 {
    /*---(locals)-----------+-----------+-*/
    char        rce         = -10;
+   int         i           =   0;
    /*---(header)-------------------------*/
    DEBUG_PROG   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
@@ -935,6 +940,11 @@ REPEAT_init             (void)
    }
    /*---(setup)--------------------------*/
    REPEAT_reset ();
+   /*---(group)--------------------------*/
+   for (i = 0; i < LEN_LABEL; ++i) {
+      s_pos [i]  = -1;
+      s_rep [i]  = -1;
+   }
    /*---(update status)------------------*/
    STATUS_init_set   (UMOD_REPEAT);
    /*---(complete)-----------------------*/
@@ -1002,6 +1012,48 @@ int  REPEAT_count       (void) { return s_repeat; }
 int  REPEAT_original    (void) { return s_request;}
 int  REPEAT_use         (void) { int a = s_repeat; s_repeat = 0; return a; }
 char REPEAT_not         (void) { if (myVIKEYS.repeating == '-')  return 1; if (s_repeat == s_request) return 1; return 0; }
+
+
+
+/*====================------------------------------------====================*/
+/*===----                        repeat keys                           ----===*/
+/*====================------------------------------------====================*/
+static void  o___GROUPING________o () { return; }
+
+char
+REPEAT_group_beg        (void)
+{
+   /*---(defense)------------------------*/
+   if (s_repeat <= 0)  return 0;
+   /*---(populate new level)-------------*/
+   ++s_level;
+   s_pos [s_level] = yvikeys_keys_gpos ();
+   s_rep [s_level] = s_repeat;
+   /*---(clear normal repeat)------------*/
+   s_repeat = 0;
+   /*---(complete)-----------------------*/
+   return 0;
+}
+
+char
+REPEAT_group_end        (void)
+{
+   /*---(defense)------------------------*/
+   if (s_level <= 0)  return 0;
+   /*---(check for done)-----------------*/
+   if (s_rep [s_level] <= 0) {
+      s_rep [s_level] = -1;
+      s_pos [s_level] = -1;
+      --s_level;
+   }
+   /*---(return to beginning)------------*/
+   else {
+      --(s_rep [s_level]);
+      KEYS_repos (s_pos [s_level]);
+   }
+   /*---(complete)-----------------------*/
+   return 0;
+}
 
 
 
@@ -1133,11 +1185,24 @@ MODE__unit             (char *a_question)
 char*        /*-> unit test accessor -----------------[ light  [us.420.111.11]*/ /*-[01.0000.00#.Z]-*/ /*-[--.---.---.--]-*/
 REPEAT__unit           (char *a_question)
 {
+   /*---(locals)-----------+-----+-----+-*/
+   int         i           =    0;
+   char        t           [LEN_FULL];
+   char        x_list      [LEN_FULL]  = "";
    /*---(preprare)-----------------------*/
    strcpy  (yVIKEYS__unit_answer, "REPEAT unit      : question not understood");
    /*---(selection)----------------------*/
    if      (strcmp (a_question, "count"        )  == 0) {
       snprintf (yVIKEYS__unit_answer, LEN_FULL, "REPEAT count     : %d", s_repeat);
+   }
+   else if (strcmp (a_question, "groups"       )  == 0) {
+      for (i = 1; i <= 5; ++i) {
+         if (s_pos [i] >= 0)  sprintf (t, "%02d/%03d", s_rep [i], s_pos [i]);
+         else                 sprintf (t, "--/---");
+         strlcat (x_list, t, LEN_FULL);
+         if (i < 5)  strlcat (x_list, ", ", LEN_FULL);
+      }
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "REPEAT groups    : %1d %s", s_level, x_list);
    }
    /*---(complete)-----------------------*/
    return yVIKEYS__unit_answer;

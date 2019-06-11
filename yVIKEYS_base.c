@@ -17,6 +17,7 @@ static char  s_keys_multi [10000];
 static char  s_keys_mode  [10000];
 static char  s_keys_error [10000];
 static int   s_nkey      = 0;
+static int   s_gpos      = 0;
 static char  s_keys_last  [LEN_LABEL];
 
 
@@ -385,6 +386,7 @@ KEYS__logger            (uchar a_key)
    s_keys_multi [s_nkey + 1] = 0;
    /*---(update count)-------------------*/
    ++s_nkey;
+   ++s_gpos;
    /*---(macro)--------------------------*/
    IF_MACRO_RECORDING {
       yvikeys_macro_reckey (x_key);
@@ -478,11 +480,8 @@ KEYS_unique             (void)
    return 1;
 }
 
-int
-yVIKEYS_keys_nkey       (void)
-{
-   return s_nkey;
-}
+int yVIKEYS_keys_nkey       (void) { return s_nkey; }
+int yvikeys_keys_gpos       (void) { return s_gpos; }
 
 char*
 yVIKEYS_keys_last       (void)
@@ -522,9 +521,19 @@ KEYS_dump               (FILE *a_file)
 char
 KEYS_init               (void)
 {
-   strlcpy (s_keys_log, "", LEN_RECD);
+   strlcpy (s_keys_log  , "", LEN_RECD);
+   strlcpy (s_keys_mode , "", LEN_RECD);
+   strlcpy (s_keys_multi, "", LEN_RECD);
+   strlcpy (s_keys_error, "", LEN_RECD);
    s_nkey = 0;
+   s_gpos = 0;
    return 0;
+}
+
+char
+KEYS_repos              (int a_pos)
+{
+   s_gpos = a_pos;
 }
 
 
@@ -544,26 +553,23 @@ yVIKEYS_main_input      (char a_runmode, uchar a_key)
    DEBUG_LOOP   yLOG_enter   (__FUNCTION__);
    DEBUG_LOOP   yLOG_char    ("a_runmode" , a_runmode);
    DEBUG_LOOP   yLOG_value   ("a_key"     , a_key);
-   DEBUG_LOOP   yLOG_char    ("macromode" , yvikeys_macro_modeget ());
+   DEBUG_LOOP   yLOG_char    ("macro rec" , yvikeys_macro_rmode ());
    /*---(fixes)--------------------------*/
    if (myVIKEYS.env == YVIKEYS_OPENGL) {
       if (a_key == G_KEY_ENTER)  a_key = G_KEY_RETURN; /* X11 sends incorrently  */
       if (a_key == G_KEY_DEL  )  a_key = G_KEY_BS;     /* X11 sends incorrectly  */
    }
    /*---(normal)-------------------------*/
-   IF_MACRO_NOT_PLAYING {
-      DEBUG_LOOP   yLOG_note    ("normal or macro recording");
-      if (yvikeys_macro_count ()) {
-         DEBUG_USER   yLOG_note    ("but, in macro repeat mode");
-         yvikeys_macro_exebeg ('@');
-         x_ch  = G_KEY_SPACE;
-      } else {
-         x_ch  = a_key;
-         if (x_ch == 0) {
-            DEBUG_LOOP   yLOG_exit    (__FUNCTION__);
-            return x_ch;
-         }
-      }
+   IF_GROUP_REPEATING {
+      DEBUG_LOOP   yLOG_note    ("group repeating older keys");
+      x_ch = s_keys_log [s_gpos];
+      ++s_gpos;
+   }
+   /*---(normal)-------------------------*/
+   else IF_MACRO_NOT_PLAYING {
+      DEBUG_LOOP   yLOG_note    ("normal keystroke and recording");
+      x_ch  = a_key;
+      if (x_ch != 0)  KEYS__logger (x_ch);
    }
    /*---(run, delay, or playback)--------*/
    else IF_MACRO_PLAYING {
@@ -571,13 +577,10 @@ yVIKEYS_main_input      (char a_runmode, uchar a_key)
       x_ch = yvikeys_macro_exekey ();
       IF_MACRO_OFF {
          DEBUG_LOOP   yLOG_exit    (__FUNCTION__);
-         /*> return -1;                                                               <*/
          return x_ch;
       }
-      DEBUG_LOOP   yLOG_note    ("show screen");
-      /*> if (a_runmode == RUN_USER)  CURS_main  ();                                     <*/
       yvikeys_macro_exewait ();
-      DEBUG_LOOP   yLOG_note    ("read playback keystroke");
+      DEBUG_LOOP   yLOG_note    ("handle playback control");
       x_play = a_key;
       DEBUG_LOOP   yLOG_value   ("x_play"    , x_play);
       if (yvikeys_macro_exeplay (x_play) < 0) {
@@ -585,9 +588,6 @@ yVIKEYS_main_input      (char a_runmode, uchar a_key)
          return -2;
       }
    }
-   /*---(record)-------------------------*/
-   DEBUG_LOOP   yLOG_note    ("handle keystroke normally");
-   KEYS__logger (x_ch);
    /*---(complete)-----------------------*/
    DEBUG_LOOP   yLOG_exit    (__FUNCTION__);
    return x_ch;
@@ -737,16 +737,17 @@ yVIKEYS_main_string  (uchar *a_keys)
       rc = yVIKEYS_main_handle (x_ch);
       DEBUG_LOOP   yLOG_value   ("rc"        , rc);
       /*---(check for macro)-------------*/
-      DEBUG_LOOP   yLOG_char    ("macro mode", yvikeys_macro_modeget ());
+      DEBUG_LOOP   yLOG_char    ("macro exe" , yvikeys_macro_emode ());
       DEBUG_LOOP   yLOG_value   ("macro cnt" , yvikeys_macro_count ());
+      DEBUG_LOOP   yLOG_char    ("s_nkey"    , s_nkey);
+      DEBUG_LOOP   yLOG_char    ("s_gpos"    , s_gpos);
       IF_MACRO_MOVING  {
          DEBUG_LOOP   yLOG_note    ("macro running and used step, back up loop counter");
          --i;
-      } else {
-         if (yvikeys_macro_count ()) {
-            DEBUG_LOOP   yLOG_note    ("macro repeating and used step, back up loop counter");
-            --i;
-         }
+      }
+      IF_GROUP_REPEATING {
+         DEBUG_LOOP   yLOG_note    ("group using older keystrokes, back up loop counter");
+         --i;
       }
       /*---(done)------------------------*/
    }
@@ -879,6 +880,9 @@ KEYS__unit              (char *a_question, char a_index)
       KEYS_status (t);
       strltrim (t, ySTR_BOTH, LEN_RECD);
       snprintf (yVIKEYS__unit_answer, LEN_FULL, "%-.60s", t);
+   }
+   else if (strcmp (a_question, "pos"          )  == 0) {
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "KEYS pos         : %3dn %3dp", s_nkey, s_gpos);
    }
    /*---(complete)-----------------------*/
    return yVIKEYS__unit_answer;

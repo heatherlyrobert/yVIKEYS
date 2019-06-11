@@ -357,48 +357,50 @@ and standard input and source modes.
    input is done with standard umode, including special characters
    editing is done with standard mode, including selection, buffers
 
+
+
 .SH KEYBOARD MACROS (sub-mode)
 .SS ---basics---------------------------------------------------------
  qa...q     record live keystrokes ... into macro 'a'
  @a         execute macro 'a' from current position
 .SS ---overview-------------------------------------------------------
 .B definition (D).  
-keyboard macros repeat keystrokes as if they are being typed in realtime,
-with no advanced language constructs.  they likely meet over 80% of all
-automation needs with little effort.
+macros are a fast, simple, and powerful productivity mechanism to save and
+repeat keystrokes as if typed in real-time.
 
 .B value (V).  
-the ability to record, edit, and repeat predictable keystroke sequences
-is critical to efficiency, accuracy, and automation; and, seriously reduce
-repetitive strain on the mind and body.
+many actions are repeated, macros save time and mistakes.  often fixes and
+improvements are avoided due to the work involved.
+
+.B situation (S).  
+macros are well and long established, explored, tested, and used in
+keyboard-centric applications.
 
 .B complication (C).  
-very few applications provide keyboard macro capability, or, when the do, it
-is unduely slow, opaque, or complex.  the value is simply not well understood
-in most user bases.
+given modern focus on mouse and touch, macros and their productivity gains
+are either rudimentary or non-existant.
 
 .B answer (A).  
-i will standardize "mostly" on vim keyboard macros but with easier editing,
-simple playback, and basic debugging.  all interactive applications need
-macros built early in development.
+we want these productivity gains badly.  all my applications will have a
+powerful and standard keyboard macro capability.
+
+.B extras (E).  
+macros can call each other (but not recursive or circular) and be named/stored
+in a shared library.
 .SS ---full capabilities----------------------------------------------
 
-.B limitations
-   -- macros can call other macros
-   -- can not be recursive, .i.e., call themselves
-   -- can not be circular, i.e., be called while already running
-
-.B named macros (36)
-   a-z        lower case (26) are common, local use
-   A-Z        same macros as lower case, only signify debug mode
-   0-9        numeric (10) are typically temporary use in scripts
-   è-ÿ        greek (24) are special internal, macro usage only
+.B named macros (60)
+   a-z        lower case (26) are common, interactive use
+   A-Z (*)    alternate name for lower case, signify append/debug
+   0-9        numeric (10) are typically temporary use in macros
+   è-ÿ        greek (24) are mostly holders for global library macros
 
 .B recording new macros
-   qd...q     record live keystrokes ... into macro abbr 'd'
-   qd...Q     exit recording and do not save macro
-   qdq        erase macro abbr 'd'
-   Q          reset macro recording environment (no saving)
+   qd´´´q     record live keystrokes ´´´ into macro macro 'd'
+   qd´´´Q     exit recording and do not save macro
+   qdq        erase macro macro 'd' (record nothing)
+   qD´´´q     append more keystrokes ´´´ onto end of macro 'd'
+   Q          reset macro recording and execution environment
 
 .B executing existing macros
    @d         execute macro 'd' at the current location
@@ -406,35 +408,43 @@ macros built early in development.
    5@d        execute macro 'd' five times
    @D         execute macro 'd' in playback/debug mode
 
+.B copying macros to/from unnamed source register
+   @<d        copy macro 'd' to unnamed register
+   @>d        copy unnamed register to macro 'd'
+
 .B defining macros at command line
-   :macro h=...         directly input and save the macro
-   :macro i="..."       allows ¦ (ret) and ¥ (esc)
-   :macro i=\\n\\e        also allows ¦ (ret) and ¥ (esc)
-   :macro j=\\"..        escaped quote can go anywhere
-   :macro j= "...       leading space will allow leading "
+   :macro a¦            purge lower case macros (also 0 and è)
+   :macro h=¦           clears macro h
+   :macro h=´´´¦        directly input and save the macro
+   :macro i="´´´"¦      allows ¦ (ret) and ¥ (esc)
+   :macro i=\\n\\e¦       also allows ¦ (ret) and ¥ (esc)
+   :macro j=\\"´´´¦      escaped quote can go anywhere
+   :macro j= "´´´¦      leading space will allow leading "
+   :macro J="´´´"¦      appends to existing macro 'j'
    all leading, internal, and trailing whitespace is meaningful
 
 .B debugging and playback controls
-   .          play/pause toggle for delay mode
-   +          faster execution
-   -          slower execution
-   ·          step forward one (space)
-   ¥          terminate at current point (escape)
+   0-9 + -    set the speed, increment, decrement
    ¦          run to end at full speed (return)
+   ¥          terminate at current point (escape)
+   .          play/pause toggle for delay mode
+   ·          step forward one (space)
 
 .B special control characters
    see SPECIAL CHARACTERS for what keys will be including in macros to
    represent control characters or can be included to help debugging.
 
 .B gyges-specific editing existing macros
-   location   in gyges, all macros are saved by name on tab Z
+   location   in gyges, macros are saved on tab ¯ (system)
    editing    edit like any other cell
    saving     they automatically save with the spreadsheet
    copying    can use normal copy and saving to transfer
 
-.B limits/warnings
-   all macros must begin and end in map/god mode
-   macros may not call other macros, or themselves
+.B notes
+   -- vim did keyboard macros awesomely
+   -- i was too stupid for vim's shared text and macro registers
+   -- i needed a stepwise execution environment to easily debug
+   -- i find modularizing helps, so my macros can call each other
 
 .SH HINTS (sub-mode)
 .na
@@ -597,8 +607,8 @@ port from vimperator.
  ,3         show the fourth file in the current panel
 .SS ---overview-------------------------------------------------------
 .B definition (D).  
-buffers and panels are datasets and screen regions respectively.  this is
-about rapid movement and perspective changes.
+naming buffers (datasets) and panels (screen regions) allows rapid movement
+and perspective changes.
 
 .B situation (S).  
 changing editing areas and their contents is usually done with a mouse for

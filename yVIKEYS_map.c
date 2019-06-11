@@ -1876,25 +1876,19 @@ yvikeys__map_mode_chg   (char a_minor)
    /*---(macros)----------------------*/
    switch (a_minor) {
    case '@'      :
-      IF_MACRO_OFF {
-         yvikeys_macro_reset  ();
-         MODE_enter  (SMOD_MACRO   );
-         rc = a_minor;
-      } else {
-         yvikeys_macro_reset  ();
-         rc = -1;
-      }
+      MODE_enter  (SMOD_MACRO   );
+      rc = a_minor;
       break;
    case 'q'      :
-      IF_MACRO_OFF {
+      IF_MACRO_RECORDING {
+         rc = yvikeys_macro_recend ();
+      } else {
          MODE_enter  (SMOD_MACRO   );
          rc = a_minor;
-      } else {
-         rc = yvikeys_macro_recend ();
       }
       break;
    case 'Q'      :
-      rc = yvikeys_macro_reset ();
+      rc = yvikeys_macro_resetall ();
       break;
    }
    if (rc >= 0) {
@@ -1967,6 +1961,19 @@ yvikeys_map_mode        (char a_major, char a_minor)
          DEBUG_USER   yLOG_note    ("prefix of visual multimap keystring");
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return a_minor;
+      }
+      /*---(grouping)--------------------*/
+      if (a_minor == '(') {
+         DEBUG_USER   yLOG_note    ("begin group");
+         REPEAT_group_beg ();
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         return 0;
+      }
+      if (a_minor == ')') {
+         DEBUG_USER   yLOG_note    ("end group");
+         REPEAT_group_end ();
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         return 0;
       }
       /*---(funky moves)-----------------*/
       if (a_minor == ':') {
