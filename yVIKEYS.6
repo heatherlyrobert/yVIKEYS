@@ -381,12 +381,12 @@ given modern focus on mouse and touch, macros and their productivity gains
 are either rudimentary or non-existant.
 
 .B answer (A).  
-we want these productivity gains badly.  all my applications will have a
-powerful and standard keyboard macro capability.
+i want these productivity gains badly.  all my applications will have a
+powerful and vim-ish keyboard macro capability.
 
 .B extras (E).  
-macros can call each other (but not recursive or circular) and be named/stored
-in a shared library.
+can call other macros (not recursive or circular), stepwise execution,
+keystroke grouping, and shared macro library.
 .SS ---full capabilities----------------------------------------------
 
 .B named macros (60)
@@ -407,6 +407,11 @@ in a shared library.
    @@         re-execute the last used macro
    5@d        execute macro 'd' five times
    @D         execute macro 'd' in playback/debug mode
+
+.B special repeat grouping
+   (´´´)      keystrokes can be grouped/organized
+   Ë(´´´)     each group can be repeated any Ë times
+   (´´(´´)´)  grouping can be nested up to 20 levels
 
 .B copying macros to/from unnamed source register
    @<d        copy macro 'd' to unnamed register
@@ -439,12 +444,6 @@ in a shared library.
    editing    edit like any other cell
    saving     they automatically save with the spreadsheet
    copying    can use normal copy and saving to transfer
-
-.B notes
-   -- vim did keyboard macros awesomely
-   -- i was too stupid for vim's shared text and macro registers
-   -- i needed a stepwise execution environment to easily debug
-   -- i find modularizing helps, so my macros can call each other
 
 .SH HINTS (sub-mode)
 .na

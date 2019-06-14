@@ -27,8 +27,8 @@
 
 #define     P_VERMAJOR  "1.X = working for everyday use, features still evolving but stable"
 #define     P_VERMINOR  "1.3 = build out commands to support menus"
-#define     P_VERNUM    "1.3h"
-#define     P_VERTXT    "macros take grouping with parens and can call each other"
+#define     P_VERNUM    "1.3i"
+#define     P_VERTXT    "real-time grouping working and macro save/fetch back"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -118,6 +118,7 @@ struct cSHARED {
    char        repeating;                   /* note for repeating actions     */
    /*---(main loop)-------*/
    float       delay;                       /* requested loop sleep timing    */
+   int         macro_skip;                  /* diff between playback and exec */
    float       update;                      /* requested screen update timing */
    int         secs;                        /* loop sleep second part         */
    long        nsec;                        /* loop sleep nanosec part        */
@@ -185,6 +186,12 @@ tSHARED     myVIKEYS;
 #define     SET_MACRO_RUN        yvikeys_macro_modeset (MACRO_RUN);
 #define     SET_MACRO_PLAYBACK   yvikeys_macro_modeset (MACRO_PLAYBACK);
 #define     SET_MACRO_DELAY      yvikeys_macro_modeset (MACRO_DELAY);
+/*---(speeds)----------*/
+#define     MACRO_NORMAL       'n'  /* normal updates */
+#define     MACRO_SLOWER       's'  /* slower updates */
+#define     MACRO_BLINKS       'b'  /* stop action looking */
+#define     MACRO_PEEKS        'p'  /* very slow screen updates */
+#define     MACRO_BLIND        'd'  /* no screen updates */
 
 
 /*---(recording)-------*/
@@ -193,8 +200,6 @@ tSHARED     myVIKEYS;
 #define     IF_MACRO_RECORDING   if (yvikeys_macro_rmode () == MACRO_RECORD   ) 
 #define     SET_MACRO_RECORD     yvikeys_macro_modeset (MACRO_RECORD);
 #define     SET_MACRO_IGNORE     yvikeys_macro_modeset (MACRO_IGNORE);
-
-#define     IF_GROUP_REPEATING   if (s_gpos < s_nkey) 
 
 
 extern char        g_coord;
@@ -265,6 +270,8 @@ char        KEYS_unique             (void);
 char        KEYS_init               (void);
 char*       KEYS__unit              (char *a_question, char a_index);
 int         yvikeys_keys_gpos       (void);
+char        yvikeys_keys_keygpos    (void);
+char        yvikeys_keys_repeating  (void);
 char        BASE_dump               (char *a_what);
 char        KEYS_dump               (FILE *a_file);
 char        BASE__unit_quiet        (void);
@@ -492,7 +499,7 @@ char        yvikeys_macro_count     (void);
 char        yvikeys_macro__purge    (char a_scope);
 /*---(storage)--------------*/
 char        yvikeys_macro__save     (void);
-char        yvikeys_macro__fetch    (char a_name);
+char        yvikeys_macro__fetch    (void);
 /*---(record)---------------*/
 char        yvikeys_macro__recbeg   (char a_name);
 char        yvikeys_macro_reckey    (char a_key);
@@ -502,14 +509,16 @@ char        yvikeys_macro__direct   (char *a_string);
 char*       yvikeys_macro__unit     (char *a_question, char a_macro);
 /*---(execute)--------------*/
 char        yvikeys_macro__delay    (char a_delay);
+char        yvikeys_macro_pos       (char *a_name, int *a_pos);
+char        yvikeys_macro_repos     (int a_pos);
 char        yvikeys_macro__exectl   (char a_key);
 char        yvikeys_macro_exebeg    (char a_name);
-char        yvikeys_macro_exeadv    (void);
-char        yvikeys_macro_exewait   (void);
+char        yvikeys_macro_exeadv    (char a_play);
 char        yvikeys_macro_exekey    (void);
-char        yvikeys_macro_exeplay   (char a_key);
+char        yvikeys_macro_exeplay   (uchar a_key);
 char        yvikeys_macro_smode     (char a_major, char a_minor);
-char        yvikeys_macro_status    (char *a_list);
+char        yvikeys_macro_rstatus   (char *a_list);
+char        yvikeys_macro_estatus   (char *a_list);
 char        yvikeys_macro_emode     ();
 char        yvikeys_macro_rmode     ();
 char        yvikeys_macro_modeset   (char a_mode);
@@ -574,7 +583,7 @@ char        yvikeys_loop_update     (char *a_update);
 char        yvikeys_loop_beg        (void);
 char        yvikeys_loop_prog       (void);
 char        yvikeys_loop_sleep      (uchar a_key, char a_draw);
-char        yvikeys_loop_sprint     (void);
+char        yvikeys_loop_macro      (char a_delay, char a_update);
 char        yvikeys_loop_normal     (void);
 char        yvikeys_delay_status    (char *a_list);
 char        yvikeys_prog_status     (char *a_list);

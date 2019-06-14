@@ -137,11 +137,6 @@ SCRP          v21  (GOD   ) verify delay and update adjustments               
      get      v21  check the delay globals              GOD__unit                   "delay"        , 0                                                      s_equal     LOOP delay       : keys  = 0.000000, 1s,          0ns   -                                            
      get      v21  check the update globals             GOD__unit                   "update"       , 0                                                      s_equal     LOOP update      : 1s    = 1.000,      1 loop(s)                                                     
 
-   COND       v21  increase by one (past end so no change)                            - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  change setting                       yvikeys_loop_update         ">"                                                                     i_lesser    0                                                                                                    
-     get      v21  check the delay globals              GOD__unit                   "delay"        , 0                                                      s_equal     LOOP delay       : keys  = 0.000000, 1s,          0ns   -                                            
-     get      v21  check the update globals             GOD__unit                   "update"       , 0                                                      s_equal     LOOP update      : 1s    = 1.000,      1 loop(s)                                                     
-
    GROUP      v21  check combinations of delay and update                             - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize settings, just in case                                  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  

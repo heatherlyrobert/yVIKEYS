@@ -4,6 +4,10 @@
 #include    "yVIKEYS_priv.h"
 
 
+/*
+ * metis  tn4··  main loop must kick into immediate mode when close group is found
+ *
+ */
 
 char *gvikeys_lower   = "abcdefghijklmnopqrstuvwxyz";
 char *gvikeys_upper   = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -323,9 +327,9 @@ KEYS_status        (char *a_msg)
    int         i           = 0;             /* iterator -- keys               */
    int         x_start     = 0;             /* iterator -- keys               */
    x_len = strlen (s_keys_log) - 1;
-   x_start = x_len - (20 * 5);
+   x_start = x_len - 40;
    if (x_start < 0) x_start = 0;
-   snprintf (a_msg, 500, "keys (%d) %-100s", s_nkey, s_keys_log + x_start);
+   snprintf (a_msg, 500, "keys    %-5d %s¤", s_nkey, s_keys_log + x_start);
    return 0;
 }
 
@@ -480,8 +484,23 @@ KEYS_unique             (void)
    return 1;
 }
 
-int yVIKEYS_keys_nkey       (void) { return s_nkey; }
-int yvikeys_keys_gpos       (void) { return s_gpos; }
+int  yVIKEYS_keys_nkey       (void) { return s_nkey; }
+int  yvikeys_keys_gpos       (void) { return s_gpos; }
+
+char
+yvikeys_keys_keygpos    (void)
+{
+   if (s_gpos < 0)         return 0;
+   if (s_gpos >= s_nkey)   return 0;
+   return s_keys_log [s_gpos];
+}
+
+char
+yvikeys_keys_repeating  (void)
+{
+   if (s_gpos < s_nkey)  return 1;
+   return 0;
+}
 
 char*
 yVIKEYS_keys_last       (void)
@@ -560,33 +579,42 @@ yVIKEYS_main_input      (char a_runmode, uchar a_key)
       if (a_key == G_KEY_DEL  )  a_key = G_KEY_BS;     /* X11 sends incorrectly  */
    }
    /*---(normal)-------------------------*/
-   IF_GROUP_REPEATING {
-      DEBUG_LOOP   yLOG_note    ("group repeating older keys");
-      x_ch = s_keys_log [s_gpos];
-      ++s_gpos;
-   }
-   /*---(normal)-------------------------*/
    else IF_MACRO_NOT_PLAYING {
-      DEBUG_LOOP   yLOG_note    ("normal keystroke and recording");
-      x_ch  = a_key;
-      if (x_ch != 0)  KEYS__logger (x_ch);
+      /*---(repeating)---------*/
+      if (yvikeys_keys_repeating ()) {
+         DEBUG_LOOP   yLOG_note    ("normal mode, group repeating older keys");
+         x_ch = s_keys_log [s_gpos];
+         ++s_gpos;
+      }
+      /*---(not-repeating)-----*/
+      else {
+         DEBUG_LOOP   yLOG_note    ("normal mode, new keystroke and recording");
+         x_ch  = a_key;
+         if (x_ch != 0)  KEYS__logger (x_ch);
+      }
+      /*---(done)--------------*/
    }
    /*---(run, delay, or playback)--------*/
-   else IF_MACRO_PLAYING {
+   IF_MACRO_PLAYING {
+      /*---(playback)----------*/
+      DEBUG_LOOP   yLOG_note    ("handle playback control");
+      x_play = a_key;
+      DEBUG_LOOP   yLOG_value   ("x_play"    , x_play);
+      if (yvikeys_macro_exeplay (x_play) < 0) {
+         DEBUG_LOOP   yLOG_note    ("terminated, do not execute next key");
+         DEBUG_LOOP   yLOG_exit    (__FUNCTION__);
+         return 0;
+      }
+      /*---(not-repeating)-----*/
       DEBUG_LOOP   yLOG_note    ("macro running, delay, or playback");
       x_ch = yvikeys_macro_exekey ();
       IF_MACRO_OFF {
          DEBUG_LOOP   yLOG_exit    (__FUNCTION__);
          return x_ch;
       }
-      yvikeys_macro_exewait ();
-      DEBUG_LOOP   yLOG_note    ("handle playback control");
-      x_play = a_key;
-      DEBUG_LOOP   yLOG_value   ("x_play"    , x_play);
-      if (yvikeys_macro_exeplay (x_play) < 0) {
-         DEBUG_LOOP   yLOG_exit    (__FUNCTION__);
-         return -2;
-      }
+      /*---(advance)-----------*/
+      yvikeys_macro_exeadv (x_play);
+      /*---(done)--------------*/
    }
    /*---(complete)-----------------------*/
    DEBUG_LOOP   yLOG_exit    (__FUNCTION__);
@@ -686,8 +714,6 @@ yVIKEYS_main_handle     (uchar a_key)
    yVIKEYS_view_text (YVIKEYS_KEYS   , x_keys   );
    /*---(save current mode)--------------*/
    x_savemode = MODE_curr ();
-   /*---(advance macros)-----------------*/
-   IF_MACRO_ON  yvikeys_macro_exeadv ();
    /*---(complete)-----------------------*/
    DEBUG_LOOP   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -720,32 +746,27 @@ yVIKEYS_main_string  (uchar *a_keys)
    for (i = 0; i < x_len; ++i) {
       DEBUG_LOOP   yLOG_value   ("LOOP"      , i);
       /*---(get next char)---------------*/
-      IF_MACRO_NOT_PLAYING {
-         DEBUG_LOOP   yLOG_value   ("a_keys[i]" , a_keys[i]);
-         DEBUG_LOOP   yLOG_char    ("a_keys[i]" , chrvisible (a_keys[i]));
-         x_ch = chrworking (a_keys [i]);
-         DEBUG_LOOP   yLOG_value   ("x_ch"      , x_ch);
-         /*---(handle input)----------------*/
-         x_ch = yVIKEYS_main_input (RUN_TEST, x_ch);
-         DEBUG_LOOP   yLOG_value   ("x_ch"      , x_ch);
-         if (x_ch == -1) continue;
-      } else {
-         x_ch = yVIKEYS_main_input (RUN_TEST, 0);
-         DEBUG_LOOP   yLOG_value   ("x_ch"      , x_ch);
-      }
+      DEBUG_LOOP   yLOG_value   ("a_keys[i]" , a_keys[i]);
+      DEBUG_LOOP   yLOG_char    ("a_keys[i]" , chrvisible (a_keys[i]));
+      x_ch = chrworking (a_keys [i]);
+      DEBUG_LOOP   yLOG_value   ("x_ch"      , x_ch);
+      /*---(handle input)----------------*/
+      x_ch = yVIKEYS_main_input (RUN_TEST, x_ch);
+      DEBUG_LOOP   yLOG_value   ("x_ch"      , x_ch);
+      if (x_ch == -1) continue;
       /*---(handle keystroke)------------*/
       rc = yVIKEYS_main_handle (x_ch);
       DEBUG_LOOP   yLOG_value   ("rc"        , rc);
       /*---(check for macro)-------------*/
       DEBUG_LOOP   yLOG_char    ("macro exe" , yvikeys_macro_emode ());
       DEBUG_LOOP   yLOG_value   ("macro cnt" , yvikeys_macro_count ());
-      DEBUG_LOOP   yLOG_char    ("s_nkey"    , s_nkey);
-      DEBUG_LOOP   yLOG_char    ("s_gpos"    , s_gpos);
+      DEBUG_LOOP   yLOG_value   ("s_nkey"    , s_nkey);
+      DEBUG_LOOP   yLOG_value   ("s_gpos"    , s_gpos);
       IF_MACRO_MOVING  {
          DEBUG_LOOP   yLOG_note    ("macro running and used step, back up loop counter");
          --i;
       }
-      IF_GROUP_REPEATING {
+      if (yvikeys_keys_repeating ()) {
          DEBUG_LOOP   yLOG_note    ("group using older keystrokes, back up loop counter");
          --i;
       }
@@ -814,6 +835,7 @@ yVIKEYS_main            (char *a_delay, char *a_update, void *a_altinput ())
    uchar       x_key       = ' ';      /* current keystroke                   */
    char        rc          = 0;
    char        x_draw      = '-';
+   char        x_group     = '-';
    /*---(prepare)------------------------*/
    DEBUG_TOPS   yLOG_note    ("entering main processing loop");
    DEBUG_TOPS   yLOG_break   ();
@@ -824,7 +846,6 @@ yVIKEYS_main            (char *a_delay, char *a_update, void *a_altinput ())
       /*---(get input)-------------------*/
       x_ch = yvikeys_loop_getch ();
       DEBUG_GRAF  yLOG_value   ("x_ch"      , x_ch);
-      DEBUG_GRAF  yLOG_value   ("RESIZE"    , KEY_RESIZE);
       yvikeys_loop_beg   ();
       /*---(specialty actions)-----------*/
       if (x_ch == KEY_RESIZE)  yVIKEYS_view_resize (0, 0, 0);
@@ -838,6 +859,18 @@ yVIKEYS_main            (char *a_delay, char *a_update, void *a_altinput ())
       if (yVIKEYS_quit ())  break;
       /*---(alternate input)-------------*/
       if (a_altinput != NULL)   a_altinput ();
+      /*---(repeating)-------------------*/
+      if (x_key == ')' && yvikeys_macro_emode () == MACRO_STOP) {
+         DEBUG_GRAF  yLOG_note    ("kick into grouping (non-macro) fast execution mode");
+         yvikeys_loop_macro ('0', 's');
+         x_group = 'y';
+         continue;
+      }
+      if (!yvikeys_keys_repeating () && x_group == 'y') {
+         DEBUG_GRAF  yLOG_note    ("end grouping (non-macro) fast execution mode");
+         yvikeys_loop_normal ();
+         x_group = '-';
+      }
       /*---(showing)---------------------*/
       ++x_loop;
       x_draw = '-';
@@ -847,7 +880,7 @@ yVIKEYS_main            (char *a_delay, char *a_update, void *a_altinput ())
          yVIKEYS_view_all (0.0);
       }
       /*---(sleeping)--------------------*/
-      IF_MACRO_NOT_MOVING   yvikeys_loop_sleep (x_key, x_draw);
+      yvikeys_loop_sleep (x_key, x_draw);
       /*---(done)------------------------*/
    }
    DEBUG_TOPS  yLOG_break   ();

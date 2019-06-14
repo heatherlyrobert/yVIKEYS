@@ -895,6 +895,7 @@ static   int   s_repeat   = 0;
 
 static   int   s_level                 = 0;;
 static   int   s_rep     [LEN_LABEL];
+static   uchar s_src     [LEN_LABEL];
 static   int   s_pos     [LEN_LABEL];
 
 char
@@ -943,6 +944,7 @@ REPEAT_init             (void)
    /*---(group)--------------------------*/
    for (i = 0; i < LEN_LABEL; ++i) {
       s_pos [i]  = -1;
+      s_src [i]  = '-';
       s_rep [i]  = -1;
    }
    /*---(update status)------------------*/
@@ -1027,7 +1029,12 @@ REPEAT_group_beg        (void)
    if (s_repeat <= 0)  return 0;
    /*---(populate new level)-------------*/
    ++s_level;
-   s_pos [s_level] = yvikeys_keys_gpos ();
+   IF_MACRO_PLAYING {
+      yvikeys_macro_pos (&(s_src [s_level]), &(s_pos [s_level]));
+   } else {
+      s_pos [s_level] = yvikeys_keys_gpos ();
+      s_src [s_level] = '´';
+   }
    s_rep [s_level] = s_repeat;
    /*---(clear normal repeat)------------*/
    s_repeat = 0;
@@ -1043,13 +1050,15 @@ REPEAT_group_end        (void)
    /*---(check for done)-----------------*/
    if (s_rep [s_level] <= 0) {
       s_rep [s_level] = -1;
+      s_src [s_level] = '-';
       s_pos [s_level] = -1;
       --s_level;
    }
    /*---(return to beginning)------------*/
    else {
       --(s_rep [s_level]);
-      KEYS_repos (s_pos [s_level]);
+      if (s_src [s_level] == (uchar) '´')  KEYS_repos (s_pos [s_level]);
+      else                                 yvikeys_macro_repos (s_pos [s_level]);
    }
    /*---(complete)-----------------------*/
    return 0;
@@ -1197,8 +1206,8 @@ REPEAT__unit           (char *a_question)
    }
    else if (strcmp (a_question, "groups"       )  == 0) {
       for (i = 1; i <= 5; ++i) {
-         if (s_pos [i] >= 0)  sprintf (t, "%02d/%03d", s_rep [i], s_pos [i]);
-         else                 sprintf (t, "--/---");
+         if (s_pos [i] >= 0)  sprintf (t, "%02d/%c/%03d", s_rep [i], s_src [i], s_pos [i]);
+         else                 sprintf (t, "--/-/---");
          strlcat (x_list, t, LEN_FULL);
          if (i < 5)  strlcat (x_list, ", ", LEN_FULL);
       }

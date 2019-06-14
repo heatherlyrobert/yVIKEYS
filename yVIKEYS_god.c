@@ -127,25 +127,29 @@ struct cUPDATE {
 };
 static tUPDATE s_update_info [MAX_UPDATE] = {
    /*---(default)--------------------------*/
-   { "every" , "every loop"       ,   0.00 },
+   { "every" , "every loop"         ,   0.00     },
    /*---(faster)---------------------------*/
-   { "10ms"  , "very fast"        ,   0.01 },
-   { "20ms"  , "faster"           ,   0.02 },
-   { "50ms"  , "fast"             ,   0.05 },
+   { "10ms"  , "very fast"          ,   0.01     },
+   { "20ms"  , "faster"             ,   0.02     },
+   { "50ms"  , "fast"               ,   0.05     },
    /*---(normal)---------------------------*/
-   { "100ms" , "normal"           ,   0.10 },
+   { "100ms" , "normal"             ,   0.10     },
    /*---(slower)---------------------------*/
-   { "250ms" , "slow"             ,   0.25 },
-   { "500ms" , "slower"           ,   0.50 },
-   { "1s"    , "very slow"        ,   1.00 },
+   { "250ms" , "slow"               ,   0.25     },
+   { "500ms" , "slower"             ,   0.50     },
+   { "1s"    , "very slow"          ,   1.00     },
+   /*---(macro debugging)------------------*/
+   { "2s"    , "stop action"        ,   2.00     },
+   { "5s"    , "occasional peeks"   ,   5.00     },
+   { "100s"  , "flying blind"       , 100.00     },
    /*---(end)------------------------------*/
-   { "---"   , "end-of-list"      ,   0.00 },
+   { "---"   , "end-of-list"        ,   0.00     },
    /*---(done)-----------------------------*/
 };
 
 
 
-/*===[[ UPDATES ]]============================================================*/
+/*===[[ DELAYS ]]=============================================================*/
 #define     NSEC        1000000000
 #define     MAX_DELAY   50
 static int     s_delay    =  0;    /* how man seconds between main loops      */
@@ -158,24 +162,24 @@ struct cDELAY {
 };
 static tDELAY s_delay_info [MAX_DELAY] = {
    /*---(default)---------------------------------*/
-   { "keys"   , "keyboard"           ,   0.0      },
+   { "keys"  , "keyboard"           ,   0.0      },
    /*---(faster)----------------------------------*/
-   { "1us"    , "millionth"          ,   0.000001 },
-   { "10us"   , "ten millionths"     ,   0.00001  },
-   { "100us"  , "hundred millionths" ,   0.0001   },
-   { "500us"  , "500 millionths"     ,   0.0005   },
+   { "1us"   , "millionth"          ,   0.000001 },
+   { "10us"  , "ten millionths"     ,   0.00001  },
+   { "100us" , "hundred millionths" ,   0.0001   },
+   { "500us" , "500 millionths"     ,   0.0005   },
    /*---(normal)----------------------------------*/
-   { "1ms"    , "thousandth"         ,   0.001    },
-   { "5ms"    , "five thousandths"   ,   0.005    },
-   { "10ms"   , "hundreth"           ,   0.01     },
+   { "1ms"   , "thousandth"         ,   0.001    },
+   { "5ms"   , "five thousandths"   ,   0.005    },
+   { "10ms"  , "hundreth"           ,   0.01     },
    /*---(slower)----------------------------------*/
-   { "20ms"   , "fifteth"            ,   0.02     },
-   { "50ms"   , "twenteth"           ,   0.05     },
-   { "100ms"  , "tenth"              ,   0.1      },
+   { "20ms"  , "fifteth"            ,   0.02     },
+   { "50ms"  , "twenteth"           ,   0.05     },
+   { "100ms" , "tenth"              ,   0.1      },
    /*---(glacial)---------------------------------*/
-   { "1s"     , "second"             ,   1.0      },
+   { "1s"    , "second"             ,   1.0      },
    /*---(end of list)-----------------------------*/
-   { "---"    , "end-of-list"        ,   0.0      },
+   { "---"   , "end-of-list"        ,   0.0      },
    /*---(done)------------------------------------*/
 };
 
@@ -760,23 +764,24 @@ char
 yvikeys_loop_init       (void)
 {
    /*---(delay/updapte)------------------*/
-   s_delay           = 0;
-   s_update          = 0;
-   myVIKEYS.delay    = 0.0;
-   myVIKEYS.secs     = 0;
-   myVIKEYS.nsec     = 0;
-   myVIKEYS.update   = 0.0;
-   myVIKEYS.loops    = 1;
-   myVIKEYS.blocking = ' ';
+   s_delay             = 0;
+   s_update            = 0;
+   myVIKEYS.macro_skip = 1;
+   myVIKEYS.delay      = 0.0;
+   myVIKEYS.secs       = 0;
+   myVIKEYS.nsec       = 0;
+   myVIKEYS.update     = 0.0;
+   myVIKEYS.loops      = 1;
+   myVIKEYS.blocking   = ' ';
    yvikeys_loop_delay  ("");
    yvikeys_loop_update ("");
    /*---(progress)-----------------------*/
-   myVIKEYS.p_play   = '-';
-   myVIKEYS.p_pos    = 's';
-   myVIKEYS.p_scale  = 0;
-   myVIKEYS.p_speed  = 0;
-   myVIKEYS.p_adv    = 0.0;
-   myVIKEYS.p_inc    = 0.0;
+   myVIKEYS.p_play     = '-';
+   myVIKEYS.p_pos      = 's';
+   myVIKEYS.p_scale    = 0;
+   myVIKEYS.p_speed    = 0;
+   myVIKEYS.p_adv      = 0.0;
+   myVIKEYS.p_inc      = 0.0;
    yvikeys_scale       (MODE_PROGRESS, "0");
    yvikeys_speed       (MODE_PROGRESS, "0");
    /*---(commands)-----------------------*/
@@ -970,27 +975,66 @@ yvikeys_loop_set        (char *a_delay, char *a_update)
 }
 
 char
-yvikeys_loop_sprint     (void)
-{
-   /*---(locals)-----------+-----+-----+-*/
-   char        rc          =    0;
-   /*---(return to normal)---------------*/
-   rc = yvikeys_loop_delay   ("100us");
-   rc = yvikeys_loop_update  ("100ms");
-   /*---(complete)-----------------------*/
-   return rc;
-}
-
-char
 yvikeys_loop_normal     (void)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rc          =    0;
    /*---(return to normal)---------------*/
+   DEBUG_LOOP   yLOG_senter  (__FUNCTION__);
+   DEBUG_LOOP   yLOG_schar   (yvikeys_macro_emode ());
+   DEBUG_LOOP   yLOG_snote   (s_save_delay);
    rc = yvikeys_loop_delay   (s_save_delay);
+   myVIKEYS.macro_skip = 1;
+   DEBUG_LOOP   yLOG_sint    (myVIKEYS.macro_skip);
+   DEBUG_LOOP   yLOG_snote   (s_save_update);
    rc = yvikeys_loop_update  (s_save_update);
    /*---(complete)-----------------------*/
+   DEBUG_LOOP   yLOG_sexit   (__FUNCTION__);
    return rc;
+}
+
+char
+yvikeys_loop_macro      (char a_delay, char a_update)
+{
+   /*---(no change for playback)---------*/
+   IF_MACRO_PLAYBACK {
+      yvikeys_loop_normal ();
+      return 0;
+   }
+   /*---(change to macro speed)----------*/
+   DEBUG_LOOP   yLOG_senter  (__FUNCTION__);
+   DEBUG_LOOP   yLOG_schar   (yvikeys_macro_emode ());
+   DEBUG_LOOP   yLOG_sint    (a_delay);
+   DEBUG_LOOP   yLOG_schar   (a_delay);
+   /*---(run mode)-----------------------*/
+   IF_MACRO_RUN   a_delay = '0';
+   /*---(delay mode)---------------------*/
+   switch (a_delay) {
+   case '0' :  yvikeys_loop_delay ("1us"  );   myVIKEYS.macro_skip =  1;   break;
+   case '1' :  yvikeys_loop_delay ("100us");   myVIKEYS.macro_skip =  1;   break;
+   case '2' :  yvikeys_loop_delay ("1ms"  );   myVIKEYS.macro_skip =  1;   break;
+   case '3' :  yvikeys_loop_delay ("10ms" );   myVIKEYS.macro_skip =  1;   break;
+   case '4' :  yvikeys_loop_delay ("10ms" );   myVIKEYS.macro_skip =  5;   break;
+   case '5' :  yvikeys_loop_delay ("100ms");   myVIKEYS.macro_skip =  1;   break;
+   case '6' :  yvikeys_loop_delay ("100ms");   myVIKEYS.macro_skip =  5;   break;
+   case '7' :  yvikeys_loop_delay ("100ms");   myVIKEYS.macro_skip = 10;   break;
+   case '8' :  yvikeys_loop_delay ("100ms");   myVIKEYS.macro_skip = 20;   break;
+   case '9' :  yvikeys_loop_delay ("100ms");   myVIKEYS.macro_skip = 30;   break;
+   }
+   DEBUG_LOOP   yLOG_sint    (myVIKEYS.macro_skip);
+   /*---(change update basis)------------*/
+   DEBUG_LOOP   yLOG_sint    (a_update);
+   DEBUG_LOOP   yLOG_schar   (a_update);
+   switch (a_update) {
+   case MACRO_NORMAL :  yvikeys_loop_update ("100ms");  break;
+   case MACRO_SLOWER :  yvikeys_loop_update ("500ms");  break;
+   case MACRO_BLINKS :  yvikeys_loop_update ("2s");     break;
+   case MACRO_PEEKS  :  yvikeys_loop_update ("5s");     break;
+   case MACRO_BLIND  :  yvikeys_loop_update ("100s");   break;
+   }
+   /*---(complete)-----------------------*/
+   DEBUG_LOOP   yLOG_sexit   (__FUNCTION__);
+   return 0;
 }
 
 static long long s_loop_targ   = 0;
