@@ -1005,30 +1005,29 @@ yvikeys_macro_exeplay   (uchar a_key)
    DEBUG_SCRP   yLOG_enter   (__FUNCTION__);
    DEBUG_SCRP   yLOG_value   ("a_key"     , a_key);
    switch (a_key) {
-   case '.'      :
-      DEBUG_SCRP   yLOG_note    ("dot (.)");
-      IF_MACRO_PLAYBACK {
-         DEBUG_SCRP   yLOG_note    ("change playback to delay");
-         SET_MACRO_DELAY;
-         DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
-         return 0;
-      }
-      IF_MACRO_DELAY {
-         DEBUG_SCRP   yLOG_note    ("change delay to playback");
-         SET_MACRO_PLAYBACK;
-         DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
-         return 0;
-      }
-      break;
+   case '0' : case '1' : case '2' : case '3' : case '4' :
+   case '5' : case '6' : case '7' : case '8' : case '9' :
    case '-'      : case '+'      :
       yvikeys_macro__delay (a_key);
       break;
    case 'n' : case 's' : case 'b' : case 'p' : case 'd' :
       s_update = a_key;
       break;
+   case ',' :
+      SET_MACRO_DELAY;
+      yvikeys_loop_macro (s_delay, s_update);
+      break;
+   case '.' :
+      SET_MACRO_PLAYBACK;
+      yvikeys_loop_normal ();
+      break;
    case G_KEY_ESCAPE : case G_CHAR_ESCAPE :
       DEBUG_SCRP   yLOG_note    ("escape");
-      yvikeys_macro_ereset ();
+      SET_MACRO_STOP;
+      s_macros [s_ecurr].pos    = -1;
+      s_macros [s_ecurr].cur    = '·';
+      s_macros [s_ecurr].repeat =  0;
+      s_ecurr = -1;
       yvikeys_loop_normal ();
       DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
       return -1;
@@ -1036,6 +1035,7 @@ yvikeys_macro_exeplay   (uchar a_key)
    case G_KEY_RETURN : case G_KEY_ENTER  : case G_CHAR_RETURN :
       DEBUG_SCRP   yLOG_note    ("return");
       SET_MACRO_RUN;
+      yvikeys_loop_macro (s_delay, s_update);
       break;
    }
    DEBUG_SCRP   yLOG_exit    (__FUNCTION__);

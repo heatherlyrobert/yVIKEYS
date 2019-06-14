@@ -369,8 +369,8 @@ macros are a fast, simple, and powerful productivity mechanism to save and
 repeat keystrokes as if typed in real-time.
 
 .B value (V).  
-many actions are repeated, macros save time and mistakes.  often fixes and
-improvements are avoided due to the work involved.
+many actions are repeated, macros save time and mistakes.  often changes are
+avoided due to the dull, repetitve work involved.
 
 .B situation (S).  
 macros are well and long established, explored, tested, and used in
@@ -401,12 +401,14 @@ keystroke grouping, and shared macro library.
    qdq        erase macro macro 'd' (record nothing)
    qD´´´q     append more keystrokes ´´´ onto end of macro 'd'
    Q          reset macro recording and execution environment
+   * automatically shows a macro recording status line to help
 
 .B executing existing macros
    @d         execute macro 'd' at the current location
    @@         re-execute the last used macro
    5@d        execute macro 'd' five times
    @D         execute macro 'd' in playback/debug mode
+   * automatically shows a macro execution status line to help
 
 .B special repeat grouping
    (´´´)      keystrokes can be grouped/organized
@@ -430,10 +432,12 @@ keystroke grouping, and shared macro library.
 
 .B debugging and playback controls
    0-9 + -    set the speed, increment, decrement
+   n s b p d  screen updates (norm, slow, blinks, peeks, blind)
+   ·          step forward one (space)
+   ,          run at delay speed and screen updates
+   .          stop delay and return to manual playback
    ¦          run to end at full speed (return)
    ¥          terminate at current point (escape)
-   .          play/pause toggle for delay mode
-   ·          step forward one (space)
 
 .B special control characters
    see SPECIAL CHARACTERS for what keys will be including in macros to
