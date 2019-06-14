@@ -11,7 +11,7 @@
  * metis  dw4#·  create a repeat stack controlled by parens in macros (maybe special parens)
  * metis  ww2··  macro should abort if anything causes an error
  * metis  tw2#·  when macros execute, do not re-record internal keystrokes
- * metis  tw1··  macro debug should start in manual mode and require input
+ * metis  tw1#·  macro debug should start in manual mode and require input
  *
  *
  *
@@ -41,10 +41,13 @@ static tMACRO  s_macros    [S_MACRO_MAX];
 static int     s_nmacro    =    0;
 
 static char    s_emode     =  '-';          /* run, playback, delay, etc      */
-static char    s_delay     =  '0';          /* time between steps             */
-static char    s_update    =  'n';          /* macro exec sceen update speed  */
 static char    s_ename     =  '-';
 static int     s_ecurr     =   -1;
+
+static char    s_edelay    =  '0';          /* execution delay between steps  */
+static char    s_ddelay    =  '0';          /* debug delay between steps      */
+static char    s_eupdate   =  'n';          /* execution sceen update speed   */
+static char    s_dupdate   =  'n';          /* debug sceen update speed       */
 
 static char    s_rmode     =  '-';          /* recording or not               */
 static char    s_rname     =  '-';
@@ -60,6 +63,10 @@ static char    (*s_saver ) (char a_name, char *a_keys);
 #define     MACRO_SYSTEM   '0'
 #define     MACRO_ALL      '*'
 
+char yvikeys_macro_edelay  (char a_delay);
+char yvikeys_macro_eupdate (char a_update);
+char yvikeys_macro_ddelay  (char a_delay);
+char yvikeys_macro_dupdate (char a_update);
 
 
 /*====================------------------------------------====================*/
@@ -299,11 +306,6 @@ yvikeys_macro_init      (void)
    /*---(update status)------------------*/
    DEBUG_PROG   yLOG_note    ("update status");
    STATUS_init_set   (SMOD_MACRO);
-   /*---(commands)-----------------------*/
-   DEBUG_PROG   yLOG_note    ("add commands");
-   yVIKEYS_cmds_add (YVIKEYS_M_CONFIG, "macro"       , ""    , "a"    , yvikeys_macro__direct, "direct definition of a keyboard macro"                       );
-   yVIKEYS_view_option (YVIKEYS_STATUS, "macro"  , yvikeys_macro_estatus , "details of macro playback"                );
-   yVIKEYS_view_option (YVIKEYS_STATUS, "record" , yvikeys_macro_rstatus , "details of macro recording"               );
    /*---(read/write)---------------------*/
    rc = yPARSE_handler (SMOD_MACRO   , "macro"     , 7.3, "cO----------", yvikeys_macro_reader, yvikeys_macro_writer_all, "------------" , "a,keys", "keyboard macros"           );
    /*---(complete)-----------------------*/
@@ -329,6 +331,51 @@ yVIKEYS_macro_config    (void *a_loader, void *a_saver)
    DEBUG_SCRP   yLOG_point   ("loader"    , s_loader);
    if (a_saver  != NULL) s_saver  = a_saver;
    DEBUG_SCRP   yLOG_point   ("saver"     , s_saver);
+   /*---(commands)-----------------------*/
+   DEBUG_PROG   yLOG_note    ("add commands");
+   yVIKEYS_cmds_add (YVIKEYS_M_CONFIG, "macro"       , ""    , "a"    , yvikeys_macro__direct, "direct definition of a keyboard macro"                       );
+   yVIKEYS_cmds_add (YVIKEYS_M_SCRIPT, "edelay"      , ""    , "c"    , yvikeys_macro_edelay         , "");
+   yVIKEYS_cmds_add (YVIKEYS_M_SCRIPT, "eupdate"     , ""    , "c"    , yvikeys_macro_eupdate        , "");
+   yVIKEYS_cmds_add (YVIKEYS_M_SCRIPT, "ddelay"      , ""    , "c"    , yvikeys_macro_ddelay         , "");
+   yVIKEYS_cmds_add (YVIKEYS_M_SCRIPT, "dupdate"     , ""    , "c"    , yvikeys_macro_ddelay         , "");
+   /*---(status)-------------------------*/
+   yVIKEYS_view_option (YVIKEYS_STATUS, "macro"  , yvikeys_macro_estatus , "details of macro playback"                );
+   yVIKEYS_view_option (YVIKEYS_STATUS, "record" , yvikeys_macro_rstatus , "details of macro recording"               );
+   /*---(menu entries)-------------------*/
+   yVIKEYS_menu_add ("µre0", "1us"       , ":edelay 0¦");
+   yVIKEYS_menu_add ("µre1", "100us"     , ":edelay 1¦");
+   yVIKEYS_menu_add ("µre2", "1ms"       , ":edelay 2¦");
+   yVIKEYS_menu_add ("µre3", "10ms"      , ":edelay 3¦");
+   yVIKEYS_menu_add ("µre4", "50ms"      , ":edelay 4¦");
+   yVIKEYS_menu_add ("µre5", "100ms"     , ":edelay 5¦");
+   yVIKEYS_menu_add ("µre6", "500ms"     , ":edelay 6¦");
+   yVIKEYS_menu_add ("µre7", "1s"        , ":edelay 7¦");
+   yVIKEYS_menu_add ("µre8", "2s"        , ":edelay 8¦");
+   yVIKEYS_menu_add ("µre9", "3s"        , ":edelay 9¦");
+   yVIKEYS_menu_add ("µre+", "faster"    , ":edelay +¦");
+   yVIKEYS_menu_add ("µre-", "slower"    , ":edelay -¦");
+   yVIKEYS_menu_add ("µren", "normal"    , ":eupdate n¦");
+   yVIKEYS_menu_add ("µres", "slow"      , ":eupdate s¦");
+   yVIKEYS_menu_add ("µreb", "blinks"    , ":eupdate b¦");
+   yVIKEYS_menu_add ("µrep", "peeks"     , ":eupdate p¦");
+   yVIKEYS_menu_add ("µred", "blind"     , ":eupdate d¦");
+   yVIKEYS_menu_add ("µrd0", "1us"       , ":ddelay 0¦");
+   yVIKEYS_menu_add ("µrd1", "100us"     , ":ddelay 1¦");
+   yVIKEYS_menu_add ("µrd2", "1ms"       , ":ddelay 2¦");
+   yVIKEYS_menu_add ("µrd3", "10ms"      , ":ddelay 3¦");
+   yVIKEYS_menu_add ("µrd4", "50ms"      , ":ddelay 4¦");
+   yVIKEYS_menu_add ("µrd5", "100ms"     , ":ddelay 5¦");
+   yVIKEYS_menu_add ("µrd6", "500ms"     , ":ddelay 6¦");
+   yVIKEYS_menu_add ("µrd7", "1s"        , ":ddelay 7¦");
+   yVIKEYS_menu_add ("µrd8", "2s"        , ":ddelay 8¦");
+   yVIKEYS_menu_add ("µrd9", "3s"        , ":ddelay 9¦");
+   yVIKEYS_menu_add ("µrd+", "faster"    , ":ddelay +¦");
+   yVIKEYS_menu_add ("µrd-", "slower"    , ":ddelay -¦");
+   yVIKEYS_menu_add ("µrdn", "normal"    , ":dupdate n¦");
+   yVIKEYS_menu_add ("µrds", "slow"      , ":dupdate s¦");
+   yVIKEYS_menu_add ("µrdb", "blinks"    , ":dupdate b¦");
+   yVIKEYS_menu_add ("µrdp", "peeks"     , ":dupdate p¦");
+   yVIKEYS_menu_add ("µrdd", "blind"     , ":dupdate d¦");
    /*---(update status)------------------*/
    STATUS_conf_set   (SMOD_MACRO, '1');
    /*---(complete)-----------------------*/
@@ -709,7 +756,7 @@ yvikeys_macro__direct   (char *a_string)
 static void  o___EXECUTE_________o () { return; }
 
 char         /*-> set or adjust delay value ----------[ leaf   [gz.612.101.50]*/ /*-[01.0000.023.!]-*/ /*-[--.---.---.--]-*/
-yvikeys_macro__delay    (char a_delay)
+yvikeys_macro__delay    (char a_which, char a_delay)
 {
    /*---(header)-------------------------*/
    DEBUG_SCRP   yLOG_senter  (__FUNCTION__);
@@ -717,22 +764,54 @@ yvikeys_macro__delay    (char a_delay)
    /*---(set)----------------------------*/
    if (a_delay >= '0' && a_delay <= '9') {
       DEBUG_SCRP   yLOG_note    ("set abs");
-      s_delay = a_delay;
+      if (a_which == 'd')  s_ddelay = a_delay;
+      else                 s_edelay = a_delay;
    }
    if (a_delay == '-') {
       DEBUG_SCRP   yLOG_note    ("decrease (-)");
-      if (s_delay > '0')  --s_delay;
+      if (s_ddelay > '0') {
+         if (a_which == 'd')  --s_ddelay;
+         else                 --s_edelay;
+      }
    }
    if (a_delay == '+') {
       DEBUG_SCRP   yLOG_note    ("increase (+)");
-      if (s_delay < '9')  ++s_delay;
+      if (s_ddelay < '9') {
+         if (a_which == 'd')  ++s_ddelay;
+         else                 ++s_edelay;
+      }
    }
    /*---(new value)-------------------*/
-   DEBUG_SCRP   yLOG_schar   (a_delay);
+   DEBUG_SCRP   yLOG_schar   (s_edelay);
+   DEBUG_SCRP   yLOG_schar   (s_ddelay);
    /*---(complete)--------------------*/
    DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
    return 0;
 }
+
+char         /*-> set or adjust update value ---------[ leaf   [gz.612.101.50]*/ /*-[01.0000.023.!]-*/ /*-[--.---.---.--]-*/
+yvikeys_macro__update   (char a_which, char a_update)
+{
+   /*---(header)-------------------------*/
+   DEBUG_SCRP   yLOG_senter  (__FUNCTION__);
+   DEBUG_SCRP   yLOG_schar   (a_update);
+   /*---(set)----------------------------*/
+   DEBUG_SCRP   yLOG_note    ("set abs");
+   if (a_which == 'd')  s_dupdate = a_update;
+   else                 s_eupdate = a_update;
+   /*---(new value)-------------------*/
+   DEBUG_SCRP   yLOG_schar   (s_eupdate);
+   DEBUG_SCRP   yLOG_schar   (s_dupdate);
+   /*---(complete)--------------------*/
+   DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char yvikeys_macro_edelay  (char a_delay)    { return yvikeys_macro__delay  ('e', a_delay);  }
+char yvikeys_macro_eupdate (char a_update)   { return yvikeys_macro__update ('e', a_update); }
+
+char yvikeys_macro_ddelay  (char a_delay)    { return yvikeys_macro__delay  ('d', a_delay);  }
+char yvikeys_macro_dupdate (char a_update)   { return yvikeys_macro__update ('d', a_update); }
 
 char
 yvikeys_macro_pos       (char *a_name, int *a_pos)
@@ -809,7 +888,7 @@ yvikeys_macro_exebeg    (char a_name)
    /*---(normal)----------------------*/
    if (a_name == tolower (a_name)) {
       DEBUG_SCRP   yLOG_note    ("normal execution");
-      if (s_delay    != '0'       )  SET_MACRO_DELAY;
+      if (s_edelay    != '0'      )  SET_MACRO_DELAY;
       IF_MACRO_OFF                   SET_MACRO_RUN;
    }
    /*---(debugging/playback)----------*/
@@ -829,8 +908,12 @@ yvikeys_macro_exebeg    (char a_name)
    REPEAT_macro ();
    DEBUG_USER   yLOG_value   ("repeat"    , s_macros [s_ecurr].repeat);
    /*---(reset main delay)---------------*/
-   yvikeys_loop_macro (s_delay, s_update);
-   VIEW__switch ("status", "macro");
+   IF_MACRO_RUN {
+      yvikeys_loop_macro ('0', 's');
+   } else {
+      yvikeys_loop_macro (s_ddelay, s_dupdate);
+      VIEW__switch ("status", "macro");
+   }
    /*---(complete)--------------------*/
    DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -1008,14 +1091,14 @@ yvikeys_macro_exeplay   (uchar a_key)
    case '0' : case '1' : case '2' : case '3' : case '4' :
    case '5' : case '6' : case '7' : case '8' : case '9' :
    case '-'      : case '+'      :
-      yvikeys_macro__delay (a_key);
+      yvikeys_macro__delay ('d', a_key);
       break;
    case 'n' : case 's' : case 'b' : case 'p' : case 'd' :
-      s_update = a_key;
+      s_dupdate = a_key;
       break;
    case ',' :
       SET_MACRO_DELAY;
-      yvikeys_loop_macro (s_delay, s_update);
+      yvikeys_loop_macro (s_ddelay, s_dupdate);
       break;
    case '.' :
       SET_MACRO_PLAYBACK;
@@ -1035,7 +1118,7 @@ yvikeys_macro_exeplay   (uchar a_key)
    case G_KEY_RETURN : case G_KEY_ENTER  : case G_CHAR_RETURN :
       DEBUG_SCRP   yLOG_note    ("return");
       SET_MACRO_RUN;
-      yvikeys_loop_macro (s_delay, s_update);
+      yvikeys_loop_macro (s_edelay, s_eupdate);
       break;
    }
    DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
@@ -1187,7 +1270,7 @@ yvikeys_macro_estatus        (char *a_list)
    char        x_ldots     [LEN_HUND] = "··´····´····´····´····´····";
    char        x_rdots     [LEN_HUND] = "····´····´····´····´····´··";
    if (s_ecurr < 0) {
-      snprintf (a_list, LEN_FULL, "macro   %c %c %c -- --- --- ··´····´····´····´····´···· ´ ····´····´····´····´····´··", s_ename, s_delay, s_update);
+      snprintf (a_list, LEN_FULL, "macro   %c %c %c -- --- --- ··´····´····´····´····´···· ´ ····´····´····´····´····´··", s_ename, s_ddelay, s_dupdate);
       return 0;
    }
    x_pos = s_macros [s_ecurr].pos;
@@ -1198,7 +1281,7 @@ yvikeys_macro_estatus        (char *a_list)
    if      (x_rem <=  0)  sprintf (x_aft , "%27.27s", x_rdots);
    else if (x_rem >  27)  sprintf (x_aft , "%-26.26s>", s_macros [s_ecurr].keys + s_macros [s_ecurr].pos + 1);
    else                   sprintf (x_aft , "%*.*s%*.*s"   , x_rem, x_rem, s_macros [s_ecurr].keys + x_pos + 1, 27 - x_rem, 27 - x_rem, x_rdots + x_rem);
-   snprintf (a_list, LEN_FULL, "macro   %c %c %c %2d %3d %3d %27s %c %s", s_ename, s_delay, s_update, s_macros [s_ecurr].repeat, x_pos, s_macros [s_ecurr].len, x_bef, s_macros [s_ecurr].cur, x_aft);
+   snprintf (a_list, LEN_FULL, "macro   %c %c %c %2d %3d %3d %27s %c %s", s_ename, s_ddelay, s_dupdate, s_macros [s_ecurr].repeat, x_pos, s_macros [s_ecurr].len, x_bef, s_macros [s_ecurr].cur, x_aft);
    return 0;
 }
 
@@ -1411,7 +1494,7 @@ yvikeys_macro__unit     (char *a_question, char a_macro)
    }
    else if (strcmp (a_question, "exec"           )   == 0) {
       if (s_ecurr < 0)  snprintf (yVIKEYS__unit_answer, LEN_RECD, "MACRO exec   (%c) : macro pointer grounded", s_ename);
-      else             snprintf (yVIKEYS__unit_answer, LEN_RECD, "MACRO exec   (%c) : %c %c %3d %02x %3d[%-.30s]", s_ename, s_emode, s_delay, s_macros [s_ecurr].pos, (uchar) s_macros [s_ecurr].cur, s_macros [s_ecurr].len, s_macros [s_ecurr].keys);
+      else             snprintf (yVIKEYS__unit_answer, LEN_RECD, "MACRO exec   (%c) : %c %c %3d %02x %3d[%-.30s]", s_ename, s_emode, s_ddelay, s_macros [s_ecurr].pos, (uchar) s_macros [s_ecurr].cur, s_macros [s_ecurr].len, s_macros [s_ecurr].keys);
       return yVIKEYS__unit_answer;
    }
    else if (strcmp (a_question, "keys"           )   == 0) {
