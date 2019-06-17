@@ -607,12 +607,15 @@ yVIKEYS_main_input      (char a_runmode, uchar a_key)
       }
       /*---(not-repeating)-----*/
       DEBUG_LOOP   yLOG_note    ("macro running, delay, or playback");
-      x_ch = yvikeys_macro_exekey ();
+      x_ch = (uchar) yvikeys_macro_exekey ();
       IF_MACRO_OFF {
          DEBUG_LOOP   yLOG_exit    (__FUNCTION__);
          return x_ch;
       }
       /*---(advance)-----------*/
+      DEBUG_LOOP   yLOG_note    ("advance");
+      DEBUG_LOOP   yLOG_value   ("x_ch"      , x_ch);
+      if (x_play == 0)  x_play = x_ch;
       yvikeys_macro_exeadv (x_play);
       /*---(done)--------------*/
    }
@@ -726,6 +729,7 @@ yVIKEYS_main_string  (uchar *a_keys)
    char        rce         =  -10;     /* return code for errors              */
    char        rc          =    0;
    int         i           =    0;
+   int         j           =   -1;
    int         x_len       =    0;
    uchar       x_ch        =  ' ';     /* current keystroke                   */
    char        x_keys      [LEN_RECD];
@@ -746,9 +750,16 @@ yVIKEYS_main_string  (uchar *a_keys)
    for (i = 0; i < x_len; ++i) {
       DEBUG_LOOP   yLOG_value   ("LOOP"      , i);
       /*---(get next char)---------------*/
-      DEBUG_LOOP   yLOG_value   ("a_keys[i]" , a_keys[i]);
-      DEBUG_LOOP   yLOG_char    ("a_keys[i]" , chrvisible (a_keys[i]));
-      x_ch = chrworking (a_keys [i]);
+      if (i != j) {
+         DEBUG_LOOP   yLOG_note    ("new keystroke");
+         DEBUG_LOOP   yLOG_value   ("a_keys[i]" , a_keys[i]);
+         DEBUG_LOOP   yLOG_char    ("a_keys[i]" , chrvisible (a_keys[i]));
+         x_ch = chrworking (a_keys [i]);
+      } else {
+         DEBUG_LOOP   yLOG_note    ("repeat loop");
+         x_ch = 0;
+      }
+      j = i;
       DEBUG_LOOP   yLOG_value   ("x_ch"      , x_ch);
       /*---(handle input)----------------*/
       x_ch = yVIKEYS_main_input (RUN_TEST, x_ch);
