@@ -207,7 +207,7 @@ yvikeys_src_replace     (void)
    yvikeys_sundo_beg (__FUNCTION__);
    for (i = 0; i < x_len; ++i) {
       /*---(get char)--------------------*/
-       if (i < x_dlen)    x_ch = x_data [i];
+      if (i < x_dlen)    x_ch = x_data [i];
       else               x_ch = G_CHAR_STORAGE;
       /*---(add to source)---------------*/
       if (s_cur->cpos < s_cur->npos) {
@@ -948,7 +948,8 @@ SOURCE__curses          (tEDIT *a_cur, int a_left, int a_bott, char a_edit)
    }
    /*---(base content)-------------------*/
    if (a_cur->npos == 0) mvprintw (a_bott, a_left, "   %c %-*.*s ", G_CHAR_NULL, a_cur->apos, a_cur->apos, " ");
-   else                  mvprintw (a_bott, a_left, "%4d %-*.*s ", a_cur->npos, a_cur->apos, a_cur->apos, a_cur->contents + a_cur->bpos);
+   /*> else                  mvprintw (a_bott, a_left, "%4d %-*.*s ", a_cur->npos, a_cur->apos, a_cur->apos, a_cur->contents + a_cur->bpos);   <*/
+   else                  mvprintw (a_bott, a_left, "%4d %-*.*s ", a_cur->cpos, a_cur->apos, a_cur->apos, a_cur->contents + a_cur->bpos);
    /*---(selection)----------------------*/
    if (a_edit == 'y' && yvikeys_sreg_islive () && a_cur->npos > 0) {
       yvikeys_sreg_selected (&x_beg, &x_end, NULL);
@@ -1561,19 +1562,30 @@ SOURCE_mode             (int a_major, int a_minor)
       }
       /*---(mode changes)----------------*/
       switch (a_minor) {
+      case '@'      :
+         DEBUG_USER   yLOG_note    ("macro execution");
+         MODE_enter  (SMOD_MACRO   );
+         rc = a_minor;
+         break;
+      case 'q'      :
+         IF_MACRO_RECORDING {
+            DEBUG_USER   yLOG_note    ("end macro recording");
+            rc = yvikeys_macro_recend ();
+         } else {
+            DEBUG_USER   yLOG_note    ("begin macro recording");
+            MODE_enter  (SMOD_MACRO   );
+            rc = a_minor;
+         }
+         break;
+      case 'Q'      :
+         DEBUG_USER   yLOG_note    ("reset macro recording");
+         rc = yvikeys_macro_resetall ();
+         break;
       case  'v' :
          if (yvikeys_sreg_islive ())
             s_cur->cpos = yvikeys_sreg_reverse  ();
          else
             yvikeys_sreg_makelive ();
-         /*> if (s_live == SELC_YES) {                                                <* 
-          *>    DEBUG_USER   yLOG_note    ("flip selection ends");                    <* 
-          *>    s_cur->cpos = vikeys_sreg_reverse ();                                 <* 
-          *> } else {                                                                 <* 
-          *>    DEBUG_USER   yLOG_note    ("start selection of text");                <* 
-          *>    s_live = SELC_YES;                                                    <* 
-          *>    s_root = s_cur->cpos;                                                 <* 
-          *> }                                                                        <*/
          rc     = 0;
          break;
       case  '#' :
@@ -2014,6 +2026,9 @@ SOURCE__unit            (char *a_question, char a_reg)
    }
    else if (strcmp (a_question, "contents"       )   == 0) {
       snprintf (yVIKEYS__unit_answer, LEN_FULL, "SRC contents     : %3d:%-.40s:", s_cur->npos, s_cur->contents);
+   }
+   else if (strcmp (a_question, "full"           )   == 0) {
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "SRC full         : %3d:%s:", s_cur->npos, s_cur->contents);
    }
    else if (strcmp (a_question, "words"          )   == 0) {
       snprintf (yVIKEYS__unit_answer, LEN_FULL, "SRC words        : %3d:%-.40s:", s_cur->npos, s_cur->words);

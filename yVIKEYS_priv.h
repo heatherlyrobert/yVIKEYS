@@ -27,8 +27,8 @@
 
 #define     P_VERMAJOR  "1.X = working for everyday use, features still evolving but stable"
 #define     P_VERMINOR  "1.3 = build out commands to support menus"
-#define     P_VERNUM    "1.3l"
-#define     P_VERTXT    "macro control characters now work in macros.  changed end character"
+#define     P_VERNUM    "1.3m"
+#define     P_VERTXT    "macros working on complex source mode fix in unit test"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
