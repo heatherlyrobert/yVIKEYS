@@ -579,7 +579,7 @@ yVIKEYS_main_input      (char a_runmode, uchar a_key)
       if (a_key == G_KEY_DEL  )  a_key = G_KEY_BS;     /* X11 sends incorrectly  */
    }
    /*---(normal)-------------------------*/
-   else IF_MACRO_NOT_PLAYING {
+   IF_MACRO_NOT_PLAYING {
       /*---(repeating)---------*/
       if (yvikeys_keys_repeating ()) {
          DEBUG_LOOP   yLOG_note    ("normal mode, group repeating older keys");
@@ -595,7 +595,7 @@ yVIKEYS_main_input      (char a_runmode, uchar a_key)
       /*---(done)--------------*/
    }
    /*---(run, delay, or playback)--------*/
-   IF_MACRO_PLAYING {
+   else IF_MACRO_PLAYING {
       /*---(playback)----------*/
       DEBUG_LOOP   yLOG_note    ("handle playback control");
       x_play = a_key;

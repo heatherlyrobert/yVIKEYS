@@ -1,5 +1,4 @@
-/*============================----beg-of-source---============================*/
-#ifndef yVIKEYS_PRIV
+/*============================----beg-of-source---============================*/ #ifndef yVIKEYS_PRIV
 #define yVIKEYS_PRIV yes
 
 
@@ -27,8 +26,8 @@
 
 #define     P_VERMAJOR  "1.X = working for everyday use, features still evolving but stable"
 #define     P_VERMINOR  "1.3 = build out commands to support menus"
-#define     P_VERNUM    "1.3m"
-#define     P_VERTXT    "macros working on complex source mode fix in unit test"
+#define     P_VERNUM    "1.3n"
+#define     P_VERTXT    "macros can be flattened and installed cleanly, unit tested"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -529,6 +528,8 @@ char        yvikeys_macro_list      (int *a_count, char *a_list);
 char        yvikeys_macro_writer    (char a_abbr);
 char        yvikeys_macro_writer_all(void);
 char        yvikeys_macro_reader    (void);
+char        yvikeys_macro_flatten   (char a_src, char a_dst);
+char        yvikeys_macro_install   (char a_src);
 
 /*---(commands)-------------*/
 char        CMDS_limits             (int *a_min, int *a_max);

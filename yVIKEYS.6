@@ -369,8 +369,8 @@ macros are a fast, simple, and powerful productivity mechanism to save and
 repeat keystrokes as if typed in real-time.
 
 .B value (V).  
-many actions are repeated, macros save time and mistakes.  often changes are
-avoided due to the dull, repetitve work involved.
+many actions are repeated, macros save time and mistakes.  tedious editing
+changes are often avoided due to the work involved.
 
 .B situation (S).  
 macros are well and long established, explored, tested, and used in
@@ -385,15 +385,15 @@ i want these productivity gains badly.  all my applications will have a
 powerful and vim-ish keyboard macro capability.
 
 .B extras (E).  
-can call other macros (not recursive or circular), stepwise execution,
-keystroke grouping, and shared macro library.
+macros can call each other, debug using stepwise execution, keystroke grouping,
+flattening, and shared macro library.
 .SS ---full capabilities----------------------------------------------
 
-.B named macros (60)
+.B named macros (26 real)
    a-z        lower case (26) are common, interactive use
    A-Z (*)    alternate name for lower case, signify append/debug
-   0-9        numeric (10) are typically temporary use in macros
-   è-ÿ        greek (24) are mostly holders for global library macros
+   0-9        numeric (10) internal for installing complex macros
+   è-ÿ        greek (24) are holders for global library macros
 
 .B recording new macros
    qd´´´q     record live keystrokes ´´´ into macro macro 'd'
@@ -418,6 +418,14 @@ keystroke grouping, and shared macro library.
 .B copying macros to/from unnamed source register
    @<d        copy macro 'd' to unnamed register
    @>d        copy unnamed register to macro 'd'
+
+.B flattening into a single macro (and installing later)
+   bring macro and sub-macros together into a single unit
+   uses a mechanism like regex capture groups to flatten
+   :flatten f z    flatten f and all its sub-macros into z
+   ¸´´´¹           represents a sub-macro when flattened
+   ¸@2¹            call to a already integrated sub-macro
+   :install z      break z into 0 main and 1-9 subs
 
 .B defining macros at command line
    :macro a¦            purge lower case macros (also 0 and è)

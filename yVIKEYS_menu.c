@@ -369,7 +369,7 @@ static tMENU  s_menus [MAX_MENU] = {
 /*====================------------------------------------====================*/
 static void  o___MENUS___________o () { return; }
 
-static int  *s_valid     = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_?!#,.טיךכלםמןנסעףפץצקרשתûü‎‏ÿ";
+static int  *s_valid     = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+-_?!#,.טיךכלםמןנסעףפץצקרשתûü‎‏ÿ";
 
 char
 yvikeys__menu_count     (void)
