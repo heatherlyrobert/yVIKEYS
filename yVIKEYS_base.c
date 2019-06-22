@@ -98,6 +98,7 @@ yVIKEYS_wrap         (void)
    VIEW_wrap   ();
    STATUS_wrap ();
    yvikeys_mreg_wrap   ();
+   yvikeys_menu_wrap   ();
    return 0;
 }
 

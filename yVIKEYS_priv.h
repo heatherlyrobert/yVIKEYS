@@ -26,8 +26,8 @@
 
 #define     P_VERMAJOR  "1.X = working for everyday use, features still evolving but stable"
 #define     P_VERMINOR  "1.3 = build out commands to support menus"
-#define     P_VERNUM    "1.3n"
-#define     P_VERTXT    "macros can be flattened and installed cleanly, unit tested"
+#define     P_VERNUM    "1.3o"
+#define     P_VERTXT    "fixed a couple lingering menu init/wrap issues and now all unit tests passed"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -569,11 +569,12 @@ char*       SRCH__unit              (char *a_question, char a_index);
 char*       MENU__unit              (char *a_question, char *a_path);
 
 char        yvikeys_menu_init       (void);
+char        yvikeys_menu_wrap       (void);
 int         yvikeys__menu_find      (char *a_keys, char *a_level, int *a_last);
 char        yvikeys_menu_start      (void);
 char        yvikeys_menu_smode      (int  a_major, int  a_minor);
 char        yvikeys_menu_draw       (void);
-char        yvikeys__menu_cleanse   (void);
+char        yvikeys__menu_cleanse   (char a_type);
 char        yvikeys__menu_addgroup  (char a_top, char a_mid, char *a_name);
 /*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
 
