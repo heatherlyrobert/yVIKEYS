@@ -244,7 +244,7 @@ yVIKEYS_whoami          (char *a_prog, char *a_ext, char *a_vernum, char *a_vert
    /*---(program name)-------------------*/
    DEBUG_PROG   yLOG_point   ("a_prog"    , a_prog);
    --rce;  if (a_prog == NULL) {
-      DEBUG_PROG   yLOG_note    ("requires a standard file extension");
+      DEBUG_PROG   yLOG_note    ("requires a program name");
       DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }

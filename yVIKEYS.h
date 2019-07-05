@@ -227,7 +227,7 @@ extern char yVIKEYS_ver     [500];
 char*       yVIKEYS_version         (void);
 char        yVIKEYS_debug           (char    a_flag  );
 
-char        yVIKEYS_init            (void);
+char        yVIKEYS_init            (char  a_mode);
 char        yVIKEYS_quit            (void);
 char        yVIKEYS_error           (void);
 char        yVIKEYS_wrap            (void);

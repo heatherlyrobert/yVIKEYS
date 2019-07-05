@@ -667,7 +667,7 @@ STATUS_dump             (FILE *a_file)
 static void  o___MODE_STACK______o () { return; }
 
 char         /*--> prepare mode stack for use ------------[--------[--------]-*/
-MODE_init          (void)
+MODE_init          (char a_mode)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -720,7 +720,8 @@ MODE_init          (void)
    /*---(update status)------------------*/
    STATUS_init_set   (FMOD_MODE);
    /*---(go to default mode)-------------*/
-   MODE_enter (MODE_MAP);
+   if (a_mode == MODE_GOD)  MODE_enter (MODE_GOD);
+   else                     MODE_enter (MODE_MAP);
    /*---(complete)-----------------------*/
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;

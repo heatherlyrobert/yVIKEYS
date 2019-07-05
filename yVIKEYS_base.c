@@ -50,7 +50,7 @@ yVIKEYS_version    (void)
 }
 
 char         /*-> initialize all of yvikeys ----------[ leaf   [gn.530.341.50]*/ /*-[02.0000.000.!]-*/ /*-[--.---.---.--]-*/
-yVIKEYS_init         (void)
+yVIKEYS_init         (char a_mode)
 {
    /*---(header)-------------------------*/
    DEBUG_PROG   yLOG_enter   (__FUNCTION__);
@@ -60,7 +60,7 @@ yVIKEYS_init         (void)
    /*----(early)-------------------------*/
    yPARSE_init  ('y', NULL, '-');
    yPARSE_delimiters  ("");
-   MODE_init    ();
+   MODE_init            (a_mode);
    yvikeys_view_init    ();
    yvikeys_file_init    ();
    /*----(middling)----------------------*/
@@ -274,7 +274,7 @@ BASE__unit_quiet       (void)
    char       *x_args [20]  = {"yVIKEYS_unit" };
    /*> yURG_logger   (x_narg, x_args);                                                <*/
    /*> yURG_urgs     (x_narg, x_args);                                                <*/
-   yVIKEYS_init ();
+   yVIKEYS_init (MODE_MAP);
    return 0;
 }
 
@@ -299,7 +299,7 @@ BASE__unit_loud        (void)
    yURG_name  ("ystr"         , YURG_ON);
    yURG_name  ("yparse"       , YURG_ON);
    DEBUG_YVIKEYS yLOG_info     ("yVIKEYS"    , yVIKEYS_version   ());
-   yVIKEYS_init ();
+   yVIKEYS_init (MODE_MAP);
    return 0;
 }
 
@@ -651,6 +651,7 @@ yVIKEYS_main_handle     (uchar a_key)
       DEBUG_LOOP   yLOG_exit    (__FUNCTION__);
       return 0;
    }
+   DEBUG_LOOP   yLOG_note    ("REAL KEY");
    /*---(prepare)------------------------*/
    myVIKEYS.trouble   = '-';
    x_key = chrworking (a_key);
