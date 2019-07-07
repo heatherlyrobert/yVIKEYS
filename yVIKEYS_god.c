@@ -3,6 +3,15 @@
 #include    "yVIKEYS.h"
 #include    "yVIKEYS_priv.h"
 
+/*===[[ METIS ]]==============================================================*/
+/*
+ * metis  dn4··  progress mode should integrate into mapper (either map or progress)
+ * metis  dn4··  progress mode should use vert and horz move functions from map mode
+ * metis  dw2··  add snap shot command for both progress and god view
+ *
+ *
+ *
+ */
 
 
 /*===[[ SCALE ]]==============================================================*/
@@ -372,26 +381,39 @@ PROGRESS_mode           (char a_major, char a_minor)
    /*---(header)-------------------------*/
    DEBUG_USER   yLOG_enter   (__FUNCTION__);
    DEBUG_USER   yLOG_char    ("a_major"   , a_major);
-   DEBUG_USER   yLOG_char    ("a_minor"   , a_minor);
+   DEBUG_USER   yLOG_char    ("a_minor"   , chrvisible (a_minor));
    /*---(defenses)-----------------------*/
    DEBUG_USER   yLOG_char    ("mode"      , MODE_curr ());
    --rce;  if (MODE_not (MODE_PROGRESS)) {
       DEBUG_USER   yLOG_note    ("not the correct mode");
+      MODE_exit  ();
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return rce;
+   }
+   /*---(nothing to do)------------------*/
+   if (a_minor == G_KEY_SPACE ) {
+      DEBUG_USER   yLOG_note    ("space, nothing to do");
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
+   /*---(major mode changes)-------------*/
+   if (a_minor == G_KEY_RETURN || a_minor == G_KEY_ESCAPE) {
+      DEBUG_USER   yLOG_note    ("enter/escape, leave progress mode");
+      MODE_exit  ();
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return 0;
    }
    /*---(single key)---------------------*/
    --rce;
    if (a_major == ' ') {
+      DEBUG_USER   yLOG_note    ("review single keys");
       /*---(modes)-----------------------*/
       switch (a_minor) {
-      case ',':
-         DEBUG_USER   yLOG_exit    (__FUNCTION__);
-         return a_minor;
-         break;
       case ':'      :
+         DEBUG_USER   yLOG_note    ("start the command mode");
          SOURCE_start   (":");
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         return 'a';
          break;
       case '^':
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
@@ -404,6 +426,9 @@ PROGRESS_mode           (char a_major, char a_minor)
        *> }                                                                           <*/
       /*---(vertical movement)-----------*/
       if (strchr ("_KkjJ~", a_minor) != 0) {
+         DEBUG_USER   yLOG_note    ("handle the horizontal keys");
+         DEBUG_USER   yLOG_value   ("p_line"    , myVIKEYS.p_line);
+         DEBUG_USER   yLOG_value   ("p_nline"   , myVIKEYS.p_lines);
          switch (a_minor) {
          case '_' :  myVIKEYS.p_line   = 0;                     break;
          case 'K' :  myVIKEYS.p_line  -= 5;                     break;
@@ -414,33 +439,43 @@ PROGRESS_mode           (char a_major, char a_minor)
          }
          if (myVIKEYS.p_line < 0                )  myVIKEYS.p_line = 0;
          if (myVIKEYS.p_line >= myVIKEYS.p_lines)  myVIKEYS.p_line = myVIKEYS.p_lines - 1;
+         DEBUG_USER   yLOG_value   ("p_line"    , myVIKEYS.p_line);
       }
       /*---(zoom and retreat)------------*/
       switch (a_minor) {
       case 'i':
          yvikeys_scale     (MODE_PROGRESS, "<");
+         yvikeys__loop_calc ();
+         myVIKEYS.p_redraw = 'y';
          break;
       case 'o':
          yvikeys_scale     (MODE_PROGRESS, ">");
+         yvikeys__loop_calc ();
+         myVIKEYS.p_redraw = 'y';
          break;
       }
       /*---(play and stop)---------------*/
       switch (a_minor) {
       case '<':
          yvikeys_speed     (MODE_PROGRESS, "<");
+         yvikeys__loop_calc ();
+         myVIKEYS.p_redraw = 'y';
          break;
       case '>':
          yvikeys_speed     (MODE_PROGRESS, ">");
+         yvikeys__loop_calc ();
+         myVIKEYS.p_redraw = 'y';
+         break;
+      case ',':
+         myVIKEYS.p_play = 'y';
+         if (myVIKEYS.p_adv == 0.0)  yvikeys_speed (MODE_PROGRESS, "+1.00x");
+         yvikeys__loop_calc ();
+         myVIKEYS.p_redraw = 'y';
          break;
       case '.':
-         if (myVIKEYS.p_play == 'y')     myVIKEYS.p_play = '-';
-         else                            myVIKEYS.p_play = 'y';
-         if (myVIKEYS.p_play == 'y' && myVIKEYS.p_adv == 0.0) {
-            yvikeys_speed     (MODE_PROGRESS, "+1.00x");
-         } else {
-            yvikeys__loop_calc ();
-            myVIKEYS.p_redraw = '-';
-         }
+         myVIKEYS.p_play   = '-';
+         myVIKEYS.p_redraw = '-';
+         yvikeys__loop_calc ();
          break;
       }
       /*---(horizontal movement)---------*/
@@ -496,24 +531,6 @@ PROGRESS_mode           (char a_major, char a_minor)
          myVIKEYS.p_redraw = '-';
       } else {
          return -1;
-      }
-   }
-   /*---(buffer/area)--------------------*/
-   if (a_major == ',') {
-      switch (a_minor) {
-      case ',':
-      case 'a':
-         MODE_exit  ();
-         /*> TICK_draw ();                                                            <*/
-         break;
-         /*> case 'p':                                                                   <* 
-          *>    myVIKEYS.scrn = SCRN_NORM;                                               <* 
-          *>    TICK_draw ();                                                            <* 
-          *>    break;                                                                   <* 
-          *> case 'P':                                                                   <* 
-          *>    myVIKEYS.scrn = SCRN_PROG;                                               <* 
-          *>    TICK_draw ();                                                            <* 
-          *>    break;                                                                   <*/
       }
    }
    /*---(complete)------------------------------*/

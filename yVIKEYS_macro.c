@@ -8,10 +8,11 @@
 /*
  * metis  ww2··  macro should abort if anything causes an error
  * metis  ww8··  global library of loadable macros referred to by short names
- * metis  ww8··  command to flatten multi-layer macro into one single macro
+ * metis  ww8#·  command to flatten multi-layer macro into one single macro
  * metis  ww8··  export macros to file for safekeeping and transfer
  * metis  ww8··  import macros to transfer between applications
  * metis  dm1··  macro recordings can not use @@ to call (circular)
+ * metis  dm2··  use Ë, to run for a certain number of steps
  *
  */
 

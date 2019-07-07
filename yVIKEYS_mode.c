@@ -4,6 +4,14 @@
 #include    "yVIKEYS_priv.h"
 
 
+/*===[[ METIS ]]==============================================================*/
+/*
+ * metis  tn1··  never allow MODE_NONE, must not pop last mode
+ *
+ *
+ *
+ */
+
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
 /*   LEN_ is a length or size of something
@@ -115,7 +123,8 @@ s_modechanges  [MAX_MODES][LEN_TERSE] = {
    /*---(sub/umode/xmode)------------*/
    { MODE_MAP      , UMOD_VISUAL   , SMOD_MREG     , UMOD_MAP_UNDO , SMOD_BUFFER   , UMOD_MARK     , UMOD_MARK     , 0             , 0             , 0             , 0             },
    { MODE_MAP      , SMOD_MACRO    , XMOD_FORMAT   , XMOD_OBJECT   , SMOD_HINT     , SMOD_MENUS    , 0             , 0             , 0             , 0             , 0             },
-   { MODE_PROGRESS , UMOD_REPEAT   , 0             , 0             , 0             , 0             , 0             , 0             , 0             , 0             , 0             },
+   { MODE_GOD      , SMOD_MACRO    , SMOD_MENUS    , 0             , 0             , 0             , 0             , 0             , 0             , 0             , 0             },
+   { MODE_PROGRESS , UMOD_REPEAT   , MODE_COMMAND  , 0             , 0             , 0             , 0             , 0             , 0             , 0             , 0             },
    { MODE_OMNI     , UMOD_REPEAT   , 0             , 0             , 0             , 0             , 0             , 0             , 0             , 0             , 0             },
    /*---(source-related)-------------*/
    { MODE_SOURCE   , UMOD_REPEAT   , UMOD_SRC_INPT , UMOD_SRC_REPL , UMOD_SRC_UNDO , SMOD_SREG     , UMOD_WANDER   , SMOD_MACRO    , 0             , 0             , 0             },
@@ -772,7 +781,7 @@ MODE_exit          (void)
    char        rce         = -10;
    char        x_mode      = '-';
    /*---(check stack)--------------------*/
-   --rce;  if (s_mode_depth <= 0)  return rce;
+   --rce;  if (s_mode_depth <= 1)  return rce;
    --s_mode_depth;
    s_mode_stack [s_mode_depth] = x_mode;
    x_mode = s_mode_stack [s_mode_depth - 1];

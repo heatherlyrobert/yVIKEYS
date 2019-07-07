@@ -101,12 +101,12 @@ struct cMAPPED {
    int         gmax;                        /* global max, used or not        */
    int         umax;                        /* global max, used or not        */
    /*---(screen)---------------*/
-   int         ubeg;                        /* beginning of screen            */
-   int         ucur;                        /* current index                  */
-   int         uend;                        /* end of screen                  */
-   int         ulen;                        /* screen len                     */
-   int         uavail;                      /* full size of screen            */
-   int         utend;                       /* true end of screen             */
+   int         ubeg;                        /* beg abs pos shown on screen    */
+   int         ucur;                        /* cur abs pos shown on screen    */
+   int         uend;                        /* end abs pos shown on screen    */
+   int         ulen;                        /* len shown on screen (end-beg+1)*/
+   int         uavail;                      /* full availible room on screen  */
+   int         utend;                       /* hypothetical abs end for screen*/
    /*---(grids)----------------*/
    int         gbeg;                        /* grid at start of screen        */
    int         gcur;                        /* current grid position          */
@@ -118,22 +118,28 @@ tMAPPED     g_xmap;
 tMAPPED     g_ymap;
 tMAPPED     g_zmap;
 
-#define     YVIKEYS_BMAP     'b'
-#define     YVIKEYS_XMAP     'x'
-#define     YVIKEYS_YMAP     'y'
-#define     YVIKEYS_ZMAP     'z'
+/*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
+#define     YVIKEYS_BMAP            'b'
+#define     YVIKEYS_XMAP            'x'
+#define     YVIKEYS_YMAP            'y'
+#define     YVIKEYS_ZMAP            'z'
 
-#define     YVIKEYS_EMPTY   -666
-#define     YVIKEYS_INIT    'i'
-#define     YVIKEYS_UPDATE  'u'
+#define     YVIKEYS_EMPTY           -666
+/*---(completely clean and populate)-----*/
+#define     YVIKEYS_INIT            'I'
+/*---(changed focus of map)--------------*/
+#define     YVIKEYS_MAJOR           'M'
+/*---(same focus, different pos)---------*/
+#define     YVIKEYS_MINOR           'n'
+/*---(update as neccessary)--------------*/
+#define     YVIKEYS_UPDATE          'u'
 
+#define     YVIKEYS_RIGHT           'r'
+#define     YVIKEYS_OFFICE          'o'
 
-#define     YVIKEYS_RIGHT    'r'
-#define     YVIKEYS_OFFICE   'o'
-
-#define     YVIKEYS_DEPTH    '3'
-#define     YVIKEYS_FLAT     'O'
-#define     YVIKEYS_DISABLE  'X'
+#define     YVIKEYS_DEPTH           '3'
+#define     YVIKEYS_FLAT            'O'
+#define     YVIKEYS_DISABLE         'X'
 
 /*---(run as)----------*/
 #define     RUN_USER           'i'      /* running as user (ncurses/opengl)   */
@@ -277,6 +283,8 @@ char        yVIKEYS_jump            (int a_buf, int a_x, int a_y, int a_z);
 /*---(map mode)-------------*/
 char        yVIKEYS_map_config      (char a_coord, void *a_mapper, void *a_locator, void *a_address);
 char        yVIKEYS_map_refresh     (void);
+char        yVIKEYS_clear_mapping   (tMAPPED *a_map);
+char        yVIKEYS_uniform_mapping (char a_req, tMAPPED *a_map, int a_min, int a_max, int a_inc, int a_avail);
 char        yVIKEYS_root            (int b, int x, int y, int z);
 char        yVIKEYS_visual          (int b, int x, int y, int z);
 char        yVIKEYS_bufs_config     (void *a_switcher, void *a_browser);

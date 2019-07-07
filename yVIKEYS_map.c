@@ -3,6 +3,10 @@
 #include    "yVIKEYS.h"
 #include    "yVIKEYS_priv.h"
 
+/*===[[ METIS ]]==============================================================*/
+/*
+ * metis  dw2··  add snap shot command for both progress and god view
+ */
 
 
 static char    (*s_mapper)    (char  a_type);
@@ -2441,6 +2445,94 @@ yvikeys_bufs_umode  (uchar a_major, uchar a_minor)
    /*---(complete)-----------------------*/
    DEBUG_USER   yLOG_exit    (__FUNCTION__);
    return 0;
+}
+
+
+
+/*====================------------------------------------====================*/
+/*===----                        mapping support                       ----===*/
+/*====================------------------------------------====================*/
+static void  o___MAPPING_________o () { return; }
+
+char
+yVIKEYS_clear_mapping   (tMAPPED *a_map)
+{
+   /*---(locals)-----------+-----------+-*/
+   int         i           =    0;
+   /*---(lefts)--------------------------*/
+   a_map->umin = a_map->gmin = a_map->gamin = a_map->glmin = a_map->gprev = 0;
+   /*---(map)----------------------------*/
+   for (i = 0; i < LEN_HUGE; ++i)  a_map->map [i] =  YVIKEYS_EMPTY;
+   /*---(rights)-------------------------*/
+   a_map->umax = a_map->gmax = a_map->gamax = a_map->glmax = a_map->gnext = 0;
+   /*---(screen)-------------------------*/
+   a_map->ubeg   = a_map->ucur   = a_map->uend   =  0;
+   a_map->ulen   = a_map->utend  = a_map->uavail =  0;
+   /*---(grids)--------------------------*/
+   a_map->gbeg   = a_map->gcur   = a_map->gend   = 0;
+   /*---(complete)-----------------------*/
+   return  0;
+}
+
+char
+yVIKEYS_uniform_mapping (char a_req, tMAPPED *a_map, int a_min, int a_max, int a_inc, int a_avail)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   int         x_slot      =    0;
+   int         i           =    0;
+   int         c           =    0;
+   /*---(header)-------------------------*/
+   DEBUG_MAP    yLOG_enter    (__FUNCTION__);
+   /*---(adjust max)---------------------*/
+   DEBUG_MAP    yLOG_char     ("which"     , a_map->which);
+   DEBUG_MAP    yLOG_value    ("a_min"     , a_min);
+   DEBUG_MAP    yLOG_value    ("a_max"     , a_max);
+   /*---(clear map)----------------------*/
+   for (i = 0; i < LEN_HUGE; ++i)  a_map->map [i] =  YVIKEYS_EMPTY;
+   /*---(load map)-----------------------*/
+   for (i = a_min; i <= a_max; ++i)  a_map->map [i] = i / a_inc;
+   /*---(unit min/max)-------------------*/
+   a_map->umin  = a_min;
+   DEBUG_MAP    yLOG_value    ("umin"      , a_map->umin);
+   a_map->umax  = a_max;
+   DEBUG_MAP    yLOG_value    ("umax"      , a_map->umax);
+   /*---(grid mins)----------------------*/
+   a_map->gmin   = a_map->map [a_map->umin];
+   a_map->gamin  = a_map->map [a_map->umin];
+   a_map->glmin  = a_map->map [a_map->umin];
+   a_map->gprev  = a_map->map [a_map->umin];
+   DEBUG_MAP    yLOG_value    ("gmin"      , a_map->gmin);
+   /*---(grid maxs)----------------------*/
+   a_map->gnext  = a_map->map [a_map->umax];
+   a_map->glmax  = a_map->map [a_map->umax];
+   a_map->gamax  = a_map->map [a_map->umax];
+   a_map->gmax   = a_map->map [a_map->umax];
+   DEBUG_MAP    yLOG_value    ("gmax"      , a_map->gmax);
+   /*---(indexes)------------------------*/
+   DEBUG_MAP   yLOG_snote   ("screen");
+   if (a_req == YVIKEYS_INIT) {
+      a_map->ubeg   = 0;
+      a_map->ucur   = a_map->ubeg;
+      a_map->uend   = a_map->ubeg;
+      a_map->ulen   = 0;
+      a_map->uavail = a_avail;
+      a_map->utend  = 0;
+   }
+   DEBUG_MAP    yLOG_value    ("uavail"    , a_map->uavail);
+   /*---(grids)--------------------------*/
+   DEBUG_MAP   yLOG_snote   ("grid");
+   if (a_req == YVIKEYS_INIT) {
+      a_map->gbeg   = a_map->map [a_map->ubeg];
+      a_map->gcur   = a_map->map [a_map->ucur];
+      a_map->gend   = a_map->map [a_map->uend];
+   }
+   DEBUG_MAP    yLOG_value    ("gbeg"      , a_map->gbeg);
+   DEBUG_MAP    yLOG_value    ("gcur"      , a_map->gcur);
+   DEBUG_MAP    yLOG_value    ("gend"      , a_map->gend);
+   /*---(complete)-----------------------*/
+   DEBUG_MAP    yLOG_exit     (__FUNCTION__);
+   return  0;
 }
 
 
