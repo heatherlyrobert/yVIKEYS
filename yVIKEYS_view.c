@@ -1841,6 +1841,23 @@ yVIKEYS_view_coords        (cchar a_part, int *a_xmin, int *a_xlen, int *a_ymin,
    return 0;
 }
 
+char
+yVIKEYS_view_type       (cchar a_part)
+{
+   char        n           =    0;
+   n = VIEW__abbr (a_part);
+   if (n < 0)  return ' ';
+   return s_parts [n].type;
+}
+
+char
+yVIKEYS_view_anchor     (cchar a_part)
+{
+   char        n           =    0;
+   n = VIEW__abbr (a_part);
+   if (n < 0)  return ' ';
+   return s_parts [n].anchor;
+}
 
 
 /*====================------------------------------------====================*/

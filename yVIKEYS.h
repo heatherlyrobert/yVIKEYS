@@ -268,6 +268,8 @@ char        yVIKEYS_view_bounds     (cchar  a_part , int   *a_xmin, int *a_xmax,
 char        yVIKEYS_view_coords     (cchar  a_part , int   *a_xmin, int *a_xlen, int *a_ymin, int *a_ylen);
 char        yVIKEYS_view_text       (cchar  a_part , cchar *a_text);
 char        yVIKEYS_view_all        (float a_mag);
+char        yVIKEYS_view_type       (cchar a_part);
+char        yVIKEYS_view_anchor     (cchar a_part);
 
 char        yVIKEYS_view_option     (char a_part, char *a_opt, void *a_source, char *a_desc);
 char        yVIKEYS_layer_add       (char *a_name, void *a_drawer, char *a_desc);
