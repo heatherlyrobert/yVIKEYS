@@ -811,13 +811,13 @@ yVIKEYS_main_string  (uchar *a_keys)
  *>    DEBUG_TOPS   yLOG_note    ("entering main processing loop");                                                                <* 
  *>    DEBUG_TOPS   yLOG_break   ();                                                                                               <* 
  *>    while (1) {                                                                                                                 <* 
- *>       while (XPending (DISP)) {                                                                                                <* 
+ *>       while (XPending (YX_DISP)) {                                                                                                <* 
  *>          /+---(start processing event)---+/                                                                                    <* 
- *>          XNextEvent (DISP, &EVNT);                                                                                             <* 
- *>          switch (EVNT.type) {                                                                                                  <* 
+ *>          XNextEvent (YX_DISP, &YX_EVNT);                                                                                             <* 
+ *>          switch (YX_EVNT.type) {                                                                                                  <* 
  *>          case KeyPress:                                                                                                        <* 
- *>             x_event = (XKeyEvent *) &EVNT;                                                                                     <* 
- *>             x_bytes = XLookupString ((XKeyEvent *) &EVNT, x_keys, 5, NULL, NULL);                                              <* 
+ *>             x_event = (XKeyEvent *) &YX_EVNT;                                                                                     <* 
+ *>             x_bytes = XLookupString ((XKeyEvent *) &YX_EVNT, x_keys, 5, NULL, NULL);                                              <* 
  *>             if (x_bytes < 1) break;                                                                                            <* 
  *>             x_ch    = x_keys [0];                                                                                              <* 
  *>             x_key   = x_ch;                                                                                                    <* 

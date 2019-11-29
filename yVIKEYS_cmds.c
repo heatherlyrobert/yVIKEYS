@@ -759,7 +759,7 @@ yvikeys_srch_init       (void)
    /*---(update status)------------------*/
    STATUS_init_set   (MODE_SEARCH);
    /*---(yparse)-------------------------*/
-   rc = yPARSE_handler (MODE_SEARCH  , "search"    , 7.5, "cO----------", yvikeys_srch__reader, yvikeys_srch__writer_all, "------------" , "a,search"                  , "search history"            );
+   rc = yPARSE_handler (MODE_SEARCH  , "search"    , 7.5, "cO----------", -1, yvikeys_srch__reader, yvikeys_srch__writer_all, "------------" , "a,search"                  , "search history"            );
    /*---(complete)-----------------------*/
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -854,8 +854,9 @@ yvikeys_cmds_init       (void)
    rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "writequit"   , "wq"  , ""     , yvikeys_cmds__writequit, ""                                                            );
    rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "writequitall", "wqa" , ""     , yvikeys_cmds__writequit, ""                                                            );
    rc = yVIKEYS_cmds_add (YVIKEYS_M_EDIT  , "dump"        , ""    , "s"    , BASE_dump              , "dump a specified data table to the clipboard in flat text"   );
+   rc = yVIKEYS_cmds_add (YVIKEYS_M_CONFIG, "menu"        , ""    , "i"    , yvikeys_menu_reanchor  , "change the menu anchoring");
    /*---(yparse)-------------------------*/
-   rc = yPARSE_handler (MODE_COMMAND , "command"   , 7.4, "cO----------", yvikeys_cmds__reader, yvikeys_cmds__writer_all, "------------" , "a,command-----------------", "command history"           );
+   rc = yPARSE_handler (MODE_COMMAND , "command"   , 7.4, "cO----------", -1, yvikeys_cmds__reader, yvikeys_cmds__writer_all, "------------" , "a,command-----------------", "command history"           );
    /*---(complete)-----------------------*/
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;

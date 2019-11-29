@@ -217,9 +217,9 @@ yvikeys_file_init               (void)
    if (strcmp (myVIKEYS.f_loc, "//") == 0)  strlcpy (myVIKEYS.f_loc, "/", LEN_LABEL);
    DEBUG_PROG   yLOG_info    ("f_loc"     , myVIKEYS.f_loc);
    /*---(yPARSE verbs)-------------------*/
-   rc = yPARSE_handler ('·'          , "source"    , 0.1, "OSO---------", NULL          , yvikeys_file_prog_writer   , "------------" , ""                          , "source program versioning" );
-   rc = yPARSE_handler ('·'          , "written"   , 0.2, "O-----------", NULL          , yvikeys_file_time_writer   , "------------" , ""                          , "data file save timestamp"  );
-   rc = yPARSE_handler ('·'          , "version"   , 0.3, "cSO---------", NULL          , yvikeys_file_vers_writer   , "------------" , ""                          , "data file versioning"      );
+   rc = yPARSE_handler ('·'          , "source"    , 0.1, "OSO---------", -1, NULL          , yvikeys_file_prog_writer   , "------------" , ""                          , "source program versioning" );
+   rc = yPARSE_handler ('·'          , "written"   , 0.2, "O-----------", -1, NULL          , yvikeys_file_time_writer   , "------------" , ""                          , "data file save timestamp"  );
+   rc = yPARSE_handler ('·'          , "version"   , 0.3, "cSO---------", -1, NULL          , yvikeys_file_vers_writer   , "------------" , ""                          , "data file versioning"      );
    /*---(update status)------------------*/
    STATUS_init_set   (FMOD_FILE);
    /*---(complete)-----------------------*/

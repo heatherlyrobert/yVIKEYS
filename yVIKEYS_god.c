@@ -808,7 +808,7 @@ yvikeys_loop_init       (void)
    yvikeys_loop_update ("");
    /*---(progress)-----------------------*/
    myVIKEYS.p_play     = '-';
-   myVIKEYS.p_pos      = 's';
+   myVIKEYS.p_pos      = 'c';
    myVIKEYS.p_scale    = 0;
    myVIKEYS.p_speed    = 0;
    myVIKEYS.p_adv      = 0.0;
@@ -834,16 +834,16 @@ yvikeys_loop_getch      (void)
    /*---(opengl)-------------------------*/
    if (myVIKEYS.env == YVIKEYS_OPENGL) {
       if (myVIKEYS.blocking == 'y') {
-         XNextEvent(DISP, &EVNT);
+         XNextEvent(YX_DISP, &YX_EVNT);
       }
       else {
-         if (XPending(DISP))   XNextEvent(DISP, &EVNT);
+         if (XPending(YX_DISP))   XNextEvent(YX_DISP, &YX_EVNT);
          else                  return 0;
       }
-      switch(EVNT.type) {
+      switch(YX_EVNT.type) {
       case KeyPress:
-         key_event  = (XKeyEvent *) &EVNT;
-         the_bytes = XLookupString((XKeyEvent *) &EVNT, the_keys, 5, NULL, NULL);
+         key_event  = (XKeyEvent *) &YX_EVNT;
+         the_bytes = XLookupString((XKeyEvent *) &YX_EVNT, the_keys, 5, NULL, NULL);
          if (the_bytes < 1) break;
          /*---(handle)----------------*/
          x_ch  = the_keys [0];

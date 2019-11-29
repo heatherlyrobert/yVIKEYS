@@ -75,7 +75,7 @@ yvikeys_mark_init            (void)
    yVIKEYS_cmds_add (YVIKEYS_M_EDIT  , "mark"        , ""    , "s"    , yvikeys_mark_direct        , "" );
    yVIKEYS_view_option (YVIKEYS_STATUS, "visual" , yvikeys_mark_status  , "details of visual selection"                );
    /*---(read/write)---------------------*/
-   rc = yPARSE_handler (UMOD_MARK    , "loc_mark"  , 7.1, "cL----------", yvikeys_mark_reader, yvikeys_mark_writer_all, "------------" , "a,label", "map mode location marks");
+   rc = yPARSE_handler (UMOD_MARK    , "loc_mark"  , 7.1, "cL----------", -1, yvikeys_mark_reader, yvikeys_mark_writer_all, "------------" , "a,label", "map mode location marks");
    /*---(update status)------------------*/
    STATUS_init_set   (UMOD_MARK);
    /*---(complete)-----------------------*/

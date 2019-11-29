@@ -26,8 +26,8 @@
 
 #define     P_VERMAJOR  "1.X = working for everyday use, features still evolving but stable"
 #define     P_VERMINOR  "1.3 = build out commands to support menus"
-#define     P_VERNUM    "1.3r"
-#define     P_VERTXT    "menus working in 3d, ortho, and ncurses!  and, with anchors.  yes."
+#define     P_VERNUM    "1.3s"
+#define     P_VERTXT    "update with small changes from yX11 modernization"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -243,6 +243,7 @@ extern char *gvikeys_greek;
 
 
 char        yvikeys_view_init       (void);
+char        yvikeys_view_reanchor   (cchar a_part, cint a_anchor);
 char        VIEW__reset             (void);
 char        VIEW__find              (cchar *a_name);
 char        VIEW__abbr              (cchar  a_abbr);
@@ -568,6 +569,7 @@ char        SRCH__unit_clearer      (char *a_label);
 char*       SRCH__unit              (char *a_question, char a_index);
 char*       MENU__unit              (char *a_question, char *a_path);
 
+char        yvikeys_menu_reanchor   (int a_anchor);
 char        yvikeys_menu_init       (void);
 char        yvikeys_menu_wrap       (void);
 int         yvikeys__menu_find      (char *a_keys, char *a_level, int *a_last);

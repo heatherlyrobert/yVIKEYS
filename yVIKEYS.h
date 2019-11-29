@@ -179,6 +179,7 @@ tMAPPED     g_zmap;
 #define      YVIKEYS_AUTO        'a'
 #define      YVIKEYS_CUSTOM      'c'
 
+#define      YVIKEYS_ALLALL       0
 #define      YVIKEYS_TOPLEF       1
 #define      YVIKEYS_TOPCEN       2
 #define      YVIKEYS_TOPRIG       3

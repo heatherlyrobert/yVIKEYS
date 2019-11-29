@@ -157,6 +157,7 @@ static tMENU  s_menus [MAX_MENU] = {
    { 1, 'v', 'a', '·', "alt"              , 'y', '>', "-"                 , 0, 0, 0 },
    { 1, 'v', 'd', '·', "details"          , 'y', '>', "-"                 , 0, 0, 0 },
    { 1, 'v', 'r', '·', "ribbon"           , 'y', '>', "-"                 , 0, 0, 0 },
+   { 1, 'v', 'M', '·', "menu"             , 'y', '>', "-"                 , 0, 0, 0 },
    { 1, 'v', 'C', '·', "color"            , 'y', '>', "-"                 , 0, 0, 0 },
    { 1, 'v', 'X', '·', "xaxis"            , 'y', '>', "-"                 , 0, 0, 0 },
    { 1, 'v', 'Y', '·', "yaxis"            , 'y', '>', "-"                 , 0, 0, 0 },
@@ -344,6 +345,8 @@ static tMENU  s_menus [MAX_MENU] = {
    { 1, 'x', '·', '·', "execute"          , '-', '>', "-"                 , 0, 0, 0 },
    /*---(config menu)--------------------------------------------*/
    { 1, 'c', '·', '·', "config"           , '-', '>', "-"                 , 0, 0, 0 },
+   { 1, 'c', 's', '·', "search"           , '-', '>', "-"                 , 0, 0, 0 },
+   { 1, 'c', 's', 'r', "reset all"        , '-', '=', "-"                 , 0, 0, 0 },
    /*---(macro menu)---------------------------------------------*/
    { 1, 'r', '·', '·', "script"           , '-', '>', "-"                 , 0, 0, 0 },
    { 1, 'r', 'e', '·', "execute"          , '-', '>', "-"                 , 0, 0, 0 },
@@ -599,6 +602,11 @@ yvikeys__menu_update    (int n)
    return 0;
 }
 
+char
+yvikeys_menu_reanchor     (int a_anchor)
+{
+   return yvikeys_view_reanchor (YVIKEYS_MENUS, a_anchor);
+}
 
 char
 yvikeys_menu_init       (void)
@@ -758,6 +766,7 @@ yvikeys__menu_back      (int a_len, int a_level, int a_last)
    int         i           =    0;
    int         t           [LEN_RECD];
    int         x_len       =    0;
+   int         x_adj       =    5;
    /*---(header)-------------------------*/
    DEBUG_CMDS   yLOG_enter   (__FUNCTION__);
    DEBUG_CMDS   yLOG_value   ("a_len"     , a_len);
@@ -767,6 +776,7 @@ yvikeys__menu_back      (int a_len, int a_level, int a_last)
    s_pt     = myVIKEYS.point;
    /*---(opengl)-------------------------*/
    if (myVIKEYS.env == YVIKEYS_OPENGL) {
+      /*> x_adj  = 15.0;                                                              <*/
       s_xoff = 15.0;
       /*---(get sizes)----------------------*/
       DEBUG_CMDS   yLOG_note    ("draw black background");
@@ -779,33 +789,40 @@ yvikeys__menu_back      (int a_len, int a_level, int a_last)
          s_pt   = 2;
          s_xoff = 15.0 / 4.0;
          s_yoff = 15.0 / 4.0;
+         x_adj  = 35.0;
       }
       x_on = yVIKEYS_view_bounds (YVIKEYS_MAIN , &x_xmin, &x_xmax, &x_ymin, &x_ymax);
       DEBUG_CMDS   yLOG_complex  ("bounds"    , "%3dx to %3dx, %3dy to %3dy, %3dz", x_xmin, x_xmax, x_ymin, x_ymax, s_z);
+      /*---(set x center)----------------*/
       switch (s_anchor) {
-      case YVIKEYS_TOPLEF : case YVIKEYS_MIDLEF : case YVIKEYS_BOTLEF   :
-         s_ce  = x_xmax - s_x - 10.0;
+      case YVIKEYS_TOPRIG : case YVIKEYS_MIDRIG : case YVIKEYS_BOTRIG   :
+         if (s_type == YVIKEYS_DEPTH)   s_ce  = x_xmin + (x_xmax - x_xmin) / 2.0 + x_adj;
+         else                           s_ce  = x_xmax - s_x;
          break;
       case YVIKEYS_TOPCEN : case YVIKEYS_MIDCEN : case YVIKEYS_BOTCEN   :
          s_ce  = x_xmin + (x_xmax - x_xmin) / 2.0;
          break;
-      case YVIKEYS_TOPRIG : case YVIKEYS_MIDRIG : case YVIKEYS_BOTRIG   :
-         s_ce  = x_xmin + s_x + 10.0;
+      case YVIKEYS_TOPLEF : case YVIKEYS_MIDLEF : case YVIKEYS_BOTLEF   :
+         if (s_type == YVIKEYS_DEPTH)   s_ce  = x_xmin + (x_xmax - x_xmin) / 2.0 - x_adj;
+         else                           s_ce  = x_xmin + s_x;
          break;
       }
+      DEBUG_CMDS   yLOG_value   ("s_ce"         , s_ce);
+      /*---(set y midpoint)--------------*/
       switch (s_anchor) {
       case YVIKEYS_TOPLEF : case YVIKEYS_TOPCEN : case YVIKEYS_TOPRIG :
-         s_mi  = x_ymax - s_y - 10.0;
+         if (s_type == YVIKEYS_DEPTH)   s_mi  = x_ymin + (x_ymax - x_ymin) / 2.0 + x_adj;
+         else                           s_mi  = x_ymax - s_x;
          break;
       case YVIKEYS_MIDLEF : case YVIKEYS_MIDCEN : case YVIKEYS_MIDRIG :
          s_mi  = x_ymin + (x_ymax - x_ymin) / 2.0;
          break;
       case YVIKEYS_BOTLEF : case YVIKEYS_BOTCEN : case YVIKEYS_BOTRIG :
-         s_mi  = x_ymin + s_y + 10.0;
+         if (s_type == YVIKEYS_DEPTH)   s_mi  = x_ymin + (x_ymax - x_ymin) / 2.0 - x_adj;
+         else                           s_mi  = x_ymax + s_x;
          break;
       }
       DEBUG_CMDS   yLOG_value   ("s_mi"         , s_mi);
-      DEBUG_CMDS   yLOG_value   ("s_ce"         , s_ce);
       /*---(black background)---------------*/
       glColor4f (0.0f, 0.0f, 0.0f, 1.0f);
       glBegin(GL_POLYGON); {

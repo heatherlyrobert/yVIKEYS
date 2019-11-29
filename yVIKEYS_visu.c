@@ -597,7 +597,7 @@ yvikeys_visu_init       (void)
    s_visu.active = VISU_NOT;
    yVIKEYS_view_option (YVIKEYS_STATUS, "visual" , yvikeys_visu_status , "details of visual selection"                );
    /*---(read/write)---------------------*/
-   rc = yPARSE_handler (UMOD_VISUAL  , "visu_mark" , 7.2, "cLL---------", yvikeys_visu__reader, yvikeys_visu__writer_all, "------------" , "a,beg,end", "map mode visual selections");
+   rc = yPARSE_handler (UMOD_VISUAL  , "visu_mark" , 7.2, "cLL---------", -1, yvikeys_visu__reader, yvikeys_visu__writer_all, "------------" , "a,beg,end", "map mode visual selections");
    /*---(update status)------------------*/
    STATUS_init_set   (UMOD_VISUAL);
    /*---(complete)-----------------------*/
