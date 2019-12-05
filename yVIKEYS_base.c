@@ -791,54 +791,6 @@ yVIKEYS_main_string  (uchar *a_keys)
    return 0;
 }
 
-/*> char         /+-> tbd --------------------------------[ ------ [gn.842.232.99]+/ /+-[01.0000.000.!]-+/ /+-[--.---.---.--]-+/   <* 
- *> yVIKEYS_main_opengl     (float a_delay)                                                                                        <* 
- *> {                                                                                                                              <* 
- *>    /+---(locals)-----------+-----------+-+/                                                                                    <* 
- *>    int         x_loop      = 0;                                                                                                <* 
- *>    int         x_ch        = ' ';      /+ current keystroke                   +/                                               <* 
- *>    uchar       x_key       = ' ';      /+ current keystroke                   +/                                               <* 
- *>    char        rc          = 0;                                                                                                <* 
- *>    tTSPEC      x_dur;                                                                                                          <* 
- *>    /+---(opengl-specific)----------------+/                                                                                    <* 
- *>    XKeyEvent  *x_event;                                                                                                        <* 
- *>    char        x_keys      [5];                                                                                                <* 
- *>    int         x_bytes;                                                                                                        <* 
- *>    /+---(for timer)----------------------+/                                                                                    <* 
- *>    x_dur.tv_sec    = 0;                                                                                                        <* 
- *>    x_dur.tv_nsec   = a_delay * 1000000;                                                                                        <* 
- *>    /+---(main-loop)----------------------+/                                                                                    <* 
- *>    DEBUG_TOPS   yLOG_note    ("entering main processing loop");                                                                <* 
- *>    DEBUG_TOPS   yLOG_break   ();                                                                                               <* 
- *>    while (1) {                                                                                                                 <* 
- *>       while (XPending (YX_DISP)) {                                                                                                <* 
- *>          /+---(start processing event)---+/                                                                                    <* 
- *>          XNextEvent (YX_DISP, &YX_EVNT);                                                                                             <* 
- *>          switch (YX_EVNT.type) {                                                                                                  <* 
- *>          case KeyPress:                                                                                                        <* 
- *>             x_event = (XKeyEvent *) &YX_EVNT;                                                                                     <* 
- *>             x_bytes = XLookupString ((XKeyEvent *) &YX_EVNT, x_keys, 5, NULL, NULL);                                              <* 
- *>             if (x_bytes < 1) break;                                                                                            <* 
- *>             x_ch    = x_keys [0];                                                                                              <* 
- *>             x_key   = x_ch;                                                                                                    <* 
- *>          }                                                                                                                     <* 
- *>          DEBUG_GRAF  yLOG_value   ("x_key"     , x_key);                                                                       <* 
- *>          x_key = yVIKEYS_main_input  (RUN_USER, x_key);                                                                        <* 
- *>          yVIKEYS_main_handle (x_key);                                                                                          <* 
- *>          if (yVIKEYS_quit ())  break;                                                                                          <* 
- *>          ++x_loop;                                                                                                             <* 
- *>       }                                                                                                                        <* 
- *>       if ((x_loop % 20) == 0)  yVIKEYS_view_all (0.0);                                                                         <* 
- *>       /+---(sleeping)--------------------+/                                                                                    <* 
- *>       nanosleep    (&x_dur, NULL);                                                                                             <* 
- *>       /+---(done)------------------------+/                                                                                    <* 
- *>    }                                                                                                                           <* 
- *>    DEBUG_TOPS  yLOG_break   ();                                                                                                <* 
- *>    DEBUG_TOPS  yLOG_note    ("exiting main processing loop");                                                                  <* 
- *>    /+---(complete)-----------------------+/                                                                                    <* 
- *>    return 0;                                                                                                                   <* 
- *> }                                                                                                                              <*/
-
 char         /*-> handle main loop for ncurses -------[ ------ [gn.842.232.99]*/ /*-[01.0000.000.!]-*/ /*-[--.---.---.--]-*/
 yVIKEYS_main            (char *a_delay, char *a_update, void *a_altinput ())
 {
@@ -875,13 +827,13 @@ yVIKEYS_main            (char *a_delay, char *a_update, void *a_altinput ())
       /*---(repeating)-------------------*/
       if (x_key == ')' && yvikeys_macro_emode () == MACRO_STOP) {
          DEBUG_GRAF  yLOG_note    ("kick into grouping (non-macro) fast execution mode");
-         yvikeys_loop_macro ('0', 's');
+         yvikeys_macro_set2blitz ();
          x_group = 'y';
          continue;
       }
       if (!yvikeys_keys_repeating () && x_group == 'y') {
          DEBUG_GRAF  yLOG_note    ("end grouping (non-macro) fast execution mode");
-         yvikeys_loop_normal ();
+         yvikeys_macro_set2run ();
          x_group = '-';
       }
       /*---(showing)---------------------*/

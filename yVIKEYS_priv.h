@@ -26,8 +26,8 @@
 
 #define     P_VERMAJOR  "1.X = working for everyday use, features still evolving but stable"
 #define     P_VERMINOR  "1.3 = build out commands to support menus"
-#define     P_VERNUM    "1.3s"
-#define     P_VERTXT    "update with small changes from yX11 modernization"
+#define     P_VERNUM    "1.3t"
+#define     P_VERTXT    "added modes to view/layout for smaller applications, need drawing yet"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -594,7 +594,7 @@ char        yvikeys_delay_status    (char *a_list);
 char        yvikeys_prog_status     (char *a_list);
 char        yvikeys_main_status     (char *a_list);
 char        yvikeys_loop_set        (char *a_delay, char *a_update);
-char*       GOD__unit               (char *a_question, char a_mark);
+char*       yvikeys_god__unit       (char *a_question, char a_mark);
 
 
 

@@ -155,6 +155,7 @@ tMAPPED     g_zmap;
 #define      YVIKEYS_MAIN        'm'
 #define      YVIKEYS_ALT         'a'
 #define      YVIKEYS_PROGRESS    'p'
+#define      YVIKEYS_MODES       'x'
 #define      YVIKEYS_STATUS      's'
 #define      YVIKEYS_COMMAND     'c'
 #define      YVIKEYS_DETAILS     'd'
@@ -264,9 +265,10 @@ char        yVIKEYS_view_color      (cint   a_color, cfloat a_alpha);
 char        yVIKEYS_view_color_adj  (cint   a_base, cint a_adj, cfloat a_alpha);
 char        yVIKEYS_view_color_clear(cint   a_color);
 
+char        yVIKEYS_view_showing    (cchar a_part);
 char        yVIKEYS_view_size       (cchar  a_part , int   *a_left, int *a_wide, int *a_bott, int *a_tall, cchar *a_text);
-char        yVIKEYS_view_bounds     (cchar  a_part , int   *a_xmin, int *a_xmax, int *a_ymin, int *a_ymax);
-char        yVIKEYS_view_coords     (cchar  a_part , int   *a_xmin, int *a_xlen, int *a_ymin, int *a_ylen);
+char        yVIKEYS_view_bounds     (cchar  a_part , int   *a_xmin, int *a_xmax, int *a_xlen, int *a_ymin, int *a_ymax, int *a_ylen);
+/*> char        yVIKEYS_view_coords     (cchar  a_part , int   *a_xmin, int *a_xlen, int *a_ymin, int *a_ylen);   <*/
 char        yVIKEYS_view_text       (cchar  a_part , cchar *a_text);
 char        yVIKEYS_view_all        (float a_mag);
 char        yVIKEYS_view_type       (cchar a_part);
@@ -322,6 +324,11 @@ char        yVIKEYS_prog_cur        (char *a_pos, float *a_sec, float *a_scale, 
 
 /*---(macros)---------------*/
 char        yVIKEYS_macro_config    (void *a_loader, void *a_saver);
+char        yvikeys_macro_set2stop  (void);
+char        yvikeys_macro_set2play  (void);
+char        yvikeys_macro_set2delay (void);
+char        yvikeys_macro_set2run   (void);
+char        yvikeys_macro_set2blitz (void);
 
 /*---(commands)-------------*/
 char        yVIKEYS_cmds_add        (char a_cat, char *a_name, char *a_abbr, char *a_terms, void *a_func, char *a_desc);

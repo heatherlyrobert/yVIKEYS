@@ -180,7 +180,7 @@ static tDELAY s_delay_info [MAX_DELAY] = {
    /*---(normal)----------------------------------*/
    { "1ms"   , "thousandth"         ,   0.001    },
    { "5ms"   , "five thousandths"   ,   0.005    },
-   { "10ms"  , "hundreth"           ,   0.01     },
+   { "10ms"  , "hundreth (normal)"  ,   0.01     },
    /*---(slower)----------------------------------*/
    { "20ms"  , "fifteth"            ,   0.02     },
    { "50ms"  , "twenteth"           ,   0.05     },
@@ -797,7 +797,7 @@ yvikeys_loop_init       (void)
    /*---(delay/updapte)------------------*/
    s_delay             = 0;
    s_update            = 0;
-   myVIKEYS.macro_skip = 1;
+   myVIKEYS.macro_skip = 0;
    myVIKEYS.delay      = 0.0;
    myVIKEYS.secs       = 0;
    myVIKEYS.nsec       = 0;
@@ -988,8 +988,8 @@ yvikeys_loop_delay      (char *a_delay)
    return rc;
 }
 
-static char   s_save_delay   [LEN_LABEL] = "";
-static char   s_save_update  [LEN_LABEL] = "";
+static char   s_save_delay   [LEN_LABEL] = "keys";
+static char   s_save_update  [LEN_LABEL] = "every";
 
 char
 yvikeys_loop_set        (char *a_delay, char *a_update)
@@ -1015,7 +1015,7 @@ yvikeys_loop_normal     (void)
    DEBUG_LOOP   yLOG_schar   (yvikeys_macro_emode ());
    DEBUG_LOOP   yLOG_snote   (s_save_delay);
    rc = yvikeys_loop_delay   (s_save_delay);
-   myVIKEYS.macro_skip = 1;
+   myVIKEYS.macro_skip = 0;
    DEBUG_LOOP   yLOG_sint    (myVIKEYS.macro_skip);
    DEBUG_LOOP   yLOG_snote   (s_save_update);
    rc = yvikeys_loop_update  (s_save_update);
@@ -1038,19 +1038,19 @@ yvikeys_loop_macro      (char a_delay, char a_update)
    DEBUG_LOOP   yLOG_sint    (a_delay);
    DEBUG_LOOP   yLOG_schar   (a_delay);
    /*---(run mode)-----------------------*/
-   IF_MACRO_RUN   a_delay = '0';
+   /*> IF_MACRO_RUN   a_delay = '0';                                                  <*/
    /*---(delay mode)---------------------*/
    switch (a_delay) {
-   case '0' :  yvikeys_loop_delay ("1us"  );   myVIKEYS.macro_skip =  1;   break;
-   case '1' :  yvikeys_loop_delay ("100us");   myVIKEYS.macro_skip =  1;   break;
-   case '2' :  yvikeys_loop_delay ("1ms"  );   myVIKEYS.macro_skip =  1;   break;
-   case '3' :  yvikeys_loop_delay ("10ms" );   myVIKEYS.macro_skip =  1;   break;
-   case '4' :  yvikeys_loop_delay ("10ms" );   myVIKEYS.macro_skip =  5;   break;
-   case '5' :  yvikeys_loop_delay ("100ms");   myVIKEYS.macro_skip =  1;   break;
-   case '6' :  yvikeys_loop_delay ("100ms");   myVIKEYS.macro_skip =  5;   break;
-   case '7' :  yvikeys_loop_delay ("100ms");   myVIKEYS.macro_skip = 10;   break;
-   case '8' :  yvikeys_loop_delay ("100ms");   myVIKEYS.macro_skip = 20;   break;
-   case '9' :  yvikeys_loop_delay ("100ms");   myVIKEYS.macro_skip = 30;   break;
+   case '0' :  yvikeys_loop_delay ("1us"  );   myVIKEYS.macro_skip =  0;   break;
+   case '1' :  yvikeys_loop_delay ("100us");   myVIKEYS.macro_skip =  0;   break;
+   case '2' :  yvikeys_loop_delay ("1ms"  );   myVIKEYS.macro_skip =  0;   break;
+   case '3' :  yvikeys_loop_delay ("10ms" );   myVIKEYS.macro_skip =  0;   break;
+   case '4' :  yvikeys_loop_delay ("10ms" );   myVIKEYS.macro_skip =  4;   break;
+   case '5' :  yvikeys_loop_delay ("100ms");   myVIKEYS.macro_skip =  0;   break;
+   case '6' :  yvikeys_loop_delay ("100ms");   myVIKEYS.macro_skip =  4;   break;
+   case '7' :  yvikeys_loop_delay ("100ms");   myVIKEYS.macro_skip =  9;   break;
+   case '8' :  yvikeys_loop_delay ("100ms");   myVIKEYS.macro_skip = 19;   break;
+   case '9' :  yvikeys_loop_delay ("100ms");   myVIKEYS.macro_skip = 29;   break;
    }
    DEBUG_LOOP   yLOG_sint    (myVIKEYS.macro_skip);
    /*---(change update basis)------------*/
@@ -1236,7 +1236,7 @@ yvikeys_main_status     (char *a_list)
 static void  o___UNIT_TEST_______o () { return; }
 
 char*        /*-> unit test accessor -----------------[ light  [us.940.221.74]*/ /*-[02.0000.00#.#]-*/ /*-[--.---.---.--]-*/
-GOD__unit                  (char *a_question, char a_mark)
+yvikeys_god__unit          (char *a_question, char a_mark)
 {
    /*---(locals)-----------+-----------+-*/
    int         x_index     = 0;
@@ -1248,6 +1248,9 @@ GOD__unit                  (char *a_question, char a_mark)
    }
    else if (strcmp (a_question, "update"      )   == 0) {
       snprintf (yVIKEYS__unit_answer, LEN_RECD, "LOOP update      : %-5s = %5.3f, %6d loop(s)", s_update_info [s_update].terse, s_update_info [s_update].update, myVIKEYS.loops);
+   }
+   else if (strcmp (a_question, "saved"       )   == 0) {
+      snprintf (yVIKEYS__unit_answer, LEN_RECD, "LOOP saved       : delay %-5s, update %-5s", s_save_delay, s_save_update);
    }
    else if (strcmp (a_question, "p_scale"     )   == 0) {
       snprintf (yVIKEYS__unit_answer, LEN_RECD, "PROG scale       : %-5s = %.3e", s_scale_info [myVIKEYS.p_scale].terse, s_scale_info [myVIKEYS.p_scale].unit);

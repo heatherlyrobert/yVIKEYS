@@ -16,6 +16,7 @@
  * metis  dw1··  look at linear menu search instead of my indexed way
  * metis  wl1··  assign unique greek letters to unassigned menu items (to index them)
  * metis  wl2··  build menu search for each level to get at unassigned options
+ * metis  ww2··  create a vim-like update command to only write files that are changed
  *
  *
  */
@@ -59,6 +60,7 @@ static tMENU  s_menus [MAX_MENU] = {
    { 1, 'f', 'r', '·', "restore"          , '·', '!', "-"                 , 0, 0, 0 },
    { 1, 'f', 'v', '·', "version"          , 'y', '>', "-"                 , 0, 0, 0 },
    { 1, 'f', 'p', '·', "protect"          , 'y', '>', "-"                 , 0, 0, 0 },
+   { 1, 'f', 'u', '·', "update"           , 'y', '·', "-"                 , 0, 0, 0 },
    { 1, 'f', 's', '·', "write"            , 'y', '·', ":write¦"           , 0, 0, 0 },
    { 1, 'f', 'a', '·', "writeas"          , 'y', '=', ":writeas·"         , 0, 0, 0 },
    { 1, 'f', 'x', '·', "export"           , 'y', '>', "-"                 , 0, 0, 0 },
@@ -791,7 +793,7 @@ yvikeys__menu_back      (int a_len, int a_level, int a_last)
          s_yoff = 15.0 / 4.0;
          x_adj  = 35.0;
       }
-      x_on = yVIKEYS_view_bounds (YVIKEYS_MAIN , &x_xmin, &x_xmax, &x_ymin, &x_ymax);
+      x_on = yVIKEYS_view_bounds (YVIKEYS_MAIN , &x_xmin, &x_xmax, NULL, &x_ymin, &x_ymax, NULL);
       DEBUG_CMDS   yLOG_complex  ("bounds"    , "%3dx to %3dx, %3dy to %3dy, %3dz", x_xmin, x_xmax, x_ymin, x_ymax, s_z);
       /*---(set x center)----------------*/
       switch (s_anchor) {

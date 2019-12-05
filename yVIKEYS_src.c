@@ -1001,7 +1001,7 @@ SOURCE_display             (tEDIT *a_cur, char a_mode)
    /*---(get sizes)----------------------*/
    x_on = yVIKEYS_view_size     (a_mode, &x_left, &x_wide, &x_bott, &x_tall, NULL);
    DEBUG_GRAF   yLOG_complex  ("size"      , "%3dl, %3dw, %3db, %3dt", x_left, x_wide, x_bott, x_tall);
-   yVIKEYS_view_bounds   (a_mode, &x_xmin, &x_xmax, &x_ymin, &x_ymax);
+   yVIKEYS_view_bounds   (a_mode, &x_xmin, &x_xmax, NULL, &x_ymin, &x_ymax, NULL);
    DEBUG_GRAF   yLOG_complex  ("bounds"    , "%3dx to %3dx, %3dy to %3dy", x_xmin, x_xmax, x_ymin, x_ymax);
    if (myVIKEYS.env == YVIKEYS_CURSES)  a_cur->wide = x_wide;
    else                                 a_cur->wide = x_wide / myVIKEYS.font_scale;
