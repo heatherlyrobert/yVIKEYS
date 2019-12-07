@@ -291,7 +291,7 @@ yVIKEYS_whoami          (char *a_prog, char *a_ext, char *a_vernum, char *a_vert
    rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "browse"      , ""    , "a"    , yvikeys_file_browse          , "find existing file name for reading and writing"             );
    rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "control"     , ""    , ""     , yvikeys_vers_control         , "turn version control ON for current file"                    );
    rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "nocontrol"   , ""    , ""     , yvikeys_vers_nocontrol       , "turn version control OFF for current file"                   );
-   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "version"     , ""    , "s"    , yvikeys_vers_version         , "set a specific file version ([0-9A-Z].[0-9A-Z][a-z])"        );
+   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "vernum"      , ""    , "s"    , yvikeys_vers_version         , "set a specific file version ([0-9A-Z].[0-9A-Z][a-z])"        );
    rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "vertxt"      , ""    , "a"    , yvikeys_vers_vertxt          , "set a file version description"                              );
    rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "major"       , ""    , ""     , yvikeys_vers_bump_major      , "increment the version number by a MAJOR version"             );
    rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "minor"       , ""    , ""     , yvikeys_vers_bump_minor      , "increment the version number by a MINOR version"             );
@@ -307,7 +307,7 @@ yVIKEYS_whoami          (char *a_prog, char *a_ext, char *a_vernum, char *a_vert
    yVIKEYS_menu_add ("µfv2", "minor"     , ":minor¦");
    yVIKEYS_menu_add ("µfv3", "step"      , ":bump¦");
    yVIKEYS_menu_add ("µfvt", "vertxt"    , ":vertxt·");
-   yVIKEYS_menu_add ("µfvm", "manual"    , ":version·");
+   yVIKEYS_menu_add ("µfvm", "manual"    , ":vernum·");
    /*---(status options)-----------------*/
    rc = yVIKEYS_view_option (YVIKEYS_STATUS, "file"   , yvikeys_file_status  , "current fully qualified file name and default location");
    rc = yVIKEYS_view_option (YVIKEYS_STATUS, "version", yvikeys_vers_status  , "current file verion control status, number and text");

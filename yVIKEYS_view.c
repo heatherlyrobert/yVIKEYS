@@ -211,7 +211,7 @@ static tPARTS  s_parts [MAX_PARTS] = {
    /*---abbr---------   ---name-----   ---own-----  on    bt lr dw dt  x_t  x_t  y_t  y_t  und  wi ta le bo   ori  source, txt  drawer  type---------  ---mgmt-------  ---anchor-----  ---color------- xm xl ym yl zm zl    12345678901234567890123456789012345678901234567890  */
    { 0               , ""            , 0          , '-',   0, 0, 0, 0, '-', '-', '-', '-', '-',  0, 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , 0             , 0              , 0, 0, 0, 0, 0, 0,  ""                                                   },
 };
-static int  s_npart     = 0;
+static int  s_npart     = MAX_PARTS;
 
 /*  lef/rig1----- 2----- 3----- 4----- 5----- 6----- 7-----
  * top/bot
@@ -246,7 +246,7 @@ tLAYOUT   s_layouts [MAX_LAYOUT] = {
    { "gyges"       , "--f-m--xsc---- XY" , "prepared for gyges spreadsheet"                       },
    { ""            , "----m--------- --" , ""                                                     },
 };
-static int  s_nlayout   = 0;
+static int  s_nlayout   = MAX_LAYOUT;
 
 
 #define      MAX_OPTION     200
@@ -274,7 +274,7 @@ tOPTION  s_options [MAX_OPTION ] = {
    { YVIKEYS_STATUS  , "main"         , yvikeys_main_status    , "main loop timing results"    },
    { NULL            , ""             , NULL                   , ""                            },
 };
-static int  s_noption  = 0;
+static int  s_noption  = MAX_OPTION;
 
 
 
@@ -293,7 +293,7 @@ tLAYER  s_layers [MAX_LAYERS] = {
    { '-', "all"         , '-', NULL, "select all all layers for display"       },
    { '-', "none"        , '-', NULL, "unselect all layers for display"         },
 };
-static int s_nlayer     = 0;
+static int s_nlayer     = MAX_LAYERS;
 
 
 int         g_goffx   =   0;
@@ -328,6 +328,7 @@ VIEW__purge              (void)
       s_parts [n].ymin   = s_parts [n].ylen   = 0;
       s_parts [n].ymin   = s_parts [n].ylen   = 0;
    }
+   yvikeys_mode__update  ();  /* this need quick contents/replacement */
    DEBUG_GRAF_M yLOG_exit    (__FUNCTION__);
    return 0;
 }
@@ -1166,6 +1167,23 @@ yVIKEYS_view_option      (char a_part, char *a_opt, void *a_source, char *a_desc
 }
 
 char
+yvikeys_view__switchtie  (char n, char a_ind, char a_dep)
+{
+   char        x_ind       = -1;
+   char        x_dep       = -1;
+   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
+   DEBUG_GRAF   yLOG_complex ("args"      , "n = %d, a_ind = %c, a_dep = %c", n, a_ind, a_dep);
+   x_ind       = VIEW__abbr (a_ind);
+   x_dep       = VIEW__abbr (a_dep);
+   DEBUG_GRAF   yLOG_complex ("before"    , "x_ind %d/%c, x_dep = %d/%c, a_dep = %c", x_ind, s_parts [x_ind].on, x_dep, s_parts [x_dep].on);
+   if (n == x_ind && s_parts [x_ind].on == '-')   s_parts [x_dep].on = '-';
+   if (n == x_dep && s_parts [x_dep].on == 'y')   s_parts [x_ind].on = 'y';
+   DEBUG_GRAF   yLOG_complex ("after"     , "x_ind %d/%c, x_dep = %d/%c, a_dep = %c", x_ind, s_parts [x_ind].on, x_dep, s_parts [x_dep].on);
+   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char
 VIEW__switch             (char *a_name, char *a_opt)
 {
    /*---(locals)-----------+-----+-----+-*/
@@ -1229,18 +1247,9 @@ VIEW__switch             (char *a_name, char *a_opt)
    DEBUG_GRAF   yLOG_char    ("new"       , s_parts [n].on);
    DEBUG_GRAF   yLOG_point   ("source"    , s_parts [n].source);
    /*---(handle linkages)----------------*/
-   if (s_parts [n].abbr == YVIKEYS_TITLE   && s_parts [n].on == '-') {
-      a = VIEW__abbr (YVIKEYS_VERSION);
-      s_parts [a].on = '-';
-   }
-   if (s_parts [n].abbr == YVIKEYS_STATUS  && s_parts [n].on == '-') {
-      a = VIEW__abbr (YVIKEYS_MODES  );
-      s_parts [a].on = '-';
-   }
-   if (s_parts [n].abbr == YVIKEYS_COMMAND && s_parts [n].on == '-') {
-      a = VIEW__abbr (YVIKEYS_KEYS   );
-      s_parts [a].on = '-';
-   }
+   yvikeys_view__switchtie  (n, YVIKEYS_TITLE  , YVIKEYS_VERSION);
+   yvikeys_view__switchtie  (n, YVIKEYS_STATUS , YVIKEYS_MODES  );
+   yvikeys_view__switchtie  (n, YVIKEYS_COMMAND, YVIKEYS_KEYS   );
    /*---(resize)-------------------------*/
    if (x_on != s_parts [n].on) {
       DEBUG_GRAF   yLOG_note    ("must resize");
@@ -1542,7 +1551,7 @@ yVIKEYS_view_config     (cchar *a_title, cchar *a_ver, cchar a_env, cint a_wide,
    n = VIEW__abbr (YVIKEYS_COMMAND);
    MODE_message ();
    /*---(update status)------------------*/
-   STATUS_init_set   (FMOD_VIEW);
+   STATUS_init_set       (FMOD_VIEW);
    /*---(complete)-----------------------*/
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -1705,11 +1714,11 @@ yVIKEYS_view_colors        (cint a_lef, cint a_bot, cint a_top, cint a_rig)
    n = VIEW__abbr (YVIKEYS_COMMAND );
    s_parts [n].color = a_bot;
    n = VIEW__abbr (YVIKEYS_MODES   );
-   s_parts [n].color = a_bot;
+   s_parts [n].color = a_top;
    n = VIEW__abbr (YVIKEYS_STATUS  );
    s_parts [n].color = a_bot + 5;
    n = VIEW__abbr (YVIKEYS_KEYS    );
-   s_parts [n].color = a_bot + 5;
+   s_parts [n].color = a_top;
    n = VIEW__abbr (YVIKEYS_XAXIS   );
    s_parts [n].color = a_bot + 5;
    n = VIEW__abbr (YVIKEYS_YAXIS   );
@@ -1828,6 +1837,7 @@ yVIKEYS_view_size       (cchar a_part, int *a_left, int *a_wide, int *a_bott, in
 {
    char        n           =    0;
    DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
+   DEBUG_GRAF   yLOG_char    ("a_part"    , a_part);
    n = VIEW__abbr (a_part);
    DEBUG_GRAF   yLOG_value   ("n"         , n);
    if (n < 0) {
@@ -1863,7 +1873,59 @@ yVIKEYS_view_showing    (cchar a_part)
 char
 yVIKEYS_view_text       (cchar a_part, cchar *a_text)
 {
-   return yVIKEYS_view_size   (a_part, NULL, NULL, NULL, NULL, a_text);
+   char        rc          =     0;
+   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
+   rc =  yVIKEYS_view_size   (a_part, NULL, NULL, NULL, NULL, a_text);
+   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
+   return rc;
+}
+
+char
+yvikeys_view_keys       (cchar *a_text)
+{
+   char        rce         =  -10;
+   char        n           =    0;
+   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
+   n = VIEW__abbr (YVIKEYS_KEYS );
+   DEBUG_GRAF   yLOG_value   ("n"         , n);
+   --rce;  if (n < 0) {
+      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_GRAF   yLOG_point   ("a_text"    , a_text);
+   --rce;  if (a_text == NULL) {
+      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_GRAF   yLOG_info    ("a_text"    , a_text);
+   strlcpy (s_parts [n].text, a_text, LEN_LABEL);
+   DEBUG_GRAF   yLOG_info    ("text"      , s_parts [n].text);
+   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char
+yvikeys_view_modes      (cchar *a_text)
+{
+   char        rce         =  -10;
+   char        n           =    0;
+   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
+   n = VIEW__abbr (YVIKEYS_MODES);
+   DEBUG_GRAF   yLOG_value   ("n"         , n);
+   --rce;  if (n < 0) {
+      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_GRAF   yLOG_point   ("a_text"    , a_text);
+   --rce;  if (a_text == NULL) {
+      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_GRAF   yLOG_info    ("a_text"    , a_text);
+   strlcpy (s_parts [n].text, a_text, LEN_LABEL);
+   DEBUG_GRAF   yLOG_info    ("text"      , s_parts [n].text);
+   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
+   return 0;
 }
 
 char
@@ -2358,8 +2420,11 @@ VIEW__opengl             (char a)
             yCOLOR_curs ("status" );
             break;
          case YVIKEYS_COMMAND  :
-         case YVIKEYS_MODES    :
             yCOLOR_curs ("command" );
+            break;
+         case YVIKEYS_MODES    :
+         case YVIKEYS_KEYS     :
+            yCOLOR_curs ("root" );
             break;
          case YVIKEYS_STATUS   :
             if (yVIKEYS_error ())  yCOLOR_curs ("warn"    );

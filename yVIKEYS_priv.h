@@ -26,8 +26,8 @@
 
 #define     P_VERMAJOR  "1.X = working for everyday use, features still evolving but stable"
 #define     P_VERMINOR  "1.3 = build out commands to support menus"
-#define     P_VERNUM    "1.3t"
-#define     P_VERTXT    "added modes to view/layout for smaller applications, need drawing yet"
+#define     P_VERNUM    "1.3u"
+#define     P_VERTXT    "modes completed and little fixes for metis/arachne"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -123,6 +123,7 @@ struct cSHARED {
    long        nsec;                        /* loop sleep nanosec part        */
    int         loops;                       /* loops before screen update     */
    char        blocking;                    /* keyboard input blocks          */
+   char        mode_text   [LEN_TERSE];     /* current mode for display       */
    /*---(progress)--------*/
    char        p_play;                      /* is progress playing            */
    int         p_scale;                     /* progress bar scale             */
@@ -242,6 +243,8 @@ extern char *gvikeys_greek;
 
 
 
+char        yvikeys_view_keys       (cchar *a_text);
+char        yvikeys_view_modes      (cchar *a_text);
 char        yvikeys_view_init       (void);
 char        yvikeys_view_reanchor   (cchar a_part, cint a_anchor);
 char        VIEW__reset             (void);
@@ -294,6 +297,7 @@ char        STATUS_dump             (FILE *a_file);
 char*       STATUS__unit            (char *a_question, char a_abbr);
 /*---(modes)----------------*/
 char        MODE_init               (char  a_mode);
+char        yvikeys_mode__update    (void);
 char        MODE_enter              (char  a_mode);
 char        MODE_exit               (void);
 char        MODE_curr               (void);

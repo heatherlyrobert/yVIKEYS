@@ -697,7 +697,7 @@ yVIKEYS_main_handle     (uchar a_key)
       x_repeat = REPEAT_count ();
       DEBUG_USER   yLOG_value   ("x_repeat"  , x_repeat);
       /*> snprintf (x_keys,   9, "%2d %c%c"  , x_repeat, x_major, chrvisible (x_key));   <*/
-      snprintf (x_keys,   9, "%2x %c%c"  , x_key, x_major, chrvisible (x_key));
+      snprintf (x_keys,   9, " %2x%c%c"  , x_key, x_major, chrvisible (x_key));
       /*---(loop repeats)----------------*/
       if (rc == 0 && x_repeat > 0 && MODE_curr () != UMOD_REPEAT) {
          DEBUG_USER   yLOG_note    ("repeating");
@@ -716,7 +716,7 @@ yVIKEYS_main_handle     (uchar a_key)
    if      (rc == 0)    x_major = G_KEY_SPACE;
    else if (rc >  0)    x_major = rc;
    else               { x_major = G_KEY_SPACE;  KEYS__error ();  myVIKEYS.trouble = 'y';  REPEAT_reset (); }
-   yVIKEYS_view_text (YVIKEYS_KEYS   , x_keys   );
+   yvikeys_view_keys (x_keys);
    /*---(save current mode)--------------*/
    x_savemode = MODE_curr ();
    /*---(complete)-----------------------*/

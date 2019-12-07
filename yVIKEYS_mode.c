@@ -723,6 +723,7 @@ MODE_init          (char a_mode)
    /*---(clear controls)-----------------*/
    s_mode_depth =  0;
    s_mode_curr = '-';
+   strlcpy (myVIKEYS.mode_text, "--", LEN_TERSE);
    /*---(custom functions)---------------*/
    s_formatter = NULL;
    s_uniter    = NULL;
@@ -733,6 +734,17 @@ MODE_init          (char a_mode)
    else                     MODE_enter (MODE_MAP);
    /*---(complete)-----------------------*/
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char
+yvikeys_mode__update    (void)
+{
+   if (strchr (s_majors, s_mode_curr) != NULL)
+      sprintf (myVIKEYS.mode_text, "[%c ]" , s_mode_curr);
+   else
+      sprintf (myVIKEYS.mode_text, "[%c%c]", s_mode_stack [s_mode_depth - 2], s_mode_curr);
+   yvikeys_view_modes      (myVIKEYS.mode_text);
    return 0;
 }
 
@@ -770,6 +782,7 @@ MODE_enter         (char a_mode)
    ++s_mode_depth;
    /*---(set global mode)----------------*/
    s_mode_curr = a_mode;
+   yvikeys_mode__update ();
    /*---(complete)-----------------------*/
    return 0;
 }
@@ -787,6 +800,7 @@ MODE_exit          (void)
    x_mode = s_mode_stack [s_mode_depth - 1];
    /*---(set global mode)----------------*/
    s_mode_curr = x_mode;
+   yvikeys_mode__update ();
    /*---(complete)-----------------------*/
    return 0;
 }
@@ -858,13 +872,14 @@ MODE_message       (void)
       if (s_modes [i].abbr == '-'   )   break;
       if (s_modes [i].abbr == s_mode_curr)  break;
    }
-   if (s_modes  [i].type == MODE_MAJOR)  {
-      x_major = s_mode_curr;
-   } else {
-      x_major = MODE_prev  ();
-      x_minor = s_mode_curr;
-   }
-   snprintf (s_message, LEN_RECD, "[%c%c] %-3.3s : %s\n", x_major, x_minor, s_modes [i].three, s_modes [i].mesg);
+   /*> if (s_modes  [i].type == MODE_MAJOR)  {                                        <* 
+    *>    x_major = s_mode_curr;                                                      <* 
+    *> } else {                                                                       <* 
+    *>    x_major = MODE_prev  ();                                                    <* 
+    *>    x_minor = s_mode_curr;                                                      <* 
+    *> }                                                                              <*/
+   /*> snprintf (s_message, LEN_RECD, "[%c%c] %-3.3s : %s\n", x_major, x_minor, s_modes [i].three, s_modes [i].mesg);   <*/
+   snprintf (s_message, LEN_RECD, "%-3.3s  %s\n", s_modes [i].three, s_modes [i].mesg);
    return s_message;
 }
 
@@ -1196,6 +1211,9 @@ MODE__unit             (char *a_question)
    if      (strcmp (a_question, "stack"        )  == 0) {
       MODE_status (x_list);
       snprintf (yVIKEYS__unit_answer, LEN_FULL, "MODE stack       : %s", x_list);
+   }
+   else if (strcmp (a_question, "text"         )  == 0) {
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "MODE text        : %s", myVIKEYS.mode_text);
    }
    /*---(complete)-----------------------*/
    return yVIKEYS__unit_answer;
