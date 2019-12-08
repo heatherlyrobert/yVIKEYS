@@ -26,8 +26,8 @@
 
 #define     P_VERMAJOR  "1.X = working for everyday use, features still evolving but stable"
 #define     P_VERMINOR  "1.3 = build out commands to support menus"
-#define     P_VERNUM    "1.3u"
-#define     P_VERTXT    "modes completed and little fixes for metis/arachne"
+#define     P_VERNUM    "1.3v"
+#define     P_VERTXT    "macro execution handles menus and keys menu commands out of logging"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -115,6 +115,7 @@ struct cSHARED {
    char        trouble;                     /* flag indicating error        0 */
    char        redraw;                      /* force redraw based on changes  */
    char        repeating;                   /* note for repeating actions     */
+   char        log_keys;                    /* allows keys to be hidden       */
    /*---(main loop)-------*/
    float       delay;                       /* requested loop sleep timing    */
    int         macro_skip;                  /* diff between playback and exec */
@@ -150,17 +151,17 @@ struct cSHARED {
    /*---(file hanndling)--*/
    char        f_control;                   /* file version control flag      */
    char        f_vernum    [LEN_LABEL];     /* file version number            */
-   char        f_vertxt    [LEN_HUND];      /* file version text              */
-   char        f_loc       [LEN_RECD];      /* specific file location         */
-   char        f_name      [LEN_RECD];      /* full file name                 */
-   char        f_title     [LEN_RECD];      /* specific file base name        */
+   char        f_vertxt    [LEN_HUND ];     /* file version text              */
+   char        f_loc       [LEN_RECD ];     /* specific file location         */
+   char        f_name      [LEN_RECD ];     /* full file name                 */
+   char        f_title     [LEN_RECD ];     /* specific file base name        */
    int         f_lines;                     /* file line number               */
-   char        f_recd      [LEN_RECD];      /* current file record            */
-   char        f_type      [LEN_RECD];      /* current record verb            */
+   char        f_recd      [LEN_RECD ];     /* current file record            */
+   char        f_type      [LEN_RECD ];     /* current record verb            */
    char        f_vers;                      /* current record version         */
    /*---(menus)-----------*/
-   char        m_path     [LEN_LABEL];      /* key path in menu               */
-   char        m_keys     [LEN_LABEL];      /* resulting keys from menu       */
+   char        m_path      [LEN_LABEL];     /* key path in menu               */
+   char        m_keys      [LEN_HUND ];     /* resulting keys from menu       */
 };
 tSHARED     myVIKEYS;
 
@@ -527,12 +528,21 @@ char        yvikeys_macro_estatus   (char *a_list);
 char        yvikeys_macro_emode     ();
 char        yvikeys_macro_rmode     ();
 char        yvikeys_macro_modeset   (char a_mode);
+/*---(state changes)--------*/
+char        yvikeys_macro_set2stop  (void);
+char        yvikeys_macro_set2play  (void);
+char        yvikeys_macro_set2delay (void);
+char        yvikeys_macro_set2run   (void);
+char        yvikeys_macro_set2blitz (void);
+char        yvikeys_macro_menu_beg  (void);
+char        yvikeys_macro_menu_end  (void);
 /*---(status)---------------*/
 char        yvikeys_macro_list      (int *a_count, char *a_list);
 /*---(file)-----------------*/
 char        yvikeys_macro_writer    (char a_abbr);
 char        yvikeys_macro_writer_all(void);
 char        yvikeys_macro_reader    (void);
+char        yvikeys_macro_dump      (FILE *a_file);
 char        yvikeys_macro_flatten   (char a_src, char a_dst);
 char        yvikeys_macro_install   (char a_src);
 

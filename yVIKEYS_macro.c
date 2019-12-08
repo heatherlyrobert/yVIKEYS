@@ -71,6 +71,7 @@ static int     s_nmacro    =    0;
 static char    s_emode     =  '-';          /* run, playback, delay, etc      */
 static char    s_ename     =  '-';
 static int     s_ecurr     =   -1;
+static char    s_esave     =  '-';          /* saved mode for menus           */
 
 static char    s_edelay    =  '0';          /* execution delay between steps  */
 static char    s_ddelay    =  '0';          /* debug delay between steps      */
@@ -917,6 +918,44 @@ yvikeys_macro_set2blitz (void)
    return 0;
 }
 
+
+
+char
+yvikeys_macro_menu_beg  (void)
+{
+   DEBUG_SCRP   yLOG_senter  (__FUNCTION__);
+   IF_MACRO_PLAYING  {
+      yvikeys_macro_set2blitz ();
+      DEBUG_SCRP   yLOG_schar   (s_emode);
+      s_esave = s_emode;
+      DEBUG_SCRP   yLOG_schar   (s_esave);
+      SET_MACRO_STOP;
+      DEBUG_SCRP   yLOG_schar   (s_emode);
+   } else {
+      DEBUG_SCRP   yLOG_snote   ("nothing to do");
+   }
+   DEBUG_SCRP   yLOG_sexit   (__FUNCTION__);
+   return 0;
+}
+
+char
+yvikeys_macro_menu_end  (void)
+{
+   DEBUG_SCRP   yLOG_senter  (__FUNCTION__);
+   if (s_esave != '-') {
+      DEBUG_SCRP   yLOG_schar   (s_emode);
+      DEBUG_SCRP   yLOG_schar   (s_esave);
+      s_emode = s_esave;
+      DEBUG_SCRP   yLOG_schar   (s_emode);
+      yvikeys_macro_set2run   ();
+   } else {
+      DEBUG_SCRP   yLOG_snote   ("nothing to do");
+   }
+   s_esave = '-';
+   DEBUG_SCRP   yLOG_sexit   (__FUNCTION__);
+   return 0;
+}
+
 char         /*-> prepare a macro execution ----------[ ------ [ge.832.122.52]*/ /*-[01.0000.112.5]-*/ /*-[--.---.---.--]-*/
 yvikeys_macro_exebeg    (char a_name)
 {
@@ -1594,6 +1633,32 @@ yvikeys_macro_reader    (void)
    /*---(complete)-----------------------*/
    DEBUG_INPT  yLOG_exit    (__FUNCTION__);
    return 1;
+}
+
+char
+yvikeys_macro_dump      (FILE *a_file)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        x_end       =    0;
+   int         i           =    0;
+   char        c           =    0;
+   /*---(header)-------------------------*/
+   DEBUG_OUTP   yLOG_enter   (__FUNCTION__);
+   fprintf (a_file, "yVIKEYS, current macro assignments (:dump macros)\n");
+   fprintf (a_file, "-  ---keys-----------------------------------------------------------\n");
+   /*---(prepare)------------------------*/
+   x_end = strlen (S_MACRO_LIST);
+   /*---(walk list)----------------------*/
+   for (i = 0; i <= x_end; ++i) {
+      if (s_macros [i].len <= 0)  continue;
+      fprintf (a_file, "%c  %s\n", S_MACRO_LIST [i], s_macros [i].keys);
+      ++c;
+   }
+   fprintf (a_file, "-  ---keys-----------------------------------------------------------\n");
+   fprintf (a_file, "macro count %d\n", c);
+   /*---(complete)-----------------------*/
+   DEBUG_OUTP  yLOG_exit    (__FUNCTION__);
+   return c;
 }
 
 

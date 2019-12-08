@@ -37,7 +37,7 @@ struct cMENU {
    char        name        [LEN_LABEL];     /* name for use on screens        */
    char        active;                      /* program activation             */
    char        type;                        /* entry type   > ! = ·           */
-   char        keys        [LEN_LABEL];     /* command or keys to execute     */
+   char        keys        [LEN_HUND ];     /* command or keys to execute     */
    /*---(traverse)----------*/
    short       next;                        /* next sibling                   */
    short       start;                       /* first child                    */
@@ -428,7 +428,7 @@ yvikeys__menu_wipe      (int i)
    strlcpy (s_menus [i].name, "-", LEN_LABEL);
    s_menus [i].active  = '-';
    s_menus [i].type    = '·';
-   strlcpy (s_menus [i].keys, "-", LEN_LABEL);
+   strlcpy (s_menus [i].keys, "-", LEN_HUND );
    s_menus [i].next    = -1;
    s_menus [i].start   = -1;
    s_menus [i].count   =  0;
@@ -668,7 +668,7 @@ yvikeys__menu_compress  (void)
          strlcpy (s_menus [j - 1].name, s_menus [j].name, LEN_LABEL);
          s_menus [j - 1].active  = s_menus [j].active;
          s_menus [j - 1].type    = s_menus [j].type;
-         strlcpy (s_menus [j - 1].keys, s_menus [j].keys, LEN_LABEL);
+         strlcpy (s_menus [j - 1].keys, s_menus [j].keys, LEN_HUND );
          ++c;
       }
       --s_nmenu;
@@ -1268,7 +1268,7 @@ yvikeys_menu_start      (void)
 {
    DEBUG_USER   yLOG_enter   (__FUNCTION__);
    strlcpy (myVIKEYS.m_path, "\\", LEN_LABEL);
-   strlcpy (myVIKEYS.m_keys, ""  , LEN_LABEL);
+   strlcpy (myVIKEYS.m_keys, ""  , LEN_HUND );
    /*> OPENGL_mask ();                                                                <*/
    DEBUG_USER   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -1337,8 +1337,13 @@ yvikeys_menu_smode      (int  a_major, int  a_minor)
             return -1;
          }
          SOURCE_menu_prep ();
-         strlcpy (myVIKEYS.m_keys, s_menus [n].keys, LEN_LABEL);
+         strlcpy (myVIKEYS.m_keys, s_menus [n].keys, LEN_HUND);
+         DEBUG_USER   yLOG_info    ("m_keys"    , myVIKEYS.m_keys);
+         yvikeys_macro_menu_beg ();
+         myVIKEYS.log_keys = '-';
          yVIKEYS_main_string (myVIKEYS.m_keys);
+         myVIKEYS.log_keys = 'y';
+         yvikeys_macro_menu_end ();
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return 0;
       }
@@ -1412,13 +1417,13 @@ yVIKEYS_menu_alter      (char *a_path, char *a_keys)
          return rce;
       }
       s_menus [n].type   = '>';
-      strlcpy (s_menus [n].keys, "-", LEN_LABEL);
+      strlcpy (s_menus [n].keys, "-", LEN_HUND );
       s_menus [n].active = 'y';
    }
    /*---(if making a executable)---------*/
    else {
       s_menus [n].type   = '·';
-      strlcpy (s_menus [n].keys, a_keys, LEN_LABEL);
+      strlcpy (s_menus [n].keys, a_keys, LEN_HUND );
       if (x_level == 2) {
          s_menus [n].active = 'y';
          i = s_menus [n].start;
@@ -1502,7 +1507,7 @@ yVIKEYS_menu_add        (char *a_path, char *a_name, char *a_keys)
    s_menus [s_nmenu].bot    = a_path [3];
    /*---(name and keys)------------------*/
    strlcpy (s_menus [s_nmenu].name, a_name, LEN_LABEL);
-   strlcpy (s_menus [s_nmenu].keys, a_keys, LEN_LABEL);
+   strlcpy (s_menus [s_nmenu].keys, a_keys, LEN_HUND );
    x_len = strlen (a_keys);
    if      (a_keys [x_len - 1] == '¦' ) s_menus [s_nmenu].type   = '·';
    else if (a_keys [x_len - 1] == '\n') s_menus [s_nmenu].type   = '·';
@@ -1530,7 +1535,7 @@ yvikeys__menu_addgroup  (char a_top, char a_mid, char *a_name)
    strlcpy (s_menus [s_nmenu].name, a_name, LEN_LABEL);
    s_menus [s_nmenu].type   = '>';
    s_menus [s_nmenu].active = 'y';
-   strlcpy (s_menus [s_nmenu].keys, "-"   , LEN_LABEL);
+   strlcpy (s_menus [s_nmenu].keys, "-"   , LEN_HUND );
    yvikeys_menu_init ();
    return 0;
 }
@@ -1650,7 +1655,7 @@ yvikeys__menu_unit      (char *a_question, char *a_path)
    int         i           =    0;
    char        x_level     =    0;
    int         x_last      =    0;
-   char        t           [LEN_LABEL];
+   char        t           [LEN_HUND ];
    char        s           [LEN_LABEL] = "entry";
    /*---(preprare)-----------------------*/
    strlcpy  (yVIKEYS__unit_answer, "MENU unit        : question not understood", LEN_FULL);
@@ -1660,7 +1665,7 @@ yvikeys__menu_unit      (char *a_question, char *a_path)
    }
    else if (strcmp (a_question, "index"          )   == 0) {
       i = a_path;
-      strlcpy    (t, s_menus [i].keys, LEN_LABEL);
+      strlcpy    (t, s_menus [i].keys, LEN_HUND );
       strlencode (t, ySTR_MAX, LEN_LABEL);
       snprintf (yVIKEYS__unit_answer, LEN_FULL, "MENU index       : %-2d %c %c %c %-10.10s %c %c %-10.10s %3d %3d %3d", i, s_menus [i].top, s_menus [i].mid, s_menus [i].bot, s_menus [i].name, s_menus [i].active, s_menus [i].type, t, s_menus [i].next, s_menus [i].start, s_menus [i].count);
    }
@@ -1674,7 +1679,7 @@ yvikeys__menu_unit      (char *a_question, char *a_path)
             i = x_last;
             strlcpy (s, "last ", LEN_LABEL);
          }
-         strlcpy    (t, s_menus [i].keys, LEN_LABEL);
+         strlcpy    (t, s_menus [i].keys, LEN_HUND );
          strlencode (t, ySTR_MAX, LEN_LABEL);
          snprintf (yVIKEYS__unit_answer, LEN_FULL, "MENU %-5.5s       : %1d %3d %-10.10s  %c  %c  %s", s, x_level, i     , s_menus [i].name, s_menus [i].active, s_menus [i].type, t);
       }

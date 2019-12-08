@@ -2385,8 +2385,12 @@ VIEW__opengl             (char a)
          DEBUG_GRAF   yLOG_note    ("draw background");
          glPushMatrix    (); {
             yVIKEYS_view_color (s_parts [a].color, 1.0);
-            if (s_parts [a].abbr == YVIKEYS_VERSION && yURG_debugmode () == 'y')  yVIKEYS_view_color_adj (s_parts [a].color, YCOLOR_ACC, 1.0);
-            if (s_parts [a].abbr == YVIKEYS_STATUS  && yVIKEYS_error  ())         yVIKEYS_view_color_adj (s_parts [a].color, YCOLOR_ACC, 1.0);
+            if (s_parts [a].abbr == YVIKEYS_VERSION && yURG_debugmode () == 'y')
+               glColor4f    (1.00f, 0.00f, 0.00f, 1.0f);
+            if (s_parts [a].abbr == YVIKEYS_STATUS  && yVIKEYS_error  ())
+               glColor4f    (1.00f, 0.00f, 0.00f, 1.0f);
+            if (s_parts [a].abbr == YVIKEYS_MODES   && yvikeys_macro_emode () == MACRO_RUN)
+               glColor4f    (1.00f, 0.00f, 0.00f, 1.0f);
             glBegin         (GL_POLYGON); {
                glVertex3f  (s_parts [a].xmin, y_max           , -100.0f);
                glVertex3f  (x_max           , y_max           , -100.0f);
@@ -2423,6 +2427,9 @@ VIEW__opengl             (char a)
             yCOLOR_curs ("command" );
             break;
          case YVIKEYS_MODES    :
+            if (yvikeys_macro_emode () == MACRO_RUN)  yCOLOR_curs ("warn" );
+            else                                      yCOLOR_curs ("root" );
+            break;
          case YVIKEYS_KEYS     :
             yCOLOR_curs ("root" );
             break;

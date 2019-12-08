@@ -86,6 +86,7 @@ yVIKEYS_init         (char a_mode)
    myVIKEYS.done      = '-';
    myVIKEYS.trouble   = '-';
    myVIKEYS.info_win  = '-';
+   myVIKEYS.log_keys  = 'y';
    /*----(complete)----------------------*/
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -119,6 +120,7 @@ BASE_dump               (char *a_what)
    /*---(dump)---------------------------*/
    if      (strcmp (a_what, "keys"      ) == 0)  KEYS_dump       (f);
    else if (strcmp (a_what, "status"    ) == 0)  STATUS_dump     (f);
+   else if (strcmp (a_what, "macros"    ) == 0)  yvikeys_macro_dump (f);
    /*---(close)--------------------------*/
    fclose (f);
    /*---(complete)-----------------------*/
@@ -589,9 +591,14 @@ yVIKEYS_main_input      (char a_runmode, uchar a_key)
       }
       /*---(not-repeating)-----*/
       else {
-         DEBUG_LOOP   yLOG_note    ("normal mode, new keystroke and recording");
          x_ch  = a_key;
-         if (x_ch != 0)  KEYS__logger (x_ch);
+         DEBUG_LOOP   yLOG_char    ("log_keys"  , myVIKEYS.log_keys);
+         if (x_ch != 0 && myVIKEYS.log_keys == 'y') {
+            DEBUG_LOOP   yLOG_note    ("normal mode, new keystroke and recording");
+            KEYS__logger (x_ch);
+         } else {
+            DEBUG_LOOP   yLOG_note    ("normal mode, NO recording");
+         }
       }
       /*---(done)--------------*/
    }

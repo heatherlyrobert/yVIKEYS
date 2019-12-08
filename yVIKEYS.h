@@ -324,11 +324,6 @@ char        yVIKEYS_prog_cur        (char *a_pos, float *a_sec, float *a_scale, 
 
 /*---(macros)---------------*/
 char        yVIKEYS_macro_config    (void *a_loader, void *a_saver);
-char        yvikeys_macro_set2stop  (void);
-char        yvikeys_macro_set2play  (void);
-char        yvikeys_macro_set2delay (void);
-char        yvikeys_macro_set2run   (void);
-char        yvikeys_macro_set2blitz (void);
 
 /*---(commands)-------------*/
 char        yVIKEYS_cmds_add        (char a_cat, char *a_name, char *a_abbr, char *a_terms, void *a_func, char *a_desc);
