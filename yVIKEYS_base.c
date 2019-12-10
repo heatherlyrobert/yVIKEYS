@@ -107,7 +107,7 @@ char yVIKEYS_quit            (void) { if (myVIKEYS.done    == 'y') return 1; ret
 char yVIKEYS_error           (void) { if (myVIKEYS.trouble != '-') return 1; return 0; }
 
 char
-BASE_dump               (char *a_what)
+yvikeys_clip_dump       (char *a_what)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -124,6 +124,56 @@ BASE_dump               (char *a_what)
    /*---(close)--------------------------*/
    fclose (f);
    /*---(complete)-----------------------*/
+   return 0;
+}
+
+char
+yvikeys_clip_read       (int a_line, char *a_recd, int *a_len)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   FILE       *f           = NULL;
+   char        x_recd      [LEN_RECD];
+   int         x_len       =    0;
+   int         c           =    0;
+   /*---(header)-------------------------*/
+   DEBUG_SCRP   yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   DEBUG_SCRP   yLOG_point   ("x_recd"    , x_recd);
+   --rce;  if (a_recd == NULL) {
+      DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   strlcpy (a_recd, "", LEN_RECD);
+   /*---(read)---------------------------*/
+   f = fopen ("/root/z_gehye/vi_clip.txt", "r");
+   DEBUG_SCRP   yLOG_point   ("f"         , f);
+   --rce;  if (f == NULL) {
+      DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   --rce;  while (c < a_line)  {
+      if (feof (f)) {
+         DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
+         return rce;
+      }
+      fgets (x_recd, LEN_RECD, f);
+      ++c;
+   }
+   fclose (f);
+   /*---(clean)--------------------------*/
+   x_len = strlen (x_recd);
+   DEBUG_SCRP   yLOG_value   ("x_len"     , x_len);
+   DEBUG_SCRP   yLOG_char    ("tail"      , chrvisible (x_recd [x_len - 1]));
+   if (x_recd [x_len - 1] == '\n')  x_recd [--x_len] = '\0';
+   DEBUG_SCRP   yLOG_char    ("tail"      , chrvisible (x_recd [x_len - 1]));
+   if (x_recd [x_len - 1] == '³' )  x_recd [--x_len] = '\0';
+   DEBUG_SCRP   yLOG_info    ("x_recd"    , x_recd);
+   /*---(copy)---------------------------*/
+   strlcpy (a_recd, x_recd, LEN_RECD);
+   if (a_len != NULL)  *a_len = x_len;
+   /*---(complete)-----------------------*/
+   DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 

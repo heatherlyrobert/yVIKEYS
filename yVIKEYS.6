@@ -415,10 +415,6 @@ flattening, and shared macro library.
    Ë(´´´)     each group can be repeated any Ë times
    (´´(´´)´)  grouping can be nested up to 20 levels
 
-.B copying macros to/from unnamed source register
-   @<d        copy macro 'd' to unnamed register
-   @>d        copy unnamed register to macro 'd'
-
 .B flattening into a single macro (and installing later)
    bring macro and sub-macros together into a single unit
    uses a mechanism like regex capture groups to flatten
@@ -434,9 +430,29 @@ flattening, and shared macro library.
    :macro i="´´´"¦      allows ¦ (ret) and ¥ (esc)
    :macro i=\\n\\e¦       also allows ¦ (ret) and ¥ (esc)
    :macro j=\\"´´´¦      escaped quote can go anywhere
-   :macro j= "´´´¦      leading space will allow leading "
+   :macro j="´´´¦       leading " allowed if no final "
    :macro J="´´´"¦      appends to existing macro 'j'
    all leading, internal, and trailing whitespace is meaningful
+
+.B moving and copying macros at command line
+   :macro ab¦           copies macro 'b' into macro 'a'
+   :macro Ab¦           appends macro 'b' unto end of macro 'a'
+   :macro a>b¦          copies macro to source register 'b'
+   :macro a>¦           copies macro to unnamed source register
+   :macro a<b¦          copies macro from source register 'b'
+   :macro a<¦           copies macro from unnamed source register
+   :macro A<b¦          appends macro from named source register
+   :macro a-¦           exports macro keys to vi_clip.txt
+   :macro a+¦           imports macro keys from vi_clip.txt
+   :macro A+¦           appends keys from vi_clip.txt
+   :dump macros¦        lists all macros in vi_clip.txt
+
+.B central macro repository
+   location   /home/shared/yVIKEYS/repository.macro
+   organize   major (3-12c), minor (3-12c), title (3-12c)
+   record     ´´´ § ´´´ § ´´´ § desc (<60c) § keystrokes
+   index      major.minor.title (example --.--.--)
+   :macro a!--.--.--¦   imports macro 'a' from central repository
 
 .B debugging and playback controls
    0-9 + -    set the speed, increment, decrement
@@ -447,11 +463,16 @@ flattening, and shared macro library.
    ¦          run to end at full speed (return)
    ¥          terminate at current point (escape)
 
-.B special control characters (SPECIAL CHARACTERS)
+.B special control characters in macros (SPECIAL CHARACTERS)
+   ·          space to help visually debug macros
    ª          drop out of run into playback mode
    ³ or £     stop/halt execution in any mode
-   «          wait for one second
+   «          wait for half-second (0.5s)
    ©          display update now, regardless of update settings
+
+.B execution speed control (µr is script menu option)
+   µre¢       contains range of execution speeds
+   µrd¢       contains range of default debug speeds
 
 .B gyges-specific editing existing macros
    location   in gyges, macros are saved on tab ¯ (system)

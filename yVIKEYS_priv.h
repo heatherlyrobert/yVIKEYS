@@ -25,9 +25,9 @@
 #define     P_DEPENDS   "none"
 
 #define     P_VERMAJOR  "1.X = working for everyday use, features still evolving but stable"
-#define     P_VERMINOR  "1.3 = build out commands to support menus"
-#define     P_VERNUM    "1.3v"
-#define     P_VERTXT    "macro execution handles menus and keys menu commands out of logging"
+#define     P_VERMINOR  "1.4 = prepare for demonstrations on web"
+#define     P_VERNUM    "1.4a"
+#define     P_VERTXT    "macro copy, move, import/export, and sharing capabilities greatly improved"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -276,7 +276,8 @@ char*       KEYS__unit              (char *a_question, char a_index);
 int         yvikeys_keys_gpos       (void);
 char        yvikeys_keys_keygpos    (void);
 char        yvikeys_keys_repeating  (void);
-char        BASE_dump               (char *a_what);
+char        yvikeys_clip_dump       (char *a_what);
+char        yvikeys_clip_read       (int a_line, char *a_recd, int *a_len);
 char        KEYS_dump               (FILE *a_file);
 char        BASE__unit_quiet        (void);
 char        BASE__unit_loud         (void);
@@ -439,6 +440,7 @@ char        yvikeys_sreg_setreg          (char a_abbr);
 char        yvikeys_sreg_setwork         (char a_abbr);
 char        yvikeys_sreg_clear           (char a_abbr);
 char        yvikeys_sreg_push            (char a_abbr, char *a_data);
+char        yvikeys_sreg_pop             (char a_abbr, char *a_data);
 char        yvikeys_sreg_save            (char *a_label, char *a_data);
 char        yvikeys_sreg_fetch           (int *a_len, char *a_data);
 char        yvikeys_sreg_append          (char *a_data);

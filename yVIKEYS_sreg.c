@@ -299,6 +299,24 @@ yvikeys_sreg_push       (char a_abbr, char *a_data)
 }
 
 char
+yvikeys_sreg_pop        (char a_abbr, char *a_data)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   int         n           =    0;
+   /*---(init)---------------------------*/
+   if (a_data != NULL)  strlcpy (a_data, "", LEN_RECD);
+   /*---(defense)------------------------*/
+   n = yvikeys_sreg__index  (a_abbr);
+   --rce;  if (n < 0)  return rce;
+   --rce;  if (s_sreg_info [n].active != S_SREG_YES)  return rce;
+   /*---(init)---------------------------*/
+   if (a_data != NULL)  strlcpy (a_data, s_sreg_info [n].data, LEN_RECD);
+   /*---(complete)-----------------------*/
+   return 0;
+}
+
+char
 yvikeys_sreg_fetch      (int *a_len, char *a_data)
 {
    /*---(locals)-----------+-----+-----+-*/

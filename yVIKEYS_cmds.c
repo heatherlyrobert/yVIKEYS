@@ -853,7 +853,7 @@ yvikeys_cmds_init       (void)
    rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "quitall"     , "qa"  , ""     , yvikeys_cmds__quit     , "quit all files (if no changes), and exit"                    );
    rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "writequit"   , "wq"  , ""     , yvikeys_cmds__writequit, ""                                                            );
    rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "writequitall", "wqa" , ""     , yvikeys_cmds__writequit, ""                                                            );
-   rc = yVIKEYS_cmds_add (YVIKEYS_M_EDIT  , "dump"        , ""    , "s"    , BASE_dump              , "dump a specified data table to the clipboard in flat text"   );
+   rc = yVIKEYS_cmds_add (YVIKEYS_M_EDIT  , "dump"        , ""    , "s"    , yvikeys_clip_dump      , "dump a specified data table to the clipboard in flat text"   );
    rc = yVIKEYS_cmds_add (YVIKEYS_M_CONFIG, "menu"        , ""    , "i"    , yvikeys_menu_reanchor  , "change the menu anchoring");
    /*---(yparse)-------------------------*/
    rc = yPARSE_handler (MODE_COMMAND , "command"   , 7.4, "cO----------", -1, yvikeys_cmds__reader, yvikeys_cmds__writer_all, "------------" , "a,command-----------------", "command history"           );
