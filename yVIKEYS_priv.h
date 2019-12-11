@@ -26,8 +26,8 @@
 
 #define     P_VERMAJOR  "1.X = working for everyday use, features still evolving but stable"
 #define     P_VERMINOR  "1.4 = prepare for demonstrations on web"
-#define     P_VERNUM    "1.4a"
-#define     P_VERTXT    "macro copy, move, import/export, and sharing capabilities greatly improved"
+#define     P_VERNUM    "1.4b"
+#define     P_VERTXT    "source register copy, move, and import/export updated to match macros"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -78,6 +78,9 @@ typedef struct timespec  tTSPEC;
  *
  */
 /*---(string lengths)-----------------*/
+
+#define     FILE_CLIP           "/root/z_gehye/vi_clip.txt"
+
 
 #define     G_STATUS_NULL        -1
 
@@ -277,13 +280,14 @@ int         yvikeys_keys_gpos       (void);
 char        yvikeys_keys_keygpos    (void);
 char        yvikeys_keys_repeating  (void);
 char        yvikeys_clip_dump       (char *a_what);
+char        yvikeys_clip_write      (cchar *a_recd);
 char        yvikeys_clip_read       (int a_line, char *a_recd, int *a_len);
 char        KEYS_dump               (FILE *a_file);
 char        BASE__unit_quiet        (void);
 char        BASE__unit_loud         (void);
 char        BASE__unit_end          (void);
 
-char        yvikeys_base_direct     (char a_mode, char *a_string, void *a_purger (), void *a_clearer (), void *a_saver ());
+/*> char        yvikeys_base_direct     (char a_mode, char *a_string, void *a_purger (), void *a_clearer (), void *a_saver ());   <*/
 
 
 
@@ -434,16 +438,16 @@ char       *yvikeys_src_contents         (void);
 
 /*345678901-12345678901-12345678901-1234-12345678901-12345678901-12345678901-1*/
 char        yvikeys_sreg_init            (void);
-int         yvikeys_sreg__index          (char a_abbr);
+int         yvikeys_sreg__index          (uchar a_abbr);
 /*---(data)---------------------------*/
-char        yvikeys_sreg_setreg          (char a_abbr);
-char        yvikeys_sreg_setwork         (char a_abbr);
-char        yvikeys_sreg_clear           (char a_abbr);
-char        yvikeys_sreg_push            (char a_abbr, char *a_data);
-char        yvikeys_sreg_pop             (char a_abbr, char *a_data);
+char        yvikeys_sreg_setreg          (uchar a_abbr);
+char        yvikeys_sreg_setwork         (uchar a_abbr);
+char        yvikeys_sreg_clear           (uchar a_abbr);
+char        yvikeys_sreg_push            (uchar a_abbr, char *a_data);
+char        yvikeys_sreg_pop             (uchar a_abbr, char *a_data);
 char        yvikeys_sreg_save            (char *a_label, char *a_data);
 char        yvikeys_sreg_fetch           (int *a_len, char *a_data);
-char        yvikeys_sreg_append          (char *a_data);
+/*> char        yvikeys_sreg_append          (char *a_data);                          <*/
 /*---(selection)----------------------*/
 char        yvikeys_sreg_reset           (int a_pos);
 char        yvikeys_sreg_update          (int a_pos);
@@ -463,6 +467,7 @@ char        yvikeys_sreg_smode           (int a_major, int a_minor);
 char        yvikeys_sreg_status          (char *a_list);
 char        yvikeys_sreg_status_sel      (char *a_list);
 char        yvikeys_sreg_info            (int a_index, char *a_entry);
+int         yvikeys_sreg_dump            (FILE *a_file);
 /*---(unit test)----------------------*/
 char*       yvikeys_sreg__unit           (char *a_question, char a_reg);
 
@@ -495,8 +500,8 @@ char        yvikeys_mark_smode           (int a_major, int a_minor);
 
 
 /*---(program)--------------*/
-int         yvikeys_macro__index    (char a_abbr);
-char        yvikeys_macro__clear    (char a_macro);
+int         yvikeys_macro__index    (uchar a_abbr);
+char        yvikeys_macro__clear    (uchar a_abbr);
 char        yvikeys_macro__restart  (void);
 char        yvikeys_macro_resetall  (void);
 
@@ -513,7 +518,7 @@ char        yvikeys_macro_reckey    (char a_key);
 char        yvikeys_macro__recstr   (char *a_keys);
 char        yvikeys_macro_recend    (void);
 char        yvikeys_macro__direct   (char *a_string);
-char*       yvikeys_macro__unit     (char *a_question, char a_macro);
+char*       yvikeys_macro__unit     (char *a_question, uchar a_abbr);
 /*---(execute)--------------*/
 char        yvikeys_macro__delay    (char a_which, char a_delay);
 char        yvikeys_macro__update   (char a_which, char a_update);
@@ -541,10 +546,10 @@ char        yvikeys_macro_menu_end  (void);
 /*---(status)---------------*/
 char        yvikeys_macro_list      (int *a_count, char *a_list);
 /*---(file)-----------------*/
-char        yvikeys_macro_writer    (char a_abbr);
+char        yvikeys_macro_writer    (uchar a_abbr);
 char        yvikeys_macro_writer_all(void);
 char        yvikeys_macro_reader    (void);
-char        yvikeys_macro_dump      (FILE *a_file);
+int         yvikeys_macro_dump      (FILE *a_file);
 char        yvikeys_macro_flatten   (char a_src, char a_dst);
 char        yvikeys_macro_install   (char a_src);
 

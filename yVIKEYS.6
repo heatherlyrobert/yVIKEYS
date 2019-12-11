@@ -1299,55 +1299,84 @@ based on lessons learned in mathmatics, management, and statistics.
    W          very wide
    /*---(adjustments)------------------*/
 
-.SH TEXT REGISTERS (sub-mode TEXTREG)
-.B situation.  
-begin able to copy and move text between locations in an application while
-editing is critical to increasing speed, accuracy, and reducing mistakes.
-it allows the editor to perform advanced data movements and transformations;
-and it is fundamental to any advanced scripting.
 
-.B complication.  
-when provided, most applications allow access to the single, shared, generic
-desktop clipboard for cut, copy, and paste.  this fits the requirements of
-a vast majority of users.  but, as a result powerful data editing requires
-cludgy supplemental tools or work-arounds just to store data.
 
-.B answer.  
-we will standardize around a keyboard-centric, simplified, vim-like model with
-multiple standard registers.  this mode is called TEXTREG.
+.SH KEYBOARD MACROS (sub-mode)
+.SS ---basics---------------------------------------------------------
+ qa...q     record live keystrokes ... into macro 'a'
+ @a         execute macro 'a' from current position
+.SS ---overview-------------------------------------------------------
+.B definition (D).  
+macros are a fast, simple, and powerful productivity mechanism to save and
+repeat keystrokes as if typed in real-time.
 
-.B overview.  
-text registers are temporary holding places for textual data which facilitate
-movement between different storage locations.
+.B value (V).  
+many actions are repeated, macros save time and mistakes.  tedious editing
+changes are often avoided due to the work involved.
 
-.B register list (55)
+.B situation (S).  
+macros are well and long established, explored, tested, and used in
+keyboard-centric applications.
+
+.B complication (C).  
+given modern focus on mouse and touch, macros and their productivity gains
+are either rudimentary or non-existant.
+
+.B answer (A).  
+i want these productivity gains badly.  all my applications will have a
+powerful and vim-ish keyboard macro capability.
+
+.B extras (E).  
+macros can call each other, debug using stepwise execution, keystroke grouping,
+flattening, and shared macro library.
+.SS ---full capabilities----------------------------------------------
+
+
+.SH SOURCE REGISTERS (sub-mode SREG)
+.SS ---basics---------------------------------------------------------
+ qa...q     record live keystrokes ... into macro 'a'
+ @a         execute macro 'a' from current position
+.SS ---overview-------------------------------------------------------
+.B definition (D).  
+source registers are fast, simple holding places for textual content when it
+is being copied, moved, and/or manipulated.
+
+.B value (V).  
+moving, copying, and manipulatng data without retyping saves time and mistakes,
+especially in complex sequencial actions.
+
+.B situation (S).  
+source registers are well and long established, explored, tested, and used
+in data editing applications.
+
+.B complication (C).  
+given modern limited-experience user focus, registers and their productivity
+have be reduced to a single clipboard.
+
+.B answer (A).  
+i want these productivity gains badly.  all my applications will have a
+powerful and vim-ish set of source registers.
+
+.B extras (E).  
+source registers can be directly defined, copied internally, and merged back
+into the data in additional ways.
+.SS ---full capabilities----------------------------------------------
+
+.B register list (61)
    "          unnamed, default register
-   a-z        named registers, always overwrites existing data
-   A-Z        named registers, appends to existing data
-   -          my vi/vim clipboard (/tmp/vi_clip.txt)
-   +          shared desktop clipboard (NOT IMPLEMENTED)
-   :          last command executed
-   /          last search executed
-   %          full qualified, absolute file name
-
-.B available from which modes
-   SOURCE     source mode allows text registers at any time
-   SELECT     select sub-mode allows registers on selected text
-
-.B primary key involved
-   "          identify the register for target/source
+   a-z        lower case (26), are common, interactive use
+   A-Z (*)    alternate name for lower case, signifies append
+   0-9        numeric (10) internal use by the system
+   è-ÿ        greek (24) are holders for complicated scripting
 
 .B identify register for action
    "a         select register 'a' (single action)
    "A         select register 'a' (single action), but in append mode
-   "-         select the vi/vim sharing file
 
 .B pushing data into registers
    y          yank/copy  content to selected register
    d          delete/cut content to selected register
    x          clear/copy content to selected register
-   p          paste register content after cursor
-   P          paste register content before cursor
 
 .B pulling data from registers (TEXT/SOURCE MODE)
    p          paste register content after cursor
@@ -1365,6 +1394,25 @@ movement between different storage locations.
 
 .B showing register overview
    "?         shows a list of all the registers with critical info
+
+.B manipulating source registers at command line
+   :sreg a¦             purge lower case registers (also 0 and è)
+   :sreg h=¦            clears register h
+   :sreg h=´´´¦         directly input and save the register
+   :sreg i="´´´"¦       allows ¦ (ret) and ¥ (esc)
+   :sreg i=\\n\\e¦        also allows ¦ (ret) and ¥ (esc)
+   :sreg j=\\"´´´¦       escaped quote can go anywhere
+   :sreg j="´´´¦        leading " allowed if no final "
+   :sreg J="´´´"¦       appends to existing register 'j'
+   all leading, internal, and trailing whitespace is meaningful
+
+.B moving and copying registers at command line
+   :sreg ab¦            copies 'b' into macro 'a'
+   :sreg Ab¦            appends 'b' unto end of macro 'a'
+   :sreg a-¦            exports keys to vi_clip.txt
+   :sreg a+¦            imports keys from vi_clip.txt
+   :sreg A+¦            appends keys from vi_clip.txt
+   :dump sreg¦          lists all registers in vi_clip.txt
 
 
 

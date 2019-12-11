@@ -115,15 +115,50 @@ yvikeys_clip_dump       (char *a_what)
    /*---(defense)------------------------*/
    --rce;  if (a_what == NULL)  return rce;
    /*---(open file)----------------------*/
-   f = fopen ("/root/z_gehye/vi_clip.txt", "w");
+   f = fopen (FILE_CLIP, "w");
    --rce;  if (f == NULL)       return rce;
    /*---(dump)---------------------------*/
-   if      (strcmp (a_what, "keys"      ) == 0)  KEYS_dump       (f);
-   else if (strcmp (a_what, "status"    ) == 0)  STATUS_dump     (f);
+   if      (strcmp (a_what, "keys"      ) == 0)  KEYS_dump          (f);
+   else if (strcmp (a_what, "status"    ) == 0)  STATUS_dump        (f);
    else if (strcmp (a_what, "macros"    ) == 0)  yvikeys_macro_dump (f);
+   else if (strcmp (a_what, "sreg"      ) == 0)  yvikeys_sreg_dump  (f);
    /*---(close)--------------------------*/
    fclose (f);
    /*---(complete)-----------------------*/
+   return 0;
+}
+
+char
+yvikeys_clip_write      (cchar *a_recd)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   FILE       *f           = NULL;
+   char        rc          =    0;
+   int         x_len       =    0;
+   /*---(header)-------------------------*/
+   DEBUG_PROG   yLOG_senter  (__FUNCTION__);
+   /*---(defense)------------------------*/
+   DEBUG_SCRP   yLOG_spoint  ( a_recd);
+   --rce;  if (a_recd == NULL) {
+      DEBUG_PROG   yLOG_sexitr  (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(open)---------------------------*/
+   f = fopen (FILE_CLIP, "w");
+   DEBUG_SCRP   yLOG_spoint  (f);
+   --rce;  if (f == NULL) {
+      DEBUG_PROG   yLOG_sexitr  (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(write)--------------------------*/
+   x_len = fprintf (f, "%s\n", a_recd);
+   DEBUG_SCRP   yLOG_sint    (x_len);
+   /*---(close)--------------------------*/
+   rc    = fclose (f);
+   DEBUG_SCRP   yLOG_sint    (rc);
+   /*---(complete)-----------------------*/
+   DEBUG_PROG   yLOG_sexit   (__FUNCTION__);
    return 0;
 }
 
@@ -132,181 +167,58 @@ yvikeys_clip_read       (int a_line, char *a_recd, int *a_len)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
+   char        rc          =    0;
    FILE       *f           = NULL;
-   char        x_recd      [LEN_RECD];
+   char        x_recd      [LEN_RECD] = "";
    int         x_len       =    0;
    int         c           =    0;
    /*---(header)-------------------------*/
-   DEBUG_SCRP   yLOG_enter   (__FUNCTION__);
+   DEBUG_SCRP   yLOG_senter  (__FUNCTION__);
    /*---(defense)------------------------*/
-   DEBUG_SCRP   yLOG_point   ("x_recd"    , x_recd);
+   DEBUG_SCRP   yLOG_spoint  (a_recd);
    --rce;  if (a_recd == NULL) {
-      DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_SCRP   yLOG_sexitr  (__FUNCTION__, rce);
       return rce;
    }
+   /*---(defaults)-----------------------*/
+   if (a_len != NULL)  *a_len = 0;
    strlcpy (a_recd, "", LEN_RECD);
-   /*---(read)---------------------------*/
-   f = fopen ("/root/z_gehye/vi_clip.txt", "r");
-   DEBUG_SCRP   yLOG_point   ("f"         , f);
+   /*---(open)---------------------------*/
+   f = fopen (FILE_CLIP, "r");
+   DEBUG_SCRP   yLOG_spoint  (f);
    --rce;  if (f == NULL) {
-      DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_SCRP   yLOG_sexitr  (__FUNCTION__, rce);
       return rce;
    }
-   --rce;  while (c < a_line)  {
+   /*---(read)---------------------------*/
+   --rce;  while (c <= a_line)  {
+      fgets (x_recd, LEN_RECD, f);
       if (feof (f)) {
-         DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
+         DEBUG_SCRP   yLOG_sexitr  (__FUNCTION__, rce);
          return rce;
       }
-      fgets (x_recd, LEN_RECD, f);
       ++c;
    }
-   fclose (f);
+   DEBUG_SCRP   yLOG_sint    (c);
+   /*---(close)--------------------------*/
+   rc = fclose (f);
+   DEBUG_SCRP   yLOG_sint    (rc);
    /*---(clean)--------------------------*/
    x_len = strlen (x_recd);
-   DEBUG_SCRP   yLOG_value   ("x_len"     , x_len);
-   DEBUG_SCRP   yLOG_char    ("tail"      , chrvisible (x_recd [x_len - 1]));
-   if (x_recd [x_len - 1] == '\n')  x_recd [--x_len] = '\0';
-   DEBUG_SCRP   yLOG_char    ("tail"      , chrvisible (x_recd [x_len - 1]));
-   if (x_recd [x_len - 1] == '³' )  x_recd [--x_len] = '\0';
-   DEBUG_SCRP   yLOG_info    ("x_recd"    , x_recd);
+   if (x_len > 0) {
+      DEBUG_SCRP   yLOG_sint    (x_len);
+      DEBUG_SCRP   yLOG_schar   (chrvisible (x_recd [x_len - 1]));
+      if (x_recd [x_len - 1] == '\n')  x_recd [--x_len] = '\0';
+      if (x_len > 0) {
+         DEBUG_SCRP   yLOG_schar   (chrvisible (x_recd [x_len - 1]));
+         if (x_recd [x_len - 1] == '³' )  x_recd [--x_len] = '\0';
+      }
+   }
    /*---(copy)---------------------------*/
    strlcpy (a_recd, x_recd, LEN_RECD);
    if (a_len != NULL)  *a_len = x_len;
    /*---(complete)-----------------------*/
-   DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
-   return 0;
-}
-
-char         /*-> enter a object directly ------------[ ------ [ge.850.137.A4]*/ /*-[02.0000.00#.!]-*/ /*-[--.---.---.--]-*/
-yvikeys_base_direct     (char a_mode, char *a_string, void *a_purger (), void *a_clearer (), void *a_saver ())
-{
-   /*---(locals)-----------+-----+-----+-*/
-   char        rce         =  -10;
-   char        rc          =    0;
-   int         x_len       =    0;
-   char        x_ch        =  '-';
-   char       *x_valid     = "*aA0è";
-   int         x_beg       =    0;
-   char        x_string    [LEN_RECD];
-   /*---(header)-------------------------*/
-   DEBUG_PROG   yLOG_enter   (__FUNCTION__);
-   /*---(defense)------------------------*/
-   --rce;  if (!STATUS_operational (a_mode)) {
-      DEBUG_PROG   yLOG_note    ("can not execute until operational");
-      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   /*---(defense)------------------------*/
-   DEBUG_PROG   yLOG_point   ("a_string"  , a_string);
-   --rce;  if (a_string == NULL) {
-      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   DEBUG_PROG   yLOG_info    ("a_string"  , a_string);
-   x_len = strlen (a_string);
-   DEBUG_PROG   yLOG_value   ("x_len"     , x_len);
-   --rce;  if (x_len <= 0) {
-      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   /*---(check for purge)----------------*/
-   if (x_len == 1) {
-      DEBUG_PROG   yLOG_note    ("one character option (purge)");
-      DEBUG_PROG   yLOG_point   ("a_purger"  , a_purger);
-      --rce;  if (a_purger == NULL) {
-         DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
-         return rce;
-      }
-      DEBUG_PROG   yLOG_info    ("x_valid"   , x_valid);
-      x_ch = a_string [0];
-      DEBUG_PROG   yLOG_char    ("x_ch"      , x_ch);
-      --rce;  if (strchr (x_valid, x_ch) == NULL) {
-         DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
-         return rce;
-      }
-      rc = a_purger (x_ch);
-      DEBUG_PROG   yLOG_value   ("purge"     , rc);
-      --rce;  if (rc < 0) {
-         DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
-         return rce;
-      }
-      DEBUG_PROG   yLOG_exit    (__FUNCTION__);
-      return 0;
-   }
-   /*---(check for equal)----------------*/
-   DEBUG_PROG   yLOG_note    ("check for equal sign");
-   x_ch = a_string [1];
-   DEBUG_PROG   yLOG_char    ("x_ch"      , x_ch);
-   --rce;  if (x_ch != '=') {
-      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   x_ch = a_string [0];
-   DEBUG_PROG   yLOG_char    ("abbr"      , x_ch);
-   /*---(check for clear)----------------*/
-   if (x_len == 2) {
-      DEBUG_PROG   yLOG_note    ("two character option (clear)");
-      DEBUG_PROG   yLOG_point   ("a_clearer" , a_clearer);
-      --rce;  if (a_clearer == NULL) {
-         DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
-         return rce;
-      }
-      rc = a_clearer (x_ch);
-      DEBUG_PROG   yLOG_value   ("clear"     , rc);
-      --rce;  if (rc < 0) {
-         DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
-         return rce;
-      }
-      DEBUG_PROG   yLOG_exit    (__FUNCTION__);
-      return 0;
-   }
-   /*---(handle quotes)------------------*/
-   DEBUG_PROG   yLOG_note    ("multi-char option (save)");
-   --rce;  if (a_string [2] != G_KEY_DQUOTE) {
-      DEBUG_PROG   yLOG_note    ("normal/unquoted format");
-      strlcpy (x_string, a_string + 2, LEN_RECD);
-   } else {
-      DEBUG_PROG   yLOG_note    ("quoted format");
-      if (a_string [x_len - 1] != G_KEY_DQUOTE) {
-         DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
-         return rce;
-      }
-      strlcpy (x_string, a_string + 3, LEN_RECD);
-      x_string [x_len - 4] = '\0';
-   }
-   DEBUG_PROG   yLOG_info    ("x_string", x_string);
-   /*---(clear option)-------------------*/
-   x_len = strlen (x_string);
-   DEBUG_PROG   yLOG_value   ("x_len"     , x_len);
-   if (x_len == 0) {
-      DEBUG_PROG   yLOG_point   ("a_clearer" , a_clearer);
-      --rce;  if (a_clearer == NULL) {
-         DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
-         return rce;
-      }
-      rc = a_clearer (x_ch);
-      DEBUG_PROG   yLOG_value   ("clear"     , rc);
-      --rce;  if (rc < 0) {
-         DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
-         return rce;
-      }
-      DEBUG_PROG   yLOG_exit    (__FUNCTION__);
-      return 0;
-   }
-   /*---(save)---------------------------*/
-   DEBUG_PROG   yLOG_point   ("a_saver" , a_saver);
-   --rce;  if (a_saver == NULL) {
-      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   rc = a_saver (x_ch, x_string);
-   DEBUG_PROG   yLOG_value   ("save"      , rc);
-   --rce;  if (rc < 0) {
-      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   /*---(complete)-----------------------*/
-   DEBUG_PROG   yLOG_exit    (__FUNCTION__);
+   DEBUG_SCRP   yLOG_sexit   (__FUNCTION__);
    return 0;
 }
 

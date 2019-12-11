@@ -90,7 +90,6 @@ static char    (*s_loader) (char a_name, char *a_keys);
 static char    (*s_saver ) (char a_name, char *a_keys);
 
 #define     MACRO_LOWER    'a'
-#define     MACRO_UPPER    'A'
 #define     MACRO_SYSTEM   '0'
 #define     MACRO_ALL      '*'
 
@@ -106,7 +105,7 @@ char yvikeys_macro_dupdate (char a_update);
 static void  o___FINDING_________o () { return; }
 
 int  
-yvikeys_macro__index    (char a_abbr)
+yvikeys_macro__index    (uchar a_abbr)
 {
    int         n           =   -1;
    if (a_abbr == 0)  return n;
@@ -115,7 +114,7 @@ yvikeys_macro__index    (char a_abbr)
 }
 
 int  
-yvikeys_macro__rset     (char a_abbr)
+yvikeys_macro__rset     (uchar a_abbr)
 {
    int         n           =   -1;
    if (a_abbr == 0)  return n;
@@ -131,7 +130,7 @@ yvikeys_macro__rset     (char a_abbr)
 }
 
 int  
-yvikeys_macro__eset     (char a_abbr)
+yvikeys_macro__eset     (uchar a_abbr)
 {
    int         n           =   -1;
    if (a_abbr == 0)  return n;
@@ -154,7 +153,7 @@ yvikeys_macro__eset     (char a_abbr)
 static void  o___CLEARING________o () { return; }
 
 char         /*-> fully reset a macro ----------------[ leaf   [gz.532.011.00]*/ /*-[00.0000.183.!]-*/ /*-[--.---.---.--]-*/
-yvikeys_macro__clear    (char a_abbr)
+yvikeys_macro__clear    (uchar a_abbr)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        n           =   -1;
@@ -187,7 +186,7 @@ yvikeys_macro__clear    (char a_abbr)
 }
 
 char         /*-> fully reset a macro ----------------[ leaf   [gz.532.011.00]*/ /*-[00.0000.183.!]-*/ /*-[--.---.---.--]-*/
-yvikeys_macro__wipe     (char a_abbr)
+yvikeys_macro__wipe     (uchar a_abbr)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        n           =   -1;
@@ -229,7 +228,7 @@ yvikeys_macro__purge    (char a_scope)
    /*---(defense)------------------------*/
    DEBUG_SCRP   yLOG_char    ("a_scope"   , a_scope);
    --rce;  switch (a_scope) {
-   case YVIKEYS_LOWER  : case YVIKEYS_UPPER  : case YVIKEYS_NUMBER :
+   case YVIKEYS_LOWER  : case YVIKEYS_NUMBER :
    case YVIKEYS_GREEK  : case YVIKEYS_FULL   :
       break;
    default :
@@ -319,7 +318,6 @@ yvikeys_macro_init      (void)
    /*---(macro abbrev list)--------------*/
    strlcpy (S_MACRO_LIST, ""            , S_MACRO_MAX);
    strlcat (S_MACRO_LIST, gvikeys_lower , S_MACRO_MAX);
-   /*> strlcat (S_MACRO_LIST, gvikeys_upper , S_MACRO_MAX);                           <*/
    strlcat (S_MACRO_LIST, gvikeys_number, S_MACRO_MAX);
    strlcat (S_MACRO_LIST, gvikeys_greek , S_MACRO_MAX);
    DEBUG_PROG   yLOG_info    ("LIST"      , S_MACRO_LIST);
@@ -744,18 +742,21 @@ yvikeys_macro__export   (char a_id)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
+   char        rc          =    0;
    char        n           =   -1;
-   FILE       *f           = NULL;
+   /*---(header)-------------------------*/
+   DEBUG_SCRP   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
    n = yvikeys_macro__index (a_id);
-   --rce;  if (n <  0)          return rce;
+   --rce;  if (n <  0)  {
+      DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    /*---(write)--------------------------*/
-   f = fopen ("/root/z_gehye/vi_clip.txt", "w");
-   --rce;  if (f == NULL)       return rce;
-   fprintf (f, "%s\n", s_macros [n].keys);
-   fclose (f);
+   rc = yvikeys_clip_write (s_macros [n].keys);
    /*---(complete)-----------------------*/
-   return 0;
+   DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
+   return rc;
 }
 
 char
@@ -764,30 +765,21 @@ yvikeys_macro__import   (char a_id)
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    char        rc          =    0;
-   FILE       *f           = NULL;
    char        x_recd      [LEN_RECD];
-   int         x_len       =    0;
    char        x_direct    [LEN_RECD];
    /*---(header)-------------------------*/
    DEBUG_SCRP   yLOG_enter   (__FUNCTION__);
    /*---(read)---------------------------*/
-   f = fopen ("/root/z_gehye/vi_clip.txt", "r");
-   DEBUG_SCRP   yLOG_point   ("f"         , f);
-   --rce;  if (f == NULL) {
+   rc = yvikeys_clip_read  (0, x_recd, NULL);
+   DEBUG_SCRP   yLOG_value   ("read"      , rc);
+   --rce;  if (rc < 0) {
       DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   fgets (x_recd, LEN_RECD, f);
-   fclose (f);
-   x_len = strlen (x_recd);
-   DEBUG_SCRP   yLOG_value   ("x_len"     , x_len);
-   DEBUG_SCRP   yLOG_char    ("tail"      , chrvisible (x_recd [x_len - 1]));
-   if (x_recd [x_len - 1] == '\n')  x_recd [--x_len] = '\0';
-   DEBUG_SCRP   yLOG_char    ("tail"      , chrvisible (x_recd [x_len - 1]));
-   if (x_recd [x_len - 1] == '³' )  x_recd [--x_len] = '\0';
    DEBUG_SCRP   yLOG_info    ("x_recd"    , x_recd);
+   /*---(add)----------------------------*/
    sprintf (x_direct, "%c=%s", a_id, x_recd);
-   DEBUG_SCRP   yLOG_info    ("x_direcd"  , x_recd);
+   DEBUG_SCRP   yLOG_info    ("x_direct"  , x_direct);
    rc = yvikeys_macro__recdir (a_id, x_direct);
    DEBUG_SCRP   yLOG_value   ("recdir"    , rc);
    /*---(complete)-----------------------*/
@@ -1629,12 +1621,6 @@ yvikeys_macro_smode     (char a_major, char a_minor)
    }
    /*---(check for execution)------------*/
    --rce;  if (a_major == '@') {
-      /*---(export/import)---------------*/
-      if (strchr ("<>", a_minor) != NULL) {
-         DEBUG_USER   yLOG_note    ("macro copy/paste from unnamed register");
-         DEBUG_USER   yLOG_exit    (__FUNCTION__);
-         return a_minor;
-      }
       DEBUG_USER   yLOG_note    ("macro execution");
       /*---(check for previous)----------*/
       if (a_minor == '@') {
@@ -1652,40 +1638,6 @@ yvikeys_macro_smode     (char a_major, char a_minor)
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return 0;
       /*---(done)------------------------*/
-   }
-   /*---(check for copy/paste)-----------*/
-   --rce;  if (a_major == '>') {
-      rc = yvikeys_macro__eset  (a_minor);
-      if (rc < 0) {
-         DEBUG_USER   yLOG_note    ("can not find macro");
-         DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
-         return rce;
-      }
-      yvikeys_macro__clear (a_minor);
-      yvikeys_sreg_setreg  ('"');
-      yvikeys_sreg_fetch   (&(s_macros [s_ecurr].len), &(s_macros [s_ecurr].keys));
-      s_macros [s_ecurr].keys [s_macros [s_ecurr].len++] = G_CHAR_HALT;
-      s_macros [s_ecurr].keys [s_macros [s_ecurr].len  ] = G_KEY_NULL;
-      MODE_exit  ();
-      DEBUG_USER   yLOG_exit    (__FUNCTION__);
-      return 0;
-   }
-   --rce;  if (a_major == '<') {
-      /*---(test name)----------------------*/
-      rc = yvikeys_macro__eset  (a_minor);
-      if (rc < 0) {
-         DEBUG_USER   yLOG_note    ("can not find macro");
-         DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
-         return rce;
-      }
-      /*---(keys)---------------------------*/
-      strlcpy (x_keys, s_macros [s_ecurr].keys, LEN_RECD);
-      if (s_macros [s_ecurr].len > 0)  x_keys [s_macros [s_ecurr].len - 1] = G_KEY_NULL;
-      yvikeys_sreg_setreg  ('"');
-      yvikeys_sreg_save    ("macro", x_keys);
-      MODE_exit  ();
-      DEBUG_USER   yLOG_exit    (__FUNCTION__);
-      return 0;
    }
    /*---(errors fall through)------------*/
    --rce;
@@ -1788,7 +1740,7 @@ yvikeys_macro_list      (int *a_count, char *a_list)
 static void  o___FILE____________o () { return; }
 
 char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/
-yvikeys_macro_writer    (char a_abbr)
+yvikeys_macro_writer    (uchar a_abbr)
 {
    /*---(locals)-----------+-----------+-*/
    char        rce         =  -10;
@@ -1914,7 +1866,7 @@ yvikeys_macro_reader    (void)
    return 1;
 }
 
-char
+int
 yvikeys_macro_dump      (FILE *a_file)
 {
    /*---(locals)-----------+-----+-----+-*/
@@ -1923,18 +1875,16 @@ yvikeys_macro_dump      (FILE *a_file)
    char        c           =    0;
    /*---(header)-------------------------*/
    DEBUG_OUTP   yLOG_enter   (__FUNCTION__);
-   fprintf (a_file, "yVIKEYS, current macro assignments (:dump macros)\n");
-   fprintf (a_file, "-  ---keys-----------------------------------------------------------\n");
    /*---(prepare)------------------------*/
    x_end = strlen (S_MACRO_LIST);
+   fprintf (a_file, "## yVIKEYS macro dump from %s (:dump macros)\n", myVIKEYS.s_prog);
    /*---(walk list)----------------------*/
    for (i = 0; i <= x_end; ++i) {
       if (s_macros [i].len <= 0)  continue;
-      fprintf (a_file, "%c  %s\n", S_MACRO_LIST [i], s_macros [i].keys);
+      fprintf (a_file, "%c=%s\n", S_MACRO_LIST [i], s_macros [i].keys);
       ++c;
    }
-   fprintf (a_file, "-  ---keys-----------------------------------------------------------\n");
-   fprintf (a_file, "macro count %d\n", c);
+   fprintf (a_file, "## end-of-dump (%d recs)\n", c);
    /*---(complete)-----------------------*/
    DEBUG_OUTP  yLOG_exit    (__FUNCTION__);
    return c;
@@ -2166,7 +2116,7 @@ yvikeys_macro_install   (char a_src)
 static void  o___UNIT_TEST_______o () { return; }
 
 char*        /*-> tbd --------------------------------[ leaf   [gs.520.202.40]*/ /*-[01.0000.00#.#]-*/ /*-[--.---.---.--]-*/
-yvikeys_macro__unit     (char *a_question, char a_macro)
+yvikeys_macro__unit     (char *a_question, uchar a_abbr)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        n           =    0;
@@ -2192,7 +2142,7 @@ yvikeys_macro__unit     (char *a_question, char a_macro)
       return yVIKEYS__unit_answer;
    }
    else if (strcmp (a_question, "keys"           )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_RECD, "MACRO keys   (%c) : %-.45s", a_macro, s_macros [s_ecurr].keys);
+      snprintf (yVIKEYS__unit_answer, LEN_RECD, "MACRO keys   (%c) : %-.45s", a_abbr, s_macros [s_ecurr].keys);
       return yVIKEYS__unit_answer;
    }
    else if (strcmp (a_question, "list"           )   == 0) {
@@ -2205,27 +2155,27 @@ yvikeys_macro__unit     (char *a_question, char a_macro)
       return yVIKEYS__unit_answer;
    }
    else if (strcmp (a_question, "clip"           )   == 0) {
-      yvikeys_clip_read (1, t, &x_len);
-      snprintf (yVIKEYS__unit_answer, LEN_RECD, "MACRO clip       : %2d[%s]", x_len, t);
+      yvikeys_clip_read (a_abbr, t, &x_len);
+      snprintf (yVIKEYS__unit_answer, LEN_RECD, "MACRO clip  (%2d) : %2d[%.40s]", a_abbr, x_len, t);
       return yVIKEYS__unit_answer;
    }
    /*---(complex questions)--------------*/
-   n = yvikeys_macro__index (a_macro);
-   if (yvikeys_macro__index (a_macro) < 0) {
+   n = yvikeys_macro__index (a_abbr);
+   if (yvikeys_macro__index (a_abbr) < 0) {
       strcpy  (yVIKEYS__unit_answer, "MACRO unit       : not a valid macro name");
       return yVIKEYS__unit_answer;
    }
    else if (strcmp (a_question, "saved"          )   == 0) {
-      if (n < 0)  snprintf (yVIKEYS__unit_answer, LEN_RECD, "MACRO saved  (%c) : not a valid macro name", a_macro);
+      if (n < 0)  snprintf (yVIKEYS__unit_answer, LEN_RECD, "MACRO saved  (%c) : not a valid macro name", a_abbr);
       else {
          sprintf (t, "[%-.33s]", s_macros [n].keys);
          if (s_macros [n].len > 33)  t [34] = '>';
-         snprintf (yVIKEYS__unit_answer, LEN_RECD, "MACRO saved  (%c) : %2d%-35.35s %2d %2d %2d", a_macro, s_macros [n].len, t, s_macros [n].pos, s_macros [n].runby, s_macros [n].repeat);
+         snprintf (yVIKEYS__unit_answer, LEN_RECD, "MACRO saved  (%c) : %2d%-35.35s %2d %2d %2d", a_abbr, s_macros [n].len, t, s_macros [n].pos, s_macros [n].runby, s_macros [n].repeat);
       }
    }
    else if (strcmp (a_question, "full"           )   == 0) {
-      if (n < 0)  snprintf (yVIKEYS__unit_answer, LEN_RECD, "MACRO full   (%c) : not a valid macro name", a_macro);
-      else        snprintf (yVIKEYS__unit_answer, LEN_RECD, "MACRO full   (%c) : %s", a_macro, s_macros [n].keys);
+      if (n < 0)  snprintf (yVIKEYS__unit_answer, LEN_RECD, "MACRO full   (%c) : not a valid macro name", a_abbr);
+      else        snprintf (yVIKEYS__unit_answer, LEN_RECD, "MACRO full   (%c) : %s", a_abbr, s_macros [n].keys);
    }
    /*---(complete)-----------------------*/
    return yVIKEYS__unit_answer;
