@@ -350,16 +350,16 @@ yvikeys_macro_init      (void)
    yVIKEYS_view_option (YVIKEYS_STATUS, "macro"  , yvikeys_macro_estatus , "details of macro playback"                );
    yVIKEYS_view_option (YVIKEYS_STATUS, "record" , yvikeys_macro_rstatus , "details of macro recording"               );
    /*---(menu entries)-------------------*/
-   yVIKEYS_menu_add ("µre0", "1us"       , ":edelay 0¦");
-   yVIKEYS_menu_add ("µre1", "100us"     , ":edelay 1¦");
-   yVIKEYS_menu_add ("µre2", "1ms"       , ":edelay 2¦");
-   yVIKEYS_menu_add ("µre3", "10ms"      , ":edelay 3¦");
-   yVIKEYS_menu_add ("µre4", "50ms"      , ":edelay 4¦");
-   yVIKEYS_menu_add ("µre5", "100ms"     , ":edelay 5¦");
-   yVIKEYS_menu_add ("µre6", "500ms"     , ":edelay 6¦");
-   yVIKEYS_menu_add ("µre7", "1s"        , ":edelay 7¦");
-   yVIKEYS_menu_add ("µre8", "2s"        , ":edelay 8¦");
-   yVIKEYS_menu_add ("µre9", "3s"        , ":edelay 9¦");
+   yVIKEYS_menu_add ("µre0", "blitz"     , ":edelay 0¦");
+   yVIKEYS_menu_add ("µre1", "fast"      , ":edelay 1¦");
+   yVIKEYS_menu_add ("µre2", "thousand"  , ":edelay 2¦");
+   yVIKEYS_menu_add ("µre3", "hundred"   , ":edelay 3¦");
+   yVIKEYS_menu_add ("µre4", "twenty"    , ":edelay 4¦");
+   yVIKEYS_menu_add ("µre5", "tenth"     , ":edelay 5¦");
+   yVIKEYS_menu_add ("µre6", "half"      , ":edelay 6¦");
+   yVIKEYS_menu_add ("µre7", "second"    , ":edelay 7¦");
+   yVIKEYS_menu_add ("µre8", "double"    , ":edelay 8¦");
+   yVIKEYS_menu_add ("µre9", "triple"    , ":edelay 9¦");
    yVIKEYS_menu_add ("µre+", "faster"    , ":edelay +¦");
    yVIKEYS_menu_add ("µre-", "slower"    , ":edelay -¦");
    yVIKEYS_menu_add ("µren", "normal"    , ":eupdate n¦");
@@ -1059,21 +1059,21 @@ yvikeys_macro__delay    (char a_which, char a_delay)
    DEBUG_SCRP   yLOG_senter  (__FUNCTION__);
    DEBUG_SCRP   yLOG_schar   (a_delay);
    /*---(set)----------------------------*/
-   if (a_delay >= '0' && a_delay <= '9') {
+   if (a_delay >= MACRO_BLITZ && a_delay <= MACRO_TRIPLE) {
       DEBUG_SCRP   yLOG_note    ("set abs");
       if (a_which == 'd')  s_ddelay = a_delay;
       else                 s_edelay = a_delay;
    }
    if (a_delay == '-') {
       DEBUG_SCRP   yLOG_note    ("decrease (-)");
-      if (s_ddelay > '0') {
+      if (s_ddelay > MACRO_BLITZ) {
          if (a_which == 'd')  --s_ddelay;
          else                 --s_edelay;
       }
    }
    if (a_delay == '+') {
       DEBUG_SCRP   yLOG_note    ("increase (+)");
-      if (s_ddelay < '9') {
+      if (s_ddelay < MACRO_TRIPLE) {
          if (a_which == 'd')  ++s_ddelay;
          else                 ++s_edelay;
       }
@@ -1152,7 +1152,7 @@ char
 yvikeys_macro_set2blitz (void)
 {
    SET_MACRO_RUN;
-   yvikeys_loop_macro ('0', 's');
+   yvikeys_loop_macro (MACRO_BLITZ, MACRO_BLIND);
    return 0;
 }
 
@@ -1324,11 +1324,9 @@ yvikeys_macro_skips     (void)
    DEBUG_SCRP   yLOG_sint    (myVIKEYS.macro_skip);
    if (s_skips < myVIKEYS.macro_skip) {
       DEBUG_SCRP   yLOG_snote   ("no position update due yet");
-      DEBUG_SCRP   yLOG_sexit   (__FUNCTION__);
       return -1;
    }
    s_skips = 0;
-   DEBUG_SCRP   yLOG_sexit   (__FUNCTION__);
    return 0;
 }
 
@@ -1371,11 +1369,12 @@ yvikeys_macro_exeadv    (uchar a_play)
       }
       break;
    case MACRO_RUN      :
-      DEBUG_SCRP   yLOG_snote   ("normal run mode");
       if (yvikeys_macro_skips () < 0) {
+         DEBUG_SCRP   yLOG_snote   ("normal mode, in a skip cycle");
          DEBUG_SCRP   yLOG_sexit   (__FUNCTION__);
          return 0;
       }
+      DEBUG_SCRP   yLOG_snote   ("normal run mode");
       break;
    }
    /*---(next key)-----------------------*/
@@ -1406,7 +1405,7 @@ yvikeys_macro_exekey    (void)
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    char        rc          =    0;
-   char        x_ch        =  ' ';
+   uchar       x_uch       =  ' ';
    int         x_runby     =   -1;
    static int  x_pos       =   -1;
    static int  x_pause     =    0;
@@ -1460,20 +1459,31 @@ yvikeys_macro_exekey    (void)
          return 0;
       }
    }
-   /*---(handle next key)----------------*/
-   x_ch = s_macros [s_ecurr].keys [s_macros [s_ecurr].pos];
-   DEBUG_SCRP   yLOG_value   ("x_ch"      , x_ch);
-   x_ch = chrworking (x_ch);
-   DEBUG_SCRP   yLOG_char    ("x_ch"      , x_ch);
-   x_pos = s_macros [s_ecurr].pos;
-   DEBUG_SCRP   yLOG_value   ("x_pos"     , x_pos);
-   /*---(handle controls)-------------*/
-   if (x_ch < 0 || x_ch > 127) {
-      x_ch = yvikeys_macro__exectl (x_ch);
+   /*---(get next key)-------------------*/
+   x_uch = s_macros [s_ecurr].keys [s_macros [s_ecurr].pos];
+   DEBUG_SCRP   yLOG_value   ("x_uch"     , x_uch);
+   /*---(check key)----------------------*/
+   IF_MACRO_RUN {
+      if (x_uch == G_CHAR_SPACE) {
+         DEBUG_SCRP   yLOG_note    ("found a spacer in macro run mode");
+         s_skips = myVIKEYS.macro_skip;
+         ++x_pos;
+         DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
+         return G_KEY_ACK;
+      }
    }
+   /*---(translate)----------------------*/
+   x_uch = chrworking (x_uch);
+   DEBUG_SCRP   yLOG_char    ("x_uch"     , x_uch);
+   /*---(handle controls)-------------*/
+   if (x_uch < 0 || x_uch > 127) {
+      x_uch = yvikeys_macro__exectl (x_uch);
+   }
+   /*---(next)------------------------*/
+   x_pos = s_macros [s_ecurr].pos;   /* x_pos is static, so this is key */
    /*---(complete)--------------------*/
    DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
-   return x_ch;
+   return x_uch;
 }
 
 char         /*-> tbd --------------------------------[ ------ [gc.340.102.21]*/ /*-[00.0000.013.!]-*/ /*-[--.---.---.--]-*/
@@ -1482,8 +1492,19 @@ yvikeys_macro__exectl   (uchar a_key)
    if (a_key >= 0 && a_key <= 127)  return 0;
    DEBUG_SCRP   yLOG_enter   (__FUNCTION__);
    DEBUG_SCRP   yLOG_value   ("a_key"     , a_key);
-   DEBUG_SCRP   yLOG_value   ("uchar"     , 256 + a_key);
    switch (a_key) {
+   case G_CHAR_SLBRACK :
+      DEBUG_SCRP   yLOG_note    ("blitz (º)");
+      IF_MACRO_RUN   yvikeys_macro_set2blitz ();
+      else           DEBUG_SCRP   yLOG_note    ("blitzing not active in debug/playback");
+      a_key = G_KEY_ACK;
+      break;
+   case  G_CHAR_SRBRACK :
+      DEBUG_SCRP   yLOG_note    ("unblitz (»)");
+      IF_MACRO_RUN   yvikeys_macro_set2run   ();
+      else           DEBUG_SCRP   yLOG_note    ("blitzing not active in debug/playback");
+      a_key = G_KEY_ACK;
+      break;
    case G_CHAR_WAIT    :
       DEBUG_SCRP   yLOG_note    ("wait («)");
       DEBUG_SCRP   yLOG_double  ("delay"     , myVIKEYS.delay);
@@ -1506,21 +1527,27 @@ yvikeys_macro__exectl   (uchar a_key)
    case G_CHAR_BREAK   :
       DEBUG_SCRP   yLOG_note    ("break (ª)");
       yvikeys_macro_set2play ();
-      a_key = G_KEY_SPACE;
+      a_key = G_KEY_ACK;
       break;
    case G_CHAR_HALT    :
    case G_CHAR_NULL    :
-      DEBUG_SCRP   yLOG_note    ("halt (³)");
+      DEBUG_SCRP   yLOG_note    ("halt (³) or null (£)");
       yvikeys_macro_set2stop ();
-      a_key = G_KEY_NULL;
+      a_key = G_KEY_ACK;
       break;
    case G_CHAR_DISPLAY :
       DEBUG_SCRP   yLOG_note    ("display (©)");
-      a_key = G_KEY_SPACE;
+      a_key = G_KEY_ACK;
+      break;
+   case G_CHAR_SPACE   :
+      IF_MACRO_RUN {
+         DEBUG_SCRP   yLOG_note    ("macro spacer (·), fast skip");
+         a_key = G_KEY_ACK;
+      }
       break;
    default             :
       DEBUG_SCRP   yLOG_note    ("other key");
-      a_key = G_KEY_NULL;
+      a_key = G_KEY_SPACE;
       break;
    }
    DEBUG_SCRP   yLOG_value   ("a_key"     , a_key);
@@ -1873,18 +1900,20 @@ yvikeys_macro_dump      (FILE *a_file)
    char        x_end       =    0;
    int         i           =    0;
    char        c           =    0;
-   /*---(header)-------------------------*/
+   int         x_len       =    0;
+   /*---(header)-------------------------*//*  27 + 20 + 5 = 52 */
    DEBUG_OUTP   yLOG_enter   (__FUNCTION__);
    /*---(prepare)------------------------*/
    x_end = strlen (S_MACRO_LIST);
-   fprintf (a_file, "## yVIKEYS macro dump from %s (:dump macros)\n", myVIKEYS.s_prog);
+   x_len = 80 - 52 - strlen (myVIKEYS.s_prog);
+   fprintf (a_file, "##===[[ yVIKEYS macro dump from %s (:dump macros) ]]%*.*s##\n", myVIKEYS.s_prog, x_len, x_len, "======================================================================================================================================");
    /*---(walk list)----------------------*/
    for (i = 0; i <= x_end; ++i) {
       if (s_macros [i].len <= 0)  continue;
       fprintf (a_file, "%c=%s\n", S_MACRO_LIST [i], s_macros [i].keys);
       ++c;
    }
-   fprintf (a_file, "## end-of-dump (%d recs)\n", c);
+   fprintf (a_file, "##===[[ end-of-dump (%2d recs) ]]==============================================##\n", c);
    /*---(complete)-----------------------*/
    DEBUG_OUTP  yLOG_exit    (__FUNCTION__);
    return c;

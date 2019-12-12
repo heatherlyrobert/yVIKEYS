@@ -735,7 +735,6 @@ yVIKEYS_main_string  (uchar *a_keys)
       /*---(handle input)----------------*/
       x_ch = yVIKEYS_main_input (RUN_TEST, x_ch);
       DEBUG_LOOP   yLOG_value   ("x_ch"      , x_ch);
-      if (x_ch == -1) continue;
       /*---(handle keystroke)------------*/
       rc = yVIKEYS_main_handle (x_ch);
       DEBUG_LOOP   yLOG_value   ("rc"        , rc);
@@ -789,6 +788,8 @@ yVIKEYS_main            (char *a_delay, char *a_update, void *a_altinput ())
       /*---(keyboard input)--------------*/
       DEBUG_GRAF  yLOG_value   ("x_key"     , x_key);
       x_key = yVIKEYS_main_input  (RUN_USER, x_key);
+      if (x_key == G_KEY_ACK)  continue;   /* for macros to skip spaces, etc  */
+      /*---(handling)--------------------*/
       yVIKEYS_main_handle (x_key);
       if (yVIKEYS_quit ())  break;
       /*---(alternate input)-------------*/

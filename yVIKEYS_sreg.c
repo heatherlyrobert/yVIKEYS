@@ -156,7 +156,7 @@ yvikeys_sreg_init               (void)
    s_wsreg = '"';
    /*---(commands)-----------------------*/
    DEBUG_PROG   yLOG_note    ("add commands/status");
-   yVIKEYS_view_option (YVIKEYS_STATUS  , "sreg", yvikeys_sreg_status, "details of source registers");
+   yVIKEYS_view_option (YVIKEYS_STATUS  , "sreg", yvikeys_sreg_status, "details of current source register");
    yVIKEYS_cmds_add    (YVIKEYS_M_CONFIG, "sreg", "", "a", yvikeys_sreg__direct, "direct definition of source registers");
    /*---(update status)------------------*/
    STATUS_init_set   (SMOD_SREG);
@@ -795,8 +795,7 @@ yvikeys_sreg_smode      (int a_major, int a_minor)
          s_csreg = a_minor;
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return 0;
-      }
-      else if (a_minor == '?') {
+      } else if (a_minor == '?') {
          DEBUG_USER   yLOG_note    ("show source register inventory");
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          myVIKEYS.info_win = 'y';
@@ -809,12 +808,11 @@ yvikeys_sreg_smode      (int a_major, int a_minor)
    /*---(select register action)---------*/
    --rce;  if (a_major == G_KEY_SPACE) {
       switch (a_minor) {
-      case  '!' :
+      case '_' :
          s_wsreg = s_csreg;
-         yVIKEYS_cmds_direct (":status treg");
+         yVIKEYS_cmds_direct (":status sreg");
          MODE_exit ();
-         DEBUG_USER   yLOG_exit    (__FUNCTION__);
-         return 0;
+         break;
       case  '#' :
          DEBUG_USER   yLOG_note    ("wipe source register");
          n = yvikeys_sreg__index  (s_csreg);
@@ -874,20 +872,6 @@ yvikeys_sreg_smode      (int a_major, int a_minor)
          MODE_exit   ();
          SOURCE__done    ();
          break;
-         /*> case  'g' :                                                                  <* 
-          *>    DEBUG_USER   yLOG_note    ("go to beginning selection position");         <* 
-          *>    n = yvikeys_sreg__index (s_csreg);                                        <* 
-          *>    s_cur->cpos = s_sreg_info [n].beg;                                       <* 
-          *>    SOURCE__done ();                                                             <* 
-          *>    MODE_exit ();                                                             <* 
-          *>    break;                                                                    <*/
-         /*> case  'G' :                                                                  <* 
-          *>    DEBUG_USER   yLOG_note    ("go to ending selection position");            <* 
-          *>    n = yvikeys_sreg__index (s_csreg);                                        <* 
-          *>    s_cur->cpos = s_sreg_info [n].end;                                       <* 
-          *>    SOURCE__done ();                                                             <* 
-          *>    MODE_exit ();                                                             <* 
-          *>    break;                                                                    <*/
       }
    }
    DEBUG_USER   yLOG_exit    (__FUNCTION__);
@@ -901,18 +885,20 @@ yvikeys_sreg_dump       (FILE *a_file)
    char        x_end       =    0;
    int         i           =    0;
    char        c           =    0;
+   int         x_len       =    0;
    /*---(header)-------------------------*/
    DEBUG_OUTP   yLOG_enter   (__FUNCTION__);
    /*---(prepare)------------------------*/
    x_end = strlen (S_SREG_LIST);
-   fprintf (a_file, "## yVIKEYS source register dump from %s (:dump sreg)\n", myVIKEYS.s_prog);
+   x_len = 80 - 60 - strlen (myVIKEYS.s_prog);
+   fprintf (a_file, "##===[[ yVIKEYS source register dump from %s (:dump sreg) ]]%*.*s##\n", myVIKEYS.s_prog, x_len, x_len, "======================================================================================================================================");
    /*---(walk list)----------------------*/
    for (i = 0; i <= x_end; ++i) {
       if (s_sreg_info [i].len <= 0)  continue;
       fprintf (a_file, "%c=%s\n", S_SREG_LIST [i], s_sreg_info [i].data);
       ++c;
    }
-   fprintf (a_file, "## end-of-dump (%d recs)\n", c);
+   fprintf (a_file, "##===[[ end-of-dump (%2d recs) ]]==============================================##\n", c);
    /*---(complete)-----------------------*/
    DEBUG_OUTP  yLOG_exit    (__FUNCTION__);
    return c;
@@ -944,7 +930,7 @@ yvikeys_sreg__unit      (char *a_question, char a_reg)
    }
    else if (strcmp (a_question, "clip"           )   == 0) {
       yvikeys_clip_read (a_reg, t, &x_len);
-      snprintf (yVIKEYS__unit_answer, LEN_RECD, "SREG clip   (%2d) : %2d[%s]", a_reg, x_len, t);
+      snprintf (yVIKEYS__unit_answer, LEN_RECD, "SREG clip   (%2d) : %2d[%.40s]", a_reg, x_len, t);
       return yVIKEYS__unit_answer;
    }
    /*---(complex)------------------------*/

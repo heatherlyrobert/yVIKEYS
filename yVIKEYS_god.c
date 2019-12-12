@@ -1024,6 +1024,7 @@ yvikeys_loop_normal     (void)
    return rc;
 }
 
+
 char
 yvikeys_loop_macro      (char a_delay, char a_update)
 {
@@ -1041,16 +1042,16 @@ yvikeys_loop_macro      (char a_delay, char a_update)
    /*> IF_MACRO_RUN   a_delay = '0';                                                  <*/
    /*---(delay mode)---------------------*/
    switch (a_delay) {
-   case '0' :  yvikeys_loop_delay ("1us"  );   myVIKEYS.macro_skip =  0;   break;
-   case '1' :  yvikeys_loop_delay ("100us");   myVIKEYS.macro_skip =  0;   break;
-   case '2' :  yvikeys_loop_delay ("1ms"  );   myVIKEYS.macro_skip =  0;   break;
-   case '3' :  yvikeys_loop_delay ("10ms" );   myVIKEYS.macro_skip =  0;   break;
-   case '4' :  yvikeys_loop_delay ("10ms" );   myVIKEYS.macro_skip =  4;   break;
-   case '5' :  yvikeys_loop_delay ("100ms");   myVIKEYS.macro_skip =  0;   break;
-   case '6' :  yvikeys_loop_delay ("100ms");   myVIKEYS.macro_skip =  4;   break;
-   case '7' :  yvikeys_loop_delay ("100ms");   myVIKEYS.macro_skip =  9;   break;
-   case '8' :  yvikeys_loop_delay ("100ms");   myVIKEYS.macro_skip = 19;   break;
-   case '9' :  yvikeys_loop_delay ("100ms");   myVIKEYS.macro_skip = 29;   break;
+   case MACRO_BLITZ  :  yvikeys_loop_delay ("1us"  );   myVIKEYS.macro_skip =  0;   break;
+   case MACRO_FAST   :  yvikeys_loop_delay ("100us");   myVIKEYS.macro_skip =  0;   break;
+   case MACRO_THOU   :  yvikeys_loop_delay ("1ms"  );   myVIKEYS.macro_skip =  0;   break;
+   case MACRO_HUND   :  yvikeys_loop_delay ("10ms" );   myVIKEYS.macro_skip =  0;   break;
+   case MACRO_TWENTY :  yvikeys_loop_delay ("10ms" );   myVIKEYS.macro_skip =  4;   break;
+   case MACRO_TENTH  :  yvikeys_loop_delay ("100ms");   myVIKEYS.macro_skip =  0;   break;
+   case MACRO_HALF   :  yvikeys_loop_delay ("100ms");   myVIKEYS.macro_skip =  4;   break;
+   case MACRO_SEC    :  yvikeys_loop_delay ("100ms");   myVIKEYS.macro_skip =  9;   break;
+   case MACRO_DOUBLE :  yvikeys_loop_delay ("100ms");   myVIKEYS.macro_skip = 19;   break;
+   case MACRO_TRIPLE :  yvikeys_loop_delay ("100ms");   myVIKEYS.macro_skip = 29;   break;
    }
    DEBUG_LOOP   yLOG_sint    (myVIKEYS.macro_skip);
    /*---(change update basis)------------*/

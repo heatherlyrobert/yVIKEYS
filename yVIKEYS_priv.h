@@ -26,8 +26,8 @@
 
 #define     P_VERMAJOR  "1.X = working for everyday use, features still evolving but stable"
 #define     P_VERMINOR  "1.4 = prepare for demonstrations on web"
-#define     P_VERNUM    "1.4b"
-#define     P_VERTXT    "source register copy, move, and import/export updated to match macros"
+#define     P_VERNUM    "1.4c"
+#define     P_VERTXT    "found macro delays caused by ·, fixed it, and some tweeks"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -191,6 +191,17 @@ tSHARED     myVIKEYS;
 #define     SET_MACRO_PLAYBACK   yvikeys_macro_modeset (MACRO_PLAYBACK);
 #define     SET_MACRO_DELAY      yvikeys_macro_modeset (MACRO_DELAY);
 /*---(speeds)----------*/
+#define     MACRO_BLITZ        '0'
+#define     MACRO_FAST         '1'
+#define     MACRO_THOU         '2'
+#define     MACRO_HUND         '3'
+#define     MACRO_TWENTY       '4'
+#define     MACRO_TENTH        '5'
+#define     MACRO_HALF         '6'
+#define     MACRO_SEC          '7'
+#define     MACRO_DOUBLE       '8'
+#define     MACRO_TRIPLE       '9'
+/*---(updates)---------*/
 #define     MACRO_NORMAL       'n'  /* normal updates */
 #define     MACRO_SLOWER       's'  /* slower updates */
 #define     MACRO_BLINKS       'b'  /* stop action looking */

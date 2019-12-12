@@ -134,9 +134,9 @@ all applications can use them.
    \\\\     µ     delayed backslash for file/input reading
 
 .B adding macro control characters
-   \\,     «     wait/pause for a preset time (often 1sec)
-   \\.     ª     breakpoint during execution
-   \\q     ³     halt execution
+   \\,     «     wait/pause for a half-second (0.5s)
+   \\.     ª     breakpoint during execution, enter playback
+   \\q     ³     halt execution entirely
    \\+     ©     update screen contents (in case of fast execution)
    \\0     £     visible null
 
@@ -147,39 +147,43 @@ all applications can use them.
 
 .B adding mathmatical charcters
    type \\ first, then one of the latin characters below
-   ß Ý Þ æ    Ë Ì Í    Î Æ Ç È É Ê    À Á Â Ã Ä Å   ¸ ¹ º » ¼ ½
-   = < > ~    # a r    1 2 3 4 x y    5 6 7 8 9 z   ( ) [ ] { }
+   ß Ý Þ æ    Ë Ì Í    Î Æ Ç È É Ê    À Á Â Ã Ä Å    ¸ ¹ º » ¼ ½
+   / < > ~    # a r    1 2 3 4 x y    5 6 7 8 9 z    ( ) [ ] { }
 
 .B adding other useful characters
    type \\ first, then one of the latin characters below
-   ´ ¢ ¡    Ô Ó Ö Õ    Ð Ñ Ò    ® ¯
-   @ ? !    j k h l    & | ^    : %
+   ´ Ï    ¢ ¡    Ô Ó Ö Õ    Ð Ñ Ò    ® ¯    å ± ¬    ²
+   @ '    ? !    j k h l    & | ^    : %    = $ *    <sp>
+
+   type \\_ first, then one of the latin characters below
+   × Ø    ° Ù Ú Û Ü ç    à á â ã ä
+   a e    t i p f c o    u n d b m
 
 .SH MAP mode (movements)
 
 .B horizontal movements
    basic      0HhlL$          left full, 5x, 1x; right 1x, 5x, full
    exact      Ë|              move to specific col (x)
-   goto       g [SHshcleLE]   goto a fixed location on screen
+   goto       g [shcle]       goto a fixed location on screen
    scroll     z [shcle]       bring current to fixed position
+   pages      c [sh·le]       full and half page jumps
    ends       e [sHhCclLe]    goto the end of content
-   pages      c [shle]        full and half page jumps
 
 .B vertical movements
    basic      _KkjJ~          up full, 5x, 1x; down 1x, 5x, full
    exact      Ë:              move to specific row (y)
-   goto       g [TKtkmjbJB]   goto a fixed location on screen
+   goto       g [tkmjb]       goto a fixed location on screen
    scroll     z [tkmjb]       bring current to fixed position
+   pages      c [tk·jb]       full and half page jumps
    ends       e [tKkMmjJb]    goto the end of content
-   pages      c [tkjb]        full and half page jumps
 
 .B zoom movements
    basic      <OoiI>          zoom
    exact      Ë%              move to specific zoom level (z)
-   goto       g [NOnopifIF]   goto a fixed location on screen
+   goto       g [nopif]       goto a fixed location on screen
    scroll     z [nopif]       bring current to fixed position
+   pages      c [no·if]       full and half page jumps
    ends       e [nOoPpiIf]    goto the end of content
-   pages      c [noif]        full and half page jumps
    grid       g [0123456789]  zoom one level in (0=out) using 3x3 grid
 
 .B combination (horz/vert) movements
@@ -389,7 +393,7 @@ macros can call each other, debug using stepwise execution, keystroke grouping,
 flattening, and shared macro library.
 .SS ---full capabilities----------------------------------------------
 
-.B named macros (26 real)
+.B named macros (26 common, 60 total)
    a-z        lower case (26) are common, interactive use
    A-Z (*)    alternate name for lower case, signify append/debug
    0-9        numeric (10) internal for installing complex macros
@@ -467,12 +471,13 @@ flattening, and shared macro library.
    ·          space to help visually debug macros
    ª          drop out of run into playback mode
    ³ or £     stop/halt execution in any mode
-   «          wait for half-second (0.5s)
+   «          wait half-second (0.5s) or smallest beat available
    ©          display update now, regardless of update settings
+   º´´´´»     executes within at blitz/blind speeds (super fast)
 
 .B execution speed control (µr is script menu option)
-   µre¢       contains range of execution speeds
-   µrd¢       contains range of default debug speeds
+   µre¢       adjusts macro execution speeds
+   µrd¢       adjusts macro playback (debug) speeds
 
 .B gyges-specific editing existing macros
    location   in gyges, macros are saved on tab ¯ (system)
@@ -1362,7 +1367,7 @@ source registers can be directly defined, copied internally, and merged back
 into the data in additional ways.
 .SS ---full capabilities----------------------------------------------
 
-.B register list (61)
+.B register list (27 common, 61 total)
    "          unnamed, default register
    a-z        lower case (26), are common, interactive use
    A-Z (*)    alternate name for lower case, signifies append
@@ -1377,6 +1382,7 @@ into the data in additional ways.
    y          yank/copy  content to selected register
    d          delete/cut content to selected register
    x          clear/copy content to selected register
+   #          clear selected register, no effect on other data
 
 .B pulling data from registers (TEXT/SOURCE MODE)
    p          paste register content after cursor
@@ -1384,15 +1390,9 @@ into the data in additional ways.
    r, R       replace text with register content starting at cursor
 
 .B maintaining registers
-   #          clear selected register, no effect on other data
-   *          clear all registers
-   g          goto beginning register position in source
-   G          goto ending register position in source
 
 .B debugging and observing
-   !          shows selected register on the status line
-
-.B showing register overview
+   "¢_        tracks register ¢ on the status line
    "?         shows a list of all the registers with critical info
 
 .B manipulating source registers at command line
