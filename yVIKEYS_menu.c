@@ -154,6 +154,7 @@ static tMENU  s_menus [MAX_MENU] = {
    { 1, 'v', 'n', '·', "nav"              , 'y', '>', "-"                 , 0, 0, 0 },
    { 1, 'v', 'p', '·', "progress"         , 'y', '>', "-"                 , 0, 0, 0 },
    { 1, 'v', 's', '·', "status"           , 'y', '>', "-"                 , 0, 0, 0 },
+   { 1, 'v', 'x', '·', "modes"            , 'y', '>', "-"                 , 0, 0, 0 },
    { 1, 'v', 'k', '·', "keys"             , 'y', '>', "-"                 , 0, 0, 0 },
    { 1, 'v', 'c', '·', "command"          , 'y', '>', "-"                 , 0, 0, 0 },
    { 1, 'v', 'a', '·', "alt"              , 'y', '>', "-"                 , 0, 0, 0 },
@@ -1326,15 +1327,17 @@ yvikeys_menu_smode      (int  a_major, int  a_minor)
    /*---(draw back)----------------------*/
    DEBUG_USER   yLOG_info    ("m_path"    , myVIKEYS.m_path);
    x_len = strlen (myVIKEYS.m_path);
+   DEBUG_USER   yLOG_value   ("x_len"     , x_len);
    /*---(check exec)---------------------*/
-   if (n >= 0 && x_len - 1 == x_level) {
+   --rce;  if (n >= 0 && x_len - 1 == x_level) {
       DEBUG_USER   yLOG_char    ("type"      , s_menus [n].type);
-      if (n >= 0 && strchr ("·=", s_menus [n].type) != NULL) {
+      if (strchr ("·=", s_menus [n].type) != NULL) {
          MODE_exit ();
          DEBUG_USER   yLOG_info    ("keys"      , s_menus [n].keys);
          if (strlen (s_menus [n].keys) == 1 && s_menus [n].keys [0] == '-') {
-            DEBUG_USER   yLOG_exitr   (__FUNCTION__, -1);
-            return -1;
+            DEBUG_USER   yLOG_note    ("legal menu option, but action not set");
+            DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
+            return rce;
          }
          SOURCE_menu_prep ();
          strlcpy (myVIKEYS.m_keys, s_menus [n].keys, LEN_HUND);
@@ -1346,7 +1349,20 @@ yvikeys_menu_smode      (int  a_major, int  a_minor)
          yvikeys_macro_menu_end ();
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return 0;
+      } else if (s_menus [n].type == '>') {
+         DEBUG_USER   yLOG_note    ("group menu option, continue to next level");
       }
+   }
+   /*---(check exec)---------------------*/
+   --rce;  if (n < 0) {
+      if (x_len - 1 >= 3) {
+         DEBUG_USER   yLOG_note    ("menu failed to match in 3 levels, exiting");
+         MODE_exit ();
+      } else {
+         DEBUG_USER   yLOG_note    ("illegal option selected, menu frozen");
+      }
+      DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
    }
    /*---(complete)-----------------------*/
    DEBUG_USER   yLOG_exit    (__FUNCTION__);

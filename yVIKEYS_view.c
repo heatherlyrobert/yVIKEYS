@@ -1496,6 +1496,7 @@ yVIKEYS_view_config     (cchar *a_title, cchar *a_ver, cchar a_env, cint a_wide,
    yvikeys__menu_viewadd   ('a', "alt");
    yvikeys__menu_viewadd   ('p', "progress");
    yvikeys__menu_viewadd   ('s', "status");
+   yvikeys__menu_viewadd   ('x', "modes");
    yvikeys__menu_viewadd   ('c', "command");
    yvikeys__menu_viewadd   ('d', "details");
    yvikeys__menu_viewadd   ('r', "ribbon");

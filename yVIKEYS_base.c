@@ -365,7 +365,7 @@ KEYS__logger            (uchar a_key)
 }
 
 char         /*-> tbd --------------------------------[ ------ [gz.420.121.11]*/ /*-[01.0000.102.!]-*/ /*-[--.---.---.--]-*/
-KEYS__error             (void)
+yvikeys_set_error       (void)
 {
    s_keys_error [s_nkey - 1] = 'E';
    return 0;
@@ -684,7 +684,7 @@ yVIKEYS_main_handle     (uchar a_key)
    /*---(setup for next keystroke)-------*/
    if      (rc == 0)    x_major = G_KEY_SPACE;
    else if (rc >  0)    x_major = rc;
-   else               { x_major = G_KEY_SPACE;  KEYS__error ();  myVIKEYS.trouble = 'y';  REPEAT_reset (); }
+   else               { x_major = G_KEY_SPACE;  yvikeys_set_error ();  myVIKEYS.trouble = 'y';  REPEAT_reset (); }
    yvikeys_view_keys (x_keys);
    /*---(save current mode)--------------*/
    x_savemode = MODE_curr ();

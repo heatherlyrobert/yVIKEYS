@@ -26,8 +26,8 @@
 
 #define     P_VERMAJOR  "1.X = working for everyday use, features still evolving but stable"
 #define     P_VERMINOR  "1.4 = prepare for demonstrations on web"
-#define     P_VERNUM    "1.4c"
-#define     P_VERTXT    "found macro delays caused by ·, fixed it, and some tweeks"
+#define     P_VERNUM    "1.4d"
+#define     P_VERTXT    "improved quality of menu smode and its error status -- unit tested"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -287,6 +287,7 @@ char        KEYS__logger            (uchar a_key);
 char        KEYS_unique             (void);
 char        KEYS_init               (void);
 char*       KEYS__unit              (char *a_question, char a_index);
+char        yvikeys_set_error       (void);
 int         yvikeys_keys_gpos       (void);
 char        yvikeys_keys_keygpos    (void);
 char        yvikeys_keys_repeating  (void);

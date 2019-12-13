@@ -79,6 +79,7 @@ static char    s_eupdate   =  'n';          /* execution sceen update speed   */
 static char    s_dupdate   =  'n';          /* debug sceen update speed       */
 static char    s_pause     =   -1;
 static char    s_skips     =    0;
+static char    s_blitzing  =  '-';          /* macro blitzing mode º´´´»      */
 
 static char    s_rmode     =  '-';          /* recording or not               */
 static char    s_rname     =  '-';
@@ -1143,6 +1144,8 @@ yvikeys_macro_set2delay (void)
 char
 yvikeys_macro_set2run   (void)
 {
+   DEBUG_SCRP   yLOG_char    ("blitzing"  , s_blitzing);
+   if (s_blitzing == 'y') return 0;
    SET_MACRO_RUN;
    yvikeys_loop_macro (s_edelay, s_eupdate);
    return 0;
@@ -1151,6 +1154,8 @@ yvikeys_macro_set2run   (void)
 char
 yvikeys_macro_set2blitz (void)
 {
+   DEBUG_SCRP   yLOG_char    ("blitzing"  , s_blitzing);
+   if (s_blitzing == 'y') return 0;
    SET_MACRO_RUN;
    yvikeys_loop_macro (MACRO_BLITZ, MACRO_BLIND);
    return 0;
@@ -1191,7 +1196,9 @@ yvikeys_macro_menu_end  (void)
       s_emode = s_esave;
       DEBUG_SCRP   yLOG_char    ("emode aft" , s_emode);
       switch (s_emode) {
-      case MACRO_RUN      :  yvikeys_macro_set2run   ();   break;
+      case MACRO_RUN      :  if (s_blitzing == 'y')  yvikeys_macro_set2blitz ();
+                             else                    yvikeys_macro_set2run   ();
+                             break;
       case MACRO_DELAY    :  yvikeys_macro_set2delay ();   break;
       case MACRO_PLAYBACK :  yvikeys_macro_set2play  ();   break;
       }
@@ -1495,14 +1502,20 @@ yvikeys_macro__exectl   (uchar a_key)
    switch (a_key) {
    case G_CHAR_SLBRACK :
       DEBUG_SCRP   yLOG_note    ("blitz (º)");
-      IF_MACRO_RUN   yvikeys_macro_set2blitz ();
-      else           DEBUG_SCRP   yLOG_note    ("blitzing not active in debug/playback");
+      IF_MACRO_RUN {
+         yvikeys_macro_set2blitz ();
+         s_blitzing = 'y';
+      }
+      else  DEBUG_SCRP   yLOG_note    ("blitzing not active in debug/playback");
       a_key = G_KEY_ACK;
       break;
    case  G_CHAR_SRBRACK :
       DEBUG_SCRP   yLOG_note    ("unblitz (»)");
-      IF_MACRO_RUN   yvikeys_macro_set2run   ();
-      else           DEBUG_SCRP   yLOG_note    ("blitzing not active in debug/playback");
+      IF_MACRO_RUN {
+         s_blitzing = '-';
+         yvikeys_macro_set2run   ();
+      }
+      else  DEBUG_SCRP   yLOG_note    ("blitzing not active in debug/playback");
       a_key = G_KEY_ACK;
       break;
    case G_CHAR_WAIT    :
@@ -2180,7 +2193,7 @@ yvikeys_macro__unit     (char *a_question, uchar a_abbr)
       return yVIKEYS__unit_answer;
    }
    else if (strcmp (a_question, "speed"          )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_RECD, "MACRO speed      : %8.6fd %5.3fu %2d/%2ds, deb %c/%c, exe %c/%c, %2dp", myVIKEYS.delay, myVIKEYS.update, s_skips, myVIKEYS.macro_skip, s_ddelay, s_dupdate, s_edelay, s_eupdate, s_pause);
+      snprintf (yVIKEYS__unit_answer, LEN_RECD, "MACRO speed    %c : %8.6fd %5.3fu %2d/%2ds, deb %c/%c, exe %c/%c, %2dp", s_blitzing, myVIKEYS.delay, myVIKEYS.update, s_skips, myVIKEYS.macro_skip, s_ddelay, s_dupdate, s_edelay, s_eupdate, s_pause);
       return yVIKEYS__unit_answer;
    }
    else if (strcmp (a_question, "clip"           )   == 0) {
