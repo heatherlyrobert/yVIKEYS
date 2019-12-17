@@ -808,7 +808,7 @@ yvikeys_loop_init       (void)
    yvikeys_loop_update ("");
    /*---(progress)-----------------------*/
    myVIKEYS.p_play     = '-';
-   myVIKEYS.p_pos      = 'c';
+   myVIKEYS.p_pos      = 's';
    myVIKEYS.p_scale    = 0;
    myVIKEYS.p_speed    = 0;
    myVIKEYS.p_adv      = 0.0;

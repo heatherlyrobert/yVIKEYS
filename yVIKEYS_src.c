@@ -1545,6 +1545,7 @@ SOURCE_mode             (int a_major, int a_minor)
          yvikeys_sreg_setreg ('"');
          MODE_enter (SMOD_SREG);
          rc = yvikeys_sreg_smode (G_KEY_SPACE, a_minor);
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return rc;
       }
       if (yvikeys_sreg_islive () && strchr ("xXdD", a_minor) != 0) {
@@ -1552,6 +1553,7 @@ SOURCE_mode             (int a_major, int a_minor)
          yvikeys_sreg_setreg ('"');
          MODE_enter (SMOD_SREG);
          rc = yvikeys_sreg_smode (G_KEY_SPACE, a_minor);
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return rc;
       }
       /*---(multikey prefixes)-----------*/
@@ -1707,8 +1709,8 @@ SOURCE_mode             (int a_major, int a_minor)
                   }
                   MODE_enter (UMOD_SRC_INPT);
                   SRC_INPT_umode ('m', tolower (a_minor));
-                  DEBUG_USER   yLOG_exit    (__FUNCTION__);
                   rc = tolower (a_minor);
+                  DEBUG_USER   yLOG_exit    (__FUNCTION__);
                   return rc;
                   break;
       default  :  rc = -1;                              break;

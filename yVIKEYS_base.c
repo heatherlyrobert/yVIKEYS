@@ -23,6 +23,20 @@ static char  s_keys_error [10000];
 static int   s_nkey      = 0;
 static int   s_gpos      = 0;
 static char  s_keys_last  [LEN_LABEL];
+static int   s_acks      = 0;
+static int   s_spaces    = 0;
+static int   s_noops     = 0;
+
+
+typedef struct cDUMP tDUMP;
+static struct cDUMP {
+   char       *name;
+   char        (*provider) (FILE*);           /* function pointer               */
+   tDUMP      *next;
+};
+static tDUMP      *s_hdump     = NULL;
+static tDUMP      *s_tdump     = NULL;
+static int         s_ndump     =    0;
 
 
 
@@ -82,6 +96,8 @@ yVIKEYS_init         (char a_mode)
    yvikeys_bufs_init    ();
    yvikeys_hist_init    ();
    yvikeys_loop_init    ();
+   yvikeys_menu_final   ();
+   yvikeys_dump_init    ();
    /*----(globals)-----------------------*/
    myVIKEYS.done      = '-';
    myVIKEYS.trouble   = '-';
@@ -100,36 +116,136 @@ yVIKEYS_wrap         (void)
    STATUS_wrap ();
    yvikeys_mreg_wrap   ();
    yvikeys_menu_wrap   ();
+   yvikeys_dump_purge  ();
    return 0;
 }
 
 char yVIKEYS_quit            (void) { if (myVIKEYS.done    == 'y') return 1; return 0; }
 char yVIKEYS_error           (void) { if (myVIKEYS.trouble != '-') return 1; return 0; }
 
+
+
+/*====================------------------------------------====================*/
+/*===----                        data dumping                          ----===*/
+/*====================------------------------------------====================*/
+static void  o___DUMPING_________o () { return; }
+
 char
-yvikeys_clip_dump       (char *a_what)
+yVIKEYS_dump_add        (char *a_name, void *a_provider)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
-   FILE       *f           = NULL;
+   tDUMP      *x_new       = NULL;
+   char        x_tries     =    0;
+   int         x_len       =    0;
+   /*---(header)-------------------------*/
+   DEBUG_PROG   yLOG_senter  (__FUNCTION__);
    /*---(defense)------------------------*/
-   --rce;  if (a_what == NULL)  return rce;
-   /*---(open file)----------------------*/
-   f = fopen (FILE_CLIP, "w");
-   --rce;  if (f == NULL)       return rce;
-   /*---(dump)---------------------------*/
-   if      (strcmp (a_what, "keys"      ) == 0)  KEYS_dump          (f);
-   else if (strcmp (a_what, "status"    ) == 0)  STATUS_dump        (f);
-   else if (strcmp (a_what, "macros"    ) == 0)  yvikeys_macro_dump (f);
-   else if (strcmp (a_what, "sreg"      ) == 0)  yvikeys_sreg_dump  (f);
-   /*---(close)--------------------------*/
-   fclose (f);
+   DEBUG_PROG   yLOG_spoint  (a_name);
+   --rce;  if (a_name == NULL) {
+      DEBUG_PROG   yLOG_sexitr  (__FUNCTION__, rce);
+      return  rce;
+   }
+   x_len = strlen (a_name);
+   DEBUG_PROG   yLOG_sint    (x_len);
+   --rce;  if (x_len < 3) {
+      DEBUG_PROG   yLOG_sexitr  (__FUNCTION__, rce);
+      return  rce;
+   }
+   DEBUG_PROG   yLOG_spoint  (a_provider);
+   --rce;  if (a_provider == NULL) {
+      DEBUG_PROG   yLOG_sexitr  (__FUNCTION__, rce);
+      return  rce;
+   }
+   /*---(allocate)-----------------------*/
+   while (x_new == NULL && x_tries < 10)  {
+      ++x_tries;
+      x_new = (tDUMP *) malloc (sizeof (tDUMP));
+   }
+   DEBUG_PROG   yLOG_sint    (x_tries);
+   DEBUG_PROG   yLOG_spoint  (x_new);
+   --rce;  if (x_new == NULL) {
+      DEBUG_PROG   yLOG_snote   ("FAILED");
+      DEBUG_PROG   yLOG_sexitr  (__FUNCTION__, rce);
+      return  rce;
+   }
+   /*---(tie to linked list)-------------*/
+   DEBUG_PROG   yLOG_snote   ("link");
+   x_new->next   = NULL;
+   if (s_hdump == NULL)  s_hdump       = x_new;
+   else                  s_tdump->next = x_new;
+   s_tdump       = x_new;
+   /*---(populate)-----------------------*/
+   DEBUG_PROG   yLOG_snote   ("populate");
+   x_new->name     = strdup (a_name);
+   x_new->provider = a_provider;
    /*---(complete)-----------------------*/
+   ++s_ndump;
+   DEBUG_PROG   yLOG_sint    (s_ndump);
+   /*---(complete)-----------------------*/
+   DEBUG_PROG   yLOG_sexit   (__FUNCTION__);
    return 0;
 }
 
 char
-yvikeys_clip_write      (cchar *a_recd)
+yvikeys_dump_exec       (char *a_name)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   tDUMP      *x_curr      = NULL;
+   FILE       *f           = NULL;
+   /*---(header)-------------------------*/
+   DEBUG_PROG   yLOG_enter   (__FUNCTION__);
+   /*---(execute)------------------------*/
+   x_curr = s_hdump;
+   while (x_curr != NULL) {
+      if (a_name [0] == x_curr->name [0])  {
+         if (strcmp (a_name, x_curr->name) == 0) {
+            /*---(open file)-------------*/
+            f = fopen (FILE_CLIP, "w");
+            DEBUG_PROG   yLOG_point   ("f"         , f);
+            if (f == NULL) {
+               DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+               return rce;
+            }
+            rc = x_curr->provider (f);
+            DEBUG_PROG   yLOG_value   ("rc"        , rc);
+            fclose (f);
+            DEBUG_PROG   yLOG_exit    (__FUNCTION__);
+            return rc;
+         }
+      }
+      x_curr = x_curr->next;
+   }
+   DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+   return rce;
+}
+
+/*> char                                                                              <* 
+ *> yvikeys_clip_dump       (char *a_what)                                            <* 
+ *> {                                                                                 <* 
+ *>    /+---(locals)-----------+-----+-----+-+/                                       <* 
+ *>    char        rce         =  -10;                                                <* 
+ *>    FILE       *f           = NULL;                                                <* 
+ *>    /+---(defense)------------------------+/                                       <* 
+ *>    --rce;  if (a_what == NULL)  return rce;                                       <* 
+ *>    /+---(open file)----------------------+/                                       <* 
+ *>    f = fopen (FILE_CLIP, "w");                                                    <* 
+ *>    --rce;  if (f == NULL)       return rce;                                       <* 
+ *>    /+---(dump)---------------------------+/                                       <* 
+ *>    if      (strcmp (a_what, "keys"      ) == 0)  KEYS_dump          (f);          <* 
+ *>    else if (strcmp (a_what, "status"    ) == 0)  STATUS_dump        (f);          <* 
+ *>    else if (strcmp (a_what, "macros"    ) == 0)  yvikeys_macro_dump (f);          <* 
+ *>    else if (strcmp (a_what, "sreg"      ) == 0)  yvikeys_sreg_dump  (f);          <* 
+ *>    /+---(close)--------------------------+/                                       <* 
+ *>    fclose (f);                                                                    <* 
+ *>    /+---(complete)-----------------------+/                                       <* 
+ *>    return 0;                                                                      <* 
+ *> }                                                                                 <*/
+
+char
+yvikeys_dump_write      (cchar *a_recd)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -163,7 +279,7 @@ yvikeys_clip_write      (cchar *a_recd)
 }
 
 char
-yvikeys_clip_read       (int a_line, char *a_recd, int *a_len)
+yvikeys_dump_read       (int a_line, char *a_recd, int *a_len)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -222,56 +338,39 @@ yvikeys_clip_read       (int a_line, char *a_recd, int *a_len)
    return 0;
 }
 
-
-
-/*====================------------------------------------====================*/
-/*===----                         unit testing                         ----===*/
-/*====================------------------------------------====================*/
-static void  o___UNIT_TEST_______o () { return; }
-
-char          yVIKEYS__unit_answer [LEN_FULL];
-
-char       /*----: set up program urgents/debugging --------------------------*/
-BASE__unit_quiet       (void)
+char
+yvikeys_dump_init       (void)
 {
-   int         x_narg       = 1;
-   char       *x_args [20]  = {"yVIKEYS_unit" };
-   /*> yURG_logger   (x_narg, x_args);                                                <*/
-   /*> yURG_urgs     (x_narg, x_args);                                                <*/
-   yVIKEYS_init (MODE_MAP);
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   DEBUG_SCRP   yLOG_enter   (__FUNCTION__);
+   s_hdump = s_tdump = NULL;
+   s_ndump = 0;
+   rc = yVIKEYS_dump_add ("keys"        , KEYS_dump           );
+   rc = yVIKEYS_dump_add ("status"      , STATUS_dump         );
+   rc = yVIKEYS_dump_add ("macros"      , yvikeys_macro_dump  );
+   rc = yVIKEYS_dump_add ("sreg"        , yvikeys_sreg_dump   );
+   DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
-char       /*----: set up program urgents/debugging --------------------------*/
-BASE__unit_loud        (void)
+char
+yvikeys_dump_purge      (void)
 {
-   int         x_narg       = 1;
-   char       *x_args [20]  = {"yVIKEYS_unit" };
-   yURG_logger   (x_narg, x_args);
-   yURG_urgs     (x_narg, x_args);
-   yURG_name  ("kitchen"      , YURG_ON);
-   yURG_name  ("yurg"         , YURG_ON);
-   yURG_name  ("edit"         , YURG_ON);
-   yURG_name  ("mark"         , YURG_ON);
-   yURG_name  ("mode"         , YURG_ON);
-   yURG_name  ("map"          , YURG_ON);
-   yURG_name  ("map_mas"      , YURG_ON);
-   yURG_name  ("cmds"         , YURG_ON);
-   yURG_name  ("srch"         , YURG_ON);
-   yURG_name  ("hist"         , YURG_ON);
-   yURG_name  ("graf"         , YURG_ON);
-   yURG_name  ("ystr"         , YURG_ON);
-   yURG_name  ("yparse"       , YURG_ON);
-   DEBUG_YVIKEYS yLOG_info     ("yVIKEYS"    , yVIKEYS_version   ());
-   yVIKEYS_init (MODE_MAP);
-   return 0;
-}
-
-char       /*----: stop logging ----------------------------------------------*/
-BASE__unit_end         (void)
-{
-   yVIKEYS_wrap ();
-   yLOGS_end    ();
+   tDUMP      *x_next      = NULL;
+   DEBUG_SCRP   yLOG_senter  (__FUNCTION__);
+   x_next = s_hdump;
+   while (x_next != NULL) {
+      DEBUG_SCRP   yLOG_sint    (s_ndump);
+      x_next  = x_next->next;
+      free (s_hdump->name);
+      free (s_hdump);
+      s_hdump = x_next;
+      --s_ndump;
+   }
+   s_hdump = s_tdump = NULL;
+   DEBUG_SCRP   yLOG_sexit   (__FUNCTION__);
    return 0;
 }
 
@@ -533,6 +632,7 @@ yVIKEYS_main_input      (char a_runmode, uchar a_key)
    /*---(locals)-----------+-----+-----+-*/
    uchar       x_ch        = ' ';
    uchar       x_play      = ' ';
+   char        x_used      =   0;
    /*---(header)-------------------------*/
    DEBUG_LOOP   yLOG_enter   (__FUNCTION__);
    DEBUG_LOOP   yLOG_char    ("a_runmode" , a_runmode);
@@ -570,23 +670,30 @@ yVIKEYS_main_input      (char a_runmode, uchar a_key)
       DEBUG_LOOP   yLOG_note    ("handle playback control");
       x_play = a_key;
       DEBUG_LOOP   yLOG_value   ("x_play"    , x_play);
-      if (yvikeys_macro_exeplay (x_play) < 0) {
+      x_used = yvikeys_macro_exeplay (x_play);
+      DEBUG_LOOP   yLOG_value   ("x_used"    , x_used);
+      if (x_used < 0) {
          DEBUG_LOOP   yLOG_note    ("terminated, do not execute next key");
+         DEBUG_LOOP   yLOG_exit    (__FUNCTION__);
+         return 0;
+      }
+      if (x_used > 0) {
+         DEBUG_LOOP   yLOG_note    ("playback key, no impact on macro");
          DEBUG_LOOP   yLOG_exit    (__FUNCTION__);
          return 0;
       }
       /*---(not-repeating)-----*/
       DEBUG_LOOP   yLOG_note    ("macro running, delay, or playback");
       x_ch = (uchar) yvikeys_macro_exekey ();
+      DEBUG_LOOP   yLOG_value   ("x_ch"      , x_ch);
       IF_MACRO_OFF {
          DEBUG_LOOP   yLOG_exit    (__FUNCTION__);
          return x_ch;
       }
       /*---(advance)-----------*/
       DEBUG_LOOP   yLOG_note    ("advance");
-      DEBUG_LOOP   yLOG_value   ("x_ch"      , x_ch);
-      if (x_play == 0)  x_play = x_ch;
-      yvikeys_macro_exeadv (x_play);
+      /*> yvikeys_macro_exeadv (x_play);                                              <*/
+      yvikeys_macro_exeadv (0);
       /*---(done)--------------*/
    }
    /*---(complete)-----------------------*/
@@ -735,6 +842,9 @@ yVIKEYS_main_string  (uchar *a_keys)
       /*---(handle input)----------------*/
       x_ch = yVIKEYS_main_input (RUN_TEST, x_ch);
       DEBUG_LOOP   yLOG_value   ("x_ch"      , x_ch);
+      if (x_ch  == G_KEY_ACK)     ++s_acks;
+      if (x_ch  == G_KEY_SPACE)   ++s_spaces;
+      if (x_ch  == 0)             ++s_noops;
       /*---(handle keystroke)------------*/
       rc = yVIKEYS_main_handle (x_ch);
       DEBUG_LOOP   yLOG_value   ("rc"        , rc);
@@ -824,6 +934,86 @@ yVIKEYS_main            (char *a_delay, char *a_update, void *a_altinput ())
    return 0;
 }
 
+
+
+/*====================------------------------------------====================*/
+/*===----                         unit testing                         ----===*/
+/*====================------------------------------------====================*/
+static void  o___UNIT_TEST_______o () { return; }
+
+char          yVIKEYS__unit_answer [LEN_FULL];
+
+char       /*----: set up program urgents/debugging --------------------------*/
+BASE__unit_quiet       (void)
+{
+   int         x_narg       = 1;
+   char       *x_args [20]  = {"yVIKEYS_unit" };
+   /*> yURG_logger   (x_narg, x_args);                                                <*/
+   /*> yURG_urgs     (x_narg, x_args);                                                <*/
+   yVIKEYS_init (MODE_MAP);
+   return 0;
+}
+
+char       /*----: set up program urgents/debugging --------------------------*/
+BASE__unit_loud        (void)
+{
+   int         x_narg       = 1;
+   char       *x_args [20]  = {"yVIKEYS_unit" };
+   yURG_logger   (x_narg, x_args);
+   yURG_urgs     (x_narg, x_args);
+   yURG_name  ("kitchen"      , YURG_ON);
+   yURG_name  ("yurg"         , YURG_ON);
+   yURG_name  ("edit"         , YURG_ON);
+   yURG_name  ("mark"         , YURG_ON);
+   yURG_name  ("mode"         , YURG_ON);
+   yURG_name  ("map"          , YURG_ON);
+   yURG_name  ("map_mas"      , YURG_ON);
+   yURG_name  ("cmds"         , YURG_ON);
+   yURG_name  ("srch"         , YURG_ON);
+   yURG_name  ("hist"         , YURG_ON);
+   yURG_name  ("graf"         , YURG_ON);
+   yURG_name  ("ystr"         , YURG_ON);
+   yURG_name  ("yparse"       , YURG_ON);
+   DEBUG_YVIKEYS yLOG_info     ("yVIKEYS"    , yVIKEYS_version   ());
+   yVIKEYS_init (MODE_MAP);
+   return 0;
+}
+
+char       /*----: stop logging ----------------------------------------------*/
+BASE__unit_end         (void)
+{
+   yVIKEYS_wrap ();
+   yLOGS_end    ();
+   return 0;
+}
+
+char        yvikeys_dump__fake       (FILE *f) { return 0; }
+
+char*        /*-> tbd --------------------------------[ leaf   [gs.520.202.40]*/ /*-[01.0000.00#.#]-*/ /*-[--.---.---.--]-*/
+yvikeys_dump__unit      (char *a_question, char a_index)
+{
+   /*---(locals)-----------+-----------+-*/
+   char        t           [LEN_RECD ] = "";
+   int         x_fore      = 0;
+   tDUMP      *x_curr      = NULL;
+   /*---(preprare)-----------------------*/
+   strlcpy  (yVIKEYS__unit_answer, "DUMP unit        : question not understood", LEN_FULL);
+   /*---(questions)----------------------*/
+   if      (strcmp (a_question, "count"          )   == 0) {
+      x_curr = s_hdump;  while (x_curr  != NULL) { ++x_fore; x_curr = x_curr->next; }
+      snprintf (yVIKEYS__unit_answer, LEN_RECD, "DUMP counts      : num=%4d, fore=%4d", s_ndump, x_fore);
+   }
+   else if (strcmp (a_question, "entry"          )   == 0) {
+      x_curr = s_hdump;  while (x_curr  != NULL && x_fore < a_index) { ++x_fore; x_curr = x_curr->next; }
+      if (x_curr == NULL)   snprintf (yVIKEYS__unit_answer, LEN_RECD, "DUMP entry  (%2d) : no entry", a_index);
+      else                  snprintf (yVIKEYS__unit_answer, LEN_RECD, "DUMP entry  (%2d) : %2d:%-15.15s  %p", a_index, strlen (x_curr->name), x_curr->name, x_curr->provider);
+   }
+   /*---(complete)-----------------------*/
+   return yVIKEYS__unit_answer;
+}
+
+char BASE__unit_reset_counts  (void)  { s_acks = 0; s_spaces = 0; s_noops = 0; return 0; }
+
 char*        /*-> tbd --------------------------------[ leaf   [gs.520.202.40]*/ /*-[01.0000.00#.#]-*/ /*-[--.---.---.--]-*/
 KEYS__unit              (char *a_question, char a_index)
 {
@@ -851,6 +1041,9 @@ KEYS__unit              (char *a_question, char a_index)
    }
    else if (strcmp (a_question, "pos"          )  == 0) {
       snprintf (yVIKEYS__unit_answer, LEN_FULL, "KEYS pos         : %3dn %3dp", s_nkey, s_gpos);
+   }
+   else if (strcmp (a_question, "acks"         )  == 0) {
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "KEYS acks        : %3da %3ds %3dz", s_acks, s_spaces, s_noops);
    }
    /*---(complete)-----------------------*/
    return yVIKEYS__unit_answer;

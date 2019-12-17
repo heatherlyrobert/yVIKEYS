@@ -112,19 +112,23 @@ applications depend on many types of characters -- content, delimiters,
 special symbols, delayed input, and controls.
 
 .B complication (C).  
-it is normally only easily input, edit, and show ascii 7bit safe, non-control
+it is normally only easily to input, edit, and show ascii 7bit safe, non-control
 characters (32-127 range).
 
 .B answer (A).  
-i will add standard escaped characters into the yVIKEYS shared input mode so
-all applications can use them.
+i will standardize ascii 128-255, update my font, and add standard escaped
+sequences all applications can use.
+
+.B caveat (!)
+i don't care if it works on everyone's system ;) i can choose the lowest
+common denominator, or choose badass and productive.
 
 .B adding high frequency invisible characters
-   \\s     ·     visible space      (also backslash then hit space)
-   \\n     ¦     delayed return     (also backslash then hit enter)
-   \\e     ¥     delayed escape     (also backslash then hit escape)
-   \\b     ¿     delayed backspace  (also backslash then hit backspace)
-   \\d     ¾     delayed delete     (also backslash then hit delete)
+   \\s     ·     visible space
+   \\n     ¦     delayed return
+   \\e     ¥     delayed escape
+   \\b     ¿     delayed backspace
+   \\d     ¾     delayed delete
 
 .B adding file and editing control characters
    \\g     ¨     group separator for records/files
@@ -134,10 +138,11 @@ all applications can use them.
    \\\\     µ     delayed backslash for file/input reading
 
 .B adding macro control characters
+   \\'     ´     noop, just wait a single beat
    \\,     «     wait/pause for a half-second (0.5s)
    \\.     ª     breakpoint during execution, enter playback
-   \\q     ³     halt execution entirely
    \\+     ©     update screen contents (in case of fast execution)
+   \\q     ³     quit/halt execution entirely
    \\0     £     visible null
 
 .B adding greek characters
@@ -152,8 +157,8 @@ all applications can use them.
 
 .B adding other useful characters
    type \\ first, then one of the latin characters below
-   ´ Ï    ¢ ¡    Ô Ó Ö Õ    Ð Ñ Ò    ® ¯    å ± ¬    ²
-   @ '    ? !    j k h l    & | ^    : %    = $ *    <sp>
+   · ´ Ï    ¢ ¡    Ô Ó Ö Õ    Ð Ñ Ò    ® ¯    å ± ¬    ²
+   s ' @    ? !    j k h l    & | ^    : %    = $ *    <sp>
 
    type \\_ first, then one of the latin characters below
    × Ø    ° Ù Ú Û Ü ç    à á â ã ä
@@ -468,7 +473,8 @@ flattening, and shared macro library.
    ¥          terminate at current point (escape)
 
 .B special control characters in macros (SPECIAL CHARACTERS)
-   ·          space to help visually debug macros
+   ·          space to help visually debug macros (zero time)
+   ´          wait one keystroke/beat (helps with pacing)
    ª          drop out of run into playback mode
    ³ or £     stop/halt execution in any mode
    «          wait half-second (0.5s) or smallest beat available
@@ -559,6 +565,44 @@ feature if adapted everywhere.
 
 
 
+
+.SH TAGS and GROUPING (micro-mode)
+.nf
+.SS ---basics---------------------------------------------------------
+ t´´t´´t    mark a series of locations
+ gg         group current tags into a unit
+.SS ---overview-------------------------------------------------------
+.B definition (D).  
+grouping is the joining together of related elements into a larger organization
+which can then be treated as a whole.
+
+.B value (V).  
+groups allow related elements to be repeatably acted upon while avoiding
+errors and time-consuming, tedious selection.
+
+.B situation (S).  
+grouping is very well established and used within certain applications,
+primarily in graphics processing.
+
+.B complication (C).  
+these features are often implemented differently and selectively and therefore
+are not always available.
+
+.B answer (A).  
+i want these productivity gains badly.  all my applications will have a useful
+and powerful tagging and grouping capability.
+.SS ---full capabilities----------------------------------------------
+.B location tagging
+   t          temporarily tags the current location, visually marking
+   T          un-tags the current location
+   gg         groups the current tags into a new group
+   µ
+
+.B tag grouping
+
+.B tag grouping
+   ;g         list and or shows current groups and idenifiers
+   ???        un-groups 
 
 
 
@@ -1305,36 +1349,6 @@ based on lessons learned in mathmatics, management, and statistics.
    /*---(adjustments)------------------*/
 
 
-
-.SH KEYBOARD MACROS (sub-mode)
-.SS ---basics---------------------------------------------------------
- qa...q     record live keystrokes ... into macro 'a'
- @a         execute macro 'a' from current position
-.SS ---overview-------------------------------------------------------
-.B definition (D).  
-macros are a fast, simple, and powerful productivity mechanism to save and
-repeat keystrokes as if typed in real-time.
-
-.B value (V).  
-many actions are repeated, macros save time and mistakes.  tedious editing
-changes are often avoided due to the work involved.
-
-.B situation (S).  
-macros are well and long established, explored, tested, and used in
-keyboard-centric applications.
-
-.B complication (C).  
-given modern focus on mouse and touch, macros and their productivity gains
-are either rudimentary or non-existant.
-
-.B answer (A).  
-i want these productivity gains badly.  all my applications will have a
-powerful and vim-ish keyboard macro capability.
-
-.B extras (E).  
-macros can call each other, debug using stepwise execution, keystroke grouping,
-flattening, and shared macro library.
-.SS ---full capabilities----------------------------------------------
 
 
 .SH SOURCE REGISTERS (sub-mode SREG)

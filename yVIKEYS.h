@@ -242,6 +242,7 @@ char        yVIKEYS_wrap            (void);
 
 int         yVIKEYS_keys_nkey       (void);
 char*       yVIKEYS_keys_last       (void);
+char        yVIKEYS_dump_add        (char *a_name, void *a_provider);
 uchar       yVIKEYS_main_input      (char  a_runmode, uchar a_key);
 uchar       yVIKEYS_main_handle     (uchar a_key);
 uchar       yVIKEYS_main_string     (uchar *a_keys);
@@ -281,6 +282,7 @@ char        yVIKEYS_view_ribbon_clear (void);
 char        yVIKEYS_view_ribbon     (char *a_cat, char *a_name);
 
 char        yVIKEYS_menu            (char *a_prog, char *a_ver, int a_font, char *a_path, char *a_keys);
+char        yVIKEYS_help            (void);
 
 
 char        yVIKEYS_jump            (int a_buf, int a_x, int a_y, int a_z);

@@ -4,6 +4,29 @@
 #include    "yVIKEYS_priv.h"
 
 
+/*============================---- METIS TASKS ---============================*/
+/*
+ * metis  tn1#·  add menu control to version unit testing (units 01-05)
+ * metis  tn1#·  add menu control to file naming/renaming and change directory
+ * metis  tn1#·  add menu control to file writing, save as, etc
+ * metis  tn1#·  add menu control to file reading, updating, etc
+ * metis  dw2#·  build and test regex directory entry function and unit test
+ * metis  dw2#·  update file open to use regex support function and unit test
+ * metis  dw2#·  update change directory to expect regex (and take first)
+ * metis  dw1#·  update file status bar to have current directory too
+ * metis  dw2#·  add file status to unit testing, like with other statuses
+ * metis  dw2#·  add unit testing for file...browse option
+ * metis  wl8··  add protect option for file compression, meaning gzip
+ * metis  wl8··  add protect option for file encryption, one standard
+ * metis  wl8··  add protect option for file passwords
+ * metis  ww1··  file read needs undo history for merges (likely clean opens)
+ * metis  dn1··  unit testing for file new to make sure really fresh
+ * metis  dn1#·  unit testing for file browse to test regex link
+ *
+ *
+ */
+
+
 /*===[[ DECISION :: FORMAT ]]=================================================*/
 
 /*
@@ -32,32 +55,8 @@
  *      -- columnar for readability, even though it wastes space
  *      -- ascii field separator delimited to make column boundaries clear
  *      -- record type fields to aid parsing and interpretation
- *      -- record type versioning to allow continuous improvement
  *      -- internal comments, headings, and counts for human readability
  *      -- some additional contextual data if it helps readability
- *
- */
-
-
-/*============================---- METIS TASKS ---============================*/
-/*
- * metis  tn1#·  add menu control to version unit testing (units 01-05)
- * metis  tn1#·  add menu control to file naming/renaming and change directory
- * metis  tn1#·  add menu control to file writing, save as, etc
- * metis  tn1#·  add menu control to file reading, updating, etc
- * metis  dw2#·  build and test regex directory entry function and unit test
- * metis  dw2#·  update file open to use regex support function and unit test
- * metis  dw2#·  update change directory to expect regex (and take first)
- * metis  dw1#·  update file status bar to have current directory too
- * metis  dw2#·  add file status to unit testing, like with other statuses
- * metis  dw2#·  add unit testing for file...browse option
- * metis  wl8··  add protect option for file compression, meaning gzip
- * metis  wl8··  add protect option for file encryption, one standard
- * metis  wl8··  add protect option for file passwords
- * metis  ww1··  file read needs undo history for merges (likely clean opens)
- * metis  dn1··  unit testing for file new to make sure really fresh
- * metis  dn1#·  unit testing for file browse to test regex link
- *
  *
  */
 

@@ -26,8 +26,8 @@
 
 #define     P_VERMAJOR  "1.X = working for everyday use, features still evolving but stable"
 #define     P_VERMINOR  "1.4 = prepare for demonstrations on web"
-#define     P_VERNUM    "1.4d"
-#define     P_VERTXT    "improved quality of menu smode and its error status -- unit tested"
+#define     P_VERNUM    "1.4e"
+#define     P_VERTXT    "tune macros and their pauses (for demos) and fix macro unit testing"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -80,6 +80,7 @@ typedef struct timespec  tTSPEC;
 /*---(string lengths)-----------------*/
 
 #define     FILE_CLIP           "/root/z_gehye/vi_clip.txt"
+#define     FILE_REPO           "/home/shared/yVIKEYS/repository.macro"
 
 
 #define     G_STATUS_NULL        -1
@@ -282,6 +283,7 @@ char*       VIEW__unit              (char *a_question, char a_index);
 extern char yVIKEYS__unit_answer [LEN_FULL];
 
 
+/*---(keys)-----------------*/
 char        KEYS_status             (char *a_msg);
 char        KEYS__logger            (uchar a_key);
 char        KEYS_unique             (void);
@@ -291,13 +293,20 @@ char        yvikeys_set_error       (void);
 int         yvikeys_keys_gpos       (void);
 char        yvikeys_keys_keygpos    (void);
 char        yvikeys_keys_repeating  (void);
-char        yvikeys_clip_dump       (char *a_what);
-char        yvikeys_clip_write      (cchar *a_recd);
-char        yvikeys_clip_read       (int a_line, char *a_recd, int *a_len);
 char        KEYS_dump               (FILE *a_file);
+/*---(dumps)----------------*/
+char        yvikeys_dump_exec       (char *a_what);
+char        yvikeys_dump_write      (cchar *a_recd);
+char        yvikeys_dump_read       (int a_line, char *a_recd, int *a_len);
+char        yvikeys_dump_init       (void);
+char        yvikeys_dump_purge      (void);
+char        yvikeys_dump__fake      (FILE *f);
+char*       yvikeys_dump__unit      (char *a_question, char a_index);
+/*---(unit testing)---------*/
 char        BASE__unit_quiet        (void);
 char        BASE__unit_loud         (void);
 char        BASE__unit_end          (void);
+char        BASE__unit_reset_counts (void);
 
 /*> char        yvikeys_base_direct     (char a_mode, char *a_string, void *a_purger (), void *a_clearer (), void *a_saver ());   <*/
 
@@ -555,6 +564,7 @@ char        yvikeys_macro_set2run   (void);
 char        yvikeys_macro_set2blitz (void);
 char        yvikeys_macro_menu_beg  (void);
 char        yvikeys_macro_menu_end  (void);
+char        yvikeys_help            (char a_type);
 /*---(status)---------------*/
 char        yvikeys_macro_list      (int *a_count, char *a_list);
 /*---(file)-----------------*/
@@ -604,12 +614,13 @@ char*       MENU__unit              (char *a_question, char *a_path);
 
 char        yvikeys_menu_reanchor   (int a_anchor);
 char        yvikeys_menu_init       (void);
+char        yvikeys_menu_final      (void);
 char        yvikeys_menu_wrap       (void);
 int         yvikeys__menu_find      (char *a_keys, char *a_level, int *a_last);
 char        yvikeys_menu_start      (void);
 char        yvikeys_menu_smode      (int  a_major, int  a_minor);
 char        yvikeys_menu_draw       (void);
-char        yvikeys__menu_cleanse   (char a_type);
+char        yvikeys__menu_cleanse   (void);
 char        yvikeys__menu_addgroup  (char a_top, char a_mid, char *a_name);
 /*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
 

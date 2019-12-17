@@ -596,7 +596,7 @@ yvikeys_sreg__export    (char a_id)
       return rce;
    }
    /*---(write)--------------------------*/
-   rc = yvikeys_clip_write (s_sreg_info [n].data);
+   rc = yvikeys_dump_write (s_sreg_info [n].data);
    /*---(complete)-----------------------*/
    DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
    return rc;
@@ -612,7 +612,7 @@ yvikeys_sreg__import    (char a_id)
    /*---(header)-------------------------*/
    DEBUG_SCRP   yLOG_enter   (__FUNCTION__);
    /*---(read)---------------------------*/
-   rc = yvikeys_clip_read  (0, x_recd, NULL);
+   rc = yvikeys_dump_read  (0, x_recd, NULL);
    DEBUG_SCRP   yLOG_value   ("read"      , rc);
    --rce;  if (rc < 0) {
       DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
@@ -929,7 +929,7 @@ yvikeys_sreg__unit      (char *a_question, char a_reg)
       return yVIKEYS__unit_answer;
    }
    else if (strcmp (a_question, "clip"           )   == 0) {
-      yvikeys_clip_read (a_reg, t, &x_len);
+      yvikeys_dump_read (a_reg, t, &x_len);
       snprintf (yVIKEYS__unit_answer, LEN_RECD, "SREG clip   (%2d) : %2d[%.40s]", a_reg, x_len, t);
       return yVIKEYS__unit_answer;
    }
