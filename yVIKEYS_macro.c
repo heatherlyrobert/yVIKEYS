@@ -352,41 +352,41 @@ yvikeys_macro_init      (void)
    yVIKEYS_view_option (YVIKEYS_STATUS, "macro"  , yvikeys_macro_estatus , "details of macro playback"                );
    yVIKEYS_view_option (YVIKEYS_STATUS, "record" , yvikeys_macro_rstatus , "details of macro recording"               );
    /*---(menu entries)-------------------*/
-   yVIKEYS_menu_add ("µre0", "blitz"     , ":edelay 0¦");
-   yVIKEYS_menu_add ("µre1", "fast"      , ":edelay 1¦");
-   yVIKEYS_menu_add ("µre2", "thousand"  , ":edelay 2¦");
-   yVIKEYS_menu_add ("µre3", "hundred"   , ":edelay 3¦");
-   yVIKEYS_menu_add ("µre4", "twenty"    , ":edelay 4¦");
-   yVIKEYS_menu_add ("µre5", "tenth"     , ":edelay 5¦");
-   yVIKEYS_menu_add ("µre6", "half"      , ":edelay 6¦");
-   yVIKEYS_menu_add ("µre7", "second"    , ":edelay 7¦");
-   yVIKEYS_menu_add ("µre8", "double"    , ":edelay 8¦");
-   yVIKEYS_menu_add ("µre9", "triple"    , ":edelay 9¦");
-   yVIKEYS_menu_add ("µre+", "faster"    , ":edelay +¦");
-   yVIKEYS_menu_add ("µre-", "slower"    , ":edelay -¦");
-   yVIKEYS_menu_add ("µren", "normal"    , ":eupdate n¦");
-   yVIKEYS_menu_add ("µres", "slow"      , ":eupdate s¦");
-   yVIKEYS_menu_add ("µreb", "blinks"    , ":eupdate b¦");
-   yVIKEYS_menu_add ("µrep", "peeks"     , ":eupdate p¦");
-   yVIKEYS_menu_add ("µred", "blind"     , ":eupdate d¦");
-   yVIKEYS_menu_add ("µreD", "demo mode" , ":edelay 4¦");
-   yVIKEYS_menu_add ("µrd0", "1us"       , ":ddelay 0¦");
-   yVIKEYS_menu_add ("µrd1", "100us"     , ":ddelay 1¦");
-   yVIKEYS_menu_add ("µrd2", "1ms"       , ":ddelay 2¦");
-   yVIKEYS_menu_add ("µrd3", "10ms"      , ":ddelay 3¦");
-   yVIKEYS_menu_add ("µrd4", "50ms"      , ":ddelay 4¦");
-   yVIKEYS_menu_add ("µrd5", "100ms"     , ":ddelay 5¦");
-   yVIKEYS_menu_add ("µrd6", "500ms"     , ":ddelay 6¦");
-   yVIKEYS_menu_add ("µrd7", "1s"        , ":ddelay 7¦");
-   yVIKEYS_menu_add ("µrd8", "2s"        , ":ddelay 8¦");
-   yVIKEYS_menu_add ("µrd9", "3s"        , ":ddelay 9¦");
-   yVIKEYS_menu_add ("µrd+", "faster"    , ":ddelay +¦");
-   yVIKEYS_menu_add ("µrd-", "slower"    , ":ddelay -¦");
-   yVIKEYS_menu_add ("µrdn", "normal"    , ":dupdate n¦");
-   yVIKEYS_menu_add ("µrds", "slow"      , ":dupdate s¦");
-   yVIKEYS_menu_add ("µrdb", "blinks"    , ":dupdate b¦");
-   yVIKEYS_menu_add ("µrdp", "peeks"     , ":dupdate p¦");
-   yVIKEYS_menu_add ("µrdd", "blind"     , ":dupdate d¦");
+   /*> yVIKEYS_menu_addX ("µre0", "blitz"     , ":edelay 0¦");                         <* 
+    *> yVIKEYS_menu_addX ("µre1", "fast"      , ":edelay 1¦");                         <* 
+    *> yVIKEYS_menu_addX ("µre2", "thousand"  , ":edelay 2¦");                         <* 
+    *> yVIKEYS_menu_addX ("µre3", "hundred"   , ":edelay 3¦");                         <* 
+    *> yVIKEYS_menu_addX ("µre4", "twenty"    , ":edelay 4¦");                         <* 
+    *> yVIKEYS_menu_addX ("µre5", "tenth"     , ":edelay 5¦");                         <* 
+    *> yVIKEYS_menu_addX ("µre6", "half"      , ":edelay 6¦");                         <* 
+    *> yVIKEYS_menu_addX ("µre7", "second"    , ":edelay 7¦");                         <* 
+    *> yVIKEYS_menu_addX ("µre8", "double"    , ":edelay 8¦");                         <* 
+    *> yVIKEYS_menu_addX ("µre9", "triple"    , ":edelay 9¦");                         <* 
+    *> yVIKEYS_menu_addX ("µre+", "faster"    , ":edelay +¦");                         <* 
+    *> yVIKEYS_menu_addX ("µre-", "slower"    , ":edelay -¦");                         <* 
+    *> yVIKEYS_menu_addX ("µren", "normal"    , ":eupdate n¦");                        <* 
+    *> yVIKEYS_menu_addX ("µres", "slow"      , ":eupdate s¦");                        <* 
+    *> yVIKEYS_menu_addX ("µreb", "blinks"    , ":eupdate b¦");                        <* 
+    *> yVIKEYS_menu_addX ("µrep", "peeks"     , ":eupdate p¦");                        <* 
+    *> yVIKEYS_menu_addX ("µred", "blind"     , ":eupdate d¦");                        <* 
+    *> yVIKEYS_menu_addX ("µreD", "demo mode" , ":edelay 4¦");                         <* 
+    *> yVIKEYS_menu_addX ("µrd0", "1us"       , ":ddelay 0¦");                         <* 
+    *> yVIKEYS_menu_addX ("µrd1", "100us"     , ":ddelay 1¦");                         <* 
+    *> yVIKEYS_menu_addX ("µrd2", "1ms"       , ":ddelay 2¦");                         <* 
+    *> yVIKEYS_menu_addX ("µrd3", "10ms"      , ":ddelay 3¦");                         <* 
+    *> yVIKEYS_menu_addX ("µrd4", "50ms"      , ":ddelay 4¦");                         <* 
+    *> yVIKEYS_menu_addX ("µrd5", "100ms"     , ":ddelay 5¦");                         <* 
+    *> yVIKEYS_menu_addX ("µrd6", "500ms"     , ":ddelay 6¦");                         <* 
+    *> yVIKEYS_menu_addX ("µrd7", "1s"        , ":ddelay 7¦");                         <* 
+    *> yVIKEYS_menu_addX ("µrd8", "2s"        , ":ddelay 8¦");                         <* 
+    *> yVIKEYS_menu_addX ("µrd9", "3s"        , ":ddelay 9¦");                         <* 
+    *> yVIKEYS_menu_addX ("µrd+", "faster"    , ":ddelay +¦");                         <* 
+    *> yVIKEYS_menu_addX ("µrd-", "slower"    , ":ddelay -¦");                         <* 
+    *> yVIKEYS_menu_addX ("µrdn", "normal"    , ":dupdate n¦");                        <* 
+    *> yVIKEYS_menu_addX ("µrds", "slow"      , ":dupdate s¦");                        <* 
+    *> yVIKEYS_menu_addX ("µrdb", "blinks"    , ":dupdate b¦");                        <* 
+    *> yVIKEYS_menu_addX ("µrdp", "peeks"     , ":dupdate p¦");                        <* 
+    *> yVIKEYS_menu_addX ("µrdd", "blind"     , ":dupdate d¦");                        <*/
    /*---(update status)------------------*/
    DEBUG_PROG   yLOG_note    ("update status");
    STATUS_init_set   (SMOD_MACRO);

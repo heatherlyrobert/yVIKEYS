@@ -1315,19 +1315,6 @@ yvikeys_cmds__menu          (char a_menu, char a_action)
 {
    /*---(locals)-----------+-----+-----+-*/
    int         i           =    0;
-   /*> for (i = 0; i < s_nmenu; ++i) {                                                <* 
-    *>    if (a_menu != s_menus [i].abbr)   continue;                                 <* 
-    *>    switch (a_action) {                                                         <* 
-    *>    case '+' :                                                                  <* 
-    *>       ++(s_menus [i].count);                                                   <* 
-    *>       break;                                                                   <* 
-    *>    case '-' :                                                                  <* 
-    *>       if (s_menus [i].count < 1)  return -1;                                   <* 
-    *>       --(s_menus [i].count);                                                   <* 
-    *>       break;                                                                   <* 
-    *>    }                                                                           <* 
-    *>    return 0;                                                                   <* 
-    *> }                                                                              <*/
    return -3;
 }
 
@@ -1355,15 +1342,12 @@ yvikeys_cmds__terms  (char *a_terms, char a_action)
 }
 
 char
-yVIKEYS_cmds_add     (char a_menu, char *a_name, char *a_abbr, char *a_terms, void *a_func, char *a_desc)
+yVIKEYS_cmds_add     (uchar a_menu, char *a_name, char *a_abbr, char *a_terms, void *a_func, char *a_desc)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    int         n           =   -1;
    char        x_dup       =    0;
-   char        t           [LEN_LABEL];
-   char        x_level     =    0;
-   int         x_last      =    0;
    /*---(header)-------------------------*/
    DEBUG_CMDS   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
@@ -1379,11 +1363,9 @@ yVIKEYS_cmds_add     (char a_menu, char *a_name, char *a_abbr, char *a_terms, vo
       DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   sprintf (t, "µ%c", a_menu);
-   DEBUG_CMDS   yLOG_info    ("t"         , t);
-   n  = yvikeys__menu_find (t, &x_level, &x_last);
+   n  = yvikeys_menu_cmds (a_menu);
    DEBUG_CMDS   yLOG_value   ("menu"      , n);
-   --rce;  if (n < 0) {
+   --rce;  if (n <= 0) {
       DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
@@ -1624,12 +1606,6 @@ CMDS__unit              (char *a_question, char a_index)
    if      (strcmp (a_question, "global"         )   == 0) {
       snprintf (yVIKEYS__unit_answer, LEN_FULL, "CMDS global      : %2d %2d[%-.40s]", s_ncmd, s_len, s_current);
    }
-   /*> else if (strcmp (a_question, "menu_count"     )   == 0) {                         <* 
-    *>    snprintf (yVIKEYS__unit_answer, LEN_FULL, "CMDS menu count  : %d", s_nmenu);   <* 
-    *> }                                                                                 <*/
-   /*> else if (strcmp (a_question, "menu"           )   == 0) {                                                                                                                         <* 
-    *>    /+> snprintf (yVIKEYS__unit_answer, LEN_FULL, "CMDS menu    (%2d): %c %-12.12s %d", a_index, s_menus [a_index].abbr, s_menus [a_index].name, s_menus [a_index].count);   <+/   <* 
-    *> }                                                                                                                                                                                 <*/
    else if (strcmp (a_question, "term_count"     )   == 0) {
       snprintf (yVIKEYS__unit_answer, LEN_FULL, "CMDS term count  : %d", s_nterm);
    }

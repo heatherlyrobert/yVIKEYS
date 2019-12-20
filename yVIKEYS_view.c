@@ -1434,20 +1434,20 @@ yVIKEYS_view_font       (cchar a_fixed)
 char         /*-> menu option adder for view parts ---------------------------*/
 yvikeys__menu_viewadd   (char a_abbr, char *a_name)
 {
-   char        x_path      [LEN_LABEL];
-   char        x_cmd       [LEN_LABEL];
-   sprintf (x_path, "µv%cs"  , a_abbr);
-   sprintf (x_cmd , ":%s show¦", a_name);
-   yVIKEYS_menu_add (x_path, "show"      , x_cmd);
-   sprintf (x_path, "µv%ch"  , a_abbr);
-   sprintf (x_cmd , ":%s hide¦", a_name);
-   yVIKEYS_menu_add (x_path, "hide"      , x_cmd);
-   sprintf (x_path, "µv%cd"  , a_abbr);
-   sprintf (x_cmd , ":%s disable¦", a_name);
-   yVIKEYS_menu_add (x_path, "disable"   , x_cmd);
-   sprintf (x_path, "µv%ce"  , a_abbr);
-   sprintf (x_cmd , ":%s enable¦", a_name);
-   yVIKEYS_menu_add (x_path, "enable"    , x_cmd);
+   /*> char        x_path      [LEN_LABEL];                                           <* 
+    *> char        x_cmd       [LEN_LABEL];                                           <* 
+    *> sprintf (x_path, "µv%cs"  , a_abbr);                                           <* 
+    *> sprintf (x_cmd , ":%s show¦", a_name);                                         <* 
+    *> yVIKEYS_menu_addX (x_path, "show"      , x_cmd);                               <* 
+    *> sprintf (x_path, "µv%ch"  , a_abbr);                                           <* 
+    *> sprintf (x_cmd , ":%s hide¦", a_name);                                         <* 
+    *> yVIKEYS_menu_addX (x_path, "hide"      , x_cmd);                               <* 
+    *> sprintf (x_path, "µv%cd"  , a_abbr);                                           <* 
+    *> sprintf (x_cmd , ":%s disable¦", a_name);                                      <* 
+    *> yVIKEYS_menu_addX (x_path, "disable"   , x_cmd);                               <* 
+    *> sprintf (x_path, "µv%ce"  , a_abbr);                                           <* 
+    *> sprintf (x_cmd , ":%s enable¦", a_name);                                       <* 
+    *> yVIKEYS_menu_addX (x_path, "enable"    , x_cmd);                               <*/
    return 0;
 }
 
@@ -1488,37 +1488,37 @@ yVIKEYS_view_config     (cchar *a_title, cchar *a_ver, cchar a_env, cint a_wide,
    yVIKEYS_view_option (YVIKEYS_GRID, "norm"  , VIEW__grid_normal, "traditional cross-hatch grid");
    yVIKEYS_view_option (YVIKEYS_GRID, "zoom"  , VIEW__grid_zoom  , "zoom/targeting grid"         );
    /*---(menus)--------------------------*/
-   yvikeys__menu_viewadd   ('t', "title");
-   yvikeys__menu_viewadd   ('v', "version");
-   yvikeys__menu_viewadd   ('b', "buffer");
-   yvikeys__menu_viewadd   ('f', "formula");
-   yvikeys__menu_viewadd   ('n', "nav");
-   yvikeys__menu_viewadd   ('a', "alt");
-   yvikeys__menu_viewadd   ('p', "progress");
-   yvikeys__menu_viewadd   ('s', "status");
-   yvikeys__menu_viewadd   ('x', "modes");
-   yvikeys__menu_viewadd   ('c', "command");
-   yvikeys__menu_viewadd   ('d', "details");
-   yvikeys__menu_viewadd   ('r', "ribbon");
-   yvikeys__menu_viewadd   ('k', "keys");
-   yvikeys__menu_viewadd   ('M', "menu");
-   yvikeys__menu_viewadd   ('X', "xaxis");
-   yvikeys__menu_viewadd   ('Y', "yaxis");
-   yvikeys__menu_viewadd   ('G', "grid");
-   yvikeys__menu_viewadd   ('L', "layers");
-   yVIKEYS_menu_add ("µvM1", "toplef"    , ":menu 1¦");
-   yVIKEYS_menu_add ("µvM2", "topcen"    , ":menu 2¦");
-   yVIKEYS_menu_add ("µvM3", "toprig"    , ":menu 3¦");
-   yVIKEYS_menu_add ("µvM4", "midlef"    , ":menu 4¦");
-   yVIKEYS_menu_add ("µvM5", "midcen"    , ":menu 5¦");
-   yVIKEYS_menu_add ("µvM6", "midrig"    , ":menu 6¦");
-   yVIKEYS_menu_add ("µvM7", "botlef"    , ":menu 7¦");
-   yVIKEYS_menu_add ("µvM8", "botcen"    , ":menu 8¦");
-   yVIKEYS_menu_add ("µvM9", "botrig"    , ":menu 9¦");
-   yVIKEYS_menu_add ("µvln", "minimal"   , ":layout min¦");
-   yVIKEYS_menu_add ("µvlw", "working"   , ":layout work¦");
-   yVIKEYS_menu_add ("µvlg", "gyges"     , ":layout gyges¦");
-   yVIKEYS_menu_add ("µvlx", "maximum"   , ":layout max¦");
+   /*> yvikeys__menu_viewadd   ('t', "title");                                        <* 
+    *> yvikeys__menu_viewadd   ('v', "version");                                      <* 
+    *> yvikeys__menu_viewadd   ('b', "buffer");                                       <* 
+    *> yvikeys__menu_viewadd   ('f', "formula");                                      <* 
+    *> yvikeys__menu_viewadd   ('n', "nav");                                          <* 
+    *> yvikeys__menu_viewadd   ('a', "alt");                                          <* 
+    *> yvikeys__menu_viewadd   ('p', "progress");                                     <* 
+    *> yvikeys__menu_viewadd   ('s', "status");                                       <* 
+    *> yvikeys__menu_viewadd   ('x', "modes");                                        <* 
+    *> yvikeys__menu_viewadd   ('c', "command");                                      <* 
+    *> yvikeys__menu_viewadd   ('d', "details");                                      <* 
+    *> yvikeys__menu_viewadd   ('r', "ribbon");                                       <* 
+    *> yvikeys__menu_viewadd   ('k', "keys");                                         <* 
+    *> yvikeys__menu_viewadd   ('M', "menu");                                         <* 
+    *> yvikeys__menu_viewadd   ('X', "xaxis");                                        <* 
+    *> yvikeys__menu_viewadd   ('Y', "yaxis");                                        <* 
+    *> yvikeys__menu_viewadd   ('G', "grid");                                         <* 
+    *> yvikeys__menu_viewadd   ('L', "layers");                                       <*/
+   /*> yVIKEYS_menu_addX ("µvM1", "toplef"    , ":menu 1¦");                           <* 
+    *> yVIKEYS_menu_addX ("µvM2", "topcen"    , ":menu 2¦");                           <* 
+    *> yVIKEYS_menu_addX ("µvM3", "toprig"    , ":menu 3¦");                           <* 
+    *> yVIKEYS_menu_addX ("µvM4", "midlef"    , ":menu 4¦");                           <* 
+    *> yVIKEYS_menu_addX ("µvM5", "midcen"    , ":menu 5¦");                           <* 
+    *> yVIKEYS_menu_addX ("µvM6", "midrig"    , ":menu 6¦");                           <* 
+    *> yVIKEYS_menu_addX ("µvM7", "botlef"    , ":menu 7¦");                           <* 
+    *> yVIKEYS_menu_addX ("µvM8", "botcen"    , ":menu 8¦");                           <* 
+    *> yVIKEYS_menu_addX ("µvM9", "botrig"    , ":menu 9¦");                           <* 
+    *> yVIKEYS_menu_addX ("µvln", "minimal"   , ":layout min¦");                       <* 
+    *> yVIKEYS_menu_addX ("µvlw", "working"   , ":layout work¦");                      <* 
+    *> yVIKEYS_menu_addX ("µvlg", "gyges"     , ":layout gyges¦");                     <* 
+    *> yVIKEYS_menu_addX ("µvlx", "maximum"   , ":layout max¦");                       <*/
    /*---(key data)-----------------------*/
    s_orig_wide  = a_wide;
    s_orig_tall  = a_tall;

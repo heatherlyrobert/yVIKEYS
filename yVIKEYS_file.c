@@ -300,13 +300,13 @@ yVIKEYS_whoami          (char *a_prog, char *a_ext, char *a_vernum, char *a_vert
    rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "read"        , ""    , ""     , yvikeys_file_reader          , "clear existing contents and open/read new file"              );
    rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "edit"        , "e"   , ""     , yvikeys_file_reader          , "clear existing contents and open/read new file"              );
    /*---(menu entries)-------------------*/
-   yVIKEYS_menu_add ("µfvc", "ctrl"      , ":control¦");
-   yVIKEYS_menu_add ("µfvn", "noctrl"    , ":nocontrol¦");
-   yVIKEYS_menu_add ("µfv1", "major"     , ":major¦");
-   yVIKEYS_menu_add ("µfv2", "minor"     , ":minor¦");
-   yVIKEYS_menu_add ("µfv3", "step"      , ":bump¦");
-   yVIKEYS_menu_add ("µfvt", "vertxt"    , ":vertxt·");
-   yVIKEYS_menu_add ("µfvm", "manual"    , ":vernum·");
+   /*> yVIKEYS_menu_addX ("µfvc", "ctrl"      , ":control¦");                          <* 
+    *> yVIKEYS_menu_addX ("µfvn", "noctrl"    , ":nocontrol¦");                        <* 
+    *> yVIKEYS_menu_addX ("µfv1", "major"     , ":major¦");                            <* 
+    *> yVIKEYS_menu_addX ("µfv2", "minor"     , ":minor¦");                            <* 
+    *> yVIKEYS_menu_addX ("µfv3", "step"      , ":bump¦");                             <* 
+    *> yVIKEYS_menu_addX ("µfvt", "vertxt"    , ":vertxt·");                           <* 
+    *> yVIKEYS_menu_addX ("µfvm", "manual"    , ":vernum·");                           <*/
    /*---(status options)-----------------*/
    rc = yVIKEYS_view_option (YVIKEYS_STATUS, "file"   , yvikeys_file_status  , "current fully qualified file name and default location");
    rc = yVIKEYS_view_option (YVIKEYS_STATUS, "version", yvikeys_vers_status  , "current file verion control status, number and text");
