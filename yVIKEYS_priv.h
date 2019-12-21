@@ -26,8 +26,8 @@
 
 #define     P_VERMAJOR  "1.X = working for everyday use, features still evolving but stable"
 #define     P_VERMINOR  "1.4 = prepare for demonstrations on web"
-#define     P_VERNUM    "1.4g"
-#define     P_VERTXT    "menu drawing and handling is back using new menu data structure"
+#define     P_VERNUM    "1.4h"
+#define     P_VERTXT    "fully converted to const menu base (small data seg) and unit tested"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -614,7 +614,9 @@ char*       SRCH__unit              (char *a_question, char a_index);
 char*       MENU__unit              (char *a_question, char *a_path);
 
 
+char        yvikeys_menu__fix_path  (uchar *a_path, int *a_len, uchar *a_fixed);
 char        yvikeys_menu_cmds       (uchar a_key);
+char        yvikeys_menu__in_base   (uchar *a_path);
 char        yvikeys_menu__base_path (uchar *a_path);
 char        yvikeys_menu__base_num  (int n);
 char        yvikeys_menu_place      (tMLINK *a_new);

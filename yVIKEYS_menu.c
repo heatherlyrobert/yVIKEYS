@@ -25,7 +25,7 @@
 /*> ,x··74|··3clMENU_EXACT¥··n··,y                                                    <*/
 /*> ,x··/ACTIVE, '·', "¦··,y                                                          <*/
 
-/*> convert yVIKEYS_menu_add to structure entry ::  ,x··$·xx·a },¥··0·3l·dw·3dl·i{ MENU_BASE, '¥··2l·i', '¥··2l·i', '¥··2l·r'··f,f,·i  , MENU_ACTIVE, MENU_ACTIVE, MENU_CMD  ¥··0·dw·i   ¥··$·2h·i                   ¥··106|·dw·i, 0, 0, 0¥··j0··,y   <*/
+/*> convert menu_add to structure entry ::  ,x··$·xx·a },¥··0·3l·dw·3dl·i{ MENU_BASE, '¥··2l·i', '¥··2l·i', '¥··2l·r'··f,f,·i  , MENU_ACTIVE, MENU_ACTIVE, MENU_CMD  ¥··0·dw·i   ¥··$·2h·i                   ¥··106|·dw·i, 0, 0, 0¥··j0··,y   <*/
 
 
 
@@ -48,11 +48,12 @@
 #define     MENU_MORE        '='  /* end item needing more keys       */
 #define     MENU_TBD         '?'  /* end item not yet completed       */
 
-static const int  *s_valid     = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+-_?!#,.èéêëìíîïðñòóôõö÷øùúûüýþÿ";
+static const uchar  *s_valid     = "·*abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+-_?!#,.èéêëìíîïðñòóôõö÷øùúûüýþÿ";
 
 
 
 /*===[[ MENUS ]]==============================================================*/
+#define    LEN_NAME        11
 #define    MAX_MENU        1000
 typedef    struct   cMENU   tMENU;
 struct cMENU {
@@ -63,7 +64,7 @@ struct cMENU {
    uchar       mid;                         /* second level key               */
    uchar       bot;                         /* third level key                */
    /*---(master)------------*/
-   uchar       name        [LEN_LABEL];     /* name for use on screens        */
+   uchar       name        [LEN_NAME];      /* name for use on screens        */
    uchar       active;                      /* program activation             */
    uchar       type;                        /* entry type   > ! = ·           */
    uchar       keys        [LEN_HUND ];     /* command or keys to execute     */
@@ -582,6 +583,106 @@ static short   s_nbots  = 0;                 /* bot level items in list       */
 
 
 /*====================------------------------------------====================*/
+/*===----                       shared helpers                         ----===*/
+/*====================------------------------------------====================*/
+static void  o___SHARED__________o () { return; }
+
+char
+yvikeys_menu__fix_path    (uchar *a_path, int *a_len, uchar *a_fixed)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   static int  x_len       =    0;
+   static uchar x_path     [LEN_LABEL];
+   int         i           =    0;
+   static uchar x_save     [LEN_LABEL];
+   /*---(header)-------------------------*/
+   DEBUG_CMDS   yLOG_senter  (__FUNCTION__);
+   /*---(prepare)------------------------*/
+   if (a_len   != NULL)   *a_len = 0;
+   if (a_fixed != NULL)   strlcpy (a_fixed, "", LEN_LABEL);
+   /*---(defense)------------------------*/
+   DEBUG_CMDS   yLOG_spoint  (a_path);
+   --rce;  if (a_path == NULL) {
+      DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_CMDS   yLOG_snote   (a_path);
+   /*---(short-cutting)------------------*/
+   DEBUG_CMDS   yLOG_snote   (x_save);
+   if (strcmp (a_path, x_save) == 0) {
+      DEBUG_CMDS   yLOG_snote   ("short-cut invoked");
+      if (a_len   != NULL)   *a_len = x_len;
+      if (a_fixed != NULL)   strlcpy (a_fixed, x_path, LEN_LABEL);
+      DEBUG_CMDS   yLOG_exit    (__FUNCTION__);
+      return 1;
+   }
+   /*---(check length)-------------------*/
+   x_len = strlen (a_path);
+   DEBUG_CMDS   yLOG_sint    (x_len);
+   --rce;  if (x_len < 1 || x_len > 4) {
+      DEBUG_CMDS   yLOG_sexitr  (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(check prefix)-------------------*/
+   --rce;  if (a_path [0] != G_KEY_BSLASH && a_path [0] != G_CHAR_DBSLASH) {
+      DEBUG_CMDS   yLOG_snote   ("must start with \\ or µ");
+      DEBUG_CMDS   yLOG_sexitr  (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(fix)----------------------------*/
+   snprintf (x_path, 5, "µ%s······", a_path + 1);
+   DEBUG_CMDS   yLOG_snote   (x_path);
+   /*---(valid characters)---------------*/
+   --rce;  for (i = 1; i < 4; ++i) {
+      if (strchr (s_valid, x_path [i]) != NULL)   continue;
+      DEBUG_CMDS   yLOG_complex ("bad char"  , "pos %d, %c/%3d", i, x_path [i], x_path [i]);
+      DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(check spacers)------------------*/
+   --rce;  if (x_path [1] == G_CHAR_SPACE && x_path [2] != G_CHAR_SPACE) {
+      DEBUG_CMDS   yLOG_note    ("pos1/2, spacer (·) followed by specific character");
+      DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   --rce;  if (x_path [2] == G_CHAR_SPACE && x_path [3] != G_CHAR_SPACE) {
+      DEBUG_CMDS   yLOG_note    ("pos2/3, spacer (·) followed by specific character");
+      DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(check wildcarding)--------------*/
+   --rce;  if (x_path [1] == '*') {
+      if (x_path [2] != G_CHAR_SPACE && x_path [2] != '*') {
+         DEBUG_CMDS   yLOG_note    ("pos1/2, asterisk (*) followed by specific character");
+         DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
+         return rce;
+      }
+   }
+   --rce;  if (x_path [2] == '*') {
+      if (x_path [3] != G_CHAR_SPACE && x_path [3] != '*') {
+         DEBUG_CMDS   yLOG_note    ("pos2/3, asterisk (*) followed by specific character");
+         DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
+         return rce;
+      }
+   }
+   /*---(fix length)---------------------*/
+   x_len = 4;
+   if (x_path [3] == G_CHAR_SPACE)  --x_len;
+   if (x_path [2] == G_CHAR_SPACE)  --x_len;
+   if (x_path [1] == G_CHAR_SPACE)  --x_len;
+   /*---(prepare)------------------------*/
+   strlcpy (x_save, a_path, LEN_LABEL);
+   if (a_len   != NULL)   *a_len = x_len;
+   if (a_fixed != NULL)   strlcpy (a_fixed, x_path, LEN_LABEL);
+   /*---(complete)-----------------------*/
+   DEBUG_CMDS   yLOG_sexit   (__FUNCTION__);
+   return 0;
+}
+
+
+
+/*====================------------------------------------====================*/
 /*===----                        memory allocation                     ----===*/
 /*====================------------------------------------====================*/
 static void  o___MEMORY__________o () { return; }
@@ -715,8 +816,6 @@ yvikeys_menu__newmenu   (uchar *a_path, char *a_name, char *a_keys)
    rc = yvikeys_menu__newlink (x_new);
    --rce;  if (rc != 0) {
       DEBUG_CMDS   yLOG_note    ("link failed, freeing menu item");
-      /*> free (x_new->name);                                                         <*/
-      /*> free (x_new->keys                                                           <*/
       free (x_new);
       return rce;
    }
@@ -938,18 +1037,12 @@ yvikeys_menu_action     (char a_act, uchar *a_path, tMLINK *a_link)
       sprintf (x_path, "µ%c%c%c", a_link->data->top, a_link->data->mid, a_link->data->bot);
       x_len = 4;
    } else if (a_path != NULL) {
-      x_len = strlen (a_path);
-      DEBUG_CMDS   yLOG_value   ("x_len"     , x_len);
-      if (x_len < 1 || x_len > 4) {
+      rc = yvikeys_menu__fix_path (a_path, &x_len, x_path);
+      DEBUG_CMDS   yLOG_value   ("fix_path"  , rc);
+      if (rc < 0) {
          DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
          return rce;
       }
-      if (a_path [0] != G_KEY_BSLASH && a_path [0] != G_CHAR_DBSLASH) {
-         DEBUG_CMDS   yLOG_note    ("must start with \\ or µ");
-         DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
-         return rce;
-      }
-      snprintf (x_path, 5, "µ%s······", a_path + 1);
    } else {
       DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
@@ -1040,6 +1133,34 @@ yvikeys_menu_cmds         (uchar a_key)
 }
 
 char
+yvikeys_menu__in_base     (uchar *a_path)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   int         n           =    0;
+   uchar       x_path      [LEN_LABEL];
+   /*---(fix path)-----------------------*/
+   rc = yvikeys_menu__fix_path (a_path, NULL, x_path);
+   --rce;  if (rc < 0) return rce;
+   /*---(handle)-------------------------*/
+   for (n = 0; n < MAX_MENU; ++n) {
+      /*---(check for end)---------------*/
+      if (s_base [n].name [0] == NULL)                break;
+      if (strcmp (s_base [n].name, "-") == 0)         break;
+      /*---(filter)----------------------*/
+      if (s_base [n].top != x_path [1])               continue;
+      if (s_base [n].mid != x_path [2])               continue;
+      if (s_base [n].bot != x_path [3])               continue;
+      /*---(matching)--------------------*/
+      return 1;
+      /*---(done)------------------------*/
+   }
+   /*---(complete)-----------------------*/
+   return 0;;
+}
+
+char
 yvikeys_menu__base_num  (int n)
 {
    /*---(locals)-----------+-----+-----+-*/
@@ -1072,43 +1193,15 @@ yvikeys_menu__base_path (uchar *a_path)
    char        rce         =  -10;
    char        rc          =   -1;
    int         n           =    0;
-   int         x_len       =    0;
    uchar       x_path      [LEN_LABEL];
    /*---(header)-------------------------*/
    DEBUG_CMDS   yLOG_enter   (__FUNCTION__);
-   /*---(defense)------------------------*/
-   DEBUG_CMDS   yLOG_point   ("a_path"    , a_path);
-   --rce;  if (a_path == NULL) {
+   /*---(fix path)-----------------------*/
+   rc = yvikeys_menu__fix_path (a_path, NULL, x_path);
+   DEBUG_CMDS   yLOG_value   ("fix_path"  , rc);
+   --rce;  if (rc < 0) {
       DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
-   }
-   DEBUG_CMDS   yLOG_info    ("a_path"    , a_path);
-   --rce;  if (a_path [0] != G_KEY_BSLASH && a_path [0] != G_CHAR_DBSLASH) {
-      DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   x_len = strlen (a_path);
-   DEBUG_CMDS   yLOG_value   ("x_len"     , x_len);
-   --rce;  if (x_len <= 1) {
-      DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   snprintf (x_path, 5, "%s······", a_path);
-   DEBUG_CMDS   yLOG_info    ("x_path"    , x_path);
-   /*---(check wildcarding)--------------*/
-   --rce;  if (x_path [1] == '*') {
-      if (x_path [2] != G_CHAR_SPACE && x_path [2] != '*') {
-         DEBUG_CMDS   yLOG_note    ("pos1, asterisk (*) followed by specific character");
-         DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
-         return rce;
-      }
-   }
-   --rce;  if (x_path [2] == '*') {
-      if (x_path [3] != G_CHAR_SPACE && x_path [3] != '*') {
-         DEBUG_CMDS   yLOG_note    ("pos2, asterisk (*) followed by specific character");
-         DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
-         return rce;
-      }
    }
    /*---(handle)-------------------------*/
    for (n = 0; n < MAX_MENU; ++n) {
@@ -1166,8 +1259,6 @@ yvikeys_menu__purge     (void)
       DEBUG_CMDS   yLOG_complex ("focus"     , "%c %s", x_curr->data->base, x_curr->data->name);
       x_prev = x_curr->m_prev;
       if (x_curr->data->base != MENU_BASE) {
-         /*> free (x_curr->data->name);                                               <*/
-         /*> free (x_curr->data->keys);                                               <*/
          free (x_curr->data);
       }
       free (x_curr);
@@ -2088,10 +2179,7 @@ yVIKEYS_menu_add        (uchar *a_path, char *a_name, char *a_keys)
    char        rc          =    0;
    int         n           =   -1;
    int         x_len       =    0;
-   char        x_path      [LEN_LABEL];
-   char        x_dup       =    0;
-   int         x_level     =    0;
-   int         x_last      =    0;
+   uchar       x_path      [LEN_LABEL];
    /*---(header)-------------------------*/
    DEBUG_CMDS   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
@@ -2103,64 +2191,35 @@ yVIKEYS_menu_add        (uchar *a_path, char *a_name, char *a_keys)
    }
    DEBUG_CMDS   yLOG_note    ("after status check");
    /*---(defense)------------------------*/
-   DEBUG_CMDS   yLOG_point   ("a_path"    , a_path);
-   --rce;  if (a_path == NULL) {
+   rc = yvikeys_menu__fix_path (a_path, &x_len, x_path);
+   DEBUG_CMDS   yLOG_point   ("fix_path"  , rc);
+   --rce;  if (rc < 0) {
       DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   DEBUG_CMDS   yLOG_info    ("a_path"    , a_path);
-   DEBUG_CMDS   yLOG_point   ("a_name"    , a_name);
-   --rce;  if (a_name == NULL) {
-      DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
+   /*---(check in base)------------------*/
+   rc = yvikeys_menu__in_base (x_path);
+   DEBUG_CMDS   yLOG_value   ("in_base"   , rc);
+   /*---(add from base)------------------*/
+   if (rc == 1) {
+      rc = yvikeys_menu__base_path (x_path);
+      DEBUG_CMDS   yLOG_value   ("by_path"   , rc);
+      --rce;  if (rc <  0) {
+         DEBUG_CMDS   yLOG_note    ("adding failed, freeing menu item");
+         return rce;
+      }
+      rc = 0;
    }
-   DEBUG_CMDS   yLOG_info    ("a_name"    , a_name);
-   DEBUG_CMDS   yLOG_point   ("a_keys"    , a_keys);
-   --rce;  if (a_keys == NULL) {
-      DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
+   /*---(add wholly new)-----------------*/
+   else {
+      rc = yvikeys_menu__newmenu (x_path, a_name, a_keys);
+      DEBUG_CMDS   yLOG_value   ("new"       , rc);
+      --rce;  if (rc <  0) {
+         DEBUG_CMDS   yLOG_note    ("adding failed, freeing menu item");
+         return rce;
+      }
+      rc = 1;
    }
-   DEBUG_CMDS   yLOG_info    ("a_keys"    , a_keys);
-   /*---(path)---------------------------*/
-   x_len = strlen (a_path);
-   DEBUG_CMDS   yLOG_value   ("x_len"     , x_len);
-   --rce;  if (x_len != 4) {
-      DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   strlcpy (x_path, a_path, LEN_LABEL);
-   x_path [3] = '\0';
-   DEBUG_CMDS   yLOG_info    ("x_path"    , x_path);
-   /*---(add)----------------------------*/
-   rc = yvikeys_menu__newmenu (x_path, a_name, a_keys);
-   /*> n = yvikeys_menu_active (x_path, &x_level, &x_last);                           <* 
-    *> DEBUG_CMDS   yLOG_value   ("active"    , n);                                   <* 
-    *> --rce;  if (n < 0) {                                                           <* 
-    *>    DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);                              <* 
-    *>    return rce;                                                                 <* 
-    *> }                                                                              <*/
-   /*> s_base [s_nmenu].base   = '-';                                                 <* 
-    *> s_base [s_nmenu].top    = a_path [1];                                          <* 
-    *> s_base [s_nmenu].mid    = a_path [2];                                          <* 
-    *> s_base [s_nmenu].bot    = a_path [3];                                          <*/
-   /*---(name and keys)------------------*/
-   /*> strlcpy (s_base [s_nmenu].name, a_name, LEN_LABEL);                            <* 
-    *> strlcpy (s_base [s_nmenu].keys, a_keys, LEN_HUND );                            <*/
-   /*> x_len = strlen (a_keys);                                                       <* 
-    *> if      (a_keys [x_len - 1] == '¦' ) s_base [s_nmenu].type   = '·';            <* 
-    *> else if (a_keys [x_len - 1] == '¦') s_base [s_nmenu].type   = '·';             <* 
-    *> else if (a_keys [0]         != ':' ) s_base [s_nmenu].type   = '·';            <* 
-    *> else                                 s_base [s_nmenu].type   = MENU_MORE;      <*/
-   /*---(fill in)------------------------*/
-   /*> s_base [s_nmenu].active = MENU_ACTIVE;                                         <* 
-    *> s_base [s_nmenu].next   =  -1;                                                 <* 
-    *> s_base [s_nmenu].start  =  -1;                                                 <* 
-    *> s_base [s_nmenu].count  =   0;                                                 <*/
-   /*---(update count)-------------------*/
-   /*> ++s_nmenu;                                                                     <* 
-    *> ++s_nreal;                                                                     <*/
-   /*> DEBUG_CMDS   yLOG_value   ("SUCCESS"   , s_nmenu);                             <*/
-   /*> yvikeys__menu_update (n);                                                      <*/
    /*---(complete)-----------------------*/
    DEBUG_CMDS   yLOG_exit    (__FUNCTION__);
    return rc;
