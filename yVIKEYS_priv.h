@@ -26,8 +26,8 @@
 
 #define     P_VERMAJOR  "1.X = working for everyday use, features still evolving but stable"
 #define     P_VERMINOR  "1.4 = prepare for demonstrations on web"
-#define     P_VERNUM    "1.4f"
-#define     P_VERTXT    "rebuilding menus to use const to save memory, base is unit tested"
+#define     P_VERNUM    "1.4g"
+#define     P_VERTXT    "menu drawing and handling is back using new menu data structure"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -615,23 +615,21 @@ char*       MENU__unit              (char *a_question, char *a_path);
 
 
 char        yvikeys_menu_cmds       (uchar a_key);
-char        yvikeys_menu__root      (void);
 char        yvikeys_menu__base_path (uchar *a_path);
 char        yvikeys_menu__base_num  (int n);
 char        yvikeys_menu_place      (tMLINK *a_new);
 
-char        yvikeys_menu_find       (uchar *a_path);
+int         yvikeys_menu_find       (uchar *a_path);
+int         yvikeys_menu_menu       (uchar *a_path);
 
 char        yvikeys_menu_reanchor   (int a_anchor);
 char        yvikeys_menu_init       (void);
 char        yvikeys_menu_final      (void);
 char        yvikeys_menu_wrap       (void);
-int         yvikeys_menu_active     (char *a_path, char *a_level, int *a_last);
 char        yvikeys_menu_start      (void);
 char        yvikeys_menu_smode      (int  a_major, int  a_minor);
 char        yvikeys_menu_draw       (void);
 char        yvikeys__menu_cleanse   (void);
-char        yvikeys__menu_addgroup  (char a_top, char a_mid, char *a_name);
 /*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
 
 

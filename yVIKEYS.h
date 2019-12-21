@@ -334,7 +334,8 @@ char        yVIKEYS_cmds_direct     (char *a_command);
 char        yVIKEYS_menu_alter      (uchar *a_path, char *a_keys);
 char        yVIKEYS_menu_add        (uchar *a_path, char *a_name, char *a_keys);
 int         yVIKEYS_menu_active     (uchar *a_path);
-int         yVIKEYS_menu_deactive   (uchar *a_path);
+int         yVIKEYS_menu_grey       (uchar *a_path);
+int         yVIKEYS_menu_hide       (uchar *a_path);
 
 /*---(search)---------------*/
 char        yVIKEYS_srch_config     (void *a_searcher, void *a_clearer);
