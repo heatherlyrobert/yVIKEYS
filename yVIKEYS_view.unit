@@ -19,7 +19,7 @@ PREP          v21  include the prototype headers                              
 SCRP          v21  (VIEW  ) finding and setting screen parts                          VIEW__find, VIEW__abbr                                                  ((01.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  start testing                        BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  start testing                        yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  initialize view                      yVIKEYS_view_config         "unit_test"    , "3.2a"    , YVIKEYS_OPENGL ,  500,  300,    0          i_equal     0                                                                                                    
 
    GROUP      v21  search for screen parts by name                                    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
@@ -55,7 +55,7 @@ SCRP          v21  (VIEW  ) finding and setting screen parts                  
    GROUP      v21  complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.017))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  stop testing                         BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  stop testing                         yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -64,7 +64,7 @@ SCRP          v21  (VIEW  ) finding and setting screen parts                  
 SCRP          v21  (VIEW  ) verify toggling screen parts and checking status          VIEW__switch, yVIKEYS_view_showing                                      ((01.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  start testing                        BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  start testing                        yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  initialize view                      yVIKEYS_view_config         "unit_test"    , "3.2a"    , YVIKEYS_OPENGL ,  500,  300,    0          i_equal     0                                                                                                    
 
    GROUP      v21  set an initial setting                                             - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
@@ -833,7 +833,7 @@ SCRP          v21  (VIEW  ) verify toggling screen parts and checking status  
    GROUP      v21  complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.017))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  stop testing                         BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  stop testing                         yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -842,7 +842,7 @@ SCRP          v21  (VIEW  ) verify toggling screen parts and checking status  
 SCRP          v21  (VIEW  ) setting opengl screen sizes                               VIEW__layout, __heights, __widths, __reset, __switch                    ((01.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  start testing                        BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  start testing                        yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  initialize view                      yVIKEYS_view_config         "unit_test"    , "3.2a"    , YVIKEYS_OPENGL ,  500,  300,    0          i_equal     0                                                                                                    
 
    GROUP      v21  start with work layout                                             - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
@@ -1041,7 +1041,7 @@ SCRP          v21  (VIEW  ) setting opengl screen sizes                       
    GROUP      v21  complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.017))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  stop testing                         BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  stop testing                         yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -1050,7 +1050,7 @@ SCRP          v21  (VIEW  ) setting opengl screen sizes                       
 SCRP          v21  (VIEW  ) setting curses screen sizes                               VIEW__layout, __heights, __widths, __reset, __switch                    ((01.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  start testing                        BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  start testing                        yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  initialize view                      yVIKEYS_view_config         "unit_test"    , "3.2a"    , YVIKEYS_CURSES ,  107,   72,    0          i_equal     0                                                                                                    
 
    GROUP      v21  start with work layout                                             - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
@@ -1276,7 +1276,7 @@ SCRP          v21  (VIEW  ) setting curses screen sizes                       
    GROUP      v21  complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.017))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  stop testing                         BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  stop testing                         yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -1285,7 +1285,7 @@ SCRP          v21  (VIEW  ) setting curses screen sizes                       
 SCRP          v21  (VIEW  ) verify retrieving part sizes, bounds, and coordinates     yVIKEYS_view_size, _bounds, _reanchor                                   ((01.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  start testing                        BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  start testing                        yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  initialize view                      yVIKEYS_view_config         "unit_test"    , "3.2a"    , YVIKEYS_OPENGL ,  500,  300,    0          i_equal     0                                                                                                    
      code     v21  create return variables              - - - - - - - - - - - - -   int     x_left, x_wide, x_bott, x_tall;                                                                                                                                                      
      code     v21  create return variables              - - - - - - - - - - - - -   char    x_text [LEN_HUND], x_text2 [LEN_HUND];                                                                                                                                               
@@ -1429,7 +1429,7 @@ SCRP          v21  (VIEW  ) verify retrieving part sizes, bounds, and coordina
    GROUP      v21  complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.017))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  stop testing                         BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  stop testing                         yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 

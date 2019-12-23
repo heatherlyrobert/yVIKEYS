@@ -21,7 +21,7 @@ PREP          include the prototype headers                                    
 SCRP          (MENU  ) verify commands interface finding base items              yvikeys_menu_cmds                                                                                     ((01.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     start testing                        BASE__unit_quiet                                                                                                                  i_equal     0                                                                                                    
+     exec     start testing                        yvikeys__unit_quiet                                                                                                                  i_equal     0                                                                                                    
      exec     config menu                          yVIKEYS_menu_config         '-'                                                                                                   i_equal     0                                                                                                    
 
    COND       check menu table is empty                                          - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.002))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
@@ -51,7 +51,7 @@ SCRP          (MENU  ) verify commands interface finding base items            
      get      find menu item                       yvikeys_menu_cmds           'Q'                                                                                                   i_equal     0                                                                                                    
 
    COND       complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.021))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     stop testing                         BASE__unit_end                                                                                                                    i_equal     0                                                                                                    
+     exec     stop testing                         yvikeys__unit_end                                                                                                                    i_equal     0                                                                                                    
 
 
 
@@ -60,7 +60,7 @@ SCRP          (MENU  ) verify commands interface finding base items            
 SCRP          (MENU  ) verify checking and fixing menu paths                     yvikeys_menu__fix_path                                                                                ((01.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     start testing                        BASE__unit_quiet                                                                                                                  i_equal     0                                                                                                    
+     exec     start testing                        yvikeys__unit_quiet                                                                                                                  i_equal     0                                                                                                    
      exec     config menu                          yVIKEYS_menu_config         '-'                                                                                                   i_equal     0                                                                                                    
      code     create variable                      - - - - - - - - - -         int   x_len;                                                                                                                                                                                                               
      code     create variable                      - - - - - - - - - -         char  x_path  [LEN_LABEL];                                                                                                                                                                                                 
@@ -212,7 +212,7 @@ SCRP          (MENU  ) verify checking and fixing menu paths                   
      exec     fix path                             yvikeys_menu__fix_path      "µf·w"           , &x_len, x_path                                                                     i_lesser    0                                                                                                    
 
    COND       complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.021))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     stop testing                         BASE__unit_end                                                                                                                    i_equal     0                                                                                                    
+     exec     stop testing                         yvikeys__unit_end                                                                                                                    i_equal     0                                                                                                    
 
 
 
@@ -221,7 +221,7 @@ SCRP          (MENU  ) verify checking and fixing menu paths                   
 SCRP          (MENU  ) verify working with individual base items                 yvikeys_menu__base_path, yvikeys_menu__in_base                                                        ((01.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     start testing                        BASE__unit_quiet                                                                                                                  i_equal     0                                                                                                    
+     exec     start testing                        yvikeys__unit_quiet                                                                                                                  i_equal     0                                                                                                    
      exec     config menu                          yVIKEYS_menu_config         '-'                                                                                                   i_equal     0                                                                                                    
 
    GROUP      start with checking on root                                        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
@@ -610,7 +610,7 @@ SCRP          (MENU  ) verify working with individual base items               
    GROUP      complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.021))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     stop testing                         BASE__unit_end                                                                                                                    i_equal     0                                                                                                    
+     exec     stop testing                         yvikeys__unit_end                                                                                                                    i_equal     0                                                                                                    
 
 
 
@@ -619,7 +619,7 @@ SCRP          (MENU  ) verify working with individual base items               
 SCRP          (MENU  ) verify working with loading multiple base items           yvikeys_menu__root, __base_path, _place                                                               ((01.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     start testing                        BASE__unit_quiet                                                                                                                  i_equal     0                                                                                                    
+     exec     start testing                        yvikeys__unit_quiet                                                                                                                  i_equal     0                                                                                                    
      exec     config menu                          yVIKEYS_menu_config         '-'                                                                                                   i_equal     0                                                                                                    
 
    COND       add a single top level item (files) to start                       - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.005))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
@@ -657,7 +657,7 @@ SCRP          (MENU  ) verify working with loading multiple base items         
      get      ... check master entry               yvikeys__menu_unit          "master"         , 12                                                                                 s_equal     MENU master      : 12  · · · -          · -          - (nil)      (nil)      (nil)        0          
 
    COND       complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.021))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     stop testing                         BASE__unit_end                                                                                                                    i_equal     0                                                                                                    
+     exec     stop testing                         yvikeys__unit_end                                                                                                                    i_equal     0                                                                                                    
 
 
 
@@ -666,7 +666,7 @@ SCRP          (MENU  ) verify working with loading multiple base items         
 SCRP          (MENU  ) verify menu config command and purging                    yVIKEYS_menu_config, yvikeys_menu__purge                                                              ((01.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     start testing                        BASE__unit_quiet                                                                                                                  i_equal     0                                                                                                    
+     exec     start testing                        yvikeys__unit_quiet                                                                                                                  i_equal     0                                                                                                    
 
    COND       check on top configuration                                         - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.002))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      exec     config menu                          yVIKEYS_menu_config         '1'                                                                                                   i_equal     0                                                                                                    
@@ -773,7 +773,7 @@ SCRP          (MENU  ) verify menu config command and purging                  
      get      ... check master entry               yvikeys__menu_unit          "master"         , 12                                                                                 s_equal     MENU master      : 12  · · · -          · -          - (nil)      (nil)      (nil)        0          
 
    COND       complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.021))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     stop testing                         BASE__unit_end                                                                                                                    i_equal     0                                                                                                    
+     exec     stop testing                         yvikeys__unit_end                                                                                                                    i_equal     0                                                                                                    
 
 
 
@@ -782,7 +782,7 @@ SCRP          (MENU  ) verify menu config command and purging                  
 SCRP          (MENU  ) verify actions on single items                            yvikeys_menu_find, _delete, yVIKEYS_menu_active, _grey, _hide                                         ((01.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     start testing                        BASE__unit_quiet                                                                                                                  i_equal     0                                                                                                    
+     exec     start testing                        yvikeys__unit_quiet                                                                                                                  i_equal     0                                                                                                    
 
    COND       check on second level load                                         - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.002))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      exec     config menu                          yVIKEYS_menu_config         '2'                                                                                                   i_equal     0                                                                                                    
@@ -960,7 +960,7 @@ SCRP          (MENU  ) verify actions on single items                          
      exec     on a not-loaded entry                yVIKEYS_menu_hide           "µfvc"                                                                                                i_equal     0                                                                                                    
 
    COND       complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.021))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     stop testing                         BASE__unit_end                                                                                                                    i_equal     0                                                                                                    
+     exec     stop testing                         yvikeys__unit_end                                                                                                                    i_equal     0                                                                                                    
 
 
 
@@ -970,7 +970,7 @@ SCRP          (MENU  ) verify actions on single items                          
 SCRP          (MENU  ) verify actions on wildcards                               yvikeys_menu_find, _delete, yVIKEYS_menu_active, _grey, _hide                                         ((01.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     start testing                        BASE__unit_quiet                                                                                                                  i_equal     0                                                                                                    
+     exec     start testing                        yvikeys__unit_quiet                                                                                                                  i_equal     0                                                                                                    
 
    COND       load the whole file menu                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.002))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      exec     config menu                          yVIKEYS_menu_config         '-'                                                                                                   i_equal     0                                                                                                    
@@ -1131,7 +1131,7 @@ SCRP          (MENU  ) verify actions on wildcards                             
      get      ... check master entry               yvikeys__menu_unit          "master"         ,  24                                                                                s_equal     MENU master      : 24  · · · -          · -          - (nil)      (nil)      (nil)        0          
 
    COND       complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.021))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     stop testing                         BASE__unit_end                                                                                                                    i_equal     0                                                                                                    
+     exec     stop testing                         yvikeys__unit_end                                                                                                                    i_equal     0                                                                                                    
 
 
 
@@ -1140,7 +1140,7 @@ SCRP          (MENU  ) verify actions on wildcards                             
 SCRP          (MENU  ) verify adding menu items                                  yVIKEYS_menu_add, yvikeys__menu_addgroup                                                              ((03.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     start testing                        BASE__unit_quiet                                                                                                                  i_equal     0                                                                                                    
+     exec     start testing                        yvikeys__unit_quiet                                                                                                                  i_equal     0                                                                                                    
 
    COND       clear out the hierarchy                                            - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.002))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      exec     config menu                          yVIKEYS_menu_config         '-'                                                                                                   i_equal     0                                                                                                    
@@ -1296,7 +1296,7 @@ SCRP          (MENU  ) verify adding menu items                                
      get      ... check master entry               yvikeys__menu_unit          "master"         , 12                                                                                 s_equal     MENU master      : 12  · · · -          · -          - (nil)      (nil)      (nil)        0          
 
    COND       complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.002))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     stop testing                         BASE__unit_end                                                                                                                    i_equal     0                                                                                                    
+     exec     stop testing                         yvikeys__unit_end                                                                                                                    i_equal     0                                                                                                    
 
 
 
@@ -1305,7 +1305,7 @@ SCRP          (MENU  ) verify adding menu items                                
 SCRP          (MENU  ) verify basic smode operating                              yVIKEYS_menu_smode                                                                                    ((06.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((06.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     start testing                        BASE__unit_quiet                                                                                                                  i_equal     0                                                                                                    
+     exec     start testing                        yvikeys__unit_quiet                                                                                                                  i_equal     0                                                                                                    
      exec     initialize view                      yVIKEYS_view_config         "unit_test"    , "3.2a"    , YVIKEYS_OPENGL ,  500,  300,    0                                        i_equal     0                                                                                                    
      exec     configure file                       yVIKEYS_whoami              "gyges"   , "gyges"   , "3.5a", "testing"      , NULL, NULL                                           i_equal     0                                                                                                    
      exec     set the layout                       VIEW__layout                "work"                                                                                                i_equal     0                                                                                                    
@@ -1513,7 +1513,7 @@ SCRP          (MENU  ) verify basic smode operating                            
    GROUP      complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((06.018))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     stop testing                         BASE__unit_end                                                                                                                    i_equal     0                                                                                                    
+     exec     stop testing                         yvikeys__unit_end                                                                                                                    i_equal     0                                                                                                    
 
 
 

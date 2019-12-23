@@ -19,7 +19,7 @@ PREP          v21  include the prototype headers                              
 SCRP          v21  (HINT  ) verify mark setup and validity checking                   yvikeys_mark__index                                                     ((01.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize testing                                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  setup the program                    BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  setup the program                    yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  setup marks                          yvikeys_mark_init                                                                                   i_equal     0                                                                                                    
      get      v21  check current marks                  yvikeys_mark__unit          "list"           , NULL                                                 s_equal     MARK list        : .                                                                                 
 
@@ -53,7 +53,7 @@ SCRP          v21  (HINT  ) verify mark setup and validity checking           
      get      v21  check specific mark                  yvikeys_mark__unit          "info"           , '0'                                                  s_equal     MARK info        : 0 - -               0b    0x    0y    0z                                                
 
    COND       v21  complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.005))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  stop testing                         BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  stop testing                         yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -62,7 +62,7 @@ SCRP          v21  (HINT  ) verify mark setup and validity checking           
 SCRP          v21  (HINT  ) verify mark setup and validity checking                   yvikeys_mark__set, __unset, __return, __purge                           ((02.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize testing                                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((02.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  setup the program                    BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  setup the program                    yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  configure mapping (quick)            yvikeys__unit_quick                                                                                 i_equal     0                                                                                                    
      get      v21  check current marks                  yvikeys_mark__unit          "list"           , NULL                                                 s_equal     MARK list        : .                                                                                 
      get      v21  check mark range                     yvikeys_mark__unit          "range"          , NULL                                                 s_equal     MARK range       : - to -                                                                            
@@ -282,7 +282,7 @@ SCRP          v21  (HINT  ) verify mark setup and validity checking           
      get      v21  check specific mark                  yvikeys_mark__unit          "info"           , '0'                                                  s_equal     MARK info        : 0 - -               0b    0x    0y    0z                                                
 
    COND       v21  complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((02.025))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  stop testing                         BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  stop testing                         yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -291,7 +291,7 @@ SCRP          v21  (HINT  ) verify mark setup and validity checking           
 SCRP          v21  (HINT  ) verify mark definition and finding (functions)            MARK_direct, MARK__which, MARK__find, MARK__prev, MARK__next            ((04.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize testing                                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((04.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  setup the program                    BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  setup the program                    yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  configure mapping (quick)            yvikeys__unit_quick                                                                                 i_equal     0                                                                                                    
      get      v21  check current marks                  yvikeys_mark__unit          "list"           , NULL                                                 s_equal     MARK list        : .                                                                                 
      get      v21  check mark range                     yvikeys_mark__unit          "range"          , NULL                                                 s_equal     MARK range       : - to -                                                                            
@@ -509,7 +509,7 @@ SCRP          v21  (HINT  ) verify mark definition and finding (functions)    
    GROUP      v21  complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((04.024))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  stop testing                         BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  stop testing                         yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -518,7 +518,7 @@ SCRP          v21  (HINT  ) verify mark definition and finding (functions)    
 SCRP          v21  (HINT  ) verify mark definition and finding (keyboard)             MARK_direct, MARK__which, MARK__find, MARK__prev, MARK__next            ((05.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize testing                                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((05.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  setup the program                    BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  setup the program                    yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  configure mapping (quick)            yvikeys__unit_quick                                                                                 i_equal     0                                                                                                    
      get      v21  check current marks                  yvikeys_mark__unit          "list"           , NULL                                                 s_equal     MARK list        : .                                                                                 
      get      v21  check mark range                     yvikeys_mark__unit          "range"          , NULL                                                 s_equal     MARK range       : - to -                                                                            
@@ -721,7 +721,7 @@ SCRP          v21  (HINT  ) verify mark definition and finding (keyboard)     
    GROUP      v21  complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((05.025))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  stop testing                         BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  stop testing                         yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -736,7 +736,7 @@ SECT          v21  reading and writing records                                
 SCRP          v21  (HINT  ) verify basic mark writing                                 yvikeys_mark_writer, _writer_all                                        ((05.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((05.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  start testing                        BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  start testing                        yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  configure mapping (quick)            yvikeys__unit_quick                                                                                 i_equal     0                                                                                                    
 
    COND       v21  check mark states                                                  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((02.024))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
@@ -897,7 +897,7 @@ SCRP          v21  (HINT  ) verify basic mark writing                         
      exec     v21  write all                            yvikeys_mark_writer_all                                                                             i_equal     4                                                                                                    
 
    COND       v21  complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((05.025))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  stop testing                         BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  stop testing                         yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -906,7 +906,7 @@ SCRP          v21  (HINT  ) verify basic mark writing                         
 SCRP          v21  (HINT  ) verify basic location mark reading                       yvikeys_mark_reader                                                     ((05.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((05.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  start testing                        BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  start testing                        yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  configure mapping (quick)            yvikeys__unit_quick                                                                                 i_equal     0                                                                                                    
 
    COND       v21  check mark states                                                  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((02.024))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
@@ -977,7 +977,7 @@ SCRP          v21  (HINT  ) verify basic location mark reading                
      get      v21  check specific mark                  yvikeys_mark__unit          "info"           , '2'                                                  s_equal     MARK info        : 2 - -               0b    0x    0y    0z                                                
 
    COND       v21  complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((05.025))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  stop testing                         BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  stop testing                         yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -986,7 +986,7 @@ SCRP          v21  (HINT  ) verify basic location mark reading                
 SCRP          v21  (HINT  ) verify combinations writing and reading with file         yvikeys_mark_reader, _writer                                            ((01.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((05.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  start testing                        BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  start testing                        yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  configure mapping (quick)            yvikeys__unit_quick                                                                                 i_equal     0                                                                                                    
 
    COND       v21  check mark states                                                  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((02.024))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
@@ -1041,7 +1041,7 @@ SCRP          v21  (HINT  ) verify combinations writing and reading with file 
      get      v21  check specific mark                  yvikeys_mark__unit          "info"           , '2'                                                  s_equal     MARK info        : 2 - -               0b    0x    0y    0z                                                
 
    COND       v21  complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((05.025))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  stop testing                         BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  stop testing                         yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 

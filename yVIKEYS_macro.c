@@ -341,13 +341,13 @@ yvikeys_macro_init      (void)
    yvikeys_macro__purge (MACRO_ALL);
    /*---(commands)-----------------------*/
    DEBUG_PROG   yLOG_note    ("add commands");
-   yVIKEYS_cmds_add (YVIKEYS_M_SCRIPT, "macro"       , ""    , "a"    , yvikeys_macro__direct      , "direct definition of a keyboard macro"                       );
-   yVIKEYS_cmds_add (YVIKEYS_M_SCRIPT, "edelay"      , ""    , "c"    , yvikeys_macro_edelay       , "");
-   yVIKEYS_cmds_add (YVIKEYS_M_SCRIPT, "eupdate"     , ""    , "c"    , yvikeys_macro_eupdate      , "");
-   yVIKEYS_cmds_add (YVIKEYS_M_SCRIPT, "ddelay"      , ""    , "c"    , yvikeys_macro_ddelay       , "");
-   yVIKEYS_cmds_add (YVIKEYS_M_SCRIPT, "dupdate"     , ""    , "c"    , yvikeys_macro_ddelay       , "");
-   yVIKEYS_cmds_add (YVIKEYS_M_SCRIPT, "flatten"     , ""    , "cc"   , yvikeys_macro_flatten      , "");
-   yVIKEYS_cmds_add (YVIKEYS_M_SCRIPT, "install"     , ""    , "c"    , yvikeys_macro_install      , "");
+   /*> yVIKEYS_cmds_addX (YVIKEYS_M_SCRIPT, "macro"       , ""    , "a"    , yvikeys_macro__direct      , "direct definition of a keyboard macro"                       );   <* 
+    *> yVIKEYS_cmds_addX (YVIKEYS_M_SCRIPT, "edelay"      , ""    , "c"    , yvikeys_macro_edelay       , "");                                                               <* 
+    *> yVIKEYS_cmds_addX (YVIKEYS_M_SCRIPT, "eupdate"     , ""    , "c"    , yvikeys_macro_eupdate      , "");                                                               <* 
+    *> yVIKEYS_cmds_addX (YVIKEYS_M_SCRIPT, "ddelay"      , ""    , "c"    , yvikeys_macro_ddelay       , "");                                                               <* 
+    *> yVIKEYS_cmds_addX (YVIKEYS_M_SCRIPT, "dupdate"     , ""    , "c"    , yvikeys_macro_ddelay       , "");                                                               <* 
+    *> yVIKEYS_cmds_addX (YVIKEYS_M_SCRIPT, "flatten"     , ""    , "cc"   , yvikeys_macro_flatten      , "");                                                               <* 
+    *> yVIKEYS_cmds_addX (YVIKEYS_M_SCRIPT, "install"     , ""    , "c"    , yvikeys_macro_install      , "");                                                               <*/
    /*---(status)-------------------------*/
    yVIKEYS_view_option (YVIKEYS_STATUS, "macro"  , yvikeys_macro_estatus , "details of macro playback"                );
    yVIKEYS_view_option (YVIKEYS_STATUS, "record" , yvikeys_macro_rstatus , "details of macro recording"               );

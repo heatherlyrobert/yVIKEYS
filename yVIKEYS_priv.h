@@ -26,8 +26,8 @@
 
 #define     P_VERMAJOR  "1.X = working for everyday use, features still evolving but stable"
 #define     P_VERMINOR  "1.4 = prepare for demonstrations on web"
-#define     P_VERNUM    "1.4h"
-#define     P_VERTXT    "fully converted to const menu base (small data seg) and unit tested"
+#define     P_VERNUM    "1.4i"
+#define     P_VERTXT    "build and tested dynamic-memory for cmds/srch history, not usage yet"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -68,7 +68,6 @@
 
 
 typedef struct timespec  tTSPEC;
-typedef struct   cMLINK  tMLINK;
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -276,6 +275,8 @@ char        VIEW__resize            (cchar a_type);
 char        VIEW__grid_offset       (int a_x, int a_y, int a_z);
 char        VIEW__grid_size         (int a_x, int a_y, int a_z);
 char        VIEW_status_default     (char *a_list);
+char        VIEW__layout            (char *a_name);
+char        VIEW__layer_set         (char *a_name);
 
 char*       VIEW__unit              (char *a_question, char a_index);
 
@@ -304,10 +305,10 @@ char        yvikeys_dump_purge      (void);
 char        yvikeys_dump__fake      (FILE *f);
 char*       yvikeys_dump__unit      (char *a_question, char a_index);
 /*---(unit testing)---------*/
-char        BASE__unit_quiet        (void);
-char        BASE__unit_loud         (void);
-char        BASE__unit_end          (void);
-char        BASE__unit_reset_counts (void);
+char        yvikeys__unit_quiet     (void);
+char        yvikeys__unit_loud      (void);
+char        yvikeys__unit_end       (void);
+char        yvikeys__unit_reset     (void);
 
 /*> char        yvikeys_base_direct     (char a_mode, char *a_string, void *a_purger (), void *a_clearer (), void *a_saver ());   <*/
 
@@ -557,6 +558,10 @@ char        yvikeys_macro_estatus   (char *a_list);
 char        yvikeys_macro_emode     ();
 char        yvikeys_macro_rmode     ();
 char        yvikeys_macro_modeset   (char a_mode);
+char        yvikeys_macro_edelay    (char a_delay);
+char        yvikeys_macro_eupdate   (char a_update);
+char        yvikeys_macro_ddelay    (char a_delay);
+char        yvikeys_macro_dupdate   (char a_update);
 /*---(state changes)--------*/
 char        yvikeys_macro_set2stop  (void);
 char        yvikeys_macro_set2play  (void);
@@ -578,23 +583,26 @@ char        yvikeys_macro_install   (char a_src);
 
 /*---(commands)-------------*/
 char        CMDS_limits             (int *a_min, int *a_max);
+char        yvikeys_cmds__name      (uchar *a_name, char a_type);
+char        yvikeys_cmds__quit      (void);
+char        yvikeys_cmds__writequit (void);
+char        yvikeys_cmds__term      (char *a_terms);
 char        yvikeys_cmds__purge     (void);
+char        yvikeys_cmds__load_name (char *a_name);
+char        yvikeys_cmds__load      (void);
 char        yvikeys_cmds_init       (void);
-/*> char        CMDS__load              (char *a_command);                            <*/
-char        CMDS__test              (char a_mode, char a_value);
-char*       CMDS__unit              (char *a_question, char a_index);
-char*       CMDS_curr               (void);
+char        yvikeys_cmds__test      (char a_mode, char a_value);
+char*       yvikeys_cmds__unit      (char *a_question, char *a_name);
 char        yvikeys_cmds_exec       (void);
 char        yvikeys_cmds__valid     (char a_abbr);
-int         yvikeys_cmds__index     (char a_abbr);
-int         yvikeys_cmds__find      (char *a_name);
+char        yvikeys_cmds__find      (uchar *a_name);
+char        yvikeys_cmds__parse     (uchar *a_string);
 char        yvikeys_cmds__reader    (void);
 char        yvikeys_cmds__writer    (char a_abbr);
 char        yvikeys_cmds__writer_all(void);
-char        CMDS__unit_null         (void);
 /*---(search)---------------*/
-char        HISTORY_limits          (char a_mode, int *a_min, int *a_max);
-char        HISTORY_entry           (char a_mode, int a_index, char *a_entry, int a_max);
+char        HISTORY__load           (char a_mode, char *a_text);
+char        HISTORY__exec           (char a_mode);
 char*       HISTORY_use             (char a_mode, int a_index);
 char        yvikeys_srch__valid     (char a_abbr);
 int         yvikeys_srch__index     (char a_abbr);
@@ -619,7 +627,6 @@ char        yvikeys_menu_cmds       (uchar a_key);
 char        yvikeys_menu__in_base   (uchar *a_path);
 char        yvikeys_menu__base_path (uchar *a_path);
 char        yvikeys_menu__base_num  (int n);
-char        yvikeys_menu_place      (tMLINK *a_new);
 
 int         yvikeys_menu_find       (uchar *a_path);
 int         yvikeys_menu_menu       (uchar *a_path);
@@ -707,9 +714,19 @@ char*       yvikeys_mreg__unit         (char *a_question, char x, char y);
 
 
 
+char        yvikeys_hist__switcher  (char a_mode, char a_force);
+char        yvikeys_hist__new       (char a_mode, uchar *a_text);
+char        yvikeys_hist__purge     (char a_type);
+char        yvikeys_hist__cursor    (char a_move);
+char        yvikeys_hist__index     (int a_index);
+char        yvikeys_hist__roll      (void);
 char        yvikeys_hist_init       (void);
+char        yvikeys_hist_wrap       (void);
 char        yvikeys_hist_undo       (void);
 char        yvikeys_hist_redo       (void);
+char        yvikeys_hist_limits     (char a_mode, int *a_min, int *a_max);
+char        yvikeys_hist_entry      (char a_mode, int a_index, char *a_entry, int a_max);
+char*       yvikeys_hist__unit      (char *a_question, int n);
 
 
 #define    ACTION_FIND     'f'

@@ -18,7 +18,7 @@ PREP          include the prototype headers                                    
 SCRP          (BASE  ) verify key logging functionality                          KEYS__logger                                                                                          ((01.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     start testing                        BASE__unit_quiet                                                                                                                  i_equal     0                                                                                                    
+     exec     start testing                        yvikeys__unit_quiet                                                                                                                  i_equal     0                                                                                                    
      get      review key log                       KEYS__unit                  "log"            , 0                                                                                  s_equal     KEYS log         :  0[]                                                                              
      get      review key modes                     KEYS__unit                  "mode"           , 0                                                                                  s_equal     KEYS mode        :  0[]                                                                              
      get      review key multi                     KEYS__unit                  "multi"          , 0                                                                                  s_equal     KEYS multi       :  0[]                                                                              
@@ -164,7 +164,7 @@ SCRP          (BASE  ) verify key logging functionality                        
    GROUP      complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.016))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     stop testing                         BASE__unit_end                                                                                                                    i_equal     0                                                                                                    
+     exec     stop testing                         yvikeys__unit_end                                                                                                                    i_equal     0                                                                                                    
 
 
 
@@ -173,7 +173,7 @@ SCRP          (BASE  ) verify key logging functionality                        
 SCRP          (BASE  ) verify adding and purging dump providers                  yVIKEYS_dump_add, yvikeys_dump_purge                                                                  ((02.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((02.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     start testing                        BASE__unit_quiet                                                                                                                  i_equal     0                                                                                                    
+     exec     start testing                        yvikeys__unit_quiet                                                                                                                  i_equal     0                                                                                                    
 
    COND       check all dump entries                                             - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((02.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      get      check dump counts                    yvikeys_dump__unit          "count"          , 0                                                                                  s_equal     DUMP counts      : num=   4, fore=   4                                                               
@@ -217,7 +217,7 @@ SCRP          (BASE  ) verify adding and purging dump providers                
      get      ... check entry                      yvikeys_dump__unit          "entry"          , 1                                                                                  s_equal     DUMP entry  ( 1) : no entry                                                                          
 
    COND       complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((02.002))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     stop testing                         BASE__unit_end                                                                                                                    i_equal     0                                                                                                    
+     exec     stop testing                         yvikeys__unit_end                                                                                                                    i_equal     0                                                                                                    
 
 
 

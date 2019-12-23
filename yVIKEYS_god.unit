@@ -19,7 +19,7 @@ PREP          v21  include the prototype headers                              
 SCRP          v21  (GOD   ) verify delay and update adjustments                       yvikeys_loop_delay, yvikeys_loop_update                                 ((01.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  start testing                        BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  start testing                        yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      get      v21  check the delay globals              yvikeys_god__unit           "delay"        , 0                                                      s_equal     LOOP delay       : keys  = 0.000000, 0s,          0ns   y                                            
      get      v21  check the update globals             yvikeys_god__unit           "update"       , 0                                                      s_equal     LOOP update      : every = 0.000,      1 loop(s)                                                     
 
@@ -196,7 +196,7 @@ SCRP          v21  (GOD   ) verify delay and update adjustments               
    GROUP      v21  complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.017))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  stop testing                         BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  stop testing                         yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -205,7 +205,7 @@ SCRP          v21  (GOD   ) verify delay and update adjustments               
 SCRP          v21  (GOD   ) verify delay scale and speed adjustments                  yvikeys_scale, yvikeys_speed                                            ((01.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  start testing                        BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  start testing                        yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      get      v21  check the delay globals              yvikeys_god__unit           "p_scale"      , 0                                                      s_equal     PROG scale       : ~     = 1.000e+00                                                                 
 
    GROUP      v21  check scale can find values                                        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
@@ -394,6 +394,6 @@ SCRP          v21  (GOD   ) verify delay scale and speed adjustments          
    GROUP      v21  complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.017))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  stop testing                         BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  stop testing                         yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 

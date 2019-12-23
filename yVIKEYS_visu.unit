@@ -25,7 +25,7 @@ SECT          v21  review all primary functions                               
 SCRP          v21  (VISU  ) verify abbreviations and initialization                   yvikeys_visu_init, __valid, __index                                     ((01.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  start testing                        BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  start testing                        yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      get      v21  check the visual selection           yvikeys_visu__unit          "selection"    , '-'                                                    s_equal     VISU selection   : -    0b,     0 to    0x,     0 to    0y,     0z                                  
 
    COND       v21  check saved ranges (initialized)                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.004))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
@@ -93,7 +93,7 @@ SCRP          v21  (VISU  ) verify abbreviations and initialization           
      exec     v21  check an index (BAD)                 yvikeys_visu__index         NULL                                                                    i_lesser    0                                                                                                    
 
    COND       v21  complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.005))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  stop testing                         BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  stop testing                         yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -102,7 +102,7 @@ SCRP          v21  (VISU  ) verify abbreviations and initialization           
 SCRP          v21  (VISU  ) verify detailed range setting, returning and clearing     yvikeys_visu_exact, _coords, _clear, _locking                           ((01.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((05.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  start testing                        BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  start testing                        yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  configure mapping (quick)            yvikeys__unit_quick                                                                                 i_equal     0                                                                                                    
      code     v21  create return variables              - - - - - - - - - - - - -   int     b, xb, xe, yb, ye, z;                                                                                                                                                                
 
@@ -302,7 +302,7 @@ SCRP          v21  (VISU  ) verify detailed range setting, returning and clear
    GROUP      v21  complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.005))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  stop testing                         BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  stop testing                         yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -311,7 +311,7 @@ SCRP          v21  (VISU  ) verify detailed range setting, returning and clear
 SCRP          v21  (VISU  ) verify detailed range updates and reversing               yvikeys_visu_update, _reverse                                           ((01.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((05.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  start testing                        BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  start testing                        yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  configure mapping (quick)            yvikeys__unit_quick                                                                                 i_equal     0                                                                                                    
 
    COND       v21  check the initial range                                            - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.014))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
@@ -426,7 +426,7 @@ SCRP          v21  (VISU  ) verify detailed range updates and reversing       
    GROUP      v21  complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.005))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  stop testing                         BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  stop testing                         yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -435,7 +435,7 @@ SCRP          v21  (VISU  ) verify detailed range updates and reversing       
 SCRP          v21  (VISU  ) verify root and visual detection                          yVIKEYS_root, _visual                                                   ((01.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  start testing                        BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  start testing                        yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  configure mapping (quick)            yvikeys__unit_quick                                                                                 i_equal     0                                                                                                    
 
    COND       v21  check the initial range                                            - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.014))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
@@ -683,7 +683,7 @@ SCRP          v21  (VISU  ) verify root and visual detection                  
      exec     v21  check if selected                    yVIKEYS_visual        0 ,   10,  10,    0                                                           i_equal     0                                                                                                    
 
    COND       v21  complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.005))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  stop testing                         BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  stop testing                         yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -692,7 +692,7 @@ SCRP          v21  (VISU  ) verify root and visual detection                  
 SCRP          v21  (VISU  ) verify range processing                                   yVIKEYS_first, _next                                                    ((01.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  start testing                        BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  start testing                        yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  configure mapping (quick)            yvikeys__unit_quick                                                                                 i_equal     0                                                                                                    
      code     v21  create an output variable            - - - - - - - - - - - - -   int     b  = 0;                                                                                                                                                                                       
      code     v21  create an output variable            - - - - - - - - - - - - -   int     x  = 0;                                                                                                                                                                                       
@@ -830,7 +830,7 @@ SCRP          v21  (VISU  ) verify range processing                           
    GROUP      v21  complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.005))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  stop testing                         BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  stop testing                         yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -839,7 +839,7 @@ SCRP          v21  (VISU  ) verify range processing                           
 SCRP          v21  (VISU  ) visual selection setting, unsetting, and returning        VISU__set, VISU__return, VISU__unset                                    ((01.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  start testing                        BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  start testing                        yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  configure mapping (quick)            yvikeys__unit_quick                                                                                 i_equal     0                                                                                                    
      get      v21  check the visual selection           yvikeys_visu__unit          "selection"    , '-'                                                    s_equal     VISU selection   : -    0b,     0 to    0x,     0 to    0y,     0z                                  
 
@@ -1034,7 +1034,7 @@ SCRP          v21  (VISU  ) visual selection setting, unsetting, and returning
      get      v21  check saved ranges                   yvikeys_visu__unit          "labels"       , 'ê'                                                    s_equal     VISU labels  (ê) : -    beg=            , end=                                                    
 
    COND       v21  complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.005))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  stop testing                         BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  stop testing                         yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -1049,7 +1049,7 @@ SECT          v21  review interactive usage                                   
 SCRP          v21  (VISU  ) visual selection in map mode                              yvikeys_map_mode, yvikeys_visu_umode                                    ((01.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  start testing                        BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  start testing                        yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  configure mapping (quick)            yvikeys__unit_quick                                                                                 i_equal     0                                                                                                    
      code     v21  create an output variable            - - - - - - - - - - - - -   char  x_status [LEN_RECD];                                                                                                                                                                            
      get      v21  ...check current mode stack          MODE__unit                  "stack"                                                                 s_equal     MODE stack       : modes (1) M - - - - - - -                                                         
@@ -1302,7 +1302,7 @@ SCRP          v21  (VISU  ) visual selection in map mode                      
      echo     v21  ...check status                      - - - - - - - - - - - - -   x_status                                                                s_equal     [ select : y 0f6        0h6        3x1        0f6        - - - ]                                      
 
    COND       v21  complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.005))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  stop testing                         BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  stop testing                         yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -1317,7 +1317,7 @@ SECT          v21  reading and writing records                                
 SCRP          v21  (VISU  ) verify basic visual selection writing                     yvikeys_visu__writer, __writer_all                                      ((05.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((05.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  start testing                        BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  start testing                        yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  configure mapping (quick)            yvikeys__unit_quick                                                                                 i_equal     0                                                                                                    
 
    COND       v21  check saved ranges                                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.004))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
@@ -1490,7 +1490,7 @@ SCRP          v21  (VISU  ) verify basic visual selection writing             
      exec     v21  write all                            yvikeys_visu__writer_all                                                                            i_equal     3                                                                                                    
 
    COND       v21  complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((05.025))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  stop testing                         BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  stop testing                         yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -1499,7 +1499,7 @@ SCRP          v21  (VISU  ) verify basic visual selection writing             
 SCRP          v21  (VISU  ) verify basic visual selections reading                    yvikeys_visu__reader                                                    ((05.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((05.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  start testing                        BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  start testing                        yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  configure mapping (quick)            yvikeys__unit_quick                                                                                 i_equal     0                                                                                                    
 
    COND       v21  check saved ranges                                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.004))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
@@ -1638,7 +1638,7 @@ SCRP          v21  (VISU  ) verify basic visual selections reading            
      get      v21  check saved ranges                   yvikeys_visu__unit          "labels"       , 'ê'                                                    s_equal     VISU labels  (ê) : -    beg=            , end=                                                    
 
    COND       v21  complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((05.025))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  stop testing                         BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  stop testing                         yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -1647,7 +1647,7 @@ SCRP          v21  (VISU  ) verify basic visual selections reading            
 SCRP          v21  (VISU  ) verify combinations writing and reading with file         yvikeys_visu__reader, __writer                                          ((01.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((05.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  start testing                        BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  start testing                        yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  configure mapping (quick)            yvikeys__unit_quick                                                                                 i_equal     0                                                                                                    
 
    COND       v21  check saved ranges                                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.004))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
@@ -1718,7 +1718,7 @@ SCRP          v21  (VISU  ) verify combinations writing and reading with file 
      get      v21  check saved ranges                   yvikeys_visu__unit          "saved"        , 'ê'                                                    s_equal     VISU saved   (ê) : -    0b,     0 to    0x,     0 to    0y,     0z                                   
 
    COND       v21  complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((05.025))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  stop testing                         BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  stop testing                         yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 

@@ -157,7 +157,7 @@ yvikeys_sreg_init               (void)
    /*---(commands)-----------------------*/
    DEBUG_PROG   yLOG_note    ("add commands/status");
    yVIKEYS_view_option (YVIKEYS_STATUS  , "sreg", yvikeys_sreg_status, "details of current source register");
-   yVIKEYS_cmds_add    (YVIKEYS_M_CONFIG, "sreg", "", "a", yvikeys_sreg__direct, "direct definition of source registers");
+   /*> yVIKEYS_cmds_addX    (YVIKEYS_M_CONFIG, "sreg", "", "a", yvikeys_sreg__direct, "direct definition of source registers");   <*/
    /*---(update status)------------------*/
    STATUS_init_set   (SMOD_SREG);
    /*---(complete)-----------------------*/

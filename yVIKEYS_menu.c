@@ -36,7 +36,7 @@
 #define     MENU_PLACE       'p'  /* put new menu in heirarchy        */
 #define     MENU_FIND        'f'  /* find entry in heirarchy          */
 #define     MENU_MENU        'm'  /* find entry for menu              */
-#define     MENU_DELETE      'd'  /* delete entry from heirarchy      */
+/*> #define     MENU_DELETE      'd'  /+ delete entry from heirarchy      +/          <*/
 #define     MENU_ACTIVE      'y'  /* mark entry active in heirarchyi  */
 #define     MENU_GREY        '-'  /* mark entry inactive in heirarchy */
 #define     MENU_HIDE        '/'  /* hide entry in heirarchy          */
@@ -204,6 +204,11 @@ static const tMENU  s_base [] = {
    { MENU_BASE, 'v', 'f', 'h', "hide"        , MENU_ACTIVE, MENU_CMD  , ":formula··hide¦"                },
    { MENU_BASE, 'v', 'f', 'e', "enable"      , MENU_ACTIVE, MENU_CMD  , ":formula··enable¦"              },
    { MENU_BASE, 'v', 'f', 'd', "disable"     , MENU_ACTIVE, MENU_CMD  , ":formula··disable¦"             },
+   { MENU_BASE, 'v', 'n', '·', "xaxis"       , MENU_ACTIVE, MENU_GROUP, "-"                              },
+   { MENU_BASE, 'v', 'n', 's', "show"        , MENU_ACTIVE, MENU_CMD  , ":nav······show¦"                },
+   { MENU_BASE, 'v', 'n', 'h', "hide"        , MENU_ACTIVE, MENU_CMD  , ":nav······hide¦"                },
+   { MENU_BASE, 'v', 'n', 'e', "enable"      , MENU_ACTIVE, MENU_CMD  , ":nav······enable¦"              },
+   { MENU_BASE, 'v', 'n', 'd', "disable"     , MENU_ACTIVE, MENU_CMD  , ":nav······disable¦"             },
    { MENU_BASE, 'v', 'X', '·', "xaxis"       , MENU_ACTIVE, MENU_GROUP, "-"                              },
    { MENU_BASE, 'v', 'X', 's', "show"        , MENU_ACTIVE, MENU_CMD  , ":xaxis····show¦"                },
    { MENU_BASE, 'v', 'X', 'h', "hide"        , MENU_ACTIVE, MENU_CMD  , ":xaxis····hide¦"                },
@@ -549,25 +554,24 @@ static const tMENU  s_base [] = {
 };
 
 
-
-typedef    struct   cMLINK  tMLINK;
-struct cMLINK {
+typedef    struct   cLINK   tLINK;
+struct cLINK {
    char        active;                      /* current active status          */
    tMENU      *data;                        /* pointer to menu entry          */
-   tMLINK     *m_next;                      /* master list next               */
-   tMLINK     *m_prev;                      /* master list prev               */
-   tMLINK     *s_next;                      /* next sibling                   */
-   tMLINK     *c_first;                     /* first child                    */
+   tLINK      *m_next;                      /* master list next               */
+   tLINK      *m_prev;                      /* master list prev               */
+   tLINK      *s_next;                      /* next sibling                   */
+   tLINK      *c_first;                     /* first child                    */
    uchar       c_count;                     /* count of children              */
 };
 
 /*---(true useful vars)---------------*/
-static tMLINK *s_head   = NULL;              /* head of link chain            */
-static tMLINK *s_tail   = NULL;              /* tail of link chain            */
+static tLINK  *s_head   = NULL;              /* head of link chain            */
+static tLINK  *s_tail   = NULL;              /* tail of link chain            */
 static char    s_config = 'x';               /* how much base to load         */
 /*---(menu grphics/unit testing)------*/
-static tMLINK *s_parent = NULL;              /* result of last find           */
-static tMLINK *s_found  = NULL;              /* result of last find           */
+static tLINK  *s_parent = NULL;              /* result of last find           */
+static tLINK  *s_found  = NULL;              /* result of last find           */
 static char    s_level  = 0;                 /* level of last find            */
 /*---(DEBUGGING FASTER)---------------*/
 static short   s_nmenu  = 0;                 /* all menu items in list        */
@@ -580,6 +584,10 @@ static short   s_nmids  = 0;                 /* mid level items in list       */
 static short   s_nbots  = 0;                 /* bot level items in list       */
 /*---(done)---------------------------*/
 
+
+
+
+char yvikeys_menu_place   (tLINK *a_new);
 
 
 /*====================------------------------------------====================*/
@@ -693,7 +701,7 @@ yvikeys_menu__newlink   (tMENU *a_menu)
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    char        rc          =    0;
-   tMLINK     *x_new       = NULL;
+   tLINK      *x_new       = NULL;
    char        x_tries     =    0;
    int         x_len       =    0;
    /*---(header)-------------------------*/
@@ -708,7 +716,7 @@ yvikeys_menu__newlink   (tMENU *a_menu)
    /*---(allocate)-----------------------*/
    while (x_new == NULL && x_tries < 10)  {
       ++x_tries;
-      x_new = (tMLINK *) malloc (sizeof (tMLINK));
+      x_new = (tLINK *) malloc (sizeof (tLINK));
    }
    DEBUG_CMDS   yLOG_sint    (x_tries);
    DEBUG_CMDS   yLOG_spoint  (x_new);
@@ -823,42 +831,42 @@ yvikeys_menu__newmenu   (uchar *a_path, char *a_name, char *a_keys)
    return 0;
 }
 
-char
-yvikeys_menu__delete    (tMLINK *a_parent, tMLINK *a_sib, tMLINK *a_curr)
-{
-   /*---(locals)-----------+-----+-----+-*/
-   char        rce         =  -10;
-   /*---(header)-------------------------*/
-   DEBUG_CMDS   yLOG_senter  (__FUNCTION__);
-   /*---(defense)------------------------*/
-   DEBUG_CMDS   yLOG_sint    (a_curr->c_count);
-   --rce;  if (a_curr->c_count > 0) {
-      DEBUG_CMDS   yLOG_snote   ("got children, can not delete");
-      DEBUG_CMDS   yLOG_sexitr  (__FUNCTION__, rce);
-      return rce;
-   }
-   /*---(take out of master)-------------*/
-   if (a_curr->m_prev != NULL)  a_curr->m_prev->m_next = a_curr->m_next;
-   else                         s_head                 = a_curr->m_next;
-   if (a_curr->m_next == NULL)  s_tail                 = a_curr->m_prev;
-   /*---(update counts)------------------*/
-   --s_nmenu;
-   if (a_curr->active      == MENU_ACTIVE)  --s_nreal;
-   if (a_curr->data->base  == MENU_BASE)    --s_nbase;
-   DEBUG_CMDS   yLOG_sint    (s_nmenu);
-   DEBUG_CMDS   yLOG_sint    (s_nreal);
-   DEBUG_CMDS   yLOG_sint    (s_nbase);
-   /*---(take out of heirarchy)----------*/
-   if (a_sib  != NULL)          a_sib->s_next     = a_curr->s_next;
-   else                         a_parent->c_first = NULL;
-   --a_parent->c_count;
-   DEBUG_CMDS   yLOG_sint    (a_parent->c_count);
-   /*---(free)---------------------------*/
-   free (a_curr);
-   /*---(complete)-----------------------*/
-   DEBUG_CMDS   yLOG_sexit   (__FUNCTION__);
-   return 0;
-}
+/*> char                                                                              <* 
+ *> yvikeys_menu__delete    (tLINK  *a_parent, tLINK  *a_sib, tLINK  *a_curr)         <* 
+ *> {                                                                                 <* 
+ *>    /+---(locals)-----------+-----+-----+-+/                                       <* 
+ *>    char        rce         =  -10;                                                <* 
+ *>    /+---(header)-------------------------+/                                       <* 
+ *>    DEBUG_CMDS   yLOG_senter  (__FUNCTION__);                                      <* 
+ *>    /+---(defense)------------------------+/                                       <* 
+ *>    DEBUG_CMDS   yLOG_sint    (a_curr->c_count);                                   <* 
+ *>    --rce;  if (a_curr->c_count > 0) {                                             <* 
+ *>       DEBUG_CMDS   yLOG_snote   ("got children, can not delete");                 <* 
+ *>       DEBUG_CMDS   yLOG_sexitr  (__FUNCTION__, rce);                              <* 
+ *>       return rce;                                                                 <* 
+ *>    }                                                                              <* 
+ *>    /+---(take out of master)-------------+/                                       <* 
+ *>    if (a_curr->m_prev != NULL)  a_curr->m_prev->m_next = a_curr->m_next;          <* 
+ *>    else                         s_head                 = a_curr->m_next;          <* 
+ *>    if (a_curr->m_next == NULL)  s_tail                 = a_curr->m_prev;          <* 
+ *>    /+---(update counts)------------------+/                                       <* 
+ *>    --s_nmenu;                                                                     <* 
+ *>    if (a_curr->active      == MENU_ACTIVE)  --s_nreal;                            <* 
+ *>    if (a_curr->data->base  == MENU_BASE)    --s_nbase;                            <* 
+ *>    DEBUG_CMDS   yLOG_sint    (s_nmenu);                                           <* 
+ *>    DEBUG_CMDS   yLOG_sint    (s_nreal);                                           <* 
+ *>    DEBUG_CMDS   yLOG_sint    (s_nbase);                                           <* 
+ *>    /+---(take out of heirarchy)----------+/                                       <* 
+ *>    if (a_sib  != NULL)          a_sib->s_next     = a_curr->s_next;               <* 
+ *>    else                         a_parent->c_first = NULL;                         <* 
+ *>    --a_parent->c_count;                                                           <* 
+ *>    DEBUG_CMDS   yLOG_sint    (a_parent->c_count);                                 <* 
+ *>    /+---(free)---------------------------+/                                       <* 
+ *>    free (a_curr);                                                                 <* 
+ *>    /+---(complete)-----------------------+/                                       <* 
+ *>    DEBUG_CMDS   yLOG_sexit   (__FUNCTION__);                                      <* 
+ *>    return 0;                                                                      <* 
+ *> }                                                                                 <*/
 
 
 
@@ -868,13 +876,13 @@ yvikeys_menu__delete    (tMLINK *a_parent, tMLINK *a_sib, tMLINK *a_curr)
 static void  o___ACTIONS_________o () { return; }
 
 int
-yvikeys_menu__action    (uchar *a_path, int a_max, int a_lvl, tMLINK *a_parent, char a_act, tMLINK *a_new)
+yvikeys_menu__action    (uchar *a_path, int a_max, int a_lvl, tLINK *a_parent, char a_act, tLINK *a_new)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    int         rc          =    0;
-   tMLINK     *x_curr      = NULL;
-   tMLINK     *x_sib       = NULL;
+   tLINK      *x_curr      = NULL;
+   tLINK      *x_sib       = NULL;
    uchar       x_abbr      =  '·';
    int         c           =    0;
    /*---(header)-------------------------*/
@@ -920,11 +928,11 @@ yvikeys_menu__action    (uchar *a_path, int a_max, int a_lvl, tMLINK *a_parent, 
             s_level  = a_lvl;
             ++c;
             break;
-         case MENU_DELETE  :
-            DEBUG_CMDS   yLOG_note    ("deleting current");
-            rc = yvikeys_menu__delete (a_parent, x_sib, x_curr);
-            ++c;
-            break;
+         /*> case MENU_DELETE  :                                                      <* 
+          *>    DEBUG_CMDS   yLOG_note    ("deleting current");                       <* 
+          *>    rc = yvikeys_menu__delete (a_parent, x_sib, x_curr);                  <* 
+          *>    ++c;                                                                  <* 
+          *>    break;                                                                <*/
          case MENU_ACTIVE  :
             DEBUG_CMDS   yLOG_note    ("marking current as active");
             switch (x_curr->active) {
@@ -1017,7 +1025,7 @@ yvikeys_menu__action    (uchar *a_path, int a_max, int a_lvl, tMLINK *a_parent, 
 }
 
 int
-yvikeys_menu_action     (char a_act, uchar *a_path, tMLINK *a_link)
+yvikeys_menu_action     (char a_act, uchar *a_path, tLINK *a_link)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -1095,7 +1103,7 @@ yvikeys_menu_action     (char a_act, uchar *a_path, tMLINK *a_link)
    return rc;
 }
 
-char yvikeys_menu_place   (tMLINK *a_new) { return yvikeys_menu_action (MENU_PLACE , NULL  , a_new); }
+char yvikeys_menu_place   (tLINK *a_new)  { return yvikeys_menu_action (MENU_PLACE , NULL  , a_new); }
 int  yvikeys_menu_delete  (uchar *a_path) { return yvikeys_menu_action (MENU_PLACE , a_path, NULL ); }
 int  yvikeys_menu_find    (uchar *a_path) { return yvikeys_menu_action (MENU_FIND  , a_path, NULL ); }
 int  yvikeys_menu_menu    (uchar *a_path) { return yvikeys_menu_action (MENU_MENU  , a_path, NULL ); }
@@ -1242,8 +1250,8 @@ yvikeys_menu__purge     (void)
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    int         i           =    0;
-   tMLINK     *x_curr      = NULL;
-   tMLINK     *x_prev      = NULL;
+   tLINK      *x_curr      = NULL;
+   tLINK      *x_prev      = NULL;
    /*---(header)-------------------------*/
    DEBUG_CMDS   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
@@ -1352,7 +1360,7 @@ char
 yvikeys_menu_final      (void)
 {
    DEBUG_CMDS   yLOG_enter   (__FUNCTION__);
-   yVIKEYS_cmds_add (YVIKEYS_M_VIEW  , "help"        , ""    , "c"    , yvikeys_help               , "" );
+   /*> yVIKEYS_cmds_addX (YVIKEYS_M_VIEW  , "help"        , ""    , "c"    , yvikeys_help               , "" );   <*/
    DEBUG_CMDS   yLOG_exit    (__FUNCTION__);
    return 0;
 }
@@ -1464,7 +1472,7 @@ yvikeys_menu__gl_center (int a_adj)
 }
 
 char
-yvikeys_menu__gl_back   (int a_len, int a_level, tMLINK *a_found)
+yvikeys_menu__gl_back   (int a_len, int a_level, tLINK *a_found)
 {
    /*---(locals)-----------+-----+-----+-*/
    int         x_adj       =    5;
@@ -1550,7 +1558,7 @@ yvikeys_menu__gl_back   (int a_len, int a_level, tMLINK *a_found)
 }
 
 char
-yvikeys_menu__nc_back   (int a_len, int a_level, tMLINK *a_found)
+yvikeys_menu__nc_back   (int a_len, int a_level, tLINK *a_found)
 {
    /*---(locals)-----------+-----+-----+-*/
    int         x_adj       =    5;
@@ -1603,7 +1611,7 @@ yvikeys_menu__nc_back   (int a_len, int a_level, tMLINK *a_found)
 }
 
 char
-yvikeys_menu__gl_entry  (tMLINK *a_item, int a_level, int a_group, int a_entry, float x, float y, float a_offx, float a_offy)
+yvikeys_menu__gl_entry  (tLINK *a_item, int a_level, int a_group, int a_entry, float x, float y, float a_offx, float a_offy)
 {
    /*---(locals)-----------+-----+-----+-*/
    int         t           [LEN_LABEL];
@@ -1672,7 +1680,7 @@ yvikeys_menu__gl_entry  (tMLINK *a_item, int a_level, int a_group, int a_entry, 
 }
 
 char
-yvikeys_menu__nc_entry  (tMLINK *a_item, int a_mid, int a_top, int a_level, int a_group, int a_entry, int a_offx, int a_offy)
+yvikeys_menu__nc_entry  (tLINK *a_item, int a_mid, int a_top, int a_level, int a_group, int a_entry, int a_offx, int a_offy)
 {
    /*---(locals)-----------+-----+-----+-*/
    int         x, y;
@@ -1744,7 +1752,7 @@ yvikeys_menu__nc_entry  (tMLINK *a_item, int a_mid, int a_top, int a_level, int 
 }
 
 char
-yvikeys_menu__column    (int a_level, tMLINK *a_curr)
+yvikeys_menu__column    (int a_level, tLINK *a_curr)
 {
    /*---(locals)-----------+-----+-----+-*/
    int         a           =   10;
@@ -1755,7 +1763,7 @@ yvikeys_menu__column    (int a_level, tMLINK *a_curr)
    int         x_left, x_wide, x_bott, x_tall;
    int         x_top, x_mid;
    float       x_xoff, x_yoff;
-   tMLINK     *x_curr;
+   tLINK      *x_curr;
    /*---(header)-------------------------*/
    DEBUG_CMDS   yLOG_enter   (__FUNCTION__);
    DEBUG_CMDS   yLOG_char    ("env"       , myVIKEYS.env);
@@ -1816,7 +1824,7 @@ yvikeys_menu__gl_main   (void)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
-   tMLINK     *x_curr      = NULL;
+   tLINK      *x_curr      = NULL;
    int         c           =    0;
    float       x_off, y_off;
    float       x_pos, y_pos;
@@ -1869,7 +1877,7 @@ char
 yvikeys_menu__nc_main   (void)
 {
    /*---(locals)-----------+-----+-----+-*/
-   tMLINK     *x_curr      = NULL;
+   tLINK      *x_curr      = NULL;
    int         c           =    0;
    int         t           [LEN_LABEL];
    int         x_left, x_wide, x_bott, x_tall, x_top, x_mid;
@@ -2256,7 +2264,7 @@ yvikeys__menu_unit      (char *a_question, char *a_path)
    int         x_last      =    0;
    char        t           [LEN_HUND ];
    char        s           [LEN_LABEL] = "entry";
-   tMLINK     *x_curr      = NULL;
+   tLINK      *x_curr      = NULL;
    tMENU      *p           = NULL;
    /*---(preprare)-----------------------*/
    strlcpy  (yVIKEYS__unit_answer, "MENU unit        : question not understood", LEN_FULL);

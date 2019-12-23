@@ -35,7 +35,7 @@ SCRP          v21  (FILE  ) verify file configuration locking system          
      exec     v21  file control                         yvikeys_vers_nocontrol                                                                              i_lesser    0                                                                                                    
 
    COND       v21  now, run the full system initialization                            - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.005))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  initialize                           BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  initialize                           yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      get      v21  check current status                 STATUS__unit                "actual"         , FMOD_FILE                                            s_equal     STATUS actual    : f  5---- p i :---- n ----- - ---------- d -                                       
 
    COND       v21  try executing after initialization, but before config              - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.006))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
@@ -63,7 +63,7 @@ SCRP          v21  (FILE  ) verify file configuration locking system          
      exec     v21  file control                         yvikeys_vers_nocontrol                                                                              i_equal     0                                                                                                    
 
    COND       v21  complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.009))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  stop testing                         BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  stop testing                         yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -72,7 +72,7 @@ SCRP          v21  (FILE  ) verify file configuration locking system          
 SCRP          v21  (FILE  ) verify version control flag                               yvikeys_vers_controlled, _control, _nocontrol                           ((02.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  verify program setup                                               - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((02.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  setup the program                    BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  setup the program                    yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  configure file                       yVIKEYS_whoami              "gyges"   , "gyges"   , "3.5a", "testing"      , NULL, NULL             i_equal     0                                                                                                    
      code     v21  create return variables              - - - - - - - - - - - - -   char    x_data [LEN_RECD];                                                                                                                                                                   
 
@@ -202,7 +202,7 @@ SCRP          v21  (FILE  ) verify version control flag                       
    GROUP      v21  complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  verify program teardown                                            - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((02.015))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  wrap-up the program                  BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  wrap-up the program                  yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -211,7 +211,7 @@ SCRP          v21  (FILE  ) verify version control flag                       
 SCRP          v21  (FILE  ) verify version number setting                             FILE_version                                                            ((03.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  verify program setup                                               - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  setup the program                    BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  setup the program                    yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  configure file                       yVIKEYS_whoami              "gyges"   , "gyges"   , "3.5a", "testing"      , NULL, NULL             i_equal     0                                                                                                    
 
    GROUP      v21  check before controlled                                            - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
@@ -477,7 +477,7 @@ SCRP          v21  (FILE  ) verify version number setting                     
    GROUP      v21  complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  verify program teardown                                            - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.034))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  wrap-up the program                  BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  wrap-up the program                  yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -486,7 +486,7 @@ SCRP          v21  (FILE  ) verify version number setting                     
 SCRP          v21  (FILE  ) verify version bumping                                    yvikeys_vers_bump, _bump_major, _bump_minor, _bump_inc                  ((04.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  verify program setup                                               - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((04.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  setup the program                    BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  setup the program                    yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  configure file                       yVIKEYS_whoami              "gyges"   , "gyges"   , "3.5a", "testing"      , NULL, NULL             i_equal     0                                                                                                    
 
    GROUP      v21  bump increment                                                     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
@@ -708,7 +708,7 @@ SCRP          v21  (FILE  ) verify version bumping                            
    GROUP      v21  complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  verify program teardown                                            - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((04.034))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  wrap-up the program                  BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  wrap-up the program                  yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -717,7 +717,7 @@ SCRP          v21  (FILE  ) verify version bumping                            
 SCRP          v21  (FILE  ) verify version control descriptions                       yvikeys_vers_vertxt                                                     ((05.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  verify program setup                                               - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((05.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  setup the program                    BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  setup the program                    yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  configure file                       yVIKEYS_whoami              "gyges"   , "gyges"   , "3.5a", "testing"      , NULL, NULL             i_equal     0                                                                                                    
 
    GROUP      v21  check main function                                                - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
@@ -875,7 +875,7 @@ SCRP          v21  (FILE  ) verify version control descriptions               
    GROUP      v21  complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  verify program teardown                                            - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((05.022))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  wrap-up the program                  BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  wrap-up the program                  yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -884,7 +884,7 @@ SCRP          v21  (FILE  ) verify version control descriptions               
 SCRP          v21  (FILE  ) verify regex searches on current directory                yvikeys__file_regex                                                     ((06.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  verify program setup                                               - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((06.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  setup the program                    BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  setup the program                    yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  configure file                       yVIKEYS_whoami              "gyges"   , "gyges"   , "3.5a", "testing"      , NULL, NULL             i_equal     0                                                                                                    
      code     v21  match name holder                    - - - - - - - - - -         char  x_match [LEN_RECD] = "";                                                                                                                                                             
 
@@ -987,7 +987,7 @@ SCRP          v21  (FILE  ) verify regex searches on current directory        
    GROUP      v21  complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  verify program teardown                                            - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((05.022))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  wrap-up the program                  BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  wrap-up the program                  yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -996,7 +996,7 @@ SCRP          v21  (FILE  ) verify regex searches on current directory        
 SCRP          v21  (FILE  ) verify file extension stripping                           yvikeys__file_stripext                                                  ((06.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  verify program setup                                               - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((06.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  setup the program                    BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  setup the program                    yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  configure file                       yVIKEYS_whoami              "gyges"   , "gyges"   , "3.5a", "testing"      , NULL, NULL             i_equal     0                                                                                                    
      code     v21  file name holder                     - - - - - - - - - -         char  x_file  [LEN_RECD] = "";                                                                                                                                                             
 
@@ -1073,7 +1073,7 @@ SCRP          v21  (FILE  ) verify file extension stripping                   
    GROUP      v21  complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  verify program teardown                                            - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((05.022))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  wrap-up the program                  BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  wrap-up the program                  yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -1082,7 +1082,7 @@ SCRP          v21  (FILE  ) verify file extension stripping                   
 SCRP          v21  (FILE  ) verify path parsing and regex actions                     yvikeys__file_path                                                      ((06.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  verify program setup                                               - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((06.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  setup the program                    BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  setup the program                    yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  configure file                       yVIKEYS_whoami              "gyges"   , "gyges"   , "3.5a", "testing"      , NULL, NULL             i_equal     0                                                                                                    
      code     v21  path name holder                     - - - - - - - - - -         char  x_path  [LEN_RECD] = "";                                                                                                                                                             
 
@@ -1149,7 +1149,7 @@ SCRP          v21  (FILE  ) verify path parsing and regex actions             
    GROUP      v21  complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  verify program teardown                                            - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((05.022))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  wrap-up the program                  BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  wrap-up the program                  yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -1159,7 +1159,7 @@ SCRP          v21  (FILE  ) verify file location changes                      
 
    COND       v21  verify program setup                                               - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((06.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      code     v21  move to a neutral home dir           - - - - - - - - - - - - -   chdir ("/home/member/");                                                                                                                                                                     
-     exec     v21  setup the program                    BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  setup the program                    yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  configure file                       yVIKEYS_whoami              "gyges"   , "gyges"   , "3.5a", "testing"      , NULL, NULL             i_equal     0                                                                                                    
      code     v21  create return variables              - - - - - - - - - - - - -   char    x_data [LEN_RECD];                                                                                                                                                                   
 
@@ -1286,7 +1286,7 @@ SCRP          v21  (FILE  ) verify file location changes                      
    GROUP      v21  complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  verify program teardown                                            - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((05.022))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  wrap-up the program                  BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  wrap-up the program                  yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -1296,7 +1296,7 @@ SCRP          v21  (FILE  ) verify file naming and relative locations         
 
    COND       v21  verify program setup                                               - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((06.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      code     v21  move to a neutral home dir           - - - - - - - - - - - - -   chdir ("/");                                                                                                                                                                                 
-     exec     v21  setup the program                    BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  setup the program                    yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  configure file                       yVIKEYS_whoami              "gyges"   , "gyges"   , "3.5a", "testing"      , NULL, NULL             i_equal     0                                                                                                    
      code     v21  create return variables              - - - - - - - - - - - - -   char    x_data [LEN_RECD];                                                                                                                                                                   
 
@@ -1450,7 +1450,7 @@ SCRP          v21  (FILE  ) verify file naming and relative locations         
    GROUP      v21  complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  verify program teardown                                            - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((06.002))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  wrap-up the program                  BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  wrap-up the program                  yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -1460,7 +1460,7 @@ SCRP          v21  (FILE  ) verify file browsing                              
 
    COND       v21  verify program setup                                               - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((06.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      code     v21  move to a neutral home dir           - - - - - - - - - - - - -   chdir ("/tmp");                                                                                                                                                                                
-     exec     v21  setup the program                    BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  setup the program                    yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  configure file                       yVIKEYS_whoami              "gyges"   , "gyges"   , "3.5a", "testing"      , NULL, NULL             i_equal     0                                                                                                    
      code     v21  create return variables              - - - - - - - - - - - - -   char    x_data [LEN_RECD];                                                                                                                                                                   
      code     v21  remove old testing files             - - - - - - - - - - - - -   system ("rm -f /tmp/*.gyges");                                                                                                                                                                         
@@ -1557,7 +1557,7 @@ SCRP          v21  (FILE  ) verify file browsing                              
 
    COND       v21  verify program teardown                                            - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((06.002))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      code     v21  remove old testing files             - - - - - - - - - - - - -   system ("rm -f /tmp/*.gyges");                                                                                                                                                                         
-     exec     v21  wrap-up the program                  BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  wrap-up the program                  yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 

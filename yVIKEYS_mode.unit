@@ -295,7 +295,7 @@ SCRP          v21  (STATUS) verify very basic status systems                  
      exec     v21  check ops status                     STATUS_operational          UMOD_REPEAT                                                             i_equal     FALSE                                                                                                
 
    COND       v21  verify program teardown                                            - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.011))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  wrap-up the program                  BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  wrap-up the program                  yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -304,7 +304,7 @@ SCRP          v21  (STATUS) verify very basic status systems                  
 SCRP          v21  (MODE  ) verify basic functioning of mode stack                    MODE_enter, MODE_return, MODE_curr, MODE_prev, MODE_not, MODE_status    ((01.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize testing                                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  setup the program                    BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  setup the program                    yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
 
    GROUP      v21  start using normal map mode                                        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
@@ -413,7 +413,7 @@ SCRP          v21  (MODE  ) verify basic functioning of mode stack            
    GROUP      v21  switch to starting with god mode                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  verify program teardown                                            - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.011))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  wrap-up the program                  BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  wrap-up the program                  yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -422,7 +422,7 @@ SCRP          v21  (MODE  ) verify basic functioning of mode stack            
 SCRP          v21  (MODE  ) verify repeat umode                                       REPEAT_reset, _umode, _decrement, _count                                ((02.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize testing                                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((02.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  setup the program                    BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  setup the program                    yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  initialize view                      yVIKEYS_view_config         "yVIKEYS"      , "3.2a"    , YVIKEYS_CURSES ,  107,   72,    0          i_equal     0                                                                                                    
 
    GROUP      v21  start using repeat functions, very simple                          - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
@@ -683,7 +683,7 @@ SCRP          v21  (MODE  ) verify repeat umode                               
    GROUP      v21  complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  verify program teardown                                            - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((02.028))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  wrap-up the program                  BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  wrap-up the program                  yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -692,7 +692,7 @@ SCRP          v21  (MODE  ) verify repeat umode                               
 SCRP          v21  (MODE  ) verify repeat grouping                                    REPEAT_group_beg, REPEAT_group_end                                      ((02.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize testing                                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((02.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  setup the program                    BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  setup the program                    yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  load a map                           yvikeys__map_load           'w'            , &g_xmap        , YVIKEYS_XMAP                          i_equal     0                                                                                                    
      exec     v21  load a map                           yvikeys__map_load           '1'            , &g_ymap        , YVIKEYS_YMAP                          i_equal     0                                                                                                    
      exec     v21  load a map                           yvikeys__map_load           '1'            , &g_zmap        , YVIKEYS_YMAP                          i_equal     0                                                                                                    
@@ -799,7 +799,7 @@ SCRP          v21  (MODE  ) verify repeat grouping                            
    GROUP      v21  complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  verify program teardown                                            - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((02.028))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  wrap-up the program                  BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  wrap-up the program                  yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 

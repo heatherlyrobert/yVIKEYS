@@ -50,7 +50,7 @@ SCRP          (MACRO ) verify macro configuration locking system               
    GROUP      after global initialization, before optional configuration         - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       initialize the full system (including macro)                       - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.007))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     start testing                        BASE__unit_quiet                                                                                                                  i_equal     0                                                                                                    
+     exec     start testing                        yvikeys__unit_quiet                                                                                                                  i_equal     0                                                                                                    
      get      check current status                 STATUS__unit                "actual"         , SMOD_MACRO                                                                         s_equal     STATUS actual    : @  5f:-- p i ----- n ----- r 0--------- d o                                       
 
    COND       try actions before optional configuration                          - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.008))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
@@ -98,7 +98,7 @@ SCRP          (MACRO ) verify macro configuration locking system               
    GROUP      complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.015))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     stop testing                         BASE__unit_end                                                                                                                    i_equal     0                                                                                                    
+     exec     stop testing                         yvikeys__unit_end                                                                                                                    i_equal     0                                                                                                    
 
 
 
@@ -107,7 +107,7 @@ SCRP          (MACRO ) verify macro configuration locking system               
 SCRP          (MACRO ) verify macro validation functions                         yvikeys_macro_init, yvikeys_macro__index                                                              ((02.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((02.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     start testing                        BASE__unit_quiet                                                                                                                  i_equal     0                                                                                                    
+     exec     start testing                        yvikeys__unit_quiet                                                                                                                  i_equal     0                                                                                                    
      get      check the macro                      yvikeys_macro__unit         "rec"          , '@'                                                                                  s_equal     MACRO rec    (-) : macro pointer grounded                                                            
      get      check the macro                      yvikeys_macro__unit         "exec"         , '@'                                                                                  s_equal     MACRO exec   (-) : macro pointer grounded                                                            
 
@@ -138,7 +138,7 @@ SCRP          (MACRO ) verify macro validation functions                       
      exec     check an index (BAD)                 yvikeys_macro__index        NULL                                                                                                  i_lesser    0                                                                                                    
 
    COND       complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((02.004))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     stop testing                         BASE__unit_end                                                                                                                    i_equal     0                                                                                                    
+     exec     stop testing                         yvikeys__unit_end                                                                                                                    i_equal     0                                                                                                    
 
 
 
@@ -147,7 +147,7 @@ SCRP          (MACRO ) verify macro validation functions                       
 SCRP          (MACRO ) verify simple recording                                   yvikeys_macro__recbeg, _reckey, __rcestr, _recend                                                     ((03.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     start testing                        BASE__unit_quiet                                                                                                                  i_equal     0                                                                                                    
+     exec     start testing                        yvikeys__unit_quiet                                                                                                                  i_equal     0                                                                                                    
      get      check the macro                      yvikeys_macro__unit         "rec"          , '@'                                                                                  s_equal     MACRO rec    (-) : macro pointer grounded                                                            
      get      check the exectution status          yvikeys_macro__unit         "exec"         , '@'                                                                                  s_equal     MACRO exec   (-) : macro pointer grounded                                                            
 
@@ -254,7 +254,7 @@ SCRP          (MACRO ) verify simple recording                                 
      get      check saved macro                    yvikeys_macro__unit         "saved"        , 'c'                                                                                  s_equal     MACRO saved  (c) :  0[]                                  -1 -1  0                                    
 
    COND       complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.019))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     stop testing                         BASE__unit_end                                                                                                                    i_equal     0                                                                                                    
+     exec     stop testing                         yvikeys__unit_end                                                                                                                    i_equal     0                                                                                                    
 
 
 
@@ -263,7 +263,7 @@ SCRP          (MACRO ) verify simple recording                                 
 SCRP          (MACRO ) verify individual execution functions                     yvikeys_macro_exebeg, _exekey, _exestr, _exeadv, _exeend                                              ((04.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((04.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     start testing                        BASE__unit_quiet                                                                                                                  i_equal     0                                                                                                    
+     exec     start testing                        yvikeys__unit_quiet                                                                                                                  i_equal     0                                                                                                    
      get      check the recording status           yvikeys_macro__unit         "rec"          , '@'                                                                                  s_equal     MACRO rec    (-) : macro pointer grounded                                                            
      get      check the exectution status          yvikeys_macro__unit         "exec"         , '@'                                                                                  s_equal     MACRO exec   (-) : macro pointer grounded                                                            
 
@@ -352,7 +352,7 @@ SCRP          (MACRO ) verify individual execution functions                   
    GROUP      complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((04.016))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     stop testing                         BASE__unit_end                                                                                                                    i_equal     0                                                                                                    
+     exec     stop testing                         yvikeys__unit_end                                                                                                                    i_equal     0                                                                                                    
 
 
 
@@ -361,7 +361,7 @@ SCRP          (MACRO ) verify individual execution functions                   
 SCRP          (MACRO ) verify macro record and fetch without external store                                                                                                            ((05.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((05.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     start testing                        BASE__unit_quiet                                                                                                                  i_equal     0                                                                                                    
+     exec     start testing                        yvikeys__unit_quiet                                                                                                                  i_equal     0                                                                                                    
      exec     configure mapping (quick)            yvikeys__unit_quick                                                                                                               i_equal     0                                                                                                    
 
    COND       check saved macros                                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((17.002))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
@@ -399,7 +399,7 @@ SCRP          (MACRO ) verify macro record and fetch without external store    
      get      check saved macro                    yvikeys_macro__unit         "saved"        , '2'                                                                                  s_equal     MACRO saved  (2) :  0[]                                  -1 -1  0                                    
 
    COND       complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((04.016))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     stop testing                         BASE__unit_end                                                                                                                    i_equal     0                                                                                                    
+     exec     stop testing                         yvikeys__unit_end                                                                                                                    i_equal     0                                                                                                    
 
 
 
@@ -408,7 +408,7 @@ SCRP          (MACRO ) verify macro record and fetch without external store    
 SCRP          (MACRO ) verify the macro pause/wait characters (´Ï«)                                                                                                                    ((05.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((05.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     start testing                        BASE__unit_quiet                                                                                                                  i_equal     0                                                                                                    
+     exec     start testing                        yvikeys__unit_quiet                                                                                                                  i_equal     0                                                                                                    
      exec     configure mapping (quick)            yvikeys__unit_quick                                                                                                               i_equal     0                                                                                                    
      get      ... check the macro speeds           yvikeys_macro__unit         "speed"        , '@'                                                                                  s_equal     MACRO speed    - : 0.000000d 0.000u  0/ 0s, deb 0/n, exe 0/n,  0p                                           
      get      ... check the macro speeds           yvikeys_god__unit           "saved"        , '@'                                                                                  s_equal     LOOP saved       : delay keys , update every                                                             
@@ -604,7 +604,7 @@ SCRP          (MACRO ) verify the macro pause/wait characters (´Ï«)            
    GROUP      complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((05.012))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     stop testing                         BASE__unit_end                                                                                                                    i_equal     0                                                                                                    
+     exec     stop testing                         yvikeys__unit_end                                                                                                                    i_equal     0                                                                                                    
 
 
 
@@ -613,7 +613,7 @@ SCRP          (MACRO ) verify the macro pause/wait characters (´Ï«)            
 SCRP          (MACRO ) record and execute a macro through main                   PROG_main_input, PROG_main_handle                                                                     ((06.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((06.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     start testing                        BASE__unit_quiet                                                                                                                  i_equal     0                                                                                                    
+     exec     start testing                        yvikeys__unit_quiet                                                                                                                  i_equal     0                                                                                                    
      exec     configure mapping (quick)            yvikeys__unit_quick                                                                                                               i_equal     0                                                                                                    
      code     create return variables              - - - - - - - - - - - - -   char    x_data [LEN_RECD];                                                                                                                                                                                                 
 
@@ -897,7 +897,7 @@ SCRP          (MACRO ) record and execute a macro through main                 
    GROUP      complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((06.041))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     stop testing                         BASE__unit_end                                                                                                                    i_equal     0                                                                                                    
+     exec     stop testing                         yvikeys__unit_end                                                                                                                    i_equal     0                                                                                                    
 
 
 
@@ -906,7 +906,7 @@ SCRP          (MACRO ) record and execute a macro through main                 
 SCRP          (MACRO ) verify actions of macro pauses/beats (·´Ï)                PROG_main_input, PROG_main_handle                                                                     ((07.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((07.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     start testing                        BASE__unit_quiet                                                                                                                  i_equal     0                                                                                                    
+     exec     start testing                        yvikeys__unit_quiet                                                                                                                  i_equal     0                                                                                                    
      exec     configure mapping (quick)            yvikeys__unit_quick                                                                                                               i_equal     0                                                                                                    
 
    GROUP      start with just acks                                               - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
@@ -918,14 +918,14 @@ SCRP          (MACRO ) verify actions of macro pauses/beats (·´Ï)              
      get      check saved macro                    yvikeys_macro__unit         "saved"        , 'a'                                                                                  s_equal     MACRO saved  (a) :  4[···³]                              -1 -1  0                                    
 
    COND       reset and run the macro                                            - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((06.003))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     acks reset                           BASE__unit_reset_counts                                                                                                           i_equal     0                                                                                                    
+     exec     acks reset                           yvikeys__unit_reset                                                                                                           i_equal     0                                                                                                    
      get      ... check acks/spaces                KEYS__unit                  "acks"         , 0                                                                                    s_equal     KEYS acks        :   0a   0s   0z                                                                    
      exec     send keys                            yVIKEYS_main_string         "@a"                                                                                                  i_equal     0                                                                                                    
      get      ... check macro complete             yvikeys_macro__unit         "exec"         , '@'                                                                                  s_equal     MACRO exec   (a) : macro pointer grounded                                                            
      get      ... check acks/spaces                KEYS__unit                  "acks"         , 0                                                                                    s_equal     KEYS acks        :   3a   0s   1z                                                                    
 
    COND       reset and playback interactively (acks become zeros)               - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((06.003))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     acks reset                           BASE__unit_reset_counts                                                                                                           i_equal     0                                                                                                    
+     exec     acks reset                           yvikeys__unit_reset                                                                                                           i_equal     0                                                                                                    
      get      ... check acks/spaces                KEYS__unit                  "acks"         , 0                                                                                    s_equal     KEYS acks        :   0a   0s   0z                                                                    
      exec     send keys                            yVIKEYS_main_string         "@A····"                                                                                              i_equal     0                                                                                                    
      get      ... check macro complete             yvikeys_macro__unit         "exec"         , '@'                                                                                  s_equal     MACRO exec   (a) : macro pointer grounded                                                            
@@ -940,14 +940,14 @@ SCRP          (MACRO ) verify actions of macro pauses/beats (·´Ï)              
      get      check saved macro                    yvikeys_macro__unit         "saved"        , 'b'                                                                                  s_equal     MACRO saved  (b) :  7[·´·´·´³]                           -1 -1  0                                    
 
    COND       reset and run the macro                                            - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((06.003))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     acks reset                           BASE__unit_reset_counts                                                                                                           i_equal     0                                                                                                    
+     exec     acks reset                           yvikeys__unit_reset                                                                                                           i_equal     0                                                                                                    
      get      ... check acks/spaces                KEYS__unit                  "acks"           , 0                                                                                  s_equal     KEYS acks        :   0a   0s   0z                                                                    
      exec     send keys                            yVIKEYS_main_string         "@b"                                                                                                  i_equal     0                                                                                                    
      get      ... check macro complete             yvikeys_macro__unit         "exec"         , '@'                                                                                  s_equal     MACRO exec   (b) : macro pointer grounded                                                            
      get      ... check acks/spaces                KEYS__unit                  "acks"           , 0                                                                                  s_equal     KEYS acks        :   3a   0s   4z                                                                    
 
    COND       reset and playback interactively                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((06.003))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     acks reset                           BASE__unit_reset_counts                                                                                                           i_equal     0                                                                                                    
+     exec     acks reset                           yvikeys__unit_reset                                                                                                           i_equal     0                                                                                                    
      get      ... check acks/spaces                KEYS__unit                  "acks"           , 0                                                                                  s_equal     KEYS acks        :   0a   0s   0z                                                                    
      exec     send keys                            yVIKEYS_main_string         "@B·······"                                                                                           i_equal     0                                                                                                    
      get      ... check macro complete             yvikeys_macro__unit         "exec"         , '@'                                                                                  s_equal     MACRO exec   (b) : macro pointer grounded                                                            
@@ -962,14 +962,14 @@ SCRP          (MACRO ) verify actions of macro pauses/beats (·´Ï)              
      get      check saved macro                    yvikeys_macro__unit         "saved"        , 'c'                                                                                  s_equal     MACRO saved  (c) :  7[·Ï·Ï·Ï³]                           -1 -1  0                                    
 
    COND       reset and run the macro                                            - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((06.003))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     acks reset                           BASE__unit_reset_counts                                                                                                           i_equal     0                                                                                                    
+     exec     acks reset                           yvikeys__unit_reset                                                                                                           i_equal     0                                                                                                    
      get      ... check acks/spaces                KEYS__unit                  "acks"           , 0                                                                                  s_equal     KEYS acks        :   0a   0s   0z                                                                    
      exec     send keys                            yVIKEYS_main_string         "@c"                                                                                                  i_equal     0                                                                                                    
      get      ... check macro complete             yvikeys_macro__unit         "exec"         , '@'                                                                                  s_equal     MACRO exec   (c) : macro pointer grounded                                                            
      get      ... check acks/spaces                KEYS__unit                  "acks"           , 0                                                                                  s_equal     KEYS acks        :   3a   0s  16z                                                                    
 
    COND       reset and playback interactively (five beats become one)           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((06.003))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     acks reset                           BASE__unit_reset_counts                                                                                                           i_equal     0                                                                                                    
+     exec     acks reset                           yvikeys__unit_reset                                                                                                           i_equal     0                                                                                                    
      get      ... check acks/spaces                KEYS__unit                  "acks"           , 0                                                                                  s_equal     KEYS acks        :   0a   0s   0z                                                                    
      exec     send keys                            yVIKEYS_main_string         "@C·······"                                                                                           i_equal     0                                                                                                    
      get      ... check macro complete             yvikeys_macro__unit         "exec"         , '@'                                                                                  s_equal     MACRO exec   (c) : macro pointer grounded                                                            
@@ -984,14 +984,14 @@ SCRP          (MACRO ) verify actions of macro pauses/beats (·´Ï)              
      get      check saved macro                    yvikeys_macro__unit         "saved"        , 'd'                                                                                  s_equal     MACRO saved  (d) : 40[0_··2l··3j··´··2h··2k··´··10l··Ï·> -1 -1  0                                    
 
    COND       reset and run the macro                                            - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((06.003))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     acks reset                           BASE__unit_reset_counts                                                                                                           i_equal     0                                                                                                    
+     exec     acks reset                           yvikeys__unit_reset                                                                                                           i_equal     0                                                                                                    
      get      ... check acks/spaces                KEYS__unit                  "acks"           , 0                                                                                  s_equal     KEYS acks        :   0a   0s   0z                                                                    
      exec     send keys                            yVIKEYS_main_string         "@d"                                                                                                  i_equal     0                                                                                                    
      get      ... check macro complete             yvikeys_macro__unit         "exec"         , '@'                                                                                  s_equal     MACRO exec   (d) : macro pointer grounded                                                            
      get      ... check acks/spaces                KEYS__unit                  "acks"           , 0                                                                                  s_equal     KEYS acks        :  20a   0s   9z                                                                    
 
    COND       reset and playback interactively (spacers/pauses become one)       - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((06.003))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     acks reset                           BASE__unit_reset_counts                                                                                                           i_equal     0                                                                                                    
+     exec     acks reset                           yvikeys__unit_reset                                                                                                           i_equal     0                                                                                                    
      get      ... check acks/spaces                KEYS__unit                  "acks"           , 0                                                                                  s_equal     KEYS acks        :   0a   0s   0z                                                                    
      exec     send keys                            yVIKEYS_main_string         "@D········································"                                                          i_equal     0                                                                                                    
      get      ... check macro complete             yvikeys_macro__unit         "exec"         , '@'                                                                                  s_equal     MACRO exec   (d) : macro pointer grounded                                                            
@@ -1000,7 +1000,7 @@ SCRP          (MACRO ) verify actions of macro pauses/beats (·´Ï)              
    GROUP      complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((06.041))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     stop testing                         BASE__unit_end                                                                                                                    i_equal     0                                                                                                    
+     exec     stop testing                         yvikeys__unit_end                                                                                                                    i_equal     0                                                                                                    
 
 
 
@@ -1009,7 +1009,7 @@ SCRP          (MACRO ) verify actions of macro pauses/beats (·´Ï)              
 SCRP          (MACRO ) verify repeating and layering macros                      PROG_main_input, PROG_main_handle                                                                     ((07.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((07.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     start testing                        BASE__unit_quiet                                                                                                                  i_equal     0                                                                                                    
+     exec     start testing                        yvikeys__unit_quiet                                                                                                                  i_equal     0                                                                                                    
      exec     configure mapping (quick)            yvikeys__unit_quick                                                                                                               i_equal     0                                                                                                    
      code     create return variables              - - - - - - - - - - - - -   char    x_data [LEN_RECD];                                                                                                                                                                                                 
 
@@ -1184,7 +1184,7 @@ SCRP          (MACRO ) verify repeating and layering macros                    
    GROUP      complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((07.031))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     stop testing                         BASE__unit_end                                                                                                                    i_equal     0                                                                                                    
+     exec     stop testing                         yvikeys__unit_end                                                                                                                    i_equal     0                                                                                                    
 
 
 
@@ -1193,7 +1193,7 @@ SCRP          (MACRO ) verify repeating and layering macros                    
 SCRP          (MACRO ) verify repeat grouping with parentheses                   REPEAT_group_beg, REPEAT_group_end                                                                    ((08.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       initialize testing                                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((08.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     setup the program                    BASE__unit_quiet                                                                                                                  i_equal     0                                                                                                    
+     exec     setup the program                    yvikeys__unit_quiet                                                                                                                  i_equal     0                                                                                                    
      exec     configure mapping (quick)            yvikeys__unit_quick                                                                                                               i_equal     0                                                                                                    
      code     create return variables              - - - - - - - - - - - - -   char    x_data [LEN_RECD];                                                                                                                                                                                                 
      get      check the repeat stack               REPEAT__unit                "groups"                                                                                              s_equal     REPEAT groups    : 0 --/-/---, --/-/---, --/-/---, --/-/---, --/-/---                                
@@ -1339,7 +1339,7 @@ SCRP          (MACRO ) verify repeat grouping with parentheses                 
    GROUP      complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       verify program teardown                                            - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((08.022))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     wrap-up the program                  BASE__unit_end                                                                                                                    i_equal     0                                                                                                    
+     exec     wrap-up the program                  yvikeys__unit_end                                                                                                                    i_equal     0                                                                                                    
 
 
 
@@ -1348,7 +1348,7 @@ SCRP          (MACRO ) verify repeat grouping with parentheses                 
 SCRP          (MACRO ) verify direct definition of macros                        yvikeys_macro__direct                                                                                 ((09.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((09.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     start testing                        BASE__unit_quiet                                                                                                                  i_equal     0                                                                                                    
+     exec     start testing                        yvikeys__unit_quiet                                                                                                                  i_equal     0                                                                                                    
      exec     load a map                           yvikeys__map_load           'w'            , &g_xmap        , YVIKEYS_XMAP                                                        i_equal     0                                                                                                    
      exec     load a map                           yvikeys__map_load           '1'            , &g_ymap        , YVIKEYS_YMAP                                                        i_equal     0                                                                                                    
      exec     load a map                           yvikeys__map_load           '1'            , &g_zmap        , YVIKEYS_YMAP                                                        i_equal     0                                                                                                    
@@ -1428,7 +1428,7 @@ SCRP          (MACRO ) verify direct definition of macros                      
      get      check saved macro                    yvikeys_macro__unit         "saved"        , '2'                                                                                  s_equal     MACRO saved  (2) :  0[]                                  -1 -1  0                                    
 
    COND       complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((09.015))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     stop testing                         BASE__unit_end                                                                                                                    i_equal     0                                                                                                    
+     exec     stop testing                         yvikeys__unit_end                                                                                                                    i_equal     0                                                                                                    
 
 
 
@@ -1437,7 +1437,7 @@ SCRP          (MACRO ) verify direct definition of macros                      
 SCRP          (MACRO ) verify simple export, import, copy, and moves of macros   yvikeys_macro__direct                                                                                 ((09.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((09.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     start testing                        BASE__unit_quiet                                                                                                                  i_equal     0                                                                                                    
+     exec     start testing                        yvikeys__unit_quiet                                                                                                                  i_equal     0                                                                                                    
      code     clear clip                           - - - - - - - - - - - - -   system ("echo \"\"                                                                                >  /root/z_gehye/vi_clip.txt");                                                                                          
      get      check clip                           yvikeys_macro__unit         "clip"         ,  0                                                                                   s_equal     MACRO clip  ( 0) :  0[]                                                                              
 
@@ -1624,7 +1624,7 @@ SCRP          (MACRO ) verify simple export, import, copy, and moves of macros 
      get      check saved macro                    yvikeys_macro__unit         "saved"        , '2'                                                                                  s_equal     MACRO saved  (2) : 20[:file·testing.gyges³]              -1 -1  0                                    
 
    COND       complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((09.015))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     stop testing                         BASE__unit_end                                                                                                                    i_equal     0                                                                                                    
+     exec     stop testing                         yvikeys__unit_end                                                                                                                    i_equal     0                                                                                                    
 
 
 
@@ -1633,7 +1633,7 @@ SCRP          (MACRO ) verify simple export, import, copy, and moves of macros 
 SCRP          (MACRO ) verify macro generated keystrokes are not recorded        yvikeys_macro_smode                                                                                   ((11.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((11.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     start testing                        BASE__unit_quiet                                                                                                                  i_equal     0                                                                                                    
+     exec     start testing                        yvikeys__unit_quiet                                                                                                                  i_equal     0                                                                                                    
      exec     configure mapping (quick)            yvikeys__unit_quick                                                                                                               i_equal     0                                                                                                    
 
    COND       save a macro                                                       - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((11.002))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
@@ -1693,7 +1693,7 @@ SCRP          (MACRO ) verify macro generated keystrokes are not recorded      
      get      review key error                     KEYS__unit                  "error"          , 0                                                                                  s_equal     KEYS error       : 36[------------------------------------]                                          
 
    COND       complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((11.014))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     stop testing                         BASE__unit_end                                                                                                                    i_equal     0                                                                                                    
+     exec     stop testing                         yvikeys__unit_end                                                                                                                    i_equal     0                                                                                                    
 
 
 
@@ -1702,7 +1702,7 @@ SCRP          (MACRO ) verify macro generated keystrokes are not recorded      
 SCRP          (MACRO ) verify debugging breakpoint and halt are handled          yvikeys_macro_smode                                                                                   ((12.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((12.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     start testing                        BASE__unit_quiet                                                                                                                  i_equal     0                                                                                                    
+     exec     start testing                        yvikeys__unit_quiet                                                                                                                  i_equal     0                                                                                                    
      exec     configure mapping (quick)            yvikeys__unit_quick                                                                                                               i_equal     0                                                                                                    
      code     create return variables              - - - - - - - - - - - - -   char    x_data [LEN_RECD];                                                                                                                                                                                                 
 
@@ -1784,7 +1784,7 @@ SCRP          (MACRO ) verify debugging breakpoint and halt are handled        
    GROUP      complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((12.006))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     stop testing                         BASE__unit_end                                                                                                                    i_equal     0                                                                                                    
+     exec     stop testing                         yvikeys__unit_end                                                                                                                    i_equal     0                                                                                                    
 
 
 
@@ -1793,7 +1793,7 @@ SCRP          (MACRO ) verify debugging breakpoint and halt are handled        
 SCRP          (MACRO ) verify flattening and installing macros                   yvikeys_macro_flatten, __install                                                                      ((13.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((13.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     setup the program                    BASE__unit_quiet                                                                                                                  i_equal     0                                                                                                    
+     exec     setup the program                    yvikeys__unit_quiet                                                                                                                  i_equal     0                                                                                                    
 
    COND       check saved macros                                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((13.002))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      get      check saved macro                    yvikeys_macro__unit         "saved"        , 'a'                                                                                  s_equal     MACRO saved  (a) :  0[]                                  -1 -1  0                                    
@@ -1862,7 +1862,7 @@ SCRP          (MACRO ) verify flattening and installing macros                 
      get      check saved macro                    yvikeys_macro__unit         "saved"        , 'f'                                                                                  s_equal     MACRO saved  (f) : 21[LJ¸jlkh¹KH¸@1¹LJ¸@1¹³]             -1 -1  0                                    
 
    COND       complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((13.014))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     stop testing                         BASE__unit_end                                                                                                                    i_equal     0                                                                                                    
+     exec     stop testing                         yvikeys__unit_end                                                                                                                    i_equal     0                                                                                                    
 
 
 
@@ -1871,7 +1871,7 @@ SCRP          (MACRO ) verify flattening and installing macros                 
 SCRP          (MACRO ) verify macros in source mode                              yvikeys_macro_smode                                                                                   ((14.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((14.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     setup the program                    BASE__unit_quiet                                                                                                                  i_equal     0                                                                                                    
+     exec     setup the program                    yvikeys__unit_quiet                                                                                                                  i_equal     0                                                                                                    
      exec     initialize view                      yVIKEYS_view_config         "yVIKEYS"      , "3.2a"    , YVIKEYS_CURSES ,    0,    0,    0                                        i_equal     0                                                                                                    
      exec     set the layout                       yVIKEYS_cmds_direct         ":layout min"                                                                                         i_equal     0                                                                                                    
      exec     set raise the formula bar            yVIKEYS_cmds_direct         ":formula show"                                                                                       i_equal     0                                                                                                    
@@ -2220,7 +2220,7 @@ SCRP          (MACRO ) verify macros in source mode                            
    GROUP      complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((14.062))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     stop testing                         BASE__unit_end                                                                                                                    i_equal     0                                                                                                    
+     exec     stop testing                         yvikeys__unit_end                                                                                                                    i_equal     0                                                                                                    
 
 
 
@@ -2229,7 +2229,7 @@ SCRP          (MACRO ) verify macros in source mode                            
 SCRP          (MACRO ) verify macro handling of menus                            yvikeys_macro_smode                                                                                   ((14.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((14.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     setup the program                    BASE__unit_quiet                                                                                                                  i_equal     0                                                                                                    
+     exec     setup the program                    yvikeys__unit_quiet                                                                                                                  i_equal     0                                                                                                    
      exec     configure mapping (quick)            yvikeys__unit_quick                                                                                                               i_equal     0                                                                                                    
      exec     initialize view                      yVIKEYS_view_config         "yVIKEYS"      , "3.2a"    , YVIKEYS_CURSES ,    0,    0,    0                                        i_equal     0                                                                                                    
      exec     set the layout                       yVIKEYS_cmds_direct         ":layout max"                                                                                         i_equal     0                                                                                                    
@@ -2355,7 +2355,7 @@ SCRP          (MACRO ) verify macro handling of menus                          
    GROUP      complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((14.062))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     stop testing                         BASE__unit_end                                                                                                                    i_equal     0                                                                                                    
+     exec     stop testing                         yvikeys__unit_end                                                                                                                    i_equal     0                                                                                                    
 
 
 
@@ -2364,7 +2364,7 @@ SCRP          (MACRO ) verify macro handling of menus                          
 SCRP          (MACRO ) verify macro handling of blitzing mode                    yvikeys_macro_set2blitz                                                                               ((14.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((14.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     setup the program                    BASE__unit_quiet                                                                                                                  i_equal     0                                                                                                    
+     exec     setup the program                    yvikeys__unit_quiet                                                                                                                  i_equal     0                                                                                                    
      exec     configure mapping (quick)            yvikeys__unit_quick                                                                                                               i_equal     0                                                                                                    
      exec     initialize view                      yVIKEYS_view_config         "yVIKEYS"      , "3.2a"    , YVIKEYS_CURSES ,    0,    0,    0                                        i_equal     0                                                                                                    
      exec     set the layout                       yVIKEYS_cmds_direct         ":layout max"                                                                                         i_equal     0                                                                                                    
@@ -2378,7 +2378,7 @@ SCRP          (MACRO ) verify macro handling of blitzing mode                  
 
 
    COND       complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((14.062))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     stop testing                         BASE__unit_end                                                                                                                    i_equal     0                                                                                                    
+     exec     stop testing                         yvikeys__unit_end                                                                                                                    i_equal     0                                                                                                    
 
 
 
@@ -2393,7 +2393,7 @@ SECT          reading and writing records                                      
 SCRP          (MACRO ) verify basic macro writing                                yvikeys_macro_writer, _writer_all                                                                     ((15.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((15.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     start testing                        BASE__unit_quiet                                                                                                                  i_equal     0                                                                                                    
+     exec     start testing                        yvikeys__unit_quiet                                                                                                                  i_equal     0                                                                                                    
      exec     configure mapping (quick)            yvikeys__unit_quick                                                                                                               i_equal     0                                                                                                    
 
    COND       check saved macros                                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((15.002))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
@@ -2490,7 +2490,7 @@ SCRP          (MACRO ) verify basic macro writing                              
      exec     write all                            yvikeys_macro_writer_all                                                                                                          i_equal     3                                                                                                    
 
    COND       complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((15.013))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     stop testing                         BASE__unit_end                                                                                                                    i_equal     0                                                                                                    
+     exec     stop testing                         yvikeys__unit_end                                                                                                                    i_equal     0                                                                                                    
 
 
 
@@ -2499,7 +2499,7 @@ SCRP          (MACRO ) verify basic macro writing                              
 SCRP          (MACRO ) verify basic macro reading                                yvikeys_macro_reader                                                                                  ((16.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((16.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     start testing                        BASE__unit_quiet                                                                                                                  i_equal     0                                                                                                    
+     exec     start testing                        yvikeys__unit_quiet                                                                                                                  i_equal     0                                                                                                    
      exec     configure mapping (quick)            yvikeys__unit_quick                                                                                                               i_equal     0                                                                                                    
 
    COND       check saved macros                                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((16.002))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
@@ -2570,7 +2570,7 @@ SCRP          (MACRO ) verify basic macro reading                              
      get      check saved macro                    yvikeys_macro__unit         "saved"        , '2'                                                                                  s_equal     MACRO saved  (2) :  0[]                                  -1 -1  0                                    
 
    COND       complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((16.012))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     stop testing                         BASE__unit_end                                                                                                                    i_equal     0                                                                                                    
+     exec     stop testing                         yvikeys__unit_end                                                                                                                    i_equal     0                                                                                                    
 
 
 
@@ -2579,7 +2579,7 @@ SCRP          (MACRO ) verify basic macro reading                              
 SCRP          (MACRO ) verify combinations writing and reading with file         yvikeys_macro_reader, _writer                                                                         ((17.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((17.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     start testing                        BASE__unit_quiet                                                                                                                  i_equal     0                                                                                                    
+     exec     start testing                        yvikeys__unit_quiet                                                                                                                  i_equal     0                                                                                                    
      exec     configure mapping (quick)            yvikeys__unit_quick                                                                                                               i_equal     0                                                                                                    
 
    COND       check saved macros                                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((17.002))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
@@ -2637,7 +2637,7 @@ SCRP          (MACRO ) verify combinations writing and reading with file       
      get      check saved macro                    yvikeys_macro__unit         "saved"        , '2'                                                                                  s_equal     MACRO saved  (2) :  6[wx·y¥³]                            -1 -1  0                                    
 
    COND       complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((17.012))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     stop testing                         BASE__unit_end                                                                                                                    i_equal     0                                                                                                    
+     exec     stop testing                         yvikeys__unit_end                                                                                                                    i_equal     0                                                                                                    
 
 
 

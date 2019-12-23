@@ -285,20 +285,20 @@ yVIKEYS_whoami          (char *a_prog, char *a_ext, char *a_vernum, char *a_vert
    /*---(update stage)-------------------*/
    STATUS_conf_set (FMOD_FILE, '1');
    /*---(add commands)-------------------*/
-   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "cd"          , ""    , "a"    , yvikeys_file_loc             , "set the default directory for file reading and writing"      );
-   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "file"        , ""    , "a"    , yvikeys_file_name            , "rename a file for reading and writing"                       );
-   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "browse"      , ""    , "a"    , yvikeys_file_browse          , "find existing file name for reading and writing"             );
-   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "control"     , ""    , ""     , yvikeys_vers_control         , "turn version control ON for current file"                    );
-   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "nocontrol"   , ""    , ""     , yvikeys_vers_nocontrol       , "turn version control OFF for current file"                   );
-   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "vernum"      , ""    , "s"    , yvikeys_vers_version         , "set a specific file version ([0-9A-Z].[0-9A-Z][a-z])"        );
-   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "vertxt"      , ""    , "a"    , yvikeys_vers_vertxt          , "set a file version description"                              );
-   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "major"       , ""    , ""     , yvikeys_vers_bump_major      , "increment the version number by a MAJOR version"             );
-   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "minor"       , ""    , ""     , yvikeys_vers_bump_minor      , "increment the version number by a MINOR version"             );
-   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "bump"        , ""    , ""     , yvikeys_vers_bump_inc        , "increment the version number by a INC version"               );
-   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "write"       , "w"   , ""     , yvikeys_file_writer          , "write/update the current file"                               );
-   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "writeas"     , "was" , "s"    , yvikeys_file_writeas         , "write/update the current file"                               );
-   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "read"        , ""    , ""     , yvikeys_file_reader          , "clear existing contents and open/read new file"              );
-   rc = yVIKEYS_cmds_add (YVIKEYS_M_FILE  , "edit"        , "e"   , ""     , yvikeys_file_reader          , "clear existing contents and open/read new file"              );
+   /*> rc = yVIKEYS_cmds_addX (YVIKEYS_M_FILE  , "cd"          , ""    , "a"    , yvikeys_file_loc             , "set the default directory for file reading and writing"      );   <* 
+    *> rc = yVIKEYS_cmds_addX (YVIKEYS_M_FILE  , "file"        , ""    , "a"    , yvikeys_file_name            , "rename a file for reading and writing"                       );   <* 
+    *> rc = yVIKEYS_cmds_addX (YVIKEYS_M_FILE  , "browse"      , ""    , "a"    , yvikeys_file_browse          , "find existing file name for reading and writing"             );   <* 
+    *> rc = yVIKEYS_cmds_addX (YVIKEYS_M_FILE  , "control"     , ""    , ""     , yvikeys_vers_control         , "turn version control ON for current file"                    );   <* 
+    *> rc = yVIKEYS_cmds_addX (YVIKEYS_M_FILE  , "nocontrol"   , ""    , ""     , yvikeys_vers_nocontrol       , "turn version control OFF for current file"                   );   <* 
+    *> rc = yVIKEYS_cmds_addX (YVIKEYS_M_FILE  , "vernum"      , ""    , "s"    , yvikeys_vers_version         , "set a specific file version ([0-9A-Z].[0-9A-Z][a-z])"        );   <* 
+    *> rc = yVIKEYS_cmds_addX (YVIKEYS_M_FILE  , "vertxt"      , ""    , "a"    , yvikeys_vers_vertxt          , "set a file version description"                              );   <* 
+    *> rc = yVIKEYS_cmds_addX (YVIKEYS_M_FILE  , "major"       , ""    , ""     , yvikeys_vers_bump_major      , "increment the version number by a MAJOR version"             );   <* 
+    *> rc = yVIKEYS_cmds_addX (YVIKEYS_M_FILE  , "minor"       , ""    , ""     , yvikeys_vers_bump_minor      , "increment the version number by a MINOR version"             );   <* 
+    *> rc = yVIKEYS_cmds_addX (YVIKEYS_M_FILE  , "bump"        , ""    , ""     , yvikeys_vers_bump_inc        , "increment the version number by a INC version"               );   <* 
+    *> rc = yVIKEYS_cmds_addX (YVIKEYS_M_FILE  , "write"       , "w"   , ""     , yvikeys_file_writer          , "write/update the current file"                               );   <* 
+    *> rc = yVIKEYS_cmds_addX (YVIKEYS_M_FILE  , "writeas"     , "was" , "s"    , yvikeys_file_writeas         , "write/update the current file"                               );   <* 
+    *> rc = yVIKEYS_cmds_addX (YVIKEYS_M_FILE  , "read"        , ""    , ""     , yvikeys_file_reader          , "clear existing contents and open/read new file"              );   <* 
+    *> rc = yVIKEYS_cmds_addX (YVIKEYS_M_FILE  , "edit"        , "e"   , ""     , yvikeys_file_reader          , "clear existing contents and open/read new file"              );   <*/
    /*---(status options)-----------------*/
    rc = yVIKEYS_view_option (YVIKEYS_STATUS, "file"   , yvikeys_file_status  , "current fully qualified file name and default location");
    rc = yVIKEYS_view_option (YVIKEYS_STATUS, "version", yvikeys_vers_status  , "current file verion control status, number and text");

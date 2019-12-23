@@ -20,7 +20,7 @@ PREP          v21  include the prototype headers                              
 SCRP          v21  (MAP   ) verify simple mapping linear moves                        yvikeys__map_move                                                       ((01.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  start testing                        BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  start testing                        yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  initialize                           yvikeys_map_init                                                                                    i_equal     0                                                                                                    
 
    GROUP      v21  check on sending bad data                                          - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
@@ -244,7 +244,7 @@ SCRP          v21  (MAP   ) verify simple mapping linear moves                
    GROUP      v21  complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.017))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  stop testing                         BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  stop testing                         yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -253,7 +253,7 @@ SCRP          v21  (MAP   ) verify simple mapping linear moves                
 SCRP          v21  (MAP   ) verify screen alignments beginning                        yvikeys__screen_beg                                                     ((01.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  start testing                        BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  start testing                        yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  configure mapping (quick)            yvikeys__unit_quick                                                                                 i_equal     0                                                                                                    
 
    COND       v21  set the starting conditions to uniform                             - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.014))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
@@ -336,7 +336,7 @@ SCRP          v21  (MAP   ) verify screen alignments beginning                
 
 
    COND       v21  complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.017))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  stop testing                         BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  stop testing                         yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -345,7 +345,7 @@ SCRP          v21  (MAP   ) verify screen alignments beginning                
 SCRP          v21  (MAP   ) verify screen alignments                                  yvikeys__screen                                                         ((01.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  start testing                        BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  start testing                        yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  initialize                           yvikeys_map_init                                                                                    i_equal     0                                                                                                    
 
    GROUP      v21  start with screen smaller than available                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
@@ -439,7 +439,7 @@ SCRP          v21  (MAP   ) verify screen alignments                          
    GROUP      v21  complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.017))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  stop testing                         BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  stop testing                         yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -448,7 +448,7 @@ SCRP          v21  (MAP   ) verify screen alignments                          
 SCRP          v21  (MAP   ) verify horizontal moves with screen stable                yvikeys__map_horz                                                       ((01.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  start testing                        BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  start testing                        yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  initialize                           yvikeys_map_init                                                                                    i_equal     0                                                                                                    
 
    GROUP      v21  start with the basic moves                                         - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
@@ -584,7 +584,7 @@ SCRP          v21  (MAP   ) verify horizontal moves with screen stable        
    GROUP      v21  complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.017))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  stop testing                         BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  stop testing                         yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -593,7 +593,7 @@ SCRP          v21  (MAP   ) verify horizontal moves with screen stable        
 SCRP          v21  (MAP   ) check movement in map mode                                yvikeys_map_mode                                                        ((01.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  start testing                        BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  start testing                        yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  initialize                           yvikeys_map_init                                                                                    i_equal     0                                                                                                    
      exec     v21  initialize                           MODE_init                   MODE_MAP                                                                i_equal     0                                                                                                    
 
@@ -750,7 +750,7 @@ SCRP          v21  (MAP   ) check movement in map mode                        
    GROUP      v21  complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.017))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  stop testing                         BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  stop testing                         yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -759,7 +759,7 @@ SCRP          v21  (MAP   ) check movement in map mode                        
 SCRP          v21  (MAP   ) verify office/non-office conversions for vertical         yvikeys__map_office                                                     ((01.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  start testing                        BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  start testing                        yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  configure mapping (quick)            yvikeys__unit_quick                                                                                 i_equal     0                                                                                                    
      code     v21  a_minor holder                       - - - - - - - - - -         char  x_minor = ' ';                                                                                                                                                                       
 
@@ -794,7 +794,7 @@ SCRP          v21  (MAP   ) verify office/non-office conversions for vertical 
      echo     v21  ... check a_minor                    - - - - - - - - - - - - -   x_minor                                                                 i_equal     't'                                                                                                  
 
    COND       v21  complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.017))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  stop testing                         BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  stop testing                         yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -803,7 +803,7 @@ SCRP          v21  (MAP   ) verify office/non-office conversions for vertical 
 SCRP          v21  (MAP   ) verify cntl/page conversions to goto options              yvikeys__map_page                                                       ((01.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  start testing                        BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  start testing                        yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  configure mapping (quick)            yvikeys__unit_quick                                                                                 i_equal     0                                                                                                    
      code     v21  a_minor holder                       - - - - - - - - - -         char  x_minor = ' ';                                                                                                                                                                       
 
@@ -832,7 +832,7 @@ SCRP          v21  (MAP   ) verify cntl/page conversions to goto options      
      exec     v21  convert page to goto                 yvikeys__map_page           'v', &x_minor                                                           i_lesser    0                                                                                                    
 
    COND       v21  complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.017))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  stop testing                         BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  stop testing                         yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -841,7 +841,7 @@ SCRP          v21  (MAP   ) verify cntl/page conversions to goto options      
 SCRP          v21  (MAP   ) verify grid to unit conversion                            yvikeys__map_office                                                     ((01.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  start testing                        BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  start testing                        yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  configure mapping (quick)            yvikeys__unit_quick                                                                                 i_equal     0                                                                                                    
      code     v21  unit holder                          - - - - - - - - - -         int  x_unit   = -1;                                                                                                                                                                        
 
@@ -870,7 +870,7 @@ SCRP          v21  (MAP   ) verify grid to unit conversion                    
      exec     v21  request unit                         yvikeys__map_unit           8              , &g_ymap                                                i_lesser    0                                                                                                    
 
    COND       v21  complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.017))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  stop testing                         BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  stop testing                         yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -879,7 +879,7 @@ SCRP          v21  (MAP   ) verify grid to unit conversion                    
 SCRP          v21  (MAP   ) verify basic screen moves (horz/vert)                     yvikeys__map_goto                                                       ((01.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  start testing                        BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  start testing                        yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  configure mapping (quick)            yvikeys__unit_quick                                                                                 i_equal     0                                                                                                    
 
    COND       v21  set the starting conditions to uniform                             - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.014))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
@@ -1065,7 +1065,7 @@ SCRP          v21  (MAP   ) verify basic screen moves (horz/vert)             
    GROUP      v21  complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.017))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  stop testing                         BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  stop testing                         yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -1074,7 +1074,7 @@ SCRP          v21  (MAP   ) verify basic screen moves (horz/vert)             
 SCRP          v21  (MAP   ) verify goto screen moves (horz/vert)                      yvikeys__map_basic                                                      ((01.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  start testing                        BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  start testing                        yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  configure mapping (quick)            yvikeys__unit_quick                                                                                 i_equal     0                                                                                                    
 
    COND       v21  set the starting conditions to uniform                             - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.014))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
@@ -1300,7 +1300,7 @@ SCRP          v21  (MAP   ) verify goto screen moves (horz/vert)              
    GROUP      v21  complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.017))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  stop testing                         BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  stop testing                         yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -1309,7 +1309,7 @@ SCRP          v21  (MAP   ) verify goto screen moves (horz/vert)              
 SCRP          v21  (MAP   ) verify scrolling (horz/vert)                              yvikeys__map_scroll                                                     ((01.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize the testing environment                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  start testing                        BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  start testing                        yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  configure mapping (quick)            yvikeys__unit_quick                                                                                 i_equal     0                                                                                                    
 
    COND       v21  set the starting conditions                                        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.014))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
@@ -1473,7 +1473,7 @@ SCRP          v21  (MAP   ) verify scrolling (horz/vert)                      
    GROUP      v21  complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.017))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  stop testing                         BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  stop testing                         yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 

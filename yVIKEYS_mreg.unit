@@ -38,7 +38,7 @@ SCRP          v21  (REGS  ) verify register configuration locking system      
    GROUP      v21  after global initialization, before configuration                  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  now, run the full system initialization                            - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.005))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  initialize                           BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  initialize                           yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      get      v21  check current status                 STATUS__unit                "actual"         , SMOD_MREG                                            s_equal     STATUS actual    : R  5f--- p i ----- n ----- - 0--------- - -                                       
 
    COND       v21  try actions before configuration                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.006))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
@@ -74,7 +74,7 @@ SCRP          v21  (REGS  ) verify register configuration locking system      
    GROUP      v21  complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.009))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  stop testing                         BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  stop testing                         yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -83,7 +83,7 @@ SCRP          v21  (REGS  ) verify register configuration locking system      
 SCRP          v21  (REGS  ) verify mark setup and validity checking                   yvikeys_mreg__valid, __index                                            ((01.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize testing                                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  setup the program                    BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  setup the program                    yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
 
    COND       v21  check abbr for validity                                            - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.002))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      exec     v21  check validity (BAD)                 yvikeys_mreg__valid         ' '                                                                     i_lesser    0                                                                                                    
@@ -114,7 +114,7 @@ SCRP          v21  (REGS  ) verify mark setup and validity checking           
      exec     v21  return index (BAD)                   yvikeys_mreg__index         '>'                                                                     i_lesser    0                                                                                                    
 
    COND       v21  complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.005))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  stop testing                         BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  stop testing                         yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -123,7 +123,7 @@ SCRP          v21  (REGS  ) verify mark setup and validity checking           
 SCRP          v21  (REGS  ) verify simple register actions on unnamed register        yvikeys_mreg_save, _clear, __wipe, yVIKEYS_mreg_inside            ((01.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize testing                                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  setup the program                    BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  setup the program                    yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  configure capability                 yvikeys_mreg__unit_config                                                                           i_equal     0                                                                                                    
      exec     v21  configure mapping (quick)            yvikeys__unit_quick                                                                                 i_equal     0                                                                                                    
      exec     v21  purge unit testing data              yvikeys_mreg__unit_purge                                                                            i_equal     0                                                                                                    
@@ -275,7 +275,7 @@ SCRP          v21  (REGS  ) verify simple register actions on unnamed register
 
    COND       v21  complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.005))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      exec     v21  purge unit testing data              yvikeys_mreg__unit_purge                                                                            i_equal     0                                                                                                    
-     exec     v21  stop testing                         BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  stop testing                         yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -284,7 +284,7 @@ SCRP          v21  (REGS  ) verify simple register actions on unnamed register
 SCRP          v21  (REGS  ) verify simple register actions on named registers         yvikeys_mreg_save, _clear, __wipe, yVIKEYS_mreg_inside            ((01.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize testing                                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  setup the program                    BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  setup the program                    yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  configure capability                 yvikeys_mreg__unit_config                                                                           i_equal     0                                                                                                    
      exec     v21  configure mapping (quick)            yvikeys__unit_quick                                                                                 i_equal     0                                                                                                    
      exec     v21  purge unit testing data              yvikeys_mreg__unit_purge                                                                            i_equal     0                                                                                                    
@@ -353,7 +353,7 @@ SCRP          v21  (REGS  ) verify simple register actions on named registers 
 
    COND       v21  complete testing                                                   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.005))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      exec     v21  purge unit testing data              yvikeys_mreg__unit_purge                                                                            i_equal     0                                                                                                    
-     exec     v21  stop testing                         BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  stop testing                         yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 

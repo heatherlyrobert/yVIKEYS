@@ -24,7 +24,7 @@ PREP          v21  include the prototype headers                              
 SCRP          v21  (SRC   ) verify source mode movement works properly                SOURCE_mode                                                             ((01.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize testing                                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  setup the program                    BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  setup the program                    yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  initialize view                      yVIKEYS_view_config         "yVIKEYS"      , "3.2a"    , YVIKEYS_CURSES ,    0,    0,    0          i_equal     0                                                                                                    
      exec     v21  set the layout                       yVIKEYS_cmds_direct         ":layout min"                                                           i_equal     0                                                                                                    
      exec     v21  set raise the formula bar            yVIKEYS_cmds_direct         ":formula show"                                                         i_equal     0                                                                                                    
@@ -435,7 +435,7 @@ SCRP          v21  (SRC   ) verify source mode movement works properly        
    GROUP      v21  complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  verify program teardown                                            - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((01.033))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  wrap-up the program                  BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  wrap-up the program                  yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -444,7 +444,7 @@ SCRP          v21  (SRC   ) verify source mode movement works properly        
 SCRP          v21  (SRC   ) verify simple selection in source mode                    SOURCE_mode                                                             ((02.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize testing                                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((02.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  setup the program                    BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  setup the program                    yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  initialize view                      yVIKEYS_view_config         "yVIKEYS"      , "3.2a"    , YVIKEYS_CURSES ,    0,    0,    0          i_equal     0                                                                                                    
      exec     v21  set the layout                       yVIKEYS_cmds_direct         ":layout min"                                                           i_equal     0                                                                                                    
      exec     v21  set raise the formula bar            yVIKEYS_cmds_direct         ":formula show"                                                         i_equal     0                                                                                                    
@@ -560,7 +560,7 @@ SCRP          v21  (SRC   ) verify simple selection in source mode            
    GROUP      v21  complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  verify program teardown                                            - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((02.016))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  wrap-up the program                  BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  wrap-up the program                  yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -569,7 +569,7 @@ SCRP          v21  (SRC   ) verify simple selection in source mode            
 SCRP          v21  (SRC   ) verify source undo/redo                                   SOURCE__undo, SOURCE__redo                                              ((02.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize testing                                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((02.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  setup the program                    BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  setup the program                    yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  initialize view                      yVIKEYS_view_config         "yVIKEYS"      , "3.2a"    , YVIKEYS_CURSES ,    0,    0,    0          i_equal     0                                                                                                    
      exec     v21  set the layout                       yVIKEYS_cmds_direct         ":layout min"                                                           i_equal     0                                                                                                    
      exec     v21  set raise the formula bar            yVIKEYS_cmds_direct         ":formula show"                                                         i_equal     0                                                                                                    
@@ -792,7 +792,7 @@ SCRP          v21  (SRC   ) verify source undo/redo                           
    GROUP      v21  complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  verify program teardown                                            - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((02.016))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  wrap-up the program                  BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  wrap-up the program                  yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -801,7 +801,7 @@ SCRP          v21  (SRC   ) verify source undo/redo                           
 SCRP          v21  (SRC   ) verify delete, clear, and replace multi-keys              SOURCE_mode, SOURCE_delete                                              ((02.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize testing                                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((02.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  setup the program                    BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  setup the program                    yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  initialize view                      yVIKEYS_view_config         "yVIKEYS"      , "3.2a"    , YVIKEYS_CURSES ,    0,    0,    0          i_equal     0                                                                                                    
      exec     v21  set the layout                       yVIKEYS_cmds_direct         ":layout min"                                                           i_equal     0                                                                                                    
      exec     v21  set raise the formula bar            yVIKEYS_cmds_direct         ":formula show"                                                         i_equal     0                                                                                                    
@@ -1125,7 +1125,7 @@ SCRP          v21  (SRC   ) verify delete, clear, and replace multi-keys      
    GROUP      v21  complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  verify program teardown                                            - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((02.016))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  wrap-up the program                  BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  wrap-up the program                  yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -1134,7 +1134,7 @@ SCRP          v21  (SRC   ) verify delete, clear, and replace multi-keys      
 SCRP          v21  (SRC   ) primary actions in source mode                            SOURCE_mode                                                             ((03.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize testing                                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  setup the program                    BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  setup the program                    yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  initialize view                      yVIKEYS_view_config         "yVIKEYS"      , "3.2a"    , YVIKEYS_CURSES ,    0,    0,    0          i_equal     0                                                                                                    
      exec     v21  set the layout                       yVIKEYS_cmds_direct         ":layout min"                                                           i_equal     0                                                                                                    
      exec     v21  set raise the formula bar            yVIKEYS_cmds_direct         ":formula show"                                                         i_equal     0                                                                                                    
@@ -1316,7 +1316,7 @@ SCRP          v21  (SRC   ) primary actions in source mode                    
    GROUP      v21  complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  verify program teardown                                            - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((03.025))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  wrap-up the program                  BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  wrap-up the program                  yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -1325,7 +1325,7 @@ SCRP          v21  (SRC   ) primary actions in source mode                    
 SCRP          v21  (SRC   ) verify use of named text registers                        SRC_REG_smode                                                           ((04.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize testing                                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((04.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  setup the program                    BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  setup the program                    yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  initialize view                      yVIKEYS_view_config         "yVIKEYS"      , "3.2a"    , YVIKEYS_CURSES ,    0,    0,    0          i_equal     0                                                                                                    
      exec     v21  set the layout                       yVIKEYS_cmds_direct         ":layout min"                                                           i_equal     0                                                                                                    
      exec     v21  set raise the formula bar            yVIKEYS_cmds_direct         ":formula show"                                                         i_equal     0                                                                                                    
@@ -1425,7 +1425,7 @@ SCRP          v21  (SRC   ) verify use of named text registers                
    GROUP      v21  complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  verify program teardown                                            - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((04.010))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  wrap-up the program                  BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  wrap-up the program                  yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -1434,7 +1434,7 @@ SCRP          v21  (SRC   ) verify use of named text registers                
 SCRP          v21  (SRC   ) verify input mode                                         SRC_REPL_umode                                                           ((05.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize testing                                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((04.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  setup the program                    BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  setup the program                    yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  initialize view                      yVIKEYS_view_config         "yVIKEYS"      , "3.2a"    , YVIKEYS_CURSES ,    0,    0,    0          i_equal     0                                                                                                    
      exec     v21  set the layout                       yVIKEYS_cmds_direct         ":layout min"                                                           i_equal     0                                                                                                    
      exec     v21  set raise the formula bar            yVIKEYS_cmds_direct         ":formula show"                                                         i_equal     0                                                                                                    
@@ -1575,7 +1575,7 @@ SCRP          v21  (SRC   ) verify input mode                                 
    GROUP      v21  complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  verify program teardown                                            - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((04.010))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  wrap-up the program                  BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  wrap-up the program                  yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -1585,10 +1585,10 @@ SCRP          v21  (SRC   ) verify input mode                                 
 SCRP          v21  (SRC   ) verify replace sub mode                                   SRC_REPL_umode                                                           ((05.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  verify program setup                                               - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((05.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  setup the program                    BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  setup the program                    yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
 
    COND       v21  initialize testing                                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((04.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  setup the program                    BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  setup the program                    yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  initialize view                      yVIKEYS_view_config         "yVIKEYS"      , "3.2a"    , YVIKEYS_CURSES ,    0,    0,    0          i_equal     0                                                                                                    
      exec     v21  set the layout                       yVIKEYS_cmds_direct         ":layout min"                                                           i_equal     0                                                                                                    
      exec     v21  set raise the formula bar            yVIKEYS_cmds_direct         ":formula show"                                                         i_equal     0                                                                                                    
@@ -1770,7 +1770,7 @@ SCRP          v21  (SRC   ) verify replace sub mode                           
    GROUP      v21  complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  verify program teardown                                            - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((04.010))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  wrap-up the program                  BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  wrap-up the program                  yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 
@@ -1779,7 +1779,7 @@ SCRP          v21  (SRC   ) verify replace sub mode                           
 SCRP          v21  (SRC   ) verify character find                                     SCR_mode, SRC_charfind, SRC_charfindrev                                 ((04.---))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  initialize testing                                                 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((04.001))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  setup the program                    BASE__unit_quiet                                                                                    i_equal     0                                                                                                    
+     exec     v21  setup the program                    yvikeys__unit_quiet                                                                                    i_equal     0                                                                                                    
      exec     v21  initialize view                      yVIKEYS_view_config         "yVIKEYS"      , "3.2a"    , YVIKEYS_CURSES ,    0,    0,    0          i_equal     0                                                                                                    
      exec     v21  set the layout                       yVIKEYS_cmds_direct         ":layout min"                                                           i_equal     0                                                                                                    
      exec     v21  set raise the formula bar            yVIKEYS_cmds_direct         ":formula show"                                                         i_equal     0                                                                                                    
@@ -1906,7 +1906,7 @@ SCRP          v21  (SRC   ) verify character find                             
    GROUP      v21  complete                                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   - - - - -   - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
    COND       v21  verify program teardown                                            - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((04.010))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-     exec     v21  wrap-up the program                  BASE__unit_end                                                                                      i_equal     0                                                                                                    
+     exec     v21  wrap-up the program                  yvikeys__unit_end                                                                                      i_equal     0                                                                                                    
 
 
 

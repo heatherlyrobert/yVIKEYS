@@ -1387,12 +1387,12 @@ VIEW__init_opengl       (char *a_title)
    glFlush         ();
    /*---(color options)------------------*/
    yCOLOR_init     (YCOLOR_WHEEL );
-   yVIKEYS_cmds_add (YVIKEYS_M_VIEW  , "palette"     , ""    , "isss" , yCOLOR_palette             , "" );
-   yVIKEYS_cmds_add (YVIKEYS_M_VIEW  , "wheel"       , ""    , "s"    , yCOLOR_wheel               , "" );
-   yVIKEYS_cmds_add (YVIKEYS_M_VIEW  , "degree"      , "deg" , "i"    , yCOLOR_deg                 , "" );
-   yVIKEYS_cmds_add (YVIKEYS_M_VIEW  , "harmony"     , "har" , "s"    , yCOLOR_harm                , "" );
-   yVIKEYS_cmds_add (YVIKEYS_M_VIEW  , "value"       , "val" , "s"    , yCOLOR_val                 , "" );
-   yVIKEYS_cmds_add (YVIKEYS_M_VIEW  , "saturation"  , "sat" , "s"    , yCOLOR_sat                 , "" );
+   /*> yVIKEYS_cmds_addX (YVIKEYS_M_VIEW  , "palette"     , ""    , "isss" , yCOLOR_palette             , "" );   <* 
+    *> yVIKEYS_cmds_addX (YVIKEYS_M_VIEW  , "wheel"       , ""    , "s"    , yCOLOR_wheel               , "" );   <* 
+    *> yVIKEYS_cmds_addX (YVIKEYS_M_VIEW  , "degree"      , "deg" , "i"    , yCOLOR_deg                 , "" );   <* 
+    *> yVIKEYS_cmds_addX (YVIKEYS_M_VIEW  , "harmony"     , "har" , "s"    , yCOLOR_harm                , "" );   <* 
+    *> yVIKEYS_cmds_addX (YVIKEYS_M_VIEW  , "value"       , "val" , "s"    , yCOLOR_val                 , "" );   <* 
+    *> yVIKEYS_cmds_addX (YVIKEYS_M_VIEW  , "saturation"  , "sat" , "s"    , yCOLOR_sat                 , "" );   <*/
    /*---(complete)-----------------------*/
    DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -1471,19 +1471,19 @@ yVIKEYS_view_config     (cchar *a_title, cchar *a_ver, cchar a_env, cint a_wide,
    VIEW__purge ();
    VIEW_defaults (a_env);
    /*---(screen commands)----------------*/
-   for (i = 0; i < s_npart; ++i) {
-      DEBUG_PROG   yLOG_info    ("name"      , s_parts [i].name);
-      if (s_parts [i].abbr == YVIKEYS_LAYERS) ;
-      else if (strchr (OWN_HIDE, s_parts [i].own) != NULL) {
-         DEBUG_PROG   yLOG_note    ("adding view menu command to show/hide");
-         yVIKEYS_cmds_add (YVIKEYS_M_VIEW  , s_parts [i].name , ""    , "Cs"   , VIEW__switch               , "" );
-      }
-   }
+   /*> for (i = 0; i < s_npart; ++i) {                                                                                     <* 
+    *>    DEBUG_PROG   yLOG_info    ("name"      , s_parts [i].name);                                                      <* 
+    *>    if (s_parts [i].abbr == YVIKEYS_LAYERS) ;                                                                        <* 
+    *>    else if (strchr (OWN_HIDE, s_parts [i].own) != NULL) {                                                           <* 
+    *>       DEBUG_PROG   yLOG_note    ("adding view menu command to show/hide");                                          <* 
+    *>       yVIKEYS_cmds_addX (YVIKEYS_M_VIEW  , s_parts [i].name , ""    , "Cs"   , VIEW__switch               , "" );   <* 
+    *>    }                                                                                                                <* 
+    *> }                                                                                                                   <*/
    /*---(commands)-----------------------*/
-   yVIKEYS_cmds_add (YVIKEYS_M_VIEW  , "gridoff"     , ""    , "iii"  , VIEW__grid_offset          , "" );
-   yVIKEYS_cmds_add (YVIKEYS_M_VIEW  , "gridsize"    , ""    , "iii"  , VIEW__grid_size            , "" );
-   yVIKEYS_cmds_add (YVIKEYS_M_VIEW  , "layout"      , ""    , "s"    , VIEW__layout               , "" );
-   yVIKEYS_cmds_add (YVIKEYS_M_VIEW  , "layer"       , ""    , "s"    , VIEW__layer_set            , "" );
+   /*> yVIKEYS_cmds_addX (YVIKEYS_M_VIEW  , "gridoff"     , ""    , "iii"  , VIEW__grid_offset          , "" );   <* 
+    *> yVIKEYS_cmds_addX (YVIKEYS_M_VIEW  , "gridsize"    , ""    , "iii"  , VIEW__grid_size            , "" );   <* 
+    *> yVIKEYS_cmds_addX (YVIKEYS_M_VIEW  , "layout"      , ""    , "s"    , VIEW__layout               , "" );   <* 
+    *> yVIKEYS_cmds_addX (YVIKEYS_M_VIEW  , "layer"       , ""    , "s"    , VIEW__layer_set            , "" );   <*/
    /*---(options)------------------------*/
    yVIKEYS_view_option (YVIKEYS_GRID, "norm"  , VIEW__grid_normal, "traditional cross-hatch grid");
    yVIKEYS_view_option (YVIKEYS_GRID, "zoom"  , VIEW__grid_zoom  , "zoom/targeting grid"         );

@@ -117,6 +117,7 @@ yVIKEYS_wrap         (void)
    yvikeys_mreg_wrap   ();
    yvikeys_menu_wrap   ();
    yvikeys_dump_purge  ();
+   yvikeys_hist_wrap   ();
    return 0;
 }
 
@@ -944,7 +945,7 @@ static void  o___UNIT_TEST_______o () { return; }
 char          yVIKEYS__unit_answer [LEN_FULL];
 
 char       /*----: set up program urgents/debugging --------------------------*/
-BASE__unit_quiet       (void)
+yvikeys__unit_quiet    (void)
 {
    int         x_narg       = 1;
    char       *x_args [20]  = {"yVIKEYS_unit" };
@@ -955,7 +956,7 @@ BASE__unit_quiet       (void)
 }
 
 char       /*----: set up program urgents/debugging --------------------------*/
-BASE__unit_loud        (void)
+yvikeys__unit_loud     (void)
 {
    int         x_narg       = 1;
    char       *x_args [20]  = {"yVIKEYS_unit" };
@@ -980,7 +981,7 @@ BASE__unit_loud        (void)
 }
 
 char       /*----: stop logging ----------------------------------------------*/
-BASE__unit_end         (void)
+yvikeys__unit_end      (void)
 {
    yVIKEYS_wrap ();
    yLOGS_end    ();
@@ -1012,7 +1013,7 @@ yvikeys_dump__unit      (char *a_question, char a_index)
    return yVIKEYS__unit_answer;
 }
 
-char BASE__unit_reset_counts  (void)  { s_acks = 0; s_spaces = 0; s_noops = 0; return 0; }
+char yvikeys__unit_reset      (void)  { s_acks = 0; s_spaces = 0; s_noops = 0; return 0; }
 
 char*        /*-> tbd --------------------------------[ leaf   [gs.520.202.40]*/ /*-[01.0000.00#.#]-*/ /*-[--.---.---.--]-*/
 KEYS__unit              (char *a_question, char a_index)
