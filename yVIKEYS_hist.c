@@ -13,10 +13,11 @@ static char    (*s_redo) (void);
 #define   MAX_PASS     1000
 typedef struct cHIST     tHIST;
 struct cHIST {
-   uchar       mark;
-   uchar      *text;
-   int         count;
-   int         found;
+   uchar       mark;                    /* if marked for quick use           */
+   uchar      *text;                    /* command or search line used       */
+   char        ran;                     /* could it execute                  */
+   uchar       count;                   /* how many times has it been used   */
+   int         found;                   /* what where the results            */
    tHIST      *m_next;
    tHIST      *m_prev;
 };
@@ -39,6 +40,10 @@ static tHIST   **s_curr      = &s_crun; /* current            */
 static int      *s_index     = &s_irun; /* index              */
 static int      *s_count     = &s_nrun; /* count              */
 static int       s_nall      = 0;       /* full count         */
+/*---(current)-----------------*/
+static uchar   s_current   [LEN_RECD] = "";
+static int     s_len       = 0;
+/*---(done)--------------------*/
 
 
 
@@ -63,7 +68,7 @@ yvikeys_hist__switcher  (char a_mode, char a_force)
    DEBUG_HIST   yLOG_char    ("a_mode"    , a_mode);
    /*---(defense)------------------------*/
    if (a_force != 'y' && a_mode == x_save) {
-      DEBUG_HIST   yLOG_exit    ("same as last, short-cut");
+      DEBUG_HIST   yLOG_note    ("same as last, short-cut");
       DEBUG_HIST   yLOG_exit    (__FUNCTION__);
       return 1;
    }
@@ -218,6 +223,7 @@ yvikeys_hist__new       (char a_mode, uchar *a_text)
    DEBUG_HIST   yLOG_note    ("populate");
    x_new->mark     = '-';
    x_new->text     = strdup (a_text);
+   x_new->ran      = 0;
    x_new->count    = 0;
    x_new->found    = 0;
    x_new->m_next   = NULL;
@@ -237,6 +243,11 @@ yvikeys_hist__new       (char a_mode, uchar *a_text)
    ++s_nall;
    DEBUG_HIST   yLOG_value   ("s_count"   , *s_count);
    DEBUG_HIST   yLOG_value   ("s_nall"    , s_nall);
+   /*---(update current)-----------------*/
+   *s_curr  = *s_tail;
+   *s_index = *s_count - 1;
+   DEBUG_HIST   yLOG_point   ("*s_curr"   , *s_curr);
+   DEBUG_HIST   yLOG_value   ("*s_index"  , *s_index);
    /*---(complete)-----------------------*/
    DEBUG_HIST   yLOG_exit    (__FUNCTION__);
    /*> printf ("done\n");                                                             <*/
@@ -293,8 +304,8 @@ yvikeys_hist_init       (void)
    DEBUG_HIST   yLOG_note    ("initialize hist list");
    strlcpy (S_HIST_LIST, ""            , S_HIST_MAX);
    strlcat (S_HIST_LIST, gvikeys_lower , S_HIST_MAX);
-   strlcat (S_HIST_LIST, gvikeys_upper , S_HIST_MAX);
-   strlcat (S_HIST_LIST, gvikeys_greek , S_HIST_MAX);
+   /*> strlcat (S_HIST_LIST, gvikeys_upper , S_HIST_MAX);                             <*/
+   /*> strlcat (S_HIST_LIST, gvikeys_greek , S_HIST_MAX);                             <*/
    DEBUG_HIST   yLOG_info    ("LIST"      , S_HIST_LIST);
    /*---(clear history)------------------*/
    DEBUG_HIST   yLOG_note    ("clear all history");
@@ -304,7 +315,7 @@ yvikeys_hist_init       (void)
    s_nall      = 0;       /* full count         */
    /*---(switchable)--------------*/
    yvikeys_hist__switcher (MODE_COMMAND, 'y');
-   HISTORY__load  (MODE_COMMAND, NULL);
+   yvikeys_hist_text      (MODE_COMMAND, NULL);
    /*---(update status)------------------*/
    STATUS_init_set   (UMOD_HISTORY);
    /*---(complete)-----------------------*/
@@ -1004,6 +1015,102 @@ yvikeys_hist__index     (int a_index)
 }
 
 char
+yvikeys_hist__find    (uchar *a_text)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   tHIST      *x_curr      = NULL;
+   int         c           =    0;
+   /*---(header)-------------------------*/
+   DEBUG_HIST   yLOG_enter   (__FUNCTION__);
+   /*---(defenses)-----------------------*/
+   DEBUG_HIST   yLOG_point   ("*s_head"   , *s_head);
+   --rce;  if (*s_head == NULL) {
+      *s_curr  = NULL;
+      *s_index = -1;
+      DEBUG_HIST   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_HIST   yLOG_point   ("a_text"    , a_text);
+   --rce;  if (a_text == NULL) {
+      DEBUG_HIST   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(walk-entries)-------------------*/
+   x_curr = *s_head;
+   while (x_curr != NULL) {
+      DEBUG_HIST   yLOG_complex ("entry"     , "%2d %-10.10s %10p %10p %10p", c, x_curr->text, x_curr, x_curr->m_next, x_curr->m_prev);
+      if (a_text [0] == x_curr->text [0]) {
+         if (strcmp (a_text, x_curr->text) == 0)   break;
+      }
+      x_curr = x_curr->m_next;
+      ++c;
+   }
+   /*---(check result)-------------------*/
+   DEBUG_HIST   yLOG_point   ("x_curr"    , x_curr);
+   --rce;  if (x_curr == NULL) {
+      DEBUG_HIST   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(set current)--------------------*/
+   *s_curr  = x_curr;
+   *s_index = c;
+   /*---(output)-------------------------*/
+   DEBUG_HIST   yLOG_point   ("*s_curr"   , *s_curr);
+   DEBUG_HIST   yLOG_value   ("*s_index"  , *s_index);
+   /*---(complete)-----------------------*/
+   DEBUG_HIST   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char
+yvikeys_hist__marked  (uchar a_mark)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   tHIST      *x_curr      = NULL;
+   int         c           =    0;
+   /*---(header)-------------------------*/
+   DEBUG_HIST   yLOG_enter   (__FUNCTION__);
+   /*---(defenses)-----------------------*/
+   DEBUG_HIST   yLOG_point   ("*s_head"   , *s_head);
+   --rce;  if (*s_head == NULL) {
+      *s_curr  = NULL;
+      *s_index = -1;
+      DEBUG_HIST   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_HIST   yLOG_char    ("a_mark"    , a_mark);
+   --rce;  if (strchr (S_HIST_LIST, a_mark) == NULL) {
+      DEBUG_HIST   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(walk-entries)-------------------*/
+   x_curr = *s_head;
+   while (x_curr != NULL) {
+      DEBUG_HIST   yLOG_complex ("entry"     , "%2d %-10.10s %10p %10p %10p", c, x_curr->text, x_curr, x_curr->m_next, x_curr->m_prev);
+      if (a_mark == x_curr->mark)   break;
+      x_curr = x_curr->m_next;
+      ++c;
+   }
+   /*---(check result)-------------------*/
+   DEBUG_HIST   yLOG_point   ("x_curr"    , x_curr);
+   --rce;  if (x_curr == NULL) {
+      DEBUG_HIST   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(set current)--------------------*/
+   *s_curr  = x_curr;
+   *s_index = c;
+   /*---(output)-------------------------*/
+   DEBUG_HIST   yLOG_point   ("*s_curr"   , *s_curr);
+   DEBUG_HIST   yLOG_value   ("*s_index"  , *s_index);
+   /*---(complete)-----------------------*/
+   DEBUG_HIST   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char
 yvikeys_hist__roll      (void)
 {
    /*---(locals)-----------+-----+-----+-*/
@@ -1018,6 +1125,12 @@ yvikeys_hist__roll      (void)
    --rce;  if (*s_curr == NULL) {
       DEBUG_HIST   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
+   }
+   /*---(short-cut)----------------------*/
+   if (*s_tail == *s_curr) {
+      DEBUG_HIST   yLOG_note    ("already tail, nothing to do");
+      DEBUG_HIST   yLOG_exit    (__FUNCTION__);
+      return 0;
    }
    /*---(pull out of list)---------------*/
    if ((*s_curr)->m_prev != NULL)  (*s_curr)->m_prev->m_next = (*s_curr)->m_next;
@@ -1045,243 +1158,206 @@ yvikeys_hist__roll      (void)
 static void  o___HISTORY_________o () { return; }
 
 char
-HISTORY__unmark      (char a_type, char a_mark)
+yvikeys_hist__unmark  (uchar a_mark)
 {
-   /*> /+---(locals)-----------+-----+-----+-+/                                       <* 
-    *> tHIST      *x_pass      = NULL;                                                <* 
-    *> int         i           =    0;                                                <* 
-    *> int         x_max       =    0;                                                <* 
-    *> /+---(set limits)---------------------+/                                       <* 
-    *> switch (a_type) {                                                              <* 
-    *> case MODE_COMMAND :  x_pass = &s_runs;   x_max = s_nrun;  break;               <* 
-    *> case MODE_SEARCH  :  x_pass = &s_passes; x_max = s_npass; break;               <* 
-    *> }                                                                              <* 
-    *> /+---(clear old mark)-----------------+/                                       <* 
-    *> for (i = 0; i < x_max; ++i) {                                                  <* 
-    *>    if ((x_pass + i)->mark != a_mark)  continue;                                <* 
-    *>    (x_pass + i)->mark = '-';                                                   <* 
-    *> }                                                                              <* 
-    *> /+---(complete)-----------------------+/                                       <* 
-    *> return 0;                                                                      <*/
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   tHIST      *x_curr      = NULL;
+   int         c           =    0;
+   /*---(header)-------------------------*/
+   DEBUG_HIST   yLOG_enter   (__FUNCTION__);
+   /*---(defenses)-----------------------*/
+   DEBUG_HIST   yLOG_char    ("a_mark"    , a_mark);
+   --rce;  if (strchr (S_HIST_LIST, tolower (a_mark)) == NULL) {
+      DEBUG_HIST   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(walk-entries)-------------------*/
+   x_curr = *s_head;
+   while (x_curr != NULL) {
+      DEBUG_HIST   yLOG_complex ("entry"     , "%2d %-10.10s %10p %10p %10p", c, x_curr->text, x_curr, x_curr->m_next, x_curr->m_prev);
+      if (a_mark == x_curr->mark)   x_curr->mark = '-';
+      x_curr = x_curr->m_next;
+      ++c;
+   }
+   /*---(complete)-----------------------*/
+   DEBUG_HIST   yLOG_exit    (__FUNCTION__);
+   return 0;
 }
 
 char
-HISTORY__mark        (char a_type, char a_mark)
+yvikeys_hist__mark    (uchar a_mark)
 {
-   /*> /+---(locals)-----------+-----+-----+-+/                                       <* 
-    *> tHIST      *x_pass      = NULL;                                                <* 
-    *> int         i           =    0;                                                <* 
-    *> int         x_max       =    0;                                                <* 
-    *> /+---(set limits)---------------------+/                                       <* 
-    *> switch (a_type) {                                                              <* 
-    *> case MODE_COMMAND :  x_pass = &s_runs;   x_max = s_nrun;  break;               <* 
-    *> case MODE_SEARCH  :  x_pass = &s_passes; x_max = s_npass; break;               <* 
-    *> }                                                                              <* 
-    *> /+---(clear old mark)-----------------+/                                       <* 
-    *> for (i = 0; i < x_max; ++i) {                                                  <* 
-    *>    if ((x_pass + i)->mark != a_mark)  continue;                                <* 
-    *>    (x_pass + i)->mark = '-';                                                   <* 
-    *> }                                                                              <* 
-    *> /+---(clear new mark)-----------------+/                                       <* 
-    *> (x_pass + x_max - 1)->mark  = a_mark;                                          <* 
-    *> /+---(complete)-----------------------+/                                       <* 
-    *> return 0;                                                                      <*/
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   /*---(header)-------------------------*/
+   DEBUG_HIST   yLOG_enter   (__FUNCTION__);
+   /*---(defenses)-----------------------*/
+   DEBUG_HIST   yLOG_char    ("a_mark"    , a_mark);
+   --rce;  if (strchr (S_HIST_LIST, a_mark) == NULL) {
+      DEBUG_HIST   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_HIST   yLOG_point   ("*s_curr"   , *s_curr);
+   --rce;  if (*s_curr == NULL) {
+      DEBUG_HIST   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(make sure not used)-------------*/
+   yvikeys_hist__unmark (a_mark);
+   /*---(mark current)-------------------*/
+   (*s_curr)->mark = a_mark;
+   /*---(complete)-----------------------*/
+   DEBUG_HIST   yLOG_exit    (__FUNCTION__);
+   return 0;
 }
 
 char
-HISTORY__return      (char a_mode, char a_mark)
+yvikeys_hist_text       (char a_mode, char *a_text)
 {
-   /*> /+---(locals)-----------+-----+-----+-+/                                       <* 
-    *> tHIST      *x_pass      = NULL;                                                <* 
-    *> int         i           =    0;                                                <* 
-    *> int         n           =   -1;                                                <* 
-    *> int         x_max       =    0;                                                <* 
-    *> /+---(set limits)---------------------+/                                       <* 
-    *> switch (a_mode) {                                                              <* 
-    *> case MODE_COMMAND :  x_pass = &s_runs;   x_max = s_nrun;  break;               <* 
-    *> case MODE_SEARCH  :  x_pass = &s_passes; x_max = s_npass; break;               <* 
-    *> }                                                                              <* 
-    *> /+---(clear old mark)-----------------+/                                       <* 
-    *> for (i = 0; i < x_max; ++i) {                                                  <* 
-    *>    if ((x_pass + i)->mark != a_mark)  continue;                                <* 
-    *>    n = i;                                                                      <* 
-    *>    break;                                                                      <* 
-    *> }                                                                              <* 
-    *> if (n < 0)  return -1;                                                         <* 
-    *> /+---(set global)---------------------+/                                       <* 
-    *> yvikeys_hist__roll (a_mode, n);                                                     <* 
-    *> /+---(complete)-----------------------+/                                       <* 
-    *> return 0;                                                                      <*/
-}
-
-int
-HISTORY__find         (char a_mode, char *a_text)
-{
-   /*> /+---(locals)-----------+-----+-----+-+/                                       <* 
-    *> tHIST      *x_pass      = NULL;                                                <* 
-    *> int         i           =    0;                                                <* 
-    *> int         n           =   -1;                                                <* 
-    *> int         x_max       =    0;                                                <* 
-    *> /+---(set limits)---------------------+/                                       <* 
-    *> switch (a_mode) {                                                              <* 
-    *> case MODE_COMMAND :  x_pass = &s_runs;   x_max = s_nrun;  break;               <* 
-    *> case MODE_SEARCH  :  x_pass = &s_passes; x_max = s_npass; break;               <* 
-    *> }                                                                              <* 
-    *> /+---(look for duplicate)-------------+/                                       <* 
-    *> for (i = 0; i < x_max; ++i) {                                                  <* 
-    *>    if ((x_pass + i)->text [0] != a_text [0])      continue;                    <* 
-    *>    if ((x_pass + i)->text [1] != a_text [1])      continue;                    <* 
-    *>    if ((x_pass + i)->text [2] != a_text [2])      continue;                    <* 
-    *>    if (strcmp ((x_pass + i)->text, a_text) != 0)  continue;                    <* 
-    *>    n = i;                                                                      <* 
-    *>    break;                                                                      <* 
-    *> }                                                                              <* 
-    *> /+---(set global)---------------------+/                                       <* 
-    *> if (n >= 0)  {                                                                 <* 
-    *>    yvikeys_hist__roll (a_mode, n);                                                  <* 
-    *> } else {                                                                       <* 
-    *>    strlcpy ((x_pass + x_max)->text, a_text, LEN_RECD);                         <* 
-    *>    switch (a_mode) {                                                           <* 
-    *>    case MODE_COMMAND :  x_max = ++s_nrun;  break;                              <* 
-    *>    case MODE_SEARCH  :  x_max = ++s_npass; break;                              <* 
-    *>    }                                                                           <* 
-    *> }                                                                              <* 
-    *> /+---(complete)-----------------------+/                                       <* 
-    *> return x_max;                                                                  <*/
+   if (a_text == NULL) {
+      strlcpy (s_current, "" , LEN_RECD);
+      s_len  = 0;
+      return -1;
+   }
+   strlcpy  (s_current, a_text, LEN_RECD);
+   strldchg (s_current, G_KEY_SPACE, G_CHAR_STORAGE, LEN_RECD);
+   s_len  = strllen (s_current, LEN_RECD);
+   return 0;
 }
 
 char
-HISTORY__load           (char a_mode, char *a_text)
+yvikeys_hist_exec       (char a_mode)
 {
-   /*> if (a_text == NULL) {                                                          <* 
-    *>    strlcpy (s_current, "" , LEN_RECD);                                         <* 
-    *>    s_len  = 0;                                                                 <* 
-    *>    return -1;                                                                  <* 
-    *> }                                                                              <* 
-    *> strlcpy  (s_current, a_text, LEN_RECD);                                        <* 
-    *> strldchg (s_current, G_KEY_SPACE, G_CHAR_STORAGE, LEN_RECD);                   <* 
-    *> s_len  = strllen (s_current, LEN_RECD);                                        <* 
-    *> return 0;                                                                      <*/
-}
-
-char
-HISTORY__exec           (char a_mode)
-{
-   /*> /+---(locals)-----------+-----+-----+-+/                                       <* 
-    *> char        rce         =  -10;                                                <* 
-    *> int         rc          =    0;                                                <* 
-    *> tHIST      *x_pass      = NULL;                                                <* 
-    *> int         i           =    0;                                                <* 
-    *> int         n           =   -1;                                                <* 
-    *> int         x_max       =    0;                                                <* 
-    *> char        x_clear     [LEN_LABEL];                                           <* 
-    *> char        x_repeat    [LEN_LABEL];                                           <* 
-    *> char        t           [LEN_RECD];                                            <* 
-    *> /+---(header)-------------------------+/                                       <* 
-    *> DEBUG_HIST   yLOG_enter   (__FUNCTION__);                                      <* 
-    *> DEBUG_HIST   yLOG_char    ("a_mode"    , a_mode);                              <* 
-    *> DEBUG_HIST   yLOG_value   ("s_len"     , s_len);                               <* 
-    *> DEBUG_HIST   yLOG_info    ("s_current" , s_current);                           <* 
-    *> /+---(defense)------------------------+/                                       <* 
-    *> --rce;  if (!STATUS_operational (a_mode)) {                                    <* 
-    *>    DEBUG_HIST   yLOG_note    ("can not execute until operational");            <* 
-    *>    DEBUG_HIST   yLOG_exitr   (__FUNCTION__, rce);                              <* 
-    *>    return rce;                                                                 <* 
-    *> }                                                                              <* 
-    *> /+---(set limits)---------------------+/                                       <* 
-    *> switch (a_mode) {                                                              <* 
-    *> case MODE_COMMAND :                                                            <* 
-    *>    x_pass   = &s_runs;                                                         <* 
-    *>    x_max    = s_nrun;                                                          <* 
-    *>    break;                                                                      <* 
-    *> case MODE_SEARCH  :                                                            <* 
-    *>    x_pass   = &s_passes;                                                       <* 
-    *>    x_max    = s_npass;                                                         <* 
-    *>    break;                                                                      <* 
-    *> }                                                                              <* 
-    *> DEBUG_HIST   yLOG_value   ("x_max"     , x_max);                               <* 
-    *> sprintf (x_clear  , "%c"       , a_mode);                                      <* 
-    *> DEBUG_HIST   yLOG_info    ("x_clear"   , x_clear);                             <* 
-    *> sprintf (x_repeat , "%c%c"     , a_mode, a_mode);                              <* 
-    *> DEBUG_HIST   yLOG_info    ("x_repeat"  , x_repeat);                            <* 
-    *> /+---(unmark, no clear)---------------+/                                       <* 
-    *> if (s_len == 2 && s_current [0] == 'u') {                                      <* 
-    *>    DEBUG_HIST   yLOG_char    ("unmarking" , s_current [1]);                    <* 
-    *>    HISTORY__unmark (a_mode, s_current [1]);                                    <* 
-    *>    DEBUG_HIST   yLOG_exit    (__FUNCTION__);                                   <* 
-    *>    return 0;                                                                   <* 
-    *> }                                                                              <* 
-    *> /+---(mark, no clear)-----------------+/                                       <* 
-    *> if (s_len == 2 && s_current [0] == 'm') {                                      <* 
-    *>    DEBUG_HIST   yLOG_char    ("marking"   , s_current [1]);                    <* 
-    *>    HISTORY__mark (a_mode, s_current [1]);                                      <* 
-    *>    DEBUG_HIST   yLOG_exit    (__FUNCTION__);                                   <* 
-    *>    return 0;                                                                   <* 
-    *> }                                                                              <* 
-    *> /+---(clear results)------------------+/                                       <* 
-    *> if (a_mode == MODE_SEARCH)  yvikeys_srch__purge  ();                           <* 
-    *> if (s_len <= 0) {                                                              <* 
-    *>    DEBUG_HIST   yLOG_note    ("empty content string, leaving");                <* 
-    *>    DEBUG_HIST   yLOG_exit    (__FUNCTION__);                                   <* 
-    *>    return 0;                                                                   <* 
-    *> }                                                                              <* 
-    *> if (s_len == 1 && strcmp (s_current, x_clear) == 0) {                          <* 
-    *>    DEBUG_HIST   yLOG_note    ("request to clear");                             <* 
-    *>    DEBUG_HIST   yLOG_exit    (__FUNCTION__);                                   <* 
-    *>    return 0;                                                                   <* 
-    *> }                                                                              <* 
-    *> /+---(repeat last)--------------------+/                                       <* 
-    *> else if (s_len == 2 && strcmp (s_current, x_repeat) == 0) {                    <* 
-    *>    DEBUG_HIST   yLOG_note    ("request to repeat last");                       <* 
-    *>    if (x_max == 0) return -1;                                                  <* 
-    *>    n = x_max - 1;                                                              <* 
-    *>    yvikeys_hist__roll (a_mode, n);                                                  <* 
-    *> }                                                                              <* 
-    *> /+---(repeat complex)-----------------+/                                       <* 
-   *> else if (s_len > 2 && strncmp (s_current, x_repeat, 2) == 0) {                 <* 
-      *>    /+---(repeat marked)---------------+/                                       <* 
-         *>    if (s_len == 3 && strchr (S_HIST_LIST, s_current [2]) != NULL) {            <* 
-            *>       DEBUG_HIST   yLOG_note    ("request to repeat a marked one");            <* 
-               *>       rc = HISTORY__return (a_mode, s_current [2]);                            <* 
-               *>       if (rc < 0)  return rc;                                                  <* 
-               *>    }                                                                           <* 
-               *>    /+---(repeat by reference)---------+/                                       <* 
-               *>    else {                                                                      <* 
-                  *>       DEBUG_HIST   yLOG_note    ("request to repeat a previous one");          <* 
-                     *>       n = x_max - atoi (s_current + 2) - 1;                                    <* 
-                     *>       DEBUG_HIST   yLOG_value   ("n"         , n);                             <* 
-                     *>       if (n < 0) n = 0;                                                        <* 
-                     *>       yvikeys_hist__roll (a_mode, n);                                               <* 
-                     *>    }                                                                           <* 
-                     *> }                                                                              <* 
-                     *> /+---(normal)-------------------------+/                                       <* 
-                     *> else {                                                                         <* 
-                        *>    DEBUG_HIST   yLOG_note    ("typed request");                                <* 
-                           *>    x_max = HISTORY__find (a_mode, s_current);                                  <* 
-                           *> }                                                                              <* 
-                           *> /+---(make current)-------------------+/                                       <* 
-                           *> strlcpy (s_current, (x_pass + x_max - 1)->text, LEN_RECD);                     <* 
-                           *> s_len = strllen (s_current, LEN_RECD);                                         <* 
-                           *> (x_pass + x_max - 1)->found = 0;                                               <* 
-                           *> ++(x_pass + x_max - 1)->count;                                                 <* 
-                           *> DEBUG_HIST   yLOG_value   ("s_len"     , s_len);                               <* 
-                           *> DEBUG_HIST   yLOG_info    ("s_current" , s_current);                           <* 
-                           *> /+---(execute)------------------------+/                                       <* 
-                           *> strldchg (s_current, G_CHAR_STORAGE, G_KEY_SPACE, LEN_RECD);                   <* 
-                           *> switch (a_mode) {                                                              <* 
-                              *> case MODE_COMMAND :                                                            <* 
-                                 *>    DEBUG_HIST   yLOG_note    ("execute as command");                           <* 
-                                 *>    rc = yvikeys_cmds_exec ();                                                  <* 
-                                 *>    (x_pass + x_max - 1)->found = rc;                                           <* 
-                                 *>    break;                                                                      <* 
-                                 *> case MODE_SEARCH  :                                                            <* 
-                                 *>    DEBUG_HIST   yLOG_note    ("execute as search");                            <* 
-                                 *>    rc = s_searcher (s_current);                                                <* 
-                                 *>    break;                                                                      <* 
-                                 *> }                                                                              <* 
-                                 *> /+---(complete)-----------------------+/                                       <* 
-                                 *> DEBUG_HIST   yLOG_exit    (__FUNCTION__);                                      <* 
-                                 *> return rc;                                                                     <*/
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   char        x_rc        =    0;
+   uchar       x_mark      =  '-';
+   tHIST      *x_pass      = NULL;
+   int         i           =    0;
+   int         n           =   -1;
+   int         x_max       =    0;
+   char        x_clear     [LEN_LABEL];
+   char        x_repeat    [LEN_LABEL];
+   char        t           [LEN_RECD];
+   /*---(header)-------------------------*/
+   DEBUG_HIST   yLOG_enter   (__FUNCTION__);
+   DEBUG_HIST   yLOG_char    ("a_mode"    , a_mode);
+   DEBUG_HIST   yLOG_value   ("s_len"     , s_len);
+   DEBUG_HIST   yLOG_info    ("s_current" , s_current);
+   /*---(defense)------------------------*/
+   --rce;  if (!STATUS_operational (a_mode)) {
+      DEBUG_HIST   yLOG_note    ("can not execute until operational");
+      DEBUG_HIST   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(set limits)---------------------*/
+   rc = yvikeys_hist__switcher (a_mode, '-');
+   DEBUG_HIST   yLOG_value   ("*s_count"  , *s_count);
+   /*---(special sequences)--------------*/
+   sprintf (x_clear  , "%c"       , a_mode);
+   DEBUG_HIST   yLOG_info    ("x_clear"   , x_clear);
+   sprintf (x_repeat , "%c%c"     , a_mode, a_mode);
+   DEBUG_HIST   yLOG_info    ("x_repeat"  , x_repeat);
+   /*---(unmark, no clear)---------------*/
+   if (s_len == 2 && s_current [0] == 'u') {
+      x_mark = s_current [1];
+      DEBUG_HIST   yLOG_char    ("unmarking" , x_mark);
+      yvikeys_hist__unmark (x_mark);
+      DEBUG_HIST   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
+   /*---(mark, no clear)-----------------*/
+   if (s_len == 2 && s_current [0] == 'm') {
+      x_mark = s_current [1];
+      DEBUG_HIST   yLOG_char    ("mark"      , x_mark);
+      yvikeys_hist__cursor (']');
+      yvikeys_hist__mark (x_mark);
+      DEBUG_HIST   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
+   /*---(clear results)------------------*/
+   /*> if (a_mode == MODE_SEARCH)  yvikeys_srch__purge  ();                           <*/
+   if (s_len <= 0) {
+      DEBUG_HIST   yLOG_note    ("empty content string, leaving");
+      DEBUG_HIST   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
+   if (s_len == 1 && strcmp (s_current, x_clear) == 0) {
+      DEBUG_HIST   yLOG_note    ("request to clear");
+      DEBUG_HIST   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
+   /*---(repeat last)--------------------*/
+   if (s_len == 2 && strcmp (s_current, x_repeat) == 0) {
+      DEBUG_HIST   yLOG_note    ("request to repeat last");
+      yvikeys_hist__cursor (']');
+   }
+   /*---(repeat complex)-----------------*/
+   else if (s_len == 3 && strncmp (s_current, x_repeat, 2) == 0) {
+      x_mark = s_current [2];
+      DEBUG_HIST   yLOG_char    ("x_mark"    , x_mark);
+      /*---(repeat marked)---------------*/
+      if (strchr (S_HIST_LIST, x_mark) != NULL) {
+         DEBUG_HIST   yLOG_note    ("request to repeat a marked one");
+         rc = yvikeys_hist__marked (x_mark);
+         DEBUG_HIST   yLOG_value   ("marked"    , rc);
+         if (rc < 0) {
+            DEBUG_HIST   yLOG_exitr   (__FUNCTION__, rce);
+            return rce;
+         }
+         yvikeys_hist__roll ();
+      }
+      /*---(repeat by reference)---------*/
+      else {
+         DEBUG_HIST   yLOG_note    ("request to repeat a previous one");
+         yvikeys_hist__cursor (']');
+         n = atoi (s_current + 2);
+         DEBUG_HIST   yLOG_value   ("n"         , n);
+         for (i = 0; i < n; ++i)   yvikeys_hist__cursor ('<');
+         yvikeys_hist__roll ();
+      }
+   }
+   /*---(normal)-------------------------*/
+   else {
+      DEBUG_HIST   yLOG_note    ("typed request");
+      rc = yvikeys_hist__find (s_current);
+      if (rc < 0) {
+         rc = yvikeys_hist__new (a_mode, s_current);
+         if (rc < 0) {
+            DEBUG_HIST   yLOG_exitr   (__FUNCTION__, rce);
+            return rce;
+         }
+      } else {
+         yvikeys_hist__roll ();
+      }
+   }
+   /*---(make current)-------------------*/
+   strlcpy (s_current, (*s_curr)->text, LEN_RECD);
+   s_len = strllen (s_current, LEN_RECD);
+   (*s_curr)->found  = 0;
+   ++(*s_curr)->count;
+   if ((*s_curr)->count > 200)  (*s_curr)->count = 200;
+   DEBUG_HIST   yLOG_value   ("s_len"     , s_len);
+   DEBUG_HIST   yLOG_info    ("s_current" , s_current);
+   /*---(execute)------------------------*/
+   strldchg (s_current, G_CHAR_STORAGE, G_KEY_SPACE, LEN_RECD);
+   switch (a_mode) {
+   case MODE_COMMAND :
+      DEBUG_HIST   yLOG_note    ("execute as command");
+      rc = yvikeys_cmds_exec (s_current, &x_rc);
+      (*s_curr)->ran    = rc;
+      (*s_curr)->found  = x_rc;
+      break;
+   case MODE_SEARCH  :
+      DEBUG_HIST   yLOG_note    ("execute as search");
+      rc = s_searcher (s_current);
+      break;
+   }
+   /*---(complete)-----------------------*/
+   DEBUG_HIST   yLOG_exit    (__FUNCTION__);
+   return rc;
 }
 
 char*        /*-> tbd --------------------------------[ leaf   [gs.520.202.40]*/ /*-[01.0000.00#.#]-*/ /*-[--.---.---.--]-*/
@@ -1321,8 +1397,8 @@ yvikeys_hist__unit      (char *a_question, int n)
    else if (strcmp (a_question, "current"        ) == 0) {
       if    (*s_head == s_hrun) strlcpy (t, "c", LEN_LABEL);
       else                      strlcpy (t, "s", LEN_LABEL);
-      if (*s_curr == NULL)  snprintf (yVIKEYS__unit_answer, LEN_FULL, "HIST curr %s (--) :  -:-                      -   -", t);
-      else                  snprintf (yVIKEYS__unit_answer, LEN_FULL, "HIST curr %s (%2d) : %2d:%-20.20s %3d %3d", t, *s_index, strlen ((*s_curr)->text), (*s_curr)->text, (*s_curr)->count, (*s_curr)->found);
+      if (*s_curr == NULL)  snprintf (yVIKEYS__unit_answer, LEN_FULL, "HIST curr %s (--) :  -  -                      -    -    -    -", t);
+      else                  snprintf (yVIKEYS__unit_answer, LEN_FULL, "HIST curr %s (%2d) : %2d  %-20.20s %3dc %3dr %3df   %c", t, *s_index, strlen ((*s_curr)->text), (*s_curr)->text, (*s_curr)->count, (*s_curr)->found, (*s_curr)->mark);
    }
    else if (strcmp (a_question, "command"        )   == 0 || strcmp (a_question, "search"         )   == 0) {
       if (a_question [0] == 'c') {
@@ -1346,10 +1422,10 @@ yvikeys_hist__unit      (char *a_question, int n)
       }
       /*> printf ("checking...%p\n", x_curr);                                         <*/
       DEBUG_HIST   yLOG_point   ("found"     , x_curr);
-      if (x_curr == NULL)  snprintf (yVIKEYS__unit_answer, LEN_FULL, "HIST %-4.4s   (%2d) :  0:-                      0   0", t, n);
+      if (x_curr == NULL)  snprintf (yVIKEYS__unit_answer, LEN_FULL, "HIST %-4.4s   (%2d) :  -  -                      -    -    -    -", t, n);
       else {
-         snprintf (yVIKEYS__unit_answer, LEN_FULL, "HIST %-4.4s   (%2d) : %2d:%-20.20s %3d %3d",
-               t, n, strlen (x_curr->text), x_curr->text, x_curr->count, x_curr->found);
+         snprintf (yVIKEYS__unit_answer, LEN_FULL, "HIST %-4.4s   (%2d) : %2d  %-20.20s %3dc %3dr %3df   %c",
+               t, n, strlen (x_curr->text), x_curr->text, x_curr->count, x_curr->ran, x_curr->found, x_curr->mark);
       }
    }
    /*---(complete)-----------------------*/

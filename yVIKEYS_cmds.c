@@ -119,10 +119,10 @@ static const uchar  *s_valid     = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQR
 #define  MAX_CMDS      1000
 typedef  struct cCMDS   tCMDS;
 struct  cCMDS {
-   char        base;
-   char        menu;                        /* category                       */
-   char        name        [LEN_LABEL];     /* full command name              */
-   char        abbr        [LEN_TERSE];     /* abbreviation of name           */
+   uchar       base;
+   uchar       menu;                        /* category                       */
+   uchar       name        [LEN_LABEL];     /* full command name              */
+   uchar       abbr        [LEN_TERSE];     /* abbreviation of name           */
    union {
       char        (*v   ) (void);           /* function pointer               */
       char        (*c   ) (char);           /* function pointer               */
@@ -137,79 +137,79 @@ struct  cCMDS {
       char        (*si  ) (char*, int  );   /* function pointer               */
       char        (*sii ) (char*, int, int);  /* function pointer               */
    } f;
-   char        terms       [LEN_TERSE];     /* type of terms/args             */
-   char        desc        [LEN_DESC];      /* descriptive label              */
+   uchar       terms       [LEN_TERSE];     /* type of terms/args             */
+   uchar       desc        [LEN_DESC];      /* descriptive label              */
 };
 static const tCMDS  s_base      [] = {
-   { CMDS_BASE, 'f', "quit"            , "q"   , yvikeys_cmds__quit        , ""    , "quit current file (if no changes), exit if the only file"    },
-   { CMDS_BASE, 'f', "quitall"         , "qa"  , yvikeys_cmds__quit        , ""    , "quit all files (if no changes), and exit"                    },
-   { CMDS_BASE, 'f', "writequit"       , "wq"  , yvikeys_cmds__writequit   , ""    , ""                                                            },
-   { CMDS_BASE, 'f', "writequitall"    , "wqa" , yvikeys_cmds__writequit   , ""    , ""                                                            },
-   { CMDS_BASE, 'e', "dump"            , ""    , yvikeys_dump_exec         , "s"   , "dump a specified data table to the clipboard in flat text"   },
-   { CMDS_BASE, 'c', "menu"            , ""    , yvikeys_menu_reanchor     , "i"   , "change the menu anchoring"                                   },
-   { CMDS_BASE, 'f', "cd"              , ""    , yvikeys_file_loc          , "a"   , "set the default directory for file reading and writing"      },
-   { CMDS_BASE, 'f', "file"            , ""    , yvikeys_file_name         , "a"   , "rename a file for reading and writing"                       },
-   { CMDS_BASE, 'f', "browse"          , ""    , yvikeys_file_browse       , "a"   , "find existing file name for reading and writing"             },
-   { CMDS_BASE, 'f', "control"         , ""    , yvikeys_vers_control      , ""    , "turn version control ON for current file"                    },
-   { CMDS_BASE, 'f', "nocontrol"       , ""    , yvikeys_vers_nocontrol    , ""    , "turn version control OFF for current file"                   },
-   { CMDS_BASE, 'f', "vernum"          , ""    , yvikeys_vers_version      , "s"   , "set a specific file version ([0-9A-Z].[0-9A-Z][a-z])"        },
-   { CMDS_BASE, 'f', "vertxt"          , ""    , yvikeys_vers_vertxt       , "a"   , "set a file version description"                              },
-   { CMDS_BASE, 'f', "major"           , ""    , yvikeys_vers_bump_major   , ""    , "increment the version number by a MAJOR version"             },
-   { CMDS_BASE, 'f', "minor"           , ""    , yvikeys_vers_bump_minor   , ""    , "increment the version number by a MINOR version"             },
-   { CMDS_BASE, 'f', "bump"            , ""    , yvikeys_vers_bump_inc     , ""    , "increment the version number by a INC version"               },
-   { CMDS_BASE, 'f', "write"           , "w"   , yvikeys_file_writer       , ""    , "write/update the current file"                               },
-   { CMDS_BASE, 'f', "writeas"         , "was" , yvikeys_file_writeas      , "s"   , "write/update the current file"                               },
-   { CMDS_BASE, 'f', "read"            , ""    , yvikeys_file_reader       , ""    , "clear existing contents and open/read new file"              },
-   { CMDS_BASE, 'f', "edit"            , "e"   , yvikeys_file_reader       , ""    , "clear existing contents and open/read new file"              },
-   { CMDS_BASE, 'c', "delay"           , ""    , yvikeys_loop_set          , "ss"  , "adjust the main loop wait and screen update timings"         },
-   { CMDS_BASE, 'c', "p_scale"         , ""    , yvikeys_scale_prog        , "s"   , "adjust the progress scale"                                   },
-   { CMDS_BASE, 'c', "p_speed"         , ""    , yvikeys_speed_prog        , "s"   , "adjust the progress speed"                                   },
-   { CMDS_BASE, 'e', "mark"            , ""    , yvikeys_mark_direct       , "s"   , ""                                                            },
-   { CMDS_BASE, 'r', "macro"           , ""    , yvikeys_macro__direct     , "a"   , "direct definition of a keyboard macro"                       },
-   { CMDS_BASE, 'r', "edelay"          , ""    , yvikeys_macro_edelay      , "c"   , ""                                                            },
-   { CMDS_BASE, 'r', "eupdate"         , ""    , yvikeys_macro_eupdate     , "c"   , ""                                                            },
-   { CMDS_BASE, 'r', "ddelay"          , ""    , yvikeys_macro_ddelay      , "c"   , ""                                                            },
-   { CMDS_BASE, 'r', "dupdate"         , ""    , yvikeys_macro_dupdate     , "c"   , ""                                                            },
-   { CMDS_BASE, 'r', "flatten"         , ""    , yvikeys_macro_flatten     , "cc"  , ""                                                            },
-   { CMDS_BASE, 'r', "install"         , ""    , yvikeys_macro_install     , "c"   , ""                                                            },
-   { CMDS_BASE, 'v', "help"            , ""    , yvikeys_help              , "c"   , ""                                                            },
-   { CMDS_BASE, 'c', "sreg"            , ""    , yvikeys_sreg__direct      , "a"   , "direct definition of source registers"                       },
-   { CMDS_BASE, 'v', "palette"         , ""    , yCOLOR_palette            , "isss", ""                                                            },
-   { CMDS_BASE, 'v', "wheel"           , ""    , yCOLOR_wheel              , "s"   , ""                                                            },
-   { CMDS_BASE, 'v', "degree"          , "deg" , yCOLOR_deg                , "i"   , ""                                                            },
-   { CMDS_BASE, 'v', "harmony"         , "har" , yCOLOR_harm               , "s"   , ""                                                            },
-   { CMDS_BASE, 'v', "value"           , "val" , yCOLOR_val                , "s"   , ""                                                            },
-   { CMDS_BASE, 'v', "saturation"      , "sat" , yCOLOR_sat                , "s"   , ""                                                            },
-   { CMDS_BASE, 'v', "title"           , ""    , VIEW__switch              , "Cs"  , "allow control of individual sceen elements"                  },
-   { CMDS_BASE, 'v', "version"         , ""    , VIEW__switch              , "Cs"  , "allow control of individual sceen elements"                  },
-   { CMDS_BASE, 'v', "buffer"          , ""    , VIEW__switch              , "Cs"  , "allow control of individual sceen elements"                  },
-   { CMDS_BASE, 'v', "formula"         , ""    , VIEW__switch              , "Cs"  , "allow control of individual sceen elements"                  },
-   { CMDS_BASE, 'v', "nav"             , ""    , VIEW__switch              , "Cs"  , "allow control of individual sceen elements"                  },
-   { CMDS_BASE, 'v', "xaxis"           , ""    , VIEW__switch              , "Cs"  , "allow control of individual sceen elements"                  },
-   { CMDS_BASE, 'v', "yaxis"           , ""    , VIEW__switch              , "Cs"  , "allow control of individual sceen elements"                  },
-   { CMDS_BASE, 'v', "alt"             , ""    , VIEW__switch              , "Cs"  , "allow control of individual sceen elements"                  },
-   { CMDS_BASE, 'v', "details"         , ""    , VIEW__switch              , "Cs"  , "allow control of individual sceen elements"                  },
-   { CMDS_BASE, 'v', "ribbon"          , ""    , VIEW__switch              , "Cs"  , "allow control of individual sceen elements"                  },
-   { CMDS_BASE, 'v', "progress"        , ""    , VIEW__switch              , "Cs"  , "allow control of individual sceen elements"                  },
-   { CMDS_BASE, 'v', "modes"           , ""    , VIEW__switch              , "Cs"  , "allow control of individual sceen elements"                  },
-   { CMDS_BASE, 'v', "status"          , ""    , VIEW__switch              , "Cs"  , "allow control of individual sceen elements"                  },
-   { CMDS_BASE, 'v', "command"         , ""    , VIEW__switch              , "Cs"  , "allow control of individual sceen elements"                  },
-   { CMDS_BASE, 'v', "keys"            , ""    , VIEW__switch              , "Cs"  , "allow control of individual sceen elements"                  },
-   { CMDS_BASE, 'v', "cursor"          , ""    , VIEW__switch              , "Cs"  , "allow control of individual sceen elements"                  },
-   { CMDS_BASE, 'v', "grid"            , ""    , VIEW__switch              , "Cs"  , "allow control of individual sceen elements"                  },
-   { CMDS_BASE, 'v', "edges"           , ""    , VIEW__switch              , "Cs"  , "allow control of individual sceen elements"                  },
-   { CMDS_BASE, 'v', "guides"          , ""    , VIEW__switch              , "Cs"  , "allow control of individual sceen elements"                  },
-   { CMDS_BASE, 'v', "overlay"         , ""    , VIEW__switch              , "Cs"  , "allow control of individual sceen elements"                  },
-   { CMDS_BASE, 'v', "layers"          , ""    , VIEW__switch              , "Cs"  , "allow control of individual sceen elements"                  },
-   { CMDS_BASE, 'v', "notes"           , ""    , VIEW__switch              , "Cs"  , "allow control of individual sceen elements"                  },
-   { CMDS_BASE, 'v', "color"           , ""    , VIEW__switch              , "Cs"  , "allow control of individual sceen elements"                  },
-   { CMDS_BASE, 'v', "back"            , ""    , VIEW__switch              , "Cs"  , "allow control of individual sceen elements"                  },
-   { CMDS_BASE, 'v', "menu"            , ""    , VIEW__switch              , "Cs"  , "allow control of individual sceen elements"                  },
-   { CMDS_BASE, 'v', "history"         , ""    , VIEW__switch              , "Cs"  , "allow control of individual sceen elements"                  },
-   { CMDS_BASE, 'v', "gridoff"         , ""    , VIEW__grid_offset         , "iii" , ""                                                            },
-   { CMDS_BASE, 'v', "gridsize"        , ""    , VIEW__grid_size           , "iii" , ""                                                            },
-   { CMDS_BASE, 'v', "layout"          , ""    , VIEW__layout              , "s"   , ""                                                            },
-   { CMDS_BASE, 'v', "layer"           , ""    , VIEW__layer_set           , "s"   , ""                                                            },
+   { 'b', 'f', "quit"            , "q"   , yvikeys_cmds__quit        , ""    , "quit current file (if no changes), exit if the only file"    },
+   { 'b', 'f', "quitall"         , "qa"  , yvikeys_cmds__quit        , ""    , "quit all files (if no changes), and exit"                    },
+   { 'b', 'f', "writequit"       , "wq"  , yvikeys_cmds__writequit   , ""    , ""                                                            },
+   { 'b', 'f', "writequitall"    , "wqa" , yvikeys_cmds__writequit   , ""    , ""                                                            },
+   { 'b', 'e', "dump"            , ""    , yvikeys_dump_exec         , "s"   , "dump a specified data table to the clipboard in flat text"   },
+   { 'b', 'c', "menu"            , ""    , yvikeys_menu_reanchor     , "i"   , "change the menu anchoring"                                   },
+   { 'b', 'f', "cd"              , ""    , yvikeys_file_loc          , "a"   , "set the default directory for file reading and writing"      },
+   { 'b', 'f', "file"            , ""    , yvikeys_file_name         , "a"   , "rename a file for reading and writing"                       },
+   { 'b', 'f', "browse"          , ""    , yvikeys_file_browse       , "a"   , "find existing file name for reading and writing"             },
+   { 'b', 'f', "control"         , ""    , yvikeys_vers_control      , ""    , "turn version control ON for current file"                    },
+   { 'b', 'f', "nocontrol"       , ""    , yvikeys_vers_nocontrol    , ""    , "turn version control OFF for current file"                   },
+   { 'b', 'f', "vernum"          , ""    , yvikeys_vers_version      , "s"   , "set a specific file version ([0-9A-Z].[0-9A-Z][a-z])"        },
+   { 'b', 'f', "vertxt"          , ""    , yvikeys_vers_vertxt       , "a"   , "set a file version description"                              },
+   { 'b', 'f', "major"           , ""    , yvikeys_vers_bump_major   , ""    , "increment the version number by a MAJOR version"             },
+   { 'b', 'f', "minor"           , ""    , yvikeys_vers_bump_minor   , ""    , "increment the version number by a MINOR version"             },
+   { 'b', 'f', "bump"            , ""    , yvikeys_vers_bump_inc     , ""    , "increment the version number by a INC version"               },
+   { 'b', 'f', "write"           , "w"   , yvikeys_file_writer       , ""    , "write/update the current file"                               },
+   { 'b', 'f', "writeas"         , "was" , yvikeys_file_writeas      , "s"   , "write/update the current file"                               },
+   { 'b', 'f', "read"            , ""    , yvikeys_file_reader       , ""    , "clear existing contents and open/read new file"              },
+   { 'b', 'f', "edit"            , "e"   , yvikeys_file_reader       , ""    , "clear existing contents and open/read new file"              },
+   { 'b', 'c', "delay"           , ""    , yvikeys_loop_set          , "ss"  , "adjust the main loop wait and screen update timings"         },
+   { 'b', 'c', "p_scale"         , ""    , yvikeys_scale_prog        , "s"   , "adjust the progress scale"                                   },
+   { 'b', 'c', "p_speed"         , ""    , yvikeys_speed_prog        , "s"   , "adjust the progress speed"                                   },
+   { 'b', 'e', "mark"            , ""    , yvikeys_mark_direct       , "s"   , ""                                                            },
+   { 'b', 'r', "macro"           , ""    , yvikeys_macro__direct     , "a"   , "direct definition of a keyboard macro"                       },
+   { 'b', 'r', "edelay"          , ""    , yvikeys_macro_edelay      , "c"   , ""                                                            },
+   { 'b', 'r', "eupdate"         , ""    , yvikeys_macro_eupdate     , "c"   , ""                                                            },
+   { 'b', 'r', "ddelay"          , ""    , yvikeys_macro_ddelay      , "c"   , ""                                                            },
+   { 'b', 'r', "dupdate"         , ""    , yvikeys_macro_dupdate     , "c"   , ""                                                            },
+   { 'b', 'r', "flatten"         , ""    , yvikeys_macro_flatten     , "cc"  , ""                                                            },
+   { 'b', 'r', "install"         , ""    , yvikeys_macro_install     , "c"   , ""                                                            },
+   { 'b', 'v', "help"            , ""    , yvikeys_help              , "c"   , ""                                                            },
+   { 'b', 'c', "sreg"            , ""    , yvikeys_sreg__direct      , "a"   , "direct definition of source registers"                       },
+   { 'b', 'v', "palette"         , ""    , yCOLOR_palette            , "isss", ""                                                            },
+   { 'b', 'v', "wheel"           , ""    , yCOLOR_wheel              , "s"   , ""                                                            },
+   { 'b', 'v', "degree"          , "deg" , yCOLOR_deg                , "i"   , ""                                                            },
+   { 'b', 'v', "harmony"         , "har" , yCOLOR_harm               , "s"   , ""                                                            },
+   { 'b', 'v', "value"           , "val" , yCOLOR_val                , "s"   , ""                                                            },
+   { 'b', 'v', "saturation"      , "sat" , yCOLOR_sat                , "s"   , ""                                                            },
+   { 'b', 'v', "title"           , ""    , VIEW__switch              , "Cs"  , "allow control of individual sceen elements"                  },
+   { 'b', 'v', "version"         , ""    , VIEW__switch              , "Cs"  , "allow control of individual sceen elements"                  },
+   { 'b', 'v', "buffer"          , ""    , VIEW__switch              , "Cs"  , "allow control of individual sceen elements"                  },
+   { 'b', 'v', "formula"         , ""    , VIEW__switch              , "Cs"  , "allow control of individual sceen elements"                  },
+   { 'b', 'v', "nav"             , ""    , VIEW__switch              , "Cs"  , "allow control of individual sceen elements"                  },
+   { 'b', 'v', "xaxis"           , ""    , VIEW__switch              , "Cs"  , "allow control of individual sceen elements"                  },
+   { 'b', 'v', "yaxis"           , ""    , VIEW__switch              , "Cs"  , "allow control of individual sceen elements"                  },
+   { 'b', 'v', "alt"             , ""    , VIEW__switch              , "Cs"  , "allow control of individual sceen elements"                  },
+   { 'b', 'v', "details"         , ""    , VIEW__switch              , "Cs"  , "allow control of individual sceen elements"                  },
+   { 'b', 'v', "ribbon"          , ""    , VIEW__switch              , "Cs"  , "allow control of individual sceen elements"                  },
+   { 'b', 'v', "progress"        , ""    , VIEW__switch              , "Cs"  , "allow control of individual sceen elements"                  },
+   { 'b', 'v', "modes"           , ""    , VIEW__switch              , "Cs"  , "allow control of individual sceen elements"                  },
+   { 'b', 'v', "status"          , ""    , VIEW__switch              , "Cs"  , "allow control of individual sceen elements"                  },
+   { 'b', 'v', "command"         , ""    , VIEW__switch              , "Cs"  , "allow control of individual sceen elements"                  },
+   { 'b', 'v', "keys"            , ""    , VIEW__switch              , "Cs"  , "allow control of individual sceen elements"                  },
+   { 'b', 'v', "cursor"          , ""    , VIEW__switch              , "Cs"  , "allow control of individual sceen elements"                  },
+   { 'b', 'v', "grid"            , ""    , VIEW__switch              , "Cs"  , "allow control of individual sceen elements"                  },
+   { 'b', 'v', "edges"           , ""    , VIEW__switch              , "Cs"  , "allow control of individual sceen elements"                  },
+   { 'b', 'v', "guides"          , ""    , VIEW__switch              , "Cs"  , "allow control of individual sceen elements"                  },
+   { 'b', 'v', "overlay"         , ""    , VIEW__switch              , "Cs"  , "allow control of individual sceen elements"                  },
+   { 'b', 'v', "layers"          , ""    , VIEW__switch              , "Cs"  , "allow control of individual sceen elements"                  },
+   { 'b', 'v', "notes"           , ""    , VIEW__switch              , "Cs"  , "allow control of individual sceen elements"                  },
+   { 'b', 'v', "color"           , ""    , VIEW__switch              , "Cs"  , "allow control of individual sceen elements"                  },
+   { 'b', 'v', "back"            , ""    , VIEW__switch              , "Cs"  , "allow control of individual sceen elements"                  },
+   { 'b', 'v', "menu"            , ""    , VIEW__switch              , "Cs"  , "allow control of individual sceen elements"                  },
+   { 'b', 'v', "history"         , ""    , VIEW__switch              , "Cs"  , "allow control of individual sceen elements"                  },
+   { 'b', 'v', "gridoff"         , ""    , VIEW__grid_offset         , "iii" , ""                                                            },
+   { 'b', 'v', "gridsize"        , ""    , VIEW__grid_size           , "iii" , ""                                                            },
+   { 'b', 'v', "layout"          , ""    , VIEW__layout              , "s"   , ""                                                            },
+   { 'b', 'v', "layer"           , ""    , VIEW__layer_set           , "s"   , ""                                                            },
    { 0        , 0  , "-"               , ""    , NULL                      , ""    , ""                                                            },
 };
 
@@ -217,7 +217,7 @@ static const tCMDS  s_base      [] = {
 
 typedef  struct cLINK   tLINK;
 struct cLINK {
-   tCMDS   *data;
+   tCMDS      *data;     /* actual command                  */
    char        nlen;     /* length of name (speed searches) */
    char        alen;     /* length of name (speed searches) */
    char        nterms;   /* index to terms db (speed exec)  */
@@ -235,9 +235,6 @@ static short   s_nbase  = 0;                 /* base menu items in list       */
 static char    s_fields [10][LEN_RECD];
 static int     s_nfield =  0;
 static char    s_all    [LEN_RECD]       = "";
-/*---(current)-----------------*/
-static char    s_current   [LEN_RECD] = "";
-static int     s_len       = 0;
 /*---(done)---------------------------*/
 
 
@@ -271,7 +268,7 @@ char    (*s_clearer ) (int a_buf, int a_x, int a_y, int a_z);
 static void  o___C_SUPPORT_______o () { return; }
 
 char
-yvikeys_cmds__name      (uchar *a_name, char a_type)
+yvikeys_cmds__name      (uchar *a_name, char a_type, int *a_len)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -279,6 +276,8 @@ yvikeys_cmds__name      (uchar *a_name, char a_type)
    int         i           =    0;
    /*---(header)-------------------------*/
    DEBUG_CMDS   yLOG_senter  (__FUNCTION__);
+   /*---(prepare)------------------------*/
+   if (a_len != NULL)  *a_len = 0;
    /*---(defense)------------------------*/
    DEBUG_CMDS   yLOG_spoint  (a_name);
    --rce;  if (a_name == NULL) {
@@ -307,6 +306,8 @@ yvikeys_cmds__name      (uchar *a_name, char a_type)
       DEBUG_CMDS   yLOG_sexitr  (__FUNCTION__, rce);
       return rce;
    }
+   /*---(output)-------------------------*/
+   if (a_len != NULL)  *a_len = x_len;
    /*---(complete)-----------------------*/
    DEBUG_CMDS   yLOG_sexit   (__FUNCTION__);
    return 0;
@@ -563,7 +564,7 @@ yvikeys_cmds__load_name (char *a_name)
    /*---(header)-------------------------*/
    DEBUG_CMDS   yLOG_enter   (__FUNCTION__);
    /*---(defence)------------------------*/
-   rc = yvikeys_cmds__name (a_name, 'n');
+   rc = yvikeys_cmds__name (a_name, 'n', NULL);
    --rce;  if (rc < 0) {
       DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
@@ -612,8 +613,8 @@ yvikeys_cmds__load      (void)
 /*====================------------------------------------====================*/
 static void  o___C_ACTIONS_______o () { return; }
 
-int
-yvikeys_cmds__action    (char a_act, uchar *a_name)
+char
+yvikeys_cmds__action    (char a_act, uchar *a_name, char *a_rc)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -625,12 +626,14 @@ yvikeys_cmds__action    (char a_act, uchar *a_name)
    DEBUG_CMDS   yLOG_enter   (__FUNCTION__);
    /*---(prepare)------------------------*/
    s_found  = NULL; /* reset unit testing holder */
+   if (a_rc != NULL)  *a_rc = 0;
    /*---(defence)------------------------*/
-   rc = yvikeys_cmds__name (a_name, 'n');
+   rc = yvikeys_cmds__name (a_name, 'n', &x_len);
    --rce;  if (rc < 0) {
       DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
+   DEBUG_CMDS   yLOG_info    ("a_name"    , a_name);
    /*---(find)---------------------------*/
    x_curr = s_head;
    --rce;  while (x_curr != NULL) {
@@ -658,10 +661,11 @@ yvikeys_cmds__action    (char a_act, uchar *a_name)
             return 1;
          case CMDS_EXEC :
             DEBUG_CMDS   yLOG_note    ("found and executing");
-            rc = yvikeys_cmds__launch (x_curr->data);
+            rc = yvikeys_cmds__launch (x_curr);
             DEBUG_CMDS   yLOG_value   ("launch"    , rc);
+            if (a_rc != NULL)  *a_rc = rc;
             DEBUG_CMDS   yLOG_exit    (__FUNCTION__);
-            return rc;
+            return 0;
          default :
             DEBUG_CMDS   yLOG_note    ("found but action not understood");
             DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
@@ -672,12 +676,13 @@ yvikeys_cmds__action    (char a_act, uchar *a_name)
       x_curr = x_curr->m_next;
    }
    /*---(complete)-----------------------*/
-   DEBUG_CMDS   yLOG_exit    (__FUNCTION__);
-   return rc;
+   --rce;
+   DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
+   return rce;
 }
 
-char yvikeys_cmds__find   (uchar *a_name) { return yvikeys_cmds__action (CMDS_FIND  , a_name); }
-char yvikeys_cmds__exec   (uchar *a_name) { return yvikeys_cmds__action (CMDS_EXEC  , a_name); }
+char yvikeys_cmds__find   (uchar *a_name)             { return yvikeys_cmds__action (CMDS_FIND, a_name, NULL); }
+char yvikeys_cmds__exec   (uchar *a_name, char *a_rc) { return yvikeys_cmds__action (CMDS_EXEC, a_name, a_rc); }
 
 
 
@@ -759,13 +764,13 @@ yVIKEYS_cmds_direct     (char *a_text)
       return rc;
    }
    /*---(normal command)-----------------*/
-   rc = HISTORY__load (MODE_COMMAND, a_text);
+   rc = yvikeys_hist_text (MODE_COMMAND, a_text);
    DEBUG_CMDS   yLOG_value   ("history"   , rc);
    --rce;  if (rc < 0) {
       DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   rc = HISTORY__exec (MODE_COMMAND);
+   rc = yvikeys_hist_exec (MODE_COMMAND);
    DEBUG_CMDS   yLOG_value   ("exec"      , rc);
    --rce;  if (rc < 0) {
       DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
@@ -806,12 +811,12 @@ yVIKEYS_cmds_add     (uchar a_menu, char *a_name, char *a_abbr, char *a_terms, v
       DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   rc = yvikeys_cmds__name (a_name, 'n');
+   rc = yvikeys_cmds__name (a_name, 'n', NULL);
    --rce;  if (rc < 0) {
       DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   rc = yvikeys_cmds__name (a_abbr, 'a');
+   rc = yvikeys_cmds__name (a_abbr, 'a', NULL);
    --rce;  if (rc < 0) {
       DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
@@ -904,12 +909,12 @@ yvikeys_cmds__parse   (uchar *a_string)
 }
 
 char         /*-> tbd --------------------------------[ ------ [ge.#M5.1C#.#7]*/ /*-[03.0000.013.L]-*/ /*-[--.---.---.--]-*/
-yvikeys_cmds_exec     (void)
+yvikeys_cmds_exec     (uchar *a_command, char *a_rc)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    char        rc          =    0;
-   int         i           = 0;
+   char        x_rc        =    0;
    /*---(header)-------------------------*/
    DEBUG_CMDS   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
@@ -918,81 +923,31 @@ yvikeys_cmds_exec     (void)
       DEBUG_HIST   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   DEBUG_CMDS   yLOG_info    ("s_current" , s_current);
+   DEBUG_CMDS   yLOG_info    ("a_command" , a_command);
    /*---(look for system)---------------*/
-   if (s_current [1] == '!') {
+   if (a_command [1] == '!') {
       DEBUG_CMDS   yLOG_note    ("this is a direct run");
-      rc = system (s_current + 2);
+      rc = system (a_command + 2);
       DEBUG_CMDS   yLOG_value   ("rc"        , rc);
       DEBUG_CMDS   yLOG_exit    (__FUNCTION__);
       return rc;
    }
    /*---(parse)-------------------------*/
-   rc = yvikeys_cmds__parse (s_current);
+   rc = yvikeys_cmds__parse (a_command);
    DEBUG_CMDS   yLOG_value   ("rc"        , rc);
    --rce;  if (rc < 0) {
       DEBUG_CMDS   yLOG_note    ("could not parse");
       DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   /*---(find)---------------------------*/
-   i = yvikeys_cmds__exec (s_fields [0]);
-   DEBUG_CMDS   yLOG_value   ("i"         , i);
-   --rce;  if (i < 0) {
-      DEBUG_CMDS   yLOG_note    ("command not found");
-      DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
    /*---(run)----------------------------*/
-   /*> --rce; if (strcmp (s_base [i].terms, ""    ) == 0) {                                         <* 
-    *>    DEBUG_CMDS   yLOG_note    ("void type, no args");                                         <* 
-    *>    rc = s_base [i].f.v   ();                                                                 <* 
-    *> } else if (strcmp (s_base [i].terms, "c"   ) == 0) {                                         <* 
-    *>    DEBUG_CMDS   yLOG_note    ("one char arg");                                               <* 
-    *>    rc = s_base [i].f.c   (s_fields [1][0]);                                                  <* 
-    *> } else if (strcmp (s_base [i].terms, "cc"  ) == 0) {                                         <* 
-    *>    DEBUG_CMDS   yLOG_note    ("two char args");                                              <* 
-    *>    rc = s_base [i].f.cc  (s_fields [1][0], s_fields [2][0]);                                 <* 
-    *> } else if (strcmp (s_base [i].terms, "s"   ) == 0) {                                         <* 
-    *>    DEBUG_CMDS   yLOG_note    ("one string arg");                                             <* 
-    *>    rc = s_base [i].f.s   (s_fields [1]);                                                     <* 
-    *> } else if (strcmp (s_base [i].terms, "a"   ) == 0) {                                         <* 
-    *>    DEBUG_CMDS   yLOG_note    ("one long string arg");                                        <* 
-    *>    rc = s_base [i].f.s   (s_all);                                                            <* 
-    *> } else if (strcmp (s_base [i].terms, "ss"  ) == 0) {                                         <* 
-    *>    DEBUG_CMDS   yLOG_note    ("two string args");                                            <* 
-    *>    rc = s_base [i].f.ss  (s_fields [1], s_fields [2]);                                       <* 
-    *> } else if (strcmp (s_base [i].terms, "i"   ) == 0) {                                         <* 
-    *>    DEBUG_CMDS   yLOG_note    ("single integer");                                             <* 
-    *>    /+> printf ("s_base [i].f.i %s %d\n", s_fields [1], atoi (s_fields [1]));       <+/       <* 
-    *>    rc = s_base [i].f.i   (atoi (s_fields [1]));                                              <* 
-    *> } else if (strcmp (s_base [i].terms, "ii"  ) == 0) {                                         <* 
-    *>    DEBUG_CMDS   yLOG_note    ("two integers");                                               <* 
-    *>    rc = s_base [i].f.ii  (atoi (s_fields [1]), atoi (s_fields [2]));                         <* 
-    *> } else if (strcmp (s_base [i].terms, "iii" ) == 0) {                                         <* 
-    *>    DEBUG_CMDS   yLOG_note    ("three integers");                                             <* 
-    *>    rc = s_base [i].f.iii (atoi (s_fields [1]), atoi (s_fields [2]), atoi (s_fields [3]));    <* 
-    *> } else if (strcmp (s_base [i].terms, "sii" ) == 0) {                                         <* 
-    *>    DEBUG_CMDS   yLOG_note    ("string and two integers");                                    <* 
-    *>    rc = s_base [i].f.sii (s_fields [1], atoi (s_fields [2]), atoi (s_fields [3]));           <* 
-    *> } else if (strcmp (s_base [i].terms, "isss") == 0) {                                         <* 
-    *>    DEBUG_CMDS   yLOG_note    ("integer and three strings");                                  <* 
-    *>    rc = s_base [i].f.isss (atoi (s_fields [1]), s_fields [2], s_fields [3], s_fields [4]);   <* 
-    *> } else if (strcmp (s_base [i].terms, "is"  ) == 0) {                                         <* 
-    *>    DEBUG_CMDS   yLOG_note    ("integer arg and string arg");                                 <* 
-    *>    rc = s_base [i].f.is  (atoi (s_fields [1]), s_fields [1]);                                <* 
-    *> } else if (strcmp (s_base [i].terms, "Cs"  ) == 0) {                                         <* 
-    *>    DEBUG_CMDS   yLOG_note    ("command name and string arg");                                <* 
-    *>    rc = s_base [i].f.ss  (s_fields [0], s_fields [1]);                                       <* 
-    *> } else {                                                                                     <* 
-    *>    DEBUG_CMDS   yLOG_note    ("crazy other shit, please update or fix");                     <* 
-    *>    rc = -1;                                                                                  <* 
-    *>    /+> my.key_error = 'y';                                                      <+/          <* 
-    *> }                                                                                            <*/
-   /*---(complete)-----------------------*/
+   rc = yvikeys_cmds__exec (s_fields [0], &x_rc);
    DEBUG_CMDS   yLOG_value   ("rc"        , rc);
-   DEBUG_CMDS   yLOG_exit    (__FUNCTION__);
+   DEBUG_CMDS   yLOG_value   ("x_rc"      , x_rc);
+   /*---(output)-------------------------*/
+   if (a_rc != NULL)  *a_rc = x_rc;
    /*---(complete)-----------------------*/
+   DEBUG_CMDS   yLOG_exit    (__FUNCTION__);
    return rc;
 }
 
@@ -1024,10 +979,10 @@ yvikeys_cmds__unit      (char *a_question, char *a_name)
    strlcpy  (yVIKEYS__unit_answer, "CMDS unit        : question not understood", LEN_FULL);
    /*---(dependency list)----------------*/
    n = a_name;
-   if      (strcmp (a_question, "global"         )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_FULL, "CMDS global      : %2d %2d[%-.40s]", s_ncmd, s_len, s_current);
-   }
-   else if (strcmp (a_question, "counts"         )   == 0) {
+   /*> if      (strcmp (a_question, "global"         )   == 0) {                                                       <* 
+    *>    snprintf (yVIKEYS__unit_answer, LEN_FULL, "CMDS global      : %2d %2d[%-.40s]", s_ncmd, s_len, s_current);   <* 
+    *> }                                                                                                               <*/
+   if (strcmp (a_question, "counts"         )   == 0) {
       snprintf (yVIKEYS__unit_answer, LEN_FULL, "CMDS count       : %3dn, %3db", s_ncmd, s_nbase);
    }
    else if (strcmp (a_question, "term_count"     )   == 0) {
@@ -1104,7 +1059,7 @@ yvikeys_srch_init       (void)
    s_clearer  = NULL;
    /*---(clear history)------------------*/
    DEBUG_PROG   yLOG_note    ("clear all history");
-   HISTORY__load  (MODE_SEARCH, NULL);
+   yvikeys_hist_text   (MODE_SEARCH, NULL);
    yvikeys_hist__purge (MODE_SEARCH);
    /*---(clear current)------------------*/
    DEBUG_PROG   yLOG_note    ("initialize search results");
@@ -1191,9 +1146,9 @@ char
 yVIKEYS_srch_direct     (char *a_text)
 {
    char        rc          =    0;
-   rc = HISTORY__load (MODE_SEARCH, a_text);
+   rc = yvikeys_hist_text (MODE_SEARCH, a_text);
    if (rc < 0)  return -1;
-   rc = HISTORY__exec (MODE_SEARCH);
+   rc = yvikeys_hist_exec (MODE_SEARCH);
    return rc;
 }
 
@@ -1338,13 +1293,13 @@ SRCH__unit              (char *a_question, char a_index)
    /*---(preprare)-----------------------*/
    strlcpy  (yVIKEYS__unit_answer, "SRCH unit        : question not understood", LEN_FULL);
    /*---(dependency list)----------------*/
-   if      (strcmp (a_question, "global"         )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_FULL, "SRCH global      : %2d[%-.40s]", s_len, s_current);
-   }
+   /*> if      (strcmp (a_question, "global"         )   == 0) {                                           <* 
+    *>    snprintf (yVIKEYS__unit_answer, LEN_FULL, "SRCH global      : %2d[%-.40s]", s_len, s_current);   <* 
+    *> }                                                                                                   <*/
    /*> else if (strcmp (a_question, "history"        )   == 0) {                                                                                                                                                   <* 
     *>    snprintf (yVIKEYS__unit_answer, LEN_FULL, "SRCH history     : %2d %c %2d %2d  %-.40s", a_index, s_passes [a_index].mark, s_passes [a_index].count, s_passes [a_index].found, s_passes [a_index].text);   <* 
     *> }                                                                                                                                                                                                           <*/
-   else if (strcmp (a_question, "results"        )   == 0) {
+   if (strcmp (a_question, "results"        )   == 0) {
       yvikeys_srch_list (t);
       snprintf (yVIKEYS__unit_answer, LEN_FULL, "SRCH results     : %2d %-.40s", s_nsrch, t);
    }
