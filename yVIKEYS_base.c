@@ -103,6 +103,7 @@ yVIKEYS_init         (char a_mode)
    myVIKEYS.trouble   = '-';
    myVIKEYS.info_win  = '-';
    myVIKEYS.log_keys  = 'y';
+   myVIKEYS.cursor    = 'y';
    /*----(complete)----------------------*/
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -754,7 +755,7 @@ yVIKEYS_main_handle     (uchar a_key)
       case UMOD_MAP_UNDO : rc = BASE__________stub    (x_major , x_key);  break;
       case MODE_COMMAND  : rc = SOURCE_mode           (x_major , x_key);  break;
       case MODE_SEARCH   : rc = SOURCE_mode           (x_major , x_key);  break;
-      case UMOD_HISTORY  : rc = HISTORY_smode         (x_major , x_key);  break;
+      case UMOD_HISTORY  : rc = yvikeys_hist_smode    (x_major , x_key);  break;
       case UMOD_VISUAL   : rc = yvikeys_visu_umode    (x_major , x_key);  break;
       case SMOD_ERROR    : rc = BASE__________stub    (x_major , x_key);  break;
       case XMOD_FORMAT   : rc = FORMAT_xmode          (x_major , x_key);  break;

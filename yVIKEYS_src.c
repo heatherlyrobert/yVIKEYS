@@ -1999,8 +1999,9 @@ SRC_INPT_umode             (int  a_major, int  a_minor)
       /*> if (x_prevmode == MODE_SEARCH)  strlcpy (s_cur->contents, "/", LEN_RECD);   <* 
        *> else                            strlcpy (s_cur->contents, ":", LEN_RECD);   <*/
       /*> SOURCE__done   ();                                                          <*/
-      HISTORY_start ();
+      yvikeys_hist__bounds ();
       MODE_enter  (UMOD_HISTORY);
+      myVIKEYS.cursor = '-';
       DEBUG_USER   yLOG_note    ("change to history mode");
    }
    /*---(complete)-----------------------*/

@@ -375,40 +375,44 @@ yvikeys_hist_redo       (void)
    return -1;
 }
 
-static int     s_min   = 0;
-static int     s_top   = 0;
+static char    s_on    = '-';
+static int     s_first = 0;
 static int     s_now   = 0;
+static int     s_min   = 0;
+static int     s_topp  = 0;
+static int     s_tall  = 0;
+static int     s_bott  = 0;
+static int     s_left  = 0;
+static int     s_wide  = 0;
+static int     s_righ  = 0;
 static int     s_max   = 0;
 static int     s_lines = 0;
 
 char         /*-> show history on screen -------------[ ------ [ge.TQ5.25#.F9]*/ /*-[03.0000.122.R]-*/ /*-[--.---.---.--]-*/
-HISTORY_start           (void)
+yvikeys_hist__bounds    (void)
 {
-   yVIKEYS_view_size     (YVIKEYS_HISTORY, NULL, NULL, NULL, &s_lines, NULL);
+   s_on    = yVIKEYS_view_size     (YVIKEYS_HISTORY, &s_left, &s_wide, &s_bott, &s_tall, NULL);
    yvikeys_hist_limits   (MODE_curr (), &s_min, &s_max);
-   s_now = s_max - 1;
-   s_top = s_now - ((s_lines - 2) / 2);
+   s_now   = *s_index;
+   s_lines = s_tall - 2;
+   s_first = s_now - ((s_lines - 2) / 2);
+   s_topp  = s_bott - s_lines + 1;
+   s_righ  = s_left + s_wide - 1;
    return 0;
 }
 
 char         /*-> show history on screen -------------[ ------ [ge.TQ5.25#.F9]*/ /*-[03.0000.122.R]-*/ /*-[--.---.---.--]-*/
-HISTORY_infowin         (void)
+yvikeys_hist__info      (void)
 {
    /*---(locals)-----------+-----+-----+-*/
-   int         x_left      =    0;
-   int         x_wide      =    0;
-   int         x_bott      =    0;
-   int         x_tall      =    0;
    char        x_edit      =  ' ';
-   char        x_on        =  '-';
    char        x_entry     [LEN_RECD]  = "";
    int         i           =    0;
    /*---(header)-------------------------*/
    DEBUG_HIST   yLOG_enter   (__FUNCTION__);
    /*---(get sizes)----------------------*/
-   x_on = yVIKEYS_view_size     (YVIKEYS_HISTORY, &x_left, &x_wide, &x_bott, &x_tall, NULL);
+   yvikeys_hist__bounds ();
    if (myVIKEYS.env == YVIKEYS_CURSES) {
-      s_lines = x_tall - 2;
       yCOLOR_curs ("h_used" );
       /*> 1234567890123456789012345678901234::1234567890123456789012345678901234            <*/
       switch (MODE_curr ()) {
@@ -417,9 +421,9 @@ HISTORY_infowin         (void)
       case SMOD_MACRO     : strlcpy (x_entry, " - len ---macro-keys--------------------------------------------------- ", LEN_RECD);  break;
       case SMOD_SREG      : strlcpy (x_entry, " -   len  ---text-register-contents------------------------------------ ", LEN_RECD);  break;
       }
-      mvprintw (x_bott - x_tall + 1, x_left, "%-*.*s", x_wide, x_wide, x_entry);
+      mvprintw (s_bott - s_tall + 1, s_left, "%-*.*s", s_wide, s_wide, x_entry);
       attrset     (0);
-      for (i = 0; i < x_tall - 2; ++i) {
+      for (i = 0; i < s_lines; ++i) {
          if ((i % 2) == 0)  yCOLOR_curs ("h_current"    );
          else               yCOLOR_curs ("map"          );
          switch (MODE_curr ()) {
@@ -428,12 +432,12 @@ HISTORY_infowin         (void)
                                /*> case SMOD_MACRO     : MACRO_infowin (x_entry, i);  break;                <*/
          case SMOD_SREG      : yvikeys_sreg_info    (i, x_entry);  break;
          }
-         mvprintw (x_bott - x_tall + 2 + i, x_left             , "%-*.*s", x_wide, x_wide, x_entry);
+         mvprintw (s_bott - s_tall + 2 + i, s_left             , "%-*.*s", s_wide, s_wide, x_entry);
          attrset     (0);
       }
       attrset     (0);
       yCOLOR_curs ("h_used" );
-      mvprintw (x_bott, x_left             , "%-*.*s", x_wide, x_wide, " ¦ to choose, ¥ to escape ------------------------------------------------------------");
+      mvprintw (s_bott, s_left             , "%-*.*s", s_wide, s_wide, " ¦ to choose, ¥ to escape ------------------------------------------------------------");
       attrset     (0);
    }
    /*---(complete)-----------------------*/
@@ -442,22 +446,20 @@ HISTORY_infowin         (void)
 }
 
 char         /*-> show history on screen -------------[ ------ [ge.TQ5.25#.F9]*/ /*-[03.0000.122.R]-*/ /*-[--.---.---.--]-*/
-HISTORY_display         (void)
+yvikeys_hist_show       (void)
 {
    /*---(locals)-----------+-----+-----+-*/
-   int         x_left      =    0;
-   int         x_wide      =    0;
-   int         x_bott      =    0;
-   int         x_tall      =    0;
+   char        rc          =    0;
    char        x_edit      =  ' ';
-   char        x_on        =  '-';
    char        x_entry     [LEN_RECD]  = "";
    int         i           =    0;
+   int         x_index     =    0;
+   tHIST      *x_curr      = NULL;
    /*---(defense)------------------------*/
    DEBUG_HIST   yLOG_enter   (__FUNCTION__);
    DEBUG_HIST   yLOG_char    ("info_win"  , myVIKEYS.info_win);
    if (myVIKEYS.info_win == 'y') {
-      HISTORY_infowin ();
+      yvikeys_hist__info ();;
       DEBUG_HIST   yLOG_exit    (__FUNCTION__);
       return 0;
    }
@@ -469,119 +471,55 @@ HISTORY_display         (void)
    }
    /*---(header)-------------------------*/
    DEBUG_HIST   yLOG_enter   (__FUNCTION__);
-   /*---(get sizes)----------------------*/
-   x_on = yVIKEYS_view_size     (YVIKEYS_HISTORY, &x_left, &x_wide, &x_bott, &x_tall, NULL);
+   /*---(prepare)------------------------*/
+   yvikeys_hist__bounds ();
+   x_index = *s_index;
+   x_curr  = *s_curr;
+   yvikeys_hist__index (s_first);
+   /*---(show screen)--------------------*/
    if (myVIKEYS.env == YVIKEYS_CURSES) {
-      s_lines = x_tall - 2;
+      /*---(header)----------------------*/
       yCOLOR_curs ("h_used" );
-      if (MODE_prev () == MODE_SEARCH)  mvprintw (x_bott - x_tall + 1, x_left, "%-*.*s", x_wide, x_wide, " line  rn  cnt  m  ----------SEARCH HISTORY--------------------------------------------------------------------------");
-      else                              mvprintw (x_bott - x_tall + 1, x_left, "%-*.*s", x_wide, x_wide, " line  rn  rc-  m  ----------COMMAND HISTORY-------------------------------------------------------------------------");
+      yvikeys_hist__entry (x_entry, s_wide - 2, 'h');
+      mvprintw (s_bott - s_tall + 1, s_left, " %s ", x_entry);
       attrset     (0);
-      for (i = 0; i < x_tall - 2; ++i) {
-         yvikeys_hist_entry (MODE_prev (), s_top + i, x_entry, x_wide);
-         if      (s_top + i == s_now)  yCOLOR_curs ("source"       );
-         else if ((i % 2) == 0)        yCOLOR_curs ("h_current"    );
-         else                          yCOLOR_curs ("map"          );
-         mvprintw (x_bott - x_tall + 2 + i, x_left             , "%-*.*s", x_wide, x_wide, x_entry);
+      /*---(middle)----------------------*/
+      yCOLOR_curs ("h_used" );
+      for (i = 0; i < s_lines; ++i) {
+         /*---(content)--------*/
+         rc = 1;
+         if (s_first + i < 0) yvikeys_hist__entry (x_entry, s_wide - 2, ' ');
+         else {
+            if      (s_first + i == 0)  rc = 0;
+            else if (s_first + i >  0)  rc = yvikeys_hist__cursor ('>');
+            if (rc == 0)  yvikeys_hist__entry (x_entry, s_wide - 2, 'e');
+            else          yvikeys_hist__entry (x_entry, s_wide - 2, ' ');
+         }
+         /*---(color)----------*/
+         if      (rc != 0)   {
+            if ((i % 2) == 0)           yCOLOR_curs ("title"        );
+            else                        yCOLOR_curs ("h_used" );
+         }
+         else if (*s_index == s_now)      yCOLOR_curs ("source"       );
+         else if ((i % 2) == 0)           yCOLOR_curs ("h_current"    );
+         else                             yCOLOR_curs ("map"          );
+         /*---(display)--------*/
+         mvprintw (s_bott - s_tall + 2 + i, s_left, " %s ", x_entry);
          attrset     (0);
+         /*---(next)-----------*/
       }
+      /*---(footer)----------------------*/
       yCOLOR_curs ("h_used" );
-      mvprintw (x_bott, x_left             , "%-*.*s", x_wide, x_wide, " ¦ to choose, ¥ to leave, _KkjJ~ to move                                              ");
+      yvikeys_hist__entry (x_entry, s_wide - 2, 'f');
+      mvprintw (s_bott, s_left, " %s ", x_entry);
       attrset     (0);
+      /*---(done)------------------------*/
    }
+   /*---(reset)--------------------------*/
+   *s_index = x_index;
+   *s_curr  = x_curr;
    /*---(complete)-----------------------*/
    DEBUG_HIST   yLOG_exit    (__FUNCTION__);
-   return 0;
-}
-
-char
-HISTORY_choose          (char* a_contents)
-{
-   /*---(locals)-----------+-----+-----+-*/
-   int         i           =    0;
-   int         x_len       =    0;
-   char        x_old       [LEN_RECD];
-   /*---(header)-------------------------*/
-   DEBUG_HIST   yLOG_enter   (__FUNCTION__);
-   DEBUG_HIST   yLOG_info    ("a_contents", a_contents);
-   /*---(remove existing)----------------*/
-   x_len  = yvikeys_src_npos ();
-   strlcpy (x_old, yvikeys_src_contents (), LEN_RECD);
-   DEBUG_HIST   yLOG_value   ("x_len"     , x_len);
-   DEBUG_HIST   yLOG_info    ("x_old"     , x_old);
-   yvikeys_sundo_beg (__FUNCTION__);
-   for (i = 0; i < x_len; ++i) {
-      DEBUG_HIST   yLOG_complex ("delete"    , "%2d, %c", i, x_old [i]);
-      yvikeys_sundo_add ('d', 'l', 0, x_old [i], G_CHAR_NULL);
-      yvikeys_src_one_delete ();
-   }
-   /*---(add new)------------------------*/
-   x_len  = strllen (a_contents, LEN_RECD);
-   for (i = 0; i < x_len; ++i) {
-      DEBUG_HIST   yLOG_complex ("append"    , "%2d, %c", i, a_contents [i]);
-      yvikeys_src_one_append (a_contents [i]);
-      yvikeys_sundo_add (G_KEY_SPACE, 'a', i, G_KEY_NULL, a_contents [i]);
-   }
-   yvikeys_sundo_end (__FUNCTION__);
-   /*---(complete)-----------------------*/
-   DEBUG_HIST   yLOG_exit    (__FUNCTION__);
-   return 0;
-}
-
-char         /*-> allow selection of older entries ---[ ------ [ge.TQ5.25#.F9]*/ /*-[03.0000.122.R]-*/ /*-[--.---.---.--]-*/
-HISTORY_smode           (int  a_major, int  a_minor)
-{
-   /*---(locals)-----------+-----+-----+-*/
-   char        rce         =  -10;
-   char        rc          =    0;
-   /*---(header)-------------------------*/
-   DEBUG_USER   yLOG_enter   (__FUNCTION__);
-   DEBUG_USER   yLOG_char    ("a_major"   , a_major);
-   DEBUG_USER   yLOG_char    ("a_minor"   , chrvisible (a_minor));
-   /*---(defenses)-----------------------*/
-   DEBUG_USER   yLOG_char    ("mode"      , MODE_curr ());
-   --rce;  if (MODE_not (UMOD_HISTORY)) {
-      DEBUG_USER   yLOG_note    ("not the correct mode");
-      DEBUG_USER   yLOG_exit    (__FUNCTION__);
-      return rce;
-   }
-   if (a_minor == G_KEY_ESCAPE) {
-      DEBUG_USER   yLOG_note    ("escape, return to source mode");
-      MODE_exit ();
-      MODE_exit ();
-      DEBUG_USER   yLOG_exit    (__FUNCTION__);
-      return 0;
-   }
-   if (a_minor == G_KEY_RETURN) {
-      DEBUG_USER   yLOG_note    ("return, return to source mode");
-      MODE_exit ();
-      yvikeys_src_swapall (HISTORY_use (MODE_curr (), s_now));
-      DEBUG_USER   yLOG_exit    (__FUNCTION__);
-      return 0;
-   }
-   switch (a_minor) {
-   case '_' : s_now  = 0;                 break;
-   case 'J' : s_now += 5;                 break;
-   case 'j' : s_now += 1;                 break;
-   case 'k' : s_now -= 1;                 break;
-   case 'K' : s_now -= 5;                 break;
-   case '~' : s_now  = s_max - 1;         break;
-   }
-   DEBUG_USER   yLOG_value   ("s_now"     , s_now);
-   if (s_now >= s_max) {
-      s_now = s_max - 1;
-      DEBUG_USER   yLOG_exitr   (__FUNCTION__, -1);
-      return -1;
-   }
-   if (s_now <  0    ) {
-      s_now = 0; 
-      DEBUG_USER   yLOG_exitr   (__FUNCTION__, -1);
-      return -1;
-   }
-   s_top = s_now - (s_lines / 2);
-   DEBUG_USER   yLOG_value   ("s_top"     , s_top);
-   /*---(complete)-----------------------*/
-   DEBUG_USER   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -846,49 +784,74 @@ yvikeys_cmds__reader (void)
 static void  o___DISPLAY_________o () { return; }
 
 char
-yvikeys_hist_entry      (char a_mode, int a_index, char *a_entry, int a_max)
+yvikeys_hist__entry      (uchar *a_entry, int a_len, char a_type)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
-   tHIST      *x_pass      = NULL;
-   char        x_len       =    0;
+   int         x_len       =    0;
+   char        x_pref      [LEN_RECD];
+   char        x_suff      [LEN_RECD];
+   int         x_size      =    0;
    int         x_found     =    0;
-   int         x_count     =    0;
-   int         x_max       =    0;
    /*---(defense)------------------------*/
    --rce;  if (a_entry == NULL)  return rce;
-   /*---(set limits)---------------------*/
-   yvikeys_hist__switcher (a_mode, '-');
-   yvikeys_hist_limits   (a_mode, NULL, &s_max);
-   /*---(blank line)---------------------*/
-   if (a_index < 0 || a_index >= x_max) {
-      sprintf (a_entry, "%-*.*s", a_max, a_max, " ");
+   --rce;  if (*s_curr == NULL)  return rce;
+   /*---(spacer)-------------------------*/
+   if (a_type == ' ') {
+      sprintf (a_entry, "%-*.*s%c", a_len - 1, a_len - 1, "´    -    ", '´');
+      return 0;
+   }
+   /*---(header)-------------------------*/
+   if (a_type == 'h') {
+      if (a_len >= 60) {
+         x_size = a_len - 4 - 17;
+         if (MODE_prev () == MODE_SEARCH)   sprintf (x_pref, "ref %*.*s", x_size, x_size, "----------SEARCH HISTORY-------------------------------------------------------------");
+         else                               sprintf (x_pref, "ref %*.*s", x_size, x_size, "----------COMMAND HISTORY------------------------------------------------------------");
+         sprintf (x_suff, "runs exec retn m");
+      } else if (a_len >= 40) {
+         x_size = a_len - 4 - 7;
+         if (MODE_prev () == MODE_SEARCH)   sprintf (x_pref, "ref %*.*s", x_size, x_size, "-----SEARCH HISTORY-------------------------------------------------------------");
+         else                               sprintf (x_pref, "ref %*.*s", x_size, x_size, "-----COMMAND HISTORY------------------------------------------------------------");
+         sprintf (x_suff, "retn m");
+      } else {
+         x_size = a_len - 2;
+         if (MODE_prev () == MODE_SEARCH)   sprintf (x_pref, "%*.*s", x_size, x_size, "´--SEARCH HISTORY-------------------------------------------------------------");
+         else                               sprintf (x_pref, "%*.*s", x_size, x_size, "´--COMMAND HISTORY------------------------------------------------------------");
+         sprintf (x_suff, "m");
+      }
+      sprintf (a_entry, "%s %s", x_pref, x_suff);
+      return 0;
+   }
+   /*---(footer)-------------------------*/
+   if (a_type == 'f') {
+      if (a_len >= 40) {
+         sprintf (a_entry, "%-*.*s %c", a_len - 2, a_len - 2, "¦ to choose, ¥ to leave, _KkjJ~ to move       ", '´');
+      } else {
+         sprintf (a_entry, "%-*.*s %c", a_len - 2, a_len - 2, "¦ pick, ¥, _KkjJ~       ", '´');
+      }
       return 0;
    }
    /*---(create)-------------------------*/
-   /*> x_len = a_max - 8;                                                             <* 
-    *> x_found = (x_pass + a_index)->found;                                           <* 
-    *> if (x_found > 999)  x_found = 999;                                             <* 
-    *> x_count = (x_pass + a_index)->count;                                           <* 
-    *> if (x_count > 99)  x_count = 99;                                               <* 
-    *> sprintf (a_entry, " %-4d  %-2d  %-3d  %c  %-*.*s ",                            <* 
-    *>       a_index, x_count, x_found, (x_pass + a_index)->mark,                     <* 
-    *>       x_len, x_len, (x_pass + a_index)->text);                                 <*/
+   x_len   = strlen ((*s_curr)->text);
+   x_found = (*s_curr)->found;
+   if (x_found > 999)  x_found = 999;
+   if      (a_len >= 60) {
+      x_size = a_len - 4 - 17;
+      sprintf (x_pref, "%-3d %-*.*s", *s_index, x_size, x_size, (*s_curr)->text);
+      sprintf (x_suff, "%3dc %3dr %3df %c", (*s_curr)->count, (*s_curr)->ran, x_found, (*s_curr)->mark);
+   } else if (a_len >= 40) {
+      x_size = a_len - 4 - 7;
+      sprintf (x_pref, "%-3d %-*.*s", *s_index, x_size, x_size, (*s_curr)->text);
+      sprintf (x_suff, "%3df %c", x_found, (*s_curr)->mark);
+   } else {
+      x_size = a_len - 2;
+      sprintf (x_pref, "%-*.*s", x_size, x_size, (*s_curr)->text);
+      sprintf (x_suff, "%c", (*s_curr)->mark);
+   }
+   if (x_size < x_len)  x_pref [strlen (x_pref) - 1] = '>';
+   sprintf (a_entry, "%s %s", x_pref, x_suff);
    /*---(complete)-----------------------*/
    return 0;
-}
-
-char*
-HISTORY_use             (char a_mode, int a_index)
-{
-   /*> switch (a_mode) {                                                              <* 
-    *> case MODE_COMMAND :                                                            <* 
-    *>    return s_runs [a_index].text;                                               <* 
-    *>    break;                                                                      <* 
-    *> case MODE_SEARCH  :                                                            <* 
-    *>    return s_passes [a_index].text;                                             <* 
-    *>    break;                                                                      <* 
-    *> }                                                                              <*/
 }
 
 char
@@ -896,6 +859,7 @@ yvikeys_hist__cursor    (char a_move)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
+   char        rc          =    0;
    /*---(header)-------------------------*/
    DEBUG_HIST   yLOG_enter   (__FUNCTION__);
    DEBUG_HIST   yLOG_char    ("a_move"    , a_move);
@@ -935,15 +899,20 @@ yvikeys_hist__cursor    (char a_move)
       break;
    }
    /*---(safeties)-----------------------*/
+   DEBUG_HIST   yLOG_point   ("*s_curr"   , *s_curr);
    if (*s_curr == NULL) {
       switch (a_move) {
       case '<' :
+         DEBUG_HIST   yLOG_note    ("bounced off head");
          *s_curr  = *s_head;
          *s_index = 0;
+         rc = 1;
          break;
       case '>' :
+         DEBUG_HIST   yLOG_note    ("bounced off tail");
          *s_curr  = *s_tail;
          *s_index = *s_count - 1;
+         rc = 1;
          break;
       }
    }
@@ -952,7 +921,7 @@ yvikeys_hist__cursor    (char a_move)
    DEBUG_HIST   yLOG_value   ("*s_index"  , *s_index);
    /*---(complete)-----------------------*/
    DEBUG_HIST   yLOG_exit    (__FUNCTION__);
-   return 0;
+   return rc;
 }
 
 char
@@ -1360,6 +1329,87 @@ yvikeys_hist_exec       (char a_mode)
    return rc;
 }
 
+
+
+/*====================------------------------------------====================*/
+/*===----                      mode handling                          ----===*/
+/*====================------------------------------------====================*/
+static void  o___MODE____________o () { return; }
+
+char         /*-> allow selection of older entries ---[ ------ [ge.TQ5.25#.F9]*/ /*-[03.0000.122.R]-*/ /*-[--.---.---.--]-*/
+yvikeys_hist_smode      (int  a_major, int  a_minor)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   int         x_pos       =    0;
+   /*---(header)-------------------------*/
+   DEBUG_USER   yLOG_enter   (__FUNCTION__);
+   DEBUG_USER   yLOG_char    ("a_major"   , a_major);
+   DEBUG_USER   yLOG_char    ("a_minor"   , chrvisible (a_minor));
+   /*---(defenses)-----------------------*/
+   DEBUG_USER   yLOG_char    ("mode"      , MODE_curr ());
+   --rce;  if (MODE_not (UMOD_HISTORY)) {
+      DEBUG_USER   yLOG_note    ("not the correct mode");
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return rce;
+   }
+   /*---(mode changes)-------------------*/
+   if (a_minor == G_KEY_ESCAPE) {
+      DEBUG_USER   yLOG_note    ("escape, return to source mode");
+      MODE_exit ();
+      MODE_exit ();
+      VIEW__switch ("cursor", "show");
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
+   if (a_minor == G_KEY_RETURN) {
+      DEBUG_USER   yLOG_note    ("return, return to source mode");
+      MODE_exit ();
+      myVIKEYS.cursor = 'y';
+      yvikeys_src_swapall ((*s_curr)->text);
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
+   /*---(handle keys)--------------------*/
+   switch (a_minor) {
+   case '_' :
+      yvikeys_hist__cursor ('[');
+      break;
+   case 'J' :
+      yvikeys_hist__cursor ('>');
+      yvikeys_hist__cursor ('>');
+      yvikeys_hist__cursor ('>');
+      yvikeys_hist__cursor ('>');
+   case 'j' :
+      yvikeys_hist__cursor ('>');
+      break;
+   case 'K' :
+      yvikeys_hist__cursor ('<');
+      yvikeys_hist__cursor ('<');
+      yvikeys_hist__cursor ('<');
+      yvikeys_hist__cursor ('<');
+   case 'k' :
+      yvikeys_hist__cursor ('<');
+      break;
+   case '~' :
+      yvikeys_hist__cursor (']');
+      break;
+   }
+   /*---(update)-------------------------*/
+   yvikeys_hist__bounds ();
+   /*---(complete)-----------------------*/
+   DEBUG_USER   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+
+
+/*====================------------------------------------====================*/
+/*===----                       unit testing                          ----===*/
+/*====================------------------------------------====================*/
+static void  o___UNITTEST________o () { return; }
+
 char*        /*-> tbd --------------------------------[ leaf   [gs.520.202.40]*/ /*-[01.0000.00#.#]-*/ /*-[--.---.---.--]-*/
 yvikeys_hist__unit      (char *a_question, int n)
 {
@@ -1398,7 +1448,7 @@ yvikeys_hist__unit      (char *a_question, int n)
       if    (*s_head == s_hrun) strlcpy (t, "c", LEN_LABEL);
       else                      strlcpy (t, "s", LEN_LABEL);
       if (*s_curr == NULL)  snprintf (yVIKEYS__unit_answer, LEN_FULL, "HIST curr %s (--) :  -  -                      -    -    -    -", t);
-      else                  snprintf (yVIKEYS__unit_answer, LEN_FULL, "HIST curr %s (%2d) : %2d  %-20.20s %3dc %3dr %3df   %c", t, *s_index, strlen ((*s_curr)->text), (*s_curr)->text, (*s_curr)->count, (*s_curr)->found, (*s_curr)->mark);
+      else                  snprintf (yVIKEYS__unit_answer, LEN_FULL, "HIST curr %s (%2d) : %2d  %-20.20s %3dc %3dr %3df   %c", t, *s_index, strlen ((*s_curr)->text), (*s_curr)->text, (*s_curr)->count, (*s_curr)->ran, (*s_curr)->found, (*s_curr)->mark);
    }
    else if (strcmp (a_question, "command"        )   == 0 || strcmp (a_question, "search"         )   == 0) {
       if (a_question [0] == 'c') {

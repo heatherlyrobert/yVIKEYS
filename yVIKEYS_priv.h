@@ -26,8 +26,8 @@
 
 #define     P_VERMAJOR  "1.X = working for everyday use, features still evolving but stable"
 #define     P_VERMINOR  "1.4 = prepare for demonstrations on web"
-#define     P_VERNUM    "1.4j"
-#define     P_VERTXT    "most history working and unit tested except smode and read/write"
+#define     P_VERNUM    "1.4k"
+#define     P_VERTXT    "history display working and unit tested in ncurses"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -120,6 +120,7 @@ struct cSHARED {
    char        redraw;                      /* force redraw based on changes  */
    char        repeating;                   /* note for repeating actions     */
    char        log_keys;                    /* allows keys to be hidden       */
+   char        cursor;                      /* show cursor in ncurses (or not)*/
    /*---(main loop)-------*/
    float       delay;                       /* requested loop sleep timing    */
    int         macro_skip;                  /* diff between playback and exec */
@@ -497,7 +498,6 @@ char*       yvikeys_sreg__unit           (char *a_question, char a_reg);
 
 char        SRC_REPL_umode           (int a_major, int a_minor);
 char        SRC_INPT_umode             (int  a_major, int  a_minor);
-char        HISTORY_display         (void);
 char        WANDER_smode            (int  a_major, int  a_minor);
 
 
@@ -601,9 +601,6 @@ char        yvikeys_cmds__reader    (void);
 char        yvikeys_cmds__writer    (char a_abbr);
 char        yvikeys_cmds__writer_all(void);
 /*---(search)---------------*/
-char        yvikeys_hist_text       (char a_mode, char *a_text);
-char        yvikeys_hist_exec       (char a_mode);
-char*       HISTORY_use             (char a_mode, int a_index);
 char        yvikeys_srch__valid     (char a_abbr);
 int         yvikeys_srch__index     (char a_abbr);
 int         SRCH_find_abbr          (char a_abbr);
@@ -732,8 +729,13 @@ char        yvikeys_hist_init       (void);
 char        yvikeys_hist_wrap       (void);
 char        yvikeys_hist_undo       (void);
 char        yvikeys_hist_redo       (void);
+char        yvikeys_hist_text       (char a_mode, char *a_text);
+char        yvikeys_hist_exec       (char a_mode);
+/*---(display)------------------------*/
 char        yvikeys_hist_limits     (char a_mode, int *a_min, int *a_max);
-char        yvikeys_hist_entry      (char a_mode, int a_index, char *a_entry, int a_max);
+char        yvikeys_hist__entry     (uchar *a_entry, int a_max, char a_type);
+char        yvikeys_hist_show       (void);
+char        yvikeys_hist_smode      (int  a_major, int  a_minor);
 /*---(unit_test)----------------------*/
 char        yvikeys_hist__new       (char a_mode, uchar *a_text);
 char*       yvikeys_hist__unit      (char *a_question, int n);

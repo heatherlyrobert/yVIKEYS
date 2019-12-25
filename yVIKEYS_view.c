@@ -503,7 +503,7 @@ VIEW_defaults            (cchar a_env)
          case YVIKEYS_OVERLAY : p->on = '-';                                          break;
          case YVIKEYS_LAYERS  : p->on = '-';                                          p->drawer = VIEW__layer_show; break;
          case YVIKEYS_FLOAT   : p->on = 'y';                      p->def_tall =  15;  p->drawer = SOURCE_float;     break;
-         case YVIKEYS_HISTORY : p->on = 'y';                                          p->drawer = HISTORY_display;  break;
+         case YVIKEYS_HISTORY : p->on = 'y';                                          p->drawer = yvikeys_hist_show;  break;
          case YVIKEYS_MENUS   : p->on = 'y';  p->def_wide = 280;  p->def_tall = 200;  p->drawer = yvikeys_menu_draw; break;
          case YVIKEYS_WINDOW  : p->on = '-';                                          break;
          case YVIKEYS_MAIN    : p->on = 'y';                                          break;
@@ -536,7 +536,7 @@ VIEW_defaults            (cchar a_env)
          case YVIKEYS_OVERLAY : p->on = '-';                      break;
          case YVIKEYS_LAYERS  : p->on = '-';                      break;
          case YVIKEYS_FLOAT   : p->on = 'y';  p->def_tall =   1;  p->drawer = SOURCE_float;    break;
-         case YVIKEYS_HISTORY : p->on = 'y';  p->drawer = HISTORY_display;  break;
+         case YVIKEYS_HISTORY : p->on = 'y';  p->drawer = yvikeys_hist_show;  break;
          case YVIKEYS_MENUS   : p->on = 'y';  p->def_wide =  40;    p->def_tall =  14;  p->drawer = yvikeys_menu_draw; break;
          case YVIKEYS_WINDOW  : p->on = '-';                      break;
          case YVIKEYS_MAIN    : p->on = 'y';                      break;
@@ -2525,7 +2525,7 @@ yVIKEYS_view_all         (float a_mag)
       glFlush();
       break;
    case YVIKEYS_CURSES :
-      mvprintw (y_cur, x_cur, "");
+      if (myVIKEYS.cursor == 'y')  mvprintw (y_cur, x_cur, "");
       refresh ();
       myVIKEYS.redraw = '-';
       break;
