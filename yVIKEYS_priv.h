@@ -26,8 +26,8 @@
 
 #define     P_VERMAJOR  "1.X = working for everyday use, features still evolving but stable"
 #define     P_VERMINOR  "1.4 = prepare for demonstrations on web"
-#define     P_VERNUM    "1.4k"
-#define     P_VERTXT    "history display working and unit tested in ncurses"
+#define     P_VERNUM    "1.4l"
+#define     P_VERTXT    "command, search, and menu are all dynamic memory const struct now"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -594,23 +594,18 @@ char        yvikeys_cmds_init       (void);
 char        yvikeys_cmds__test      (char a_mode, char a_value);
 char*       yvikeys_cmds__unit      (char *a_question, char *a_name);
 char        yvikeys_cmds_exec       (uchar *a_command, char *a_rc);
-char        yvikeys_cmds__valid     (char a_abbr);
 char        yvikeys_cmds__find      (uchar *a_name);
 char        yvikeys_cmds__parse     (uchar *a_string);
 char        yvikeys_cmds__reader    (void);
 char        yvikeys_cmds__writer    (char a_abbr);
 char        yvikeys_cmds__writer_all(void);
 /*---(search)---------------*/
-char        yvikeys_srch__valid     (char a_abbr);
-int         yvikeys_srch__index     (char a_abbr);
 int         SRCH_find_abbr          (char a_abbr);
 char        yvikeys_srch_init       (void);
 char        yvikeys_srch__purge     (void);
 char        SRCH__exec              (void);
-char        yvikeys_srch_next       (char a_move);
-char        yvikeys_srch__reader    (void);
-char        yvikeys_srch__writer    (char a_abbr);
-char        yvikeys_srch__writer_all(void);
+char        yvikeys_srch_cursor     (char a_move);
+char        yvikeys_srch_exec       (uchar *a_search, int *a_found);
 /*---(unit testing)---------*/
 char        SRCH__unit_null         (void);
 char        SRCH__unit_searcher     (char *a_search);
@@ -711,6 +706,8 @@ char*       yvikeys_mreg__unit         (char *a_question, char x, char y);
 
 
 
+/*---(support)------------------------*/
+char        yvikeys_hist__valid     (char a_abbr);
 char        yvikeys_hist__switcher  (char a_mode, char a_force);
 /*---(memory)-------------------------*/
 char        yvikeys_hist__new       (char a_mode, uchar *a_text);
@@ -731,11 +728,20 @@ char        yvikeys_hist_undo       (void);
 char        yvikeys_hist_redo       (void);
 char        yvikeys_hist_text       (char a_mode, char *a_text);
 char        yvikeys_hist_exec       (char a_mode);
+/*---(files)--------------------------*/
+/*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
+char        yvikeys_hist__write     (char a_mode, char a_abbr);
+char        yvikeys_hist__writer    (char a_mode);
+char        yvikeys_cmds_writer     (void);
+char        yvikeys_srch_writer     (void);
+char        yvikeys_hist__reader    (char a_mode);
+char        yvikeys_cmds_reader     (void);
+char        yvikeys_srch_reader     (void);
 /*---(display)------------------------*/
 char        yvikeys_hist_limits     (char a_mode, int *a_min, int *a_max);
 char        yvikeys_hist__entry     (uchar *a_entry, int a_max, char a_type);
 char        yvikeys_hist_show       (void);
-char        yvikeys_hist_smode      (int  a_major, int  a_minor);
+char        yvikeys_hist_umode      (int  a_major, int  a_minor);
 /*---(unit_test)----------------------*/
 char        yvikeys_hist__new       (char a_mode, uchar *a_text);
 char*       yvikeys_hist__unit      (char *a_question, int n);

@@ -90,6 +90,7 @@ static const tMENU  s_base [] = {
    { 'b', 'f', 'v', 'n', "noctrl"      , 'y', ':', ":nocontrol¦"                    },
    { 'b', 'f', 'v', '1', "major"       , 'y', ':', ":major¦"                        },
    { 'b', 'f', 'v', '2', "minor"       , 'y', ':', ":minor¦"                        },
+   { 'b', 'f', 'v', '3', "bump"        , 'y', ':', ":bump¦"                         },
    { 'b', 'f', 'v', 't', "vertxt"      , 'y', '=', ":vertxt·"                       },
    { 'b', 'f', 'v', 'm', "manual"      , 'y', '=', ":vernum·"                       },
    { 'b', 'f', 'p', '·', "protect"     , '-', '>', "-"                              },
@@ -1381,11 +1382,12 @@ yvikeys_menu_init       (void)
    }
    /*---(menus)--------------------------*/
    DEBUG_CMDS   yLOG_note    ("initialize menu system");
+   yvikeys_menu__purge  ();
    /*---(add the root)-------------------*/
    s_head = s_tail = NULL;
    yvikeys_menu__newlink (s_base);
    /*---(handle total)-------------------*/
-   yvikeys_menu__base_load ();
+   yVIKEYS_menu_config ('x');
    /*---(update status)------------------*/
    STATUS_init_set   (SMOD_MENUS);
    /*---(complete)-----------------------*/
@@ -1398,6 +1400,10 @@ yvikeys_menu_wrap       (void)
 {
    yVIKEYS_menu_config ('-');
    if (s_head != NULL)  free  (s_head);
+   s_head = s_tail = NULL;
+   s_nmenu  = 0;
+   s_nbase  = 0;
+   s_nreal  = 0;
    return 0;
 }
 
@@ -1431,10 +1437,10 @@ yvikeys_menu__gl_center (int a_adj)
    /*---(locals)-----------+-----+-----+-*/
    int         x_xmin, x_xmax, x_ymin, x_ymax;
    /*---(header)-------------------------*/
-   DEBUG_CMDS   yLOG_enter   (__FUNCTION__);
+   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
    /*---(prepare)------------------------*/
    yVIKEYS_view_bounds (YVIKEYS_MAIN , &x_xmin, &x_xmax, NULL, &x_ymin, &x_ymax, NULL);
-   DEBUG_CMDS   yLOG_complex  ("bounds"    , "%3dx to %3dx, %3dy to %3dy, %3dz", x_xmin, x_xmax, x_ymin, x_ymax, s_z);
+   DEBUG_GRAF   yLOG_complex  ("bounds"    , "%3dx to %3dx, %3dy to %3dy, %3dz", x_xmin, x_xmax, x_ymin, x_ymax, s_z);
    s_anchor = yVIKEYS_view_anchor (YVIKEYS_MENUS);
    /*---(set x center)----------------*/
    switch (s_anchor) {
@@ -1450,7 +1456,7 @@ yvikeys_menu__gl_center (int a_adj)
       else                           s_ce  = x_xmin + s_x;
       break;
    }
-   DEBUG_CMDS   yLOG_value   ("s_ce"         , s_ce);
+   DEBUG_GRAF   yLOG_value   ("s_ce"         , s_ce);
    /*---(set y midpoint)--------------*/
    switch (s_anchor) {
    case YVIKEYS_TOPLEF : case YVIKEYS_TOPCEN : case YVIKEYS_TOPRIG :
@@ -1465,9 +1471,9 @@ yvikeys_menu__gl_center (int a_adj)
       else                           s_mi  = x_ymax + s_x;
       break;
    }
-   DEBUG_CMDS   yLOG_value   ("s_mi"         , s_mi);
+   DEBUG_GRAF   yLOG_value   ("s_mi"         , s_mi);
    /*---(complete)-----------------------*/
-   DEBUG_CMDS   yLOG_exit    (__FUNCTION__);
+   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -1478,14 +1484,14 @@ yvikeys_menu__gl_back   (int a_len, int a_level, tLINK *a_found)
    int         x_adj       =    5;
    char        t           [LEN_RECD];
    /*---(header)-------------------------*/
-   DEBUG_CMDS   yLOG_enter   (__FUNCTION__);
-   DEBUG_CMDS   yLOG_complex ("args"      , "%d %d -- %c %c %c %-10.10s %c", a_len, a_level, a_found->data->top, a_found->data->mid, a_found->data->bot, a_found->data->name, a_found->active);
+   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
+   DEBUG_GRAF   yLOG_complex ("args"      , "%d %d -- %c %c %c %-10.10s %c", a_len, a_level, a_found->data->top, a_found->data->mid, a_found->data->bot, a_found->data->name, a_found->active);
    /*---(prepare)------------------------*/
    s_pt     = myVIKEYS.point;
    /*> x_adj  = 15.0;                                                              <*/
    s_xoff = 15.0;
    /*---(get sizes)----------------------*/
-   DEBUG_CMDS   yLOG_note    ("set sizes and offsets (DEPTH vs FLAT)");
+   DEBUG_GRAF   yLOG_note    ("set sizes and offsets (DEPTH vs FLAT)");
    s_type   = yVIKEYS_view_type   (YVIKEYS_MENUS);
    if (s_type == YVIKEYS_DEPTH) {
       s_x    =  35;
@@ -1499,7 +1505,7 @@ yvikeys_menu__gl_back   (int a_len, int a_level, tLINK *a_found)
    /*---(anchoring)-------------------*/
    yvikeys_menu__gl_center (x_adj);
    /*---(black background)---------------*/
-   DEBUG_CMDS   yLOG_note    ("draw black background");
+   DEBUG_GRAF   yLOG_note    ("draw black background");
    glColor4f (0.0f, 0.0f, 0.0f, 1.0f);
    glBegin(GL_POLYGON); {
       glVertex3f (s_ce - s_x, s_mi + s_y, s_z);
@@ -1509,17 +1515,17 @@ yvikeys_menu__gl_back   (int a_len, int a_level, tLINK *a_found)
    } glEnd();
    /*---(color fill)---------------------*/
    if (a_len != a_level) {
-      DEBUG_CMDS   yLOG_note    ("a_len and a_level do not match, set color RED");
+      DEBUG_GRAF   yLOG_note    ("a_len and a_level do not match, set color RED");
       glColor4f (0.8f, 0.0f, 0.0f, 1.0f);
    } else {
-      DEBUG_CMDS   yLOG_note    ("set color for level");
+      DEBUG_GRAF   yLOG_note    ("set color for level");
       switch (a_level) {
       case  0 :  glColor4f (0.3f, 0.7f, 0.7f, 1.0f);  break;
       case  1 :  glColor4f (0.7f, 0.5f, 0.3f, 1.0f);  break;
       case  2 :  glColor4f (0.3f, 0.8f, 0.3f, 1.0f);  break;
       }
    }
-   DEBUG_CMDS   yLOG_note    ("draw inset background over black frame");
+   DEBUG_GRAF   yLOG_note    ("draw inset background over black frame");
    glBegin(GL_POLYGON); {
       glVertex3f (s_ce - s_x * 0.97, s_mi + s_y * 0.97, s_z + 2);
       glVertex3f (s_ce + s_x * 0.97, s_mi + s_y * 0.97, s_z + 2);
@@ -1553,7 +1559,7 @@ yvikeys_menu__gl_back   (int a_len, int a_level, tLINK *a_found)
       }
    } glPopMatrix();
    /*---(complete)-----------------------*/
-   DEBUG_CMDS   yLOG_exit    (__FUNCTION__);
+   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -1568,15 +1574,15 @@ yvikeys_menu__nc_back   (int a_len, int a_level, tLINK *a_found)
    int         x_len;
    int         i           =    0;
    /*---(header)-------------------------*/
-   DEBUG_CMDS   yLOG_enter   (__FUNCTION__);
-   DEBUG_CMDS   yLOG_complex ("args"      , "%d %d -- %c %c %c %-10.10s %c", a_len, a_level, a_found->data->top, a_found->data->mid, a_found->data->bot, a_found->data->name, a_found->active);
+   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
+   DEBUG_GRAF   yLOG_complex ("args"      , "%d %d -- %c %c %c %-10.10s %c", a_len, a_level, a_found->data->top, a_found->data->mid, a_found->data->bot, a_found->data->name, a_found->active);
    /*---(get sizes)----------------------*/
    yVIKEYS_view_size   (YVIKEYS_MENUS, &x_left, &x_wide, &x_bott, &x_tall, NULL);
-   DEBUG_CMDS   yLOG_complex  ("size"      , "%3dl, %3dw, %3db, %3dt", x_left, x_wide, x_bott, x_tall);
+   DEBUG_GRAF   yLOG_complex  ("size"      , "%3dl, %3dw, %3db, %3dt", x_left, x_wide, x_bott, x_tall);
    s_xoff =  2.0;
    /*---(get sizes)----------------------*/
    yVIKEYS_view_size   (YVIKEYS_MENUS, &x_left, &x_wide, &x_bott, &x_tall, NULL);
-   DEBUG_CMDS   yLOG_complex  ("size"      , "%3dl, %3dw, %3db, %3dt", x_left, x_wide, x_bott, x_tall);
+   DEBUG_GRAF   yLOG_complex  ("size"      , "%3dl, %3dw, %3db, %3dt", x_left, x_wide, x_bott, x_tall);
    x_top = x_bott - x_tall;
    x_mid = x_left + (x_wide / 2);
    yCOLOR_curs ("menu"   );
@@ -1606,7 +1612,7 @@ yvikeys_menu__nc_back   (int a_len, int a_level, tLINK *a_found)
       mvprintw   (x_bott - 7, x_mid - (x_len / 2), "%s", t);
    }
    /*---(complete)-----------------------*/
-   DEBUG_CMDS   yLOG_exit    (__FUNCTION__);
+   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -1617,8 +1623,8 @@ yvikeys_menu__gl_entry  (tLINK *a_item, int a_level, int a_group, int a_entry, f
    int         t           [LEN_LABEL];
    int         x_align     =    0;
    /*---(header)-------------------------*/
-   DEBUG_CMDS   yLOG_enter   (__FUNCTION__);
-   DEBUG_CMDS   yLOG_complex ("args"      , "%dl %dg %2de %6.2fx %6.2fy %6.2fox %6.2foy", a_level, a_group, a_entry, x, y, a_offx, a_offy);
+   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
+   DEBUG_GRAF   yLOG_complex ("args"      , "%dl %dg %2de %6.2fx %6.2fy %6.2fox %6.2foy", a_level, a_group, a_entry, x, y, a_offx, a_offy);
    glPushMatrix(); {
       /*---(recenter)--------------------*/
       glTranslatef (s_ce, s_mi, s_z + 6);
@@ -1675,7 +1681,7 @@ yvikeys_menu__gl_entry  (tLINK *a_item, int a_level, int a_group, int a_entry, f
       yFONT_print (myVIKEYS.font, s_pt, x_align, t);
       /*---(done)------------------------*/
    } glPopMatrix();
-   DEBUG_CMDS   yLOG_exit    (__FUNCTION__);
+   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -1687,8 +1693,8 @@ yvikeys_menu__nc_entry  (tLINK *a_item, int a_mid, int a_top, int a_level, int a
    uchar       t           [LEN_LABEL];
    int         x_len       =    0;
    /*---(header)-------------------------*/
-   DEBUG_CMDS   yLOG_enter   (__FUNCTION__);
-   DEBUG_CMDS   yLOG_complex ("args"      , "%dl %dg %2de %6.2fx %6.2fy %6.2fox %6.2foy", a_level, a_group, a_entry, x, y, a_offx, a_offy);
+   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
+   DEBUG_GRAF   yLOG_complex ("args"      , "%dl %dg %2de %6.2fx %6.2fy %6.2fox %6.2foy", a_level, a_group, a_entry, x, y, a_offx, a_offy);
    /*---(abbrev)-------------------------*/
    switch (a_level) {
    case 0  : sprintf (t, "%c", a_item->data->top);   break;
@@ -1727,7 +1733,7 @@ yvikeys_menu__nc_entry  (tLINK *a_item, int a_mid, int a_top, int a_level, int a
       x = a_group;
       y = a_entry;
    }
-   DEBUG_CMDS   yLOG_complex ("position"  , "%3dg, %3de, %3dm, %3dt, %3dx, %3dy", a_group, a_entry, a_mid, a_top, x, y);
+   DEBUG_GRAF   yLOG_complex ("position"  , "%3dg, %3de, %3dm, %3dt, %3dx, %3dy", a_group, a_entry, a_mid, a_top, x, y);
    /*---(prepare)------------------------*/
    if (t [0] < 0)  strcpy (t, "-");
    if (strchr ("èéêëìíîïðñòóôõö÷øùúûüýþÿ", t [0]) != NULL)  strcpy (t, "-");
@@ -1744,10 +1750,10 @@ yvikeys_menu__nc_entry  (tLINK *a_item, int a_mid, int a_top, int a_level, int a
    x += a_offx;
    y -= a_offy;
    /*---(name)---------------------------*/
-   DEBUG_CMDS   yLOG_complex ("title"     , "%3dox, %3doy, %3dl, %3dx, %3dy", a_offx, a_offy, x_len, x, y);
+   DEBUG_GRAF   yLOG_complex ("title"     , "%3dox, %3doy, %3dl, %3dx, %3dy", a_offx, a_offy, x_len, x, y);
    mvprintw   (y, x, "%s", t);
    /*---(complete)-----------------------*/
-   DEBUG_CMDS   yLOG_exit    (__FUNCTION__);
+   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -1765,11 +1771,11 @@ yvikeys_menu__column    (int a_level, tLINK *a_curr)
    float       x_xoff, x_yoff;
    tLINK      *x_curr;
    /*---(header)-------------------------*/
-   DEBUG_CMDS   yLOG_enter   (__FUNCTION__);
-   DEBUG_CMDS   yLOG_char    ("env"       , myVIKEYS.env);
+   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
+   DEBUG_GRAF   yLOG_char    ("env"       , myVIKEYS.env);
    /*---(get sizes)----------------------*/
    yVIKEYS_view_size   (YVIKEYS_MENUS, &x_left, &x_wide, &x_bott, &x_tall, NULL);
-   DEBUG_CMDS   yLOG_complex  ("size"      , "%3dl, %3dw, %3db, %3dt", x_left, x_wide, x_bott, x_tall);
+   DEBUG_GRAF   yLOG_complex  ("size"      , "%3dl, %3dw, %3db, %3dt", x_left, x_wide, x_bott, x_tall);
    /*---(col config)---------------------*/
    a = a_curr->c_count;
    if (a <= 10) {
@@ -1786,7 +1792,7 @@ yvikeys_menu__column    (int a_level, tLINK *a_curr)
    /*---(walk entries)-------------------*/
    x_curr = a_curr->c_first;
    while (x_curr != NULL) {
-      DEBUG_CMDS   yLOG_complex ("x_curr"    , "%c %c %c %-10.10s %c", x_curr->data->top, x_curr->data->mid, x_curr->data->bot, x_curr->data->name, x_curr->active);
+      DEBUG_GRAF   yLOG_complex ("x_curr"    , "%c %c %c %-10.10s %c", x_curr->data->top, x_curr->data->mid, x_curr->data->bot, x_curr->data->name, x_curr->active);
       /*---(filter)----------------------*/
       if (x_curr->active == MENU_HIDE) {
          x_curr = x_curr->s_next;
@@ -1815,7 +1821,7 @@ yvikeys_menu__column    (int a_level, tLINK *a_curr)
       }
    }
    /*---(complete)-----------------------*/
-   DEBUG_CMDS   yLOG_exit    (__FUNCTION__);
+   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -1829,13 +1835,13 @@ yvikeys_menu__gl_main   (void)
    float       x_off, y_off;
    float       x_pos, y_pos;
    /*---(header)-------------------------*/
-   DEBUG_CMDS   yLOG_enter   (__FUNCTION__);
+   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
    /*---(prepare)------------------------*/
-   DEBUG_CMDS   yLOG_value   ("c_count"   , s_head->c_count);
+   DEBUG_GRAF   yLOG_value   ("c_count"   , s_head->c_count);
    x_curr = s_head->c_first;
    /*---(walk children)------------------*/
    while (x_curr != NULL) {
-      DEBUG_CMDS   yLOG_complex ("x_curr"    , "%c %c %c %-10.10s %c", x_curr->data->top, x_curr->data->mid, x_curr->data->bot, x_curr->data->name, x_curr->active);
+      DEBUG_GRAF   yLOG_complex ("x_curr"    , "%c %c %c %-10.10s %c", x_curr->data->top, x_curr->data->mid, x_curr->data->bot, x_curr->data->name, x_curr->active);
       /*---(filter)------------*/
       if (x_curr->active == MENU_HIDE) {
          x_curr = x_curr->s_next;
@@ -1869,7 +1875,7 @@ yvikeys_menu__gl_main   (void)
       /*---(done)--------------*/
    }
    /*---(complete)-----------------------*/
-   DEBUG_CMDS   yLOG_exit    (__FUNCTION__);
+   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -1885,20 +1891,20 @@ yvikeys_menu__nc_main   (void)
    float       x_offx      =    0;
    float       x_offy      =    0;
    /*---(header)-------------------------*/
-   DEBUG_CMDS   yLOG_enter   (__FUNCTION__);
-   DEBUG_CMDS   yLOG_char    ("env"       , myVIKEYS.env);
+   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
+   DEBUG_GRAF   yLOG_char    ("env"       , myVIKEYS.env);
    /*---(get sizes)----------------------*/
    yVIKEYS_view_size   (YVIKEYS_MENUS, &x_left, &x_wide, &x_bott, &x_tall, NULL);
-   DEBUG_CMDS   yLOG_complex  ("size"      , "%3dl, %3dw, %3db, %3dt", x_left, x_wide, x_bott, x_tall);
+   DEBUG_GRAF   yLOG_complex  ("size"      , "%3dl, %3dw, %3db, %3dt", x_left, x_wide, x_bott, x_tall);
    /*---(opengl)-------------------------*/
    x_top = x_bott - x_tall + 2;
    x_mid = x_left + (x_wide / 2);
    /*---(prepare)------------------------*/
-   DEBUG_CMDS   yLOG_value   ("c_count"   , s_head->c_count);
+   DEBUG_GRAF   yLOG_value   ("c_count"   , s_head->c_count);
    x_curr = s_head->c_first;
    /*---(walk children)------------------*/
    while (x_curr != NULL) {
-      DEBUG_CMDS   yLOG_complex ("x_curr"    , "%c %c %c %-10.10s %c", x_curr->data->top, x_curr->data->mid, x_curr->data->bot, x_curr->data->name, x_curr->active);
+      DEBUG_GRAF   yLOG_complex ("x_curr"    , "%c %c %c %-10.10s %c", x_curr->data->top, x_curr->data->mid, x_curr->data->bot, x_curr->data->name, x_curr->active);
       /*---(filter)------------*/
       if (x_curr->active == MENU_HIDE) {
          x_curr = x_curr->s_next;
@@ -1919,7 +1925,7 @@ yvikeys_menu__nc_main   (void)
       ++c;
       /*---(done)--------------*/
    }
-   DEBUG_CMDS   yLOG_exit    (__FUNCTION__);
+   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -1931,32 +1937,32 @@ yvikeys_menu_draw          (void)
    int         x_len       =    0;
    int         n           =   -1;
    /*---(header)----------------------*/
-   DEBUG_USER   yLOG_enter   (__FUNCTION__);
+   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
    /*---(defenses)-----------------------*/
-   DEBUG_USER   yLOG_char    ("mode"      , MODE_curr ());
+   DEBUG_GRAF   yLOG_char    ("mode"      , MODE_curr ());
    --rce;  if (MODE_not (SMOD_MENUS  )) {
-      DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   DEBUG_CMDS   yLOG_point   ("s_head"    , s_head);
+   DEBUG_GRAF   yLOG_point   ("s_head"    , s_head);
    --rce;  if (s_head == NULL) {
-      DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(find path)----------------------*/
-   DEBUG_USER   yLOG_info    ("m_path"    , myVIKEYS.m_path);
+   DEBUG_GRAF   yLOG_info    ("m_path"    , myVIKEYS.m_path);
    n = yvikeys_menu_menu (myVIKEYS.m_path);
-   DEBUG_USER   yLOG_point   ("s_found"   , s_found);
+   DEBUG_GRAF   yLOG_point   ("s_found"   , s_found);
    --rce;  if (s_found == NULL) {
-      DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   DEBUG_CMDS   yLOG_complex ("target"    , "%c %c %c %s", s_found->data->top, s_found->data->mid, s_found->data->bot, s_found->data->name);
-   DEBUG_CMDS   yLOG_complex ("parent"    , "%c %c %c %s", s_parent->data->top, s_parent->data->mid, s_parent->data->bot, s_parent->data->name);
-   DEBUG_USER   yLOG_value   ("level"     , s_level);
+   DEBUG_GRAF   yLOG_complex ("target"    , "%c %c %c %s", s_found->data->top, s_found->data->mid, s_found->data->bot, s_found->data->name);
+   DEBUG_GRAF   yLOG_complex ("parent"    , "%c %c %c %s", s_parent->data->top, s_parent->data->mid, s_parent->data->bot, s_parent->data->name);
+   DEBUG_GRAF   yLOG_value   ("level"     , s_level);
    /*---(draw back)----------------------*/
    x_len = strlen (myVIKEYS.m_path);
-   DEBUG_USER   yLOG_value   ("x_len"     , x_len);
+   DEBUG_GRAF   yLOG_value   ("x_len"     , x_len);
    /*> yvikeys__menu_back (x_len - 1, s_level, s_parent);                             <*/
    if (myVIKEYS.env == YVIKEYS_OPENGL)   yvikeys_menu__gl_back (x_len - 1, s_level, s_found);
    else                                  yvikeys_menu__nc_back (x_len - 1, s_level, s_found);
@@ -1971,7 +1977,7 @@ yvikeys_menu_draw          (void)
       break;
    }
    /*---(complete)--------------------*/
-   DEBUG_USER   yLOG_exit    (__FUNCTION__);
+   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 

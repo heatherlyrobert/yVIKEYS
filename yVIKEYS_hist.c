@@ -73,10 +73,6 @@ yvikeys_hist__switcher  (char a_mode, char a_force)
       return 1;
    }
    /*---(switch)-------------------------*/
-   /*> DEBUG_HIST   yLOG_complex ("&command"  , "%10ph %10pt %10pc %10pn", &s_hrun , &s_trun , &s_crun , &s_nrun );   <*/
-   /*> DEBUG_HIST   yLOG_complex ("command"   , "%10ph %10pt %10pc %10dn",  s_hrun ,  s_trun ,  s_crun ,  s_nrun );   <*/
-   /*> DEBUG_HIST   yLOG_complex ("&search"   , "%10ph %10pt %10pc %10pn", &s_hpass, &s_tpass, &s_cpass, &s_npass);   <*/
-   /*> DEBUG_HIST   yLOG_complex ("search"    , "%10ph %10pt %10pc %10dn",  s_hpass,  s_tpass,  s_cpass,  s_npass);   <*/
    switch (a_mode) {
    case MODE_SEARCH  :
       DEBUG_HIST   yLOG_note    ("switching to search");
@@ -96,9 +92,6 @@ yvikeys_hist__switcher  (char a_mode, char a_force)
       s_count = &s_nrun;
       break;
    }
-   /*> DEBUG_HIST   yLOG_complex ("&current"  , "%10ph %10pt %10pc %10pn", &s_head , &s_tail , &s_curr , &s_count);   <*/
-   /*> DEBUG_HIST   yLOG_complex ("current"   , "%10ph %10pt %10pc %10pn",  s_head ,  s_tail ,  s_curr ,  s_count);   <*/
-   /*> DEBUG_HIST   yLOG_complex ("*current"  , "%10ph %10pt %10pc %10dn", *s_head , *s_tail , *s_curr , *s_count);   <*/
    /*---(save)---------------------------*/
    x_save = a_mode;
    /*---(complete)-----------------------*/
@@ -115,8 +108,15 @@ yvikeys_hist_limits     (char a_mode, int *a_min, int *a_max)
    return 0;
 }
 
+
+
+/*====================------------------------------------====================*/
+/*===----                      histtory marks                         ----===*/
+/*====================------------------------------------====================*/
+static void  o___MARKS___________o () { return; }
+
 char 
-yvikeys_cmds__valid     (char a_abbr)
+yvikeys_hist__valid     (char a_abbr)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -136,7 +136,60 @@ yvikeys_cmds__valid     (char a_abbr)
    return 0;
 }
 
-char yvikeys_srch__valid  (char a_abbr) { return yvikeys_cmds__valid (a_abbr); }
+char
+yvikeys_hist__unmark  (uchar a_mark)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   tHIST      *x_curr      = NULL;
+   int         c           =    0;
+   /*---(header)-------------------------*/
+   DEBUG_HIST   yLOG_enter   (__FUNCTION__);
+   /*---(defenses)-----------------------*/
+   DEBUG_HIST   yLOG_char    ("a_mark"    , a_mark);
+   --rce;  if (strchr (S_HIST_LIST, tolower (a_mark)) == NULL) {
+      DEBUG_HIST   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(walk-entries)-------------------*/
+   x_curr = *s_head;
+   while (x_curr != NULL) {
+      DEBUG_HIST   yLOG_complex ("entry"     , "%2d %-10.10s %10p %10p %10p", c, x_curr->text, x_curr, x_curr->m_next, x_curr->m_prev);
+      if (a_mark == x_curr->mark)   x_curr->mark = '-';
+      x_curr = x_curr->m_next;
+      ++c;
+   }
+   /*---(complete)-----------------------*/
+   DEBUG_HIST   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char
+yvikeys_hist__mark    (uchar a_mark)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   /*---(header)-------------------------*/
+   DEBUG_HIST   yLOG_enter   (__FUNCTION__);
+   /*---(defenses)-----------------------*/
+   DEBUG_HIST   yLOG_char    ("a_mark"    , a_mark);
+   --rce;  if (strchr (S_HIST_LIST, a_mark) == NULL) {
+      DEBUG_HIST   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_HIST   yLOG_point   ("*s_curr"   , *s_curr);
+   --rce;  if (*s_curr == NULL) {
+      DEBUG_HIST   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(make sure not used)-------------*/
+   yvikeys_hist__unmark (a_mark);
+   /*---(mark current)-------------------*/
+   (*s_curr)->mark = a_mark;
+   /*---(complete)-----------------------*/
+   DEBUG_HIST   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
 
 
 
@@ -144,37 +197,6 @@ char yvikeys_srch__valid  (char a_abbr) { return yvikeys_cmds__valid (a_abbr); }
 /*===----                    memory allocation                         ----===*/
 /*====================------------------------------------====================*/
 static void  o___MEMORY__________o () { return; }
-
-/*> int                                                                               <* 
- *> yvikeys_srch__index     (char a_abbr)                                             <* 
- *> {                                                                                 <* 
- *>    /+---(locals)-----------+-----+-----+-+/                                       <* 
- *>    char        rce         =  -10;                                                <* 
- *>    char        rc          =    0;                                                <* 
- *>    int         i           =    0;                                                <* 
- *>    int         n           =   -1;                                                <* 
- *>    /+---(header)-------------------------+/                                       <* 
- *>    DEBUG_HIST   yLOG_senter  (__FUNCTION__);                                      <* 
- *>    /+---(check)--------------------------+/                                       <* 
- *>    DEBUG_HIST   yLOG_snote   ("check");                                           <* 
- *>    rc = strlchr (S_HIST_LIST, a_abbr, S_HIST_MAX);                                <* 
- *>    DEBUG_HIST   yLOG_sint    (rc);                                                <* 
- *>    --rce;  if (rc < 0) {                                                          <* 
- *>       DEBUG_HIST   yLOG_sexitr  (__FUNCTION__, rce);                              <* 
- *>       return rce;                                                                 <* 
- *>    }                                                                              <* 
- *>    /+---(search)-------------------------+/                                       <* 
- *>    DEBUG_HIST   yLOG_snote   ("search");                                          <* 
- *>    for (i = 0; i < s_npass; ++i) {                                                <* 
- *>       if (s_passes [i].mark != a_abbr)  continue;                                 <* 
- *>       n = i;                                                                      <* 
- *>       break;                                                                      <* 
- *>    }                                                                              <* 
- *>    DEBUG_HIST   yLOG_sint    (n);                                                 <* 
- *>    /+---(complete)-----------------------+/                                       <* 
- *>    DEBUG_HIST   yLOG_sexit   (__FUNCTION__);                                      <* 
- *>    return n;                                                                      <* 
- *> }                                                                                 <*/
 
 char 
 yvikeys_hist__new       (char a_mode, uchar *a_text)
@@ -305,7 +327,7 @@ yvikeys_hist_init       (void)
    strlcpy (S_HIST_LIST, ""            , S_HIST_MAX);
    strlcat (S_HIST_LIST, gvikeys_lower , S_HIST_MAX);
    /*> strlcat (S_HIST_LIST, gvikeys_upper , S_HIST_MAX);                             <*/
-   /*> strlcat (S_HIST_LIST, gvikeys_greek , S_HIST_MAX);                             <*/
+   strlcat (S_HIST_LIST, gvikeys_greek , S_HIST_MAX);
    DEBUG_HIST   yLOG_info    ("LIST"      , S_HIST_LIST);
    /*---(clear history)------------------*/
    DEBUG_HIST   yLOG_note    ("clear all history");
@@ -375,6 +397,13 @@ yvikeys_hist_redo       (void)
    return -1;
 }
 
+
+
+/*====================------------------------------------====================*/
+/*===----                      display screens                         ----===*/
+/*====================------------------------------------====================*/
+static void  o___DISPLAY_________o () { return; }
+
 static char    s_on    = '-';
 static int     s_first = 0;
 static int     s_now   = 0;
@@ -391,18 +420,104 @@ static int     s_lines = 0;
 char         /*-> show history on screen -------------[ ------ [ge.TQ5.25#.F9]*/ /*-[03.0000.122.R]-*/ /*-[--.---.---.--]-*/
 yvikeys_hist__bounds    (void)
 {
+   /*---(locals)-----------+-----+-----+-*/
+   char        x_mode      =  '-';
+   /*---(header)-------------------------*/
+   DEBUG_HIST   yLOG_enter   (__FUNCTION__);
    s_on    = yVIKEYS_view_size     (YVIKEYS_HISTORY, &s_left, &s_wide, &s_bott, &s_tall, NULL);
-   yvikeys_hist_limits   (MODE_curr (), &s_min, &s_max);
+   x_mode = MODE_curr ();
+   if (x_mode == UMOD_HISTORY)  x_mode = MODE_prev ();
+   yvikeys_hist_limits   (x_mode, &s_min, &s_max);
    s_now   = *s_index;
    s_lines = s_tall - 2;
    s_first = s_now - ((s_lines - 2) / 2);
    s_topp  = s_bott - s_lines + 1;
    s_righ  = s_left + s_wide - 1;
+   DEBUG_HIST   yLOG_complex ("values"    , "%3dc %3dl %3dn %3df", *s_count, s_lines, s_now, s_first);
+   DEBUG_HIST   yLOG_complex ("sizes"     , "%3dl %3dw %3dr %3db %3dt %3dt ", s_left, s_wide, s_righ, s_bott, s_tall, s_topp);
+   /*---(complete)-----------------------*/
+   DEBUG_HIST   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char
+yvikeys_hist__entry      (uchar *a_entry, int a_len, char a_type)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   int         x_len       =    0;
+   char        x_pref      [LEN_RECD];
+   char        x_suff      [LEN_RECD];
+   int         x_size      =    0;
+   int         x_found     =    0;
+   /*---(defense)------------------------*/
+   --rce;  if (a_entry == NULL)  return rce;
+   /*---(spacer)-------------------------*/
+   /*> DEBUG_HIST   yLOG_complex ("args"      , "%-10p, %3dl, %ct", a_entry, a_len, a_type);   <*/
+   if (a_type == ' ') {
+      sprintf (a_entry, "%-*.*s%c", a_len - 1, a_len - 1, "´    -    ", '´');
+      DEBUG_HIST   yLOG_delim   ("blank"     , a_entry);
+      DEBUG_HIST   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
+   /*---(header)-------------------------*/
+   if (a_type == 'h') {
+      if (a_len >= 60) {
+         x_size = a_len - 4 - 17;
+         if (MODE_prev () == MODE_SEARCH)   sprintf (x_pref, "ref %*.*s", x_size, x_size, "----------SEARCH HISTORY-------------------------------------------------------------");
+         else                               sprintf (x_pref, "ref %*.*s", x_size, x_size, "----------COMMAND HISTORY------------------------------------------------------------");
+         sprintf (x_suff, "runs exec retn m");
+      } else if (a_len >= 40) {
+         x_size = a_len - 4 - 7;
+         if (MODE_prev () == MODE_SEARCH)   sprintf (x_pref, "ref %*.*s", x_size, x_size, "-----SEARCH HISTORY-------------------------------------------------------------");
+         else                               sprintf (x_pref, "ref %*.*s", x_size, x_size, "-----COMMAND HISTORY------------------------------------------------------------");
+         sprintf (x_suff, "retn m");
+      } else {
+         x_size = a_len - 2;
+         if (MODE_prev () == MODE_SEARCH)   sprintf (x_pref, "%*.*s", x_size, x_size, "´--SEARCH HISTORY-------------------------------------------------------------");
+         else                               sprintf (x_pref, "%*.*s", x_size, x_size, "´--COMMAND HISTORY------------------------------------------------------------");
+         sprintf (x_suff, "m");
+      }
+      sprintf (a_entry, "%s %s", x_pref, x_suff);
+      /*> DEBUG_HIST   yLOG_delim   ("header"    , a_entry);                          <*/
+      return 0;
+   }
+   /*---(footer)-------------------------*/
+   if (a_type == 'f') {
+      if (a_len >= 40) {
+         sprintf (a_entry, "%-*.*s %c", a_len - 2, a_len - 2, "¦ to choose, ¥ to leave, _KkjJ~ to move       ", '´');
+      } else {
+         sprintf (a_entry, "%-*.*s %c", a_len - 2, a_len - 2, "¦ pick, ¥, _KkjJ~       ", '´');
+      }
+      /*> DEBUG_HIST   yLOG_delim   ("footer"    , a_entry);                          <*/
+      return 0;
+   }
+   /*---(create)-------------------------*/
+   x_len   = strlen ((*s_curr)->text);
+   x_found = (*s_curr)->found;
+   if (x_found > 999)  x_found = 999;
+   if      (a_len >= 60) {
+      x_size = a_len - 4 - 17;
+      sprintf (x_pref, "%-3d %-*.*s", *s_index, x_size, x_size, (*s_curr)->text);
+      sprintf (x_suff, "%3dc %3dr %3df %c", (*s_curr)->count, (*s_curr)->ran, x_found, (*s_curr)->mark);
+   } else if (a_len >= 40) {
+      x_size = a_len - 4 - 7;
+      sprintf (x_pref, "%-3d %-*.*s", *s_index, x_size, x_size, (*s_curr)->text);
+      sprintf (x_suff, "%3df %c", x_found, (*s_curr)->mark);
+   } else {
+      x_size = a_len - 2;
+      sprintf (x_pref, "%-*.*s", x_size, x_size, (*s_curr)->text);
+      sprintf (x_suff, "%c", (*s_curr)->mark);
+   }
+   if (x_size < x_len)  x_pref [strlen (x_pref) - 1] = '>';
+   sprintf (a_entry, "%s %s", x_pref, x_suff);
+   /*> DEBUG_HIST   yLOG_delim   ("entry"     , a_entry);                             <*/
+   /*---(complete)-----------------------*/
    return 0;
 }
 
 char         /*-> show history on screen -------------[ ------ [ge.TQ5.25#.F9]*/ /*-[03.0000.122.R]-*/ /*-[--.---.---.--]-*/
-yvikeys_hist__info      (void)
+yvikeys_hist_info       (void)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        x_edit      =  ' ';
@@ -455,11 +570,12 @@ yvikeys_hist_show       (void)
    int         i           =    0;
    int         x_index     =    0;
    tHIST      *x_curr      = NULL;
-   /*---(defense)------------------------*/
+   /*---(header)-------------------------*/
    DEBUG_HIST   yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
    DEBUG_HIST   yLOG_char    ("info_win"  , myVIKEYS.info_win);
    if (myVIKEYS.info_win == 'y') {
-      yvikeys_hist__info ();;
+      yvikeys_hist_info ();;
       DEBUG_HIST   yLOG_exit    (__FUNCTION__);
       return 0;
    }
@@ -469,8 +585,6 @@ yvikeys_hist_show       (void)
       DEBUG_HIST   yLOG_exit    (__FUNCTION__);
       return 0;
    }
-   /*---(header)-------------------------*/
-   DEBUG_HIST   yLOG_enter   (__FUNCTION__);
    /*---(prepare)------------------------*/
    yvikeys_hist__bounds ();
    x_index = *s_index;
@@ -478,6 +592,8 @@ yvikeys_hist_show       (void)
    yvikeys_hist__index (s_first);
    /*---(show screen)--------------------*/
    if (myVIKEYS.env == YVIKEYS_CURSES) {
+      DEBUG_HIST   yLOG_complex ("values"    , "%3dc %3dl %3dn %3df", *s_count, s_lines, s_now, s_first);
+      DEBUG_HIST   yLOG_complex ("sizes"     , "%3dl %3dw %3dr %3db %3dt %3dt ", s_left, s_wide, s_righ, s_bott, s_tall, s_topp);
       /*---(header)----------------------*/
       yCOLOR_curs ("h_used" );
       yvikeys_hist__entry (x_entry, s_wide - 2, 'h');
@@ -488,13 +604,15 @@ yvikeys_hist_show       (void)
       for (i = 0; i < s_lines; ++i) {
          /*---(content)--------*/
          rc = 1;
-         if (s_first + i < 0) yvikeys_hist__entry (x_entry, s_wide - 2, ' ');
+         if (*s_curr  == NULL)     yvikeys_hist__entry (x_entry, s_wide - 2, ' ');
+         else if (s_first + i < 0) yvikeys_hist__entry (x_entry, s_wide - 2, ' ');
          else {
             if      (s_first + i == 0)  rc = 0;
             else if (s_first + i >  0)  rc = yvikeys_hist__cursor ('>');
             if (rc == 0)  yvikeys_hist__entry (x_entry, s_wide - 2, 'e');
             else          yvikeys_hist__entry (x_entry, s_wide - 2, ' ');
          }
+         DEBUG_HIST   yLOG_delim   ("x_entry"   , x_entry);
          /*---(color)----------*/
          if      (rc != 0)   {
             if ((i % 2) == 0)           yCOLOR_curs ("title"        );
@@ -523,28 +641,35 @@ yvikeys_hist_show       (void)
    return 0;
 }
 
+
+
+/*====================------------------------------------====================*/
+/*===----                       file read/write                        ----===*/
+/*====================------------------------------------====================*/
+static void  o___FILES___________o () { return; }
+
 char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/
-yvikeys_cmds__writer    (char a_abbr)
+yvikeys_hist__write     (char a_mode, char a_abbr)
 {
    /*---(locals)-----------+-----------+-*/
    char        rce         =  -10;
-   char        rc          =    0;
-   char        n           =    0;
-   char        x_cmd       [LEN_RECD ];
+   char        rc          =   -1;
+   char        x_recd      [LEN_RECD ];
    tHIST      *x_curr      = NULL;
    /*---(header)-------------------------*/
    DEBUG_OUTP   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
-   --rce;  if (!STATUS_operational (MODE_COMMAND)) {
-      DEBUG_OUTP   yLOG_note    ("can not execute until operational");
-      DEBUG_OUTP   yLOG_exitr   (__FUNCTION__, rce);
+   DEBUG_OUTP   yLOG_char    ("a_abbr"    , a_abbr);
+   rc  = yvikeys_hist__valid (a_abbr);
+   DEBUG_INPT   yLOG_value   ("index"     , rc);
+   --rce; if (rc  < 0) {
+      DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(clear output)-------------------*/
    yPARSE_outclear  ();
-   /*---(defense)------------------------*/
-   DEBUG_OUTP   yLOG_char    ("a_abbr"    , a_abbr);
-   x_curr = s_hrun;
+   /*---(find mark)----------------------*/
+   x_curr = *s_head;
    while (x_curr != NULL) {
       if (x_curr->mark == a_abbr)  break;
       x_curr = x_curr->m_next;
@@ -555,15 +680,16 @@ yvikeys_cmds__writer    (char a_abbr)
       return 0;
    }
    /*---(write)-----------------------*/
-   strlcpy  (x_cmd, x_curr->text, LEN_RECD);
-   yPARSE_fullwrite ("command", x_curr->mark, x_cmd);
+   strlcpy  (x_recd, x_curr->text, LEN_RECD);
+   if (a_mode == MODE_COMMAND)  yPARSE_fullwrite ("command", x_curr->mark, x_recd);
+   else                         yPARSE_fullwrite ("search" , x_curr->mark, x_recd);
    /*---(complete)-----------------------*/
    DEBUG_OUTP  yLOG_exit    (__FUNCTION__);
    return 1;
 }
 
 char
-yvikeys_cmds__writer_all     (void)
+yvikeys_hist__writer    (char a_mode)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -574,17 +700,20 @@ yvikeys_cmds__writer_all     (void)
    /*---(header)-------------------------*/
    DEBUG_OUTP   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
-   --rce;  if (!STATUS_operational (MODE_COMMAND)) {
+   --rce;  if (!STATUS_operational (a_mode)) {
       DEBUG_OUTP   yLOG_note    ("can not execute until operational");
       DEBUG_OUTP   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
+   /*---(switcher)-----------------------*/
+   yvikeys_hist__switcher (a_mode, '-');
    /*---(prepare)------------------------*/
    x_end = strlen (S_HIST_LIST);
-   yPARSE_verb_begin ("command");
+   if (a_mode == MODE_COMMAND)  yPARSE_verb_begin ("command");
+   else                         yPARSE_verb_begin ("search");
    /*---(walk list)----------------------*/
    for (i = 0; i < x_end; ++i) {
-      rc = yvikeys_cmds__writer (S_HIST_LIST [i]);
+      rc = yvikeys_hist__write (a_mode, S_HIST_LIST [i]);
       if (rc < 1)  continue;
       ++c;
       yPARSE_verb_break (c);
@@ -596,263 +725,78 @@ yvikeys_cmds__writer_all     (void)
    return c;
 }
 
-char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/
-yvikeys_srch__writer    (char a_abbr)
-{
-   /*> /+---(locals)-----------+-----------+-+/                                       <* 
-    *> char        rce         =  -10;                                                <* 
-    *> char        rc          =    0;                                                <* 
-    *> char        n           =    0;                                                <* 
-    *> char        x_srch       [LEN_RECD ];                                          <* 
-    *> /+---(header)-------------------------+/                                       <* 
-    *> DEBUG_OUTP   yLOG_enter   (__FUNCTION__);                                      <* 
-    *> /+---(defense)------------------------+/                                       <* 
-    *> --rce;  if (!STATUS_operational (MODE_SEARCH)) {                               <* 
-    *>    DEBUG_OUTP   yLOG_note    ("can not execute until operational");            <* 
-    *>    DEBUG_OUTP   yLOG_exitr   (__FUNCTION__, rce);                              <* 
-    *>    return rce;                                                                 <* 
-    *> }                                                                              <* 
-    *> /+---(clear output)-------------------+/                                       <* 
-    *> yPARSE_outclear  ();                                                           <* 
-    *> /+---(defense)------------------------+/                                       <* 
-    *> DEBUG_OUTP   yLOG_char    ("a_abbr"    , a_abbr);                              <* 
-    *> n  = yvikeys_srch__index (a_abbr);                                             <* 
-    *> DEBUG_OUTP   yLOG_char    ("index"     , n);                                   <* 
-    *> if (n == -1) {                                                                 <* 
-    *>    DEBUG_OUTP   yLOG_exit    (__FUNCTION__);                                   <* 
-    *>    return 0;                                                                   <* 
-    *> }                                                                              <* 
-    *> --rce; if (n  < 0) {                                                           <* 
-    *>    DEBUG_OUTP   yLOG_exitr   (__FUNCTION__, rce);                              <* 
-    *>    return rce;                                                                 <* 
-    *> }                                                                              <* 
-    *> /+---(filter)-------------------------+/                                       <* 
-    *> DEBUG_OUTP   yLOG_char    ("mark"      , s_passes [n].mark);                   <* 
-    *> if (s_passes [n].mark == '-') {                                                <* 
-    *>    DEBUG_OUTP   yLOG_exit    (__FUNCTION__);                                   <* 
-    *>    return 0;                                                                   <* 
-    *> }                                                                              <* 
-    *> /+---(write)-----------------------+/                                          <* 
-    *> strlcpy  (x_srch, s_passes [n].text, LEN_RECD);                                <* 
-    *> yPARSE_fullwrite ("search", s_passes [n].mark, x_srch);                        <* 
-    *> /+---(complete)-----------------------+/                                       <* 
-    *> DEBUG_OUTP  yLOG_exit    (__FUNCTION__);                                       <* 
-    *> return 1;                                                                      <*/
-}
+char yvikeys_cmds_writer  (void) { return yvikeys_hist__writer (MODE_COMMAND); }
+char yvikeys_srch_writer  (void) { return yvikeys_hist__writer (MODE_SEARCH ); }
 
 char
-yvikeys_srch__writer_all     (void)
+yvikeys_hist__reader         (char a_mode)
 {
-   /*> /+---(locals)-----------+-----+-----+-+/                                       <* 
-    *> char        rce         =  -10;                                                <* 
-    *> char        rc          =    0;                                                <* 
-    *> char        x_end       =    0;                                                <* 
-    *> int         i           =    0;                                                <* 
-    *> char        c           =    0;                                                <* 
-    *> /+---(header)-------------------------+/                                       <* 
-    *> DEBUG_OUTP   yLOG_enter   (__FUNCTION__);                                      <* 
-    *> /+---(defense)------------------------+/                                       <* 
-    *> --rce;  if (!STATUS_operational (MODE_SEARCH)) {                               <* 
-    *>    DEBUG_OUTP   yLOG_note    ("can not execute until operational");            <* 
-    *>    DEBUG_OUTP   yLOG_exitr   (__FUNCTION__, rce);                              <* 
-    *>    return rce;                                                                 <* 
-    *> }                                                                              <* 
-    *> /+---(prepare)------------------------+/                                       <* 
-    *> x_end = strlen (S_HIST_LIST);                                                  <* 
-    *> yPARSE_verb_begin ("search");                                                  <* 
-    *> /+---(walk list)----------------------+/                                       <* 
-    *> for (i = 0; i <= x_end; ++i) {                                                 <* 
-    *>    rc = yvikeys_srch__writer (S_HIST_LIST [i]);                                <* 
-    *>    if (rc < 1)  continue;                                                      <* 
-    *>    ++c;                                                                        <* 
-    *>    yPARSE_verb_break (c);                                                      <* 
-    *> }                                                                              <* 
-    *> /+---(wrap-up)------------------------+/                                       <* 
-    *> yPARSE_verb_end   (c);                                                         <* 
-    *> /+---(complete)-----------------------+/                                       <* 
-    *> DEBUG_OUTP  yLOG_exit    (__FUNCTION__);                                       <* 
-    *> return c;                                                                      <*/
-}
-
-char
-yvikeys_srch__reader         (void)
-{
-   /*> /+---(locals)-----------+-----------+-+/                                       <* 
-    *> char        rce         =  -11;                                                <* 
-    *> char        rc          =    0;                                                <* 
-    *> char        x_verb      [LEN_LABEL];                                           <* 
-    *> char        x_abbr      =    0;                                                <* 
-    *> char        x_srch       [LEN_RECD ];                                          <* 
-    *> /+---(header)-------------------------+/                                       <* 
-    *> DEBUG_INPT   yLOG_enter   (__FUNCTION__);                                      <* 
-    *> /+---(defense)------------------------+/                                       <* 
-    *> --rce;  if (!STATUS_operational (MODE_SEARCH)) {                               <* 
-    *>    DEBUG_INPT   yLOG_note    ("can not execute until operational");            <* 
-    *>    DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);                              <* 
-    *>    return rce;                                                                 <* 
-    *> }                                                                              <* 
-    *> /+---(get verb)-----------------------+/                                       <* 
-    *> rc = yPARSE_popstr (x_verb);                                                   <* 
-    *> DEBUG_INPT   yLOG_value   ("pop verb"  , rc);                                  <* 
-    *> DEBUG_INPT   yLOG_info    ("x_verb"    , x_verb);                              <* 
-    *> --rce;  if (strcmp ("search", x_verb) != 0) {                                  <* 
-    *>    DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);                              <* 
-    *>    return rce;                                                                 <* 
-    *> }                                                                              <* 
-    *> /+---(label)--------------------------+/                                       <* 
-    *> rc = yPARSE_popchar (&x_abbr);                                                 <* 
-    *> DEBUG_INPT   yLOG_value   ("pop abbr"  , rc);                                  <* 
-    *> DEBUG_INPT   yLOG_char    ("abbr"      , x_abbr);                              <* 
-    *> rc  = yvikeys_srch__valid (x_abbr);                                            <* 
-    *> DEBUG_INPT   yLOG_value   ("index"     , rc);                                  <* 
-    *> --rce; if (rc  < 0) {                                                          <* 
-    *>    DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);                              <* 
-    *>    return rce;                                                                 <* 
-    *> }                                                                              <* 
-    *> /+---(get command)--------------------+/                                       <* 
-    *> rc = yPARSE_popstr (x_srch);                                                   <* 
-    *> DEBUG_INPT   yLOG_value   ("pop verb"  , rc);                                  <* 
-    *> strldchg (x_srch, G_KEY_SPACE, G_CHAR_STORAGE, LEN_RECD);                      <* 
-    *> DEBUG_INPT   yLOG_info    ("x_srch"    , x_srch);                              <* 
-    *> /+---(save)---------------------------+/                                       <* 
-    *> DEBUG_SRCH   yLOG_note    ("saving values");                                   <* 
-    *> strlcpy (s_passes [s_npass].text, x_srch, LEN_RECD);                           <* 
-    *> s_passes [s_npass].mark  = x_abbr;                                             <* 
-    *> ++s_npass;                                                                     <* 
-    *> /+---(complete)-----------------------+/                                       <* 
-    *> DEBUG_INPT  yLOG_exit    (__FUNCTION__);                                       <* 
-    *> return 1;                                                                      <*/
-}
-
-char
-yvikeys_cmds__reader (void)
-{
-   /*> /+---(locals)-----------+-----------+-+/                                       <* 
-    *> char        rce         =  -11;                                                <* 
-    *> char        rc          =    0;                                                <* 
-    *> int         n           =    0;                                                <* 
-    *> char        x_verb      [LEN_LABEL];                                           <* 
-    *> char        x_abbr      =    0;                                                <* 
-    *> char        x_cmd       [LEN_RECD ];                                           <* 
-    *> /+---(header)-------------------------+/                                       <* 
-    *> DEBUG_INPT   yLOG_enter   (__FUNCTION__);                                      <* 
-    *> /+---(defense)------------------------+/                                       <* 
-    *> --rce;  if (!STATUS_operational (MODE_COMMAND)) {                              <* 
-    *>    DEBUG_INPT   yLOG_note    ("can not execute until operational");            <* 
-    *>    DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);                              <* 
-    *>    return rce;                                                                 <* 
-    *> }                                                                              <* 
-    *> /+---(get verb)-----------------------+/                                       <* 
-    *> rc = yPARSE_popstr (x_verb);                                                   <* 
-    *> DEBUG_INPT   yLOG_value   ("pop verb"  , rc);                                  <* 
-    *> DEBUG_INPT   yLOG_info    ("x_verb"    , x_verb);                              <* 
-    *> --rce;  if (strcmp ("command", x_verb) != 0) {                                 <* 
-    *>    DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);                              <* 
-    *>    return rce;                                                                 <* 
-    *> }                                                                              <* 
-    *> /+---(label)--------------------------+/                                       <* 
-    *> rc = yPARSE_popchar (&x_abbr);                                                 <* 
-    *> DEBUG_INPT   yLOG_value   ("pop abbr"  , rc);                                  <* 
-    *> DEBUG_INPT   yLOG_char    ("abbr"      , x_abbr);                              <* 
-    *> n  = yvikeys_cmds__valid (x_abbr);                                             <* 
-    *> DEBUG_INPT   yLOG_char    ("strlchr"   , n);                                   <* 
-    *> --rce; if (n   < 0) {                                                          <* 
-    *>    DEBUG_OUTP   yLOG_exitr   (__FUNCTION__, rce);                              <* 
-    *>    return rce;                                                                 <* 
-    *> }                                                                              <* 
-    *> /+---(get command)--------------------+/                                       <* 
-    *> rc = yPARSE_popstr (x_cmd);                                                    <* 
-    *> DEBUG_INPT   yLOG_value   ("pop verb"  , rc);                                  <* 
-    *> strldchg (x_cmd, G_KEY_SPACE, G_CHAR_STORAGE, LEN_RECD);                       <* 
-    *> DEBUG_INPT   yLOG_info    ("x_cmd"     , x_cmd);                               <* 
-    *> /+---(save)---------------------------+/                                       <* 
-    *> DEBUG_SRCH   yLOG_note    ("saving values");                                   <* 
-    *> strlcpy (s_runs [s_nrun].text, x_cmd, LEN_RECD);                               <* 
-    *> s_runs [s_nrun].mark  = x_abbr;                                                <* 
-    *> ++s_nrun;                                                                      <* 
-    *> /+---(complete)-----------------------+/                                       <* 
-    *> DEBUG_INPT  yLOG_exit    (__FUNCTION__);                                       <* 
-    *> return 1;                                                                      <*/
-}
-
-
-
-
-/*====================------------------------------------====================*/
-/*===----                       support functions                      ----===*/
-/*====================------------------------------------====================*/
-static void  o___DISPLAY_________o () { return; }
-
-char
-yvikeys_hist__entry      (uchar *a_entry, int a_len, char a_type)
-{
-   /*---(locals)-----------+-----+-----+-*/
-   char        rce         =  -10;
-   int         x_len       =    0;
-   char        x_pref      [LEN_RECD];
-   char        x_suff      [LEN_RECD];
-   int         x_size      =    0;
-   int         x_found     =    0;
-   /*---(defense)------------------------*/
-   --rce;  if (a_entry == NULL)  return rce;
-   --rce;  if (*s_curr == NULL)  return rce;
-   /*---(spacer)-------------------------*/
-   if (a_type == ' ') {
-      sprintf (a_entry, "%-*.*s%c", a_len - 1, a_len - 1, "´    -    ", '´');
-      return 0;
-   }
+   /*---(locals)-----------+-----------+-*/
+   char        rce         =  -11;
+   char        rc          =    0;
+   char        x_verb      [LEN_LABEL];
+   char        x_abbr      =    0;
+   char        x_text       [LEN_RECD ];
    /*---(header)-------------------------*/
-   if (a_type == 'h') {
-      if (a_len >= 60) {
-         x_size = a_len - 4 - 17;
-         if (MODE_prev () == MODE_SEARCH)   sprintf (x_pref, "ref %*.*s", x_size, x_size, "----------SEARCH HISTORY-------------------------------------------------------------");
-         else                               sprintf (x_pref, "ref %*.*s", x_size, x_size, "----------COMMAND HISTORY------------------------------------------------------------");
-         sprintf (x_suff, "runs exec retn m");
-      } else if (a_len >= 40) {
-         x_size = a_len - 4 - 7;
-         if (MODE_prev () == MODE_SEARCH)   sprintf (x_pref, "ref %*.*s", x_size, x_size, "-----SEARCH HISTORY-------------------------------------------------------------");
-         else                               sprintf (x_pref, "ref %*.*s", x_size, x_size, "-----COMMAND HISTORY------------------------------------------------------------");
-         sprintf (x_suff, "retn m");
-      } else {
-         x_size = a_len - 2;
-         if (MODE_prev () == MODE_SEARCH)   sprintf (x_pref, "%*.*s", x_size, x_size, "´--SEARCH HISTORY-------------------------------------------------------------");
-         else                               sprintf (x_pref, "%*.*s", x_size, x_size, "´--COMMAND HISTORY------------------------------------------------------------");
-         sprintf (x_suff, "m");
-      }
-      sprintf (a_entry, "%s %s", x_pref, x_suff);
-      return 0;
+   DEBUG_INPT   yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   --rce;  if (!STATUS_operational (a_mode)) {
+      DEBUG_INPT   yLOG_note    ("can not execute until operational");
+      DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
    }
-   /*---(footer)-------------------------*/
-   if (a_type == 'f') {
-      if (a_len >= 40) {
-         sprintf (a_entry, "%-*.*s %c", a_len - 2, a_len - 2, "¦ to choose, ¥ to leave, _KkjJ~ to move       ", '´');
-      } else {
-         sprintf (a_entry, "%-*.*s %c", a_len - 2, a_len - 2, "¦ pick, ¥, _KkjJ~       ", '´');
-      }
-      return 0;
+   /*---(switcher)-----------------------*/
+   yvikeys_hist__switcher (a_mode, '-');
+   /*---(get verb)-----------------------*/
+   rc = yPARSE_popstr (x_verb);
+   DEBUG_INPT   yLOG_value   ("pop verb"  , rc);
+   DEBUG_INPT   yLOG_info    ("x_verb"    , x_verb);
+   --rce;  if (a_mode == MODE_SEARCH  && strcmp ("search" , x_verb) != 0) {
+      DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
    }
-   /*---(create)-------------------------*/
-   x_len   = strlen ((*s_curr)->text);
-   x_found = (*s_curr)->found;
-   if (x_found > 999)  x_found = 999;
-   if      (a_len >= 60) {
-      x_size = a_len - 4 - 17;
-      sprintf (x_pref, "%-3d %-*.*s", *s_index, x_size, x_size, (*s_curr)->text);
-      sprintf (x_suff, "%3dc %3dr %3df %c", (*s_curr)->count, (*s_curr)->ran, x_found, (*s_curr)->mark);
-   } else if (a_len >= 40) {
-      x_size = a_len - 4 - 7;
-      sprintf (x_pref, "%-3d %-*.*s", *s_index, x_size, x_size, (*s_curr)->text);
-      sprintf (x_suff, "%3df %c", x_found, (*s_curr)->mark);
-   } else {
-      x_size = a_len - 2;
-      sprintf (x_pref, "%-*.*s", x_size, x_size, (*s_curr)->text);
-      sprintf (x_suff, "%c", (*s_curr)->mark);
+   --rce;  if (a_mode == MODE_COMMAND && strcmp ("command", x_verb) != 0) {
+      DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
    }
-   if (x_size < x_len)  x_pref [strlen (x_pref) - 1] = '>';
-   sprintf (a_entry, "%s %s", x_pref, x_suff);
+   /*---(label)--------------------------*/
+   rc = yPARSE_popchar (&x_abbr);
+   DEBUG_INPT   yLOG_value   ("pop abbr"  , rc);
+   DEBUG_INPT   yLOG_char    ("abbr"      , x_abbr);
+   rc  = yvikeys_hist__valid (x_abbr);
+   DEBUG_INPT   yLOG_value   ("index"     , rc);
+   --rce; if (rc  < 0) {
+      DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(get command)--------------------*/
+   rc = yPARSE_popstr (x_text);
+   DEBUG_INPT   yLOG_value   ("pop verb"  , rc);
+   strldchg (x_text, G_KEY_SPACE, G_CHAR_STORAGE, LEN_RECD);
+   DEBUG_INPT   yLOG_info    ("x_text"    , x_text);
+   /*---(save)---------------------------*/
+   DEBUG_SRCH   yLOG_note    ("saving values");
+   rc = yvikeys_hist__new (a_mode, x_text);
+   DEBUG_INPT   yLOG_value   ("new"       , rc);
+   --rce; if (rc  < 0) {
+      DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   (*s_curr)->mark = x_abbr;
    /*---(complete)-----------------------*/
-   return 0;
+   DEBUG_INPT  yLOG_exit    (__FUNCTION__);
+   return 1;
 }
+
+char yvikeys_cmds_reader (void) { return yvikeys_hist__reader  (MODE_COMMAND); }
+char yvikeys_srch_reader (void) { return yvikeys_hist__reader  (MODE_SEARCH ); }
+
+
+
+/*====================------------------------------------====================*/
+/*===----                       search and finding                     ----===*/
+/*====================------------------------------------====================*/
+static void  o___SEARCH__________o () { return; }
 
 char
 yvikeys_hist__cursor    (char a_move)
@@ -947,6 +891,7 @@ yvikeys_hist__index     (int a_index)
       DEBUG_HIST   yLOG_note    ("less than min (neg) is short-cut to head");
       *s_curr  = *s_head;
       *s_index = 0;
+      DEBUG_HIST   yLOG_complex ("entry"     , "%2d %-10.10s %10p %10p %10p", c, (*s_curr)->text, (*s_curr), (*s_curr)->m_next, (*s_curr)->m_prev);
       DEBUG_HIST   yLOG_exit    (__FUNCTION__);
       return 1;
    }
@@ -954,6 +899,7 @@ yvikeys_hist__index     (int a_index)
       DEBUG_HIST   yLOG_note    ("greater than max is short-cut to tail");
       *s_curr  = *s_tail;
       *s_index = *s_count - 1;
+      DEBUG_HIST   yLOG_complex ("entry"     , "%2d %-10.10s %10p %10p %10p", c, (*s_curr)->text, (*s_curr), (*s_curr)->m_next, (*s_curr)->m_prev);
       DEBUG_HIST   yLOG_exit    (__FUNCTION__);
       return 1;
    }
@@ -1122,64 +1068,9 @@ yvikeys_hist__roll      (void)
 
 
 /*====================------------------------------------====================*/
-/*===----                      history handling                       ----===*/
+/*===----                      command execution                      ----===*/
 /*====================------------------------------------====================*/
-static void  o___HISTORY_________o () { return; }
-
-char
-yvikeys_hist__unmark  (uchar a_mark)
-{
-   /*---(locals)-----------+-----+-----+-*/
-   char        rce         =  -10;
-   tHIST      *x_curr      = NULL;
-   int         c           =    0;
-   /*---(header)-------------------------*/
-   DEBUG_HIST   yLOG_enter   (__FUNCTION__);
-   /*---(defenses)-----------------------*/
-   DEBUG_HIST   yLOG_char    ("a_mark"    , a_mark);
-   --rce;  if (strchr (S_HIST_LIST, tolower (a_mark)) == NULL) {
-      DEBUG_HIST   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   /*---(walk-entries)-------------------*/
-   x_curr = *s_head;
-   while (x_curr != NULL) {
-      DEBUG_HIST   yLOG_complex ("entry"     , "%2d %-10.10s %10p %10p %10p", c, x_curr->text, x_curr, x_curr->m_next, x_curr->m_prev);
-      if (a_mark == x_curr->mark)   x_curr->mark = '-';
-      x_curr = x_curr->m_next;
-      ++c;
-   }
-   /*---(complete)-----------------------*/
-   DEBUG_HIST   yLOG_exit    (__FUNCTION__);
-   return 0;
-}
-
-char
-yvikeys_hist__mark    (uchar a_mark)
-{
-   /*---(locals)-----------+-----+-----+-*/
-   char        rce         =  -10;
-   /*---(header)-------------------------*/
-   DEBUG_HIST   yLOG_enter   (__FUNCTION__);
-   /*---(defenses)-----------------------*/
-   DEBUG_HIST   yLOG_char    ("a_mark"    , a_mark);
-   --rce;  if (strchr (S_HIST_LIST, a_mark) == NULL) {
-      DEBUG_HIST   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   DEBUG_HIST   yLOG_point   ("*s_curr"   , *s_curr);
-   --rce;  if (*s_curr == NULL) {
-      DEBUG_HIST   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   /*---(make sure not used)-------------*/
-   yvikeys_hist__unmark (a_mark);
-   /*---(mark current)-------------------*/
-   (*s_curr)->mark = a_mark;
-   /*---(complete)-----------------------*/
-   DEBUG_HIST   yLOG_exit    (__FUNCTION__);
-   return 0;
-}
+static void  o___EXECUTION_______o () { return; }
 
 char
 yvikeys_hist_text       (char a_mode, char *a_text)
@@ -1202,6 +1093,7 @@ yvikeys_hist_exec       (char a_mode)
    char        rce         =  -10;
    char        rc          =    0;
    char        x_rc        =    0;
+   int         x_found     =    0;
    uchar       x_mark      =  '-';
    tHIST      *x_pass      = NULL;
    int         i           =    0;
@@ -1247,7 +1139,7 @@ yvikeys_hist_exec       (char a_mode)
       return 0;
    }
    /*---(clear results)------------------*/
-   /*> if (a_mode == MODE_SEARCH)  yvikeys_srch__purge  ();                           <*/
+   if (a_mode == MODE_SEARCH)  yvikeys_srch__purge  ();
    if (s_len <= 0) {
       DEBUG_HIST   yLOG_note    ("empty content string, leaving");
       DEBUG_HIST   yLOG_exit    (__FUNCTION__);
@@ -1321,7 +1213,9 @@ yvikeys_hist_exec       (char a_mode)
       break;
    case MODE_SEARCH  :
       DEBUG_HIST   yLOG_note    ("execute as search");
-      rc = s_searcher (s_current);
+      rc = yvikeys_srch_exec (s_current, &x_found);
+      (*s_curr)->ran    = rc;
+      (*s_curr)->found  = x_found;
       break;
    }
    /*---(complete)-----------------------*/
@@ -1337,7 +1231,7 @@ yvikeys_hist_exec       (char a_mode)
 static void  o___MODE____________o () { return; }
 
 char         /*-> allow selection of older entries ---[ ------ [ge.TQ5.25#.F9]*/ /*-[03.0000.122.R]-*/ /*-[--.---.---.--]-*/
-yvikeys_hist_smode      (int  a_major, int  a_minor)
+yvikeys_hist_umode      (int  a_major, int  a_minor)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -1359,7 +1253,7 @@ yvikeys_hist_smode      (int  a_major, int  a_minor)
       DEBUG_USER   yLOG_note    ("escape, return to source mode");
       MODE_exit ();
       MODE_exit ();
-      VIEW__switch ("cursor", "show");
+      myVIKEYS.cursor = 'y';
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return 0;
    }
@@ -1367,7 +1261,8 @@ yvikeys_hist_smode      (int  a_major, int  a_minor)
       DEBUG_USER   yLOG_note    ("return, return to source mode");
       MODE_exit ();
       myVIKEYS.cursor = 'y';
-      yvikeys_src_swapall ((*s_curr)->text);
+      if (*s_curr != NULL)   yvikeys_src_swapall ((*s_curr)->text);
+      else                   MODE_exit ();
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return 0;
    }
