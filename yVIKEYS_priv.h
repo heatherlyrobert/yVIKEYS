@@ -26,8 +26,8 @@
 
 #define     P_VERMAJOR  "1.X = working for everyday use, features still evolving but stable"
 #define     P_VERMINOR  "1.4 = prepare for demonstrations on web"
-#define     P_VERNUM    "1.4m"
-#define     P_VERTXT    "macros keys are now dynamically allocated saving huge sapce (140k)"
+#define     P_VERNUM    "1.4n"
+#define     P_VERTXT    "mreg now dynamic (over a megabyte of ram saved;) and keylogging rolls (saved 40K)"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"

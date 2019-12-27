@@ -16,11 +16,12 @@ char *gvikeys_greek   = "èéêëìíîïğñòóôõö÷øùúûüışÿ";
 
 
 
-static char  s_keys_log   [10000];
-static char  s_keys_multi [10000];
-static char  s_keys_mode  [10000];
-static char  s_keys_error [10000];
+static char  s_keys_log   [LEN_FULL];
+static char  s_keys_multi [LEN_FULL];
+static char  s_keys_mode  [LEN_FULL];
+static char  s_keys_error [LEN_FULL];
 static int   s_nkey      = 0;
+static int   s_akey      = 0;
 static int   s_gpos      = 0;
 static char  s_keys_last  [LEN_LABEL];
 static int   s_acks      = 0;
@@ -383,6 +384,37 @@ yvikeys_dump_purge      (void)
 /*====================------------------------------------====================*/
 static void  o___LOGGING_________o () { return; }
 
+char
+yvikeys_keys__roll      (void)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        x_off       = LEN_FULL / 2;
+   char        t           [LEN_FULL];
+   /*---(header)-------------------------*/
+   DEBUG_SCRP   yLOG_senter  (__FUNCTION__);
+   /*---(log)----------------------------*/
+   DEBUG_SCRP   yLOG_snote   ("log");
+   strlcpy (t, s_keys_log   + x_off, LEN_FULL);
+   strlcpy (s_keys_log  , t        , LEN_FULL);
+   /*---(mode)---------------------------*/
+   DEBUG_SCRP   yLOG_snote   ("mode");
+   strlcpy (t, s_keys_mode  + x_off, LEN_FULL);
+   strlcpy (s_keys_mode , t        , LEN_FULL);
+   /*---(error)--------------------------*/
+   DEBUG_SCRP   yLOG_snote   ("error");
+   strlcpy (t, s_keys_error + x_off, LEN_FULL);
+   strlcpy (s_keys_error, t        , LEN_FULL);
+   /*---(multi)--------------------------*/
+   DEBUG_SCRP   yLOG_snote   ("multi");
+   strlcpy (t, s_keys_multi + x_off, LEN_FULL);
+   strlcpy (s_keys_multi, t        , LEN_FULL);
+   /*---(position)-----------------------*/
+   s_nkey -= x_off;
+   /*---(complete)-----------------------*/
+   DEBUG_SCRP   yLOG_sexit   (__FUNCTION__);
+   return 0;
+}
+
 char         /*-> tbd --------------------------------[ leaf   [gz.430.151.10]*/ /*-[00.0000.104.!]-*/ /*-[--.---.---.--]-*/
 KEYS_status        (char *a_msg)
 {
@@ -393,9 +425,9 @@ KEYS_status        (char *a_msg)
    int         i           = 0;             /* iterator -- keys               */
    int         x_start     = 0;             /* iterator -- keys               */
    x_len = strlen (s_keys_log) - 1;
-   x_start = x_len - 40;
+   x_start = x_len - 39;
    if (x_start < 0) x_start = 0;
-   snprintf (a_msg, 500, "keys    %-5d %s¤", s_nkey, s_keys_log + x_start);
+   snprintf (a_msg, 500, "keys    %-5d %s¤", s_akey, s_keys_log + x_start);
    return 0;
 }
 
@@ -455,8 +487,11 @@ KEYS__logger            (uchar a_key)
    }
    s_keys_multi [s_nkey + 1] = 0;
    /*---(update count)-------------------*/
+   ++s_akey;
    ++s_nkey;
    ++s_gpos;
+   /*---(roll)---------------------------*/
+   if (s_nkey >= LEN_FULL - 2)  yvikeys_keys__roll ();
    /*---(macro)--------------------------*/
    IF_MACRO_RECORDING {
       yvikeys_macro_reckey (x_key);
@@ -606,10 +641,10 @@ KEYS_dump               (FILE *a_file)
 char
 KEYS_init               (void)
 {
-   strlcpy (s_keys_log  , "", LEN_RECD);
-   strlcpy (s_keys_mode , "", LEN_RECD);
-   strlcpy (s_keys_multi, "", LEN_RECD);
-   strlcpy (s_keys_error, "", LEN_RECD);
+   strlcpy (s_keys_log  , "", LEN_FULL);
+   strlcpy (s_keys_mode , "", LEN_FULL);
+   strlcpy (s_keys_multi, "", LEN_FULL);
+   strlcpy (s_keys_error, "", LEN_FULL);
    s_nkey = 0;
    s_gpos = 0;
    return 0;
@@ -966,6 +1001,7 @@ yvikeys__unit_loud     (void)
    yURG_name  ("kitchen"      , YURG_ON);
    yURG_name  ("yurg"         , YURG_ON);
    yURG_name  ("edit"         , YURG_ON);
+   yURG_name  ("regs"         , YURG_ON);
    yURG_name  ("mark"         , YURG_ON);
    yURG_name  ("mode"         , YURG_ON);
    yURG_name  ("map"          , YURG_ON);
@@ -1019,22 +1055,36 @@ char yvikeys__unit_reset      (void)  { s_acks = 0; s_spaces = 0; s_noops = 0; r
 char*        /*-> tbd --------------------------------[ leaf   [gs.520.202.40]*/ /*-[01.0000.00#.#]-*/ /*-[--.---.---.--]-*/
 KEYS__unit              (char *a_question, char a_index)
 {
-   /*---(locals)-----------+-----------+-*/
+   /*---(locals)-----------+-----+-----+-*/
    char        t           [LEN_RECD ] = "";
+   int         x_beg       =    0;
+   char        x_open      =  '[';
    /*---(preprare)-----------------------*/
    strlcpy  (yVIKEYS__unit_answer, "KEYS unit        : question not understood", LEN_FULL);
    /*---(dependency list)----------------*/
+   if (s_nkey > 40) {
+      x_beg  = s_nkey - 40;
+      x_open = '<';
+   }
    if      (strcmp (a_question, "log"            )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_FULL, "KEYS log         : %2d[%-.40s]", s_nkey, s_keys_log);
+      sprintf (t, "%s", s_keys_log   + x_beg);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "KEYS log         : %3d %3d %c%-.40s]", s_akey, s_nkey, x_open, t);
    }
    else if (strcmp (a_question, "mode"           )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_FULL, "KEYS mode        : %2d[%-.40s]", s_nkey, s_keys_mode);
+      sprintf (t, "%s", s_keys_mode  + x_beg);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "KEYS mode        : %3d %3d %c%-.40s]", s_akey, s_nkey, x_open, t);
    }
    else if (strcmp (a_question, "multi"          )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_FULL, "KEYS multi       : %2d[%-.40s]", s_nkey, s_keys_multi);
+      sprintf (t, "%s", s_keys_multi + x_beg);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "KEYS multi       : %3d %3d %c%-.40s]", s_akey, s_nkey, x_open, t);
    }
    else if (strcmp (a_question, "error"          )   == 0) {
-      snprintf (yVIKEYS__unit_answer, LEN_FULL, "KEYS error       : %2d[%-.40s]", s_nkey, s_keys_error);
+      sprintf (t, "%s", s_keys_error + x_beg);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "KEYS error       : %3d %3d %c%-.40s]", s_akey, s_nkey, x_open, t);
+   }
+   else if (strcmp (a_question, "full"           )   == 0) {
+      sprintf (t, "%s", s_keys_error + x_beg);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "KEYS full        : %3d %3d [%s]", s_akey, s_nkey, s_keys_log);
    }
    else if (strcmp (a_question, "status"         )   == 0) {
       KEYS_status (t);

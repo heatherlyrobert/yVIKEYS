@@ -67,41 +67,49 @@
 #define     S_REG_MAX   100
 #define     LEN_BUF    1000
 
+
+typedef  struct  cITEM  tITEM;
+struct cITEM {
+   void       *data;
+   tITEM      *b_next;
+   tITEM      *b_prev;
+};
+
+
 typedef  struct  cREG   tREG;
 struct cREG {
    /*---(#1, ORIGIN TAB)-----------------*/
    /*   stores the tab number of the original selection so that cell          */
    /*   references can be properly adjusted when placed back into a tab.      */
-   int         b_all;
-   int         z_all;
+   char        b_all;
+   char        z_all;
    /*---(#2, MINIMUM REACH)--------------*/
    /*   stores the column and row of the furthest upper-left cell reference   */
    /*   within a formula of a register cell (for error-checking).             */
-   int         x_min;
-   int         y_min;
+   short       x_min;
+   short       y_min;
    /*---(#3, MINIMUM BOUND)--------------*/
    /*   stores the column and row of the upper-left corner of the selection   */
    /*   used to source the cells for the register.                            */
-   int         x_beg;
-   int         y_beg;
+   short       x_beg;
+   short       y_beg;
    /*---(#4, MAXIMUM BOUND)--------------*/
    /*   stores the column and row of the lower-right corner of the selection  */
    /*   used to source the cells for the register.                            */
-   int         x_end;
-   int         y_end;
+   short       x_end;
+   short       y_end;
    /*---(#5, MAXIMUM REACH)--------------*/
    /*   stores the column and row of the furthest lower-right cell reference  */
    /*   within a formula of a register cell (for error-checking).             */
-   int         x_max;
-   int         y_max;
+   short       x_max;
+   short       y_max;
    /*---(#6, CELLS)----------------------*/
    /*   stores the an array of cells within the register in the order that    */
    /*   they need to be placed back into a tab to correctly calculate.        */
-   int         nbuf;                             /* total spots               */
-   void       *buf         [LEN_BUF ];           /* cell pointers             */
-   char        notes       [LEN_BUF ];           /* source coding             */
-   char        labels      [LEN_RECD];           /* label list                */
-   int         real;                             /* filled spots              */
+   tITEM      *hbuf;                             /* head of items             */
+   tITEM      *tbuf;                             /* tail of items             */
+   short       nbuf;                             /* total items               */
+   char       *labels;                           /* label list (debugging)    */
    /*---(#7, SPECIAL)--------------------*/
    /*   the type flag indicates whether non-selection formula cells with      */
    /*   references into the selection should be adjusted when pasted.         */
@@ -112,6 +120,7 @@ static      tREG        s_regs       [S_REG_MAX];
 static      char        S_REG_LIST   [S_REG_MAX];
 static      int         s_nreg       =    0;
 static      char        s_creg       =  '-';
+static      char       *s_stub       = ",";
 
 #define     S_REG_EMPTY     '-'
 #define     S_REG_ACTIVE    'y'
@@ -142,7 +151,7 @@ struct cPASTING {
    char        intg;        /* tbd */
    char        desc        [LEN_DESC ];
 };
-static tPASTING   s_pasting [MAX_PASTING] = {
+static const tPASTING   s_pasting [MAX_PASTING] = {
    /*-a- --ref-- ---name-------- -pr-    --c- --r- --p- --i- ---desc--- */
    { '-', "----", ""            , '-',    '-', '-', '-', '-',    "tbd" },
    /*---*/
@@ -333,9 +342,67 @@ yVIKEYS_mreg_inside     (int b, int x, int y, int z)
 
 
 /*====================------------------------------------====================*/
-/*===----                   initialization and wrapup                  ----===*/
+/*===----                      memory allocation                       ----===*/
 /*====================------------------------------------====================*/
-static void  o___PROGRAM_________o () { return; }
+static void  o___MEMORY__________o () { return; }
+
+char
+yvikeys_mreg__new       (char a_reg, void *a_item)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   tITEM      *x_new       = NULL;
+   char        x_tries     =    0;
+   int         x_len       =    0;
+   tITEM      *x_curr      = NULL;
+   /*---(header)-------------------------*/
+   DEBUG_CMDS   yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   DEBUG_CMDS   yLOG_point   ("a_item"    , a_item);
+   --rce;  if (a_item == NULL) {
+      DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(allocate)-----------------------*/
+   while (x_new == NULL && x_tries < 10)  {
+      ++x_tries;
+      x_new = (tITEM *) malloc (sizeof (tITEM));
+   }
+   DEBUG_CMDS   yLOG_value   ("x_tries"   , x_tries);
+   DEBUG_CMDS   yLOG_point   ("x_new"     , x_new);
+   --rce;  if (x_new == NULL) {
+      DEBUG_CMDS   yLOG_note    ("FAILED");
+      DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(populate)-----------------------*/
+   DEBUG_CMDS   yLOG_note    ("populate");
+   x_new->data     = a_item;
+   x_new->b_next   = NULL;
+   x_new->b_prev   = NULL;
+   /*---(tie to master list)-------------*/
+   if (s_regs [a_reg].hbuf == NULL) {
+      DEBUG_CMDS   yLOG_note    ("nothing in master list, make first");
+      s_regs [a_reg].hbuf = x_new;
+   } else  {
+      DEBUG_CMDS   yLOG_note    ("append to master list");
+      s_regs [a_reg].tbuf->b_next = x_new;
+      x_new->b_prev  = s_regs [a_reg].tbuf;
+   }
+   s_regs [a_reg].tbuf = x_new;
+   /*---(list)---------------------------*/
+   x_curr = s_regs [a_reg].hbuf;
+   while  (x_curr != NULL) {
+      DEBUG_CMDS   yLOG_complex ("item"      , "%-10p, %-10p, %-10p, %-10p", x_curr, x_curr->data, x_curr->b_prev, x_curr->b_next);
+      x_curr = x_curr->b_next;
+   }
+   /*---(update counts)------------------*/
+   ++s_regs [a_reg].nbuf;
+   /*---(complete)-----------------------*/
+   DEBUG_CMDS   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
 
 char         /*-> clear out a register ---------------[ ------ [ge.B63.253.32]*/ /*-[03.0000.043.3]-*/ /*-[--.---.---.--]-*/
 yvikeys_mreg__wipe              (char a_reg, char a_scope)
@@ -344,8 +411,9 @@ yvikeys_mreg__wipe              (char a_reg, char a_scope)
    char        rce         = -10;
    int         x_reg       = 0;
    int         i           = 0;
-   void       *x_thing     = NULL;
    char        rc          = 0;
+   tITEM      *x_curr      = NULL;
+   tITEM      *x_next      = NULL;
    /*---(header)-------------------------*/
    DEBUG_REGS   yLOG_enter   (__FUNCTION__);
    DEBUG_REGS   yLOG_char    ("a_reg"     , a_reg);
@@ -365,15 +433,14 @@ yvikeys_mreg__wipe              (char a_reg, char a_scope)
    s_regs [x_reg].x_end  = s_regs [x_reg].y_end  = 0;
    s_regs [x_reg].x_max  = s_regs [x_reg].y_max  = 0;
    s_regs [x_reg].type   = S_REG_EMPTY;
-   s_regs [x_reg].nbuf   = 0;
-   s_regs [x_reg].real   = 0;
    /*---(cells)--------------------------*/
    DEBUG_REGS   yLOG_note    ("clear all register positions");
    --rce;
-   for (i = 0; i < LEN_BUF; ++i) {
-      x_thing = s_regs [x_reg].buf [i];
-      if (s_regkill != NULL && a_scope != YVIKEYS_INIT && x_thing != NULL) {
-         rc = s_regkill (x_thing);
+   x_curr = s_regs [x_reg].tbuf;
+   while (x_curr != NULL) {
+      x_next = x_curr->b_prev;
+      if (s_regkill != NULL && a_scope != YVIKEYS_INIT && x_curr->data != NULL) {
+         rc = s_regkill (x_curr->data);
          if (rc < 0) {
             DEBUG_REGS   yLOG_note    ("found a bad register position");
             DEBUG_REGS   yLOG_value   ("posid"     , i);
@@ -381,14 +448,29 @@ yvikeys_mreg__wipe              (char a_reg, char a_scope)
             return rce;
          }
       }
-      s_regs [x_reg].buf  [i] = NULL;
-      s_regs [x_reg].notes[i] = '-';
+      x_curr->data   = NULL;
+      x_curr->b_next = NULL;
+      x_curr->b_prev = NULL;
+      free (x_curr);
+      x_curr = x_next;
    }
-   strlcpy (s_regs [x_reg].labels, ",", LEN_RECD);
+   s_regs [x_reg].hbuf = NULL;
+   s_regs [x_reg].tbuf = NULL;
+   s_regs [x_reg].nbuf = 0;
+   if (a_scope != YVIKEYS_INIT && s_regs [x_reg].labels != s_stub)
+      free (s_regs [x_reg].labels);
+   s_regs [x_reg].labels = s_stub;
    /*---(complete)-----------------------*/
    DEBUG_REGS   yLOG_exit    (__FUNCTION__);
    return 0;
 }
+
+
+
+/*====================------------------------------------====================*/
+/*===----                   initialization and wrapup                  ----===*/
+/*====================------------------------------------====================*/
+static void  o___PROGRAM_________o () { return; }
 
 char         /*-> clear out all buffers --------------[ ------ [gz.421.121.01]*/ /*-[01.0000.013.!]-*/ /*-[--.---.---.--]-*/
 yvikeys_mreg__purge             (char a_scope)
@@ -512,13 +594,14 @@ static void  o___ATTACHING_______o () { return; }
 static char    s_saving   = '-';
 
 char         /*-> attach a cell to a buffer ----------[ ------ [fe.870.378.72]*/ /*-[00.0000.025.7]-*/ /*-[--.---.---.--]-*/
-yVIKEYS_mreg_add        (void *a_thing, char *a_label, char a_note)
+yVIKEYS_mreg_add        (void *a_thing, char *a_label)
 {
    /*---(locals)-----------+-----------+-*/
    char        rce         = -10;
+   char        rc          =   0;
    int         x_reg       =   0;
-   int         x_nbuf      =   0;
    char        t           [LEN_LABEL]  = "";
+   char        x_labels    [LEN_RECD]   = "";
    /*---(header)-------------------------*/
    DEBUG_REGS   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
@@ -539,26 +622,27 @@ yVIKEYS_mreg_add        (void *a_thing, char *a_label, char a_note)
       DEBUG_REGS   yLOG_exitr   (__FUNCTION__, rce);
       return  rce;
    }
-   x_nbuf = s_regs [x_reg].nbuf;
-   DEBUG_REGS   yLOG_value   ("x_nbuf"    , x_nbuf);
-   --rce;  if (x_nbuf >= LEN_BUF) {
+   /*---(attach)-------------------------*/
+   rc = yvikeys_mreg__new (x_reg, a_thing);
+   --rce;  if (rc < 0) {
       DEBUG_REGS   yLOG_exitr   (__FUNCTION__, rce);
       return  rce;
    }
-   /*---(attach)-------------------------*/
-   s_regs [x_reg].buf   [x_nbuf] = a_thing;
-   s_regs [x_reg].notes [x_nbuf] = a_note;
    DEBUG_REGS   yLOG_point   ("a_label"   , a_label);
    if (a_label != NULL) {
       DEBUG_REGS   yLOG_info    ("a_label"   , a_label);
-      sprintf (t, "%s,", a_label);
-      strlcat (s_regs [x_reg].labels, t, LEN_RECD);
+      if (s_regs [x_reg].labels != s_stub)  {
+         strlcpy (x_labels, s_regs [x_reg].labels, LEN_RECD);
+         free (s_regs [x_reg].labels);
+         sprintf (t, "%s,", a_label);
+      } else {
+         sprintf (t, ",%s,", a_label);
+      }
+      strlcat (x_labels, t, LEN_RECD);
+      s_regs [x_reg].labels = strdup (x_labels);
    }
    /*---(counters)-----------------------*/
-   ++s_regs [x_reg].nbuf;
    DEBUG_REGS   yLOG_value   ("nbuf"      , s_regs [x_reg].nbuf);
-   ++s_regs [x_reg].real;
-   DEBUG_REGS   yLOG_value   ("real"      , s_regs [x_reg].real);
    /*---(complete)-----------------------*/
    DEBUG_REGS   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -573,6 +657,7 @@ yvikeys_mreg_save               (void)
    int         x_reg       =    0;
    int         x_nbuf      =    0;
    long        x_stamp     =    0;
+   int         b, xb, xe, yb, ye, z;
    /*---(header)-------------------------*/
    DEBUG_REGS   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
@@ -604,16 +689,18 @@ yvikeys_mreg_save               (void)
       return  rce;
    }
    /*---(save selection)-----------------*/
-   rc = yVIKEYS_visu_coords (
-         &s_regs [x_reg].b_all,
-         &s_regs [x_reg].x_beg, &s_regs [x_reg].x_end,
-         &s_regs [x_reg].y_beg, &s_regs [x_reg].y_end,
-         &s_regs [x_reg].z_all);
+   rc = yVIKEYS_visu_coords (&b, &xb, &xe, &yb, &ye, &z);
    DEBUG_REGS   yLOG_value   ("visu rc"   , rc);
    --rce;  if (rc < 0) {
       DEBUG_REGS   yLOG_exitr   (__FUNCTION__, rce);
       return  rce;
    }
+   s_regs [x_reg].b_all   = b;
+   s_regs [x_reg].x_beg   = xb;
+   s_regs [x_reg].x_end   = xe;
+   s_regs [x_reg].y_beg   = yb;
+   s_regs [x_reg].y_end   = ye;
+   s_regs [x_reg].z_all   = z;
    /*---(call save)----------------------*/
    x_stamp  = rand ();
    s_saving = 'y';
@@ -640,6 +727,7 @@ yvikeys_mreg__list            (char a_reg, char *a_list)
    char        rce         =  -10;
    int         x_reg       =    0;
    /*---(identify register)--------------*/
+   DEBUG_REGS   yLOG_enter   (__FUNCTION__);
    strlcpy (a_list, "?"                  , LEN_RECD);
    DEBUG_REGS   yLOG_char    ("a_reg"     , a_reg);
    x_reg  = yvikeys_mreg__index  (a_reg);
@@ -649,6 +737,7 @@ yvikeys_mreg__list            (char a_reg, char *a_list)
       return  rce;
    }
    strlcpy (a_list, s_regs [x_reg].labels, LEN_RECD);
+   DEBUG_REGS   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -878,8 +967,9 @@ yvikeys_mreg__paste             (char a_1st, char *a_type)
    char        rce         =  -10;
    char        rc          =    0;
    int         x, y, z;
-   int         i           =    0;
+   int         c           =    0;
    char        x_1st       =  'y';
+   tITEM      *x_curr      = NULL;
    /*---(header)-------------------------*/
    DEBUG_REGS   yLOG_enter   (__FUNCTION__);
    DEBUG_REGS   yLOG_char    ("a_1st"     , a_1st);
@@ -910,14 +1000,17 @@ yvikeys_mreg__paste             (char a_1st, char *a_type)
    }
    /*---(paste in order)-----------------*/
    DEBUG_REGS   yLOG_value   ("nbuf"      , s_regs [s_reg].nbuf);
-   --rce;  for (i = 0; i < s_regs [s_reg].nbuf; ++i) {
-      DEBUG_REGS   yLOG_value   ("i"         , i);
-      rc = s_paster (s_reqs, s_pros, s_intg, a_1st, s_boff, s_xoff, s_yoff, s_zoff, s_regs [s_reg].buf [i]);
+   x_curr = s_regs [s_reg].hbuf;
+   --rce;  while (x_curr != NULL) {
+      DEBUG_CMDS   yLOG_complex ("item"      , "%-10p, %-10p, %-10p, %-10p", x_curr, x_curr->data, x_curr->b_prev, x_curr->b_next);
+      rc = s_paster (s_reqs, s_pros, s_intg, a_1st, s_boff, s_xoff, s_yoff, s_zoff, x_curr->data);
       if (rc < 0) {
          DEBUG_REGS   yLOG_exitr   (__FUNCTION__, rce);
          return rce;
       }
+      ++c;
       a_1st = '-';
+      x_curr = x_curr->b_next;
    }
    /*---(update)-------------------------*/
    yvikeys_map_reposition  ();
@@ -1157,7 +1250,7 @@ yvikeys_mreg__unit_create       (void)
 }
 
 char
-yvikeys_mreg__unit_base         (char *a_list)
+yvikeys_mreg__unit_orig         (char *a_list)
 {
    /*---(locals)-----------+-----+-----+-*/
    int         i           =    0;
@@ -1178,7 +1271,7 @@ yvikeys_mreg__unit_base         (char *a_list)
 }
 
 char
-yvikeys_mreg__unit_free         (char *a_list)
+yvikeys_mreg__unit_regs         (char *a_list)
 {
    /*---(locals)-----------+-----+-----+-*/
    int         i           =    0;
@@ -1199,7 +1292,7 @@ yvikeys_mreg__unit_free         (char *a_list)
 }
 
 char
-yvikeys_mreg__unit_list         (char *a_list)
+yvikeys_mreg__unit_adds         (char *a_list)
 {
    /*---(locals)-----------+-----+-----+-*/
    int         i           =    0;
@@ -1361,7 +1454,7 @@ yvikeys_mreg__unit_hook         (tTHING *p, int x, int y)
    return 0;
 }
 
-char yvikeys_mreg__unit_makebase     (tTHING *p) { p->z = 1; return 0; }
+char yvikeys_mreg__unit_mark_orig    (tTHING *p) { p->z = 1; return 0; }
 
 
 char
@@ -1374,42 +1467,42 @@ yvikeys_mreg__unit_init    (void)
    /*---(3 secondary)--------------------*/
    p = yvikeys_mreg__unit_create ();
    yvikeys_mreg__unit_hook   (p, 0, 5);
-   yvikeys_mreg__unit_makebase (p);
+   yvikeys_mreg__unit_mark_orig (p);
    p = yvikeys_mreg__unit_create ();
    yvikeys_mreg__unit_hook   (p, 3, 6);
-   yvikeys_mreg__unit_makebase (p);
+   yvikeys_mreg__unit_mark_orig (p);
    p = yvikeys_mreg__unit_create ();
    yvikeys_mreg__unit_hook   (p, 6, 7);
-   yvikeys_mreg__unit_makebase (p);
+   yvikeys_mreg__unit_mark_orig (p);
    /*---(5 primary)----------------------*/
    p = yvikeys_mreg__unit_create ();
    yvikeys_mreg__unit_hook   (p, 2, 0);
-   yvikeys_mreg__unit_makebase (p);
+   yvikeys_mreg__unit_mark_orig (p);
    p = yvikeys_mreg__unit_create ();
    yvikeys_mreg__unit_hook   (p, 0, 2);
-   yvikeys_mreg__unit_makebase (p);
+   yvikeys_mreg__unit_mark_orig (p);
    p = yvikeys_mreg__unit_create ();
    yvikeys_mreg__unit_hook   (p, 3, 2);
-   yvikeys_mreg__unit_makebase (p);
+   yvikeys_mreg__unit_mark_orig (p);
    p = yvikeys_mreg__unit_create ();
    yvikeys_mreg__unit_hook   (p, 6, 2);
-   yvikeys_mreg__unit_makebase (p);
+   yvikeys_mreg__unit_mark_orig (p);
    p = yvikeys_mreg__unit_create ();
    yvikeys_mreg__unit_hook   (p, 6, 4);
-   yvikeys_mreg__unit_makebase (p);
+   yvikeys_mreg__unit_mark_orig (p);
    /*---(4 inner)------------------------*/
    p = yvikeys_mreg__unit_create ();
    yvikeys_mreg__unit_hook   (p, 2, 1);
-   yvikeys_mreg__unit_makebase (p);
+   yvikeys_mreg__unit_mark_orig (p);
    p = yvikeys_mreg__unit_create ();
    yvikeys_mreg__unit_hook   (p, 2, 3);
-   yvikeys_mreg__unit_makebase (p);
+   yvikeys_mreg__unit_mark_orig (p);
    p = yvikeys_mreg__unit_create ();
    yvikeys_mreg__unit_hook   (p, 4, 1);
-   yvikeys_mreg__unit_makebase (p);
+   yvikeys_mreg__unit_mark_orig (p);
    p = yvikeys_mreg__unit_create ();
    yvikeys_mreg__unit_hook   (p, 4, 3);
-   yvikeys_mreg__unit_makebase (p);
+   yvikeys_mreg__unit_mark_orig (p);
    /*---(complete)-----------------------*/
    return 0;
 }
@@ -1433,7 +1526,7 @@ yvikeys_mreg__unit_copier  (char a_type, long a_stamp)
          rc = yVIKEYS_visual (b, x, y, 0);
          if (rc == 1) {
             x_new = yvikeys_mreg__unit_dup (x_thing);
-            yVIKEYS_mreg_add (x_new, x_new->l, '-');
+            yVIKEYS_mreg_add (x_new, x_new->l);
          }
       }
       rc = yVIKEYS_next  (&b, &x, &y, NULL);
@@ -1487,17 +1580,17 @@ yvikeys_mreg__unit      (char *a_question, char x, char y)
       yvikeys_mreg__list  (s_creg, t);
       snprintf (yVIKEYS__unit_answer, LEN_FULL, "MAP_REG current  : %c %2d %2d %s", s_creg, x_reg, s_regs [x_reg].nbuf, t);
    }
-   else if (strcmp (a_question, "base"           )   == 0) {
-      yvikeys_mreg__unit_base (t);
-      snprintf (yVIKEYS__unit_answer, LEN_FULL, "MAP_REG base  %2d : %s", s_nbase, t);
+   else if (strcmp (a_question, "orig"           )   == 0) {
+      yvikeys_mreg__unit_orig (t);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "MAP_REG orig  %2d : %s", s_nbase, t);
    }
-   else if (strcmp (a_question, "free"           )   == 0) {
-      yvikeys_mreg__unit_free (t);
-      snprintf (yVIKEYS__unit_answer, LEN_FULL, "MAP_REG free  %2d : %s", s_nfree, t);
+   else if (strcmp (a_question, "regs"           )   == 0) {
+      yvikeys_mreg__unit_regs (t);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "MAP_REG regs  %2d : %s", s_nfree, t);
    }
-   else if (strcmp (a_question, "list"           )   == 0) {
-      yvikeys_mreg__unit_list (t);
-      snprintf (yVIKEYS__unit_answer, LEN_FULL, "MAP_REG list  %2d : %s", s_nthing - s_nbase - s_nfree, t);
+   else if (strcmp (a_question, "adds"           )   == 0) {
+      yvikeys_mreg__unit_adds (t);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "MAP_REG adds  %2d : %s", s_nthing - s_nbase - s_nfree, t);
    }
    else if (strcmp (a_question, "A"              )   == 0) {
       yvikeys_mreg__unit_A    (t);
