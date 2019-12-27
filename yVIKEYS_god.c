@@ -29,7 +29,7 @@ struct cSCALE {
    char        power;
    float       unit;
 };
-static tSCALE s_scale_info [MAX_SCALE] = {
+static const tSCALE s_scale_info [] = {
    { 'm' , "T"  , "tera"      , "tera  (1 trillion)"    ,  12 , 1000000000000.0             },
    { 'm' , "GH+", "giga/H+"   , "giga  (300 billion)"   ,  11 ,  320000000000.0             },
    { 'm' , "GH" , "giga/H"    , "giga  (100 billion)"   ,  11 ,  100000000000.0             },
@@ -92,7 +92,7 @@ struct cSPEED {
    char        desc        [LEN_FULL  ];
    float       speed;   
 };
-static tSPEED s_speed_info [MAX_SPEED] = {
+static const tSPEED s_speed_info [] = {
    { "-50.0x"    , "blur"             ,    -50.00 },
    { "-20.0x"    , "super fast"       ,    -20.00 },
    { "-10.0x"    , "very fast"        ,    -10.00 },
@@ -134,7 +134,7 @@ struct cUPDATE {
    char        desc        [LEN_LABEL];
    float       update;
 };
-static tUPDATE s_update_info [MAX_UPDATE] = {
+static const tUPDATE s_update_info [] = {
    /*---(default)--------------------------*/
    { "every" , "every loop"         ,   0.00     },
    /*---(faster)---------------------------*/
@@ -169,7 +169,7 @@ struct cDELAY {
    char        desc        [LEN_LABEL];
    float       delay;
 };
-static tDELAY s_delay_info [MAX_DELAY] = {
+static const tDELAY s_delay_info [] = {
    /*---(default)---------------------------------*/
    { "keys"  , "keyboard"           ,   0.0      },
    /*---(faster)----------------------------------*/

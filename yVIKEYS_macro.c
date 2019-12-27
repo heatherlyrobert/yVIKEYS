@@ -20,29 +20,31 @@
  * pauses are only useful for a couple reasons...
  *   1) to help debugging, but its easier to slow down whole script
  *   2) to help video scripting allow time to digest/voice over
- *   3) to slow a script when other systems need time to respon
+ *   3) to slow a script when other systems need time to respond
  *
- *   « is a 0.5s delay -- the keyboard is active, but macro keys pause
- *       \«v«w«r«
- *   
- *   it is cleaner in macros to separate from normal by · spaces (double is ;)
- *       \·«·v·«·w·«·r·«·
+ *   · is a spacer and takes zero time, but is useful for visual clarity
+ *     when editing/writing scripts
+ *       \·v·w·r·
+ *
+ *   ´ is a 1 key delay, as if one keystoke was processed, this is
+ *     very useful for demonstrations, keyboard is active for controls
+ *       \´v´w´r
+ *
+ *   Ï is a 5 key delay, as if five keystokes were processed, this is
+ *     very useful for demonstrations, keyboard is active for controls
+ *       \·Ï·v·Ï·w·Ï·r
+ *
+ *   « is a 0.5s delay, regardless of execution speed, less useful for demo
+ *     but more traditional for handling predictable response wait times
+ *       \·«·v·«·w·«·r·«
  *       \··«··v··«··w··«··r··«··
- *
- *   it is also clearer to group in twos when necessary (BEST)
  *       \··««··v··««··w··««··r··««·««·««·««·««··
  *
- *   in all these cases, yVIKEYS does not care as spaces are ignored
+ *    º···» means all character inside these brackets are in blitz mode,
+ *      meaning as fast as possible rather than configured execution speed.
+ *      blitz mode also means to screen updates, i.e., invisible actions ;)
+ *      this is very handy for leaving complications out of demonstrations
  *
- *   using mutipliers would confuse the modes who use them
- *       \··2«··v··2«··w··2«··r··10«··
- *
- *   other ways of shortening the keystrokes seem artificial and confusing
- *       \··«Æ··v··«Æ··w··«Æ··r··«È··
- *       \··«Á··v··«Á··w··«Á··r··«Ã··
- *
- *   also introducing other characters, places too much importance/confusing
- *       \··«··v··«··w··«··r··¯··
  */
 
 
@@ -57,22 +59,22 @@ struct cMACRO {
    /*---(running)-----------*/
    char        runby;                       /* run by who                     */
    /*---(contents)----------*/
-   int         len;                         /* number of keys                 */
-   char        keys        [LEN_RECD];      /* keystrokes                     */
+   short       len;                         /* number of keys                 */
+   uchar      *keys;                        /* keystrokes                     */
    /*---(execute)-----------*/
-   int         pos;                         /* current position               */
-   char        cur;                         /* current key                    */
-   char        repeat;                      /* number of repeats              */
-   /*---(done)--------------*/
+   short       pos;                         /* current position               */
+   uchar       cur;                         /* current key                    */
+   uchar       repeat;                      /* number of repeats              */ /*---(done)--------------*/
 };
 static tMACRO  s_macros    [S_MACRO_MAX];
 static int     s_nmacro    =    0;
+static uchar  *s_stub      = "";
 
 static char    s_emode     =  '-';          /* run, playback, delay, etc      */
 static char    s_ename     =  '-';
-static int     s_ecurr     =   -1;
+static char    s_ecurr     =   -1;
 static char    s_esave     =  '-';          /* saved mode for menus           */
-static int     s_epos      =   -1;
+static short   s_epos      =   -1;
 
 static char    s_edelay    =  '0';          /* execution delay between steps  */
 static char    s_ddelay    =  '0';          /* debug delay between steps      */
@@ -84,8 +86,12 @@ static char    s_blitzing  =  '-';          /* macro blitzing mode º´´´»      */
 
 static char    s_rmode     =  '-';          /* recording or not               */
 static char    s_rname     =  '-';
-static int     s_rcurr     =   -1;
-
+static char    s_rcurr     =   -1;
+/*> static char   *s_rbackup   = NULL;                                                <*/
+static uchar   s_rkeys     [LEN_RECD];
+static short   s_rlen      =    0;
+static short   s_rpos      =    0;
+static uchar   s_rcur      =  '-';
 
 
 static char    (*s_loader) (char a_name, char *a_keys);
@@ -175,8 +181,9 @@ yvikeys_macro__clear    (uchar a_abbr)
    s_macros [n].runby     =   -1;
    /*---(contents)-----------------------*/
    DEBUG_PROG   yLOG_snote   ("data");
+   if (s_macros [n].keys != s_stub)  free (s_macros [n].keys);
+   s_macros [n].keys      = s_stub;
    s_macros [n].len       =    0;
-   for (i = 0; i < LEN_RECD; ++i)  s_macros [n]. keys [i] = G_KEY_NULL;
    /*---(execute)------------------------*/
    DEBUG_PROG   yLOG_snote   ("exec");
    s_macros [n].pos       =   -1;
@@ -324,69 +331,31 @@ yvikeys_macro_init      (void)
    strlcat (S_MACRO_LIST, gvikeys_greek , S_MACRO_MAX);
    DEBUG_PROG   yLOG_info    ("LIST"      , S_MACRO_LIST);
    s_nmacro = strlen (S_MACRO_LIST);
-   /*---(clear)--------------------------*/
-   s_emode   = '-';
-   s_ename   = '-';
-   s_ecurr   =  -1;
-   s_edelay  = '0';
-   s_eupdate = 'n';
-   s_ddelay  = '0';
-   s_dupdate = 'n';
-   s_pause   =  0;
-   s_rmode   = '-';
-   s_rname   = '-';
-   s_rcurr   =  -1;
+   /*---(clear exec)---------------------*/
+   s_emode     = '-';
+   s_ename     = '-';
+   s_ecurr     =  -1;
+   s_edelay    = '0';
+   s_eupdate   = 'n';
+   s_ddelay    = '0';
+   s_dupdate   = 'n';
+   s_pause     =  0;
+   /*---(clear rec)----------------------*/
+   s_rmode     = '-';
+   s_rname     = '-';
+   s_rcurr     =  -1;
+   s_rkeys [0] = '\0';
+   s_rlen      =   0;
+   s_rpos      =   0;
+   s_rcur      = '-';
+   /*---(clear pointers)-----------------*/
    s_loader = NULL;
    s_saver  = NULL;
+   /*---(clear data)---------------------*/
    yvikeys_macro__purge (MACRO_ALL);
-   /*---(commands)-----------------------*/
-   DEBUG_PROG   yLOG_note    ("add commands");
-   /*> yVIKEYS_cmds_addX (YVIKEYS_M_SCRIPT, "macro"       , ""    , "a"    , yvikeys_macro__direct      , "direct definition of a keyboard macro"                       );   <* 
-    *> yVIKEYS_cmds_addX (YVIKEYS_M_SCRIPT, "edelay"      , ""    , "c"    , yvikeys_macro_edelay       , "");                                                               <* 
-    *> yVIKEYS_cmds_addX (YVIKEYS_M_SCRIPT, "eupdate"     , ""    , "c"    , yvikeys_macro_eupdate      , "");                                                               <* 
-    *> yVIKEYS_cmds_addX (YVIKEYS_M_SCRIPT, "ddelay"      , ""    , "c"    , yvikeys_macro_ddelay       , "");                                                               <* 
-    *> yVIKEYS_cmds_addX (YVIKEYS_M_SCRIPT, "dupdate"     , ""    , "c"    , yvikeys_macro_ddelay       , "");                                                               <* 
-    *> yVIKEYS_cmds_addX (YVIKEYS_M_SCRIPT, "flatten"     , ""    , "cc"   , yvikeys_macro_flatten      , "");                                                               <* 
-    *> yVIKEYS_cmds_addX (YVIKEYS_M_SCRIPT, "install"     , ""    , "c"    , yvikeys_macro_install      , "");                                                               <*/
    /*---(status)-------------------------*/
    yVIKEYS_view_option (YVIKEYS_STATUS, "macro"  , yvikeys_macro_estatus , "details of macro playback"                );
    yVIKEYS_view_option (YVIKEYS_STATUS, "record" , yvikeys_macro_rstatus , "details of macro recording"               );
-   /*---(menu entries)-------------------*/
-   /*> yVIKEYS_menu_addX ("µre0", "blitz"     , ":edelay 0¦");                         <* 
-    *> yVIKEYS_menu_addX ("µre1", "fast"      , ":edelay 1¦");                         <* 
-    *> yVIKEYS_menu_addX ("µre2", "thousand"  , ":edelay 2¦");                         <* 
-    *> yVIKEYS_menu_addX ("µre3", "hundred"   , ":edelay 3¦");                         <* 
-    *> yVIKEYS_menu_addX ("µre4", "twenty"    , ":edelay 4¦");                         <* 
-    *> yVIKEYS_menu_addX ("µre5", "tenth"     , ":edelay 5¦");                         <* 
-    *> yVIKEYS_menu_addX ("µre6", "half"      , ":edelay 6¦");                         <* 
-    *> yVIKEYS_menu_addX ("µre7", "second"    , ":edelay 7¦");                         <* 
-    *> yVIKEYS_menu_addX ("µre8", "double"    , ":edelay 8¦");                         <* 
-    *> yVIKEYS_menu_addX ("µre9", "triple"    , ":edelay 9¦");                         <* 
-    *> yVIKEYS_menu_addX ("µre+", "faster"    , ":edelay +¦");                         <* 
-    *> yVIKEYS_menu_addX ("µre-", "slower"    , ":edelay -¦");                         <* 
-    *> yVIKEYS_menu_addX ("µren", "normal"    , ":eupdate n¦");                        <* 
-    *> yVIKEYS_menu_addX ("µres", "slow"      , ":eupdate s¦");                        <* 
-    *> yVIKEYS_menu_addX ("µreb", "blinks"    , ":eupdate b¦");                        <* 
-    *> yVIKEYS_menu_addX ("µrep", "peeks"     , ":eupdate p¦");                        <* 
-    *> yVIKEYS_menu_addX ("µred", "blind"     , ":eupdate d¦");                        <* 
-    *> yVIKEYS_menu_addX ("µreD", "demo mode" , ":edelay 4¦");                         <* 
-    *> yVIKEYS_menu_addX ("µrd0", "1us"       , ":ddelay 0¦");                         <* 
-    *> yVIKEYS_menu_addX ("µrd1", "100us"     , ":ddelay 1¦");                         <* 
-    *> yVIKEYS_menu_addX ("µrd2", "1ms"       , ":ddelay 2¦");                         <* 
-    *> yVIKEYS_menu_addX ("µrd3", "10ms"      , ":ddelay 3¦");                         <* 
-    *> yVIKEYS_menu_addX ("µrd4", "50ms"      , ":ddelay 4¦");                         <* 
-    *> yVIKEYS_menu_addX ("µrd5", "100ms"     , ":ddelay 5¦");                         <* 
-    *> yVIKEYS_menu_addX ("µrd6", "500ms"     , ":ddelay 6¦");                         <* 
-    *> yVIKEYS_menu_addX ("µrd7", "1s"        , ":ddelay 7¦");                         <* 
-    *> yVIKEYS_menu_addX ("µrd8", "2s"        , ":ddelay 8¦");                         <* 
-    *> yVIKEYS_menu_addX ("µrd9", "3s"        , ":ddelay 9¦");                         <* 
-    *> yVIKEYS_menu_addX ("µrd+", "faster"    , ":ddelay +¦");                         <* 
-    *> yVIKEYS_menu_addX ("µrd-", "slower"    , ":ddelay -¦");                         <* 
-    *> yVIKEYS_menu_addX ("µrdn", "normal"    , ":dupdate n¦");                        <* 
-    *> yVIKEYS_menu_addX ("µrds", "slow"      , ":dupdate s¦");                        <* 
-    *> yVIKEYS_menu_addX ("µrdb", "blinks"    , ":dupdate b¦");                        <* 
-    *> yVIKEYS_menu_addX ("µrdp", "peeks"     , ":dupdate p¦");                        <* 
-    *> yVIKEYS_menu_addX ("µrdd", "blind"     , ":dupdate d¦");                        <*/
    /*---(update status)------------------*/
    DEBUG_PROG   yLOG_note    ("update status");
    STATUS_init_set   (SMOD_MACRO);
@@ -459,8 +428,12 @@ yvikeys_macro__save     (void)
       DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
+   /*---(save to macro)------------------*/
+   if (s_rlen == 0)   s_macros [s_rcurr].keys  = s_stub;
+   else               s_macros [s_rcurr].keys  = strdup (s_rkeys);
+   s_macros [s_rcurr].len   = strlen (s_rkeys);
    /*---(trim)---------------------------*/
-   strlcpy (x_keys, s_macros [s_rcurr].keys, LEN_RECD);
+   strlcpy (x_keys, s_rkeys, LEN_RECD);
    x_len = strlen (x_keys);
    if (x_len > 0)  x_keys [--x_len] = G_KEY_NULL;
    /*---(save gyges)---------------------*/
@@ -486,12 +459,15 @@ yvikeys_macro__fetch    (void)
    DEBUG_SCRP   yLOG_enter   (__FUNCTION__);
    /*---(prefetch)--------------------*/
    if (s_loader != NULL) {
+      yvikeys_macro__wipe (s_ecurr);
       s_loader (s_ename, s_macros [s_ecurr].keys);
-      s_macros [s_ecurr].len = strlen (s_macros [s_ecurr].keys);
-      DEBUG_SCRP   yLOG_info    ("macro"     , s_macros [s_ecurr].keys);
-      DEBUG_SCRP   yLOG_value   ("len"       , s_macros [s_ecurr].len);
-      s_macros [s_ecurr].keys [s_macros [s_ecurr].len++] = G_CHAR_HALT;
-      s_macros [s_ecurr].keys [s_macros [s_ecurr].len  ] = G_KEY_NULL;
+      if (s_macros [s_ecurr].keys != NULL) {
+         s_macros [s_ecurr].len = strlen (s_macros [s_ecurr].keys);
+         s_macros [s_ecurr].keys [s_macros [s_ecurr].len++] = G_CHAR_HALT;
+         s_macros [s_ecurr].keys [s_macros [s_ecurr].len  ] = G_KEY_NULL;
+      } else {
+         s_macros [s_ecurr].len = 0;
+      }
    }
    /*---(information)-----------------*/
    DEBUG_SCRP   yLOG_info    ("macro"     , s_macros [s_ecurr].keys);
@@ -511,7 +487,6 @@ yvikeys_macro__fetch    (void)
 /*====================------------------------------------====================*/
 static void  o___RECORD__________o () { return; }
 
-static char  s_backup  [LEN_RECD];
 
 char         /*-> prepare a macro recording ----------[ ------ [ge.831.112.53]*/ /*-[01.0000.023.A]-*/ /*-[--.---.---.--]-*/
 yvikeys_macro__recbeg   (char a_name)
@@ -574,20 +549,15 @@ yvikeys_macro__recbeg   (char a_name)
    }
    DEBUG_SCRP   yLOG_value   ("s_rcurr"   , s_rcurr);
    /*---(prepare)---------------------*/
-   strlcpy (s_backup, s_macros [s_rcurr].keys, LEN_RECD);
-   DEBUG_SCRP   yLOG_info ("s_backup"  , s_backup);
-   /*---(normal mode)-----------------*/
-   if (a_name == tolower (a_name) || s_macros [s_rcurr].len < 1) {
-      yvikeys_macro__clear (a_name);
-      s_macros [s_rcurr].keys [s_macros [s_rcurr].len++] = G_CHAR_PLACE;
-      s_macros [s_rcurr].keys [s_macros [s_rcurr].len  ] = G_KEY_NULL;
+   if (a_name == tolower (a_name) || s_macros [s_rcurr].len <= 0) {
+      strlcpy (s_rkeys, "¤", LEN_RECD);
+   } else {
+      strlcpy (s_rkeys, s_macros [s_rcurr].keys, LEN_RECD);
    }
-   /*---(append mode)-----------------*/
-   else {
-      yvikeys_macro__wipe  (a_name);
-   }
+   s_rlen = strlen (s_rkeys);
+   s_rpos = s_rlen - 2;
    /*---(turn on record)--------------*/
-   DEBUG_SCRP   yLOG_value   ("keys"      , s_macros [s_rcurr].keys);
+   DEBUG_SCRP   yLOG_value   ("keys"      , s_rkeys);
    SET_MACRO_RECORD;
    DEBUG_SCRP   yLOG_char    ("s_rmode"   , s_rmode);
    VIEW__switch ("status", "record");
@@ -608,11 +578,11 @@ yvikeys_macro_reckey    (char a_key)
       case G_KEY_BS      :  a_key  = G_CHAR_BS;      break;  /* backspace char        */
       case G_KEY_SPACE   :  a_key  = G_CHAR_SPACE;   break;  /* visual space          */
       }
-      s_macros [s_rcurr].cur                              = a_key;
-      s_macros [s_rcurr].keys [s_macros [s_rcurr].len - 1] = a_key;
-      s_macros [s_rcurr].keys [s_macros [s_rcurr].len++  ] = G_CHAR_PLACE;
-      s_macros [s_rcurr].keys [s_macros [s_rcurr].len    ] = G_KEY_NULL;
-      s_macros [s_rcurr].pos                              = s_macros [s_rcurr].len - 2;
+      s_rcur               = a_key;
+      s_rkeys [s_rlen - 1] = a_key;
+      s_rkeys [s_rlen++  ] = G_CHAR_PLACE;
+      s_rkeys [s_rlen    ] = G_KEY_NULL;
+      s_rpos               = s_rlen - 2;
    }
    return 0;
 }
@@ -624,26 +594,25 @@ yvikeys_macro__recstr   (char *a_keys)
    char        x_ch        = '-';
    IF_MACRO_RECORDING {
       /*---(look for suffix)----------------*/
-      if (s_macros [s_rcurr].keys [s_macros [s_rcurr].len - 1] == (schar) G_CHAR_PLACE) {
-         s_macros [s_rcurr].keys [--s_macros [s_rcurr].len  ] =  G_KEY_NULL;
+      if (s_rkeys [s_rlen - 1] == G_CHAR_PLACE) {
+         s_rkeys [--s_rlen  ] =  G_KEY_NULL;
       }
-      if (s_macros [s_rcurr].keys [s_macros [s_rcurr].len - 1] == (schar) G_CHAR_HALT ) {
-         s_macros [s_rcurr].keys [--s_macros [s_rcurr].len  ] =  G_KEY_NULL;
+      if (s_rkeys [s_rlen - 1] == G_CHAR_HALT ) {
+         s_rkeys [--s_rlen  ] =  G_KEY_NULL;
       }
       /*---(add keys)-----------------------*/
-      if (a_keys == NULL)  strlcat (s_macros [s_rcurr].keys, ""    , LEN_RECD);
-      else                 strlcat (s_macros [s_rcurr].keys, a_keys, LEN_RECD);
-      s_macros [s_rcurr].len  = strlen (s_macros [s_rcurr].keys);
+      if (a_keys == NULL)  strlcat (s_rkeys, ""    , LEN_RECD);
+      else                 strlcat (s_rkeys, a_keys, LEN_RECD);
+      s_rlen  = strlen (s_rkeys);
       /*---(fix keys)-----------------------*/
-      strlencode   (s_macros [s_rcurr].keys, ySTR_MAX, LEN_RECD);
+      strlencode   (s_rkeys, ySTR_MAX, LEN_RECD);
       /*---(add suffix)---------------------*/
-      s_macros [s_rcurr].keys [s_macros [s_rcurr].len  ] =  G_CHAR_PLACE;
-      s_macros [s_rcurr].keys [++s_macros [s_rcurr].len] =  G_KEY_NULL;
+      s_rkeys [s_rlen  ] =  G_CHAR_PLACE;
+      s_rkeys [++s_rlen] =  G_KEY_NULL;
       /*---(update pos/char)----------------*/
-      s_macros [s_rcurr].pos = s_macros [s_rcurr].len - 2;
-      if (s_macros [s_rcurr].pos < 0)  s_macros [s_rcurr].cur = 0;
-      else                  s_macros [s_rcurr].cur = s_macros [s_rcurr].keys [s_macros [s_rcurr].pos];
-      /*> printf ("s_macros [s_rcurr].keys <<%s>>\n", s_macros [s_rcurr].keys);                                <*/
+      s_rpos = s_rlen - 2;
+      if (s_rpos < 0)  s_rpos = 0;
+      /*> printf ("s_rkeys <<%s>>\n", s_rkeys);                                <*/
    }
    /*---(complete)-----------------------*/
    return 0;
@@ -653,19 +622,22 @@ char         /*-> complete a macro recording ---------[ ------ [gz.420.001.21]*/
 yvikeys_macro_recend    (void)
 {
    IF_MACRO_RECORDING {
-      if (s_macros [s_rcurr].len > 2 && s_macros [s_rcurr].keys [s_macros [s_rcurr].len - 2] == 'q') {
-         s_macros [s_rcurr].keys [s_macros [s_rcurr].len - 2] = G_CHAR_HALT;
-         s_macros [s_rcurr].keys [s_macros [s_rcurr].len - 1] = G_KEY_NULL;
-         --s_macros [s_rcurr].len;
-      } else if (s_macros [s_rcurr].len == 2 && s_macros [s_rcurr].keys [s_macros [s_rcurr].len - 2] == 'q') {
-         s_macros [s_rcurr].keys [0] = G_KEY_NULL;
-         s_macros [s_rcurr].len      = 0;
-      } else {
-         strlcpy (s_macros [s_rcurr].keys, s_backup, LEN_RECD);
-         s_macros [s_rcurr].len      = strlen (s_backup);
+      if (s_rlen > 2 && s_rkeys [s_rlen - 2] == 'q') {
+         s_rkeys [s_rlen - 2] = G_CHAR_HALT;
+         s_rkeys [s_rlen - 1] = G_KEY_NULL;
+         --s_rlen;
+         yvikeys_macro__save ();
+         yvikeys_macro__wipe (s_rname);
+      } else if (s_rlen == 2 && s_rkeys [s_rlen - 2] == 'q') {
+         s_rkeys [0] = G_KEY_NULL;
+         s_rlen      = 0;
+         yvikeys_macro__save ();
+         yvikeys_macro__wipe (s_rname);
       }
-      yvikeys_macro__wipe (s_rname);
-      yvikeys_macro__save ();
+      s_rkeys [0] = G_KEY_NULL;
+      s_rlen      = 0;
+      s_rpos      =   0;
+      s_rcur      = '-';
       SET_MACRO_IGNORE;
       s_rcurr = -1;
    }
@@ -1836,7 +1808,7 @@ yvikeys_macro_rstatus        (char *a_list)
       return 0;
    }
    x_len = s_macros [s_rcurr].len;
-   snprintf (a_list, LEN_FULL, "record  %c %3d %*.*s%*.*s", s_rname, x_len, x_len, x_len, s_macros [s_rcurr].keys, 65 - x_len, 65 - x_len, x_dots + x_len);
+   snprintf (a_list, LEN_FULL, "record  %c %3d %*.*s%*.*s", s_rname, x_len, x_len, x_len, s_rkeys, 65 - x_len, 65 - x_len, x_dots + x_len);
    return 0;
 }
 
@@ -1998,9 +1970,9 @@ yvikeys_macro_reader    (void)
    /*---(save)---------------------------*/
    DEBUG_INPT   yLOG_note    ("saving values");
    yvikeys_macro__clear (x_abbr);
-   strlcpy (s_macros [n].keys, x_keys, LEN_RECD );
-   strlcat (s_macros [n].keys, "³"   , LEN_RECD );
-   s_macros [n].len = strlen (s_macros [n].keys);
+   strlcat (x_keys, "³"   , LEN_RECD );
+   s_macros [n].keys = strdup (x_keys);
+   s_macros [n].len  = strlen (x_keys);
    /*---(complete)-----------------------*/
    DEBUG_INPT  yLOG_exit    (__FUNCTION__);
    return 1;
@@ -2043,7 +2015,7 @@ static int   s_index         = 0;
 static char  s_abbrs         [S_MACRO_MAX];
 
 char
-yvikeys_macro__packone  (char a_lvl, char a_src, int a_out)
+yvikeys_macro__packone  (char a_lvl, char a_src, char *a_out)
 {
    /*---(locals)-----------+-----------+-*/
    char        rce         =  -10;
@@ -2051,11 +2023,12 @@ yvikeys_macro__packone  (char a_lvl, char a_src, int a_out)
    char        x_in        =    0;
    int         i           =    0;
    int         x_pos       =    0;
-   char        t           [LEN_RECD];
+   char        x_sub       [LEN_LABEL];
+   char        x_msg       [LEN_DESC];
    /*---(header)-------------------------*/
    DEBUG_SCRP   yLOG_enter   (__FUNCTION__);
    DEBUG_SCRP   yLOG_value   ("a_lvl"     , a_lvl);
-   /*---(source)-------------------------*/
+   /*---(defense)------------------------*/
    DEBUG_SCRP   yLOG_char    ("a_src"     , a_src);
    x_in   = yvikeys_macro__index (a_src);
    DEBUG_SCRP   yLOG_value   ("x_in"      , x_in);
@@ -2063,29 +2036,36 @@ yvikeys_macro__packone  (char a_lvl, char a_src, int a_out)
       DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   DEBUG_SCRP   yLOG_value   ("a_out"     , a_out);
+   DEBUG_SCRP   yLOG_point   ("a_out"     , a_out);
+   --rce; if (a_out == NULL) { 
+      DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   s_rlen = strlen (a_out);
+   DEBUG_SCRP   yLOG_value   ("s_rlen"    , s_rlen);
+   /*---(prefix)-------------------------*/
    DEBUG_SCRP   yLOG_value   ("s_abbrs"   , s_abbrs [x_in]);
    if (s_abbrs [x_in] > 0) {
       DEBUG_SCRP   yLOG_note    ("repeating macro");
-      sprintf (t, "¸@%d¹", s_abbrs [x_in]);
-      strlcat (s_macros [a_out].keys, t, LEN_RECD);
-      s_macros [a_out].len = strlen (s_macros [a_out].keys);
+      sprintf (x_sub, "¸@%d¹", s_abbrs [x_in]);
+      strlcat (a_out, x_sub, LEN_RECD);
+      s_rlen = strlen (a_out);
       DEBUG_SCRP  yLOG_exit    (__FUNCTION__);
       return 0;
    }
    /*---(prefix)-------------------------*/
    if (a_lvl > 0)  {
       DEBUG_SCRP   yLOG_note    ("prefixing");
-      x_pos = s_macros [a_out].len++;
-      s_macros [a_out].keys [x_pos]     = '¸';
-      s_macros [a_out].keys [x_pos + 1] = '\0';
+      strlcat (a_out, "¸", LEN_RECD);
       s_abbrs [x_in] = ++s_index;
       DEBUG_SCRP   yLOG_value   ("s_abbrs"   , s_abbrs [x_in]);
+      ++s_rlen;
+      DEBUG_SCRP   yLOG_value   ("s_rlen"    , s_rlen);
    }
    /*---(copy)---------------------------*/
    for (i = 0; i < s_macros [x_in].len; ++i) {
       DEBUG_SCRP   yLOG_char    ("char"      , s_macros [x_in].keys [i]);
-      if (s_macros [x_in].keys [i] == '³')  break;
+      if (s_macros [x_in].keys [i] == G_CHAR_HALT)  break;
       if (s_macros [x_in].keys [i] == '@') {
          rc = yvikeys_macro__packone (a_lvl + 1, s_macros [x_in].keys [++i], a_out);
          DEBUG_SCRP   yLOG_value   ("flatone"   , rc);
@@ -2095,19 +2075,18 @@ yvikeys_macro__packone  (char a_lvl, char a_src, int a_out)
          }
          continue;
       }
-      x_pos = s_macros [a_out].len++;
-      s_macros [a_out].keys [x_pos] = s_macros [x_in].keys [i];
-      s_macros [a_out].keys [x_pos + 1] = '\0';
-      if (x_pos < 30)  sprintf (t, "[%s]", s_macros [a_out].keys);
-      else             sprintf (t, "<%s]", s_macros [a_out].keys + x_pos - 30);
-      DEBUG_SCRP   yLOG_complex ("added"     , "%3d, %3d, %s", x_pos, s_macros [a_out].len, t);
+      a_out [s_rlen++]   = s_macros [x_in].keys [i];
+      a_out [s_rlen]     = '\0';
+      if (s_rlen < 30)  sprintf (x_msg, "[%s]", a_out);
+      else              sprintf (x_msg, "<%s]", a_out + s_rlen - 30);
+      DEBUG_SCRP   yLOG_complex ("added"     , "%3d, %3d, %s", s_rlen, s_rlen, x_msg);
    }
    /*---(suffix)-------------------------*/
    if (a_lvl > 0)  {
       DEBUG_SCRP   yLOG_note    ("suffixing");
-      x_pos = s_macros [a_out].len++;
-      s_macros [a_out].keys [x_pos] = '¹';
-      s_macros [a_out].keys [x_pos + 1] = '\0';
+      strlcat (a_out, "¹", LEN_RECD);
+      ++s_rlen;
+      DEBUG_SCRP   yLOG_value   ("s_rlen"    , s_rlen);
    }
    /*---(complete)-----------------------*/
    DEBUG_SCRP  yLOG_exit    (__FUNCTION__);
@@ -2137,11 +2116,15 @@ yvikeys_macro_flatten   (char a_src, char a_dst)
    s_index = 0;
    for (i = 0; i < S_MACRO_MAX; ++i)  s_abbrs [i] = 0;
    /*---(call on main)-------------------*/
-   rc = yvikeys_macro__packone (0, a_src, x_out);
+   rc = yvikeys_macro__packone (0, a_src, s_rkeys);
    DEBUG_SCRP   yLOG_value   ("flatone"   , rc);
-   /*---(append)-------------------------*/
-   strlcat (s_macros [x_out].keys, "³"   , LEN_RECD );
-   s_macros [x_out].len = strlen (s_macros [x_out].keys);
+   /*---(save)---------------------------*/
+   strlcat (s_rkeys, "³"   , LEN_RECD );
+   s_macros [x_out].keys = strdup (s_rkeys);
+   s_macros [x_out].len  = strlen (s_rkeys);
+   /*---(clear)--------------------------*/
+   s_rkeys [0] = '\0';
+   s_rlen      = 0;
    /*---(complete)-----------------------*/
    DEBUG_SCRP  yLOG_exit    (__FUNCTION__);
    return rc;
@@ -2155,24 +2138,23 @@ yvikeys_macro__instone   (int a_lvl, int a_in, int a_len, int a_pos, int a_out)
    char        rc          =    0;
    int         i           =    0;
    int         x_pos       =    0;
-   char        t           [LEN_RECD];
+   int         x_len       =    0;
+   uchar       x_sub       [LEN_LABEL];
+   uchar       x_msg       [LEN_DESC];
+   uchar       x_keys      [LEN_RECD];
    /*---(header)-------------------------*/
    DEBUG_SCRP   yLOG_enter   (__FUNCTION__);
-   DEBUG_SCRP   yLOG_value   ("a_lvl"     , a_lvl);
-   DEBUG_SCRP   yLOG_value   ("a_in"      , a_in);
-   DEBUG_SCRP   yLOG_value   ("a_len"     , a_len);
-   DEBUG_SCRP   yLOG_value   ("a_pos"     , a_pos);
-   DEBUG_SCRP   yLOG_value   ("a_out"     , a_out);
+   DEBUG_SCRP   yLOG_complex ("args"      , "%2dl, %2di, %2dl, %2dp, %2do", a_lvl, a_in, a_len, a_pos, a_out);
    for (i = a_pos; i < a_len; ++i) {
-      DEBUG_SCRP   yLOG_char    ("char"      , s_macros [a_in].keys [i]);
+      DEBUG_SCRP   yLOG_char    ("char"      , s_rkeys [i]);
       /*---(layering operator)-----------*/
-      if (s_macros [a_in].keys [i] == '¸') {
+      if (s_rkeys [i] == G_CHAR_SLPAREN) {
          /*---(repeat sub-macro call)----*/
-         if (s_macros [a_in].keys [i + 1] == '@') {
+         if (s_rkeys [i + 1] == '@') {
             DEBUG_SCRP   yLOG_note    ("sub-macro repeat call");
-            sprintf (t, "@%c", s_macros [a_in].keys [i + 2]);
-            strlcat (s_macros [a_out].keys, t, LEN_RECD);
-            s_macros [a_out].len = strlen (s_macros [a_out].keys);
+            sprintf (x_sub, "@%c", s_rkeys [i + 2]);
+            strlcat (x_keys, x_sub, LEN_RECD);
+            x_len = strlen (x_keys);
             i += 3;
          }
          /*---(create new sub-macro)-----*/
@@ -2180,34 +2162,38 @@ yvikeys_macro__instone   (int a_lvl, int a_in, int a_len, int a_pos, int a_out)
             DEBUG_SCRP   yLOG_note    ("sub-macro first call");
             ++s_index;
             i = yvikeys_macro__instone (a_lvl + 1, a_in, a_len, i + 1, s_index);
-            sprintf (t, "@%c", S_MACRO_LIST [s_index]);
-            strlcat (s_macros [a_out].keys, t, LEN_RECD);
-            s_macros [a_out].len = strlen (s_macros [a_out].keys);
+            sprintf (x_sub, "@%c", S_MACRO_LIST [s_index]);
+            strlcat (x_keys, x_sub, LEN_RECD);
+            x_len = strlen (x_keys);
          }
          /*---(done)---------------------*/
       }
       /*---(end of sub-macro)------------*/
-      else if (s_macros [a_in].keys [i] == '¹') {
-         strlcat (s_macros [a_out].keys, "³", LEN_RECD);
-         s_macros [a_out].len = strlen (s_macros [a_out].keys);
+      else if (s_rkeys [i] == G_CHAR_SRPAREN) {
+         strlcat (x_keys, "³", LEN_RECD);
+         x_len = strlen (x_keys);
          DEBUG_SCRP  yLOG_exit    (__FUNCTION__);
-         return i;
+         break;
       }
       /*---(normal)----------------------*/
       else {
          DEBUG_SCRP   yLOG_note    ("normal addition of keys");
-         x_pos = s_macros [a_out].len++;
-         s_macros [a_out].keys [x_pos] = s_macros [a_in].keys [i];
-         s_macros [a_out].keys [x_pos + 1] = '\0';
-         if (x_pos < 30)  sprintf (t, "[%s]", s_macros [a_out].keys);
-         else             sprintf (t, "<%s]", s_macros [a_out].keys + x_pos - 30);
-         DEBUG_SCRP   yLOG_complex ("added"     , "%c, %3d, %3d, %s", '0' + a_out, x_pos, s_macros [a_out].len, t);
+         x_pos = x_len++;
+         x_keys [x_pos] = s_rkeys [i];
+         x_keys [x_pos + 1] = '\0';
+         if (x_pos < 30)  sprintf (x_msg, "[%s]", x_keys);
+         else             sprintf (x_msg, "<%s]", x_keys + x_pos - 30);
+         DEBUG_SCRP   yLOG_complex ("added"     , "%c, %3d, %3d, %s", '0' + a_out, x_pos, x_len, x_msg);
       }
       /*---(done)------------------------*/
    }
+   /*---(put in place)-------------------*/
+   yvikeys_macro__clear (S_MACRO_LIST [a_out]);
+   s_macros [a_out].keys = strdup (x_keys);
+   s_macros [a_out].len  = x_len;
    /*---(complete)-----------------------*/
    DEBUG_SCRP  yLOG_exit    (__FUNCTION__);
-   return rc;
+   return i;
 }
 
 char
@@ -2222,11 +2208,18 @@ yvikeys_macro_install   (char a_src)
    char        x_out       =    0;
    /*---(header)-------------------------*/
    DEBUG_SCRP   yLOG_enter   (__FUNCTION__);
-   /*---(source)-------------------------*/
+   /*---(defense)------------------------*/
    DEBUG_SCRP   yLOG_char    ("a_src"     , a_src);
    x_in   = yvikeys_macro__index (a_src);
    DEBUG_SCRP   yLOG_value   ("x_in"      , x_in);
    --rce; if (x_in  < 0) { 
+      DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   strlcpy (s_rkeys, s_macros [x_in].keys, LEN_RECD);
+   s_rlen = s_macros [x_in].len;
+   DEBUG_SCRP   yLOG_value   ("s_rlen"    , s_rlen);
+   --rce; if (s_rlen  <= 0) { 
       DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
@@ -2243,11 +2236,11 @@ yvikeys_macro_install   (char a_src)
    s_index = x_out;
    for (i = 0; i < S_MACRO_MAX; ++i)  s_abbrs [i] = 0;
    /*---(call on main)-------------------*/
-   rc = yvikeys_macro__instone  (0, x_in, s_macros [x_in].len, 0, s_index);
-   DEBUG_SCRP   yLOG_value   ("sepone"    , rc);
+   rc = yvikeys_macro__instone  (0, x_in, s_rlen, 0, s_index);
+   DEBUG_SCRP   yLOG_value   ("instone"   , rc);
    /*---(complete)-----------------------*/
    DEBUG_SCRP  yLOG_exit    (__FUNCTION__);
-   return rc;
+   return 0;
 }
 
 
@@ -2272,9 +2265,9 @@ yvikeys_macro__unit     (char *a_question, uchar a_abbr)
    if      (strcmp (a_question, "rec"            )   == 0) {
       if (s_rcurr < 0) snprintf (yVIKEYS__unit_answer, LEN_RECD, "MACRO rec    (%c) : macro pointer grounded", s_rname);
       else {
-         sprintf (t, "[%-.33s]", s_macros [s_rcurr].keys);
-         if (s_macros [s_rcurr].len > 33)  t [34] = '>';
-         snprintf (yVIKEYS__unit_answer, LEN_RECD, "MACRO rec    (%c) : %c %2d %2d%s", s_rname, s_rmode, s_macros [s_rcurr].pos, s_macros [s_rcurr].len, t);
+         sprintf (t, "[%-.33s]", s_rkeys);
+         if (s_rlen > 33)  t [34] = '>';
+         snprintf (yVIKEYS__unit_answer, LEN_RECD, "MACRO rec    (%c) : %c %2d %2d%s", s_rname, s_rmode, s_rpos, s_rlen, t);
       }
       return yVIKEYS__unit_answer;
    }
