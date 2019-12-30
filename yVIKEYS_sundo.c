@@ -53,7 +53,7 @@ yvikeys_sundo_init         (void)
 {
    char        rc          =    0;
    rc = yvikeys_sundo_purge (0);
-   rc = yVIKEYS_view_option (YVIKEYS_STATUS, "sundo", yvikeys_sundo_status, "source editing undo stack");
+   /*> rc = yVIKEYS_view_optionX (YVIKEYS_STATUS, "sundo", yvikeys_sundo_status, "source editing undo stack");   <*/
    return 0;
 }
 

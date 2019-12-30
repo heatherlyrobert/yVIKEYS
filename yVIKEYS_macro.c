@@ -68,7 +68,6 @@ struct cMACRO {
 };
 static tMACRO  s_macros    [S_MACRO_MAX];
 static int     s_nmacro    =    0;
-static uchar  *s_stub      = "";
 
 static char    s_emode     =  '-';          /* run, playback, delay, etc      */
 static char    s_ename     =  '-';
@@ -181,8 +180,8 @@ yvikeys_macro__clear    (uchar a_abbr)
    s_macros [n].runby     =   -1;
    /*---(contents)-----------------------*/
    DEBUG_PROG   yLOG_snote   ("data");
-   if (s_macros [n].keys != s_stub)  free (s_macros [n].keys);
-   s_macros [n].keys      = s_stub;
+   if (s_macros [n].keys != g_stub)  free (s_macros [n].keys);
+   s_macros [n].keys      = g_stub;
    s_macros [n].len       =    0;
    /*---(execute)------------------------*/
    DEBUG_PROG   yLOG_snote   ("exec");
@@ -354,8 +353,8 @@ yvikeys_macro_init      (void)
    /*---(clear data)---------------------*/
    yvikeys_macro__purge (MACRO_ALL);
    /*---(status)-------------------------*/
-   yVIKEYS_view_option (YVIKEYS_STATUS, "macro"  , yvikeys_macro_estatus , "details of macro playback"                );
-   yVIKEYS_view_option (YVIKEYS_STATUS, "record" , yvikeys_macro_rstatus , "details of macro recording"               );
+   /*> yVIKEYS_view_optionX (YVIKEYS_STATUS, "macro"  , yvikeys_macro_estatus , "details of macro playback"                );   <* 
+    *> yVIKEYS_view_optionX (YVIKEYS_STATUS, "record" , yvikeys_macro_rstatus , "details of macro recording"               );   <*/
    /*---(update status)------------------*/
    DEBUG_PROG   yLOG_note    ("update status");
    STATUS_init_set   (SMOD_MACRO);
@@ -429,7 +428,7 @@ yvikeys_macro__save     (void)
       return rce;
    }
    /*---(save to macro)------------------*/
-   if (s_rlen == 0)   s_macros [s_rcurr].keys  = s_stub;
+   if (s_rlen == 0)   s_macros [s_rcurr].keys  = g_stub;
    else               s_macros [s_rcurr].keys  = strdup (s_rkeys);
    s_macros [s_rcurr].len   = strlen (s_rkeys);
    /*---(trim)---------------------------*/

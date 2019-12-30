@@ -276,7 +276,8 @@ char        yVIKEYS_view_type       (cchar a_part);
 char        yVIKEYS_view_anchor     (cchar a_part);
 
 char        yVIKEYS_view_option     (char a_part, char *a_opt, void *a_source, char *a_desc);
-char        yVIKEYS_layer_add       (char *a_name, void *a_drawer, char *a_desc);
+char        yVIKEYS_dataset_add     (uchar *a_name, void *a_drawer, uchar *a_desc);
+char        yVIKEYS_dataset_delete  (uchar *a_name);
 
 char        yVIKEYS_view_ribbon_clear (void);
 char        yVIKEYS_view_ribbon     (char *a_cat, char *a_name);

@@ -26,8 +26,8 @@
 
 #define     P_VERMAJOR  "1.X = working for everyday use, features still evolving but stable"
 #define     P_VERMINOR  "1.4 = prepare for demonstrations on web"
-#define     P_VERNUM    "1.4n"
-#define     P_VERTXT    "mreg now dynamic (over a megabyte of ram saved;) and keylogging rolls (saved 40K)"
+#define     P_VERNUM    "1.4o"
+#define     P_VERTXT    "great start version of layers built and unit tested (except display)"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -121,6 +121,7 @@ struct cSHARED {
    char        repeating;                   /* note for repeating actions     */
    char        log_keys;                    /* allows keys to be hidden       */
    char        cursor;                      /* show cursor in ncurses (or not)*/
+   char        status_w;                    /* width category of status       */
    /*---(main loop)-------*/
    float       delay;                       /* requested loop sleep timing    */
    int         macro_skip;                  /* diff between playback and exec */
@@ -227,6 +228,7 @@ extern int         g_gsizey;
 extern int         g_goffz;
 extern int         g_gsizez;
 
+extern uchar *g_stub;
 
 extern char  g_vsimple   [LEN_DESC ];
 extern char  g_vgoto     [LEN_DESC ];
@@ -277,7 +279,6 @@ char        VIEW__grid_offset       (int a_x, int a_y, int a_z);
 char        VIEW__grid_size         (int a_x, int a_y, int a_z);
 char        VIEW_status_default     (char *a_list);
 char        VIEW__layout            (char *a_name);
-char        VIEW__layer_set         (char *a_name);
 
 char*       VIEW__unit              (char *a_question, char a_index);
 
@@ -746,6 +747,26 @@ char        yvikeys_hist_umode      (int  a_major, int  a_minor);
 char        yvikeys_hist__new       (char a_mode, uchar *a_text);
 char*       yvikeys_hist__unit      (char *a_question, int n);
 
+
+
+/*---(program)------------------------*/
+char        yvikeys_layer_init      (void);
+char        yvikeys_layer_wrap      (void);
+char        yvikeys_layer_purge     (void);
+/*---(support)------------------------*/
+char        yvikeys_layer__valid    (uchar a_abbr);
+char        yvikeys_layer__name     (uchar *a_name);
+/*---(search)-------------------------*/
+char        yvikeys_layer_cursor    (char a_move);
+char        yvikeys_layer_find      (uchar *a_name);
+/*---(ordering)-----------------------*/
+char        yvikeys_layer__none     (void);
+char        yvikeys_layer_action    (uchar *a_name, uchar *a_action);
+/*---(display)------------------------*/
+char        yvikeys_layer_status    (char *a_line);
+/*---(unit_test)----------------------*/
+char        yvikeys_layer__unit_null(void);
+char*       yvikeys_layer__unit     (char *a_question, uchar *a_key);
 
 #define    ACTION_FIND     'f'
 #define    ACTION_ADD      '+'

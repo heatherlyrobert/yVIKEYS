@@ -209,7 +209,7 @@ static const tCMDS  s_base      [] = {
    { 'b', 'v', "gridoff"         , ""    , VIEW__grid_offset         , "iii" , ""                                                            },
    { 'b', 'v', "gridsize"        , ""    , VIEW__grid_size           , "iii" , ""                                                            },
    { 'b', 'v', "layout"          , ""    , VIEW__layout              , "s"   , ""                                                            },
-   { 'b', 'v', "layer"           , ""    , VIEW__layer_set           , "s"   , ""                                                            },
+   { 'b', 'v', "layer"           , ""    , yvikeys_layer_action      , "ss"  , ""                                                            },
    { 0  , 0  , "-"               , ""    , NULL                      , ""    , ""                                                            },
 };
 

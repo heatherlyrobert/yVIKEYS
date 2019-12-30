@@ -99,12 +99,14 @@ yVIKEYS_init         (char a_mode)
    yvikeys_loop_init    ();
    yvikeys_menu_final   ();
    yvikeys_dump_init    ();
+   yvikeys_layer_init   ();
    /*----(globals)-----------------------*/
    myVIKEYS.done      = '-';
    myVIKEYS.trouble   = '-';
    myVIKEYS.info_win  = '-';
    myVIKEYS.log_keys  = 'y';
    myVIKEYS.cursor    = 'y';
+   myVIKEYS.status_w  = 'L';
    /*----(complete)----------------------*/
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -120,6 +122,7 @@ yVIKEYS_wrap         (void)
    yvikeys_menu_wrap   ();
    yvikeys_dump_purge  ();
    yvikeys_hist_wrap   ();
+   yvikeys_layer_wrap  ();
    return 0;
 }
 

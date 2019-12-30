@@ -77,8 +77,7 @@ char  VIEW__ribbon             (void);
 char  VIEW__grid_normal        (void);
 char  VIEW__grid_zoom          (void);
 char  VIEW__cursor             (void);
-char  VIEW__layer_show         (void);
-char  VIEW__layer_set          (char *a_name);
+char  yvikeys_layer_show       (void);
 
 
 
@@ -138,7 +137,7 @@ static tWIN   s_win;
 #define      OWN_MODERATE     "msp"
 #define      OWN_SIMPLE       "po"
 
-#define      MAX_PARTS         50
+#define      MAX_PARTS         25
 typedef  struct  cPARTS     tPARTS;
 struct cPARTS {
    /*---(main)-----------------*/
@@ -228,14 +227,14 @@ static int  s_npart     = MAX_PARTS;
  *
  */
 
-#define      MAX_LAYOUT        20
+#define      MAX_LAYOUT        10
 typedef struct cLAYOUT   tLAYOUT;
 struct cLAYOUT {
    char        name        [LEN_LABEL];     /* title for layout               */
    char        parts       [MAX_PARTS];     /* selection of elements          */
    char        desc        [LEN_DESC ];     /* explanation of layout          */
 };
-tLAYOUT   s_layouts [MAX_LAYOUT] = {
+const tLAYOUT   s_layouts [] = {
    /*---name------    tbfnmapxscdrvk XY  ,  12345678901234567890123456789012345678901234567890  */
    { "min"         , "----m--------- --" , "smallest footprint, least elements showing"           },
    { "starter"     , "----m----c---k --" , "little footprint for new applications"                },
@@ -249,7 +248,7 @@ tLAYOUT   s_layouts [MAX_LAYOUT] = {
 static int  s_nlayout   = MAX_LAYOUT;
 
 
-#define      MAX_OPTION     200
+#define      MAX_OPTION      50
 typedef  struct  cOPTION    tOPTION;
 struct cOPTION  {
    char        part;
@@ -272,28 +271,24 @@ tOPTION  s_options [MAX_OPTION ] = {
    { YVIKEYS_STATUS  , "delay"        , yvikeys_delay_status   , "main loop timing settings"   },
    { YVIKEYS_STATUS  , "prog"         , yvikeys_prog_status    , "progress bar playing"        },
    { YVIKEYS_STATUS  , "main"         , yvikeys_main_status    , "main loop timing results"    },
+   { YVIKEYS_STATUS  , "file"         , yvikeys_file_status    , "current fully qualified file name and default location"  },
+   { YVIKEYS_STATUS  , "version"      , yvikeys_vers_status    , "current file verion control status, number and text"     },
+   { YVIKEYS_STATUS  , "visual"       , yvikeys_mark_status    , "details of visual selection"                },
+   { YVIKEYS_STATUS  , "macro"        , yvikeys_macro_estatus  , "details of macro playback"                },
+   { YVIKEYS_STATUS  , "record"       , yvikeys_macro_rstatus  , "details of macro recording"               },
+   { YVIKEYS_STATUS  , "sreg"         , yvikeys_sreg_status    , "details of current source register" },
+   { YVIKEYS_STATUS  , "sundo"        , yvikeys_sundo_status   , "source editing undo stack" },
+   { YVIKEYS_GRID    , "norm"         , VIEW__grid_normal      , "traditional cross-hatch grid" },
+   { YVIKEYS_GRID    , "zoom"         , VIEW__grid_zoom        , "zoom/targeting grid"          },
+   { YVIKEYS_STATUS  , "visual"       , yvikeys_visu_status    , "details of visual selection"  },
    { NULL            , ""             , NULL                   , ""                            },
 };
+
+
+
 static int  s_noption  = MAX_OPTION;
 
 
-
-#define      MAX_LAYERS    200
-typedef struct cLAYER  tLAYER;
-struct cLAYER {
-   char        real;
-   char        name        [LEN_LABEL];
-   char        on;
-   char        (*drawer) (void);
-   char        desc        [LEN_DESC ];
-};
-tLAYER  s_layers [MAX_LAYERS] = {
-   { '-', "show"        , '-', NULL, "show layers on display"                  },
-   { '-', "hide"        , '-', NULL, "do not show layers on display"           },
-   { '-', "all"         , '-', NULL, "select all all layers for display"       },
-   { '-', "none"        , '-', NULL, "unselect all layers for display"         },
-};
-static int s_nlayer     = MAX_LAYERS;
 
 
 int         g_goffx   =   0;
@@ -501,7 +496,7 @@ VIEW_defaults            (cchar a_env)
          case YVIKEYS_XAXIS   : p->on = '-';                      p->def_tall =  15;  break;
          case YVIKEYS_YAXIS   : p->on = '-';  p->def_wide =  30;                      break;
          case YVIKEYS_OVERLAY : p->on = '-';                                          break;
-         case YVIKEYS_LAYERS  : p->on = '-';                                          p->drawer = VIEW__layer_show; break;
+         case YVIKEYS_LAYERS  : p->on = '-';                                          p->drawer = yvikeys_layer_show; break;
          case YVIKEYS_FLOAT   : p->on = 'y';                      p->def_tall =  15;  p->drawer = SOURCE_float;     break;
          case YVIKEYS_HISTORY : p->on = 'y';                                          p->drawer = yvikeys_hist_show;  break;
          case YVIKEYS_MENUS   : p->on = 'y';  p->def_wide = 280;  p->def_tall = 200;  p->drawer = yvikeys_menu_draw; break;
@@ -1485,8 +1480,8 @@ yVIKEYS_view_config     (cchar *a_title, cchar *a_ver, cchar a_env, cint a_wide,
     *> yVIKEYS_cmds_addX (YVIKEYS_M_VIEW  , "layout"      , ""    , "s"    , VIEW__layout               , "" );   <* 
     *> yVIKEYS_cmds_addX (YVIKEYS_M_VIEW  , "layer"       , ""    , "s"    , VIEW__layer_set            , "" );   <*/
    /*---(options)------------------------*/
-   yVIKEYS_view_option (YVIKEYS_GRID, "norm"  , VIEW__grid_normal, "traditional cross-hatch grid");
-   yVIKEYS_view_option (YVIKEYS_GRID, "zoom"  , VIEW__grid_zoom  , "zoom/targeting grid"         );
+   /*> yVIKEYS_view_optionX (YVIKEYS_GRID, "norm"  , VIEW__grid_normal, "traditional cross-hatch grid");   <* 
+    *> yVIKEYS_view_optionX (YVIKEYS_GRID, "zoom"  , VIEW__grid_zoom  , "zoom/targeting grid"         );   <*/
    /*---(menus)--------------------------*/
    /*> yvikeys__menu_viewadd   ('t', "title");                                        <* 
     *> yvikeys__menu_viewadd   ('v', "version");                                      <* 
@@ -1985,6 +1980,7 @@ yvikeys_view_reanchor   (cchar a_part, cint a_anchor)
 }
 
 
+
 /*====================------------------------------------====================*/
 /*===----                        standard drawing                      ----===*/
 /*====================------------------------------------====================*/
@@ -2169,177 +2165,6 @@ VIEW__ribbon             (void)
       }
    } glPopMatrix   ();
    /*---(complete)-----------------------*/
-   return 0;
-}
-
-char
-VIEW__layer_list         (void)
-{
-   /*---(locals)-----------+-----+-----+-*/
-   char        i           =    0;
-   /*---(find the screen part)-----------*/
-   printf ("\n\nlayer inventory...\n");
-   for (i = 0; i < s_nlayer; ++i) {
-      printf ("  i %2d, on %c, name %-12.12s, drawer %p\n", i, s_layers [i].on, s_layers [i].name, s_layers [i].drawer);
-   }
-   /*---(complete)-----------------------*/
-   return 0;
-}
-
-int
-VIEW__layer_find         (char *a_name)
-{
-   /*---(locals)-----------+-----+-----+-*/
-   char        rce         =  -10;
-   char        i           =    0;
-   char        n           =   -1;
-   /*---(header)-------------------------*/
-   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
-   /*---(defense)------------------------*/
-   DEBUG_GRAF   yLOG_point   ("a_name"    , a_name);
-   --rce;  if (a_name == NULL) {
-      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   DEBUG_GRAF   yLOG_info    ("a_name"    , a_name);
-   /*---(find the screen part)-----------*/
-   for (i = 0; i < s_nlayer; ++i) {
-      DEBUG_GRAF   yLOG_info    ("check"     , s_layers [i].name);
-      if (s_layers [i].name [0] != a_name [0])         continue;
-      if (strcmp (s_layers [i].name, a_name) != 0)     continue;
-      n = i;
-   }
-   DEBUG_GRAF   yLOG_value   ("result"    , n);
-   --rce;  if (n < 0) {
-      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   /*---(complete)-----------------------*/
-   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
-   return n;
-}
-
-char
-yVIKEYS_layer_add           (char *a_name, void *a_drawer, char *a_desc)
-{
-   /*---(locals)-----------+-----+-----+-*/
-   char        rce         =  -10;
-   int         n           =   -1;
-   /*---(header)-------------------------*/
-   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
-   /*---(defense)------------------------*/
-   DEBUG_GRAF   yLOG_point   ("a_name"    , a_name);
-   --rce;  if (a_name == NULL) {
-      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   DEBUG_GRAF   yLOG_info    ("a_name"    , a_name);
-   DEBUG_GRAF   yLOG_point   ("a_drawer"  , a_drawer);
-   --rce;  if (a_drawer == NULL) {
-      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   /*---(check for dup)------------------*/
-   n = VIEW__layer_find (a_name);
-   DEBUG_GRAF   yLOG_value   ("n"         , n);
-   --rce;  if (n >= 0) {
-      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   /*---(add)----------------------------*/
-   s_layers [s_nlayer].real   = 'y';
-   strlcpy (s_layers [s_nlayer].name, a_name, LEN_LABEL);
-   s_layers [s_nlayer].on     = '-';
-   s_layers [s_nlayer].drawer = a_drawer;
-   if (a_desc != NULL)  strlcpy (s_layers [s_nlayer].desc, a_desc, LEN_DESC);
-   ++s_nlayer;
-   /*> VIEW__layer_list ();                                                           <*/
-   /*---(complete)-----------------------*/
-   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
-   return 0;
-}
-
-char
-VIEW__layer_set          (char *a_name)
-{
-   /*---(locals)-----------+-----+-----+-*/
-   char        rce         =  -10;
-   char        x_on        =  '-';
-   char        i           =    0;
-   char        n           =   -1;
-   char        a           =   -1;
-   /*---(header)-------------------------*/
-   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
-   /*---(defense)------------------------*/
-   n = VIEW__abbr (YVIKEYS_LAYERS);
-   --rce;  if (n < 0) {
-      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   --rce;  if (a_name == NULL) {
-      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   DEBUG_GRAF   yLOG_info    ("a_name"    , a_name);
-   /*---(set the flag)-------------------*/
-   DEBUG_GRAF   yLOG_char    ("current"   , s_parts [n].on);
-   x_on = s_parts [n].on;
-   if      (strcmp (a_name, "hide") == 0)  { s_parts [n].on = '-'; a = 0; }
-   else if (strcmp (a_name, "show") == 0)  { s_parts [n].on = 'y'; a = 0; }
-   else {
-      for (i = 0; i < s_nlayer; ++i) {
-         DEBUG_GRAF   yLOG_info    ("layer"     , s_layers [i].name);
-         /*---(handle mass)--------------*/
-         if (strcmp ("none", a_name) == 0) {
-            DEBUG_GRAF   yLOG_note    ("turn all off");
-            s_parts [n].on  = '-';
-            if (s_layers [i].real == 'y') s_layers [i].on = '-';
-            a = i;
-            continue;
-         }
-         if (strcmp ("all" , a_name) == 0) {
-            DEBUG_GRAF   yLOG_note    ("turn all on");
-            s_parts [n].on  = 'y';
-            if (s_layers [i].real == 'y') s_layers [i].on = 'y';
-            a = i;
-            continue;
-         }
-         /*---(handle individual)--------*/
-         if (s_layers [i].real == '-')                     continue;
-         if (s_layers [i].name [0] != a_name  [0])         continue;
-         if (strcmp (s_layers [i].name, a_name) != 0)      continue;
-         a = i;
-         DEBUG_GRAF   yLOG_note    ("select this one");
-         if (s_layers [i].on == 'y')  s_layers [i].on    = '-';
-         else  {
-            s_parts [n].on  = 'y';
-            s_layers [i].on = 'y';
-         }
-         break;
-      }
-   }
-   --rce;  if (a < 0) {
-      DEBUG_GRAF   yLOG_note    ("no layer found");
-      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   DEBUG_GRAF   yLOG_char    ("new"       , s_parts [n].on);
-   /*---(complete)-----------------------*/
-   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
-   return 0;
-}
-
-char
-VIEW__layer_show         (void)
-{
-   /*---(locals)-----------+-----+-----+-*/
-   char        i           =    0;
-   /*> printf ("start VIEW__layer_show\n");                                           <*/
-   for (i = 0; i < s_nlayer; ++i) {
-      /*> printf ("check i %2d, on %c, name %-12.12s, drawer %p\n", i, s_layers [i].on, s_layers [i].name, s_layers [i].drawer);   <*/
-      if (s_layers [i].on != 'y'     )  continue;
-      if (s_layers [i].drawer != NULL)  s_layers [i].drawer ();
-   }
    return 0;
 }
 

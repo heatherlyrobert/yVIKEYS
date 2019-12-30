@@ -832,43 +832,6 @@ yvikeys_menu__newmenu   (uchar *a_path, char *a_name, char *a_keys)
    return 0;
 }
 
-/*> char                                                                              <* 
- *> yvikeys_menu__delete    (tLINK  *a_parent, tLINK  *a_sib, tLINK  *a_curr)         <* 
- *> {                                                                                 <* 
- *>    /+---(locals)-----------+-----+-----+-+/                                       <* 
- *>    char        rce         =  -10;                                                <* 
- *>    /+---(header)-------------------------+/                                       <* 
- *>    DEBUG_CMDS   yLOG_senter  (__FUNCTION__);                                      <* 
- *>    /+---(defense)------------------------+/                                       <* 
- *>    DEBUG_CMDS   yLOG_sint    (a_curr->c_count);                                   <* 
- *>    --rce;  if (a_curr->c_count > 0) {                                             <* 
- *>       DEBUG_CMDS   yLOG_snote   ("got children, can not delete");                 <* 
- *>       DEBUG_CMDS   yLOG_sexitr  (__FUNCTION__, rce);                              <* 
- *>       return rce;                                                                 <* 
- *>    }                                                                              <* 
- *>    /+---(take out of master)-------------+/                                       <* 
- *>    if (a_curr->m_prev != NULL)  a_curr->m_prev->m_next = a_curr->m_next;          <* 
- *>    else                         s_head                 = a_curr->m_next;          <* 
- *>    if (a_curr->m_next == NULL)  s_tail                 = a_curr->m_prev;          <* 
- *>    /+---(update counts)------------------+/                                       <* 
- *>    --s_nmenu;                                                                     <* 
- *>    if (a_curr->active      == MENU_ACTIVE)  --s_nreal;                            <* 
- *>    if (a_curr->data->base  == MENU_BASE)    --s_nbase;                            <* 
- *>    DEBUG_CMDS   yLOG_sint    (s_nmenu);                                           <* 
- *>    DEBUG_CMDS   yLOG_sint    (s_nreal);                                           <* 
- *>    DEBUG_CMDS   yLOG_sint    (s_nbase);                                           <* 
- *>    /+---(take out of heirarchy)----------+/                                       <* 
- *>    if (a_sib  != NULL)          a_sib->s_next     = a_curr->s_next;               <* 
- *>    else                         a_parent->c_first = NULL;                         <* 
- *>    --a_parent->c_count;                                                           <* 
- *>    DEBUG_CMDS   yLOG_sint    (a_parent->c_count);                                 <* 
- *>    /+---(free)---------------------------+/                                       <* 
- *>    free (a_curr);                                                                 <* 
- *>    /+---(complete)-----------------------+/                                       <* 
- *>    DEBUG_CMDS   yLOG_sexit   (__FUNCTION__);                                      <* 
- *>    return 0;                                                                      <* 
- *> }                                                                                 <*/
-
 
 
 /*====================------------------------------------====================*/

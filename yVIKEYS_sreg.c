@@ -16,18 +16,18 @@ struct cSREG {
    char        active;                      /* register in use                */
    char        source;                      /* user, file, import             */
    /*---(source)------------*/
-   char        label       [LEN_LABEL];     /* original cell                  */
-   int         beg;                         /* original starting point        */
-   int         end;                         /* original ending point          */
-   int         root;
+   char       *label;                       /* original cell                  */
+   short       beg;                         /* original starting point        */
+   short       end;                         /* original ending point          */
+   short       root;
    /*---(contents)----------*/
-   int         len;                         /* length of text                 */
-   char        data        [LEN_RECD];      /* text                           */
+   short       len;                         /* length of text                 */
+   char       *data;                        /* text                           */
    /*---(done)--------------*/
 };
 static      tSREG       s_sreg;
 static      tSREG       s_sreg_info  [S_SREG_MAX];
-static      int         s_nsreg  =   0;
+static      uchar       s_nsreg  =   0;
 
 
 
@@ -36,8 +36,8 @@ static      int         s_nsreg  =   0;
 
 
 
-static char  s_csreg   = '"';
-static char  s_wsreg   = '"';
+static uchar s_csreg   = '"';
+static uchar s_wsreg   = '"';
 
 
 
@@ -55,40 +55,61 @@ static char  s_wsreg   = '"';
 static void  o___ELEMENTAL_______o () { return; }
 
 char
-yvikeys_sreg__wipe      (tSREG *a_dst)
+yvikeys_sreg__wipedata  (tSREG *a_dst)
 {
+   /*---(header)-------------------------*/
+   DEBUG_MEMS   yLOG_senter  (__FUNCTION__);
+   /*---(contents)-----------------------*/
+   a_dst->len    =  0;
+   if (a_dst->data  != g_stub && a_dst->data  != NULL) {
+      DEBUG_MEMS   yLOG_spoint  (a_dst->data);
+      free (a_dst->data);
+   } else {
+      DEBUG_MEMS   yLOG_snote   ("data null");
+   }
+   a_dst->data   = g_stub;
+   /*---(complete)-----------------------*/
+   DEBUG_MEMS   yLOG_sexit   (__FUNCTION__);
+   return 0;
+}
+
+char
+yvikeys_sreg__wipeall      (char a_scope, tSREG *a_dst)
+{
+   /*---(header)-------------------------*/
+   DEBUG_MEMS   yLOG_senter  (__FUNCTION__);
    /*---(active)-------------------------*/
    a_dst->active = S_SREG_NOT;
    a_dst->source = S_SREG_NONE;
    /*---(source)-------------------------*/
-   strlcpy (a_dst->label, "", LEN_LABEL);
+   DEBUG_MEMS   yLOG_spoint  (__FUNCTION__);
+   if (a_scope == YVIKEYS_INIT) {
+      DEBUG_MEMS   yLOG_snote   ("label initialized");
+   } else if (a_dst->label != g_stub && a_dst->label != NULL) {
+      DEBUG_MEMS   yLOG_spoint  (a_dst->label);
+      free (a_dst->label);
+   } else {
+      DEBUG_MEMS   yLOG_snote   ("label null");
+   }
+   a_dst->label  = g_stub;
    a_dst->root   =  0;
    a_dst->beg    =  0;
    a_dst->end    =  0;
    /*---(contents)-----------------------*/
    a_dst->len    =  0;
-   strlcpy (a_dst->data , "", LEN_RECD);
+   if (a_scope == YVIKEYS_INIT) {
+      DEBUG_MEMS   yLOG_snote   ("data initialized");
+   } else if (a_dst->data  != g_stub && a_dst->data  != NULL) {
+      DEBUG_MEMS   yLOG_spoint  (a_dst->data);
+      free (a_dst->data);
+   } else {
+      DEBUG_MEMS   yLOG_snote   ("data null");
+   }
+   a_dst->data   = g_stub;
    /*---(complete)-----------------------*/
+   DEBUG_MEMS   yLOG_sexit   (__FUNCTION__);
    return 0;
 }
-
-/*> char                                                                              <* 
- *> yvikeys_sreg__copy      (tSREG *a_dst, tSREG *a_src)                              <* 
- *> {                                                                                 <* 
- *>    /+---(active)-------------------------+/                                       <* 
- *>    a_dst->active = S_SREG_YES;                                                    <* 
- *>    a_dst->source = a_src->source;                                                 <* 
- *>    /+---(source)-------------------------+/                                       <* 
- *>    strlcpy (a_dst->label, a_src->label, LEN_LABEL);                               <* 
- *>    a_dst->root   =  a_src->beg;                                                   <* 
- *>    a_dst->beg    =  a_src->beg;                                                   <* 
- *>    a_dst->end    =  a_src->end;                                                   <* 
- *>    /+---(contents)-----------------------+/                                       <* 
- *>    a_dst->len    =  a_src->len;                                                   <* 
- *>    strlcpy (a_dst->data , a_src->data, LEN_RECD);                                 <* 
- *>    /+---(complete)-----------------------+/                                       <* 
- *>    return 0;                                                                      <* 
- *> }                                                                                 <*/
 
 
 
@@ -111,6 +132,7 @@ yvikeys_sreg__purge     (char a_scope)
    --rce;  switch (a_scope) {
    case YVIKEYS_LOWER  : case YVIKEYS_NUMBER :
    case YVIKEYS_GREEK  : case YVIKEYS_FULL   :
+   case YVIKEYS_INIT   :
       break;
    default :
       DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
@@ -123,7 +145,7 @@ yvikeys_sreg__purge     (char a_scope)
       if (a_scope == YVIKEYS_LOWER  && strchr (gvikeys_lower , x_abbr) == NULL)  continue;
       if (a_scope == YVIKEYS_NUMBER && strchr (gvikeys_number, x_abbr) == NULL)  continue;
       if (a_scope == YVIKEYS_GREEK  && strchr (gvikeys_greek , x_abbr) == NULL)  continue;
-      yvikeys_sreg__wipe (&s_sreg_info [i]);
+      yvikeys_sreg__wipeall (a_scope, &s_sreg_info [i]);
    }
    /*---(complete)-----------------------*/
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
@@ -156,7 +178,7 @@ yvikeys_sreg_init               (void)
    s_wsreg = '"';
    /*---(commands)-----------------------*/
    DEBUG_PROG   yLOG_note    ("add commands/status");
-   yVIKEYS_view_option (YVIKEYS_STATUS  , "sreg", yvikeys_sreg_status, "details of current source register");
+   /*> yVIKEYS_view_optionX (YVIKEYS_STATUS  , "sreg", yvikeys_sreg_status, "details of current source register");   <*/
    /*> yVIKEYS_cmds_addX    (YVIKEYS_M_CONFIG, "sreg", "", "a", yvikeys_sreg__direct, "direct definition of source registers");   <*/
    /*---(update status)------------------*/
    STATUS_init_set   (SMOD_SREG);
@@ -179,17 +201,17 @@ yvikeys_sreg__index     (uchar a_abbr)
    char        rce         =  -10;
    int         n           =   -1;
    /*---(header)-------------------------*/
-   DEBUG_HIST   yLOG_senter  (__FUNCTION__);
+   DEBUG_MEMS   yLOG_senter  (__FUNCTION__);
    /*---(check)--------------------------*/
-   DEBUG_HIST   yLOG_snote   ("check");
+   DEBUG_MEMS   yLOG_snote   ("check");
    n  = strlchr (S_SREG_LIST, a_abbr, s_nsreg);
-   DEBUG_HIST   yLOG_sint    (n);
+   DEBUG_MEMS   yLOG_sint    (n);
    --rce;  if (n  < 0) {
-      DEBUG_HIST   yLOG_sexitr  (__FUNCTION__, n);
+      DEBUG_MEMS   yLOG_sexitr  (__FUNCTION__, n);
       return n;
    }
    /*---(complete)-----------------------*/
-   DEBUG_HIST   yLOG_sexit   (__FUNCTION__);
+   DEBUG_MEMS   yLOG_sexit   (__FUNCTION__);
    return n;
 }
 
@@ -200,23 +222,23 @@ yvikeys_sreg_setreg     (uchar a_abbr)
    char        rce         =  -10;
    int         n           =    0;
    /*---(header)-------------------------*/
-   DEBUG_HIST   yLOG_senter  (__FUNCTION__);
+   DEBUG_MEMS   yLOG_senter  (__FUNCTION__);
    /*---(defense)------------------------*/
-   DEBUG_HIST   yLOG_schar   (a_abbr);
-   DEBUG_HIST   yLOG_schar   (s_csreg);
-   n = yvikeys_sreg__index  (tolower (a_abbr));
-   DEBUG_HIST   yLOG_sint    (n);
+   DEBUG_MEMS   yLOG_schar   (a_abbr);
+   DEBUG_MEMS   yLOG_schar   (s_csreg);
+   n  = strlchr (S_SREG_LIST, tolower (a_abbr), s_nsreg);
+   DEBUG_MEMS   yLOG_sint    (n);
    --rce;  if (n < 0) {
       s_csreg = '"';
-      DEBUG_HIST   yLOG_schar   (s_csreg);
-      DEBUG_HIST   yLOG_sexitr  (__FUNCTION__, rce);
+      DEBUG_MEMS   yLOG_schar   (s_csreg);
+      DEBUG_MEMS   yLOG_sexitr  (__FUNCTION__, rce);
       return rce;
    }
    /*---(set)----------------------------*/
    s_csreg = a_abbr;
-   DEBUG_HIST   yLOG_schar   (s_csreg);
+   DEBUG_MEMS   yLOG_schar   (s_csreg);
    /*---(complete)-----------------------*/
-   DEBUG_HIST   yLOG_sexit   (__FUNCTION__);
+   DEBUG_MEMS   yLOG_sexit   (__FUNCTION__);
    return 0;
 }
 
@@ -227,23 +249,23 @@ yvikeys_sreg_setwork    (uchar a_abbr)
    char        rce         =  -10;
    int         n           =    0;
    /*---(header)-------------------------*/
-   DEBUG_HIST   yLOG_senter  (__FUNCTION__);
+   DEBUG_MEMS   yLOG_senter  (__FUNCTION__);
    /*---(defense)------------------------*/
-   DEBUG_HIST   yLOG_schar   (a_abbr);
-   DEBUG_HIST   yLOG_schar   (s_wsreg);
-   n = yvikeys_sreg__index  (tolower (a_abbr));
-   DEBUG_HIST   yLOG_sint    (n);
+   DEBUG_MEMS   yLOG_schar   (a_abbr);
+   DEBUG_MEMS   yLOG_schar   (s_wsreg);
+   n  = strlchr (S_SREG_LIST, tolower (a_abbr), s_nsreg);
+   DEBUG_MEMS   yLOG_sint    (n);
    --rce;  if (n < 0) {
       s_wsreg = '"';
-      DEBUG_HIST   yLOG_schar   (s_wsreg);
-      DEBUG_HIST   yLOG_sexitr  (__FUNCTION__, rce);
+      DEBUG_MEMS   yLOG_schar   (s_wsreg);
+      DEBUG_MEMS   yLOG_sexitr  (__FUNCTION__, rce);
       return rce;
    }
    /*---(set)----------------------------*/
    s_wsreg = a_abbr;
-   DEBUG_HIST   yLOG_schar   (s_wsreg);
+   DEBUG_MEMS   yLOG_schar   (s_wsreg);
    /*---(complete)-----------------------*/
-   DEBUG_HIST   yLOG_sexit   (__FUNCTION__);
+   DEBUG_MEMS   yLOG_sexit   (__FUNCTION__);
    return 0;
 }
 
@@ -254,19 +276,19 @@ yvikeys_sreg_clear      (uchar a_abbr)
    char        rce         =  -10;
    int         n           =    0;
    /*---(header)-------------------------*/
-   DEBUG_HIST   yLOG_senter  (__FUNCTION__);
+   DEBUG_MEMS   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
-   DEBUG_HIST   yLOG_schar   (a_abbr);
+   DEBUG_MEMS   yLOG_char    ("a_abbr"    , a_abbr);
    n = yvikeys_sreg__index  (a_abbr);
-   DEBUG_HIST   yLOG_sint    (n);
+   DEBUG_MEMS   yLOG_value   ("n"         , n);
    --rce;  if (n < 0) {
-      DEBUG_HIST   yLOG_sexitr  (__FUNCTION__, rce);
+      DEBUG_MEMS   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(clear)--------------------------*/
-   yvikeys_sreg__wipe (&s_sreg_info [n]);
+   yvikeys_sreg__wipeall ('-', &s_sreg_info [n]);
    /*---(complete)-----------------------*/
-   DEBUG_HIST   yLOG_sexit   (__FUNCTION__);
+   DEBUG_MEMS   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -276,39 +298,41 @@ yvikeys_sreg_push       (uchar a_abbr, char *a_data)
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    int         n           =    0;
-   int         x_len       =    0;
    tSREG      *a_dst       = NULL;
+   char        t           [LEN_RECD] = "";
    /*---(header)-------------------------*/
-   DEBUG_SCRP   yLOG_enter   (__FUNCTION__);
+   DEBUG_MEMS   yLOG_enter   (__FUNCTION__);
+   DEBUG_MEMS   yLOG_complex ("args"      , "abbr %u, data %-10p", a_abbr, a_data);
    /*---(defense)------------------------*/
    --rce;  if (a_data  == NULL) {
-      DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_MEMS   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    n = yvikeys_sreg__index  (tolower (a_abbr));
+   DEBUG_MEMS   yLOG_value   ("n"         , n);
    --rce;  if (n < 0) {
-      DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_MEMS   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   DEBUG_SCRP   yLOG_value   ("a_abbr"    , a_abbr);
-   DEBUG_SCRP   yLOG_value   ("tolower"   , tolower (a_abbr));
-   /*---(wipe)---------------------------*/
+   /*---(prepare)------------------------*/
    a_dst = &s_sreg_info [n];
+   /*---(push data)----------------------*/
    if (a_abbr == tolower (a_abbr))  {
-      DEBUG_SCRP   yLOG_note    ("normal, replace mode");
-      yvikeys_sreg__wipe (a_dst);
+      DEBUG_MEMS   yLOG_note    ("normal, replace mode");
+      yvikeys_sreg__wipeall  ('-', a_dst);
       a_dst->active = S_SREG_YES;
       a_dst->source = S_SREG_DIRECT;
-      strlcpy (a_dst->label, "-", LEN_LABEL);
-      strlcpy (a_dst->data , a_data , LEN_RECD );
+      a_dst->data   = strdup (a_data);
    } else {
-      DEBUG_SCRP   yLOG_note    ("append mode");
-      strlcat (a_dst->data , a_data , LEN_RECD );
+      DEBUG_MEMS   yLOG_note    ("append mode");
+      strlcpy (t, a_dst->data, LEN_RECD);
+      yvikeys_sreg__wipedata (a_dst);
+      strlcat (t, a_data     , LEN_RECD);
+      a_dst->data   = strdup (t);
    }
    a_dst->len    = strllen (a_dst->data , LEN_RECD);
-   /*> strldchg (a_dst->data, G_KEY_SPACE, G_CHAR_STORAGE, LEN_RECD);                 <*/
    /*---(complete)-----------------------*/
-   DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
+   DEBUG_MEMS   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -318,15 +342,27 @@ yvikeys_sreg_pop        (uchar a_abbr, char *a_data)
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    int         n           =    0;
-   /*---(init)---------------------------*/
+   /*---(header)-------------------------*/
+   DEBUG_MEMS   yLOG_enter   (__FUNCTION__);
+   DEBUG_MEMS   yLOG_complex ("args"      , "abbr %u, data %-10p", a_abbr, a_data);
+   /*---(prepare)------------------------*/
    if (a_data != NULL)  strlcpy (a_data, "", LEN_RECD);
    /*---(defense)------------------------*/
    n = yvikeys_sreg__index  (a_abbr);
-   --rce;  if (n < 0)  return rce;
-   --rce;  if (s_sreg_info [n].active != S_SREG_YES)  return rce;
-   /*---(init)---------------------------*/
+   DEBUG_MEMS   yLOG_value   ("n"         , n);
+   --rce;  if (n < 0) {
+      DEBUG_MEMS   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_MEMS   yLOG_char    ("active"    , s_sreg_info [n].active);
+   --rce;  if (s_sreg_info [n].active != S_SREG_YES) {
+      DEBUG_MEMS   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(return)-------------------------*/
    if (a_data != NULL)  strlcpy (a_data, s_sreg_info [n].data, LEN_RECD);
    /*---(complete)-----------------------*/
+   DEBUG_MEMS   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -336,20 +372,29 @@ yvikeys_sreg_fetch      (int *a_len, char *a_data)
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    int         n           =    0;
+   /*---(header)-------------------------*/
+   DEBUG_MEMS   yLOG_enter   (__FUNCTION__);
+   DEBUG_MEMS   yLOG_complex ("args"      , "len %-10p, data %-10p", a_len, a_data);
    /*---(init)---------------------------*/
    if (a_len  != NULL)  *a_len = 0;
    if (a_data != NULL)  strlcpy (a_data, "", LEN_RECD);
    /*---(defense)------------------------*/
    n = yvikeys_sreg__index  (s_csreg);
-   --rce;  if (n < 0)  return rce;
-   --rce;  if (s_sreg_info [n].active != S_SREG_YES)  return rce;
+   DEBUG_MEMS   yLOG_value   ("n"         , n);
+   --rce;  if (n < 0) {
+      DEBUG_MEMS   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_MEMS   yLOG_char    ("active"    , s_sreg_info [n].active);
+   --rce;  if (s_sreg_info [n].active != S_SREG_YES) {
+      DEBUG_MEMS   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    /*---(init)---------------------------*/
    if (a_len  != NULL)  *a_len = s_sreg_info [n].len;
-   if (a_data != NULL) {
-      strlcpy (a_data, s_sreg_info [n].data, LEN_RECD);
-      /*> strldchg (a_data, G_CHAR_STORAGE, G_KEY_SPACE, LEN_RECD);                   <*/
-   }
+   if (a_data != NULL)  strlcpy (a_data, s_sreg_info [n].data, LEN_RECD);
    /*---(complete)-----------------------*/
+   DEBUG_MEMS   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -360,53 +405,51 @@ yvikeys_sreg_save       (char *a_label, char *a_data)
    char        rce         =  -10;
    int         n           =    0;
    tSREG      *a_dst       = NULL;
+   char        t           [LEN_RECD] = "";
+   /*---(header)-------------------------*/
+   DEBUG_MEMS   yLOG_enter   (__FUNCTION__);
+   DEBUG_MEMS   yLOG_complex ("args"      , "label %-10p, data %-10p", a_label, a_data);
    /*---(defense)------------------------*/
-   --rce;  if (a_label == NULL)  return rce;
-   --rce;  if (a_data  == NULL)  return rce;
-   n = yvikeys_sreg__index  (tolower (s_csreg));
-   --rce;  if (n < 0)  return rce;
-   /*---(save)---------------------------*/
+   --rce;  if (a_label  == NULL) {
+      DEBUG_MEMS   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   --rce;  if (a_data  == NULL) {
+      DEBUG_MEMS   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   n = yvikeys_sreg__index  (s_csreg);
+   DEBUG_MEMS   yLOG_value   ("n"         , n);
+   --rce;  if (n < 0) {
+      DEBUG_MEMS   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(prepare)------------------------*/
    a_dst = &s_sreg_info [n];
+   /*---(save)---------------------------*/
    if (s_csreg == tolower (s_csreg)) {
-      yvikeys_sreg__wipe (a_dst);
+      DEBUG_MEMS   yLOG_note    ("normal, replace mode");
+      yvikeys_sreg__wipeall  ('-', a_dst);
       a_dst->active = S_SREG_YES;
       a_dst->source = S_SREG_USER;
-      strlcpy (a_dst->label, a_label, LEN_LABEL);
+      a_dst->label  = strdup (a_label);
       a_dst->root   = s_sreg.beg;
       a_dst->beg    = s_sreg.beg;
       a_dst->end    = s_sreg.end;
-      strlcpy (a_dst->data , a_data , LEN_RECD );
+      a_dst->data   = strdup (a_data);
    } else {
-      strlcat (a_dst->data , a_data , LEN_RECD );
+      DEBUG_MEMS   yLOG_note    ("append mode");
+      strlcpy (t, a_dst->data, LEN_RECD);
+      yvikeys_sreg__wipedata (a_dst);
+      strlcat (t, a_data , LEN_RECD );
+      a_dst->data   = strdup (t);
    }
    a_dst->len    = strllen (a_dst->data , LEN_RECD);
-   /*> strldchg (a_dst->data, G_KEY_SPACE, G_CHAR_STORAGE, LEN_RECD);                 <*/
+   DEBUG_MEMS   yLOG_value   ("len"       , a_dst->len);
    /*---(complete)-----------------------*/
+   DEBUG_MEMS   yLOG_exit    (__FUNCTION__);
    return 0;
 }
-
-/*> char                                                                                        <* 
- *> yvikeys_sreg_append     (char *a_data)                                                      <* 
- *> {                                                                                           <* 
- *>    /+---(locals)-----------+-----+-----+-+/                                                 <* 
- *>    char        rce         =  -10;                                                          <* 
- *>    int         n           =    0;                                                          <* 
- *>    tSREG      *a_dst       = NULL;                                                          <* 
- *>    /+---(defense)------------------------+/                                                 <* 
- *>    --rce;  if (a_data  == NULL)  return rce;                                                <* 
- *>    n = yvikeys_sreg__index  (s_csreg);                                                      <* 
- *>    --rce;  if (n < 0)  return rce;                                                          <* 
- *>    /+---(wipe)---------------------------+/                                                 <* 
- *>    a_dst = &s_sreg_info [n];                                                                <* 
- *>    /+---(save)---------------------------+/                                                 <* 
- *>    a_dst->active = S_SREG_YES;                                                              <* 
- *>    a_dst->source = S_SREG_USER;                                                             <* 
- *>    strlcat (a_dst->data , a_data , LEN_RECD );                                              <* 
- *>    a_dst->len    = strllen (a_dst->data , LEN_RECD);                                        <* 
- *>    /+> strldchg (a_dst->data, G_KEY_SPACE, G_CHAR_STORAGE, LEN_RECD);                 <+/   <* 
- *>    /+---(complete)-----------------------+/                                                 <* 
- *>    return 0;                                                                                <* 
- *> }                                                                                           <*/
 
 
 
@@ -506,7 +549,7 @@ static void  o___SELECTION_______o () { return; }
 char         /*-> go back to defaults ----------------[ shoot  [gz.530.011.00]*/ /*-[01.0000.013.!]-*/ /*-[--.---.---.--]-*/
 yvikeys_sreg_reset      (int a_pos)
 {
-   yvikeys_sreg__wipe (&s_sreg);
+   yvikeys_sreg__wipeall ('-', &s_sreg);
    s_sreg.root  = s_sreg.end   = s_sreg.beg   = a_pos;
    s_csreg = '"';
    return 0;
@@ -817,7 +860,7 @@ yvikeys_sreg_smode      (int a_major, int a_minor)
          DEBUG_USER   yLOG_note    ("wipe source register");
          n = yvikeys_sreg__index  (s_csreg);
          if (n < 0)  return -1;
-         yvikeys_sreg__wipe (&s_sreg_info [n]);
+         yvikeys_sreg__wipeall ('-', &s_sreg_info [n]);
          MODE_exit ();
          break;
       case  'y' :

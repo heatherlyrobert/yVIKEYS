@@ -300,8 +300,8 @@ yVIKEYS_whoami          (char *a_prog, char *a_ext, char *a_vernum, char *a_vert
     *> rc = yVIKEYS_cmds_addX (YVIKEYS_M_FILE  , "read"        , ""    , ""     , yvikeys_file_reader          , "clear existing contents and open/read new file"              );   <* 
     *> rc = yVIKEYS_cmds_addX (YVIKEYS_M_FILE  , "edit"        , "e"   , ""     , yvikeys_file_reader          , "clear existing contents and open/read new file"              );   <*/
    /*---(status options)-----------------*/
-   rc = yVIKEYS_view_option (YVIKEYS_STATUS, "file"   , yvikeys_file_status  , "current fully qualified file name and default location");
-   rc = yVIKEYS_view_option (YVIKEYS_STATUS, "version", yvikeys_vers_status  , "current file verion control status, number and text");
+   /*> rc = yVIKEYS_view_optionX (YVIKEYS_STATUS, "file"   , yvikeys_file_status  , "current fully qualified file name and default location");   <* 
+    *> rc = yVIKEYS_view_optionX (YVIKEYS_STATUS, "version", yvikeys_vers_status  , "current file verion control status, number and text");      <*/
    /*---(default file name)--------------*/
    yvikeys_file_name (NULL);
    /*---(complete)-----------------------*/

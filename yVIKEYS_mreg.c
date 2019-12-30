@@ -120,7 +120,7 @@ static      tREG        s_regs       [S_REG_MAX];
 static      char        S_REG_LIST   [S_REG_MAX];
 static      int         s_nreg       =    0;
 static      char        s_creg       =  '-';
-static      char       *s_stub       = ",";
+static      char       *s_stubby     = ",";
 
 #define     S_REG_EMPTY     '-'
 #define     S_REG_ACTIVE    'y'
@@ -457,9 +457,9 @@ yvikeys_mreg__wipe              (char a_reg, char a_scope)
    s_regs [x_reg].hbuf = NULL;
    s_regs [x_reg].tbuf = NULL;
    s_regs [x_reg].nbuf = 0;
-   if (a_scope != YVIKEYS_INIT && s_regs [x_reg].labels != s_stub)
+   if (a_scope != YVIKEYS_INIT && s_regs [x_reg].labels != s_stubby)
       free (s_regs [x_reg].labels);
-   s_regs [x_reg].labels = s_stub;
+   s_regs [x_reg].labels = s_stubby;
    /*---(complete)-----------------------*/
    DEBUG_REGS   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -631,7 +631,7 @@ yVIKEYS_mreg_add        (void *a_thing, char *a_label)
    DEBUG_REGS   yLOG_point   ("a_label"   , a_label);
    if (a_label != NULL) {
       DEBUG_REGS   yLOG_info    ("a_label"   , a_label);
-      if (s_regs [x_reg].labels != s_stub)  {
+      if (s_regs [x_reg].labels != s_stubby)  {
          strlcpy (x_labels, s_regs [x_reg].labels, LEN_RECD);
          free (s_regs [x_reg].labels);
          sprintf (t, "%s,", a_label);

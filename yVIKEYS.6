@@ -565,6 +565,102 @@ feature if adapted everywhere.
 
 
 
+.SH GROUPING vs LAYERING
+.B grouping
+allows positionally related items to be linked and delt with more simply as
+a unit, e.g., fingers, palm, joints, muscles, viens, and tendons grouped into
+a hand.  it is typically used to position, manipulate, and alter items together
+in ways that are difficult separately, like rotating a three dimensional
+model around a common axis.
+       
+.B layering
+allows the linking dissperate elements by function, themes, authors, times,
+etc, e.g., springs, creeks, canals, and rivers brought into a waterways layer.
+layering is typically used to add and remove details in order to better
+focus, like taking power, vegetation, and buildings off a map to see the
+roads more clearly.
+
+
+
+.SH LAYERS (commands)
+.nf
+.SS ---overview-------------------------------------------------------
+.B definition (D).  
+links dissperate elements by function, theme, author, etc, e.g., creeks,
+canals, and rivers brought into a waterways layer.
+
+.B value (V).  
+used to add and remove details to better focus, e.g., taking vegetation,
+and buildings off a map to see the roads more clearly.
+
+.B situation (S).  
+layering is quite well explored, tested, and perfected in science and
+engineering.  this is not new ;)
+
+.B complication (C).  
+it is quite well explored in CAD, GIS, and markup applications, but not well
+represented in almost any contexts.
+
+.B answer (A).  
+i will build basic layering selection and drawing framework into yVIKEYS to
+expand my use.
+.SS ---full capabilities----------------------------------------------
+.B yVIKEYS_dataset_add, 
+datasets must be programatically added by the source application using this
+function to link a name and drawing function which yVIKEYS can manipulate.
+yVIKEYS never sees the actual data, it simply "layers" the view.
+
+.B yVIKEYS_dataset_delete, 
+removes the dataset from yVIKEYS consideration without effecting the source
+data in any way.
+
+.B layer list (60 in three groups)
+   layers are drawn sequentially, ones on top obscuring those below
+   0-9        topmost, highlighting and overlays
+   a-z        normal layers
+   è-ÿ        base layers
+   ÿ is the bottommost and 0 is the topmost.
+
+.B assigning a dataset to a specific layer
+   :layer test f     assigns "test" to 'f', and shifts existing down
+   :layer test F     assigns "test" to 'f', and shifts existing ud
+   :layer all        assigns all datasets in order they were added
+
+.B assigning a dataset to various general locations
+   :layer test +     assigns to the middle most 'm', and shifts down
+   :layer test [     assigns to 'a' (head) and shifts existing down
+   :layer test ]     assigns to 'z' (tail) and shifts existing up
+   :layer test <     assigns one above last assignment
+   :layer test >     assigns one below last assignment
+
+.B moving layers around
+   :layer jx         moves 'j' to 'x' and moves existing down
+   :layer jX         moves 'j' to 'x' and moves existing up
+   :layer o>         shifts 'o' one down to 'p' (and 'p' to 'o')
+   :layer n<         shifts 'n' one up to 'm'   (and 'm' to 'n')
+   :layer f[         shifts 'f' to head 'a' and moves existing down
+   :layer b]         shifts 'b' to tail 'z' and moves existing up
+
+.B make a layer current
+   :layer f          make 'f' current, but no other action
+
+.B removing layers, not the dataset
+   :layer j#         unassigns the dataset in 'j'
+   :layer none       unassigns all datasets, nothing displayed
+
+.B dislaying layer inventory
+   :layers show      displays layer inventory in nav window
+   :layers hide      takes away layer inventory view
+
+.B displaying other information
+   :status layers    shows summary info line in status
+
+.B future
+   :layer compact    moves/compacts layers towards middles 5, m, and ó
+
+
+
+
 
 .SH TAGS and GROUPING (micro-mode)
 .nf
