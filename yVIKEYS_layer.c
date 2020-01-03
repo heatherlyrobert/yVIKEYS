@@ -489,27 +489,30 @@ yvikeys_layer__add       (tLAYER *a_curr, char a_pos, char a_dir)
    char        n           =    0;
    char        i           =    0;
    /*---(header)-------------------------*/
-   DEBUG_GRAF   yLOG_senter  (__FUNCTION__);
-   DEBUG_GRAF   yLOG_spoint  (a_curr);
-   DEBUG_GRAF   yLOG_sint    (a_pos);
+   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
+   DEBUG_GRAF   yLOG_complex ("args"      , "%-10.10p, %2d, %c", a_curr, a_pos, a_dir);
    /*---(spot is open)-------------------*/
    if (s_marks [a_pos] == NULL) {
-      DEBUG_GRAF   yLOG_snote   ("spot is open, just assign");
+      DEBUG_GRAF   yLOG_note    ("spot is open, just assign");
       yvikeys_layer__unmark (a_curr);
    }
    /*---(move others fore/up)------------*/
    else if (a_dir == '<') {
+      DEBUG_GRAF   yLOG_note    ("spot filled, shift up");
       /*---(find open)---------*/
       for (i = a_pos; i >= 0; --i)  if (s_marks [i] == NULL)  break;
+      DEBUG_GRAF   yLOG_value   ("i"         , i);
       /*---(no open)-----------*/
       if (i < 0) {
-         DEBUG_GRAF   yLOG_snote   ("none open before/above");
-         DEBUG_GRAF   yLOG_sexitr  (__FUNCTION__, rce);
+         DEBUG_GRAF   yLOG_note    ("none open before/above");
+         DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
          return rce;
       }
       /*---(safe to unmark)----*/
+      DEBUG_GRAF   yLOG_note    ("unmark current");
       yvikeys_layer__unmark (a_curr);
       /*---(shift up)----------*/
+      DEBUG_GRAF   yLOG_note    ("shift the ones above");
       for (n = i; n < a_pos; ++n) {
          s_marks [n] = s_marks [n + 1];
          (s_marks [n])->mark = s_valid [n];
@@ -518,12 +521,13 @@ yvikeys_layer__add       (tLAYER *a_curr, char a_pos, char a_dir)
    }
    /*---(move others back/down)----------*/
    else if (a_dir == '>') {
+      DEBUG_GRAF   yLOG_note    ("spot filled, shift down");
       /*---(find open)---------*/
       for (i = a_pos; i < s_max; ++i)  if (s_marks [i] == NULL)  break;
       /*---(no open)-----------*/
       if (i >= s_max) {
-         DEBUG_GRAF   yLOG_snote   ("none open after/below");
-         DEBUG_GRAF   yLOG_sexitr  (__FUNCTION__, rce);
+         DEBUG_GRAF   yLOG_note    ("none open after/below");
+         DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
          return rce;
       }
       /*---(safe to unmark)----*/
@@ -536,9 +540,10 @@ yvikeys_layer__add       (tLAYER *a_curr, char a_pos, char a_dir)
       /*---(done)--------------*/
    }
    /*---(assign)-------------------------*/
+   DEBUG_GRAF   yLOG_note    ("now, assign the current");
    yvikeys_layer__mark (a_curr, a_pos);
    /*---(complete)-----------------------*/
-   DEBUG_GRAF   yLOG_sexit   (__FUNCTION__);
+   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -577,39 +582,28 @@ yvikeys_layer__adds      (uchar *a_name, uchar a_action)
    /*---(actions)------------------------*/
    x_layer = s_layer;
    switch (a_action) {
-   case '+' :
-      x_layer = 'm';
-      x_dir   = '>';
-      break;
-   case '[' :
-      x_layer = 'a';
-      x_dir   = '>';
-      break;
-   case '>' :
-      ++x_layer;
-      x_dir   = '>';
-      break;
-   case '<' :
-      --x_layer;
-      x_dir   = '<';
-      break;
-   case ']' :
-      x_layer = 'z';
-      x_dir   = '<';
-      break;
-   default  :
+   case '_' : /* move to top     */ x_layer = '0'; x_dir   = '>';  break;
+   case '[' : /* move to head    */ x_layer = 'a'; x_dir   = '>';  break;
+   case '>' : /* shove right     */ ++x_layer;     x_dir   = '>';  break;
+   case ')' : /* swap with right */ ++x_layer;     x_dir   = '<';  break;
+   case '+' : /* put in middle   */ x_layer = 'm'; x_dir   = '>';  break;
+   case '(' : /* swap with left  */ --x_layer;     x_dir   = '>';  break;
+   case '<' : /* shove left      */ --x_layer;     x_dir   = '<';  break;
+   case ']' : /* move to tail    */ x_layer = 'z'; x_dir   = '<';  break;
+   case '~' : /* move to bottom  */ x_layer = 'ÿ'; x_dir   = '<';  break;
+   default  : /* specific mark   */
       x_layer = tolower (a_action);
       x_dir   = '>';
       if (a_action != tolower (a_action))  x_dir = '<';
       break;
    }
    /*---(fix layer)----------------------*/
-   if (x_layer == '/')       x_layer = '0';
-   if (x_layer == ':')       x_layer = 'a';
-   if (x_layer == '`')       x_layer = '9';
-   if (x_layer == 'Ù')       x_layer = 'z';
-   if (x_layer == '{')       x_layer = 'è';
-   if (x_layer ==  0 )       x_layer = 'ÿ';
+   if (x_layer == '/')          x_layer = '0';
+   if (x_layer == ':')          x_layer = 'a';
+   if (x_layer == '`')          x_layer = '9';
+   if (x_layer == (uchar) 'ç')  x_layer = 'z';
+   if (x_layer == '{')          x_layer = 'è';
+   if (x_layer ==  0 )          x_layer = 'ÿ';
    /*---(check mark)---------------------*/
    n  = yvikeys_layer__valid (x_layer);
    DEBUG_GRAF   yLOG_value   ("valid"     , n);
@@ -682,23 +676,37 @@ yvikeys_layer_action     (uchar *a_name, uchar *a_action)
       n = yvikeys_layer__valid (a_name [0]);
       DEBUG_GRAF   yLOG_value   ("valid"     , n);
       --rce;  if (n <  0) {
+         if (strchr ("_[<(+)>]~", a_name [0]) == NULL) {
+            DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
+            return rce;
+         }
+         if (s_curr == NULL) {
+            DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
+            return rce;
+         }
+         DEBUG_GRAF   yLOG_note    ("handling a shift");
+         s_layer = s_curr->mark;
+         yvikeys_layer__unmark (s_curr);
+         strlcpy (x_name, s_curr->name, LEN_LABEL);
+         x_action = a_name [0];
+         DEBUG_GRAF   yLOG_info    ("x_name"    , x_name);
+         DEBUG_GRAF   yLOG_char    ("x_action"  , x_action);
+      } else {
+         x_curr = s_marks [n];
+         DEBUG_GRAF   yLOG_point   ("x_curr"    , x_curr);
+         --rce;  if (x_curr == NULL) {
+            DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
+            return rce;
+         }
+         rc = yvikeys_layer_find (x_curr->name);
+         DEBUG_GRAF   yLOG_value   ("find"      , rc);
+         --rce;  if (rc !=  0) {
+            DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
+            return rce;
+         }
          DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
          return rce;
       }
-      x_curr = s_marks [n];
-      DEBUG_GRAF   yLOG_point   ("x_curr"    , x_curr);
-      --rce;  if (x_curr == NULL) {
-         DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
-         return rce;
-      }
-      rc = yvikeys_layer_find (x_curr->name);
-      DEBUG_GRAF   yLOG_value   ("find"      , rc);
-      --rce;  if (rc !=  0) {
-         DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
-         return rce;
-      }
-      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
    }
    /*---(handle moves)-------------------*/
    else if (x_len == 2) {
@@ -716,7 +724,8 @@ yvikeys_layer_action     (uchar *a_name, uchar *a_action)
          DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
          return rce;
       }
-      x_layer = a_name [0];
+      /*> x_layer = a_name [0];                                                       <*/
+      s_layer = a_name [0];
       yvikeys_layer__unmark (x_curr);
       strlcpy (x_name, x_curr->name, LEN_LABEL);
       /*---(copy action)-------*/
@@ -726,14 +735,6 @@ yvikeys_layer_action     (uchar *a_name, uchar *a_action)
          DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
          return 0;
       }
-      if      (x_action == '<')     x_action = --x_layer;
-      else if (x_action == '>')     x_action = ++x_layer;
-      if (x_action == '/')          x_action = '0';
-      if (x_action == ':')          x_action = 'a';
-      if (x_action == '`')          x_action = '9';
-      if (x_action == (uchar) 'ç')  x_action = 'z';
-      if (x_action == '{')          x_action = 'è';
-      if (x_action ==  0 )          x_action = 'ÿ';
       /*---(done)--------------*/
    }
    /*---(handle none)--------------------*/

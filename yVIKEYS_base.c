@@ -83,7 +83,7 @@ yVIKEYS_init         (char a_mode)
    yvikeys_cmds_init    ();
    yvikeys_srch_init    ();
    /*----(later)-------------------------*/
-   KEYS_init    ();
+   yvikeys_keys_init    ();
    yvikeys_map_init     ();
    SOURCE_init  ();
    yvikeys_macro_init   ();
@@ -100,6 +100,7 @@ yVIKEYS_init         (char a_mode)
    yvikeys_menu_final   ();
    yvikeys_dump_init    ();
    yvikeys_layer_init   ();
+   yvikeys_sizes_init   ();
    /*----(globals)-----------------------*/
    myVIKEYS.done      = '-';
    myVIKEYS.trouble   = '-';
@@ -115,14 +116,23 @@ yVIKEYS_init         (char a_mode)
 char
 yVIKEYS_wrap         (void)
 {
+   DEBUG_PROG   yLOG_enter   (__FUNCTION__);
    yPARSE_wrap ();
+   DEBUG_PROG   yLOG_note    ("parse done");
    VIEW_wrap   ();
+   DEBUG_PROG   yLOG_note    ("view done");
    STATUS_wrap ();
+   DEBUG_PROG   yLOG_note    ("status done");
    yvikeys_mreg_wrap   ();
+   DEBUG_PROG   yLOG_note    ("mreg done");
    yvikeys_menu_wrap   ();
+   DEBUG_PROG   yLOG_note    ("menu done");
    yvikeys_dump_purge  ();
+   DEBUG_PROG   yLOG_note    ("dump done");
    yvikeys_hist_wrap   ();
+   DEBUG_PROG   yLOG_note    ("hist done");
    yvikeys_layer_wrap  ();
+   DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -353,7 +363,7 @@ yvikeys_dump_init       (void)
    DEBUG_SCRP   yLOG_enter   (__FUNCTION__);
    s_hdump = s_tdump = NULL;
    s_ndump = 0;
-   rc = yVIKEYS_dump_add ("keys"        , KEYS_dump           );
+   rc = yVIKEYS_dump_add ("keys"        , yvikeys_keys_dump   );
    rc = yVIKEYS_dump_add ("status"      , STATUS_dump         );
    rc = yVIKEYS_dump_add ("macros"      , yvikeys_macro_dump  );
    rc = yVIKEYS_dump_add ("sreg"        , yvikeys_sreg_dump   );
@@ -419,7 +429,7 @@ yvikeys_keys__roll      (void)
 }
 
 char         /*-> tbd --------------------------------[ leaf   [gz.430.151.10]*/ /*-[00.0000.104.!]-*/ /*-[--.---.---.--]-*/
-KEYS_status        (char *a_msg)
+yvikeys_keys_status     (char *a_msg)
 {
    /*---(locals)-----------+-----------+-*/
    char        t           [LEN_RECD];
@@ -435,7 +445,7 @@ KEYS_status        (char *a_msg)
 }
 
 char         /*-> tbd --------------------------------[ ------ [gz.420.121.11]*/ /*-[01.0000.102.!]-*/ /*-[--.---.---.--]-*/
-KEYS__multi             (int a_pos)
+yvikeys_keys__multi     (int a_pos)
 {
    char        x_mode      =  ' ';
    /*---(defense)------------------------*/
@@ -462,7 +472,7 @@ KEYS__multi             (int a_pos)
 }
 
 char         /*-> tbd --------------------------------[ ------ [gz.420.121.11]*/ /*-[01.0000.102.!]-*/ /*-[--.---.---.--]-*/
-KEYS__logger            (uchar a_key)
+yvikeys_keys__logger    (uchar a_key)
 {
    /*---(locals)-----------+-----+-----+-*/
    int         x_key       =    0;
@@ -478,7 +488,7 @@ KEYS__logger            (uchar a_key)
    s_keys_error [s_nkey]     = '-';
    s_keys_error [s_nkey + 1] = 0;
    /*---(multi)--------------------------*/
-   x_multi = KEYS__multi (s_nkey);
+   x_multi = yvikeys_keys__multi (s_nkey);
    switch (s_keys_multi [s_nkey - 1]) {
    case 'p' :
       s_keys_multi [s_nkey] = 's';
@@ -511,7 +521,7 @@ yvikeys_set_error       (void)
 }
 
 char         /*-> tbd --------------------------------[ ------ [gz.420.121.11]*/ /*-[01.0000.102.!]-*/ /*-[--.---.---.--]-*/
-KEYS_unique             (void)
+yvikeys_keys_unique     (void)
 {  /*    return 1 if not a repeat sequence, 0 if repeating   */
    /*    five mode options :    - -    - p    p s    s -    s p
    */
@@ -614,7 +624,7 @@ yVIKEYS_keys_last       (void)
 }
 
 char
-KEYS_dump               (FILE *a_file)
+yvikeys_keys_dump       (FILE *a_file)
 {
    /*---(locals)-----------+-----+-----+-*/
    int         i           =    0;
@@ -642,7 +652,7 @@ KEYS_dump               (FILE *a_file)
 }
 
 char
-KEYS_init               (void)
+yvikeys_keys_init       (void)
 {
    strlcpy (s_keys_log  , "", LEN_FULL);
    strlcpy (s_keys_mode , "", LEN_FULL);
@@ -650,11 +660,12 @@ KEYS_init               (void)
    strlcpy (s_keys_error, "", LEN_FULL);
    s_nkey = 0;
    s_gpos = 0;
+   yvikeys_view_keys ("-- -");
    return 0;
 }
 
 char
-KEYS_repos              (int a_pos)
+yvikeys_keys_repos      (int a_pos)
 {
    s_gpos = a_pos;
 }
@@ -697,7 +708,7 @@ yVIKEYS_main_input      (char a_runmode, uchar a_key)
          DEBUG_LOOP   yLOG_char    ("log_keys"  , myVIKEYS.log_keys);
          if (x_ch != 0 && myVIKEYS.log_keys == 'y') {
             DEBUG_LOOP   yLOG_note    ("normal mode, new keystroke and recording");
-            KEYS__logger (x_ch);
+            yvikeys_keys__logger (x_ch);
          } else {
             DEBUG_LOOP   yLOG_note    ("normal mode, NO recording");
          }
@@ -931,8 +942,8 @@ yVIKEYS_main            (char *a_delay, char *a_update, void *a_altinput ())
       DEBUG_GRAF  yLOG_value   ("x_ch"      , x_ch);
       yvikeys_loop_beg   ();
       /*---(specialty actions)-----------*/
-      if (x_ch == KEY_RESIZE)  yVIKEYS_view_resize (0, 0, 0);
-      if (x_ch == -102)        yVIKEYS_view_resize (0, 0, 0);
+      if (x_ch == KEY_RESIZE)  yVIKEYS_resize (0, 0, 0);
+      if (x_ch == -102)        yVIKEYS_resize (0, 0, 0);
       if (x_ch < 0)  x_key = 0;
       else           x_key = x_ch;
       /*---(keyboard input)--------------*/
@@ -1023,7 +1034,9 @@ yvikeys__unit_loud     (void)
 char       /*----: stop logging ----------------------------------------------*/
 yvikeys__unit_end      (void)
 {
+   DEBUG_PROG   yLOG_enter   (__FUNCTION__);
    yVIKEYS_wrap ();
+   DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    yLOGS_end    ();
    return 0;
 }
@@ -1090,7 +1103,7 @@ KEYS__unit              (char *a_question, char a_index)
       snprintf (yVIKEYS__unit_answer, LEN_FULL, "KEYS full        : %3d %3d [%s]", s_akey, s_nkey, s_keys_log);
    }
    else if (strcmp (a_question, "status"         )   == 0) {
-      KEYS_status (t);
+      yvikeys_keys_status (t);
       strltrim (t, ySTR_BOTH, LEN_RECD);
       snprintf (yVIKEYS__unit_answer, LEN_FULL, "%-.60s", t);
    }

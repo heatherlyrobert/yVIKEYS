@@ -73,9 +73,9 @@ yvikeys_sundo_beg       (char *a_function)
    DEBUG_EDIT   yLOG_sint    (REPEAT_count    ());
    DEBUG_EDIT   yLOG_sint    (s_nseq);
    DEBUG_EDIT   yLOG_sint    (REPEAT_not  ());
-   DEBUG_EDIT   yLOG_sint    (KEYS_unique ());
+   DEBUG_EDIT   yLOG_sint    (yvikeys_keys_unique ());
    if      (s_nseq < 0)                       ++s_nseq;
-   else if (REPEAT_not () && KEYS_unique ())  ++s_nseq;
+   else if (REPEAT_not () && yvikeys_keys_unique ())  ++s_nseq;
    DEBUG_EDIT   yLOG_sint    (s_nseq);
    DEBUG_EDIT   yLOG_sexit   (__FUNCTION__);
    return 0;

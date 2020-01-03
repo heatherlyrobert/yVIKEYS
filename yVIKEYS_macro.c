@@ -559,7 +559,7 @@ yvikeys_macro__recbeg   (char a_name)
    DEBUG_SCRP   yLOG_value   ("keys"      , s_rkeys);
    SET_MACRO_RECORD;
    DEBUG_SCRP   yLOG_char    ("s_rmode"   , s_rmode);
-   VIEW__switch ("status", "record");
+   yvikeys_sizes_switch ("status", "record");
    /*---(complete)--------------------*/
    DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -1105,7 +1105,7 @@ yvikeys_macro_set2play  (void)
 {
    SET_MACRO_PLAYBACK;
    yvikeys_loop_normal ();
-   VIEW__switch ("status", "macro");
+   yvikeys_sizes_switch ("status", "macro");
    return 0;
 }
 
@@ -1114,7 +1114,7 @@ yvikeys_macro_set2delay (void)
 {
    SET_MACRO_DELAY;
    yvikeys_loop_macro (s_ddelay, s_dupdate);
-   VIEW__switch ("status", "macro");
+   yvikeys_sizes_switch ("status", "macro");
    return 0;
 }
 
@@ -1386,7 +1386,7 @@ yvikeys_macro_exeadv    (uchar a_play)
    if (yvikeys_keys_repeating ()) {
       DEBUG_LOOP   yLOG_snote   ("older keys");
       s_macros [s_ecurr].cur = yvikeys_keys_keygpos ();
-      KEYS_repos (yvikeys_keys_gpos + 1);
+      yvikeys_keys_repos (yvikeys_keys_gpos + 1);
    } else if (s_pause > 0) {
       DEBUG_LOOP   yLOG_snote   ("pausing");
       DEBUG_SCRP   yLOG_sint    (s_macros [s_ecurr].pos);

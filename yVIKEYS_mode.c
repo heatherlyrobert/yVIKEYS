@@ -1082,7 +1082,7 @@ REPEAT_group_end        (void)
    /*---(return to beginning)------------*/
    else {
       --(s_rep [s_level]);
-      if (s_src [s_level] == (uchar) '´')  KEYS_repos (s_pos [s_level]);
+      if (s_src [s_level] == (uchar) '´')  yvikeys_keys_repos  (s_pos [s_level]);
       else                                 yvikeys_macro_repos (s_pos [s_level]);
    }
    /*---(complete)-----------------------*/

@@ -26,8 +26,8 @@
 
 #define     P_VERMAJOR  "1.X = working for everyday use, features still evolving but stable"
 #define     P_VERMINOR  "1.4 = prepare for demonstrations on web"
-#define     P_VERNUM    "1.4o"
-#define     P_VERTXT    "great start version of layers built and unit tested (except display)"
+#define     P_VERNUM    "1.4p"
+#define     P_VERTXT    "split out screen part sizing and switching into SIZES from VIEW (and unit tested)"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -168,6 +168,9 @@ struct cSHARED {
    /*---(menus)-----------*/
    char        m_path      [LEN_LABEL];     /* key path in menu               */
    char        m_keys      [LEN_HUND ];     /* resulting keys from menu       */
+   char        loc_menu;                    /* menu location                  */
+   char        loc_float;                   /* float location                 */
+   char        loc_hist;                    /* history location               */
 };
 tSHARED     myVIKEYS;
 
@@ -219,6 +222,49 @@ tSHARED     myVIKEYS;
 #define     SET_MACRO_RECORD     yvikeys_macro_modeset (MACRO_RECORD);
 #define     SET_MACRO_IGNORE     yvikeys_macro_modeset (MACRO_IGNORE);
 
+typedef  struct  cPARTS     tPARTS;
+struct cPARTS {
+   /*---(main)-----------------*/
+   cchar       abbr;                        /* short name of screen element   */
+   cchar       name        [LEN_LABEL];     /* name of screen element         */
+   cchar       own;                         /* controlled entirely by yVIKEYS */
+   char        on;                          /* show or hide y/n               */
+   /*---(horizontal)-----------*/
+   cchar       horz;                        /* evaluation order left-to-right */
+   cchar       nox;                         /* do not add to x cumulatives    */
+   cchar       x_tie;                       /* tie to another field in x-axis */
+   int         def_wide;                    /* default width                  */
+   int         wide;                        /* screen width                   */
+   int         left;                        /* screen left                    */
+   /*---(vertical)-------------*/
+   cchar       vert;                        /* evaluation order bottom-to-top */
+   cchar       noy;                         /* do not add to y cumulatives    */
+   cchar       y_tie;                       /* tie to another field in y-axis */
+   cchar       under;                       /* fall below buffer/formula      */
+   int         def_tall;                    /* default height                 */
+   int         tall;                        /* screen height                  */
+   int         bott;                        /* screen bottom                  */
+   /*---(for std elements)-----*/
+   char        orient;                      /* orientation of text            */
+   char        (*source) (char*);           /* content source                 */
+   char        text        [2000    ];      /* optional text                  */
+   /*---(special drawing)------*/
+   char        (*drawer) (void);            /* drawing function               */
+   char        type;                        /* ortho vs 3d                    */
+   char        mgmt;                        /* auto vs custom setup           */
+   char        anchor;                      /* fixed point for resizing       */
+   int         color;                       /* background color               */
+   int         xmin;                        /* x-coord minimum                */
+   int         xlen;                        /* x-coord range                  */
+   int         ymin;                        /* y-coord minimum                */
+   int         ylen;                        /* y-coord range                  */
+   int         zmin;                        /* z-coord minimum                */
+   int         zlen;                        /* z-coord range                  */
+   /*---(other)----------------*/
+   cchar       desc        [LEN_DESC ];     /* explanation of element         */
+   /*---(done)-----------------*/
+};
+
 
 extern char        g_coord;
 extern int         g_goffx;
@@ -262,23 +308,26 @@ extern char *gvikeys_greek;
 
 
 
+char        yvikeys_view__abbr      (cchar  a_abbr);
+char        yvikeys_view_pointer    (cchar  a_abbr, tPARTS **a_part, tPARTS **a_link);
+char        yvikeys_view_cursor     (char   a_move, tPARTS **a_part, tPARTS **a_link);
+char        yvikeys_view_find       (char  *a_name, tPARTS **a_part, tPARTS **a_link);
+
+char        yvikeys_view_defs       (char a_part, char a_on, int a_nwide, int a_ntall, int a_owide, int a_otall, void *a_draw);
+char        yvikeys_view__size      (char a_part, int a_wide, int a_tall, int a_left, int a_bott);
 char        yvikeys_view_keys       (cchar *a_text);
 char        yvikeys_view_modes      (cchar *a_text);
 char        yvikeys_view_init       (void);
 char        yvikeys_view_reanchor   (cchar a_part, cint a_anchor);
-char        VIEW__reset             (void);
-char        VIEW__find              (cchar *a_name);
-char        VIEW__abbr              (cchar  a_abbr);
 char        VIEW_wrap               (void);
-char        VIEW__switch            (char *a_name, char *a_opt);
 
-char        VIEW__widths            (cint a_wide, cint a_alt);
-char        VIEW__heights           (cint a_tall);
-char        VIEW__resize            (cchar a_type);
 char        VIEW__grid_offset       (int a_x, int a_y, int a_z);
 char        VIEW__grid_size         (int a_x, int a_y, int a_z);
 char        VIEW_status_default     (char *a_list);
-char        VIEW__layout            (char *a_name);
+char        VIEW__ribbon             (void);
+char        VIEW__grid_normal        (void);
+char        VIEW__grid_zoom          (void);
+char        VIEW__cursor             (void);
 
 char*       VIEW__unit              (char *a_question, char a_index);
 
@@ -288,16 +337,17 @@ extern char yVIKEYS__unit_answer [LEN_FULL];
 
 
 /*---(keys)-----------------*/
-char        KEYS_status             (char *a_msg);
-char        KEYS__logger            (uchar a_key);
-char        KEYS_unique             (void);
-char        KEYS_init               (void);
+char        yvikeys_keys_status     (char *a_msg);
+char        yvikeys_keys__logger    (uchar a_key);
+char        yvikeys_keys_unique     (void);
+char        yvikeys_keys_init       (void);
 char*       KEYS__unit              (char *a_question, char a_index);
 char        yvikeys_set_error       (void);
 int         yvikeys_keys_gpos       (void);
 char        yvikeys_keys_keygpos    (void);
 char        yvikeys_keys_repeating  (void);
-char        KEYS_dump               (FILE *a_file);
+char        yvikeys_keys_dump       (FILE *a_file);
+char        yvikeys_keys_repos      (int a_pos);
 /*---(dumps)----------------*/
 char        yvikeys_dump_exec       (char *a_what);
 char        yvikeys_dump_write      (cchar *a_recd);
@@ -764,9 +814,47 @@ char        yvikeys_layer__none     (void);
 char        yvikeys_layer_action    (uchar *a_name, uchar *a_action);
 /*---(display)------------------------*/
 char        yvikeys_layer_status    (char *a_line);
+char        yvikeys_layer_show      (void);
 /*---(unit_test)----------------------*/
 char        yvikeys_layer__unit_null(void);
 char*       yvikeys_layer__unit     (char *a_question, uchar *a_key);
+
+
+/*---(program)------------------------*/
+char        yvikeys_sizes_init      (void);
+/*---(defaults)-----------------------*/
+char        yvikeys_sizes_defaults   (cchar a_env);
+/*---(horizontal)---------------------*/
+char        yvikeys_sizes_horz_fixed (void);
+char        yvikeys_sizes_horz_auto  (cint a_wide, cint a_alt);
+char        yvikeys_sizes_horz_var   (void);
+char        yvikeys_sizes_horz_link  (void);
+char        yvikeys_sizes_horz_float (void);
+char        yvikeys_sizes_horz_other (void);
+char        yvikeys_sizes_horz       (cint a_wide, cint a_alt);
+/*---(vertical)-----------------------*/
+char        yvikeys_sizes_vert_fixed (void);
+char        yvikeys_sizes_vert_auto  (cint a_tall);
+char        yvikeys_sizes_vert_var   (void);
+char        yvikeys_sizes_vert_link  (void);
+char        yvikeys_sizes_vert_float (void);
+char        yvikeys_sizes_vert_fill  (void);
+char        yvikeys_sizes_vert_flip  (void);
+char        yvikeys_sizes_vert       (cint a_tall);
+/*---(movable)------------------------*/
+char        yvikeys_sizes_menu_loc   (char a_loc);
+char        yvikeys_sizes_float_loc  (char a_loc);
+char        yvikeys_sizes_hist_loc   (char a_loc);
+/*---(anchoring)----------------------*/
+char        yvikeys_sizes_anchor     (cchar a_abbr);
+char        yvikeys_sizes_anchor_all (void);
+/*---(sizing)-------------------------*/
+char        yvikeys_sizes_resize    (cchar a_type);
+/*---(switching)----------------------*/
+char        yvikeys_sizes_switch    (char *a_name, char *a_opt);
+/*---(layout)-------------------------*/
+char        yvikeys_sizes_layout    (char *a_name);
+
 
 #define    ACTION_FIND     'f'
 #define    ACTION_ADD      '+'

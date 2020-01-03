@@ -250,12 +250,14 @@ char        yVIKEYS_main            (char *a_delay, char *a_update, void *a_alti
 
 char*       yVIKEYS__unit           (char *a_question, int a_num);
 
+/*---(sizes)----------------*/
+char        yVIKEYS_resize          (cint   a_wide , cint   a_tall, cint a_alt);
+
 /*---(view)-----------------*/
 char        yVIKEYS_view_font       (cchar  a_fixed);
 char        yVIKEYS_view_config     (cchar *a_title, cchar *a_ver, cchar a_env, cint a_wide, cint a_tall, cint a_alt);
 char        yVIKEYS_run_curses      (cchar *a_title, cchar *a_ver);
 char        yVIKEYS_run_opengl      (cchar *a_title, cchar *a_ver, cint a_wide, cint a_tall);
-char        yVIKEYS_view_resize     (cint   a_wide , cint   a_tall, cint a_alt);
 char        yVIKEYS_view_setup      (cchar  a_part , cchar  a_type, cchar a_anchor, cint a_xmin, cint a_xlen, cint a_ymin, cint a_ylen, cint a_zmin, cint z_len, cchar a_color, void *a_drawer);
 char        yVIKEYS_view_basic      (cchar  a_part , cchar  a_type, cchar a_anchor, cchar a_color, void *a_drawer);
 char        yVIKEYS_view_simple     (cchar  a_part , cchar  a_color, void *a_drawer);
@@ -276,6 +278,8 @@ char        yVIKEYS_view_type       (cchar a_part);
 char        yVIKEYS_view_anchor     (cchar a_part);
 
 char        yVIKEYS_view_option     (char a_part, char *a_opt, void *a_source, char *a_desc);
+
+
 char        yVIKEYS_dataset_add     (uchar *a_name, void *a_drawer, uchar *a_desc);
 char        yVIKEYS_dataset_delete  (uchar *a_name);
 

@@ -582,7 +582,7 @@ roads more clearly.
 
 
 
-.SH LAYERS (commands)
+.SH DATASETS and LAYERS (commands)
 .nf
 .SS ---overview-------------------------------------------------------
 .B definition (D).  
@@ -590,7 +590,7 @@ links dissperate elements by function, theme, author, etc, e.g., creeks,
 canals, and rivers brought into a waterways layer.
 
 .B value (V).  
-used to add and remove details to better focus, e.g., taking vegetation,
+used to add and remove details to better focus, e.g., taking vegetation
 and buildings off a map to see the roads more clearly.
 
 .B situation (S).  
@@ -599,26 +599,22 @@ engineering.  this is not new ;)
 
 .B complication (C).  
 it is quite well explored in CAD, GIS, and markup applications, but not well
-represented in almost any contexts.
+represented in almost any other contexts.
 
 .B answer (A).  
 i will build basic layering selection and drawing framework into yVIKEYS to
-expand my use.
+expand my use and make it easy.
 .SS ---full capabilities----------------------------------------------
-.B yVIKEYS_dataset_add, 
-datasets must be programatically added by the source application using this
-function to link a name and drawing function which yVIKEYS can manipulate.
-yVIKEYS never sees the actual data, it simply "layers" the view.
-
-.B yVIKEYS_dataset_delete, 
-removes the dataset from yVIKEYS consideration without effecting the source
-data in any way.
+.B datasets
+must be added and removed from yVIKEYS by the host application, which links a
+name to a drawing function for display.  once a dataset is available, any of
+the following can be done.
 
 .B layer list (60 in three groups)
    layers are drawn sequentially, ones on top obscuring those below
    0-9        topmost, highlighting and overlays
    a-z        normal layers
-   è-ÿ        base layers
+   è-ÿ        base, underlayment layers for context
    ÿ is the bottommost and 0 is the topmost.
 
 .B assigning a dataset to a specific layer
@@ -627,22 +623,30 @@ data in any way.
    :layer all        assigns all datasets in order they were added
 
 .B assigning a dataset to various general locations
-   :layer test +     assigns to the middle most 'm', and shifts down
+   :layer test _     assigns to '0' (top) and shifts existing down
    :layer test [     assigns to 'a' (head) and shifts existing down
-   :layer test ]     assigns to 'z' (tail) and shifts existing up
    :layer test <     assigns one above last assignment
+   :layer test +     assigns to the middle most 'm', and shifts down
    :layer test >     assigns one below last assignment
+   :layer test ]     assigns to 'z' (tail) and shifts existing up
+   :layer test ~     assigns to 'ÿ' (bottom) and shifts existing up
 
 .B moving layers around
    :layer jx         moves 'j' to 'x' and moves existing down
    :layer jX         moves 'j' to 'x' and moves existing up
-   :layer o>         shifts 'o' one down to 'p' (and 'p' to 'o')
-   :layer n<         shifts 'n' one up to 'm'   (and 'm' to 'n')
+   :layer f_         shifts 'f' to head '0' and moves existing down
    :layer f[         shifts 'f' to head 'a' and moves existing down
+   :layer m(         swap 'm' and the mark to the left
+   :layer f<         shove 'f' and all to the left, left
+   :layer l+         move 'f' to middlemost and move existing down
+   :layer k)         swap 'k' and the mark to the right
+   :layer o>         shove 'o' and all to the right, right
    :layer b]         shifts 'b' to tail 'z' and moves existing up
+   :layer b~         shifts 'b' to tail 'ÿ' and moves existing up
 
 .B make a layer current
    :layer f          make 'f' current, but no other action
+   also, _[<(+)>]~ work on the current, and update it as they move
 
 .B removing layers, not the dataset
    :layer j#         unassigns the dataset in 'j'
@@ -655,8 +659,12 @@ data in any way.
 .B displaying other information
    :status layers    shows summary info line in status
 
-.B future
+.B future notes (not available)
+   layer display area which acceps keys, making it easier
+   layer history view to see data sets and layers
    :layer compact    moves/compacts layers towards middles 5, m, and ó
+   :layer save       save current settings to to a working file
+   :layer load       load current settings from a working file
 
 
 

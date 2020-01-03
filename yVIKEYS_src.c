@@ -743,33 +743,33 @@ SOURCE__color           (char a_display)
    char        x_edit      =   '-';
    char        x_code      =   '-';
    /*---(header)-------------------------*/
-   DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
-   DEBUG_EDIT   yLOG_char    ("a_display" , a_display);
-   DEBUG_EDIT   yLOG_char    ("MODE_curr" , MODE_curr ());
-   DEBUG_EDIT   yLOG_char    ("MODE_prev" , MODE_prev ());
+   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
+   DEBUG_GRAF   yLOG_char    ("a_display" , a_display);
+   DEBUG_GRAF   yLOG_char    ("MODE_curr" , MODE_curr ());
+   DEBUG_GRAF   yLOG_char    ("MODE_prev" , MODE_prev ());
    /*---(fast-track formula)-------------*/
    if (a_display == YVIKEYS_FORMULA) {
       if (MODE_curr () != MODE_SOURCE && MODE_prev () != MODE_SOURCE)  {
-         DEBUG_EDIT   yLOG_note    ("formula fast track");
+         DEBUG_GRAF   yLOG_note    ("formula fast track");
          x_code = 'm';
       }
    }
    /*---(fast-track command)-------------*/
    if (a_display == YVIKEYS_COMMAND) {
       if (strchr (":/", MODE_curr ()) == NULL && strchr (":/", MODE_prev ()) == NULL) {
-         DEBUG_EDIT   yLOG_note    ("command fast track");
+         DEBUG_GRAF   yLOG_note    ("command fast track");
          x_code = 'c';
       }
    }
    /*---(check focused)------------------*/
    if (x_code == '-' && strchr (MODES_ONELINE, MODE_curr ()) != NULL)  {
-      DEBUG_EDIT   yLOG_note    ("current source mode");
+      DEBUG_GRAF   yLOG_note    ("current source mode");
       x_edit = 'y';
       x_code = 's';
    }
    /*---(check editing)------------------*/
    else if (x_code == '-' && strchr (MODES_ONELINE, MODE_prev ()) != NULL)  {
-      DEBUG_EDIT   yLOG_note    ("sub-mode editing");
+      DEBUG_GRAF   yLOG_note    ("sub-mode editing");
       x_edit = 'y';
       switch (MODE_curr ()) {
       case SMOD_SREG    : x_code = 't';  break;
@@ -781,13 +781,13 @@ SOURCE__color           (char a_display)
    }
    /*---(just a safety)------------------*/
    else if (x_code == '-') {
-      DEBUG_EDIT   yLOG_note    ("catch for mistakes");
+      DEBUG_GRAF   yLOG_note    ("catch for mistakes");
       x_code = 'e';
    }
    /*---(set curses color)---------------*/
    attrset     (0);
    if (myVIKEYS.env == YVIKEYS_CURSES) {
-      DEBUG_EDIT   yLOG_note    ("assign a ncurses color");
+      DEBUG_GRAF   yLOG_note    ("assign a ncurses color");
       switch (x_code) {
       case  'm' :  yCOLOR_curs ("map"    );  break;
       case  's' :  yCOLOR_curs ("source" );  break;
@@ -802,7 +802,7 @@ SOURCE__color           (char a_display)
    }
    /*---(set opengl color)---------------*/
    else {
-      DEBUG_EDIT   yLOG_note    ("assign a opengl color");
+      DEBUG_GRAF   yLOG_note    ("assign a opengl color");
       switch (x_code) {
       case  'm' :  glColor4f   (0.5, 0.5, 0.5, 1.0);  break;
       case  'c' :  glColor4f   (0.5, 0.5, 0.5, 1.0);  break;
@@ -817,8 +817,8 @@ SOURCE__color           (char a_display)
    }
 
    /*---(complete)-----------------------*/
-   DEBUG_EDIT   yLOG_char    ("x_edit"    , x_edit);
-   DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+   DEBUG_GRAF   yLOG_char    ("x_edit"    , x_edit);
+   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return x_edit;
 }
 
@@ -834,16 +834,16 @@ SOURCE__opengl          (tEDIT *a_cur, int a_lef, int a_rig, int a_bot, int a_to
    float       x_beg       =    0;
    float       x_end       =    0;
    /*---(header)-------------------------*/
-   DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
+   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
    /*---(fast path for command)----------*/
    if (a_cur->type == EDIT_CMDS && a_edit != 'y') {
-      DEBUG_EDIT   yLOG_note    ("fast path to display mode message");
+      DEBUG_GRAF   yLOG_note    ("fast path to display mode message");
       glPushMatrix    (); {
          glTranslatef ( 0.0f, 1.0f, 0.0f);
          glColor4f   (0.0, 0.0, 0.0, 1.0);
          yFONT_print (myVIKEYS.font, myVIKEYS.point, YF_BOTLEF, MODE_message ());
       } glPopMatrix   ();
-      DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+      DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
       return 0;
    }
    DEBUG_GRAF   yLOG_complex  ("bounds"    , "%3dl to %3dr, %3db to %3dt", a_lef, a_rig, a_bot, a_top);
@@ -926,7 +926,7 @@ SOURCE__opengl          (tEDIT *a_cur, int a_lef, int a_rig, int a_bot, int a_to
       yFONT_print (myVIKEYS.font, myVIKEYS.point, YF_BOTLEF, t);
    } glPopMatrix   ();
    /*---(complete)-----------------------*/
-   DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -939,11 +939,11 @@ SOURCE__curses          (tEDIT *a_cur, int a_left, int a_bott, char a_edit)
    int         x_len       =    0;
    char        c           =  ' ';
    /*---(header)-------------------------*/
-   DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
+   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
    /*---(fast path for command)----------*/
    if (a_cur->type == EDIT_CMDS && a_edit != 'y') {
       mvprintw (a_bott, a_left, "%-*.*s", a_cur->wide, a_cur->wide, MODE_message ());
-      DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+      DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
       return 0;
    }
    /*---(base content)-------------------*/
@@ -980,7 +980,7 @@ SOURCE__curses          (tEDIT *a_cur, int a_left, int a_bott, char a_edit)
       mvprintw (a_bott, a_left + a_cur->wide - 1, "%c", c);
    }
    /*---(complete)-----------------------*/
-   DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -997,7 +997,7 @@ SOURCE_display             (tEDIT *a_cur, char a_mode)
    int         x_xmin, x_xmax;
    int         x_ymin, x_ymax;
    /*---(header)-------------------------*/
-   DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
+   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
    /*---(get sizes)----------------------*/
    x_on = yVIKEYS_view_size     (a_mode, &x_left, &x_wide, &x_bott, &x_tall, NULL);
    DEBUG_GRAF   yLOG_complex  ("size"      , "%3dl, %3dw, %3db, %3dt", x_left, x_wide, x_bott, x_tall);
@@ -1006,27 +1006,27 @@ SOURCE_display             (tEDIT *a_cur, char a_mode)
    if (myVIKEYS.env == YVIKEYS_CURSES)  a_cur->wide = x_wide;
    else                                 a_cur->wide = x_wide / myVIKEYS.font_scale;
    a_cur->apos = a_cur->wide - 6;
-   DEBUG_EDIT   yLOG_char    ("on"        , x_on);
-   DEBUG_EDIT   yLOG_value   ("wide"      , a_cur->wide);
-   DEBUG_EDIT   yLOG_value   ("apos"      , a_cur->apos);
-   DEBUG_EDIT   yLOG_info    ("contents"  , a_cur->contents);
-   DEBUG_EDIT   yLOG_value   ("npos"      , a_cur->npos);
-   DEBUG_EDIT   yLOG_char    ("type"      , a_cur->type);
+   DEBUG_GRAF   yLOG_char    ("on"        , x_on);
+   DEBUG_GRAF   yLOG_value   ("wide"      , a_cur->wide);
+   DEBUG_GRAF   yLOG_value   ("apos"      , a_cur->apos);
+   DEBUG_GRAF   yLOG_info    ("contents"  , a_cur->contents);
+   DEBUG_GRAF   yLOG_value   ("npos"      , a_cur->npos);
+   DEBUG_GRAF   yLOG_char    ("type"      , a_cur->type);
    /*---(defense)------------------------*/
    if (x_on != 'y') {
-      DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+      DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
       return 0;
    }
    /*---(display)------------------------*/
    x_edit = SOURCE__color (a_mode);
-   DEBUG_EDIT   yLOG_char    ("x_edit"    , x_edit);
+   DEBUG_GRAF   yLOG_char    ("x_edit"    , x_edit);
    if (myVIKEYS.env == YVIKEYS_CURSES) {
       SOURCE__curses (a_cur, x_left, x_bott, x_edit);
    } else {
       SOURCE__opengl (a_cur, x_xmin, x_xmax, x_ymin, x_ymax, x_edit);
    }
    /*---(complete)-----------------------*/
-   DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -1034,10 +1034,10 @@ char
 SOURCE_formula             (void)
 {
    tEDIT      *x_cur       = NULL;
-   DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
+   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
    x_cur  = &s_src;
    SOURCE_display (x_cur, YVIKEYS_FORMULA);
-   DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -1045,10 +1045,10 @@ char
 SOURCE_command             (void)
 {
    tEDIT      *x_cur       = NULL;
-   DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
+   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
    x_cur  = &s_cmd;
    SOURCE_display (x_cur, YVIKEYS_COMMAND);
-   DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -1061,39 +1061,39 @@ SOURCE_float               (void)
    char        x_on        =  '-';
    tEDIT      *x_cur       = NULL;
    /*---(header)----------------------*/
-   DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
-   DEBUG_EDIT   yLOG_char    ("mode_curr" , MODE_curr ());
-   DEBUG_EDIT   yLOG_char    ("mode_prev" , MODE_prev ());
+   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
+   DEBUG_GRAF   yLOG_char    ("mode_curr" , MODE_curr ());
+   DEBUG_GRAF   yLOG_char    ("mode_prev" , MODE_prev ());
    /*---(check modes)-----------------*/
    if      (strchr (MODES_ONELINE, MODE_curr ()) != NULL )      x_mode = MODE_curr ();
    else if (strchr (MODES_ONELINE, MODE_prev ()) != NULL )      x_mode = MODE_prev ();
-   DEBUG_EDIT   yLOG_char    ("x_mode"    , x_mode);
+   DEBUG_GRAF   yLOG_char    ("x_mode"    , x_mode);
    if (x_mode == '-')  {
-      DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+      DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
       return 0;
    }
    /*---(check modes)-----------------*/
    --rce;  switch (x_mode) {
    case MODE_SOURCE  :
-      DEBUG_EDIT   yLOG_note    ("mode source");
+      DEBUG_GRAF   yLOG_note    ("mode source");
       x_on   = yVIKEYS_view_size     (YVIKEYS_FORMULA, NULL, NULL, NULL, NULL, NULL);
       x_cur  = &s_src;
       break;
    case MODE_COMMAND :
    case MODE_SEARCH  :
-      DEBUG_EDIT   yLOG_note    ("mode command/search");
+      DEBUG_GRAF   yLOG_note    ("mode command/search");
       x_on   = yVIKEYS_view_size     (YVIKEYS_COMMAND, NULL, NULL, NULL, NULL, NULL);
       x_cur  = &s_cmd;
       break;
    default :
-      DEBUG_EDIT   yLOG_note    ("default");
-      DEBUG_EDIT   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_GRAF   yLOG_note    ("default");
+      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   DEBUG_EDIT   yLOG_char    ("x_on"      , x_on);
+   DEBUG_GRAF   yLOG_char    ("x_on"      , x_on);
    if (x_on != 'y')  SOURCE_display (x_cur, YVIKEYS_FLOAT);
    /*---(complete)--------------------*/
-   DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
