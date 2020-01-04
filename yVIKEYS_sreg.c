@@ -418,7 +418,7 @@ yvikeys_sreg_save       (char *a_label, char *a_data)
       DEBUG_MEMS   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   n = yvikeys_sreg__index  (s_csreg);
+   n = yvikeys_sreg__index  (tolower (s_csreg));
    DEBUG_MEMS   yLOG_value   ("n"         , n);
    --rce;  if (n < 0) {
       DEBUG_MEMS   yLOG_exitr   (__FUNCTION__, rce);

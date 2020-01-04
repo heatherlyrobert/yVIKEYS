@@ -26,8 +26,8 @@
 
 #define     P_VERMAJOR  "1.X = working for everyday use, features still evolving but stable"
 #define     P_VERMINOR  "1.4 = prepare for demonstrations on web"
-#define     P_VERNUM    "1.4p"
-#define     P_VERTXT    "split out screen part sizing and switching into SIZES from VIEW (and unit tested)"
+#define     P_VERNUM    "1.4q"
+#define     P_VERTXT    "fix all unit test bugs/mistypes from previous code updates"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"

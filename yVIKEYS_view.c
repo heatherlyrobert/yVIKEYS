@@ -376,15 +376,25 @@ yvikeys_view_cursor     (char a_move, tPARTS **a_part, tPARTS **a_link)
    if (a_part != NULL)  *a_part = NULL;
    if (a_link != NULL)  *a_link = NULL;
    /*---(update position)----------------*/
-   switch (a_move) {
+   --rce;  switch (a_move) {
    case '[' : n =  0;           break;
    case '<' : --n;              break;
    case '>' : ++n;              break;
    case ']' : n = s_npart - 1;  break;
+   default  :
+      DEBUG_GRAF   yLOG_snote   ("illegal move");
+      DEBUG_GRAF   yLOG_sexitr  (__FUNCTION__, rce);
+      return rce;
    }
    DEBUG_GRAF   yLOG_sint    (n);
    /*---(check for trouble)--------------*/
    --rce;  if (n >= s_npart)  {
+      n = s_npart - 1;
+      DEBUG_GRAF   yLOG_sexitr  (__FUNCTION__, rce);
+      return rce;
+   }
+   --rce;  if (n <  0)        {
+      n = 0;
       DEBUG_GRAF   yLOG_sexitr  (__FUNCTION__, rce);
       return rce;
    }
