@@ -26,8 +26,8 @@
 
 #define     P_VERMAJOR  "1.X = working for everyday use, features still evolving but stable"
 #define     P_VERMINOR  "1.4 = prepare for demonstrations on web"
-#define     P_VERNUM    "1.4r"
-#define     P_VERTXT    "added wander mode and unit testing for it"
+#define     P_VERNUM    "1.4s"
+#define     P_VERTXT    "added re-wander from source mode and lightly unit tested ;)"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"

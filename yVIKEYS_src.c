@@ -740,7 +740,7 @@ char
 yvikeys_src_wander       (char *a_new)
 {
    DEBUG_EDIT   yLOG_complex ("position"  , "%3db, %3dc, %3de, %3dn", s_cur->bpos, s_cur->cpos, s_cur->epos, s_cur->npos);
-   strlcpy (s_cur->contents, a_new, LEN_LABEL);
+   strlcpy (s_cur->contents, a_new, LEN_RECD);
    s_cur->npos = strllen (s_cur->contents, LEN_RECD);
    SOURCE__done();
    DEBUG_EDIT   yLOG_complex ("position"  , "%3db, %3dc, %3de, %3dn", s_cur->bpos, s_cur->cpos, s_cur->epos, s_cur->npos);
@@ -1567,6 +1567,12 @@ SOURCE_mode             (int a_major, int a_minor)
       MODE_exit      ();
       if (rc > 0)   rc = 0;
       break;
+   case G_KEY_BTICK :
+      DEBUG_USER   yLOG_note    ("backtick, means re-wander or move label");
+      yvikeys_map_wander_prep ();
+      rc = MODE_enter (UMOD_WANDER);
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return rc;
    }
    if (rc >= 0) {
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
@@ -1585,7 +1591,7 @@ SOURCE_mode             (int a_major, int a_minor)
          yvikeys_sreg_setreg ('"');
          MODE_enter (SMOD_SREG);
          rc = yvikeys_sreg_smode (G_KEY_SPACE, a_minor);
-      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return rc;
       }
       if (yvikeys_sreg_islive () && strchr ("xXdD", a_minor) != 0) {
@@ -1593,7 +1599,7 @@ SOURCE_mode             (int a_major, int a_minor)
          yvikeys_sreg_setreg ('"');
          MODE_enter (SMOD_SREG);
          rc = yvikeys_sreg_smode (G_KEY_SPACE, a_minor);
-      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return rc;
       }
       /*---(multikey prefixes)-----------*/
@@ -2020,8 +2026,8 @@ SRC_INPT_umode             (int  a_major, int  a_minor)
    }
    /*---(wander mode)--------------------*/
    else if (a_minor == G_KEY_BTICK) {
-      rc = MODE_enter (UMOD_WANDER);
       yvikeys_map_wander_prep ();
+      rc = MODE_enter (UMOD_WANDER);
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return rc;
    }

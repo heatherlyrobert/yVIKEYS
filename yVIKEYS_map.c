@@ -1915,25 +1915,77 @@ yvikeys_map_wander_prep (void)
 {
    /*---(locals)-----------+-----+-----+-*/
    int         i           =    0;
+   char        rc          =    0;
    char        x_label     [LEN_LABEL] = "";
+   char       *x_valid     = "ABCDEFGHIJKLMNOPQRSTUVWXYZ®¯abcdefghijklmnopqrstuvwxyz0123456789$@";
+   int         x_cpos      =    0;
+   int         x_beg       =   -1;
+   int         x_end       =   -1;
+   int         x_len       =    0;
+   int         b, x, y;
    /*---(header)-------------------------*/
    DEBUG_USER   yLOG_enter   (__FUNCTION__);
+   /*---(get current)--------------------*/
+   yvikeys_map_current  (NULL, &s_wanderb, &s_wanderx, &s_wandery, NULL);
+   DEBUG_USER   yLOG_complex ("original"  , "%2dt, %3dx, %4dy", s_wanderb, s_wanderx, s_wandery);
+   /*---(prepare content)----------------*/
    s_abs = 0;
    strlcpy (s_wander, yvikeys_src_contents (), LEN_RECD);
-   for (i = 0; i < LEN_RECD; ++i) {
-      if (s_wander [i] != G_CHAR_PLACE)  continue;
-      break;
+   if (MODE_curr () == UMOD_SRC_INPT) {
+      DEBUG_USER   yLOG_note    ("already in input mode");
+      for (i = 0; i < LEN_RECD; ++i) {
+         if (s_wander [i] != G_CHAR_PLACE)  continue;
+         break;
+      }
+      s_wander [i] = '\0';
+      strlcpy (s_pre   , s_wander               , LEN_RECD);
+      strlcpy (s_suf   , s_wander + i + 1       , LEN_RECD);
+      s_wander [i] = G_CHAR_PLACE;
+   } else if (MODE_curr () == MODE_SOURCE) {
+      DEBUG_USER   yLOG_note    ("coming from source, moving label");
+      x_cpos = yvikeys_src_cpos ();
+      for (i = x_cpos; i >= 0; --i) {
+         if (strchr (x_valid, s_wander [i]) == NULL) break;
+         x_beg = i;
+      }
+      DEBUG_USER   yLOG_value   ("x_beg"     , x_beg);
+      if (x_beg < 0) {
+         MODE_exit  ();
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         return 0;
+      }
+      x_len = strlen (s_wander);
+      for (i = x_beg; i < x_len; ++i) {
+         if (strchr (x_valid, s_wander [i]) == NULL) break;
+         x_end = i;
+      }
+      if (x_end < 0) {
+         MODE_exit  ();
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         return 0;
+      }
+      DEBUG_USER   yLOG_value   ("x_end"     , x_end);
+      strlcpy (s_pre   , s_wander               , x_beg + 1);
+      DEBUG_USER   yLOG_info    ("s_pre"     , s_pre);
+      strlcpy (s_suf   , s_wander + x_end + 1   , LEN_RECD);
+      DEBUG_USER   yLOG_info    ("s_suf"     , s_suf);
+      strlcpy (x_label, s_wander + x_beg, x_end - x_beg + 2);
+      DEBUG_USER   yLOG_info    ("x_label"   , x_label);
+      rc = str2gyges (x_label, &b, &x, &y, NULL, NULL, 0, YSTR_USABLE);
+      DEBUG_USER   yLOG_value   ("str2gyges" , rc);
+      if (rc < 0) {
+         MODE_exit  ();
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         return 0;
+      }
+      DEBUG_USER   yLOG_complex ("x_label"   , "%2dt, %3dx, %4dy", s_wanderb, s_wanderx, s_wandery);
+      yVIKEYS_jump (b, x, y, 0);
+      yvikeys_src_wander_cpos (strlen (s_pre));
    }
-   s_wander [i] = '\0';
-   strlcpy (s_pre   , s_wander               , LEN_RECD);
-   strlcpy (s_suf   , s_wander + i + 1       , LEN_RECD);
-   s_wander [i] = G_CHAR_PLACE;
    yvikeys_map_wander_loc (x_label);
    sprintf (s_new, "%s%s%s" , s_pre, x_label, s_suf);
    yvikeys_src_wander   (s_new);
    DEBUG_USER   yLOG_info    ("s_wander"  , s_wander);
-   yvikeys_map_current  (NULL, &s_wanderb, &s_wanderx, &s_wandery, NULL);
-   DEBUG_USER   yLOG_complex ("original"  , "%2dt, %3dx, %4dy", s_wanderb, s_wanderx, s_wandery);
    DEBUG_USER   yLOG_exit    (__FUNCTION__);
    return 0;
 }
@@ -1955,9 +2007,10 @@ yvikeys_map_wander_done (uchar a_key)
    MODE_exit  ();
    yvikeys_map_wander_loc (x_label);
    yvikeys_map_wander_ret ();
-   if      (a_key == '(')  sprintf (s_new, "%s(%c%s"  , s_pre, G_CHAR_PLACE, s_suf);
-   else if (a_key == ')')  sprintf (s_new, "%s%s)%c%s", s_pre, x_label, G_CHAR_PLACE, s_suf);
-   else                    sprintf (s_new, "%s%s%c%s" , s_pre, x_label, G_CHAR_PLACE, s_suf);
+   if (MODE_curr () == MODE_SOURCE) sprintf (s_new, "%s%s%s"   , s_pre, x_label, s_suf);
+   else if (a_key == '(')           sprintf (s_new, "%s(%c%s"  , s_pre, G_CHAR_PLACE, s_suf);
+   else if (a_key == ')')           sprintf (s_new, "%s%s)%c%s", s_pre, x_label, G_CHAR_PLACE, s_suf);
+   else                             sprintf (s_new, "%s%s%c%s" , s_pre, x_label, G_CHAR_PLACE, s_suf);
    DEBUG_USER   yLOG_info    ("s_new"     , s_new);
    if (a_key == G_CHAR_ESCAPE)  yvikeys_src_wander   (s_wander);
    else                         yvikeys_src_wander   (s_new);
