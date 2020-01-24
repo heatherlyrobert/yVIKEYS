@@ -1327,7 +1327,7 @@ other keys to make room for complex interactions.
    ,          windows/tabs
    t          tags
    ?          definition/prototype/etc
-   F          data formatting (very, very useful)
+   F f        data formatting (very, very useful)
    +          enter positive numerical data
    -          enter negative numerical data
    =          enter a formula
@@ -1349,30 +1349,38 @@ a vast majority of all users.
 
 .B situation (S)
 
-.SH FORMAT (sub-mode)
-.B define (D)
-data formatting helps users digest, make connections, and generate insights
-leading to clearer, better, and more decisive decisions.
 
-.B current situation (S)
-this is a well explored area with many standard formats defined for various
-user populations, such as accountants, engineers, scientists, etc.
+
+
+.SH DATA FORMATTING (sub-mode)
+.SS ---basics---------------------------------------------------------
+ F·f2·|·¥    change to floating point, 2 decimals, and centered
+.SS ---overview-------------------------------------------------------
+.B define (D)
+changing the presentation (not the value) of data with delimiters, units of
+measure, spacing, alignments, etc.
+
+.B value (V)
+helps users digest, compare, connect, and generate insights leading to clearer,
+better, and more decisive decisions.
+
+.B situation (S)
+well explored area with many standard formats for various specialities, e.g.,
+accountants, engineers, scientists, etc.
 
 .B concern (S)
-these capabilties are typically supported uniquely by each application and
-either narrow and standard (man), or legion and mostly superficial (ppt).
+these capabilities are uniquely supported by each application making their
+use inconsistent and spotty.
 
 .B choice (R)
-build once and force completely standard data formats across my applications
-based on lessons learned in mathmatics, management, and statistics.
-
-.B allowed from which modes...
-   map        on a single cell
-   visual     on a range of cells
+provide standard data formats across my applications based on lessons learned
+in mathmatics, management, and statistics.
+.SS ---full capabilities----------------------------------------------
 
 .B invoking data formatting
    F          format sub-mode
    ¥ or ¦     return to normal mode (no difference)
+   f          single-change format mode that automatically exits
 
 .B horizontal alignment
    < [ { :    left, with [, [ indent, or colon
@@ -1383,7 +1391,7 @@ based on lessons learned in mathmatics, management, and statistics.
    /*---(normal)-----------------------*/
    i          integer (capital is indented)
    f          real/float
-   , s a $    real/float with commas, signed comma, acct, currency
+   , c s a $  real/float with commas, signed comma, acct, currency
    F          add unit-of-measure scaling to real/floats
    p          percentage (shows a tailing 'p' as '%' is problematic
    /*---(technical)--------------------*/

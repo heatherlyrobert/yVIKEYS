@@ -80,26 +80,27 @@ typedef  const float          cfloat;
  *
  *
  */
+#define     LEN_HUGE    10000
 
 typedef  struct cMAPPED  tMAPPED;
 struct cMAPPED {
    /*---(identity)-------------*/
    char        which;                       /* b, x, y, or z                  */
    /*---(lefts)----------------*/
-   int         umin;                        /* global min, used or not        */
+   int         umin;                        /* lowest map position            */
    int         gmin;                        /* global min, used or not        */
    int         gamin;                       /* min of all used space          */
    int         glmin;                       /* min for col/row                */
    int         gprev;                       /* prev change for "end"          */
    /*---(current)--------------*/
-   int         map         [10000];         /* full col/row map               */
-   char        used        [10000];         /* full col/row map (of usage)    */
+   int         map         [LEN_HUGE];      /* full col/row map               */
+   uchar       used        [LEN_HUGE];      /* full col/row map               */
    /*---(rights)---------------*/
    int         gnext;                       /* next change for "end"          */
    int         glmax;                       /* max for col/row                */
    int         gamax;                       /* max of all used space          */
    int         gmax;                        /* global max, used or not        */
-   int         umax;                        /* global max, used or not        */
+   int         umax;                        /* highest map position           */
    /*---(screen)---------------*/
    int         ubeg;                        /* beg abs pos shown on screen    */
    int         ucur;                        /* cur abs pos shown on screen    */
@@ -251,6 +252,7 @@ char        yVIKEYS_main            (char *a_delay, char *a_update, void *a_alti
 char*       yVIKEYS__unit           (char *a_question, int a_num);
 
 /*---(sizes)----------------*/
+char        yVIKEYS_status_width    (void);
 char        yVIKEYS_resize          (cint   a_wide , cint   a_tall, cint a_alt);
 
 /*---(view)-----------------*/
@@ -348,7 +350,7 @@ char        yVIKEYS_srch_found      (char *a_label, int a_buf, int x, int y, int
 char        yVIKEYS_srch_direct     (char *a_search);
 
 /*---(files)----------------*/
-char        yVIKEYS_whoami          (char *a_prog, char *a_ext, char *a_vernum, char *a_vertxt, char *a_full, char *a_desc);
+char        yVIKEYS_whoami          (char *a_prog, char *a_ext, char *a_vernum, char *a_vertxt, char *a_full, char *a_desc, void *a_prepper);
 char        yVIKEYS_file_add        (char  a_abbr, void *a_writer, void *a_reader);
 char        yVIKEYS_file_write      (char a_abbr, void *a, void *b, void *c, void *d, void *e, void *f, void *g, void *h, void *i);
 

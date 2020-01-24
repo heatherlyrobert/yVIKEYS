@@ -100,6 +100,8 @@ static const tTERMS  s_terms [] = {
    { "sii"  , "char*, int, int"            },
    { "isss" , "int, char*, char*, char*"   },
    { "Cs"   , "char*, char*"               },  /* command and arg both        */
+   { "css"  , "char, char*, char*"         },
+   { "cs"   , "char, char*"                },
    { "-"    , "-"                          },
 };
 static  int s_nterm  = 0;
@@ -136,6 +138,8 @@ struct  cCMDS {
       char        (*ss  ) (char*, char*);   /* function pointer               */
       char        (*si  ) (char*, int  );   /* function pointer               */
       char        (*sii ) (char*, int, int);  /* function pointer               */
+      char        (*css ) (char, char*, char*);  /* function pointer               */
+      char        (*cs  ) (char, char*)     /* function pointer               */
    } f;
    uchar       terms       [LEN_TERSE];     /* type of terms/args             */
    uchar       desc        [LEN_DESC];      /* descriptive label              */
@@ -394,7 +398,9 @@ yvikeys_cmds__launch      (tLINK *a_link)
    case 12 : rc = a_link->data->f.sii  (s_fields [1], atoi (s_fields [2]), atoi (s_fields [3]));          break;
    case 13 : rc = a_link->data->f.isss (atoi (s_fields [1]), s_fields [2], s_fields [3], s_fields [4]);   break;
    case 14 : rc = a_link->data->f.ss   (s_fields [0], s_fields [1]);                                      break;
-   default : rc = -1;                                                                                  break;
+   case 15 : rc = a_link->data->f.css  (s_fields [1][0], s_fields [2], s_fields [3]);                     break;
+   case 16 : rc = a_link->data->f.cs   (s_fields [1][0], s_fields [2]);                     break;
+   default : rc = -1;                                                                                     break;
    }
    /*---(complete)-----------------------*/
    DEBUG_CMDS   yLOG_exit    (__FUNCTION__);
@@ -800,6 +806,7 @@ yVIKEYS_cmds_add     (uchar a_menu, char *a_name, char *a_abbr, char *a_terms, v
    char        rc          =    0;
    char        x_terms     =    0;
    int         n           =   -1;
+   int         x_len       =    0;
    char        x_dup       =    0;
    /*---(header)-------------------------*/
    DEBUG_CMDS   yLOG_enter   (__FUNCTION__);
@@ -827,7 +834,7 @@ yVIKEYS_cmds_add     (uchar a_menu, char *a_name, char *a_abbr, char *a_terms, v
       DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   rc = yvikeys_cmds__name (a_abbr, 'a', NULL);
+   rc = yvikeys_cmds__name (a_abbr, 'a', &x_len);
    --rce;  if (rc < 0) {
       DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
@@ -932,8 +939,8 @@ yvikeys_cmds_exec     (uchar *a_command, char *a_rc)
    if (a_rc != NULL)  *a_rc = 0;
    /*---(defense)------------------------*/
    --rce;  if (!STATUS_operational (MODE_COMMAND)) {
-      DEBUG_HIST   yLOG_note    ("can not execute until operational");
-      DEBUG_HIST   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_CMDS   yLOG_note    ("can not execute until operational");
+      DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    DEBUG_CMDS   yLOG_info    ("a_command" , a_command);
@@ -1146,8 +1153,8 @@ yvikeys_srch_exec     (uchar *a_search, int *a_found)
    if (a_found != NULL)  *a_found = 0;
    /*---(defense)------------------------*/
    --rce;  if (!STATUS_operational (MODE_SEARCH)) {
-      DEBUG_HIST   yLOG_note    ("can not execute until operational");
-      DEBUG_HIST   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_CMDS   yLOG_note    ("can not execute until operational");
+      DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    DEBUG_CMDS   yLOG_info    ("a_search"  , a_search);
@@ -1233,6 +1240,8 @@ yvikeys_srch__purge     (void)
    while (x_curr != NULL) {
       /*--(prepare)------------*/
       x_next = x_curr->m_next;
+      /*--(clear in app)-------*/
+      if (s_clearer != NULL)  s_clearer (x_curr->b_pos, x_curr->x_pos, x_curr->y_pos, x_curr->z_pos);
       /*--(ground/careful)-----*/
       x_curr->m_prev = NULL;
       x_curr->m_next = NULL;
@@ -1259,23 +1268,23 @@ yvikeys_srch_cursor     (char a_move)
    char        rce         =  -10;
    char        rc          =    0;
    /*---(header)-------------------------*/
-   DEBUG_HIST   yLOG_enter   (__FUNCTION__);
-   DEBUG_HIST   yLOG_char    ("a_move"    , a_move);
+   DEBUG_CMDS   yLOG_enter   (__FUNCTION__);
+   DEBUG_CMDS   yLOG_char    ("a_move"    , a_move);
    /*---(defenses)-----------------------*/
-   DEBUG_HIST   yLOG_point   ("s_hfind"   , s_hfind);
+   DEBUG_CMDS   yLOG_point   ("s_hfind"   , s_hfind);
    --rce;  if (s_hfind == NULL) {
       s_cfind  = NULL;
       s_ifind  = -1;
-      DEBUG_HIST   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_CMDS   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   DEBUG_HIST   yLOG_point   ("s_cfind"   , s_cfind);
+   DEBUG_CMDS   yLOG_point   ("s_cfind"   , s_cfind);
    if (s_cfind == NULL) {
       s_cfind  = s_hfind;
       s_ifind  = 0;
-      DEBUG_HIST   yLOG_point   ("fixed"     , s_cfind);
+      DEBUG_CMDS   yLOG_point   ("fixed"     , s_cfind);
    }
-   DEBUG_HIST   yLOG_value   ("s_ifind"   , s_ifind);
+   DEBUG_CMDS   yLOG_value   ("s_ifind"   , s_ifind);
    /*---(handle move)--------------------*/
    switch (a_move) {
    case '[' :
@@ -1296,17 +1305,17 @@ yvikeys_srch_cursor     (char a_move)
       break;
    }
    /*---(safeties)-----------------------*/
-   DEBUG_HIST   yLOG_point   ("s_cfind"   , s_cfind);
+   DEBUG_CMDS   yLOG_point   ("s_cfind"   , s_cfind);
    if (s_cfind == NULL) {
       switch (a_move) {
       case '<' :
-         DEBUG_HIST   yLOG_note    ("bounced off head");
+         DEBUG_CMDS   yLOG_note    ("bounced off head");
          s_cfind  = s_hfind;
          s_ifind  = 0;
          rc = 1;
          break;
       case '>' :
-         DEBUG_HIST   yLOG_note    ("bounced off tail");
+         DEBUG_CMDS   yLOG_note    ("bounced off tail");
          s_cfind  = s_tfind;
          s_ifind  = s_nfind - 1;
          rc = 1;
@@ -1314,12 +1323,12 @@ yvikeys_srch_cursor     (char a_move)
       }
    }
    /*---(output)-------------------------*/
-   DEBUG_HIST   yLOG_point   ("s_cfind"   , s_cfind);
-   DEBUG_HIST   yLOG_value   ("s_ifind"   , s_ifind );
+   DEBUG_CMDS   yLOG_point   ("s_cfind"   , s_cfind);
+   DEBUG_CMDS   yLOG_value   ("s_ifind"   , s_ifind );
    /*---(move)---------------------------*/
    yVIKEYS_jump (s_cfind->b_pos, s_cfind->x_pos, s_cfind->y_pos, s_cfind->z_pos);
    /*---(complete)-----------------------*/
-   DEBUG_HIST   yLOG_exit    (__FUNCTION__);
+   DEBUG_CMDS   yLOG_exit    (__FUNCTION__);
    return rc;
 }
 
@@ -1410,12 +1419,12 @@ SRCH__unit              (char *a_question, char n)
       snprintf (yVIKEYS__unit_answer, LEN_FULL, "SRCH results     : %2d %-.40s", s_nfind, t);
    }
    else if (strcmp (a_question, "oneline"        )   == 0) {
-      DEBUG_HIST   yLOG_value   ("n"         , n);
+      DEBUG_CMDS   yLOG_value   ("n"         , n);
       x_curr = s_hfind;
       while (x_curr != NULL) {
-         DEBUG_HIST   yLOG_complex ("entry"     , "%2d %-10.10s %10p %10p %10p", c, x_curr->label, x_curr, x_curr->m_next, x_curr->m_prev);
+         DEBUG_CMDS   yLOG_complex ("entry"     , "%2d %-10.10s %10p %10p %10p", c, x_curr->label, x_curr, x_curr->m_next, x_curr->m_prev);
          if (c == n) {
-            DEBUG_HIST   yLOG_point   ("found"     , x_curr);
+            DEBUG_CMDS   yLOG_point   ("found"     , x_curr);
             break;
          }
          x_curr = x_curr->m_next;

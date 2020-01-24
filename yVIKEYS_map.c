@@ -21,22 +21,23 @@ static char*   (*s_browser  ) (char *a_regex);
 char   g_coord    = YVIKEYS_RIGHT;
 
 
-char   g_vsimple   [LEN_DESC ]   = "_ Kk jJ ~";
-char   g_vgoto     [LEN_DESC ]   = "TK tkmjb JB   azud      .";
-char   g_vpage     [LEN_DESC ]   = "   tk jb      azud AZUD  ";
-char   g_vends     [LEN_DESC ]   = "T  tkmjb  B M azud      .";
-char   g_vscroll   [LEN_DESC ]   = " K tkmjb J    azud      .";
+char   g_vsimple   [LEN_DESC ]   = "_ Kk jJ ~                 ©";
+char   g_vgoto     [LEN_DESC ]   = "TK tkmjb JB   azud      .  ";
+char   g_vpage     [LEN_DESC ]   = "   tk jb      azud AZUD    ";
+char   g_vends     [LEN_DESC ]   = "T  tkmjb  B M azud      .  ";
+char   g_vscroll   [LEN_DESC ]   = " K tkmjb J    azud      .  ";
 
-char   g_hsimple   [LEN_DESC ]   = "0 Hh lL $";
-char   g_hgoto     [LEN_DESC ]   = "SH shcle LE   azud      .";
-char   g_hpage     [LEN_DESC ]   = "   sh le      azud AZUD  ";
-char   g_hends     [LEN_DESC ]   = "S  shcle  E C azud      .";
-char   g_hscroll   [LEN_DESC ]   = " H shcle L    azud      .";
+char   g_hsimple   [LEN_DESC ]   = "0 Hh lL $                 ©";
+char   g_hgoto     [LEN_DESC ]   = "SH shcle LE   azud      .  ";
+char   g_hpage     [LEN_DESC ]   = "   sh le      azud AZUD    ";
+char   g_hends     [LEN_DESC ]   = "S  shcle  E C azud      .  ";
+char   g_hscroll   [LEN_DESC ]   = " H shcle L    azud      .  ";
 
 char   g_hword     [LEN_DESC ]   = "wbe WBE";
 
 char   g_multimap  [LEN_DESC ]   = "cgz e  dx a   ";
 char   g_multivisu [LEN_DESC ]   = "cgz e pd  a   ";
+char   g_multiwdr  [LEN_DESC ]   = "cg  e         ";
 
 char   g_multisrc  [LEN_DESC ]   = "cgz    dx   Ff";
 char   g_multiselc [LEN_DESC ]   = "cgz         Ff";
@@ -45,7 +46,7 @@ char   g_repeat    [LEN_DESC ]   = "123456789";
 char   g_search    [LEN_DESC ]   = "[<>]";
 
 
-static char *s_map_modes = ":/\\,\" vMVm' s=+-#F @qQG";
+static char *s_map_modes = ":/\\,\" vMVm' s=+-#Ff @qQG";
 
 
 
@@ -861,9 +862,12 @@ yVIKEYS_jump              (int a_buf, int a_x, int a_y, int a_z)
 {
    /*---(header)-------------------------*/
    DEBUG_MAP   yLOG_enter   (__FUNCTION__);
+   /*---(change buffer, then remap)------*/
    DEBUG_MAP   yLOG_value   ("a_buf"     , a_buf);
    yvikeys__map_move   (a_buf, &g_bmap);
    yvikeys__screen (&g_bmap);
+   yvikeys_map_reposition  ();
+   /*---(now change position)------------*/
    DEBUG_MAP   yLOG_value   ("a_x"       , a_x);
    yvikeys__map_move   (a_x, &g_xmap);
    yvikeys__screen (&g_xmap);
@@ -875,6 +879,7 @@ yVIKEYS_jump              (int a_buf, int a_x, int a_y, int a_z)
    yvikeys__screen (&g_zmap);
    yvikeys_map_reposition  ();
    yvikeys_visu_update ();
+   /*---(complete)-----------------------*/
    DEBUG_MAP   yLOG_exit    (__FUNCTION__);
    return 0;
 }
@@ -1491,6 +1496,7 @@ static  int    s_xl, s_yl;                         /* starting selection size */
 static  int    s_top, s_lef;                       /* screen top/left         */
 static  int    s_xb2, s_xe2, s_yb2, s_ye2;         /* selection for copy      */
 static  int    s_xp, s_yp;                         /* top/left for paste      */
+static  char   s_nopaste;                          /* can not fill over       */
 
 char
 yvikeys__combo_prep     (char a_clear)
@@ -1503,7 +1509,7 @@ yvikeys__combo_prep     (char a_clear)
    s_xl   = (s_xe - s_xb) + 1;
    s_yl   = (s_ye - s_yb) + 1;
    /*---(clear)--------------------------*/
-   if (a_clear == 'y')  rc = yvikeys_mreg_clear ();
+   if (a_clear == 'd')  rc = yvikeys_mreg_clear ();
    rc = yvikeys_visu_clear ();
    /*---(save top/left)------------------*/
    s_lef  = g_xmap.ubeg;
@@ -1514,6 +1520,7 @@ yvikeys__combo_prep     (char a_clear)
    s_xe2  = s_xe;
    s_ye2  = s_ye;
    /*---(paste loc default)--------------*/
+   s_nopaste = '-';
    s_xp   = s_xb;
    s_yp   = s_yb;
    /*---(complete)-----------------------*/
@@ -1540,15 +1547,43 @@ yvikeys__combo_wrap     (char a_clear)
    if (s_ye2 >= g_ymap.gmax)  s_ye2 = g_ymap.gmax;
    /*---(copy/clear)---------------------*/
    rc = yvikeys_visu_exact  (s_b, s_xb2, s_xe2, s_yb2, s_ye2, s_z);
-   if (a_clear != 'c')  rc = yvikeys_mreg_save  ();
-   if (a_clear == 'y')  rc = yvikeys_mreg_clear_combo ();
-   else                 rc = yvikeys_mreg_clear ();
-   rc = yvikeys_visu_clear ();
-   /*---(paste/move)---------------------*/
-   if (a_clear != 'c') {
+   switch (a_clear) {
+   case 'x' : case 'c' :
+      /*---(clear)-------------*/
+      rc = yvikeys_mreg_clear ();
+      rc = yvikeys_visu_clear ();
+      break;
+   case 'd' : case 'y' :
+      /*---(copy)--------------*/
+      rc = yvikeys_mreg_save  ();
+      rc = yvikeys_mreg_clear_combo ();
+      rc = yvikeys_visu_clear ();
+      /*---(paste)-------------*/
+      if (s_nopaste == '-') {
+         rc = yVIKEYS_jump (s_b, s_xp, s_yp, s_z);
+         rc = yvikeys_mreg_paste_combo ("combo");
+      }
+      break;
+   case 'a' : case '-' :
+      /*---(copy)--------------*/
+      rc = yvikeys_mreg_save  ();
+      rc = yvikeys_mreg_clear ();
+      rc = yvikeys_visu_clear ();
+      /*---(paste)-------------*/
       rc = yVIKEYS_jump (s_b, s_xp, s_yp, s_z);
       rc = yvikeys_mreg_paste_combo ("combo");
+      break;
    }
+   /*> if (a_clear != 'x')  rc = yvikeys_mreg_save  ();                               <* 
+    *> if (a_clear == 'd')  rc = yvikeys_mreg_clear_combo ();                         <* 
+    *> else                 rc = yvikeys_mreg_clear ();                               <* 
+    *> rc = yvikeys_visu_clear ();                                                    <*/
+   /*---(paste/move)---------------------*/
+   /*> if (a_clear != 'x') {                                                          <* 
+    *>    rc = yVIKEYS_jump (s_b, s_xp, s_yp, s_z);                                   <* 
+    *>    rc = yvikeys_mreg_paste_combo ("combo");                                    <* 
+    *> }                                                                              <*/
+   /*---(move to final pos)--------------*/
    g_xmap.ubeg = s_lef;
    g_ymap.ubeg = s_top;
    rc = yVIKEYS_jump (s_b, s_xb, s_yb, s_z);
@@ -1587,7 +1622,7 @@ yvikeys__combo_clear    (char a_major, char a_minor)
       return rce;
    }
    /*---(get and clear)------------------*/
-   rc = yvikeys__combo_prep ('-');
+   rc = yvikeys__combo_prep (a_major);
    /*---(full lines)---------------------*/
    switch (a_minor) {
    case 'x' : case 'X' :
@@ -1600,7 +1635,7 @@ yvikeys__combo_clear    (char a_major, char a_minor)
       break;
    }
    /*---(clear)--------------------------*/
-   rc = yvikeys__combo_wrap ('c');
+   rc = yvikeys__combo_wrap (a_major);
    /*---(move after)---------------------*/
    switch (a_minor) {
    case 'l' : case 'x' :  rc = yvikeys__map_horz (G_KEY_SPACE, 'l');   break;
@@ -1638,12 +1673,13 @@ yvikeys__combo_delete   (char a_major, char a_minor)
       return rce;
    }
    /*---(get and clear)------------------*/
-   rc = yvikeys__combo_prep ('y');
+   rc = yvikeys__combo_prep (a_major);
    /*---(horizontal)---------------------*/
    switch (a_minor) {
    case 'l' : case 'x' :
       s_xb2 = s_xe + 1;
       s_xe2 = g_xmap.gmax;
+      if (s_xb2 > s_xe2)  s_nopaste = 'y';
       if (a_minor == 'l')  break;
       s_yp  = s_yb2 = g_ymap.gmin;
       s_ye2 = g_ymap.gmax;
@@ -1651,6 +1687,7 @@ yvikeys__combo_delete   (char a_major, char a_minor)
    case 'h' : case 'X' :
       s_xb2 = g_xmap.gmin;
       s_xe2 = s_xb - 1;
+      if (s_xb2 > s_xe2)  s_nopaste = 'y';
       s_xp  = s_xe - (s_xe2 - s_xb2);
       if (a_minor == 'h')  break;
       s_yp  = s_yb2 = g_ymap.gmin;
@@ -1662,6 +1699,7 @@ yvikeys__combo_delete   (char a_major, char a_minor)
    case 'j' : case 'y' :
       s_yb2 = s_ye + 1;
       s_ye2 = g_ymap.gmax;
+      if (s_yb2 > s_ye2)  s_nopaste = 'y';
       if (a_minor == 'j')  break;
       s_xp  = s_xb2 = g_xmap.gmin;
       s_xe2 = g_xmap.gmax;
@@ -1670,14 +1708,14 @@ yvikeys__combo_delete   (char a_major, char a_minor)
       s_yp  = g_ymap.gmin + 1;
       s_ye2 = s_ye - 1;
       s_yb2 = g_ymap.gmin;
+      if (s_yb2 > s_ye2)  s_nopaste = 'y';
       if (a_minor == 'k')  break;
       s_xp  = s_xb2 = g_xmap.gmin;
       s_xe2 = g_xmap.gmax;
       break;
    }
-   /*---(zoom)---------------------------*/
    /*---(paste/move)---------------------*/
-   rc = yvikeys__combo_wrap ('y');
+   rc = yvikeys__combo_wrap (a_major);
    /*---(complete)-----------------------*/
    DEBUG_MAP    yLOG_exit    (__FUNCTION__);
    return 0;
@@ -1708,7 +1746,7 @@ yvikeys__combo_append   (char a_major, char a_minor)
       return rce;
    }
    /*---(get and clear)------------------*/
-   rc = yvikeys__combo_prep ('-');
+   rc = yvikeys__combo_prep (a_major);
    /*---(horizontal)---------------------*/
    switch (a_minor) {
    case 'l' : case 'x' :  /* insert to right, and full column version         */
@@ -1751,10 +1789,310 @@ yvikeys__combo_append   (char a_major, char a_minor)
    }
    /*---(zoom)---------------------------*/
    /*---(paste/move)---------------------*/
-   rc = yvikeys__combo_wrap ('-');
+   rc = yvikeys__combo_wrap (a_major);
    /*---(complete)-----------------------*/
    DEBUG_MAP    yLOG_exit    (__FUNCTION__);
    return 0;
+}
+
+char
+yvikeys__combo_moves   (uchar a_major, uchar a_minor)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   /*---(header)-------------------------*/
+   DEBUG_USER   yLOG_enter   (__FUNCTION__);
+   /*---(control)------------------------*/
+   --rce;  if (a_major == 'c') {
+      DEBUG_USER   yLOG_note    ("multikey control/page");
+      rc = -66;
+      /*---(horizontal)------------------*/
+      if (strchr (g_hpage, a_minor) != 0) {
+         rc = yvikeys__map_horz   (a_major, a_minor);
+      }
+      /*---(vertical)--------------------*/
+      if (strchr (g_vpage, a_minor) != 0) {
+         rc = yvikeys__map_vert   (a_major, a_minor);
+      }
+      /*---(unrecognized)----------------*/
+      if (rc < 0) {
+         DEBUG_USER   yLOG_note    ("unrecoggnized ctrl/page minor");
+         DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
+         return rce;
+      }
+      /*---(done)------------------------*/
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return rc;
+   }
+   /*---(goto family)--------------------*/
+   --rce;  if (a_major == 'g') {
+      DEBUG_USER   yLOG_note    ("multikey goto");
+      rc = -66;
+      /*---(horizontal)------------------*/
+      if (strchr (g_hgoto, a_minor) != 0) {
+         rc = yvikeys__map_horz   (a_major, a_minor);
+      }
+      /*---(vertical)--------------------*/
+      if (strchr (g_vgoto, a_minor) != 0) {
+         rc = yvikeys__map_vert   (a_major, a_minor);
+      }
+      /*---(unrecognized)----------------*/
+      if (rc < 0) {
+         DEBUG_USER   yLOG_note    ("unrecoggnized goto minor");
+         DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
+         return rce;
+      }
+      /*---(done)------------------------*/
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return rc;
+   }
+   /*---(ends family)--------------------*/
+   --rce;  if (a_major == 'e') {
+      DEBUG_USER   yLOG_note    ("multikey ends and edges");
+      /*---(combination)-----------------*/
+      if (strchr ("azud", a_minor) != 0) {
+         rc = yvikeys__map_horz   (a_major, a_minor);
+         rc = yvikeys__map_vert   (a_major, a_minor);
+      }
+      /*---(horizontal)------------------*/
+      else if (strchr (g_hends, a_minor) != 0) {
+         rc = yvikeys__map_horz   (a_major, a_minor);
+      }
+      /*---(vertical)--------------------*/
+      else if (strchr (g_vends, a_minor) != 0) {
+         rc = yvikeys__map_vert   (a_major, a_minor);
+      }
+      /*---(specialty)-------------------*/
+      else if (strchr ("xyz*!", a_minor) != 0) {
+         rc = yvikeys_visu_locking (a_minor);
+      }
+      /*---(unrecognized)----------------*/
+      else {
+         DEBUG_USER   yLOG_note    ("unrecoggnized ends minor");
+         DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
+         return rce;
+      }
+      /*---(done)------------------------*/
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return rc;
+   }
+   /*---(complete)-----------------------*/
+   DEBUG_MAP    yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+
+/*====================------------------------------------====================*/
+/*===----                        wander mode                           ----===*/
+/*====================------------------------------------====================*/
+static void  o___WANDER__________o () { return; }
+
+static int  s_wanderb   = 0;
+static int  s_wanderx   = 0;
+static int  s_wandery   = 0;
+static uchar s_wander    [LEN_RECD] = "";
+static uchar s_pre       [LEN_RECD] = "";
+static uchar s_suf       [LEN_RECD] = "";
+static uchar s_new       [LEN_RECD] = "";
+static char  s_abs      = 0;
+
+char
+yvikeys_map_wander_loc  (char *a_label)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   int         b, x, y;
+   /*---(header)-------------------------*/
+   yvikeys_map_current  (NULL, &b, &x, &y, NULL);
+   DEBUG_USER   yLOG_complex ("current"   , "%2dt, %3dx, %4dy", b, x, y);
+   str4gyges (b, x, y, 0, s_abs, a_label, YSTR_USABLE);
+   DEBUG_USER   yLOG_info    ("a_label"   , a_label);
+   return 0;
+}
+
+char
+yvikeys_map_wander_prep (void)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   int         i           =    0;
+   char        x_label     [LEN_LABEL] = "";
+   /*---(header)-------------------------*/
+   DEBUG_USER   yLOG_enter   (__FUNCTION__);
+   s_abs = 0;
+   strlcpy (s_wander, yvikeys_src_contents (), LEN_RECD);
+   for (i = 0; i < LEN_RECD; ++i) {
+      if (s_wander [i] != G_CHAR_PLACE)  continue;
+      break;
+   }
+   s_wander [i] = '\0';
+   strlcpy (s_pre   , s_wander               , LEN_RECD);
+   strlcpy (s_suf   , s_wander + i + 1       , LEN_RECD);
+   s_wander [i] = G_CHAR_PLACE;
+   yvikeys_map_wander_loc (x_label);
+   sprintf (s_new, "%s%s%s" , s_pre, x_label, s_suf);
+   yvikeys_src_wander   (s_new);
+   DEBUG_USER   yLOG_info    ("s_wander"  , s_wander);
+   yvikeys_map_current  (NULL, &s_wanderb, &s_wanderx, &s_wandery, NULL);
+   DEBUG_USER   yLOG_complex ("original"  , "%2dt, %3dx, %4dy", s_wanderb, s_wanderx, s_wandery);
+   DEBUG_USER   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char
+yvikeys_map_wander_ret  (void)
+{
+   DEBUG_USER   yLOG_complex ("original"  , "%2dt, %3dx, %4dy", s_wanderb, s_wanderx, s_wandery);
+   yVIKEYS_jump (s_wanderb, s_wanderx, s_wandery, 0);
+   return 0;
+}
+
+char
+yvikeys_map_wander_done (uchar a_key)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        x_label     [LEN_LABEL] = "";
+   DEBUG_USER   yLOG_enter   (__FUNCTION__);
+   MODE_exit  ();
+   yvikeys_map_wander_loc (x_label);
+   yvikeys_map_wander_ret ();
+   if      (a_key == '(')  sprintf (s_new, "%s(%c%s"  , s_pre, G_CHAR_PLACE, s_suf);
+   else if (a_key == ')')  sprintf (s_new, "%s%s)%c%s", s_pre, x_label, G_CHAR_PLACE, s_suf);
+   else                    sprintf (s_new, "%s%s%c%s" , s_pre, x_label, G_CHAR_PLACE, s_suf);
+   DEBUG_USER   yLOG_info    ("s_new"     , s_new);
+   if (a_key == G_CHAR_ESCAPE)  yvikeys_src_wander   (s_wander);
+   else                         yvikeys_src_wander   (s_new);
+   yvikeys_src_wander_done ();
+   DEBUG_USER   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char
+yvikeys_map_wander_and  (uchar a_math)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        x_label     [LEN_LABEL] = "";
+   char        x_math      [LEN_TERSE] = "";
+   DEBUG_USER   yLOG_enter   (__FUNCTION__);
+   yvikeys_map_wander_loc (x_label);
+   if (a_math == ':')  strlcpy (x_math, "..", LEN_TERSE);
+   else                sprintf (x_math, "%c", a_math);
+   sprintf (s_new, "%s%s%s%s%s", s_pre, x_label, x_math, x_label, s_suf);
+   DEBUG_USER   yLOG_info    ("s_new"     , s_new);
+   yvikeys_src_wander   (s_new);
+   yvikeys_src_wander_done ();
+   sprintf (s_pre, "%s%s%s", s_pre, x_label, x_math);
+   /*> yvikeys_src_wander_cpos (strlen (x_label) + strlen (x_math));                  <*/
+   DEBUG_USER   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char         /*-> process keys for wander mode -------[ ------ [ge.FE0.223.65]*/ /*-[05.0000.102.!]-*/ /*-[--.---.---.--]-*/
+yvikeys_map_wander      (uchar a_major, uchar a_minor)
+{
+   /*---(design notes)-------------------*/
+   /*
+    *   this should allow keyboard selection of cells and ranges for formulas
+    *   much like excel does
+    */
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   char        x_grid      =    0;
+   char        t           [5];
+   char        post = ' ';
+   char        x_label     [LEN_LABEL] = "";
+   char        x_new       [LEN_RECD ] = "";
+   char       *x_math      = "+-*/%#:";
+   int         x_cpos      = 0;
+   /*---(header)-------------------------*/
+   DEBUG_USER   yLOG_enter   (__FUNCTION__);
+   DEBUG_USER   yLOG_char    ("a_major"   , a_major);
+   DEBUG_USER   yLOG_char    ("a_minor"   , a_minor);
+   /*---(defenses)-----------------------*/
+   DEBUG_USER   yLOG_char    ("mode"      , MODE_curr ());
+   --rce;  if (MODE_not (UMOD_WANDER )) {
+      DEBUG_USER   yLOG_note    ("not the correct mode");
+      MODE_exit  ();
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return rce;
+   }
+   x_cpos = yvikeys_src_cpos ();
+   yvikeys_src_wander_pos ();
+   /*---(mode changes)-------------------*/
+   if (a_minor == G_KEY_RETURN) {
+      yvikeys_map_wander_done ('¦');
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
+   if (a_minor == G_KEY_ESCAPE) {
+      yvikeys_map_wander_done ('¥');
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
+   /*---(space)--------------------------*/
+   if (a_minor == G_KEY_SPACE ) {
+      DEBUG_USER   yLOG_note    ("space, nothing to do");
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
+   /*---(single key)---------------------*/
+   DEBUG_USER   yLOG_note    ("review single keys");
+   --rce;
+   if (a_major == ' ') {
+      DEBUG_USER   yLOG_note    ("no or empty major");
+      /*---(repeats)---------------------*/
+      if (strchr (g_repeat, a_minor) != 0) {
+         DEBUG_USER   yLOG_note    ("repeating");
+         MODE_enter  (UMOD_REPEAT);
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         return a_minor;
+      }
+      /*---(multikey)--------------------*/
+      if (strchr (g_multiwdr , a_minor) != 0) {
+         DEBUG_USER   yLOG_note    ("prefix of multimap keystring");
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         return a_minor;
+      }
+      /*---(normal)----------------------*/
+      yvikeys_src_wander_pos ();
+      if (strchr (g_hsimple, a_minor) != 0) {
+         rc = yvikeys__map_horz   (a_major, a_minor);
+      }
+      else if (strchr (g_vsimple, a_minor) != 0) {
+         rc = yvikeys__map_vert   (a_major, a_minor);
+      }
+      /*---(new operation)---------------*/
+      else if (strchr (x_math, a_minor) != 0) {
+         rc = yvikeys_map_wander_and  (a_minor);
+      }
+      else if (strchr ("()", a_minor) != NULL) {
+         rc = yvikeys_map_wander_done (a_minor);
+      }
+      /*---(absolute markers)------------*/
+      else if (a_minor == '.') {
+         s_abs = 0;
+      }
+      else if (a_minor == '\'') {
+         s_abs += 2;
+         if (s_abs > 14)  s_abs = 0;
+      }
+      /*---(return to origin)------------*/
+      else if (a_minor == G_KEY_BTICK) {
+         yvikeys_map_wander_ret ();
+      }
+      /*---(done)------------------------*/
+   } else {
+      rc = yvikeys__combo_moves (a_major, a_minor);
+   }
+   /*---(wrap-up)------------------------*/
+   yvikeys_map_wander_loc (x_label);
+   sprintf (s_new, "%s%s%s", s_pre, x_label, s_suf);
+   DEBUG_USER   yLOG_info    ("s_new"     , s_new);
+   yvikeys_src_wander   (s_new);
+   yvikeys_src_wander_cpos (strlen (s_pre));
+   /*---(complete)-----------------------*/
+   DEBUG_USER   yLOG_exit    (__FUNCTION__);
+   return  0;
 }
 
 
@@ -1774,8 +2112,8 @@ yVIKEYS_map_refresh     (void)
       s_mapper (YVIKEYS_UPDATE);
    }
    /*---(refresh position)---------------*/
-   yvikeys__map_vert (' ', 'r');
-   yvikeys__map_horz (' ', 'r');
+   yvikeys__map_vert (' ', '©');
+   yvikeys__map_horz (' ', '©');
    clear     ();
    /*---(complete)-----------------------*/
    return 0;
@@ -1822,9 +2160,10 @@ yvikeys__map_mode_chg   (char a_minor)
        *> DEBUG_USER   yLOG_exit    (__FUNCTION__);                                   <* 
        *> rc = a_minor;                                                               <*/
       break;
-   case 'F'      :
+   case 'F'      : case 'f'      :
       DEBUG_USER   yLOG_note    ("calling custom format mode");
-      rc = MODE_enter  (XMOD_FORMAT  );
+      MODE_enter  (XMOD_FORMAT  );
+      rc = a_minor;
       break;
    }
    if (rc >= 0) {
@@ -2053,46 +2392,81 @@ yvikeys_map_mode        (char a_major, char a_minor)
       DEBUG_USER   yLOG_note    ("no matches found");
    }
    /*---(page family)--------------------*/
-   --rce;  if (a_major == 'c') {
-      DEBUG_USER   yLOG_note    ("multikey control/page");
-      rc = -66;
-      /*---(horizontal)------------------*/
-      if (strchr (g_hpage, a_minor) != 0) {
-         rc = yvikeys__map_horz   (a_major, a_minor);
-      }
-      /*---(vertical)--------------------*/
-      if (strchr (g_vpage, a_minor) != 0) {
-         rc = yvikeys__map_vert   (a_major, a_minor);
-      }
-      /*---(unrecognized)----------------*/
-      if (rc < 0) {
-         DEBUG_USER   yLOG_note    ("unrecoggnized ctrl/page minor");
-         DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
-         return rce;
-      }
-      /*---(done)------------------------*/
-      DEBUG_USER   yLOG_exit    (__FUNCTION__);
-      return rc;
-   }
-   /*---(goto family)--------------------*/
-   --rce;  if (a_major == 'g') {
-      DEBUG_USER   yLOG_note    ("multikey goto");
-      rc = -66;
-      /*---(horizontal)------------------*/
-      if (strchr (g_hgoto, a_minor) != 0) {
-         rc = yvikeys__map_horz   (a_major, a_minor);
-      }
-      /*---(vertical)--------------------*/
-      if (strchr (g_vgoto, a_minor) != 0) {
-         rc = yvikeys__map_vert   (a_major, a_minor);
-      }
-      /*---(unrecognized)----------------*/
-      if (rc < 0) {
-         DEBUG_USER   yLOG_note    ("unrecoggnized goto minor");
-         DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
-         return rce;
-      }
-      /*---(done)------------------------*/
+   else if (strchr ("cge", a_major) != NULL) {
+      rc = yvikeys__combo_moves (a_major, a_minor);
+      /*> --rce;  if (a_major == 'c') {                                                  <* 
+       *>    DEBUG_USER   yLOG_note    ("multikey control/page");                        <* 
+       *>    rc = -66;                                                                   <* 
+       *>    /+---(horizontal)------------------+/                                       <* 
+       *>    if (strchr (g_hpage, a_minor) != 0) {                                       <* 
+       *>       rc = yvikeys__map_horz   (a_major, a_minor);                             <* 
+       *>    }                                                                           <* 
+       *>    /+---(vertical)--------------------+/                                       <* 
+       *>    if (strchr (g_vpage, a_minor) != 0) {                                       <* 
+       *>       rc = yvikeys__map_vert   (a_major, a_minor);                             <* 
+       *>    }                                                                           <* 
+       *>    /+---(unrecognized)----------------+/                                       <* 
+       *>    if (rc < 0) {                                                               <* 
+       *>       DEBUG_USER   yLOG_note    ("unrecoggnized ctrl/page minor");             <* 
+       *>       DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);                           <* 
+       *>       return rce;                                                              <* 
+       *>    }                                                                           <* 
+       *>    /+---(done)------------------------+/                                       <* 
+       *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                   <* 
+       *>    return rc;                                                                  <* 
+       *> }                                                                              <*/
+      /*---(goto family)--------------------*/
+      /*> --rce;  if (a_major == 'g') {                                                  <* 
+       *>    DEBUG_USER   yLOG_note    ("multikey goto");                                <* 
+       *>    rc = -66;                                                                   <* 
+       *>    /+---(horizontal)------------------+/                                       <* 
+       *>    if (strchr (g_hgoto, a_minor) != 0) {                                       <* 
+       *>       rc = yvikeys__map_horz   (a_major, a_minor);                             <* 
+       *>    }                                                                           <* 
+       *>    /+---(vertical)--------------------+/                                       <* 
+       *>    if (strchr (g_vgoto, a_minor) != 0) {                                       <* 
+       *>       rc = yvikeys__map_vert   (a_major, a_minor);                             <* 
+       *>    }                                                                           <* 
+       *>    /+---(unrecognized)----------------+/                                       <* 
+       *>    if (rc < 0) {                                                               <* 
+       *>       DEBUG_USER   yLOG_note    ("unrecoggnized goto minor");                  <* 
+       *>       DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);                           <* 
+       *>       return rce;                                                              <* 
+       *>    }                                                                           <* 
+       *>    /+---(done)------------------------+/                                       <* 
+       *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                   <* 
+       *>    return rc;                                                                  <* 
+       *> }                                                                              <*/
+      /*> /+---(ends family)--------------------+/                                       <* 
+       *> --rce;  if (a_major == 'e') {                                                  <* 
+       *>    DEBUG_USER   yLOG_note    ("multikey ends and edges");                      <* 
+       *>    /+---(combination)-----------------+/                                       <* 
+       *>    if (strchr ("azud", a_minor) != 0) {                                        <* 
+       *>       rc = yvikeys__map_horz   (a_major, a_minor);                             <* 
+       *>       rc = yvikeys__map_vert   (a_major, a_minor);                             <* 
+       *>    }                                                                           <* 
+       *>    /+---(horizontal)------------------+/                                       <* 
+       *>    else if (strchr (g_hends, a_minor) != 0) {                                  <* 
+       *>       rc = yvikeys__map_horz   (a_major, a_minor);                             <* 
+       *>    }                                                                           <* 
+       *>    /+---(vertical)--------------------+/                                       <* 
+       *>    else if (strchr (g_vends, a_minor) != 0) {                                  <* 
+       *>       rc = yvikeys__map_vert   (a_major, a_minor);                             <* 
+       *>    }                                                                           <* 
+       *>    /+---(specialty)-------------------+/                                       <* 
+       *>    else if (strchr ("xyz*!", a_minor) != 0) {                                  <* 
+       *>       rc = yvikeys_visu_locking (a_minor);                                     <* 
+       *>    }                                                                           <* 
+       *>    /+---(unrecognized)----------------+/                                       <* 
+       *>    else {                                                                      <* 
+       *>       DEBUG_USER   yLOG_note    ("unrecoggnized ends minor");                  <* 
+       *>       DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);                           <* 
+       *>       return rce;                                                              <* 
+       *>    }                                                                           <* 
+       *>    /+---(done)------------------------+/                                       <* 
+       *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                   <* 
+       *>    return rc;                                                                  <* 
+       *> }                                                                              <*/
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return rc;
    }
@@ -2111,36 +2485,6 @@ yvikeys_map_mode        (char a_major, char a_minor)
       /*---(unrecognized)----------------*/
       if (rc < 0) {
          DEBUG_USER   yLOG_note    ("unrecoggnized scroll minor");
-         DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
-         return rce;
-      }
-      /*---(done)------------------------*/
-      DEBUG_USER   yLOG_exit    (__FUNCTION__);
-      return rc;
-   }
-   /*---(ends family)--------------------*/
-   --rce;  if (a_major == 'e') {
-      DEBUG_USER   yLOG_note    ("multikey ends and edges");
-      /*---(combination)-----------------*/
-      if (strchr ("azud", a_minor) != 0) {
-         rc = yvikeys__map_horz   (a_major, a_minor);
-         rc = yvikeys__map_vert   (a_major, a_minor);
-      }
-      /*---(horizontal)------------------*/
-      else if (strchr (g_hends, a_minor) != 0) {
-         rc = yvikeys__map_horz   (a_major, a_minor);
-      }
-      /*---(vertical)--------------------*/
-      else if (strchr (g_vends, a_minor) != 0) {
-         rc = yvikeys__map_vert   (a_major, a_minor);
-      }
-      /*---(specialty)-------------------*/
-      else if (strchr ("xyz*!", a_minor) != 0) {
-         rc = yvikeys_visu_locking (a_minor);
-      }
-      /*---(unrecognized)----------------*/
-      else {
-         DEBUG_USER   yLOG_note    ("unrecoggnized ends minor");
          DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
          return rce;
       }
@@ -2180,104 +2524,9 @@ yvikeys_map_mode        (char a_major, char a_minor)
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return rc;
    }
-   /*---(scroll family)------------------*/
-   /*> if (a_major == 'z') {                                                          <* 
-    *>    rc = KEYS_gz_family  (a_major, a_minor);                                    <* 
-    *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                   <* 
-    *>    return 0;                                                                   <* 
-    *> }                                                                              <*/
    /*---(complete)------------------------------*/
    DEBUG_USER   yLOG_exit    (__FUNCTION__);
    return rc;
-}
-
-char         /*-> process keys for wander mode -------[ ------ [ge.FE0.223.65]*/ /*-[05.0000.102.!]-*/ /*-[--.---.---.--]-*/
-WANDER_smode            (int a_major, int a_minor)
-{
-   /*---(design notes)-------------------*/
-   /*
-    *   this should allow keyboard selection of cells and ranges for formulas
-    *   much like excel does
-    */
-   /*---(locals)-----------+-----+-----+-*/
-   char        rce         =  -10;
-   char        rc          =    0;
-   char        x_grid      =    0;
-   char        t           [5];
-   char    post = ' ';
-   /*---(header)-------------------------*/
-   DEBUG_USER   yLOG_enter   (__FUNCTION__);
-   DEBUG_USER   yLOG_char    ("a_major"   , a_major);
-   DEBUG_USER   yLOG_char    ("a_minor"   , a_minor);
-   /*---(defenses)-----------------------*/
-   DEBUG_USER   yLOG_char    ("mode"      , MODE_curr ());
-   --rce;  if (MODE_not (UMOD_WANDER )) {
-      DEBUG_USER   yLOG_note    ("not the correct mode");
-      MODE_exit  ();
-      DEBUG_USER   yLOG_exit    (__FUNCTION__);
-      return rce;
-   }
-   /*---(space)--------------------------*/
-   if (a_minor == G_KEY_SPACE ) {
-      DEBUG_USER   yLOG_note    ("space, nothing to do");
-      DEBUG_USER   yLOG_exit    (__FUNCTION__);
-      return 0;
-   }
-   /*---(check for control keys)---------*/
-   /*> switch (a_minor) {                                                             <* 
-    *> case  ',' :                                                                    <* 
-    *> case  ')' : post = a_minor;                                                    <* 
-    *> case  G_KEY_RETURN  :                                                          <* 
-    *> case  G_KEY_ESCAPE  : yvikeys_visu_clear ();                                           <* 
-    *>                       LOC_ref (CTAB, CCOL, CROW, 0, wref);                     <* 
-    *>                       CTAB = wtab;                                             <* 
-    *>                       CCOL = wcol;                                             <* 
-    *>                       CROW = wrow;                                             <* 
-    *>                       my.cpos = wpos;                                          <* 
-    *>                       strcpy (g_contents, wsave);                              <* 
-    *>                       if (strcmp (wref2, "") != 0) {                           <* 
-    *>                          strcat (g_contents, wref2);                           <* 
-    *>                          strcat (g_contents, ":");                             <* 
-    *>                       }                                                        <* 
-    *>                       strcat (g_contents, wref);                               <* 
-    *>                       my.npos = strlen(g_contents);                            <* 
-    *>                       if (post != ' ') {                                       <* 
-    *>                          g_contents[my.npos]   = post;                         <* 
-    *>                          g_contents[++my.npos] = '\0';                         <* 
-    *>                       }                                                        <* 
-    *>                       my.cpos = my.npos;                                       <* 
-    *>                       yVIKEYS_mode_exit ();                                    <* 
-    *>                       return  0;   /+ escape -- back to source mode +/         <* 
-    *> }                                                                              <*/
-   /*---(basic movement)-----------*/
-   /*> switch (a_minor) {                                                              <* 
-    *> case '_'      : KEYS_row(" _");    break;                                      <* 
-    *> case 'K'      : KEYS_row(" K");    break;                                      <* 
-    *> case 'k'      : KEYS_row(" k");    break;                                      <* 
-    *> case 'j'      : KEYS_row(" j");    break;                                      <* 
-    *> case 'J'      : KEYS_row(" J");    break;                                      <* 
-    *> case 'G'      : KEYS_row(" G");    break;                                      <* 
-    *> case '{'      : KEYS_row(" {");    break;                                      <* 
-    *> case '}'      : KEYS_row(" }");    break;                                      <* 
-    *> case K_CTRL_B : KEYS_row("^b"); clear(); break;                                <* 
-    *> case K_CTRL_F : KEYS_row("^f"); clear(); break;                                <* 
-    *> case '0'      : KEYS_col (" 0");     break;                                    <* 
-    *> case 'H'      : KEYS_col (" H");     break;                                    <* 
-    *> case 'h'      : KEYS_col (" h");     break;                                    <* 
-    *> case 'l'      : KEYS_col (" l");     break;                                    <* 
-    *> case 'L'      : KEYS_col (" L");     break;                                    <* 
-    *> case '$'      : KEYS_col (" $");     break;                                    <* 
-    *> case 'b'      : KEYS_col ("es");     break;                                    <* 
-    *> case 'e'      : KEYS_col ("ee");     break;                                    <* 
-    *> case 'c'      : VISU_col();          break;                                    <* 
-    *> case 'r'      : VISU_row();          break;                                    <* 
-    *> }                                                                              <*/
-   /*> if (a_minor == ':') {                                                          <* 
-    *>    LOC_ref    (CTAB, CCOL, CROW, 0, wref2);                                    <* 
-    *>    VISU_start (CTAB, CCOL, CROW, VISU_FROM);                                   <* 
-    *> }                                                                              <*/
-   /*---(complete)-----------------------*/
-   return  0;
 }
 
 char       /*----: give current position info --------------------------------*/

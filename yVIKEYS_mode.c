@@ -82,7 +82,7 @@ static tMODE_INFO  s_modes [MAX_MODES] = {
    { SMOD_MREG    , 's', 'y', "reg", "register"  , 1, ""  , "5f--- p i ----- n 1---- r 0M-------- d o", "----- - - ----- - ----- - ---------- - -", "selecting specific registers for data movement"     , "regs=\"a-zA-Z-+0  pull=yYxXdD  -/+=vVcCtTsSfF  push=pPrRmMaAiIoObB  mtce=#?!g"           ,    0 },
    { UMOD_MARK    , 'u', 'y', "mrk", "mark"      , 1, ""  , "5f:-- p i ----- n ----- r 0M-------- d o", "----- - - ----- - ----- - ---------- - -", "object and location marking"                        , "names=a-zA-Z0-9  actions=#!?_  special='[()]  wander=@  range=<>*"                       ,    0 },
    { SMOD_MACRO   , 's', 'y', "mac", "macro"     , 1, ""  , "5f:-- p i ----- n ----- r 0--------- d o", "----- - - ----- - ----- - ---------- - -", "macro recording, execution, and maintenance"        , "run=a-z"                                                                                 ,    0 },
-   { XMOD_FORMAT  , 'x', 'y', "frm", "format"    , 1, ""  , "5---- p i ----- n ----- r 0--------- d o", "----- - - ----- - ----- - ---------- - -", "content formatting options"                         , ""                                                                                        ,    0 },
+   { XMOD_FORMAT  , 'x', 'y', "frm", "format"    , 1, ""  , "5---- p i ----- n ----- r 0--------- d o", "----- - - ----- - ----- - ---------- - -", "content formatting options"                         , "w=mnNwWhHlL  a=<|>[^]{}:' f=iIfeE ,cCaA$sS; oOxXbBzZrR d=0123456789  f=-=_.+!/@qQ~#"     ,    0 },
    { XMOD_UNITS   , 'x', 'y', "unt", "units"     , 1, ""  , "5---- p i ----- n ----- r 0--------- d o", "----- - - ----- - ----- - ---------- - -", "content formatting options"                         , "off -, (+24) Y Z E P T G M K H D . d c m u n p f a z y (-24)"                            ,    0 },
    { XMOD_OBJECT  , 'x', 'y', "obj", "object"    , 1, ""  , "5---- p i ----- n ----- r 0--------- d o", "----- - - ----- - ----- - ---------- - -", "object formatting and sizing options"               , ""                                                                                        ,    0 },
    { UMOD_MAP_UNDO, 's', 'y', "mun", "map-undo"  , 1, ""  , "5---- p i ----- n 1---- r 0--------- d o", "----- - - ----- - ----- - ---------- - -", "map level undo and redo"                            , ""                                                                                        ,    0 },
@@ -127,9 +127,11 @@ s_modechanges  [MAX_MODES][LEN_TERSE] = {
    { MODE_PROGRESS , UMOD_REPEAT   , MODE_COMMAND  , 0             , 0             , 0             , 0             , 0             , 0             , 0             , 0             },
    { MODE_OMNI     , UMOD_REPEAT   , 0             , 0             , 0             , 0             , 0             , 0             , 0             , 0             , 0             },
    /*---(source-related)-------------*/
-   { MODE_SOURCE   , UMOD_REPEAT   , UMOD_SRC_INPT , UMOD_SRC_REPL , UMOD_SRC_UNDO , SMOD_SREG     , UMOD_WANDER   , SMOD_MACRO    , 0             , 0             , 0             },
+   { MODE_SOURCE   , UMOD_REPEAT   , UMOD_SRC_INPT , UMOD_SRC_REPL , UMOD_SRC_UNDO , SMOD_SREG     , SMOD_MACRO    , 0             , 0             , 0             , 0             },
    { MODE_COMMAND  , UMOD_REPEAT   , UMOD_SRC_INPT , UMOD_SRC_REPL , UMOD_SRC_UNDO , SMOD_SREG     , UMOD_HISTORY  , 0             , 0             , 0             , 0             },
    { MODE_SEARCH   , UMOD_REPEAT   , UMOD_SRC_INPT , UMOD_SRC_REPL , UMOD_SRC_UNDO , SMOD_SREG     , UMOD_HISTORY  , 0             , 0             , 0             , 0             },
+   { UMOD_SRC_INPT , UMOD_WANDER   , 0             , 0             , 0             , 0             , 0             , 0             , 0             , 0             , 0             },
+   { UMOD_WANDER   , UMOD_REPEAT   , 0             , 0             , 0             , 0             , 0             , 0             , 0             , 0             , 0             },
    /*---(other)----------------------*/
    { XMOD_FORMAT   , XMOD_UNITS    , 0             , 0             , 0             , 0             , 0             , 0             , 0             , 0             , 0             },
    /*---(done)-----------------------*/
@@ -1132,6 +1134,7 @@ FORMAT_xmode            (int a_major, int a_minor)
    DEBUG_USER   yLOG_point   ("formatter" , s_formatter);
    if (s_formatter != NULL)  rc = s_formatter (a_major, a_minor);
    else                      MODE_exit   ();
+   if (a_major == 'f')       MODE_exit   ();
    /*---(units)--------------------------*/
    if (a_minor == 'F') {
       MODE_enter (XMOD_UNITS);

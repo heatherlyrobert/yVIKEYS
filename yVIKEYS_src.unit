@@ -1107,7 +1107,6 @@ SCRP          v21  (SRC   ) verify delete, clear, and replace multi-keys      
      exec     v21  handle keys                          yVIKEYS_main_string         "rµ+"                                                                   i_equal     0                                                                                                    
      get      v21  check source content                 SOURCE__unit                "contents"     , ' '                                                    s_equal     SRC contents     : 132:chupacabras²are²a²very²cre©py²legend²of²:                                     
 
-
    COND       v21  test with repeat replace                                           - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((02.005))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      exec     v21  handle keys                          yVIKEYS_main_string         "7r-"                                                                   i_equal     0                                                                                                    
      get      v21  check source content                 SOURCE__unit                "contents"     , ' '                                                    s_equal     SRC contents     : 132:chupacabras²are²a²very²cre-------end²of²:                                     

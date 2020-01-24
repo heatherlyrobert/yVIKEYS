@@ -124,6 +124,8 @@ static char     s_fulldesc  [LEN_DESC ]   = "(not set)";
 static char    *s_valid     = "csLDSif-";
 
 
+char    (*s_prepper) (void);
+
 
 
 
@@ -219,6 +221,8 @@ yvikeys_file_init               (void)
    rc = yPARSE_handler ('·'          , "source"    , 0.1, "OSO---------", -1, NULL          , yvikeys_file_prog_writer   , "------------" , ""                          , "source program versioning" );
    rc = yPARSE_handler ('·'          , "written"   , 0.2, "O-----------", -1, NULL          , yvikeys_file_time_writer   , "------------" , ""                          , "data file save timestamp"  );
    rc = yPARSE_handler ('·'          , "version"   , 0.3, "cSO---------", -1, NULL          , yvikeys_file_vers_writer   , "------------" , ""                          , "data file versioning"      );
+   /*---(pointers)-----------------------*/
+   s_prepper = NULL;
    /*---(update status)------------------*/
    STATUS_init_set   (FMOD_FILE);
    /*---(complete)-----------------------*/
@@ -227,7 +231,7 @@ yvikeys_file_init               (void)
 }
 
 char
-yVIKEYS_whoami          (char *a_prog, char *a_ext, char *a_vernum, char *a_vertxt, char *a_full, char *a_desc)
+yVIKEYS_whoami          (char *a_prog, char *a_ext, char *a_vernum, char *a_vertxt, char *a_full, char *a_desc, void *a_prepper)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -282,26 +286,11 @@ yVIKEYS_whoami          (char *a_prog, char *a_ext, char *a_vernum, char *a_vert
       strlcpy (s_fulldesc, a_desc, LEN_DESC);
       DEBUG_PROG   yLOG_info    ("s_fulldesc", s_fulldesc);
    }
+   /*---(writer)-------------------------*/
+   DEBUG_PROG   yLOG_point   ("a_prepper" , a_prepper);
+   if (a_prepper != NULL)   s_prepper = a_prepper;
    /*---(update stage)-------------------*/
    STATUS_conf_set (FMOD_FILE, '1');
-   /*---(add commands)-------------------*/
-   /*> rc = yVIKEYS_cmds_addX (YVIKEYS_M_FILE  , "cd"          , ""    , "a"    , yvikeys_file_loc             , "set the default directory for file reading and writing"      );   <* 
-    *> rc = yVIKEYS_cmds_addX (YVIKEYS_M_FILE  , "file"        , ""    , "a"    , yvikeys_file_name            , "rename a file for reading and writing"                       );   <* 
-    *> rc = yVIKEYS_cmds_addX (YVIKEYS_M_FILE  , "browse"      , ""    , "a"    , yvikeys_file_browse          , "find existing file name for reading and writing"             );   <* 
-    *> rc = yVIKEYS_cmds_addX (YVIKEYS_M_FILE  , "control"     , ""    , ""     , yvikeys_vers_control         , "turn version control ON for current file"                    );   <* 
-    *> rc = yVIKEYS_cmds_addX (YVIKEYS_M_FILE  , "nocontrol"   , ""    , ""     , yvikeys_vers_nocontrol       , "turn version control OFF for current file"                   );   <* 
-    *> rc = yVIKEYS_cmds_addX (YVIKEYS_M_FILE  , "vernum"      , ""    , "s"    , yvikeys_vers_version         , "set a specific file version ([0-9A-Z].[0-9A-Z][a-z])"        );   <* 
-    *> rc = yVIKEYS_cmds_addX (YVIKEYS_M_FILE  , "vertxt"      , ""    , "a"    , yvikeys_vers_vertxt          , "set a file version description"                              );   <* 
-    *> rc = yVIKEYS_cmds_addX (YVIKEYS_M_FILE  , "major"       , ""    , ""     , yvikeys_vers_bump_major      , "increment the version number by a MAJOR version"             );   <* 
-    *> rc = yVIKEYS_cmds_addX (YVIKEYS_M_FILE  , "minor"       , ""    , ""     , yvikeys_vers_bump_minor      , "increment the version number by a MINOR version"             );   <* 
-    *> rc = yVIKEYS_cmds_addX (YVIKEYS_M_FILE  , "bump"        , ""    , ""     , yvikeys_vers_bump_inc        , "increment the version number by a INC version"               );   <* 
-    *> rc = yVIKEYS_cmds_addX (YVIKEYS_M_FILE  , "write"       , "w"   , ""     , yvikeys_file_writer          , "write/update the current file"                               );   <* 
-    *> rc = yVIKEYS_cmds_addX (YVIKEYS_M_FILE  , "writeas"     , "was" , "s"    , yvikeys_file_writeas         , "write/update the current file"                               );   <* 
-    *> rc = yVIKEYS_cmds_addX (YVIKEYS_M_FILE  , "read"        , ""    , ""     , yvikeys_file_reader          , "clear existing contents and open/read new file"              );   <* 
-    *> rc = yVIKEYS_cmds_addX (YVIKEYS_M_FILE  , "edit"        , "e"   , ""     , yvikeys_file_reader          , "clear existing contents and open/read new file"              );   <*/
-   /*---(status options)-----------------*/
-   /*> rc = yVIKEYS_view_optionX (YVIKEYS_STATUS, "file"   , yvikeys_file_status  , "current fully qualified file name and default location");   <* 
-    *> rc = yVIKEYS_view_optionX (YVIKEYS_STATUS, "version", yvikeys_vers_status  , "current file verion control status, number and text");      <*/
    /*---(default file name)--------------*/
    yvikeys_file_name (NULL);
    /*---(complete)-----------------------*/
@@ -1458,45 +1447,6 @@ yvikeys_file_writeas    (char *a_name)
 /*====================------------------------------------====================*/
 static void  o___INPUT___________o () { return; }
 
-char         /*-> file reading driver ----------------[ leaf   [ge.632.025.30]*/ /*-[01.0001.013.!]-*/ /*-[--.---.---.--]-*/
-INPT__read         (void)
-{
-   /*---(locals)-----------+-----------+-*/
-   char        rce         =  -10;               /* return code for errors    */
-   int         x_len       =    0;               /* string length             */
-   /*---(read next good one)-------------*/
-   while (1) {
-      /*---(read next)-------------------*/
-      ++myVIKEYS.f_lines;
-      DEBUG_INPT  yLOG_value   ("line"      , myVIKEYS.f_lines);
-      fgets (myVIKEYS.f_recd, LEN_RECD, s_file);
-      /*---(check eof)-------------------*/
-      if (feof (s_file))  {
-         DEBUG_INPT  yLOG_note    ("end of file reached");
-         return rce;
-      }
-      /*---(check length)----------------*/
-      x_len = strlen (myVIKEYS.f_recd);
-      if (x_len <= 0)  {
-         DEBUG_INPT  yLOG_note    ("record empty");
-         continue;
-      }
-      /*---(fix)-------------------------*/
-      myVIKEYS.f_recd [--x_len] = '\0';
-      DEBUG_INPT  yLOG_value   ("length"    , x_len);
-      DEBUG_INPT  yLOG_info    ("fixed"     , myVIKEYS.f_recd);
-      /*---(filter)----------------------*/
-      if (strchr ("# ", myVIKEYS.f_recd [0]) != NULL) {
-         DEBUG_INPT  yLOG_note    ("comment/empty line, skipping");
-         continue;
-      }
-      /*---(done)------------------------*/
-      break;
-   }
-   /*---(complete)-----------------------*/
-   return 0;
-}
-
 char         /*-> file reading driver ----------------[ leaf   [ge.851.163.30]*/ /*-[01.0000.013.!]-*/ /*-[--.---.---.--]-*/
 INPT__parse              (void)
 {
@@ -1552,6 +1502,14 @@ yvikeys_file_reader     (void)
       DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
+   /*---(run prepper)--------------------*/
+   DEBUG_INPT  yLOG_point   ("s_prepper" , s_prepper);
+   if (s_prepper != NULL)  rc = s_prepper ();
+   DEBUG_OUTP   yLOG_value   ("prep"      , rc);
+   --rce;  if (rc < 0) {
+      DEBUG_INPT  yLOG_exit    (__FUNCTION__);
+      return rce;
+   }
    /*---(open file)----------------------*/
    DEBUG_INPT  yLOG_info    ("f_title"   , myVIKEYS.f_title);
    rc = yPARSE_open_in (myVIKEYS.f_title);
@@ -1577,35 +1535,6 @@ yvikeys_file_reader     (void)
    /*---(complete)-----------------------*/
    DEBUG_OUTP  yLOG_exit    (__FUNCTION__);
    return 0;
-}
-
-char
-INPT__unit_reader       (char a_abbr)
-{
-   /*---(locals)-----------+-----+-----+-*/
-   char        rce         =  -10;
-   char        rc          =    0;
-   int         i           =    0;
-   int         n           =   -1;
-   int         x_index     =   -1;
-   /*---(find entry)---------------------*/
-   for (i = 0; i < MAX_SECTION; ++i) {
-      if (s_sections [i].abbr == 0)       break;
-      if (s_sections [i].abbr != a_abbr)  continue;
-      n = i;
-      break;
-   }
-   --rce;  if (n < 0)     return rce;
-   /*---(parse the record)---------------*/
-   rc = INPT__parse ();
-   --rce;  if (rc < 0)    return  rce;
-   /*---(use the reader)-----------------*/
-   DEBUG_INPT  yLOG_point   ("reader"    , s_sections [n].reader);
-   if (s_sections [n].reader != NULL) {
-      rc = s_sections [n].reader (myVIKEYS.f_vers, s_fields [2], s_fields [3], s_fields [4], s_fields [5], s_fields [6], s_fields [7], s_fields [8], s_fields [9], s_fields [10]);
-   }
-   /*---(complete)-----------------------*/
-   return rc;
 }
 
 char

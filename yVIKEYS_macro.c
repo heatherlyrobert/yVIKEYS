@@ -1969,9 +1969,10 @@ yvikeys_macro_reader    (void)
    /*---(save)---------------------------*/
    DEBUG_INPT   yLOG_note    ("saving values");
    yvikeys_macro__clear (x_abbr);
-   strlcat (x_keys, "³"   , LEN_RECD );
+   if (x_keys [strlen (x_keys) - 1] != '³')   strlcat (x_keys, "³"   , LEN_RECD );
    s_macros [n].keys = strdup (x_keys);
    s_macros [n].len  = strlen (x_keys);
+   if (s_saver != NULL)  s_saver (x_abbr, x_keys);
    /*---(complete)-----------------------*/
    DEBUG_INPT  yLOG_exit    (__FUNCTION__);
    return 1;

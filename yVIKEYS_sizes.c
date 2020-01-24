@@ -342,6 +342,12 @@ yvikeys_sizes_horz_link  (void)
                   p->left = a->left + a->wide;
                   if (p->on == 'y')  p->wide  = s_full_wide - p->left;
                   else               p->wide  = 0;
+                  /*---(status size)-----*/
+                  if (p->abbr == YVIKEYS_STATUS) {
+                     if      (p->wide <= 40)   myVIKEYS.status_w = 'S';
+                     else if (p->wide <= 65)   myVIKEYS.status_w = 'M';
+                     else                      myVIKEYS.status_w = 'L';
+                  }
                }
                /*---(leftside is variable)-----------*/
                /*   [--------------full]----------------]               */
@@ -1062,6 +1068,8 @@ yVIKEYS_resize          (cint a_wide, cint a_tall, cint a_alt)
    DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
 }
+
+char yVIKEYS_status_width    (void) { return myVIKEYS.status_w; }
 
 
 

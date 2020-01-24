@@ -1095,7 +1095,7 @@ yvikeys_hist_exec       (char a_mode)
    char        x_rc        =    0;
    int         x_found     =    0;
    uchar       x_mark      =  '-';
-   tHIST      *x_pass      = NULL;
+   tHIST      *x_curr      = NULL;
    int         i           =    0;
    int         n           =   -1;
    int         x_max       =    0;
@@ -1200,6 +1200,7 @@ yvikeys_hist_exec       (char a_mode)
    (*s_curr)->found  = 0;
    ++(*s_curr)->count;
    if ((*s_curr)->count > 200)  (*s_curr)->count = 200;
+   x_curr = *s_curr;
    DEBUG_HIST   yLOG_value   ("s_len"     , s_len);
    DEBUG_HIST   yLOG_info    ("s_current" , s_current);
    /*---(execute)------------------------*/
@@ -1208,14 +1209,14 @@ yvikeys_hist_exec       (char a_mode)
    case MODE_COMMAND :
       DEBUG_HIST   yLOG_note    ("execute as command");
       rc = yvikeys_cmds_exec (s_current, &x_rc);
-      (*s_curr)->ran    = rc;
-      (*s_curr)->found  = x_rc;
+      x_curr->ran    = rc;
+      x_curr->found  = x_rc;
       break;
    case MODE_SEARCH  :
       DEBUG_HIST   yLOG_note    ("execute as search");
       rc = yvikeys_srch_exec (s_current, &x_found);
-      (*s_curr)->ran    = rc;
-      (*s_curr)->found  = x_found;
+      x_curr->ran    = rc;
+      x_curr->found  = x_found;
       break;
    }
    /*---(complete)-----------------------*/

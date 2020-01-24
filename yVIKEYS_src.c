@@ -729,6 +729,46 @@ int   yvikeys_src_cpos        (void) { return s_cur->cpos; }
 int   yvikeys_src_npos        (void) { return s_cur->npos; }
 char *yvikeys_src_contents    (void) { return s_cur->contents; }
 
+char
+yvikeys_src_wander_pos  (void)
+{
+   DEBUG_EDIT   yLOG_complex ("position"  , "%3db, %3dc, %3de, %3dn", s_cur->bpos, s_cur->cpos, s_cur->epos, s_cur->npos);
+   return 0;
+}
+
+char
+yvikeys_src_wander       (char *a_new)
+{
+   DEBUG_EDIT   yLOG_complex ("position"  , "%3db, %3dc, %3de, %3dn", s_cur->bpos, s_cur->cpos, s_cur->epos, s_cur->npos);
+   strlcpy (s_cur->contents, a_new, LEN_LABEL);
+   s_cur->npos = strllen (s_cur->contents, LEN_RECD);
+   SOURCE__done();
+   DEBUG_EDIT   yLOG_complex ("position"  , "%3db, %3dc, %3de, %3dn", s_cur->bpos, s_cur->cpos, s_cur->epos, s_cur->npos);
+   return 0;
+}
+
+char yvikeys_src_wander_cpos  (int a_cpos) { s_cur->cpos = a_cpos; return 0; }
+
+char
+yvikeys_src_wander_done (void)
+{
+   int         i           =    0;
+   /*---(header)-------------------------*/
+   DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
+   s_cur->npos = strlen (s_cur->contents);
+   DEBUG_EDIT   yLOG_value   ("npos"      , s_cur->npos);
+   for (i = 0; i < LEN_RECD; ++i) {
+      if (s_cur->contents [i] != (char) G_CHAR_PLACE)  continue;
+      s_cur->cpos = i;
+      break;
+   }
+   DEBUG_EDIT   yLOG_value   ("cpos"      , s_cur->cpos);
+   SOURCE__done();
+   /*---(complete)-----------------------*/
+   DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
 
 
 /*====================------------------------------------====================*/
@@ -772,11 +812,11 @@ SOURCE__color           (char a_display)
       DEBUG_GRAF   yLOG_note    ("sub-mode editing");
       x_edit = 'y';
       switch (MODE_curr ()) {
-      case SMOD_SREG    : x_code = 't';  break;
-      case UMOD_SRC_REPL : x_code = 'r';  break;
+      case SMOD_SREG       : x_code = 't';  break;
+      case UMOD_SRC_REPL   : x_code = 'r';  break;
       case UMOD_SRC_INPT   : x_code = 'i';  break;
-      case UMOD_WANDER  : x_code = 'w';  break;
-      default           : x_code = '-';  break;
+      case UMOD_WANDER     : x_code = 'w';  break;
+      default              : x_code = '-';  break;
       }
    }
    /*---(just a safety)------------------*/
@@ -1977,6 +2017,13 @@ SRC_INPT_umode             (int  a_major, int  a_minor)
             --s_cur->cpos;
          }
       }
+   }
+   /*---(wander mode)--------------------*/
+   else if (a_minor == G_KEY_BTICK) {
+      rc = MODE_enter (UMOD_WANDER);
+      yvikeys_map_wander_prep ();
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return rc;
    }
    /*---(handle new character)-----------*/
    else if (a_minor == G_KEY_SPACE) {

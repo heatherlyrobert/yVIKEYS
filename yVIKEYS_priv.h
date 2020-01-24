@@ -26,8 +26,8 @@
 
 #define     P_VERMAJOR  "1.X = working for everyday use, features still evolving but stable"
 #define     P_VERMINOR  "1.4 = prepare for demonstrations on web"
-#define     P_VERNUM    "1.4q"
-#define     P_VERTXT    "fix all unit test bugs/mistypes from previous code updates"
+#define     P_VERNUM    "1.4r"
+#define     P_VERTXT    "added wander mode and unit testing for it"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -434,6 +434,14 @@ char        yvikeys_map_reposition  (void);
 char        yvikeys_bufs_init       (void);
 char        yvikeys_bufs_umode      (uchar a_major, uchar a_minor);
 
+char        yvikeys_map_wander_prep (void);
+char        yvikeys_map_wander      (uchar a_major, uchar a_minor);
+char        yvikeys_src_wander_pos  (void);
+char        yvikeys_src_wander      (char *a_new);
+char        yvikeys_src_wander_done (void);
+char        yvikeys_src_wander_cpos (int a_offset);
+
+
 char        yvikeys__unit_quick     (void);
 char        yvikeys__unit_map_map   (char a_type);
 char        yvikeys__unit_map_loc   (char *a_label, int *a_buf, int *x, int *y, int *z);
@@ -466,7 +474,6 @@ char*       yvikeys_visu__unit      (char *a_question, char a_index);
 
 
 char        yvikeys_file_status     (char *a_list);
-char        INPT__unit_reader       (char a_abbr);
 
 
 char        yvikeys_sundo_purge     (int a_start);
