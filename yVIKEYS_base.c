@@ -102,6 +102,7 @@ yVIKEYS_init         (char a_mode)
    yvikeys_layer_init   ();
    yvikeys_sizes_init   ();
    /*----(globals)-----------------------*/
+   myVIKEYS.loud      = '-';
    myVIKEYS.done      = '-';
    myVIKEYS.trouble   = '-';
    myVIKEYS.info_win  = '-';
@@ -132,6 +133,9 @@ yVIKEYS_wrap         (void)
    yvikeys_hist_wrap   ();
    DEBUG_PROG   yLOG_note    ("hist done");
    yvikeys_layer_wrap  ();
+   DEBUG_PROG   yLOG_note    ("layer done");
+   yvikeys_cmds_wrap    ();
+   DEBUG_PROG   yLOG_note    ("commands done");
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
 }
@@ -890,6 +894,7 @@ yVIKEYS_main_string  (uchar *a_keys)
       }
       j = i;
       DEBUG_LOOP   yLOG_value   ("x_ch"      , x_ch);
+      DEBUG_LOOP   yLOG_char    ("x_ch"      , chrvisible (x_ch));
       /*---(handle input)----------------*/
       x_ch = yVIKEYS_main_input (RUN_TEST, x_ch);
       DEBUG_LOOP   yLOG_value   ("x_ch"      , x_ch);
@@ -956,17 +961,17 @@ yVIKEYS_main            (char *a_delay, char *a_update, void *a_altinput ())
       /*---(alternate input)-------------*/
       if (a_altinput != NULL)   a_altinput ();
       /*---(repeating)-------------------*/
-      if (x_key == ')' && yvikeys_macro_emode () == MACRO_STOP) {
-         DEBUG_GRAF  yLOG_note    ("kick into grouping (non-macro) fast execution mode");
-         yvikeys_macro_set2blitz ();
-         x_group = 'y';
-         continue;
-      }
-      if (!yvikeys_keys_repeating () && x_group == 'y') {
-         DEBUG_GRAF  yLOG_note    ("end grouping (non-macro) fast execution mode");
-         yvikeys_macro_set2run ();
-         x_group = '-';
-      }
+      /*> if (x_key == ')' && yvikeys_macro_emode () == MACRO_STOP) {                           <* 
+       *>    DEBUG_GRAF  yLOG_note    ("kick into grouping (non-macro) fast execution mode");   <* 
+       *>    yvikeys_macro_set2blitz ();                                                        <* 
+       *>    x_group = 'y';                                                                     <* 
+       *>    continue;                                                                          <* 
+       *> }                                                                                     <* 
+       *> if (!yvikeys_keys_repeating () && x_group == 'y') {                                   <* 
+       *>    DEBUG_GRAF  yLOG_note    ("end grouping (non-macro) fast execution mode");         <* 
+       *>    yvikeys_macro_set2run ();                                                          <* 
+       *>    x_group = '-';                                                                     <* 
+       *> }                                                                                     <*/
       /*---(showing)---------------------*/
       ++x_loop;
       x_draw = '-';

@@ -26,8 +26,8 @@
 
 #define     P_VERMAJOR  "1.X = working for everyday use, features still evolving but stable"
 #define     P_VERMINOR  "1.4 = prepare for demonstrations on web"
-#define     P_VERNUM    "1.4s"
-#define     P_VERTXT    "added re-wander from source mode and lightly unit tested ;)"
+#define     P_VERNUM    "1.4t"
+#define     P_VERTXT    "append and delete (with formulas) appear to be working correctly"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -114,6 +114,7 @@ struct cSHARED {
    long long   last;
    long long   beg;
    long long   end;
+   char        loud;                        /* macro execution displays       */
    /*---(global flags-----*/
    char        done;                        /* flag indicating ready to quit  */
    char        trouble;                     /* flag indicating error        0 */
@@ -610,7 +611,7 @@ char        yvikeys_macro_exebeg    (char a_name);
 char        yvikeys_macro_exeadv    (uchar a_play);
 char        yvikeys_macro_exekey    (void);
 char        yvikeys_macro_exeplay   (uchar a_key);
-char        yvikeys_macro_smode     (char a_major, char a_minor);
+char        yvikeys_macro_smode     (uchar a_major, uchar a_minor);
 char        yvikeys_macro_rstatus   (char *a_list);
 char        yvikeys_macro_estatus   (char *a_list);
 char        yvikeys_macro_emode     ();
@@ -638,6 +639,16 @@ char        yvikeys_macro_reader    (void);
 int         yvikeys_macro_dump      (FILE *a_file);
 char        yvikeys_macro_flatten   (char a_src, char a_dst);
 char        yvikeys_macro_install   (char a_src);
+/*---(scripts)--------------*/
+char        yvikeys_script_open     (char *a_name);
+char        yvikeys_script_read     (void);
+char        yvikeys_script_close    (void);
+char        yvikeys_script_start    (char *a_name);
+char        yvikeys_script_follow   (char *a_name);
+char        yvikeys_script_playback (char *a_name);
+char        yvikeys_script_blitz    (char *a_name);
+
+
 
 /*---(commands)-------------*/
 char        CMDS_limits             (int *a_min, int *a_max);
@@ -649,6 +660,7 @@ char        yvikeys_cmds__purge     (void);
 char        yvikeys_cmds__load_name (char *a_name);
 char        yvikeys_cmds__load      (void);
 char        yvikeys_cmds_init       (void);
+char        yvikeys_cmds_wrap       (void);
 char        yvikeys_cmds__test      (char a_mode, char a_value);
 char*       yvikeys_cmds__unit      (char *a_question, char *a_name);
 char        yvikeys_cmds_exec       (uchar *a_command, char *a_rc);
@@ -711,6 +723,7 @@ char*       yvikeys_god__unit       (char *a_question, char a_mark);
 
 
 char        yvikeys_file_init            (void);
+char        yvikeys_file_new             (void);
 char        yvikeys_vers_controlled      (char  *a_yes);
 char        yvikeys_vers_control         (void);
 char        yvikeys_vers_nocontrol       (void);
@@ -801,7 +814,6 @@ char        yvikeys_hist__entry     (uchar *a_entry, int a_max, char a_type);
 char        yvikeys_hist_show       (void);
 char        yvikeys_hist_umode      (int  a_major, int  a_minor);
 /*---(unit_test)----------------------*/
-char        yvikeys_hist__new       (char a_mode, uchar *a_text);
 char*       yvikeys_hist__unit      (char *a_question, int n);
 
 

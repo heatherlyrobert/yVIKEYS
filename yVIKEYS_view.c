@@ -347,9 +347,9 @@ yvikeys_view_cursor     (char a_move, tPARTS **a_part, tPARTS **a_link)
    case '>' : ++n;              break;
    case ']' : n = s_npart - 1;  break;
    default  :
-      DEBUG_GRAF   yLOG_snote   ("illegal move");
-      DEBUG_GRAF   yLOG_sexitr  (__FUNCTION__, rce);
-      return rce;
+              DEBUG_GRAF   yLOG_snote   ("illegal move");
+              DEBUG_GRAF   yLOG_sexitr  (__FUNCTION__, rce);
+              return rce;
    }
    DEBUG_GRAF   yLOG_sint    (n);
    /*---(check for trouble)--------------*/
@@ -642,6 +642,20 @@ yvikeys_view_init_curses       (int a_wide, int a_tall)
    start_color ();
    use_default_colors();
    yCOLOR_curs_init  ();
+   /*---(complete)-----------------------*/
+   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char
+yvikeys_view_wrap_curses       (void)
+{
+   /*---(header)----------------------*/
+   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
+   /*---(shutdown ncurses)------------*/
+   endwin ();
+   system ("clear");
+   fflush (stdout);
    /*---(complete)-----------------------*/
    DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -989,7 +1003,7 @@ VIEW_wrap               (void)
 {
    switch (myVIKEYS.env) {
    case YVIKEYS_OPENGL :  yX11_end  ();  break;
-   case YVIKEYS_CURSES :  endwin    ();  break;
+   case YVIKEYS_CURSES :  yvikeys_view_wrap_curses  ();  break;
    }
    return 0;
 }
@@ -1410,6 +1424,7 @@ yvikeys_view__opengl     (char n)
 yvikeys_view__curses     (char n)
 {
    /*---(locals)-----------+-----+-----+-*/
+   char        rc          =    0;
    int         i           =    0;
    int         x_len       =    0;
    int         x_beg       =    0;
@@ -1420,7 +1435,7 @@ yvikeys_view__curses     (char n)
    DEBUG_GRAF   yLOG_point   ("source"    , s_parts [n].source);
    if (s_parts [n].source != NULL)  {
       DEBUG_GRAF   yLOG_note    ("draw a background for ortho/flat");
-      s_parts [n].source (s_parts [n].text);
+      rc = s_parts [n].source (s_parts [n].text);
    }
    /*---(display text)-------------------*/
    DEBUG_GRAF   yLOG_point   ("text"      , s_parts [n].text);
@@ -1440,6 +1455,7 @@ yvikeys_view__curses     (char n)
          else                                      yCOLOR_curs ("root" );
          break;
       case YVIKEYS_KEYS     :
+      case YVIKEYS_BUFFER   :
          yCOLOR_curs ("root" );
          break;
       case YVIKEYS_STATUS   :
@@ -1461,6 +1477,11 @@ yvikeys_view__curses     (char n)
          mvprintw (s_parts [n].bott, s_parts [n].left, "%-*.*s", s_parts [n].wide, s_parts [n].wide, s_parts [n].text);
       }
       attrset  (0);
+      /*---(done)--------------*/
+      if (rc > 0) {
+         yCOLOR_curs ("curr" );
+         mvprintw (s_parts [n].bott, s_parts [n].left + rc, "%c", s_parts [n].text [rc]);
+      }
       /*---(done)--------------*/
    }
    /*---(complete)-----------------------*/

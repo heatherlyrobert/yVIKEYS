@@ -102,6 +102,7 @@ static const tTERMS  s_terms [] = {
    { "Cs"   , "char*, char*"               },  /* command and arg both        */
    { "css"  , "char, char*, char*"         },
    { "cs"   , "char, char*"                },
+   { "f"    , "float"                      },
    { "-"    , "-"                          },
 };
 static  int s_nterm  = 0;
@@ -114,7 +115,7 @@ static  int s_nterm  = 0;
 #define     CMDS_FIND        'f'  /* find command in list             */
 #define     CMDS_EXEC        'x'  /* execute command                  */
 
-static const uchar  *s_valid     = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_";
+static const uchar  *s_valid     = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_@";
 
 /*===[[ COMMANDS ]]===========================================================*/
 
@@ -139,12 +140,14 @@ struct  cCMDS {
       char        (*si  ) (char*, int  );   /* function pointer               */
       char        (*sii ) (char*, int, int);  /* function pointer               */
       char        (*css ) (char, char*, char*);  /* function pointer               */
-      char        (*cs  ) (char, char*)     /* function pointer               */
+      char        (*cs  ) (char, char*);    /* function pointer               */
+      char        (*f   ) (float);          /* function pointer               */
    } f;
    uchar       terms       [LEN_TERSE];     /* type of terms/args             */
    uchar       desc        [LEN_DESC];      /* descriptive label              */
 };
 static const tCMDS  s_base      [] = {
+   { 'b', 'f', "new"             , ""    , yvikeys_file_new          , ""    , "purge all contents and set-up a new, blank file"             },
    { 'b', 'f', "quit"            , "q"   , yvikeys_cmds__quit        , ""    , "quit current file (if no changes), exit if the only file"    },
    { 'b', 'f', "quitall"         , "qa"  , yvikeys_cmds__quit        , ""    , "quit all files (if no changes), and exit"                    },
    { 'b', 'f', "writequit"       , "wq"  , yvikeys_cmds__writequit   , ""    , ""                                                            },
@@ -170,6 +173,10 @@ static const tCMDS  s_base      [] = {
    { 'b', 'c', "p_speed"         , ""    , yvikeys_speed_prog        , "s"   , "adjust the progress speed"                                   },
    { 'b', 'e', "mark"            , ""    , yvikeys_mark_direct       , "s"   , ""                                                            },
    { 'b', 'r', "macro"           , ""    , yvikeys_macro__direct     , "a"   , "direct definition of a keyboard macro"                       },
+   { 'b', 'r', "script"          , "@"   , yvikeys_script_start      , "s"   , "execution of macro script from a file"                       },
+   { 'b', 'r', "playback"        , ""    , yvikeys_script_playback   , "s"   , "execution of macro script from a file"                       },
+   { 'b', 'r', "follow"          , ""    , yvikeys_script_follow     , "s"   , "execution of macro script from a file"                       },
+   { 'b', 'r', "blitz"           , ""    , yvikeys_script_blitz      , "s"   , "execution of macro script from a file"                       },
    { 'b', 'r', "edelay"          , ""    , yvikeys_macro_edelay      , "c"   , ""                                                            },
    { 'b', 'r', "eupdate"         , ""    , yvikeys_macro_eupdate     , "c"   , ""                                                            },
    { 'b', 'r', "ddelay"          , ""    , yvikeys_macro_ddelay      , "c"   , ""                                                            },
@@ -297,9 +304,13 @@ yvikeys_cmds__name      (uchar *a_name, char a_type, int *a_len)
    }
    x_len = strlen (a_name);
    DEBUG_CMDS   yLOG_sint    (x_len);
-   --rce;  if (x_len < 1 || x_len > 18) {
+   --rce;  if (a_type != 'a' && (x_len < 1 || x_len > 18)) {
       DEBUG_CMDS   yLOG_sexitr  (__FUNCTION__, rce);
       return rce;
+   }
+   --rce;  if (a_type == 'a' && x_len <= 0) {
+      DEBUG_CMDS   yLOG_sexit   (__FUNCTION__);
+      return 0;
    }
    --rce;  if (a_type == 'a' && x_len > 4) {
       DEBUG_CMDS   yLOG_sexitr  (__FUNCTION__, rce);
@@ -310,7 +321,7 @@ yvikeys_cmds__name      (uchar *a_name, char a_type, int *a_len)
       DEBUG_CMDS   yLOG_sexitr  (__FUNCTION__, rce);
       return rce;
    }
-   --rce;  for (i = 0; i < x_len; ++i) {
+   for (i = 0; i < x_len; ++i) {
       if (strchr (s_valid, a_name [i]) != NULL)  continue;
       DEBUG_CMDS   yLOG_snote   ("bad character in name");
       DEBUG_CMDS   yLOG_sint    (i);
@@ -399,7 +410,8 @@ yvikeys_cmds__launch      (tLINK *a_link)
    case 13 : rc = a_link->data->f.isss (atoi (s_fields [1]), s_fields [2], s_fields [3], s_fields [4]);   break;
    case 14 : rc = a_link->data->f.ss   (s_fields [0], s_fields [1]);                                      break;
    case 15 : rc = a_link->data->f.css  (s_fields [1][0], s_fields [2], s_fields [3]);                     break;
-   case 16 : rc = a_link->data->f.cs   (s_fields [1][0], s_fields [2]);                     break;
+   case 16 : rc = a_link->data->f.cs   (s_fields [1][0], s_fields [2]);                                   break;
+   case 17 : rc = a_link->data->f.f    (atof (s_fields [1]));                                             break;
    default : rc = -1;                                                                                     break;
    }
    /*---(complete)-----------------------*/
@@ -540,6 +552,7 @@ yvikeys_cmds__purge     (void)
    char        rce         =  -10;
    int         i           =    0;
    tLINK      *x_curr      = NULL;
+   tLINK      *x_next      = NULL;
    /*---(header)-------------------------*/
    DEBUG_CMDS   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
@@ -548,11 +561,14 @@ yvikeys_cmds__purge     (void)
    DEBUG_CMDS   yLOG_value   ("s_ncmd"    , s_ncmd);
    while (x_curr != NULL) {
       DEBUG_CMDS   yLOG_complex ("focus"     , "%c %s", x_curr->data->base, x_curr->data->name);
+      x_next = x_curr->m_next;
       if (x_curr->data->base != CMDS_BASE) {
          free (x_curr->data);
       }
+      x_curr->data = NULL;
       free (x_curr);
-      x_curr = x_curr->m_next;
+      x_curr = NULL;
+      x_curr = x_next;
    }
    /*---(initialize pointers)------------*/
    DEBUG_CMDS   yLOG_note    ("pointers");
@@ -745,6 +761,13 @@ yvikeys_cmds_init       (void)
    /*---(complete)-----------------------*/
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
+}
+
+char
+yvikeys_cmds_wrap       (void)
+{
+   yvikeys_cmds__purge ();
+   return  0;
 }
 
 char

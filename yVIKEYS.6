@@ -162,40 +162,41 @@ common denominator, or choose badass and productive.
 
    type \\_ first, then one of the latin characters below
    × Ø    ° Ù Ú Û Ü ç    à á â ã ä
-   a e    t i p f c o    u n d b m
+   a e    t i p f c o    j k h l m
 
 .SH MAP mode (movements)
 
 .B horizontal movements
    basic      0HhlL$          left full, 5x, 1x; right 1x, 5x, full
-   exact      Ë|              move to specific col (x)
    goto       g [shcle]       goto a fixed location on screen
    scroll     z [shcle]       bring current to fixed position
    pages      c [sh·le]       full and half page jumps
    ends       e [sHhCclLe]    goto the end of content
+   exact      Ë|              move to specific col (x)
 
 .B vertical movements
    basic      _KkjJ~          up full, 5x, 1x; down 1x, 5x, full
-   exact      Ë:              move to specific row (y)
    goto       g [tkmjb]       goto a fixed location on screen
    scroll     z [tkmjb]       bring current to fixed position
    pages      c [tk·jb]       full and half page jumps
    ends       e [tKkMmjJb]    goto the end of content
+   exact      Ë:              move to specific row (y)
 
 .B zoom movements
    basic      <OoiI>          zoom
-   exact      Ë%              move to specific zoom level (z)
    goto       g [nopif]       goto a fixed location on screen
    scroll     z [nopif]       bring current to fixed position
    pages      c [no·if]       full and half page jumps
    ends       e [nOoPpiIf]    goto the end of content
    grid       g [0123456789]  zoom one level in (0=out) using 3x3 grid
+   exact      Ë%              move to specific zoom level (z)
 
 .B combination (horz/vert) movements
    goto       g [AaUuDdZz.]   goto a fixed corner or center
    scroll     z [audz.]       bring current to a fixed corner/center
    ends       e [audz]        goto the end of content
    pages      c [AaUuDdZz]    full and half page jumps
+   exact      :<label>        go to specific location
 
 
 .SH MAP mode
@@ -638,7 +639,7 @@ the following can be done.
    :layer f[         shifts 'f' to head 'a' and moves existing down
    :layer m(         swap 'm' and the mark to the left
    :layer f<         shove 'f' and all to the left, left
-   :layer l+         move 'f' to middlemost and move existing down
+   :layer c+         move 'c' to middlemost and move existing down
    :layer k)         swap 'k' and the mark to the right
    :layer o>         shove 'o' and all to the right, right
    :layer b]         shifts 'b' to tail 'z' and moves existing up
@@ -794,16 +795,16 @@ port from vimperator.
  ,3         show the fourth file in the current panel
 .SS ---overview-------------------------------------------------------
 .B definition (D).  
-naming buffers (datasets) and panels (screen regions) allows rapid movement
-and perspective changes.
+buffers are active datasets to be viewed or edited, and panels are screen
+regions within which to work.
 
 .B situation (S).  
-changing editing areas and their contents is usually done with a mouse for
-pointing and drop-down menus for selection.
+many application support multiple buffers (or windows) as it allows complex
+editing, data movemente, and flexibility.
 
 .B complication (C).  
-this feature is normally cumbersome and not easily scriptable, therefore
-much less useful to an advanced user.
+support and access to these features vary wildly and tend to require pointing
+and drop-down menus.
 
 .B answer (A).  
 create a micro mode that manages rapid buffer changes, and marry that with
@@ -815,25 +816,29 @@ commands and menus for less frequent activities.
    ,          enters buffer micro-mode (from map mode)
    ¥          exits micro-mode early and forgets action
    µb         call up buffers menu
+   all options are two-character sequences (except search)
 
 .B standard identifiers
    0-9A-Z     thirty-six (36) standard buffers
    ® ¯        summary and system buffers for some applications
-   è-ÿ ° ¡ ¢  can expand later to greek and special chars
    a-z        standard panel/work-area identifiers
-   [ < > ]    first, prev, next, and last buffer
-   ,          last used buffer
 
-.B switching...
-   ,a         switch to primary editing window/panel
-   ,0         view the first buffer in current window/panel
-   ,]         switch to the last legal buffer/tab
-   ,,         return to previous buffer
-   ,/´´´¦     search by buffer name
+.B direct switching...
+   a          switch to primary editing window/panel
+   0          view the first buffer in current window/panel
+
+.B cursoring (follow standard)...
+   [  ]       very first and very last (of any kind)
+   (  )       first and last (normal types 0-9A-Z)
+   <  >       prev and next (of any kind)
+   ,          saved from last call
+
+.B searching by name (regex)...
+   /´´´¦      first matching tab name based on regex
 
 .B information...
-   ,_         display buffer content in status line
-   ,?         update and show buffer overview and list
+   !          display buffer content in status line
+   ?          display info window listing buffer details
 
 .B standard windows/panels...
    a          main editing window
@@ -852,6 +857,9 @@ commands and menus for less frequent activities.
    µbd¢       update col, row, and layer defaults
 
 .B major commands
+   :bnew¦          create new tab on first available abbreviation
+   :bmake ¢¦       create new tab on abbreviation ¢
+   :bfree ¢¦       remove tab on abbreviation ¢
    :btitle·´´´¦    rename current buffer
    :bmax·Ë¦        update max number of buffers
    :bsize·´´´¦     set size of current buffer

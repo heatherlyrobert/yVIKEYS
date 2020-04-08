@@ -1786,6 +1786,7 @@ SRC_REPL_umode    (int a_major, int a_minor)
    static char x_saved     = '\0';
    static char x_prev      =  '-';
    static char x_mode      =  '-';
+   uchar       x_ch        =  '·';
    /*---(header)-------------------------*/
    DEBUG_USER   yLOG_enter   (__FUNCTION__);
    DEBUG_USER   yLOG_char    ("a_major"   , a_major);
@@ -1818,9 +1819,16 @@ SRC_REPL_umode    (int a_major, int a_minor)
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return 0;
    }
+   if (x_prev == '\\' && a_minor == '_') {
+      DEBUG_USER   yLOG_note    ("found a leading backslash/underscore");
+      x_prev = '_';
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
    /*---(mode changes)-------------------*/
    else if (a_minor == G_KEY_ESCAPE || a_minor == G_KEY_RETURN) {
       DEBUG_USER   yLOG_note    ("escape/return, return to source mode");
+      x_prev  = '-';
       x_mode  = '-';
       rc = yvikeys_src_one_replace (x_saved);
       MODE_exit ();
@@ -1854,9 +1862,13 @@ SRC_REPL_umode    (int a_major, int a_minor)
       DEBUG_USER   yLOG_note    ("replace the marked character");
       x_mode  = '-';
       if (x_prev == '\\') {
-         x_prev = '-';
          yvikeys_sundo_single ('r', s_cur->cpos, x_saved, chrslashed (a_minor));
          rc = yvikeys_src_one_replace (chrslashed (a_minor));
+         x_prev = '-';
+      } else if (x_prev == '_') {
+         yvikeys_sundo_single ('r', s_cur->cpos, x_saved, chrslashed_more (a_minor));
+         rc = yvikeys_src_one_replace (chrslashed_more (a_minor));
+         x_prev = '-';
       } else if (a_minor >= 32 && a_minor < 127) {
          if (a_minor == G_KEY_SPACE)  a_minor = G_CHAR_STORAGE;
          yvikeys_sundo_single ('r', s_cur->cpos, x_saved, a_minor);
@@ -1889,9 +1901,13 @@ SRC_REPL_umode    (int a_major, int a_minor)
       else {
          DEBUG_USER   yLOG_note    ("replace and move right");
          if (x_prev == '\\') {
-            x_prev = '-';
             yvikeys_sundo_single ('R', s_cur->cpos, x_saved, chrslashed (a_minor));
             rc = yvikeys_src_one_replace (chrslashed (a_minor));
+            x_prev = '-';
+         } else if (x_prev == '_') {
+            yvikeys_sundo_single ('R', s_cur->cpos, x_saved, chrslashed_more (a_minor));
+            rc = yvikeys_src_one_replace (chrslashed_more (a_minor));
+            x_prev = '-';
          } else if (a_minor >= 32 && a_minor < 127) {
             if (a_minor == G_KEY_SPACE)  a_minor = G_CHAR_STORAGE;
             yvikeys_sundo_single ('R', s_cur->cpos, x_saved, a_minor);
@@ -1967,21 +1983,35 @@ SRC_INPT_umode             (int  a_major, int  a_minor)
       return 0;
    }
    /*---(escaped chars)------------------*/
-   if (a_minor == '\\' && x_prev != '\\') {
+   if (x_prev != '\\' && a_minor == '\\') {
       DEBUG_USER   yLOG_note    ("found a leading backslash");
       x_prev = '\\';
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return 0;
    }
+   if (x_prev == '\\' && a_minor == '_') {
+      DEBUG_USER   yLOG_note    ("found a leading backslash/underscore");
+      x_prev = '_';
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
    if (x_prev == '\\') {
-      DEBUG_USER   yLOG_note    ("converting backsplash character");
-      x_prev = '-';
+      DEBUG_USER   yLOG_note    ("converting backslash character");
       yvikeys_sundo_single (x_mode, s_cur->cpos, G_CHAR_NULL, chrslashed (a_minor));
       rc = yvikeys_src_one_insert (chrslashed (a_minor));
       ++s_cur->cpos;
+      x_prev = '-';
+   }
+   else if (x_prev == '_') {
+      DEBUG_USER   yLOG_note    ("converting backslash/underscore");
+      yvikeys_sundo_single (x_mode, s_cur->cpos, G_CHAR_NULL, chrslashed_more (a_minor));
+      rc = yvikeys_src_one_insert (chrslashed_more (a_minor));
+      ++s_cur->cpos;
+      x_prev = '-';
    }
    /*---(mode changes)-------------------*/
    else if (a_minor == G_KEY_ESCAPE || a_minor == G_KEY_RETURN) {
+      x_prev = '-';
       if (x_quoting == 'y' && MODE_prev () != MODE_SOURCE) {
          rc = SRC_INPT__addone (x_mode, a_minor);
       } else {

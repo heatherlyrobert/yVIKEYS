@@ -1157,7 +1157,7 @@ yvikeys_sizes__linked     (tPARTS *p)
       if      (p->on == 'y' && a->on == 'y')  a->on = '-';
       break;
    }
-   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
+   DEBUG_GRAF   yLOG_sexit   (__FUNCTION__);
    return 0;
 }
 

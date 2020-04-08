@@ -1561,7 +1561,8 @@ yvikeys__combo_wrap     (char a_clear)
       /*---(paste)-------------*/
       if (s_nopaste == '-') {
          rc = yVIKEYS_jump (s_b, s_xp, s_yp, s_z);
-         rc = yvikeys_mreg_paste_combo ("combo");
+         /*> rc = yvikeys_mreg_paste_combo ("combo");                                 <*/
+         rc = yvikeys_mreg_paste_combo ("append");
       }
       break;
    case 'a' : case '-' :
@@ -1571,7 +1572,7 @@ yvikeys__combo_wrap     (char a_clear)
       rc = yvikeys_visu_clear ();
       /*---(paste)-------------*/
       rc = yVIKEYS_jump (s_b, s_xp, s_yp, s_z);
-      rc = yvikeys_mreg_paste_combo ("combo");
+      rc = yvikeys_mreg_paste_combo ("append");
       break;
    }
    /*> if (a_clear != 'x')  rc = yvikeys_mreg_save  ();                               <* 
@@ -2390,6 +2391,13 @@ yvikeys_map_mode        (char a_major, char a_minor)
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return rc;
       }
+      if (a_minor == '%') {
+         rc = yvikeys__map_move   (REPEAT_use (), &g_ymap);
+         yvikeys__screen (&g_ymap);
+         yvikeys_map_reposition  ();
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         return rc;
+      }
       /*---(mode changes)----------------*/
       if (strchr (s_map_modes, a_minor) != 0) {
          DEBUG_USER   yLOG_note    ("mode changes");
@@ -2537,7 +2545,7 @@ yvikeys_map_mode        (char a_major, char a_minor)
       }
       /*---(unrecognized)----------------*/
       if (rc < 0) {
-         DEBUG_USER   yLOG_note    ("unrecoggnized scroll minor");
+         DEBUG_USER   yLOG_note    ("unrecognized scroll minor");
          DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
          return rce;
       }
@@ -2720,18 +2728,18 @@ yvikeys_bufs_umode  (uchar a_major, uchar a_minor)
    }
    /*---(check for control keys)---------*/
    --rce;
-   if (a_minor == '_') {
+   if (a_minor == '!') {
       yVIKEYS_cmds_direct (":status buffer");
       MODE_exit ();
    } else if (a_minor == ',') {
       DEBUG_USER   yLOG_note    ("previous mode");
       rc  = s_switcher (a_minor);
       MODE_exit  ();
-   } else if (strchr ("[<>]", a_minor) != NULL) {
+   } else if (strchr ("[(<>)]", a_minor) != NULL) {
       DEBUG_USER   yLOG_note    ("relative mode");
       rc  = s_switcher (a_minor);
       MODE_exit  ();
-   } else if (strchr ("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ®¯", a_minor) != NULL) {
+   } else if (strchr ("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ®¯¤", a_minor) != NULL) {
       DEBUG_USER   yLOG_note    ("absolute mode");
       rc  = s_switcher (a_minor);
       MODE_exit  ();

@@ -350,12 +350,12 @@ char        yVIKEYS_srch_found      (char *a_label, int a_buf, int x, int y, int
 char        yVIKEYS_srch_direct     (char *a_search);
 
 /*---(files)----------------*/
-char        yVIKEYS_whoami          (char *a_prog, char *a_ext, char *a_vernum, char *a_vertxt, char *a_full, char *a_desc, void *a_prepper);
+char        yVIKEYS_whoami          (char *a_prog, char *a_ext, char *a_vernum, char *a_vertxt, char *a_full, char *a_desc, void *a_prepper, void *a_finisher);
 char        yVIKEYS_file_add        (char  a_abbr, void *a_writer, void *a_reader);
 char        yVIKEYS_file_write      (char a_abbr, void *a, void *b, void *c, void *d, void *e, void *f, void *g, void *h, void *i);
 
 /*---(registers)------------*/
-char        yVIKEYS_mreg_config     (void *a_clearer, void *a_copier, void *a_paster, void *a_regkill, void *a_exim);
+char        yVIKEYS_mreg_config     (void *a_clearer, void *a_copier, void *a_router, void *a_paster, void *a_finisher, void *a_regkill, void *a_exim);
 char        yVIKEYS_mreg_add        (void *a_thing, char *a_label);
 char        yVIKEYS_mreg_inside     (int b, int x, int y, int z);
 

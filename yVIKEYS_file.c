@@ -124,7 +124,8 @@ static char     s_fulldesc  [LEN_DESC ]   = "(not set)";
 static char    *s_valid     = "csLDSif-";
 
 
-char    (*s_prepper) (void);
+char    (*s_prepper)  (void);
+char    (*s_finisher) (void);
 
 
 
@@ -222,7 +223,8 @@ yvikeys_file_init               (void)
    rc = yPARSE_handler ('·'          , "written"   , 0.2, "O-----------", -1, NULL          , yvikeys_file_time_writer   , "------------" , ""                          , "data file save timestamp"  );
    rc = yPARSE_handler ('·'          , "version"   , 0.3, "cSO---------", -1, NULL          , yvikeys_file_vers_writer   , "------------" , ""                          , "data file versioning"      );
    /*---(pointers)-----------------------*/
-   s_prepper = NULL;
+   s_prepper  = NULL;
+   s_finisher = NULL;
    /*---(update status)------------------*/
    STATUS_init_set   (FMOD_FILE);
    /*---(complete)-----------------------*/
@@ -231,7 +233,7 @@ yvikeys_file_init               (void)
 }
 
 char
-yVIKEYS_whoami          (char *a_prog, char *a_ext, char *a_vernum, char *a_vertxt, char *a_full, char *a_desc, void *a_prepper)
+yVIKEYS_whoami          (char *a_prog, char *a_ext, char *a_vernum, char *a_vertxt, char *a_full, char *a_desc, void *a_prepper, void *a_finisher)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -289,6 +291,9 @@ yVIKEYS_whoami          (char *a_prog, char *a_ext, char *a_vernum, char *a_vert
    /*---(writer)-------------------------*/
    DEBUG_PROG   yLOG_point   ("a_prepper" , a_prepper);
    if (a_prepper != NULL)   s_prepper = a_prepper;
+   /*---(writer)-------------------------*/
+   DEBUG_PROG   yLOG_point   ("a_finisher", a_finisher);
+   if (a_finisher != NULL)   s_finisher = a_finisher;
    /*---(update stage)-------------------*/
    STATUS_conf_set (FMOD_FILE, '1');
    /*---(default file name)--------------*/
@@ -337,6 +342,36 @@ yVIKEYS_file_add        (char a_abbr, void *a_writer, void *a_reader)
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
 }
+
+char
+yvikeys_file_new        (void)
+{
+   /*---(locals)-----------+-----------+-*/
+   char        rce         =  -10;
+   int         rc          =    0;
+   int         i           =    0;
+   int         n           =   -1;
+   /*---(header)-------------------------*/
+   DEBUG_INPT  yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   --rce;  if (!STATUS_operational (FMOD_FILE)) {
+      DEBUG_INPT   yLOG_note    ("can not execute until operational");
+      DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(run prepper)--------------------*/
+   DEBUG_INPT  yLOG_point   ("s_prepper" , s_prepper);
+   if (s_prepper != NULL)  rc = s_prepper ();
+   DEBUG_OUTP   yLOG_value   ("prep"      , rc);
+   --rce;  if (rc < 0) {
+      DEBUG_INPT  yLOG_exit    (__FUNCTION__);
+      return rce;
+   }
+   /*---(complete)-----------------------*/
+   DEBUG_PROG   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
 
 
 /*====================------------------------------------====================*/
@@ -1514,20 +1549,20 @@ yvikeys_file_reader     (void)
    DEBUG_INPT  yLOG_info    ("f_title"   , myVIKEYS.f_title);
    rc = yPARSE_open_in (myVIKEYS.f_title);
    DEBUG_OUTP   yLOG_value   ("open"      , rc);
-   --rce;  if (rc < 0) {
-      DEBUG_INPT  yLOG_exit    (__FUNCTION__);
-      return rce;
-   }
    /*---(intro)--------------------------*/
-   rc = yPARSE_read_all ();
-   DEBUG_OUTP   yLOG_value   ("yparse"    , rc);
-   --rce;  if (rc < 0) {
-      DEBUG_INPT  yLOG_exit    (__FUNCTION__);
-      return rce;
+   if (rc >= 0) {
+      rc = yPARSE_read_all ();
+      DEBUG_OUTP   yLOG_value   ("yparse"    , rc);
    }
    /*---(close file)---------------------*/
-   rc = yPARSE_close_in ();
-   DEBUG_OUTP   yLOG_value   ("close"     , rc);
+   if (rc >= 0) {
+      rc = yPARSE_close_in ();
+      DEBUG_OUTP   yLOG_value   ("close"     , rc);
+   }
+   /*---(run prepper)--------------------*/
+   DEBUG_INPT  yLOG_point   ("s_finisher", s_finisher);
+   if (s_finisher != NULL)  rc = s_finisher ();
+   DEBUG_OUTP   yLOG_value   ("prep"      , rc);
    --rce;  if (rc < 0) {
       DEBUG_INPT  yLOG_exit    (__FUNCTION__);
       return rce;

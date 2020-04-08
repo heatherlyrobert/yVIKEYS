@@ -71,6 +71,7 @@
 typedef  struct  cITEM  tITEM;
 struct cITEM {
    void       *data;
+   char       *routes;
    tITEM      *b_next;
    tITEM      *b_prev;
 };
@@ -131,8 +132,12 @@ static char    (*s_regkill)    (void *a_thing);
 static void*   (*s_copier)     (char a_type, long a_stamp);
 /* clear an area in the host application ----------------------*/
 static char    (*s_clearer)    (char a_1st, int b, int x, int y, int z);
+/* update links in host application ---------------------------*/
+static char    (*s_router)     (void *a_thing, char *a_list);
 /* integrate something into the host application --------------*/
-static char    (*s_paster)     (char a_regs, char a_pros, char a_intg, char a_1st, int a_boff, int a_xoff, int a_yoff, int a_zoff, void *a_thing);
+static char    (*s_paster)     (char a_regs, char a_pros, char a_intg, char a_1st, int a_boff, int a_xoff, int a_yoff, int a_zoff, void *a_thing, char *a_list);
+/* update links in host application ---------------------------*/
+static char    (*s_finisher)   (int a_boff, int a_xoff, int a_yoff, int a_zoff, void *a_thing);
 /* data export and import -------------------------------------*/
 static char    (*s_exim)       (char a_dir, char a_style);
 
@@ -194,7 +199,7 @@ static const tPASTING   s_pasting [MAX_PASTING] = {
    /*---*/
    { 'd', "yiN-", "duplicate"   , 'y',    'y', 'i', 'N', '-',    "tbd" },
    { '-', "yiR-", ""            , '-',    'y', 'i', 'R', '-',    "tbd" },
-   { '-', "yiA-", ""            , '-',    'y', 'i', 'A', '-',    "tbd" },
+   { '-', "yiA-", "append"      , '-',    'y', 'i', 'A', '-',    "tbd" },
    { '-', "yiS-", ""            , '-',    'y', 'i', 'S', '-',    "tbd" },
    /*---*/
    { 'c', "ybN-", "combo"       , 'y',    'y', 'b', 'N', '-',    "tbd" },
@@ -381,6 +386,7 @@ yvikeys_mreg__new       (char a_reg, void *a_item)
    x_new->data     = a_item;
    x_new->b_next   = NULL;
    x_new->b_prev   = NULL;
+   x_new->routes   = NULL;
    /*---(tie to master list)-------------*/
    if (s_regs [a_reg].hbuf == NULL) {
       DEBUG_CMDS   yLOG_note    ("nothing in master list, make first");
@@ -451,6 +457,7 @@ yvikeys_mreg__wipe              (char a_reg, char a_scope)
       x_curr->data   = NULL;
       x_curr->b_next = NULL;
       x_curr->b_prev = NULL;
+      if (x_curr->routes != NULL)  free (x_curr->routes);
       free (x_curr);
       x_curr = x_next;
    }
@@ -530,10 +537,13 @@ yvikeys_mreg_init               (void)
    s_nreg   = strlen (S_REG_LIST);
    /*---(registers)----------------------*/
    yvikeys_mreg__purge    (YVIKEYS_INIT);
+   s_copier   = NULL;
+   s_clearer  = NULL;
+   s_router   = NULL;
+   s_paster   = NULL;
+   s_finisher = NULL;
    s_regkill  = NULL;
-   s_copier  = NULL;
-   s_clearer = NULL;
-   s_paster  = NULL;
+   s_exim     = NULL;
    /*---(update status)------------------*/
    STATUS_init_set   (SMOD_MREG);
    /*---(complete)-----------------------*/
@@ -554,7 +564,7 @@ yvikeys_mreg_wrap               (void)
 }
 
 char
-yVIKEYS_mreg_config       (void *a_clearer, void *a_copier, void *a_paster, void *a_regkill, void *a_exim)
+yVIKEYS_mreg_config       (void *a_clearer, void *a_copier, void *a_router, void *a_paster, void *a_finisher, void *a_regkill, void *a_exim)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -573,8 +583,12 @@ yVIKEYS_mreg_config       (void *a_clearer, void *a_copier, void *a_paster, void
    s_copier     = a_copier;
    DEBUG_REGS  yLOG_point   ("a_clearer" , a_clearer);
    s_clearer    = a_clearer;
+   DEBUG_REGS  yLOG_point   ("a_router"  , a_router);
+   s_router     = a_router;
    DEBUG_REGS  yLOG_point   ("a_paster"  , a_paster);
    s_paster     = a_paster;
+   DEBUG_REGS  yLOG_point   ("a_finisher", a_finisher);
+   s_finisher   = a_finisher;
    DEBUG_REGS  yLOG_point   ("a_exim"    , a_exim);
    s_exim       = a_exim;
    /*---(update status)------------------*/
@@ -968,8 +982,8 @@ yvikeys_mreg__paste             (char a_1st, char *a_type)
    char        rc          =    0;
    int         x, y, z;
    int         c           =    0;
-   char        x_1st       =  'y';
    tITEM      *x_curr      = NULL;
+   char        x_list      [LEN_RECD] = "";
    /*---(header)-------------------------*/
    DEBUG_REGS   yLOG_enter   (__FUNCTION__);
    DEBUG_REGS   yLOG_char    ("a_1st"     , a_1st);
@@ -998,12 +1012,25 @@ yvikeys_mreg__paste             (char a_1st, char *a_type)
       DEBUG_REGS   yLOG_exit    (__FUNCTION__);
       return 0;
    }
+   /*---(collect routes)-----------------*/
+   DEBUG_REGS   yLOG_value   ("nbuf"      , s_regs [s_reg].nbuf);
+   x_curr = s_regs [s_reg].hbuf;
+   --rce;  while (x_curr != NULL) {
+      DEBUG_CMDS   yLOG_complex ("item"      , "%-10p, %-10p, %-10p, %-10p", x_curr, x_curr->data, x_curr->b_prev, x_curr->b_next);
+      rc = s_router (x_curr->data, x_list);
+      if (rc < 0) {
+         DEBUG_REGS   yLOG_exitr   (__FUNCTION__, rce);
+         return rce;
+      }
+      if (x_list != NULL && strlen (x_list) > 1)  x_curr->routes = strdup (x_list);
+      x_curr = x_curr->b_next;
+   }
    /*---(paste in order)-----------------*/
    DEBUG_REGS   yLOG_value   ("nbuf"      , s_regs [s_reg].nbuf);
    x_curr = s_regs [s_reg].hbuf;
    --rce;  while (x_curr != NULL) {
       DEBUG_CMDS   yLOG_complex ("item"      , "%-10p, %-10p, %-10p, %-10p", x_curr, x_curr->data, x_curr->b_prev, x_curr->b_next);
-      rc = s_paster (s_reqs, s_pros, s_intg, a_1st, s_boff, s_xoff, s_yoff, s_zoff, x_curr->data);
+      rc = s_paster (s_reqs, s_pros, s_intg, a_1st, s_boff, s_xoff, s_yoff, s_zoff, x_curr->data, x_curr->routes);
       if (rc < 0) {
          DEBUG_REGS   yLOG_exitr   (__FUNCTION__, rce);
          return rce;
@@ -1012,7 +1039,17 @@ yvikeys_mreg__paste             (char a_1st, char *a_type)
       a_1st = '-';
       x_curr = x_curr->b_next;
    }
+   /*---(finish)-------------------------*/
+   DEBUG_REGS   yLOG_value   ("nbuf"      , s_regs [s_reg].nbuf);
+   x_curr = s_regs [s_reg].hbuf;
+   --rce;  while (x_curr != NULL) {
+      DEBUG_CMDS   yLOG_complex ("item"      , "%-10p, %-10p, %-10p, %-10p", x_curr, x_curr->data, x_curr->b_prev, x_curr->b_next);
+      rc = s_finisher (s_boff, s_xoff, s_yoff, s_zoff, x_curr->data);
+      x_curr = x_curr->b_next;
+   }
    /*---(update)-------------------------*/
+   /*> yCALC_garbage_collect ();                                                      <*/
+   /*> yCALC_calculate ();                                                            <*/
    yvikeys_map_reposition  ();
    /*---(complete)-----------------------*/
    DEBUG_REGS   yLOG_exit    (__FUNCTION__);
@@ -1562,7 +1599,7 @@ char
 yvikeys_mreg__unit_config  (void)
 {
    char        rc          =    0;
-   rc = yVIKEYS_mreg_config (yvikeys_mreg__unit_clearer, yvikeys_mreg__unit_copier, yvikeys_mreg__unit_paster, yvikeys_mreg__unit_regkill, NULL);
+   rc = yVIKEYS_mreg_config (yvikeys_mreg__unit_clearer, yvikeys_mreg__unit_copier, NULL, yvikeys_mreg__unit_paster, NULL, yvikeys_mreg__unit_regkill, NULL);
    return rc;
 }
 

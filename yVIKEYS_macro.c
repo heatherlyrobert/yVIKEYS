@@ -82,6 +82,7 @@ static char    s_dupdate   =  'n';          /* debug sceen update speed       */
 static char    s_pause     =    0;
 static char    s_skips     =    0;
 static char    s_blitzing  =  '-';          /* macro blitzing mode º´´´»      */
+static char    s_blitz     =  '-';          /* stay in blitz mode (duration)  */
 
 static char    s_rmode     =  '-';          /* recording or not               */
 static char    s_rname     =  '-';
@@ -116,6 +117,7 @@ yvikeys_macro__index    (uchar a_abbr)
 {
    int         n           =   -1;
    if (a_abbr == 0)  return n;
+   if (a_abbr == ',')  a_abbr = '.';
    n  = strlchr (S_MACRO_LIST, a_abbr, S_MACRO_MAX);
    return n;
 }
@@ -125,6 +127,7 @@ yvikeys_macro__rset     (uchar a_abbr)
 {
    int         n           =   -1;
    if (a_abbr == 0)  return n;
+   if (a_abbr == ',')  a_abbr = '.';
    n  = strlchr (S_MACRO_LIST, a_abbr, S_MACRO_MAX);
    if (n >= 0) {
       s_rname = a_abbr;
@@ -141,6 +144,7 @@ yvikeys_macro__eset     (uchar a_abbr)
 {
    int         n           =   -1;
    if (a_abbr == 0)  return n;
+   if (a_abbr == ',')  a_abbr = '.';
    n  = strlchr (S_MACRO_LIST, a_abbr, S_MACRO_MAX);
    if (n >= 0) {
       s_ename = a_abbr;
@@ -328,6 +332,7 @@ yvikeys_macro_init      (void)
    strlcat (S_MACRO_LIST, gvikeys_lower , S_MACRO_MAX);
    strlcat (S_MACRO_LIST, gvikeys_number, S_MACRO_MAX);
    strlcat (S_MACRO_LIST, gvikeys_greek , S_MACRO_MAX);
+   strlcat (S_MACRO_LIST, "."           , S_MACRO_MAX);
    DEBUG_PROG   yLOG_info    ("LIST"      , S_MACRO_LIST);
    s_nmacro = strlen (S_MACRO_LIST);
    /*---(clear exec)---------------------*/
@@ -339,6 +344,8 @@ yvikeys_macro_init      (void)
    s_ddelay    = '0';
    s_dupdate   = 'n';
    s_pause     =  0;
+   s_blitz     = '-';
+   s_blitzing  = '-';
    /*---(clear rec)----------------------*/
    s_rmode     = '-';
    s_rname     = '-';
@@ -451,18 +458,22 @@ yvikeys_macro__fetch    (void)
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    char        rc          =    0;
-   char        x_ch        =  ' ';
+   uchar       x_ch        =  ' ';
    char        x_index     =    0;
-   /*---(defense)------------------------*/
+   /*---(quick out)----------------------*/
+   if (s_ename == '.')  return 0;
    /*---(header)-------------------------*/
    DEBUG_SCRP   yLOG_enter   (__FUNCTION__);
    /*---(prefetch)--------------------*/
    if (s_loader != NULL) {
-      yvikeys_macro__wipe (s_ecurr);
+      DEBUG_SCRP   yLOG_value   ("s_ecurr"   , s_ecurr);
+      DEBUG_SCRP   yLOG_char    ("s_ename"   , s_ename);
+      yvikeys_macro__wipe (s_ename);
       s_loader (s_ename, s_macros [s_ecurr].keys);
       if (s_macros [s_ecurr].keys != NULL) {
          s_macros [s_ecurr].len = strlen (s_macros [s_ecurr].keys);
-         s_macros [s_ecurr].keys [s_macros [s_ecurr].len++] = G_CHAR_HALT;
+         x_ch = s_macros [s_ecurr].keys [s_macros [s_ecurr].len - 1];
+         if (x_ch != G_CHAR_HALT)  s_macros [s_ecurr].keys [s_macros [s_ecurr].len++] = G_CHAR_HALT;
          s_macros [s_ecurr].keys [s_macros [s_ecurr].len  ] = G_KEY_NULL;
       } else {
          s_macros [s_ecurr].len = 0;
@@ -559,7 +570,7 @@ yvikeys_macro__recbeg   (char a_name)
    DEBUG_SCRP   yLOG_value   ("keys"      , s_rkeys);
    SET_MACRO_RECORD;
    DEBUG_SCRP   yLOG_char    ("s_rmode"   , s_rmode);
-   yvikeys_sizes_switch ("status", "record");
+   if (myVIKEYS.loud == 'y')  yvikeys_sizes_switch ("status", "record");
    /*---(complete)--------------------*/
    DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -1090,6 +1101,7 @@ char yvikeys_macro_dupdate (char a_update)   { return yvikeys_macro__update ('d'
 char
 yvikeys_macro_set2stop  (void)
 {
+   DEBUG_SCRP   yLOG_note    (__FUNCTION__);
    SET_MACRO_STOP;
    s_macros [s_ecurr].pos    = -1;
    s_macros [s_ecurr].cur    = '·';
@@ -1103,38 +1115,47 @@ yvikeys_macro_set2stop  (void)
 char
 yvikeys_macro_set2play  (void)
 {
+   DEBUG_SCRP   yLOG_note    (__FUNCTION__);
    SET_MACRO_PLAYBACK;
    yvikeys_loop_normal ();
-   yvikeys_sizes_switch ("status", "macro");
+   if (myVIKEYS.loud == 'y')  yvikeys_sizes_switch ("status", "macro");
    return 0;
 }
 
 char
 yvikeys_macro_set2delay (void)
 {
+   DEBUG_SCRP   yLOG_note    (__FUNCTION__);
    SET_MACRO_DELAY;
    yvikeys_loop_macro (s_ddelay, s_dupdate);
-   yvikeys_sizes_switch ("status", "macro");
+   if (myVIKEYS.loud == 'y')  yvikeys_sizes_switch ("status", "macro");
    return 0;
 }
 
 char
 yvikeys_macro_set2run   (void)
 {
+   DEBUG_SCRP   yLOG_note    (__FUNCTION__);
    DEBUG_SCRP   yLOG_char    ("blitzing"  , s_blitzing);
-   if (s_blitzing == 'y') return 0;
-   SET_MACRO_RUN;
-   yvikeys_loop_macro (s_edelay, s_eupdate);
+   if (s_blitzing == 'y') {
+      yvikeys_macro_set2blitz ();
+   } else {
+      SET_MACRO_RUN;
+      yvikeys_loop_macro (s_edelay, s_eupdate);
+      if (myVIKEYS.loud == 'y')  yvikeys_sizes_switch ("status", "macro");
+   }
    return 0;
 }
 
 char
 yvikeys_macro_set2blitz (void)
 {
+   DEBUG_SCRP   yLOG_note    (__FUNCTION__);
    DEBUG_SCRP   yLOG_char    ("blitzing"  , s_blitzing);
-   if (s_blitzing == 'y') return 0;
+   /*> if (s_blitzing == 'y') return 0;                                               <*/
    SET_MACRO_RUN;
    yvikeys_loop_macro (MACRO_BLITZ, MACRO_BLIND);
+   s_blitzing = 'y';
    return 0;
 }
 
@@ -1173,11 +1194,17 @@ yvikeys_macro_menu_end  (void)
       s_emode = s_esave;
       DEBUG_SCRP   yLOG_char    ("emode aft" , s_emode);
       switch (s_emode) {
-      case MACRO_RUN      :  if (s_blitzing == 'y')  yvikeys_macro_set2blitz ();
-                                else                    yvikeys_macro_set2run   ();
-                                break;
-      case MACRO_DELAY    :  yvikeys_macro_set2delay ();   break;
-      case MACRO_PLAYBACK :  yvikeys_macro_set2play  ();   break;
+      case MACRO_RUN      :
+         if      (s_blitz    == 'y')  yvikeys_macro_set2blitz ();
+         else if (s_blitzing == 'y')  yvikeys_macro_set2blitz ();
+         else                         yvikeys_macro_set2run   ();
+         break;
+      case MACRO_DELAY    :
+         yvikeys_macro_set2delay ();
+         break;
+      case MACRO_PLAYBACK :
+         yvikeys_macro_set2play  ();
+         break;
       }
    } else {
       DEBUG_SCRP   yLOG_note    ("nothing to do");
@@ -1187,6 +1214,196 @@ yvikeys_macro_menu_end  (void)
    DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
    return 0;
 }
+
+
+
+/*====================------------------------------------====================*/
+/*===----                         script files                         ----===*/
+/*====================------------------------------------====================*/
+static void  o___SCRIPT__________o () { return; }
+
+static  FILE  *s_script = NULL;
+static  int    s_line   =    0;
+static  char   s_style  =  '.';
+
+char
+yvikeys_script_open     (char *a_name)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        x_name      [LEN_HUND]  = "";
+   /*---(header)-------------------------*/
+   DEBUG_SCRP   yLOG_enter   (__FUNCTION__);
+   /*---(prepare)------------------------*/
+   DEBUG_SCRP   yLOG_point   ("a_name"    , a_name);
+   --rce;  if (a_name == NULL) {
+      DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_SCRP   yLOG_info    ("a_name"    , a_name);
+   /*---(fix)----------------------------*/
+   if (strstr (a_name, ".script") == NULL)  sprintf (x_name, "%s.script", a_name);
+   else                                     strlcpy (x_name, a_name, LEN_HUND);
+   /*---(prepare)------------------------*/
+   DEBUG_SCRP   yLOG_point   ("s_script"  , s_script);
+   --rce;  if (s_script != NULL) {
+      DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_SCRP   yLOG_info    ("x_name"    , x_name);
+   /*---(read)---------------------------*/
+   s_script = fopen (x_name, "r");
+   DEBUG_SCRP   yLOG_point   ("s_script"  , s_script);
+   --rce;  if (s_script == NULL) {
+      DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(complete)-----------------------*/
+   DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char
+yvikeys_script_read     (void)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   uchar       x_recd      [LEN_RECD];
+   uchar       x_ready     [LEN_RECD];
+   char        x_len       =    0;
+   /*---(header)-------------------------*/
+   DEBUG_SCRP   yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   DEBUG_SCRP   yLOG_point   ("s_script"  , s_script);
+   --rce;  if (s_script == NULL) {
+      DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(next line)----------------------*/
+   --rce;  while (1) {
+      /*---(done with line)-----------------*/
+      DEBUG_SCRP   yLOG_value   ("feof"      , feof (s_script));
+      if (feof (s_script)) {
+         yvikeys_script_close ();
+         DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
+         return rce;
+      }
+      /*---(process line)-------------------*/
+      fgets (x_recd, LEN_RECD, s_script);
+      ++s_line;
+      if (x_recd [0] <  ' ')          continue;
+      if (x_recd [0] == '#')          continue;
+      DEBUG_SCRP   yLOG_info    ("x_recd"    , x_recd);
+      x_len = strlen (x_recd);
+      if (x_recd [x_len - 1] == '\n')  x_recd [--x_len] = '\0';
+      DEBUG_SCRP   yLOG_info    ("x_recd"    , x_recd);
+      /*---(functions)----------------------*/
+      if (strncmp (x_recd, "macro ", 6) == 0) {
+         rc = yvikeys_macro__recdir (x_recd [6], x_recd + 6);
+         DEBUG_SCRP   yLOG_value   ("macro"     , rc);
+         if (rc < 0) {
+            DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
+            return rce;
+         }
+      }
+      /*---(normal)-------------------------*/
+      else {
+         sprintf (x_ready, ".=%s", x_recd);
+         rc = yvikeys_macro__recdir ('.', x_ready);
+         DEBUG_SCRP   yLOG_value   ("normal"    , rc);
+         if (rc < 0) {
+            DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
+            return rce;
+         }
+         rc = yvikeys_macro_exebeg  (s_style);
+         DEBUG_SCRP   yLOG_value   ("execute"   , rc);
+         if (rc < 0) {
+            DEBUG_SCRP   yLOG_note    ("can not execute");
+            DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
+            return rce;
+         }
+         break;
+      }
+      /*---(done)---------------------------*/
+   }
+   /*---(complete)-----------------------*/
+   DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char
+yvikeys_script_close    (void)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   /*---(header)-------------------------*/
+   DEBUG_SCRP   yLOG_enter   (__FUNCTION__);
+   /*---(clear script macros)------------*/
+   yvikeys_macro__purge (YVIKEYS_GREEK);
+   yvikeys_macro__clear ('.');
+   /*---(prepare)------------------------*/
+   DEBUG_SCRP   yLOG_point   ("s_script"  , s_script);
+   --rce;  if (s_script == NULL) {
+      DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   rc = fclose (s_script);
+   DEBUG_SCRP   yLOG_value   ("fclose"    , rc);
+   --rce;  if (rc < 0) {
+      DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(ground pointer)-----------------*/
+   s_script = NULL;
+   /*---(complete)-----------------------*/
+   DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char
+yvikeys_script__start   (char *a_name, char a_style)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   /*---(header)-------------------------*/
+   DEBUG_SCRP   yLOG_enter   (__FUNCTION__);
+   rc = yvikeys_script_open (a_name);
+   DEBUG_SCRP   yLOG_value   ("open"      , rc);
+   if (rc < 0) {
+      DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   s_style = a_style;
+   DEBUG_SCRP   yLOG_char    ("s_style"   , s_style);
+   if (s_blitz == 'y')  s_blitzing = 'y';
+   DEBUG_SCRP   yLOG_char    ("s_blitz"   , s_blitz);
+   DEBUG_SCRP   yLOG_char    ("s_blitzing", s_blitzing);
+   rc = yvikeys_script_read ();
+   DEBUG_SCRP   yLOG_value   ("read"      , rc);
+   if (rc < 0) {
+      DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   s_macros [s_ecurr].pos       =   -1;
+   /*> rc = yvikeys_macro_exebeg  ('.');                                              <* 
+    *> DEBUG_SCRP   yLOG_value   ("execute"   , rc);                                  <* 
+    *> if (rc < 0) {                                                                  <* 
+    *>    DEBUG_SCRP   yLOG_note    ("can not execute");                              <* 
+    *>    DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);                              <* 
+    *>    return rce;                                                                 <* 
+    *> }                                                                              <*/
+   /*---(complete)-----------------------*/
+   DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char yvikeys_script_start    (char *a_name) { return yvikeys_script__start (a_name, '.'); }
+char yvikeys_script_follow   (char *a_name) { return yvikeys_script__start (a_name, '.'); }
+char yvikeys_script_playback (char *a_name) { return yvikeys_script__start (a_name, ','); }
+char yvikeys_script_blitz    (char *a_name) { s_blitz  = 'y';  return yvikeys_script__start (a_name, '.'); }
 
 
 
@@ -1267,16 +1484,19 @@ yvikeys_macro_exebeg    (char a_name)
       DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   /*---(normal)----------------------*/
-   if (a_name == tolower (a_name)) {
-      DEBUG_SCRP   yLOG_note    ("normal execution");
-      if (s_ddelay    != '0'      )  SET_MACRO_DELAY;
-      IF_MACRO_OFF                   SET_MACRO_RUN;
-   }
-   /*---(debugging/playback)----------*/
-   else {
-      DEBUG_SCRP   yLOG_note    ("debug/playback execution");
-      SET_MACRO_PLAYBACK;
+   /*---(execution style)-------------*/
+   IF_MACRO_OFF {
+      /*---(normal)-------------------*/
+      if (a_name == tolower (a_name) && a_name != ',') {
+         DEBUG_SCRP   yLOG_note    ("normal execution");
+         if (s_ddelay    != '0'      )  SET_MACRO_DELAY;
+         IF_MACRO_OFF                   SET_MACRO_RUN;
+      }
+      /*---(debugging/playback)-------*/
+      else {
+         DEBUG_SCRP   yLOG_note    ("debug/playback execution");
+         SET_MACRO_PLAYBACK;
+      }
    }
    /*---(macro name)------------------*/
    DEBUG_SCRP   yLOG_char    ("macro_name", s_ename);
@@ -1287,15 +1507,20 @@ yvikeys_macro_exebeg    (char a_name)
    s_pause =  0;
    s_skips =  0;
    yvikeys_macro_ereset ();
-   yvikeys_macro_exeadv (0);
+   if (strchr (".,", a_name) == NULL)  yvikeys_macro_exeadv (0);
    s_macros [s_ecurr].runby  = x_curr;
    s_macros [s_ecurr].repeat = REPEAT_count ();
    REPEAT_macro ();
    DEBUG_USER   yLOG_value   ("repeat"    , s_macros [s_ecurr].repeat);
    /*---(reset main delay)---------------*/
-   IF_MACRO_RUN            yvikeys_macro_set2run   ();
-   else IF_MACRO_PLAYBACK  yvikeys_macro_set2play  ();
-   else                    yvikeys_macro_set2delay ();
+   DEBUG_SCRP   yLOG_char    ("s_blitz"   , s_blitz);
+   DEBUG_SCRP   yLOG_char    ("s_blitzing", s_blitzing);
+   if (s_blitz == 'y')         yvikeys_macro_set2blitz ();
+   else {
+      IF_MACRO_RUN             yvikeys_macro_set2run   ();
+      else IF_MACRO_PLAYBACK   yvikeys_macro_set2play  ();
+      else                     yvikeys_macro_set2delay ();
+   }
    /*---(complete)--------------------*/
    DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -1355,23 +1580,6 @@ yvikeys_macro_exeadv    (uchar a_play)
          DEBUG_SCRP   yLOG_sexit   (__FUNCTION__);
          return 0;
       }
-      /*> switch (x_ch) {                                                                        <* 
-       *> case G_CHAR_BREAK   : case G_CHAR_DISPLAY :                                            <* 
-       *> case G_CHAR_HALT    : case G_CHAR_SPACE   :                                            <* 
-       *>    DEBUG_SCRP   yLOG_snote   ("macro control (ª©) update requested");                  <* 
-       *>    break;                                                                              <* 
-       *> /+> case G_CHAR_HALT    : case G_CHAR_SPACE   :                                  <*    <* 
-       *>  *>    DEBUG_SCRP   yLOG_snote   ("normal (·³) no position update requested");   <*    <* 
-       *>  *>    DEBUG_SCRP   yLOG_sexit   (__FUNCTION__);                                 <*    <* 
-       *>  *>    return 0;                                                                 <+/   <* 
-       *> default  :                                                                             <* 
-       *>    /+> if (a_play == 0) {                                                       <*     <* 
-       *>     *>    DEBUG_SCRP   yLOG_snote   ("no position update requested");           <*     <* 
-       *>     *>    DEBUG_SCRP   yLOG_sexit   (__FUNCTION__);                             <*     <* 
-       *>     *>    return 0;                                                             <*     <* 
-       *>     *> }                                                                        <+/    <* 
-       *>    break;                                                                              <* 
-       *> }                                                                                      <*/
       break;
    case MACRO_RUN      :
       if (yvikeys_macro_skips () < 0) {
@@ -1413,6 +1621,7 @@ yvikeys_macro_exekey    (void)
    uchar       x_uch       =  ' ';
    int         x_runby     =   -1;
    static int  x_pause     =    0;
+   char        x_last      =  '-';
    /*---(header)-------------------------*/
    IF_MACRO_OFF   return 0;
    DEBUG_SCRP   yLOG_enter   (__FUNCTION__);
@@ -1458,10 +1667,19 @@ yvikeys_macro_exekey    (void)
       /*---(reset)--------------------------*/
       else {
          DEBUG_SCRP   yLOG_note    ("macro complete");
+         /*---(check script)-----------*/
+         x_last = s_ename;
+         DEBUG_SCRP   yLOG_char    ("x_last"     , x_last);
          yvikeys_macro_set2stop ();
-         s_macros [s_ecurr].pos    = -1;
-         s_macros [s_ecurr].cur    = '·';
-         s_macros [s_ecurr].repeat =  0;
+         if (x_last == '.')  {
+            rc = yvikeys_script_read ();
+            if (rc < 0)  s_blitz = '-';
+         } else s_blitz = '-';
+         DEBUG_SCRP   yLOG_char    ("s_blitz"   , s_blitz);
+         DEBUG_SCRP   yLOG_char    ("s_blitzing", s_blitzing);
+         /*> s_macros [s_ecurr].pos    = -1;                                          <* 
+          *> s_macros [s_ecurr].cur    = '·';                                         <* 
+          *> s_macros [s_ecurr].repeat =  0;                                          <*/
          DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
          return G_KEY_NOOP;
       }
@@ -1522,8 +1740,10 @@ yvikeys_macro__exectl   (uchar a_key)
    case  G_CHAR_SRBRACK :
       DEBUG_SCRP   yLOG_note    ("unblitz (»)");
       IF_MACRO_RUN {
-         s_blitzing = '-';
-         yvikeys_macro_set2run   ();
+         if (s_blitz != 'y') {
+            s_blitzing = '-';
+            yvikeys_macro_set2run   ();
+         }
       }
       else  DEBUG_SCRP   yLOG_note    ("blitzing not active in debug/playback");
       a_key = G_KEY_ACK;
@@ -1569,16 +1789,9 @@ yvikeys_macro__exectl   (uchar a_key)
       yvikeys_macro_set2play ();
       a_key = G_KEY_NOOP;
       break;
-   case G_CHAR_HALT    :
-   case G_CHAR_NULL    :
-      DEBUG_SCRP   yLOG_note    ("halt (³) or null (£)");
-      yvikeys_macro_set2stop ();
-      a_key = G_KEY_NOOP;
-      break;
    case G_CHAR_DISPLAY :
       DEBUG_SCRP   yLOG_note    ("display (©)");
       a_key = G_KEY_NOOP;
-      /*> yVIKEYS_view_all (0.0);                                                     <*/
       break;
    case G_CHAR_SPACE   :
       DEBUG_SCRP   yLOG_note    ("macro spacer (·), fast skip only in run");
@@ -1586,8 +1799,7 @@ yvikeys_macro__exectl   (uchar a_key)
       else          a_key = G_KEY_NOOP;
       break;
    default             :
-      DEBUG_SCRP   yLOG_note    ("other key");
-      a_key = G_KEY_NOOP;
+      DEBUG_SCRP   yLOG_note    ("other key, pass through");
       break;
    }
    DEBUG_SCRP   yLOG_value   ("a_key"     , a_key);
@@ -1645,7 +1857,7 @@ yvikeys_macro_exeplay   (uchar a_key)
 static void  o___MODE____________o () { return; }
 
 char         /*-> process macro sub-mode keys --------[ ------ [ge.H65.229.88]*/ /*-[02.0000.102.!]-*/ /*-[--.---.---.--]-*/
-yvikeys_macro_smode     (char a_major, char a_minor)
+yvikeys_macro_smode     (uchar a_major, uchar a_minor)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -1777,15 +1989,18 @@ yvikeys_macro_estatus        (char *a_list)
    char        x_bef       [LEN_RECD] = "";
    char        x_aft       [LEN_RECD] = "";
    int         x_pos       = 0;
-   int         x_rem       = 0;
+   int         x_rem       = 0;  
    char        x_dots      [LEN_HUND] = "···························";
-   char        x_ldots     [LEN_HUND] = "··´····´····´····´····´····";
-   char        x_rdots     [LEN_HUND] = "····´····´····´····´····´··";
+   char        x_ldots     [LEN_HUND] = "··Ü····Ü····Ü····Ü····Ü····";
+   char        x_rdots     [LEN_HUND] = "····Ü····Ü····Ü····Ü····Ü··";
+   uchar       x_ch        = ' ';
    if (s_ecurr < 0) {
-      snprintf (a_list, LEN_FULL, "macro   %c %c %c -- --- --- ··´····´····´····´····´···· ´ ····´····´····´····´····´··", s_ename, s_ddelay, s_dupdate);
+      snprintf (a_list, LEN_FULL, "macro   %c %c %c -- --- --- %s ´ %s", s_ename, s_ddelay, s_dupdate, x_ldots, x_rdots);
       return 0;
    }
    x_pos = s_macros [s_ecurr].pos;
+   x_ch  = s_macros [s_ecurr].cur;
+   if (x_ch < 32)  x_ch = '£';
    if      (x_pos <=  0)  sprintf (x_bef , "%27.27s", x_ldots);
    else if (x_pos >  27)  sprintf (x_bef , "<%-26.26s", s_macros [s_ecurr].keys + x_pos - 26);
    else                   sprintf (x_bef , "%*.*s%*.*s"   , 27 - x_pos, 27 - x_pos, x_ldots, x_pos, x_pos, s_macros [s_ecurr].keys);
@@ -1793,7 +2008,7 @@ yvikeys_macro_estatus        (char *a_list)
    if      (x_rem <=  0)  sprintf (x_aft , "%27.27s", x_rdots);
    else if (x_rem >  27)  sprintf (x_aft , "%-26.26s>", s_macros [s_ecurr].keys + s_macros [s_ecurr].pos + 1);
    else                   sprintf (x_aft , "%*.*s%*.*s"   , x_rem, x_rem, s_macros [s_ecurr].keys + x_pos + 1, 27 - x_rem, 27 - x_rem, x_rdots + x_rem);
-   snprintf (a_list, LEN_FULL, "macro   %c %c %c %2d %3d %3d %27s %c %s", s_ename, s_ddelay, s_dupdate, s_macros [s_ecurr].repeat, x_pos, s_macros [s_ecurr].len, x_bef, s_macros [s_ecurr].cur, x_aft);
+   snprintf (a_list, LEN_FULL, "macro   %c %c %c %2d %3d %3d %27s %c %s", s_ename, s_ddelay, s_dupdate, s_macros [s_ecurr].repeat, x_pos, s_macros [s_ecurr].len, x_bef, x_ch, x_aft);
    return 0;
 }
 
