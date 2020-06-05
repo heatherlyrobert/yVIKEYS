@@ -75,7 +75,7 @@ yvikeys_mark_init            (void)
    /*> yVIKEYS_cmds_addX (YVIKEYS_M_EDIT  , "mark"        , ""    , "s"    , yvikeys_mark_direct        , "" );   <*/
    /*> yVIKEYS_view_optionX (YVIKEYS_STATUS, "visual" , yvikeys_mark_status  , "details of visual selection"                );   <*/
    /*---(read/write)---------------------*/
-   rc = yPARSE_handler (UMOD_MARK    , "loc_mark"  , 7.1, "cL----------", -1, yvikeys_mark_reader, yvikeys_mark_writer_all, "------------" , "a,label", "map mode location marks");
+   rc = yPARSE_handler_max (UMOD_MARK    , "loc_mark"  , 7.1, "cL----------", -1, yvikeys_mark_reader, yvikeys_mark_writer_all, "------------" , "a,label", "map mode location marks");
    /*---(update status)------------------*/
    STATUS_init_set   (UMOD_MARK);
    /*---(complete)-----------------------*/
@@ -603,7 +603,7 @@ yvikeys_mark_listplus   (char *a_list)
 static void  o___FILE____________o () { return; }
 
 char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/
-yvikeys_mark_writer     (char a_abbr)
+yvikeys_mark_writer     (int c, char a_abbr)
 {
    /*---(locals)-----------+-----------+-*/
    char        rce         =  -10;
@@ -629,7 +629,7 @@ yvikeys_mark_writer     (char a_abbr)
       return 0;
    }
    /*---(write)-----------------------*/
-   yPARSE_fullwrite ("loc_mark", a_abbr, s_mark_info [n].label);
+   yPARSE_vprintf (c, "loc_mark", a_abbr, s_mark_info [n].label);
    /*---(complete)-----------------------*/
    DEBUG_OUTP  yLOG_exit    (__FUNCTION__);
    return 1;
@@ -646,16 +646,16 @@ yvikeys_mark_writer_all (void)
    char        c           =    0;
    /*---(prepare)------------------------*/
    x_end = strlen (S_MARK_LIST);
-   yPARSE_verb_begin ("loc_mark");
+   /*> yPARSE_verb_begin ("loc_mark");                                                <*/
    /*---(walk list)----------------------*/
    for (i = 0; i <= x_end; ++i) {
-      rc = yvikeys_mark_writer (S_MARK_LIST [i]);
+      rc = yvikeys_mark_writer (c, S_MARK_LIST [i]);
       if (rc < 1)  continue;
       ++c;
-      yPARSE_verb_break (c);
+      /*> yPARSE_verb_break (c);                                                      <*/
    }
    /*---(wrap-up)------------------------*/
-   yPARSE_verb_end   (c);
+   /*> yPARSE_verb_end   (c);                                                         <*/
    /*---(complete)-----------------------*/
    return c;
 }

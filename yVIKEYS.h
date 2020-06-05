@@ -50,6 +50,9 @@
 #define     FILE_TABS      'Z'    /* z-axis (tabs)                            */
 #define     FILE_DEPCEL    'd'
 #define     FILE_FREECEL   'f'
+/*---(fonts)-----------------------------*/
+#define     FONT_FIXED      0
+#define     FONT_FANCY      1
 
 
 
@@ -181,16 +184,47 @@ tMAPPED     g_zmap;
 #define      YVIKEYS_AUTO        'a'
 #define      YVIKEYS_CUSTOM      'c'
 
-#define      YVIKEYS_ALLALL       0
-#define      YVIKEYS_TOPLEF       1
-#define      YVIKEYS_TOPCEN       2
-#define      YVIKEYS_TOPRIG       3
-#define      YVIKEYS_MIDLEF       4
-#define      YVIKEYS_MIDCEN       5
-#define      YVIKEYS_MIDRIG       6
-#define      YVIKEYS_BOTLEF       7
-#define      YVIKEYS_BOTCEN       8
-#define      YVIKEYS_BOTRIG       9
+
+#define      YVIKEYS_ALLALL      '0'
+
+#define      YVIKEYS_TOPLEF      '1'
+#define      YVIKEYS_TOPCEN      '2'
+#define      YVIKEYS_TOPRIG      '3'
+#define      YVIKEYS_TOPS        "123"
+
+#define      YVIKEYS_UPSBEG      'a'
+#define      YVIKEYS_UPSCEN      't'
+#define      YVIKEYS_UPSEND      'u'
+#define      YVIKEYS_UPS         "atu"
+
+#define      YVIKEYS_MIDLEF      '4'
+#define      YVIKEYS_MIDBEG      's'
+#define      YVIKEYS_MIDCEN      '5'
+#define      YVIKEYS_MIDEND      'e'
+#define      YVIKEYS_MIDRIG      '6'
+#define      YVIKEYS_MIDS        "4s5e6"
+
+#define      YVIKEYS_LOWBEG      'd'
+#define      YVIKEYS_LOWCEN      'b'
+#define      YVIKEYS_LOWEND      'z'
+#define      YVIKEYS_LOWS        "dbz"
+
+#define      YVIKEYS_BOTLEF      '7'
+#define      YVIKEYS_BOTCEN      '8'
+#define      YVIKEYS_BOTRIG      '9'
+#define      YVIKEYS_BOTS        "789"
+
+#define      YVIKEYS_LEFS        "147"
+#define      YVIKEYS_BEGS        "asd"
+#define      YVIKEYS_CENS        "2t5b8"
+#define      YVIKEYS_ENDS        "uez"
+#define      YVIKEYS_RIGS        "369"
+
+#define      YVIKEYS_LOC_MENU    "0123456789atusedbz"
+#define      YVIKEYS_LOC_FLOAT   "flcr"
+#define      YVIKEYS_LOC_HIST    "tkmjb"
+#define      YVIKEYS_LOC_NORM    "0123456789"
+
 
 
 #define      YVIKEYS_NONE        '-'
@@ -240,6 +274,7 @@ char        yVIKEYS_init            (char  a_mode);
 char        yVIKEYS_quit            (void);
 char        yVIKEYS_error           (void);
 char        yVIKEYS_wrap            (void);
+char        yVIKEYS_simple          (cchar *a_title, cchar *a_ver, cchar a_env, cint a_wide, cint a_tall, char a_align, char a_mode, uchar *a_fixed, uchar *a_fancy, void *a_drawer);
 
 int         yVIKEYS_keys_nkey       (void);
 char*       yVIKEYS_keys_last       (void);
@@ -257,6 +292,7 @@ char        yVIKEYS_resize          (cint   a_wide , cint   a_tall, cint a_alt);
 
 /*---(view)-----------------*/
 char        yVIKEYS_view_font       (cchar  a_fixed);
+char        yVIKEYS_view_fonts      (uchar *a_fixed, uchar *a_fancy);
 char        yVIKEYS_view_config     (cchar *a_title, cchar *a_ver, cchar a_env, cint a_wide, cint a_tall, cint a_alt);
 char        yVIKEYS_run_curses      (cchar *a_title, cchar *a_ver);
 char        yVIKEYS_run_opengl      (cchar *a_title, cchar *a_ver, cint a_wide, cint a_tall);

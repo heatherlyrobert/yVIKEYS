@@ -366,7 +366,7 @@ yvikeys_macro_init      (void)
    DEBUG_PROG   yLOG_note    ("update status");
    STATUS_init_set   (SMOD_MACRO);
    /*---(read/write)---------------------*/
-   rc = yPARSE_handler (SMOD_MACRO   , "macro"     , 7.3, "cO----------", -1, yvikeys_macro_reader, yvikeys_macro_writer_all, "------------" , "a,keys", "keyboard macros"           );
+   rc = yPARSE_handler_max (SMOD_MACRO   , "macro"     , 7.3, "cO----------", -1, yvikeys_macro_reader, yvikeys_macro_writer_all, "------------" , "a,keys", "keyboard macros"           );
    /*---(complete)-----------------------*/
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -2066,7 +2066,7 @@ yvikeys_macro_list      (int *a_count, char *a_list)
 static void  o___FILE____________o () { return; }
 
 char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/
-yvikeys_macro_writer    (uchar a_abbr)
+yvikeys_macro_writer    (int c, uchar a_abbr)
 {
    /*---(locals)-----------+-----------+-*/
    char        rce         =  -10;
@@ -2101,7 +2101,7 @@ yvikeys_macro_writer    (uchar a_abbr)
    strlcpy (x_keys, s_macros [n].keys, LEN_RECD);
    x_keys [s_macros [n].len - 1] = G_KEY_NULL;
    /*---(write)-----------------------*/
-   yPARSE_fullwrite ("macro", a_abbr, x_keys);
+   yPARSE_vprintf (c, "macro", a_abbr, x_keys);
    /*---(complete)-----------------------*/
    DEBUG_OUTP  yLOG_exit    (__FUNCTION__);
    return 1;
@@ -2126,16 +2126,16 @@ yvikeys_macro_writer_all (void)
    }
    /*---(prepare)------------------------*/
    x_end = strlen (S_MACRO_LIST);
-   yPARSE_verb_begin ("macro");
+   /*> yPARSE_verb_begin ("macro");                                                   <*/
    /*---(walk list)----------------------*/
    for (i = 0; i <= x_end; ++i) {
-      rc = yvikeys_macro_writer (S_MACRO_LIST [i]);
+      rc = yvikeys_macro_writer (c, S_MACRO_LIST [i]);
       if (rc < 1)  continue;
       ++c;
-      yPARSE_verb_break (c);
+      /*> yPARSE_verb_break (c);                                                      <*/
    }
    /*---(wrap-up)------------------------*/
-   yPARSE_verb_end   (c);
+   /*> yPARSE_verb_end   (c);                                                         <*/
    /*---(complete)-----------------------*/
    DEBUG_OUTP  yLOG_exit    (__FUNCTION__);
    return c;

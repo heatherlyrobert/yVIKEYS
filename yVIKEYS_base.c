@@ -109,6 +109,8 @@ yVIKEYS_init         (char a_mode)
    myVIKEYS.log_keys  = 'y';
    myVIKEYS.cursor    = 'y';
    myVIKEYS.status_w  = 'L';
+   myVIKEYS.font      = -1;
+   myVIKEYS.fancy     = -1;
    /*----(complete)----------------------*/
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -118,6 +120,8 @@ char
 yVIKEYS_wrap         (void)
 {
    DEBUG_PROG   yLOG_enter   (__FUNCTION__);
+   if (myVIKEYS.font  >= 0)  yFONT_free (myVIKEYS.font);
+   if (myVIKEYS.fancy >= 0)  yFONT_free (myVIKEYS.fancy);
    yPARSE_wrap ();
    DEBUG_PROG   yLOG_note    ("parse done");
    VIEW_wrap   ();
@@ -143,6 +147,32 @@ yVIKEYS_wrap         (void)
 char yVIKEYS_quit            (void) { if (myVIKEYS.done    == 'y') return 1; return 0; }
 char yVIKEYS_error           (void) { if (myVIKEYS.trouble != '-') return 1; return 0; }
 
+char
+yVIKEYS_simple          (cchar *a_title, cchar *a_ver, cchar a_env, cint a_wide, cint a_tall, char a_align, char a_mode, uchar *a_fixed, uchar *a_fancy, void *a_drawer)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rc          =    0;
+   int         x_left      =    0;
+   int         x_bott      =    0;
+   char        t           [LEN_DESC]  = "";
+   char       *p           = NULL;
+   DEBUG_PROG   yLOG_enter   (__FUNCTION__);
+   rc = yVIKEYS_init (a_mode);
+   DEBUG_PROG   yLOG_value   ("init"      , rc);
+   rc = yVIKEYS_view_config (a_title, a_ver, a_env, a_wide, a_tall, 0);
+   strlcpy (t, a_title, LEN_DESC);
+   p = strchr (t, '-');
+   if (p != NULL)  p [0] = '\0';
+   strlcpy (myVIKEYS.s_prog  , t      , LEN_LABEL);
+   strlcpy (myVIKEYS.s_vernum, a_ver  , LEN_LABEL);
+   DEBUG_PROG   yLOG_value   ("config"    , rc);
+   rc = yVIKEYS_view_fonts  (a_fixed, a_fancy);
+   DEBUG_PROG   yLOG_value   ("fonts"     , rc);
+   rc = yVIKEYS_view_setup    (YVIKEYS_MAIN , YVIKEYS_FLAT, a_align, 0, 0, 0, 0, 0, 0, 0, a_drawer);
+   DEBUG_PROG   yLOG_value   ("setup"     , rc);
+   DEBUG_PROG   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
 
 
 /*====================------------------------------------====================*/

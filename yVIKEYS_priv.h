@@ -26,8 +26,8 @@
 
 #define     P_VERMAJOR  "1.X = working for everyday use, features still evolving but stable"
 #define     P_VERMINOR  "1.4 = prepare for demonstrations on web"
-#define     P_VERNUM    "1.4t"
-#define     P_VERTXT    "append and delete (with formulas) appear to be working correctly"
+#define     P_VERNUM    "1.4u"
+#define     P_VERTXT    "huge fixup, consolidation, and retest of menu drawing and placement"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -152,9 +152,10 @@ struct cSHARED {
    char        info_win;
    /*---(font)------------*/
    char        env;                         /* opengl vs ncurses              */
-   int         font;                        /* yFONT font identifier          */
+   int         font;                        /* yFONT fixed font identifier    */
    int         point;                       /* yFONT font point to use        */
    float       font_scale;                  /* width of char in opengl coords */
+   int         fancy;                       /* yFONT fancy font identifier    */
    /*---(file hanndling)--*/
    char        f_control;                   /* file version control flag      */
    char        f_vernum    [LEN_LABEL];     /* file version number            */
@@ -253,7 +254,7 @@ struct cPARTS {
    char        (*drawer) (void);            /* drawing function               */
    char        type;                        /* ortho vs 3d                    */
    char        mgmt;                        /* auto vs custom setup           */
-   char        anchor;                      /* fixed point for resizing       */
+   uchar       anchor;                      /* fixed point for resizing       */
    int         color;                       /* background color               */
    int         xmin;                        /* x-coord minimum                */
    int         xlen;                        /* x-coord range                  */
@@ -319,7 +320,7 @@ char        yvikeys_view__size      (char a_part, int a_wide, int a_tall, int a_
 char        yvikeys_view_keys       (cchar *a_text);
 char        yvikeys_view_modes      (cchar *a_text);
 char        yvikeys_view_init       (void);
-char        yvikeys_view_reanchor   (cchar a_part, cint a_anchor);
+char        yvikeys_view_reanchor   (char a_part, char a_anchor);
 char        VIEW_wrap               (void);
 
 char        VIEW__grid_offset       (int a_x, int a_y, int a_z);
@@ -469,7 +470,7 @@ char        yvikeys_visu_exact      (int b, int xb, int xe, int yb, int ye, int 
 char        yvikeys_visu_umode      (int a_major, int a_minor);
 char        VISU_read               (char a_visu, char *a_label);
 char        yvikeys_visu__reader    (void);
-char        yvikeys_visu__writer    (char a_abbr);
+char        yvikeys_visu__writer    (int c, char a_abbr);
 char        yvikeys_visu__writer_all(void);
 char*       yvikeys_visu__unit      (char *a_question, char a_index);
 
@@ -571,7 +572,7 @@ char        yvikeys_mark__set            (char a_mark);
 char        yvikeys_mark__unset          (char a_mark);
 char        yvikeys_mark__return         (char a_mark);
 char*       yvikeys_mark__unit           (char *a_question, char a_mark);
-char        yvikeys_mark_writer          (char a_abbr);
+char        yvikeys_mark_writer          (int c, char a_abbr);
 char        yvikeys_mark_writer_all      (void);
 char        yvikeys_mark_reader          (void);
 char        yvikeys_mark_direct          (char *a_string);
@@ -633,7 +634,7 @@ char        yvikeys_help            (char a_type);
 /*---(status)---------------*/
 char        yvikeys_macro_list      (int *a_count, char *a_list);
 /*---(file)-----------------*/
-char        yvikeys_macro_writer    (uchar a_abbr);
+char        yvikeys_macro_writer    (int c, uchar a_abbr);
 char        yvikeys_macro_writer_all(void);
 char        yvikeys_macro_reader    (void);
 int         yvikeys_macro_dump      (FILE *a_file);
@@ -693,7 +694,7 @@ char        yvikeys_menu__base_num  (int n);
 int         yvikeys_menu_find       (uchar *a_path);
 int         yvikeys_menu_menu       (uchar *a_path);
 
-char        yvikeys_menu_reanchor   (int a_anchor);
+char        yvikeys_menu_reanchor   (char a_anchor);
 char        yvikeys_menu_init       (void);
 char        yvikeys_menu_final      (void);
 char        yvikeys_menu_wrap       (void);
@@ -701,6 +702,8 @@ char        yvikeys_menu_start      (void);
 char        yvikeys_menu_smode      (int  a_major, int  a_minor);
 char        yvikeys_menu_draw       (void);
 char        yvikeys__menu_cleanse   (void);
+char        yvikeys_menu__place_round  (char a_type);
+void*       yvikeys_menu_found      (uchar *a_path);
 /*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
 
 
@@ -801,7 +804,7 @@ char        yvikeys_hist_text       (char a_mode, char *a_text);
 char        yvikeys_hist_exec       (char a_mode);
 /*---(files)--------------------------*/
 /*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
-char        yvikeys_hist__write     (char a_mode, char a_abbr);
+char        yvikeys_hist__write     (int c, char a_mode, char a_abbr);
 char        yvikeys_hist__writer    (char a_mode);
 char        yvikeys_cmds_writer     (void);
 char        yvikeys_srch_writer     (void);

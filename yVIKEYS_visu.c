@@ -597,7 +597,7 @@ yvikeys_visu_init       (void)
    s_visu.active = VISU_NOT;
    /*> yVIKEYS_view_optionX (YVIKEYS_STATUS, "visual" , yvikeys_visu_status , "details of visual selection"                );   <*/
    /*---(read/write)---------------------*/
-   rc = yPARSE_handler (UMOD_VISUAL  , "visu_mark" , 7.2, "cLL---------", -1, yvikeys_visu__reader, yvikeys_visu__writer_all, "------------" , "a,beg,end", "map mode visual selections");
+   rc = yPARSE_handler_max (UMOD_VISUAL  , "visu_mark" , 7.2, "cLL---------", -1, yvikeys_visu__reader, yvikeys_visu__writer_all, "------------" , "a,beg,end", "map mode visual selections");
    /*---(update status)------------------*/
    STATUS_init_set   (UMOD_VISUAL);
    /*---(complete)-----------------------*/
@@ -1021,7 +1021,7 @@ yVIKEYS_next        (int *a_b, int *a_x, int *a_y, int *a_z)
 static void  o___FILE____________o () { return; }
 
 char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/
-yvikeys_visu__writer     (char a_abbr)
+yvikeys_visu__writer     (int c, char a_abbr)
 {
    /*---(locals)-----------+-----------+-*/
    char        rce         =  -10;
@@ -1052,7 +1052,7 @@ yvikeys_visu__writer     (char a_abbr)
       return 0;
    }
    /*---(write)-----------------------*/
-   yPARSE_fullwrite ("visu_mark", a_abbr, s_visu_info [n].b_label, s_visu_info [n].e_label);
+   yPARSE_vprintf (c, "visu_mark", a_abbr, s_visu_info [n].b_label, s_visu_info [n].e_label);
    /*---(complete)-----------------------*/
    DEBUG_OUTP  yLOG_exit    (__FUNCTION__);
    return 1;
@@ -1075,16 +1075,16 @@ yvikeys_visu__writer_all (void)
       return rce;
    }
    /*---(prepare)------------------------*/
-   yPARSE_verb_begin ("visu_mark");
+   /*> yPARSE_verb_begin ("visu_mark");                                               <*/
    /*---(walk list)----------------------*/
    for (i = 0; i <= s_nvisu; ++i) {
-      rc = yvikeys_visu__writer (S_VISU_LIST [i]);
+      rc = yvikeys_visu__writer (c, S_VISU_LIST [i]);
       if (rc < 1)  continue;
       ++c;
-      yPARSE_verb_break (c);
+      /*> yPARSE_verb_break (c);                                                      <*/
    }
    /*---(wrap-up)------------------------*/
-   yPARSE_verb_end   (c);
+   /*> yPARSE_verb_end   (c);                                                         <*/
    /*---(complete)-----------------------*/
    DEBUG_OUTP  yLOG_exit    (__FUNCTION__);
    return c;

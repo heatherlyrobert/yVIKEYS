@@ -376,30 +376,34 @@ yvikeys_sizes_horz__float (tPARTS *p, int a_left)
 {
    p->wide = s_main_wide * 0.90;
    p->left = a_left + (s_main_wide * 0.05);
+   DEBUG_GRAF   yLOG_complex ("horz_float", "%c, %3da, %3ds, %3dw, %3dl", myVIKEYS.loc_float, a_left, s_main_wide, p->wide, p->left);
    return 0;
 }
 
 char
 yvikeys_sizes_horz__menu  (tPARTS *p, int a_left)
 {
+   DEBUG_GRAF   yLOG_value   ("a_left"    , a_left);
+   DEBUG_GRAF   yLOG_value   ("wide"      , p->wide);
    p->wide = p->def_wide;
    switch (myVIKEYS.loc_menu) {
-   case 'a' : case 's' : case 'd' :
+   case YVIKEYS_TOPLEF : case YVIKEYS_MIDLEF : case YVIKEYS_BOTLEF :
       p->left = a_left;
       break;
-   case '1' : case '4' : case '7' :
+   case YVIKEYS_UPSBEG : case YVIKEYS_MIDBEG : case YVIKEYS_LOWBEG :
       p->left = a_left + (s_main_wide * 0.10);
       break;
-   case '2' : case '5' : case '8' : case 't' : case 'b' :
+   case YVIKEYS_TOPCEN : case YVIKEYS_MIDCEN : case YVIKEYS_BOTCEN : case YVIKEYS_UPSCEN : case YVIKEYS_LOWCEN :
       p->left = a_left + (s_main_wide * 0.50) - (p->wide * 0.50);
       break;
-   case '3' : case '6' : case '9' :
+   case YVIKEYS_UPSEND : case YVIKEYS_MIDEND : case YVIKEYS_LOWEND :
       p->left = a_left + (s_main_wide * 0.90) - p->wide;
       break;
-   case 'u' : case 'e' : case 'z' :
+   case YVIKEYS_TOPRIG : case YVIKEYS_MIDRIG : case YVIKEYS_BOTRIG :
       p->left = a_left + s_main_wide - p->wide;
       break;
    }
+   DEBUG_GRAF   yLOG_complex ("horz_menu" , "%c, %3da, %3ds, %3dw, %3dl", myVIKEYS.loc_menu, a_left, s_main_wide, p->wide, p->left);
    return 0;
 }
 
@@ -407,23 +411,24 @@ char
 yvikeys_sizes_horz__hist  (tPARTS *p, int a_left)
 {
    switch (myVIKEYS.loc_hist) {
-   case 'l' :
+   case YVIKEYS_MIDLEF :
       p->wide = s_main_wide * 0.45;
       p->left = a_left + (s_main_wide * 0.05);
       break;
-   case 'c' :
+   case YVIKEYS_MIDCEN :
       p->wide = s_main_wide * 0.50;
       p->left = a_left + (s_main_wide * 0.25);
       break;
-   case 'r' :
+   case YVIKEYS_MIDRIG :
       p->wide = s_main_wide * 0.45;
       p->left = a_left + (s_main_wide * 0.50);
       break;
-   case 'f' :
+   case YVIKEYS_ALLALL :
       p->wide = s_main_wide * 0.80;
       p->left = a_left + (s_main_wide * 0.10);
       break;
    }
+   DEBUG_GRAF   yLOG_complex ("horz_hist" , "%c, %3da, %3ds, %3dw, %3dl", myVIKEYS.loc_hist, a_left, s_main_wide, p->wide, p->left);
    return 0;
 }
 
@@ -699,12 +704,13 @@ yvikeys_sizes_vert__float (tPARTS *p, int a_bott)
 {
    p->tall = p->def_tall;
    switch (myVIKEYS.loc_float) {
-   case 't'  : p->bott = a_bott + s_main_tall - (p->tall * 2.0); break;
-   case 'k'  : p->bott = a_bott + s_main_tall * (0.75) - (p->tall * 0.5);  break;
-   case 'm'  : p->bott = a_bott + s_main_tall * (0.50) - (p->tall * 0.5);  break;
-   case 'j'  : p->bott = a_bott + s_main_tall * (0.25) - (p->tall * 0.5);  break;
-   case 'b'  : p->bott = a_bott + p->tall;  break;
+   case YVIKEYS_TOPCEN : p->bott = a_bott + s_main_tall - (p->tall * 2.0); break;
+   case YVIKEYS_UPSCEN : p->bott = a_bott + s_main_tall * (0.75) - (p->tall * 0.5);  break;
+   case YVIKEYS_MIDCEN : p->bott = a_bott + s_main_tall * (0.50) - (p->tall * 0.5);  break;
+   case YVIKEYS_LOWCEN : p->bott = a_bott + s_main_tall * (0.25) - (p->tall * 0.5);  break;
+   case YVIKEYS_BOTCEN : p->bott = a_bott + p->tall;  break;
    }
+   DEBUG_GRAF   yLOG_complex ("vert_float", "%c, %3da, %3ds, %3dt, %3db", myVIKEYS.loc_float, a_bott, s_main_tall, p->tall, p->bott);
    return 0;
 }
 
@@ -713,22 +719,23 @@ yvikeys_sizes_vert__menu  (tPARTS *p, int a_bott)
 {
    p->tall = p->def_tall;
    switch (myVIKEYS.loc_menu) {
-   case 'a' : case 't' : case 'u' :
+   case YVIKEYS_TOPLEF : case YVIKEYS_TOPCEN : case YVIKEYS_TOPRIG :
       p->bott = a_bott + s_main_tall - p->tall;
       break;
-   case '1' : case '2' : case '3' :
+   case YVIKEYS_UPSBEG : case YVIKEYS_UPSCEN : case YVIKEYS_UPSEND :
       p->bott = a_bott + (s_main_tall * 0.90) - p->tall;
       break;
-   case '4' : case '5' : case '6' : case 's' : case 'e' :
+   case YVIKEYS_MIDLEF : case YVIKEYS_MIDCEN : case YVIKEYS_MIDRIG : case YVIKEYS_MIDBEG : case YVIKEYS_MIDEND :
       p->bott = a_bott + (s_main_tall * 0.50) - (p->tall * 0.50);
       break;
-   case '7' : case '8' : case '9' :
+   case YVIKEYS_LOWBEG : case YVIKEYS_LOWCEN : case YVIKEYS_LOWEND :
       p->bott = a_bott + (s_main_tall * 0.10);
       break;
-   case 'd' : case 'b' : case 'z' :
+   case YVIKEYS_BOTLEF : case YVIKEYS_BOTCEN : case YVIKEYS_BOTRIG :
       p->bott = a_bott;
       break;
    }
+   DEBUG_GRAF   yLOG_complex ("vert_menu" , "%c, %3da, %3ds, %3dt, %3db", myVIKEYS.loc_menu, a_bott, s_main_tall, p->tall, p->bott);
    return 0;
 }
 
@@ -737,6 +744,7 @@ yvikeys_sizes_vert__hist  (tPARTS *p, int a_bott)
 {
    p->tall = s_main_tall * 0.90;
    p->bott = a_bott + (s_main_tall * 0.05);
+   DEBUG_GRAF   yLOG_complex ("vert_hist" , "%c, %3da, %3ds, %3dt, %3db", myVIKEYS.loc_hist, a_bott, s_main_tall, p->tall, p->bott);
    return 0;
 }
 
@@ -872,8 +880,9 @@ char
 yvikeys_sizes_menu_loc  (char a_loc)
 {
    if (a_loc == 0)  return -1;
-   if (strchr ("123456789atusedbz", a_loc) == NULL)  return -2;
+   if (strchr (YVIKEYS_LOC_MENU, a_loc) == NULL)  return -2;
    myVIKEYS.loc_menu = a_loc;
+   yvikeys_view_reanchor (YVIKEYS_MENUS, a_loc);
    yvikeys_sizes_resize ('-');
    return 0;
 }
@@ -882,8 +891,9 @@ char
 yvikeys_sizes_float_loc (char a_loc)
 {
    if (a_loc == 0)                       return -1;
-   if (strchr ("tkmjb", a_loc) == NULL)  return -2;
+   if (strchr (YVIKEYS_LOC_FLOAT, a_loc) == NULL)  return -2;
    myVIKEYS.loc_float = a_loc;
+   yvikeys_view_reanchor (YVIKEYS_FLOAT, a_loc);
    yvikeys_sizes_resize ('-');
    return 0;
 }
@@ -892,8 +902,9 @@ char
 yvikeys_sizes_hist_loc  (char a_loc)
 {
    if (a_loc == 0)                       return -1;
-   if (strchr ("flcr", a_loc) == NULL)   return -2;
+   if (strchr (YVIKEYS_LOC_HIST, a_loc) == NULL)   return -2;
    myVIKEYS.loc_hist  = a_loc;
+   yvikeys_view_reanchor (YVIKEYS_HISTORY, a_loc);
    yvikeys_sizes_resize ('-');
    return 0;
 }
@@ -921,44 +932,43 @@ yvikeys_sizes__anchor   (tPARTS *p)
    p->type = YVIKEYS_FLAT;
    x_len = p->xlen = p->wide;
    y_len = p->ylen = p->tall;
+   /*---(horzontal)----------------------*/
    switch (p->anchor) {
-   case YVIKEYS_TOPLEF :
+   case YVIKEYS_TOPLEF : case YVIKEYS_MIDLEF : case YVIKEYS_BOTLEF :
       p->xmin = 0;
+      break;
+   case YVIKEYS_UPSBEG : case YVIKEYS_MIDBEG : case YVIKEYS_LOWBEG :
+      p->xmin = 0 - (x_len * 0.75);
+      break;
+   case YVIKEYS_TOPCEN : case YVIKEYS_UPSCEN : case YVIKEYS_MIDCEN : case YVIKEYS_LOWCEN : case YVIKEYS_BOTCEN :
+      p->xmin = 0 - (x_len * 0.50);
+      break;
+   case YVIKEYS_UPSEND : case YVIKEYS_MIDEND : case YVIKEYS_LOWEND :
+      p->xmin = 0 - (x_len * 0.25);
+      break;
+   case YVIKEYS_TOPRIG : case YVIKEYS_MIDRIG : case YVIKEYS_BOTRIG :
+      p->xmin = 0 - x_len;
+      break;
+   }
+   /*---(vertical)-----------------------*/
+   switch (p->anchor) {
+   case YVIKEYS_TOPLEF : case YVIKEYS_TOPCEN : case YVIKEYS_TOPRIG :
       p->ymin = 0 - y_len;
       break;
-   case YVIKEYS_TOPCEN :
-      p->xmin = 0 - (x_len / 2);
-      p->ymin = 0 - y_len;
+   case YVIKEYS_UPSBEG : case YVIKEYS_UPSCEN : case YVIKEYS_UPSEND :
+      p->ymin = 0 - (y_len * 0.75);
       break;
-   case YVIKEYS_TOPRIG :
-      p->xmin = 0 - x_len;
-      p->ymin = 0 - y_len;
+   case YVIKEYS_MIDLEF : case YVIKEYS_MIDBEG : case YVIKEYS_MIDCEN : case YVIKEYS_MIDEND : case YVIKEYS_MIDRIG : 
+      p->ymin = 0 - (y_len * 0.50);
       break;
-   case YVIKEYS_MIDLEF :
-      p->xmin = 0;
-      p->ymin = 0 - (y_len / 2);
+   case YVIKEYS_LOWBEG : case YVIKEYS_LOWCEN : case YVIKEYS_LOWEND :
+      p->ymin = 0 - (y_len * 0.75);
       break;
-   case YVIKEYS_MIDCEN :
-      p->xmin = 0 - (x_len / 2);
-      p->ymin = 0 - (y_len / 2);
-      break;
-   case YVIKEYS_MIDRIG :
-      p->xmin = 0 - x_len;
-      p->ymin = 0 - (y_len / 2);
-      break;
-   case YVIKEYS_BOTLEF :
-      p->xmin = 0;
-      p->ymin = 0;
-      break;
-   case YVIKEYS_BOTCEN :
-      p->xmin = 0 - (x_len / 2);
-      p->ymin = 0;
-      break;
-   case YVIKEYS_BOTRIG :
-      p->xmin = 0 - x_len;
+   case YVIKEYS_BOTLEF : case YVIKEYS_BOTCEN : case YVIKEYS_BOTRIG :
       p->ymin = 0;
       break;
    }
+   /*---(depth)--------------------------*/
    p->zmin = -500;
    p->zlen = 1000;
    /*---(complete)-----------------------*/

@@ -649,7 +649,7 @@ yvikeys_hist_show       (void)
 static void  o___FILES___________o () { return; }
 
 char         /*-> tbd --------------------------------[ ------ [ge.732.124.21]*/ /*-[02.0000.01#.#]-*/ /*-[--.---.---.--]-*/
-yvikeys_hist__write     (char a_mode, char a_abbr)
+yvikeys_hist__write     (int c, char a_mode, char a_abbr)
 {
    /*---(locals)-----------+-----------+-*/
    char        rce         =  -10;
@@ -681,8 +681,8 @@ yvikeys_hist__write     (char a_mode, char a_abbr)
    }
    /*---(write)-----------------------*/
    strlcpy  (x_recd, x_curr->text, LEN_RECD);
-   if (a_mode == MODE_COMMAND)  yPARSE_fullwrite ("command", x_curr->mark, x_recd);
-   else                         yPARSE_fullwrite ("search" , x_curr->mark, x_recd);
+   if (a_mode == MODE_COMMAND)  yPARSE_vprintf (c, "command", x_curr->mark, x_recd);
+   else                         yPARSE_vprintf (c, "search" , x_curr->mark, x_recd);
    /*---(complete)-----------------------*/
    DEBUG_OUTP  yLOG_exit    (__FUNCTION__);
    return 1;
@@ -709,17 +709,17 @@ yvikeys_hist__writer    (char a_mode)
    yvikeys_hist__switcher (a_mode, '-');
    /*---(prepare)------------------------*/
    x_end = strlen (S_HIST_LIST);
-   if (a_mode == MODE_COMMAND)  yPARSE_verb_begin ("command");
-   else                         yPARSE_verb_begin ("search");
+   /*> if (a_mode == MODE_COMMAND)  yPARSE_verb_begin ("command");                    <* 
+    *> else                         yPARSE_verb_begin ("search");                     <*/
    /*---(walk list)----------------------*/
    for (i = 0; i < x_end; ++i) {
-      rc = yvikeys_hist__write (a_mode, S_HIST_LIST [i]);
+      rc = yvikeys_hist__write (c, a_mode, S_HIST_LIST [i]);
       if (rc < 1)  continue;
       ++c;
-      yPARSE_verb_break (c);
+      /*> yPARSE_verb_break (c);                                                      <*/
    }
    /*---(wrap-up)------------------------*/
-   yPARSE_verb_end   (c);
+   /*> yPARSE_verb_end   (c);                                                         <*/
    /*---(complete)-----------------------*/
    DEBUG_OUTP  yLOG_exit    (__FUNCTION__);
    return c;

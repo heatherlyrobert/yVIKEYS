@@ -153,7 +153,7 @@ static const tCMDS  s_base      [] = {
    { 'b', 'f', "writequit"       , "wq"  , yvikeys_cmds__writequit   , ""    , ""                                                            },
    { 'b', 'f', "writequitall"    , "wqa" , yvikeys_cmds__writequit   , ""    , ""                                                            },
    { 'b', 'e', "dump"            , ""    , yvikeys_dump_exec         , "s"   , "dump a specified data table to the clipboard in flat text"   },
-   { 'b', 'c', "menu"            , ""    , yvikeys_menu_reanchor     , "i"   , "change the menu anchoring"                                   },
+   { 'b', 'c', "menu"            , ""    , yvikeys_menu_reanchor     , "c"   , "change the menu anchoring"                                   },
    { 'b', 'f', "cd"              , ""    , yvikeys_file_loc          , "a"   , "set the default directory for file reading and writing"      },
    { 'b', 'f', "file"            , ""    , yvikeys_file_name         , "a"   , "rename a file for reading and writing"                       },
    { 'b', 'f', "browse"          , ""    , yvikeys_file_browse       , "a"   , "find existing file name for reading and writing"             },
@@ -757,7 +757,7 @@ yvikeys_cmds_init       (void)
    DEBUG_PROG   yLOG_note    ("add universal commands");
    myVIKEYS.done = '-';
    /*---(yparse)-------------------------*/
-   rc = yPARSE_handler (MODE_COMMAND , "command"   , 7.4, "cO----------", -1, yvikeys_cmds_reader, yvikeys_cmds_writer, "------------" , "a,command-----------------", "command history"           );
+   rc = yPARSE_handler_max (MODE_COMMAND , "command"   , 7.4, "cO----------", -1, yvikeys_cmds_reader, yvikeys_cmds_writer, "------------" , "a,command-----------------", "command history"           );
    /*---(complete)-----------------------*/
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -1111,7 +1111,7 @@ yvikeys_srch_init       (void)
    /*---(update status)------------------*/
    STATUS_init_set   (MODE_SEARCH);
    /*---(yparse)-------------------------*/
-   rc = yPARSE_handler (MODE_SEARCH  , "search"    , 7.5, "cO----------", -1, yvikeys_srch_reader, yvikeys_srch_writer, "------------" , "a,search"                  , "search history"            );
+   rc = yPARSE_handler_max (MODE_SEARCH  , "search"    , 7.5, "cO----------", -1, yvikeys_srch_reader, yvikeys_srch_writer, "------------" , "a,search"                  , "search history"            );
    /*---(complete)-----------------------*/
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;

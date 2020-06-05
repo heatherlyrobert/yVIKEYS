@@ -673,6 +673,30 @@ yVIKEYS_view_font       (cchar a_fixed)
 }
 
 char
+yVIKEYS_view_fonts      (uchar *a_fixed, uchar *a_fancy)
+{
+   DEBUG_GRAF   yLOG_senter   (__FUNCTION__);
+   if (a_fixed != NULL) {
+      myVIKEYS.font  = yFONT_load (a_fixed);
+      DEBUG_GRAF   yLOG_sint     (myVIKEYS.font);
+      if (myVIKEYS.font <  0) {
+         fprintf(stderr, "Problem loading %s\n", a_fixed);
+         exit(1);
+      }
+   }
+   if (a_fancy != NULL) {
+      myVIKEYS.fancy  = yFONT_load (a_fancy);
+      DEBUG_GRAF   yLOG_sint     (myVIKEYS.fancy);
+      if (myVIKEYS.fancy <  0) {
+         fprintf(stderr, "Problem loading %s\n", a_fancy);
+         exit(1);
+      }
+   }
+   DEBUG_GRAF   yLOG_sexit    (__FUNCTION__);
+   return 0;
+}
+
+char
 yVIKEYS_view_config     (cchar *a_title, cchar *a_ver, cchar a_env, cint a_wide, cint a_tall, cint a_alt)
 {
    /*---(locals)-----------+-----+-----+-*/
@@ -1149,12 +1173,47 @@ yVIKEYS_view_type       (cchar a_part)
 }
 
 char
-yvikeys_view_reanchor   (cchar a_part, cint a_anchor)
+yvikeys_view_reanchor   (char a_part, char a_anchor)
 {
+   char        rce         =  -10;
    char        n           =    0;
-   if (a_anchor < 1 || a_anchor > 9)  return -1;
+   --rce;  switch (a_part) {
+   case YVIKEYS_FLOAT   :
+      if (strchr (YVIKEYS_LOC_FLOAT, a_anchor) == NULL) {
+         return rce;
+      }
+      switch (a_anchor) {
+      case 'f' : a_anchor = YVIKEYS_ALLALL;   break;
+      case 'l' : a_anchor = YVIKEYS_MIDLEF;   break;
+      case 'c' : a_anchor = YVIKEYS_MIDCEN;   break;
+      case 'r' : a_anchor = YVIKEYS_MIDRIG;   break;
+      }
+      break;
+   case YVIKEYS_HISTORY :
+      if (strchr (YVIKEYS_LOC_HIST , a_anchor) == NULL) {
+         return rce;
+      }
+      switch (a_anchor) {
+      case 't' : a_anchor = YVIKEYS_TOPCEN;   break;
+      case 'k' : a_anchor = YVIKEYS_UPSCEN;   break;
+      case 'm' : a_anchor = YVIKEYS_MIDCEN;   break;
+      case 'j' : a_anchor = YVIKEYS_LOWCEN;   break;
+      case 'b' : a_anchor = YVIKEYS_BOTCEN;   break;
+      }
+      break;
+   case YVIKEYS_MENUS   :
+      if (strchr (YVIKEYS_LOC_MENU , a_anchor) == NULL) {
+         return rce;
+      }
+      break;
+   default    :
+      if (strchr (YVIKEYS_LOC_NORM , a_anchor) == NULL) {
+         return rce;
+      }
+      break;
+   }
    n = yvikeys_view__abbr (a_part);
-   if (n < 0)  return -2;
+   --rce;  if (n < 0)  return rce;
    s_parts [n].anchor = a_anchor;
    return 0;
 }
@@ -1683,7 +1742,7 @@ VIEW__unit              (char *a_question, char a_index)
    }
    else if (strcmp (a_question, "bounds"         )   == 0) {
       n    = yvikeys_view__abbr   (a_index);
-      snprintf (yVIKEYS__unit_answer, LEN_FULL, "VIEW %-12.12s: an %d, xmin %4d, xmax %4d, ymin %4d, ymax %4d", s_parts [n].name, s_parts [n].anchor, s_parts [n].xmin, s_parts [n].xmin + s_parts [n].xlen, s_parts [n].ymin, s_parts [n].ymin + s_parts [n].ylen);
+      snprintf (yVIKEYS__unit_answer, LEN_FULL, "VIEW %-12.12s: an %c, xmin %4d, xmax %4d, ymin %4d, ymax %4d", s_parts [n].name, s_parts [n].anchor, s_parts [n].xmin, s_parts [n].xmin + s_parts [n].xlen, s_parts [n].ymin, s_parts [n].ymin + s_parts [n].ylen);
    }
    if      (strcmp (a_question, "active"         )   == 0) {
       n    = yvikeys_view__abbr   (a_index);

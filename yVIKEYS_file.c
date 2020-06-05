@@ -219,9 +219,9 @@ yvikeys_file_init               (void)
    if (strcmp (myVIKEYS.f_loc, "//") == 0)  strlcpy (myVIKEYS.f_loc, "/", LEN_LABEL);
    DEBUG_PROG   yLOG_info    ("f_loc"     , myVIKEYS.f_loc);
    /*---(yPARSE verbs)-------------------*/
-   rc = yPARSE_handler ('·'          , "source"    , 0.1, "OSO---------", -1, NULL          , yvikeys_file_prog_writer   , "------------" , ""                          , "source program versioning" );
-   rc = yPARSE_handler ('·'          , "written"   , 0.2, "O-----------", -1, NULL          , yvikeys_file_time_writer   , "------------" , ""                          , "data file save timestamp"  );
-   rc = yPARSE_handler ('·'          , "version"   , 0.3, "cSO---------", -1, NULL          , yvikeys_file_vers_writer   , "------------" , ""                          , "data file versioning"      );
+   rc = yPARSE_handler_max ('·'          , "source"    , 0.1, "OSO---------", -1, NULL          , yvikeys_file_prog_writer   , "------------" , ""                          , "source program versioning" );
+   rc = yPARSE_handler_max ('·'          , "written"   , 0.2, "O-----------", -1, NULL          , yvikeys_file_time_writer   , "------------" , ""                          , "data file save timestamp"  );
+   rc = yPARSE_handler_max ('·'          , "version"   , 0.3, "cSO---------", -1, NULL          , yvikeys_file_vers_writer   , "------------" , ""                          , "data file versioning"      );
    /*---(pointers)-----------------------*/
    s_prepper  = NULL;
    s_finisher = NULL;
@@ -1074,19 +1074,19 @@ yvikeys__file_intro      (void)
    /*---(write header)---------------------*/
    yPARSE_section ("GENERAL");
    /*---(format identifiers)---------------*/
-   rc = yPARSE_fullwrite ("source"   , myVIKEYS.s_prog, myVIKEYS.s_vernum, myVIKEYS.s_vertxt);
+   rc = yPARSE_vprintf (-1, "source"   , myVIKEYS.s_prog, myVIKEYS.s_vernum, myVIKEYS.s_vertxt);
    DEBUG_INPT   yLOG_value   ("source"    , rc);
    /*---(timestamp)------------------------*/
    x_time = time (NULL);
    strftime (x_temp, 100, "%Y.%m.%d.%H.%M.%S", localtime (&x_time));
-   rc = yPARSE_fullwrite ("written"  , x_temp);
+   rc = yPARSE_vprintf (-1, "written"  , x_temp);
    DEBUG_INPT   yLOG_value   ("written"   , rc);
    /*---(version)------------------------*/
    if (myVIKEYS.f_control == 'y') {
-      rc = yPARSE_fullwrite ("version"  , myVIKEYS.f_vernum, myVIKEYS.f_vertxt);
+      rc = yPARSE_vprintf (-1, "version"  , myVIKEYS.f_vernum, myVIKEYS.f_vertxt);
       DEBUG_INPT   yLOG_value   ("version"   , rc);
    } else {
-      rc = yPARSE_fullwrite ("version"  , "n/a", "untracked");
+      rc = yPARSE_vprintf (-1, "version"  , "n/a", "untracked");
    }
    /*---(complete)-----------------------*/
    DEBUG_INPT   yLOG_exit    (__FUNCTION__);
@@ -1355,7 +1355,7 @@ yvikeys_file_prog_writer (void)
    /*---(clear output)-------------------*/
    yPARSE_outclear  ();
    /*---(write line)---------------------*/
-   rc = yPARSE_fullwrite ("source"   , myVIKEYS.s_prog, myVIKEYS.s_vernum, myVIKEYS.s_vertxt);
+   rc = yPARSE_vprintf (-1, "source"   , myVIKEYS.s_prog, myVIKEYS.s_vernum, myVIKEYS.s_vertxt);
    DEBUG_INPT   yLOG_value   ("source"    , rc);
    --rce; if (rc < 0) { 
       DEBUG_OUTP   yLOG_exitr   (__FUNCTION__, rce);
@@ -1381,7 +1381,7 @@ yvikeys_file_time_writer (void)
    /*---(timestamp)------------------------*/
    x_time = time (NULL);
    strftime (x_temp, 100, "%y.%m.%d.%H.%M.%S.%V.%w", localtime (&x_time));
-   rc = yPARSE_fullwrite ("written"  , x_temp);
+   rc = yPARSE_vprintf (-1, "written"  , x_temp);
    DEBUG_INPT   yLOG_value   ("written"   , rc);
    --rce; if (rc < 0) { 
       DEBUG_OUTP   yLOG_exitr   (__FUNCTION__, rce);
@@ -1404,9 +1404,9 @@ yvikeys_file_vers_writer (void)
    yPARSE_outclear  ();
    /*---(version)------------------------*/
    if (myVIKEYS.f_control == 'y') {
-      rc = yPARSE_fullwrite ("version"  , 'y', myVIKEYS.f_vernum, myVIKEYS.f_vertxt);
+      rc = yPARSE_vprintf (-1, "version"  , 'y', myVIKEYS.f_vernum, myVIKEYS.f_vertxt);
    } else {
-      rc = yPARSE_fullwrite ("version"  , '-', "n/a", "untracked");
+      rc = yPARSE_vprintf (-1, "version"  , '-', "n/a", "untracked");
    }
    DEBUG_INPT   yLOG_value   ("version"   , rc);
    --rce; if (rc < 0) { 
