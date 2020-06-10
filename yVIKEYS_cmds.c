@@ -222,6 +222,7 @@ static const tCMDS  s_base      [] = {
    { 'b', 'v', "gridsize"        , ""    , VIEW__grid_size           , "iii" , ""                                                            },
    { 'b', 'v', "layout"          , ""    , yvikeys_sizes_layout      , "s"   , ""                                                            },
    { 'b', 'v', "layer"           , ""    , yvikeys_layer_action      , "ss"  , ""                                                            },
+   { 'b', 'i', "note"            , ""    , yvikeys_note              , "a"   , "manage screen annotations (notes)"                           },
    { 0  , 0  , "-"               , ""    , NULL                      , ""    , ""                                                            },
 };
 
@@ -756,8 +757,6 @@ yvikeys_cmds_init       (void)
    /*---(commands)-----------------------*/
    DEBUG_PROG   yLOG_note    ("add universal commands");
    myVIKEYS.done = '-';
-   /*---(yparse)-------------------------*/
-   rc = yPARSE_handler_max (MODE_COMMAND , "command"   , 7.4, "cO----------", -1, yvikeys_cmds_reader, yvikeys_cmds_writer, "------------" , "a,command-----------------", "command history"           );
    /*---(complete)-----------------------*/
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -1110,8 +1109,6 @@ yvikeys_srch_init       (void)
    yvikeys_srch__purge ();
    /*---(update status)------------------*/
    STATUS_init_set   (MODE_SEARCH);
-   /*---(yparse)-------------------------*/
-   rc = yPARSE_handler_max (MODE_SEARCH  , "search"    , 7.5, "cO----------", -1, yvikeys_srch_reader, yvikeys_srch_writer, "------------" , "a,search"                  , "search history"            );
    /*---(complete)-----------------------*/
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;

@@ -59,6 +59,19 @@ static int      s_count    = 0;
 static int      s_index    = 0;
 static uchar    s_layer    = 'm';
 
+#define      MAX_NOTES     10
+static struct {
+   char        xr, yr, size;
+   short       x, y;
+   uchar       w, h;
+   char       *text;
+   char        xt, yt;
+   short       xb, yb;
+   short       xe, ye;
+} s_notes [MAX_NOTES];
+static char s_nnote = 0;
+
+
 
 
 static uchar   s_valid [MAX_LAYERS];
@@ -94,6 +107,7 @@ yvikeys_layer_init       (void)
    strlcat (s_valid, gvikeys_greek , MAX_LAYERS);
    s_max = strlen (s_valid);
    for (i = 0; i < s_max; ++i)  s_marks [i] = NULL;
+   yvikeys_note__purge ('y');
    return 0;
 }
 
@@ -101,6 +115,7 @@ char
 yvikeys_layer_wrap       (void)
 {
    yvikeys_layer_purge ();
+   yvikeys_note__purge ('-');
    return 0;
 }
 
@@ -592,10 +607,10 @@ yvikeys_layer__adds      (uchar *a_name, uchar a_action)
    case ']' : /* move to tail    */ x_layer = 'z'; x_dir   = '<';  break;
    case '~' : /* move to bottom  */ x_layer = 'ÿ'; x_dir   = '<';  break;
    default  : /* specific mark   */
-      x_layer = tolower (a_action);
-      x_dir   = '>';
-      if (a_action != tolower (a_action))  x_dir = '<';
-      break;
+                                    x_layer = tolower (a_action);
+                                    x_dir   = '>';
+                                    if (a_action != tolower (a_action))  x_dir = '<';
+                                    break;
    }
    /*---(fix layer)----------------------*/
    if (x_layer == '/')          x_layer = '0';
@@ -873,6 +888,437 @@ yvikeys_layer_list       (void)
 
 
 /*====================------------------------------------====================*/
+/*===----                       annotated notes                        ----===*/
+/*====================------------------------------------====================*/
+static void  o___ANNOTATE________o () { return; }
+
+char
+yvikeys_note__size      (char a_type, char n, char xr, char yr, char a_size)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   int         x_left, x_wide, x_bott, x_tall;
+   float       a, b;
+   /*---(header)-------------------------*/
+   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
+   /*---(total size)---------------------*/
+   switch (a_type) {
+   case YVIKEYS_OPENGL :
+      yVIKEYS_view_bounds (YVIKEYS_MAIN, &x_left, NULL, &x_wide, &x_bott, NULL, &x_tall);
+      switch (a_size) {
+      case '-'  : s_notes [n].w = 100; s_notes [n].h =  30;  break;
+      case '='  : s_notes [n].w = 175; s_notes [n].h =  60;  break;
+      case '+'  : s_notes [n].w = 250; s_notes [n].h =  80;  break;
+      }
+      break;
+   case YVIKEYS_CURSES :
+      yVIKEYS_view_size   (YVIKEYS_MAIN, &x_left, &x_wide, &x_bott, &x_tall, NULL);
+      switch (a_size) {
+      case '-'  : s_notes [n].w =  10; s_notes [n].h =   1;  break;
+      case '='  : s_notes [n].w =  25; s_notes [n].h =   3;  break;
+      case '+'  : s_notes [n].w =  40; s_notes [n].h =   4;  break;
+      }
+      break;
+   }
+   DEBUG_GRAF   yLOG_complex  ("main"      , "%4dl, %4dw, %4db, %4dt", x_left, x_wide, x_bott, x_tall);
+   /*---(vertical)-----------------------*/
+   a = (8 - (yr - '1')) * (1.0/8.0);
+   b = 1 - a;
+   if (a_type == YVIKEYS_OPENGL)  {
+      s_notes [n].y  = x_bott + (x_tall * a) + (s_notes [n].h * b);
+   } else {
+      s_notes [n].y  = x_bott - (x_tall * a) - (s_notes [n].h * b) + 1;
+   }
+   /*---(horizontal)---------------------*/
+   a = (xr - '1') * (1.0/8.0);
+   s_notes [n].x  = x_left + (x_wide * a) - (s_notes [n].w * a);
+   /*> if (s_notes [n].x + s_notes [n].w >= x_left + x_wide)  s_notes [n].x = x_left + x_wide - s_notes [n].w - 1;   <*/
+   /*---(report-out)---------------------*/
+   DEBUG_GRAF   yLOG_complex  ("size"      , "%4dx, %4dy, %4dw, %4dh", s_notes [n].x, s_notes [n].y, s_notes [n].w, s_notes [n].h);
+   /*---(complete)-----------------------*/
+   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char
+yvikeys_note__target    (char a_type, char n, char xt, char yt)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   int         x_left, x_wide, x_bott, x_tall;
+   int         x_inc , x_bump, y_inc , y_bump;
+   uchar      *x_valid     = "-abcdefghijklmnopqrstuvwxyz";
+   /*---(header)-------------------------*/
+   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   DEBUG_GRAF   yLOG_char    ("xt"        , xt);
+   --rce;  if (xt == 0 || strchr (x_valid, xt) == NULL) {
+      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_GRAF   yLOG_char    ("yt"        , yt);
+   --rce;  if (xt == 0 || strchr (x_valid, yt) == NULL) {
+      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(default)------------------------*/
+   if (xt == '-' || yt == '-' || a_type == YVIKEYS_CURSES) {
+      s_notes [n].xb = s_notes [n].yb = 0;
+      s_notes [n].xe = s_notes [n].ye = 0;
+      DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
+   /*---(total size)---------------------*/
+   yVIKEYS_view_bounds (YVIKEYS_MAIN, &x_left, NULL, &x_wide, &x_bott, NULL, &x_tall);
+   DEBUG_GRAF   yLOG_complex  ("main"      , "%4dl, %4dw, %4db, %4dt", x_left, x_wide, x_bott, x_tall);
+   /*---(horizontal)---------------------*/
+   s_notes [n].xb = s_notes [n].x + s_notes [n].w * 0.50;
+   x_inc  = x_wide / 25;
+   x_bump = x_inc * 0.50;
+   s_notes [n].xe = x_left + (xt - 'a') * x_inc + x_bump;
+   /*---(vertical)-----------------------*/
+   s_notes [n].yb = s_notes [n].y - s_notes [n].h * 0.50;
+   y_inc  = x_tall / 25;
+   y_bump = y_inc * 0.50;
+   s_notes [n].ye = x_bott + x_tall - (yt - 'a') * y_inc - y_bump;
+   /*---(report-out)---------------------*/
+   DEBUG_GRAF   yLOG_complex  ("endpoint"  , "%4dx, %4dy, %4dx, %4dy", s_notes [n].xb, s_notes [n].yb, s_notes [n].xe, s_notes [n].ye);
+   /*---(complete)-----------------------*/
+   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char
+yvikeys_note__clear     (char a_init, char n)
+{
+   if (a_init != 'y' && s_notes [n].xr != '0' && s_notes [n].text != NULL) free (s_notes [n].text);
+   s_notes [n].text = NULL;
+   s_notes [n].xr   = '0';
+   s_notes [n].yr   = '0';
+   s_notes [n].size = '=';
+   s_notes [n].x    = 0;
+   s_notes [n].y    = 0;
+   s_notes [n].w    = 0;
+   s_notes [n].h    = 0;
+   s_notes [n].xt   = '-';
+   s_notes [n].yt   = '-';
+   s_notes [n].xb   = 0;
+   s_notes [n].yb   = 0;
+   s_notes [n].xe   = 0;
+   s_notes [n].ye   = 0;
+   return 0;
+}
+
+char
+yvikeys_note__purge     (char a_init)
+{
+   int         i           =    0;
+   for (i = 0; i < MAX_NOTES; ++i) {
+      yvikeys_note__clear (a_init, i);
+   }
+   s_nnote = 0;
+   return 0;
+}
+
+char
+yvikeys_note__find      (char xr, char yr)
+{
+   int         i           =    0;
+   for (i = 0; i < s_nnote; ++i) {
+      if (s_notes [i].xr != xr)  continue;
+      if (s_notes [i].yr != yr)  continue;
+      return i;
+   }
+   return -1;
+}
+
+char
+yvikeys_note__append    (char xr, char yr, char a_size, char *a_text, char xt, char yt)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        n           =    0;
+   int         x_len       =    0;
+   char        t           [LEN_TERSE] = "";
+   char        u           [LEN_RECD]  = "";
+   char       *p           = NULL;
+   /*---(header)-------------------------*/
+   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   DEBUG_GRAF   yLOG_value   ("s_nnote"   , s_nnote);
+   --rce;  if (s_nnote >= MAX_NOTES) {
+      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_GRAF   yLOG_char    ("xr"        , xr);
+   --rce;  if (xr == 0 || strchr ("123456789", xr) == NULL) {
+      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_GRAF   yLOG_char    ("yr"        , yr);
+   --rce;  if (yr == 0 || strchr ("123456789", yr) == NULL) {
+      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_GRAF   yLOG_char    ("a_size"    , a_size);
+   --rce;  if (a_size == 0 || strchr ("-=+", a_size) == NULL) {
+      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_GRAF   yLOG_point   ("a_text"    , a_text);
+   --rce;  if (a_text == NULL || a_text [0] == '\0') {
+      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_GRAF   yLOG_info    ("a_text"    , a_text);
+   s_notes [s_nnote].xr   = xr;
+   s_notes [s_nnote].yr   = yr;
+   s_notes [s_nnote].size = a_size;
+   s_notes [s_nnote].text = strdup (a_text);
+   yvikeys_note__size   (myVIKEYS.env, s_nnote, xr, yr, a_size);
+   s_notes [s_nnote].xt   = xt;
+   s_notes [s_nnote].yt   = yt;
+   yvikeys_note__target (myVIKEYS.env, s_nnote, xt, yt);
+   ++s_nnote;
+   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char
+yvikeys_note__remove    (char n)
+{
+   char        rce         =  -10;
+   int         i           =    0;
+   --rce;  if (n < 0 || n > MAX_NOTES)  return rce;
+   --rce;  if (n >= s_nnote)            return rce;
+   if (s_notes [n].text != NULL)  free (s_notes [n].text);
+   for (i = n; i < s_nnote; ++i) {
+      s_notes [i].xr   = s_notes [i + 1].xr;
+      s_notes [i].yr   = s_notes [i + 1].yr;
+      s_notes [i].size = s_notes [i + 1].size;
+      s_notes [i].x    = s_notes [i + 1].x;
+      s_notes [i].y    = s_notes [i + 1].y;
+      s_notes [i].w    = s_notes [i + 1].w;
+      s_notes [i].h    = s_notes [i + 1].h;
+      s_notes [i].text = s_notes [i + 1].text;
+      s_notes [i].xt   = s_notes [i + 1].xt;
+      s_notes [i].yt   = s_notes [i + 1].yt;
+      s_notes [i].xb   = s_notes [i + 1].xb;
+      s_notes [i].yb   = s_notes [i + 1].yb;
+      s_notes [i].xe   = s_notes [i + 1].xe;
+      s_notes [i].ye   = s_notes [i + 1].ye;
+      if (i + 1 < MAX_NOTES)  yvikeys_note__clear ('y', i + 1);
+   }
+   --s_nnote;
+   return 0;
+}
+
+char
+yvikeys_note_resize     (void)
+{
+   int         i           =    0;
+   for (i = 0; i < s_nnote; ++i) {
+      yvikeys_note__size (myVIKEYS.env, i, s_notes [i].xr, s_notes [i].yr, s_notes [i].size);
+   }
+   return 0;
+}
+
+char
+yvikeys_note            (char *a_all)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   char        n           =    0;
+   int         x_len       =    0;
+   char        u           [LEN_RECD]  = "";
+   char       *p           = NULL;
+   uchar      *x_valid     = "-abcdefghijklmnopqrstuvwxyz";
+   char        xt          =  '-';
+   char        yt          =  '-';
+   /*---(header)-------------------------*/
+   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   DEBUG_GRAF   yLOG_point   ("a_all"     , a_all);
+   --rce;  if (a_all == NULL || a_all [0] == '\0') {
+      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_GRAF   yLOG_info    ("a_all"     , a_all);
+   /*---(clear all)----------------------*/
+   if (a_all [0] == '-') {
+      DEBUG_GRAF   yLOG_note    ("selected a full purge");
+      yvikeys_note__purge ('-');
+      DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
+   /*---(defense)------------------------*/
+   --rce;  if (strchr ("123456789", a_all [0]) == NULL) {
+      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   --rce;  if (strchr ("123456789", a_all [1]) == NULL) {
+      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   n = yvikeys_note__find (a_all [0], a_all [1]);
+   if (n >= 0) yvikeys_note__remove (n);
+   x_len = strlen (a_all);
+   DEBUG_GRAF   yLOG_value   ("x_len"     , x_len);
+   /*---(clear)--------------------------*/
+   if (x_len == 2) {
+      DEBUG_GRAF   yLOG_note    ("selected a single item purge");
+      DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
+   /*---(check quotes)-------------------*/
+   --rce;  if (strchr ("-=+", a_all [2]) == NULL) {
+      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   if (a_all [3] == '"') {
+      DEBUG_GRAF   yLOG_note    ("found lead quote");
+      strlcpy (u, a_all + 4, LEN_HUND);
+      p = strchr (u, '"');
+      if (p != NULL) {
+         DEBUG_GRAF   yLOG_note    ("found tail quote");
+         p [0] = '\0';
+         p [1] = '\0';
+         p [5] = '\0';
+         p += 2;
+         DEBUG_GRAF   yLOG_info    ("tail"      , p);
+         if (strchr (x_valid, p [0]) != NULL && p [1] == ' ' && strchr (x_valid, p [2]) != NULL) {
+            xt = p [0];
+            yt = p [2];
+         }
+         DEBUG_GRAF   yLOG_complex ("target"    , "%c %c", xt, yt);
+      }
+   } else {
+      strlcpy (u, a_all + 3, LEN_HUND);
+      x_len = strlen (u);
+      if (x_len > 5) {
+         p = u + x_len - 4;
+         DEBUG_GRAF   yLOG_info    ("tail"      , p);
+         if (p [0] == ' ' && strchr (x_valid, p [1]) != NULL && p [2] == ' ' && strchr (x_valid, p [3]) != NULL) {
+            xt = p [1];
+            yt = p [3];
+            p [0] = '\0';
+         }
+      }
+   }
+   if (myVIKEYS.env == YVIKEYS_CURSES)  xt = yt = '-';
+   DEBUG_GRAF   yLOG_info    ("u"         , u);
+   /*---(save)---------------------------*/
+   rc = yvikeys_note__append (a_all [0], a_all [1], a_all [2], u, xt, yt);
+   DEBUG_GRAF   yLOG_value   ("append"    , rc);
+   --rce;  if (rc < 0) {
+      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(complete)-----------------------*/
+   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char
+yvikeys_note_target     (int xb, int yb, int xe, int ye, int z)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        t           [LEN_LABEL];
+   int         x_align     =    0;
+   int         x_cen, x_mid;
+   int         x_len       =    0;
+   int         x_edge      =    8;
+   /*---(header)-------------------------*/
+   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
+   /*---(opengl)-------------------------*/
+   glColor4f    (0.00f, 0.00f, 0.00f, 1.00f);
+   glLineWidth   (4.0);
+   glBegin      (GL_LINES); {
+      glVertex3f   (xb, yb, z);
+      glVertex3f   (xe, ye, z);
+   } glEnd ();
+   glLineWidth   (1.0);
+   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char
+yvikeys_note_text       (char a_type, char a_len, char a_lvl, char *a_text, int x, int y, int w, int h, int z)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        t           [LEN_RECD];
+   int         x_align     =    0;
+   int         x_full, x_len;
+   int         x_beg, x_next;
+   int         x_edge      =    8;
+   int         i, j;
+   /*---(header)-------------------------*/
+   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
+   /*---(opengl)-------------------------*/
+   if (a_type == YVIKEYS_OPENGL) {
+      DEBUG_GRAF   yLOG_complex  ("opengl"    , "%4dx, %4dy, %4dw, %4dh", x, y, w, h);
+      x_edge = 8;
+      glPushMatrix(); {
+         glTranslatef (x + w * 0.5, y - 18, z);
+         glColor4f (0.0, 0.0, 0.0, 1.0);
+         yFONT_printw (myVIKEYS.font, myVIKEYS.point, YF_TOPCEN, a_text, w - x_edge, h - x_edge, 1.2);
+      } glPopMatrix();
+   }
+   else {
+      if (a_len != a_lvl)  yCOLOR_curs ("note_cur");
+      else                 yCOLOR_curs ("note_old");
+      strlcpy (t, a_text, LEN_RECD);
+      x_edge = 1;
+      x_beg  = x_next  = 0;
+      x_full = strlen (t);
+      for (i = 0; i < h; ++i) {
+         x_len = strlen (t + x_next);
+         x_next = x_beg + w - 3;
+         DEBUG_GRAF   yLOG_complex ("current"   , "%1d %2d %2d[%s]", i, x_beg, x_len, t + x_beg);
+         for (j = x_next; j > x_beg; --j) {
+            DEBUG_GRAF   yLOG_complex ("check"     , "%2d %c", j, t [j]);
+            if (strchr ("- ", t [j]) == NULL)  continue;
+            t [j] = '\0';
+            x_next = j + 1;
+            break;
+         }
+         x_len = strlen (t + x_beg);
+         mvprintw (y + i, x + ((w - x_len) / 2), "%s", t + x_beg);
+         x_beg = x_next;
+         if (x_beg > x_full) break;
+      }
+   }
+   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char
+yvikeys_note_draw       (void)
+{
+   int         i           =    0;
+   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
+   for (i = 0; i < s_nnote; ++i) {
+      DEBUG_GRAF   yLOG_complex  ("note"      , "%4dl, %4dw, %4db, %4dt", s_notes [i].x, s_notes [i].w, s_notes [i].y - s_notes [i].h, s_notes [i].h);
+      if (myVIKEYS.env == YVIKEYS_OPENGL) {
+         yvikeys_note_target   (s_notes [i].xb, s_notes [i].yb, s_notes [i].xe, s_notes [i].ye, 200 + (i * 10));
+         yvikeys_menu_shadow   (myVIKEYS.env, s_notes [i].x, s_notes [i].w, s_notes [i].y - s_notes [i].h, s_notes [i].h, 202 + (i * 10));
+         if (i == s_nnote - 1)  yvikeys_menu_fill     (myVIKEYS.env, 0, 1, s_notes [i].x, s_notes [i].w, s_notes [i].y - s_notes [i].h, s_notes [i].h, 204 + (i * 10));
+         else                   yvikeys_menu_fill     (myVIKEYS.env, 0, 0, s_notes [i].x, s_notes [i].w, s_notes [i].y - s_notes [i].h, s_notes [i].h, 204 + (i * 10));
+         yvikeys_note_text     (myVIKEYS.env, 0, 0, s_notes [i].text, s_notes [i].x, s_notes [i].y, s_notes [i].w, s_notes [i].h, 206 + (i * 10));
+      } else {
+         yvikeys_menu_shadow   (myVIKEYS.env, s_notes [i].x, s_notes [i].w, s_notes [i].y, s_notes [i].h, 202 + (i * 10));
+         if (i == s_nnote - 1)  yvikeys_menu_fill     (myVIKEYS.env, 0, 1, s_notes [i].x, s_notes [i].w, s_notes [i].y, s_notes [i].h, 204 + (i * 10));
+         else                   yvikeys_menu_fill     (myVIKEYS.env, 0, 0, s_notes [i].x, s_notes [i].w, s_notes [i].y, s_notes [i].h, 204 + (i * 10));
+         if (i == s_nnote - 1)  yvikeys_note_text     (myVIKEYS.env, 0, 1, s_notes [i].text, s_notes [i].x, s_notes [i].y, s_notes [i].w, s_notes [i].h, 206 + (i * 10));
+         else                   yvikeys_note_text     (myVIKEYS.env, 0, 0, s_notes [i].text, s_notes [i].x, s_notes [i].y, s_notes [i].w, s_notes [i].h, 206 + (i * 10));
+      }
+   }
+   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+
+/*====================------------------------------------====================*/
 /*===----                          unit testing                        ----===*/
 /*====================------------------------------------====================*/
 static void  o___UNITTEST________o () { return; }
@@ -924,6 +1370,18 @@ yvikeys_layer__unit     (char *a_question, uchar *a_key)
          else                        strlcat (t, "-"        , LEN_HUND);
       }
       snprintf (yVIKEYS__unit_answer, LEN_FULL, "LAYER layers(%2d) : %s", c, t);
+   }
+   else if (strcmp (a_question, "note"           ) == 0) {
+      n = atoi (a_key);
+      if (n < 0 || n > MAX_NOTES)     snprintf (yVIKEYS__unit_answer, LEN_FULL, "LAYER note  (%2s) : - - -     -x    -y    -w    -h   -[]                    -x    -y - -    -x    -y", "--");
+      else if (s_notes [n].xr == '0') snprintf (yVIKEYS__unit_answer, LEN_FULL, "LAYER note  (%2d) : - - -     -x    -y    -w    -h   -[]                    -x    -y - -    -x    -y", n);
+      else {
+         sprintf  (t, "[%.15s]", s_notes [n].text);
+         snprintf (yVIKEYS__unit_answer, LEN_FULL, "LAYER note  (%2d) : %c %c %c  %4dx %4dy %4dw %4dh  %2d%-17.17s  %4dx %4dy %c %c %4dx %4dy", n, s_notes [n].xr, s_notes [n].yr, s_notes [n].size, s_notes [n].x, s_notes [n].y, s_notes [n].w, s_notes [n].h, strlen (s_notes [n].text), t, s_notes [n].xb, s_notes [n].yb, s_notes [n].xt, s_notes [n].yt, s_notes [n].xe, s_notes [n].ye);
+      }
+   }
+   else if (strcmp (a_question, "stack"          ) == 0) {
+      /*> snprintf (yVIKEYS__unit_answer, LEN_FULL, "LAYER note stack : %2d[%s]", s_nnote, s_snote);   <*/
    }
    /*---(complete)-----------------------*/
    return yVIKEYS__unit_answer;

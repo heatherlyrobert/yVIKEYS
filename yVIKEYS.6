@@ -275,6 +275,61 @@ g~  switch case
 .B delete (remove content and position)
    d + hljkio      delete and pull from direction to fill-in 
 
+.SH MENU smode
+.SS ---basics---------------------------------------------------------
+ µ´´´      perform a single command through the menus
+.SS ---overview-------------------------------------------------------
+.B situation (S).  
+there are two primary ways to request actions in yVIKEYS -- keystrokes within
+modes and the command line.
+
+.B complication (C).  
+but, keystrokes and commands require direct memorization and can not be
+browsed making them forbidding.
+
+.B answer (A).  
+i will provide a universal, standard, three-level menu system to package
+commands for browsing, retrieval, and use.
+
+.B design.  
+narrow, deep, or uneven menu systems are difficult to navigate.  yVIKYES
+is always three layers and very wide.
+.SS ---full capabilities----------------------------------------------
+
+.B invoking/exiting the mode
+   µ          begin menu mode and show the top level
+   ¥          exit early from menu selection
+
+.B executing a menu option
+   µ´´´       request a specific packaged command (no ¦)
+   µ´´´····¦  request item, but requires additional input
+
+.B top level menu organization (18)
+   µf         files, import, export, and filesystem
+   µe         edit, undo/redo, copy/paste
+   µv         view, control various screen elements
+   µi         insert, add various elements to content
+   µs         select, to prepare groups of items for action
+   µo         format, control presentation of items
+   µm         modify, control size and shape of items
+   µd         dataset, filter and control large data groups
+   µt         tools, select specialty filters for use
+   µp         pallete, colors, sounds, smells
+   µl         layers, manage slices of content
+   µb         buffers, coordinate multiple files
+   µg         language, support specific content types
+   µa         auditor, review content, grammer, formulas
+   µx         execute, control content usage
+   µc         config, control global program behavior
+   µs         script, control macros and scripts
+   µh         share, publish, print, transfer
+
+.B notes
+   -- i surveyed every well-done menu from 1-2-3 to macintosh
+   -- very useful in macros and scripts for clarity
+   -- menus are absolutely standard and universal
+   -- top menu is always the same in every application
+
 .SH COMMAND mode
 .SS ---basics---------------------------------------------------------
  :´´´¦      perform a single command

@@ -26,8 +26,8 @@
 
 #define     P_VERMAJOR  "1.X = working for everyday use, features still evolving but stable"
 #define     P_VERMINOR  "1.4 = prepare for demonstrations on web"
-#define     P_VERNUM    "1.4u"
-#define     P_VERTXT    "huge fixup, consolidation, and retest of menu drawing and placement"
+#define     P_VERNUM    "1.4w"
+#define     P_VERTXT    "updated positioning of curses notes, menus, and drawing"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -105,10 +105,13 @@ typedef struct timespec  tTSPEC;
 typedef    struct    cSHARED    tSHARED;
 struct cSHARED {
    /*---(using prog)------*/
-   char        s_prog      [LEN_LABEL];     /* source program name            */
-   char        s_ext       [LEN_LABEL];     /* source file extension          */
-   char        s_vernum    [LEN_LABEL];     /* source program version number  */
-   char        s_vertxt    [LEN_DESC ];     /* source program version text    */
+   char        s_prog      [LEN_LABEL];     /* program name                   */
+   char        s_fullname  [LEN_DESC];      /* program name with path         */
+   char        s_vernum    [LEN_LABEL];     /* program version number         */
+   char        s_vertxt    [LEN_DESC];      /* program version text           */
+   char        s_namesake  [LEN_DESC];      /* program greek name             */
+   char        s_ext       [LEN_LABEL];     /* file extention                 */
+   char        s_filetype  [LEN_DESC];      /* description of file type       */
    /*---(debugging)-------*/
    int         logger;
    long long   last;
@@ -700,6 +703,9 @@ char        yvikeys_menu_final      (void);
 char        yvikeys_menu_wrap       (void);
 char        yvikeys_menu_start      (void);
 char        yvikeys_menu_smode      (int  a_major, int  a_minor);
+char        yvikeys_menu_shadow     (char a_type, int a_lef, int a_wide, int a_bot, int a_tall, int z);
+char        yvikeys_menu_fill       (char a_type, int a_len, int a_lvl, int a_lef, int a_wide, int a_bot, int a_tall, int z);
+char        yvikeys_menu_heads      (char a_type, int a_len, int a_lvl, void *a_found, int a_lef, int a_wide, int a_bot, int a_tall, int z);
 char        yvikeys_menu_draw       (void);
 char        yvikeys__menu_cleanse   (void);
 char        yvikeys_menu__place_round  (char a_type);
@@ -837,6 +843,13 @@ char        yvikeys_layer_action    (uchar *a_name, uchar *a_action);
 /*---(display)------------------------*/
 char        yvikeys_layer_status    (char *a_line);
 char        yvikeys_layer_show      (void);
+/*---(annotate)-----------------------*/
+char        yvikeys_note_resize     (void);
+char        yvikeys_note__purge     (char a_init);
+char        yvikeys_note            (char *a_all);
+char        yVIKEYS_circle          (int x, int y, int r);
+char        yVIKEYS_box             (int x, int y, int w, int h);
+char        yvikeys_note_draw       (void);
 /*---(unit_test)----------------------*/
 char        yvikeys_layer__unit_null(void);
 char*       yvikeys_layer__unit     (char *a_question, uchar *a_key);

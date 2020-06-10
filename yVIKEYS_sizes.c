@@ -181,6 +181,7 @@ yvikeys_sizes_defaults  (cchar a_env)
    yvikeys_view_defs (YVIKEYS_FLOAT   , 'y',   0,   1,   0,  15,  SOURCE_float);
    yvikeys_view_defs (YVIKEYS_HISTORY , 'y',   0,   0,   0,   0,  yvikeys_hist_show);
    yvikeys_view_defs (YVIKEYS_MENUS   , 'y',  40,  14, 280, 200,  yvikeys_menu_draw);
+   yvikeys_view_defs (YVIKEYS_NOTES   , 'y',   0,   0,   0,   0,  yvikeys_note_draw);
    /*---------------- ---part--------- -on- wide tall wide tall ---drawer------------ */
    yvikeys_view_defs (YVIKEYS_WINDOW  , '-',   0,   0,   0,   0,  NULL);
    /*---(complete)-----------------------*/
@@ -266,7 +267,8 @@ yvikeys_sizes_horz_auto  (cint a_wide, cint a_alt)
       /*---(set)----------------------*/
       switch (p->abbr) {
       case YVIKEYS_WINDOW   : p->wide = s_full_wide;                   break;
-      case YVIKEYS_MAIN     : p->wide = s_main_wide;                   break;
+      case YVIKEYS_MAIN     :
+      case YVIKEYS_NOTES    : p->wide = s_main_wide;                   break;
       case YVIKEYS_ALT      : p->wide = s_alt_wide;                    break;
       case YVIKEYS_PROGRESS : p->wide = s_main_wide + a_alt;           break;
       case YVIKEYS_XAXIS    : p->wide = s_main_wide + a_alt + s_yaxis; break;
@@ -386,7 +388,7 @@ yvikeys_sizes_horz__menu  (tPARTS *p, int a_left)
    DEBUG_GRAF   yLOG_value   ("a_left"    , a_left);
    DEBUG_GRAF   yLOG_value   ("wide"      , p->wide);
    p->wide = p->def_wide;
-   switch (myVIKEYS.loc_menu) {
+   switch (p->anchor) {
    case YVIKEYS_TOPLEF : case YVIKEYS_MIDLEF : case YVIKEYS_BOTLEF :
       p->left = a_left;
       break;
@@ -410,7 +412,7 @@ yvikeys_sizes_horz__menu  (tPARTS *p, int a_left)
 char
 yvikeys_sizes_horz__hist  (tPARTS *p, int a_left)
 {
-   switch (myVIKEYS.loc_hist) {
+   switch (p->anchor) {
    case YVIKEYS_MIDLEF :
       p->wide = s_main_wide * 0.45;
       p->left = a_left + (s_main_wide * 0.05);
@@ -609,6 +611,7 @@ yvikeys_sizes_vert_auto  (cint a_tall)
       switch (p->abbr) {
       case YVIKEYS_WINDOW   : p->tall = s_full_tall;               break;
       case YVIKEYS_MAIN     :
+      case YVIKEYS_NOTES    :
       case YVIKEYS_ALT      :
       case YVIKEYS_YAXIS    : p->tall = s_main_tall;               break;
       case YVIKEYS_NAV      :
@@ -703,12 +706,15 @@ char
 yvikeys_sizes_vert__float (tPARTS *p, int a_bott)
 {
    p->tall = p->def_tall;
-   switch (myVIKEYS.loc_float) {
+   switch (p->anchor) {
    case YVIKEYS_TOPCEN : p->bott = a_bott + s_main_tall - (p->tall * 2.0); break;
    case YVIKEYS_UPSCEN : p->bott = a_bott + s_main_tall * (0.75) - (p->tall * 0.5);  break;
    case YVIKEYS_MIDCEN : p->bott = a_bott + s_main_tall * (0.50) - (p->tall * 0.5);  break;
    case YVIKEYS_LOWCEN : p->bott = a_bott + s_main_tall * (0.25) - (p->tall * 0.5);  break;
    case YVIKEYS_BOTCEN : p->bott = a_bott + p->tall;  break;
+   default    :
+      DEBUG_GRAF   yLOG_note    ("no appropriate float location found");
+      break;
    }
    DEBUG_GRAF   yLOG_complex ("vert_float", "%c, %3da, %3ds, %3dt, %3db", myVIKEYS.loc_float, a_bott, s_main_tall, p->tall, p->bott);
    return 0;
@@ -718,7 +724,7 @@ char
 yvikeys_sizes_vert__menu  (tPARTS *p, int a_bott)
 {
    p->tall = p->def_tall;
-   switch (myVIKEYS.loc_menu) {
+   switch (p->anchor) {
    case YVIKEYS_TOPLEF : case YVIKEYS_TOPCEN : case YVIKEYS_TOPRIG :
       p->bott = a_bott + s_main_tall - p->tall;
       break;
@@ -733,6 +739,9 @@ yvikeys_sizes_vert__menu  (tPARTS *p, int a_bott)
       break;
    case YVIKEYS_BOTLEF : case YVIKEYS_BOTCEN : case YVIKEYS_BOTRIG :
       p->bott = a_bott;
+      break;
+   default    :
+      DEBUG_GRAF   yLOG_note    ("no appropriate menu location found");
       break;
    }
    DEBUG_GRAF   yLOG_complex ("vert_menu" , "%c, %3da, %3ds, %3dt, %3db", myVIKEYS.loc_menu, a_bott, s_main_tall, p->tall, p->bott);
@@ -879,33 +888,59 @@ static void  o___MOVABLE_________o () { return; }
 char
 yvikeys_sizes_menu_loc  (char a_loc)
 {
-   if (a_loc == 0)  return -1;
-   if (strchr (YVIKEYS_LOC_MENU, a_loc) == NULL)  return -2;
+   char        rce         =  -10;
+   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
+   DEBUG_GRAF   yLOG_value   ("a_loc"     , a_loc);
+   --rce;  if (a_loc == 0) {
+      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_GRAF   yLOG_char    ("a_loc"     , a_loc);
+   DEBUG_GRAF   yLOG_info    ("valid"     , YVIKEYS_LOC_MENU);
+   --rce;  if (strchr (YVIKEYS_LOC_MENU, a_loc) == NULL)  {
+      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    myVIKEYS.loc_menu = a_loc;
    yvikeys_view_reanchor (YVIKEYS_MENUS, a_loc);
    yvikeys_sizes_resize ('-');
+   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
 char
 yvikeys_sizes_float_loc (char a_loc)
 {
-   if (a_loc == 0)                       return -1;
-   if (strchr (YVIKEYS_LOC_FLOAT, a_loc) == NULL)  return -2;
+   char        rce         =  -10;
+   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
+   DEBUG_GRAF   yLOG_value   ("a_loc"     , a_loc);
+   --rce;  if (a_loc == 0) {
+      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_GRAF   yLOG_char    ("a_loc"     , a_loc);
+   DEBUG_GRAF   yLOG_info    ("valid"     , YVIKEYS_LOC_FLOAT);
+   if (strchr (YVIKEYS_LOC_FLOAT, a_loc) == NULL) {
+      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    myVIKEYS.loc_float = a_loc;
    yvikeys_view_reanchor (YVIKEYS_FLOAT, a_loc);
    yvikeys_sizes_resize ('-');
+   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
 char
 yvikeys_sizes_hist_loc  (char a_loc)
 {
+   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
    if (a_loc == 0)                       return -1;
    if (strchr (YVIKEYS_LOC_HIST, a_loc) == NULL)   return -2;
    myVIKEYS.loc_hist  = a_loc;
    yvikeys_view_reanchor (YVIKEYS_HISTORY, a_loc);
    yvikeys_sizes_resize ('-');
+   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -1044,6 +1079,8 @@ yvikeys_sizes_resize     (cchar a_type)
    DEBUG_GRAF   yLOG_value   ("full_tall" , s_full_tall);
    /*---(display)------------------------*/
    yvikeys_sizes_anchor_all ();
+   /*---(other)--------------------------*/
+   yvikeys_note_resize ();
    /*---(size window)--------------------*/
    if (a_type == 'r' && myVIKEYS.env == YVIKEYS_OPENGL) {
       yX11_resize (s_full_wide, s_full_tall);

@@ -416,12 +416,14 @@ static int     s_wide  = 0;
 static int     s_righ  = 0;
 static int     s_max   = 0;
 static int     s_lines = 0;
+static int     s_chars = 0;
 
 char         /*-> show history on screen -------------[ ------ [ge.TQ5.25#.F9]*/ /*-[03.0000.122.R]-*/ /*-[--.---.---.--]-*/
 yvikeys_hist__bounds    (void)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        x_mode      =  '-';
+   int         m           =    1;
    /*---(header)-------------------------*/
    DEBUG_HIST   yLOG_enter   (__FUNCTION__);
    s_on    = yVIKEYS_view_size     (YVIKEYS_HISTORY, &s_left, &s_wide, &s_bott, &s_tall, NULL);
@@ -429,7 +431,13 @@ yvikeys_hist__bounds    (void)
    if (x_mode == UMOD_HISTORY)  x_mode = MODE_prev ();
    yvikeys_hist_limits   (x_mode, &s_min, &s_max);
    s_now   = *s_index;
-   s_lines = s_tall - 2;
+   if (myVIKEYS.env == YVIKEYS_CURSES) {
+      s_lines = s_tall - 4;
+      s_chars = s_wide - 2;
+   } else {
+      s_lines = (s_tall / 15.0) - 4;
+      s_chars = (s_wide /  7.5) - 2;
+   }
    s_first = s_now - ((s_lines - 2) / 2);
    s_topp  = s_bott - s_lines + 1;
    s_righ  = s_left + s_wide - 1;
@@ -479,7 +487,6 @@ yvikeys_hist__entry      (uchar *a_entry, int a_len, char a_type)
          sprintf (x_suff, "m");
       }
       sprintf (a_entry, "%s %s", x_pref, x_suff);
-      /*> DEBUG_HIST   yLOG_delim   ("header"    , a_entry);                          <*/
       return 0;
    }
    /*---(footer)-------------------------*/
@@ -560,6 +567,74 @@ yvikeys_hist_info       (void)
    return 0;
 }
 
+char
+yvikeys_hist__back      (void)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   int         x_left, x_wide, x_bott, x_tall;
+   /*---(header)-------------------------*/
+   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
+   /*---(get sizes)----------------------*/
+   yVIKEYS_view_size   (YVIKEYS_HISTORY, &x_left, &x_wide, &x_bott, &x_tall, NULL);
+   DEBUG_GRAF   yLOG_complex  ("size"      , "%3dl, %3dw, %3db, %3dt", x_left, x_wide, x_bott, x_tall);
+   /*---(make background)----------------*/
+   /*> s_pt     = myVIKEYS.point;                                                     <*/
+   if (myVIKEYS.env == YVIKEYS_CURSES) {
+      yvikeys_menu_shadow   (myVIKEYS.env, x_left, x_wide, x_bott, x_tall, 300);
+      yvikeys_menu_fill     (myVIKEYS.env, MODE_prev (), MODE_prev (), x_left, x_wide, x_bott, x_tall, 310);
+      yvikeys_menu_heads    (myVIKEYS.env, MODE_prev (), MODE_prev (), NULL, x_left, x_wide, x_bott, x_tall, 320);
+   } else {
+      yvikeys_menu_shadow   (myVIKEYS.env, x_left, x_wide, x_bott, x_tall, 300);
+      yvikeys_menu_fill     (myVIKEYS.env, MODE_prev (), MODE_prev (), x_left, x_wide, x_bott, x_tall, 310);
+      yvikeys_menu_heads    (myVIKEYS.env, MODE_prev (), MODE_prev (), NULL, x_left, x_wide, x_bott, x_tall, 320);
+   }
+   /*---(complete)-----------------------*/
+   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char
+yvikeys_hist__show      (char a_type, int i, char *a_text, char rc, char a_part)
+{
+   int         x_lef, x_rig, x_top, x_bot;
+   if (a_type == YVIKEYS_CURSES) {
+      if      (rc != 0)   {
+         if ((i % 2) == 0)           yCOLOR_curs ("title"        );
+         else                        yCOLOR_curs ("h_used" );
+      }
+      else if (*s_index == s_now)      yCOLOR_curs ("source"       );
+      else if ((i % 2) == 0)           yCOLOR_curs ("h_current"    );
+      else                             yCOLOR_curs ("map"          );
+      /*---(display)--------*/
+      mvprintw (s_bott - s_tall + 2 + i, s_left, " %s ", a_text);
+      attrset     (0);
+   }
+   else {
+      x_lef = s_left + 10;
+      x_rig = s_righ - 10;
+      x_bot = s_bott + s_tall - (i + 3) * 15 -  8;
+      x_top = x_bot + 15;
+      if (i % 2 == 0) {
+         if      (a_part != ' ')      glColor4f (0.5, 0.5, 0.5, 0.2);
+         else if (a_text [5] == '-')  glColor4f (0.5, 0.5, 0.5, 0.2);
+         else if (*s_index == s_now)  glColor4f (0.5, 0.5, 0.0, 0.2);
+         else                         glColor4f (0.0, 0.5, 0.0, 0.2);
+         glBegin(GL_POLYGON); {
+            glVertex3f (x_lef, x_top, 340);
+            glVertex3f (x_rig, x_top, 340);
+            glVertex3f (x_rig, x_bot, 340);
+            glVertex3f (x_lef, x_bot, 340);
+         } glEnd();
+      }
+      glColor4f (0.0, 0.0, 0.0, 1.0);
+      glPushMatrix(); {
+         glTranslatef (s_left + 15, s_bott + s_tall - (i + 3) * 15 - 5, 350);
+         yFONT_print (myVIKEYS.font, myVIKEYS.point, YF_TOPLEF, a_text);
+      } glPopMatrix();
+   }
+   return 0;
+}
+
 char         /*-> show history on screen -------------[ ------ [ge.TQ5.25#.F9]*/ /*-[03.0000.122.R]-*/ /*-[--.---.---.--]-*/
 yvikeys_hist_show       (void)
 {
@@ -570,6 +645,7 @@ yvikeys_hist_show       (void)
    int         i           =    0;
    int         x_index     =    0;
    tHIST      *x_curr      = NULL;
+   char        t           [LEN_RECD]  = "";
    /*---(header)-------------------------*/
    DEBUG_HIST   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
@@ -587,52 +663,56 @@ yvikeys_hist_show       (void)
    }
    /*---(prepare)------------------------*/
    yvikeys_hist__bounds ();
+   yvikeys_hist__back   ();
    x_index = *s_index;
    x_curr  = *s_curr;
    yvikeys_hist__index (s_first);
    /*---(show screen)--------------------*/
-   if (myVIKEYS.env == YVIKEYS_CURSES) {
-      DEBUG_HIST   yLOG_complex ("values"    , "%3dc %3dl %3dn %3df", *s_count, s_lines, s_now, s_first);
-      DEBUG_HIST   yLOG_complex ("sizes"     , "%3dl %3dw %3dr %3db %3dt %3dt ", s_left, s_wide, s_righ, s_bott, s_tall, s_topp);
-      /*---(header)----------------------*/
-      yCOLOR_curs ("h_used" );
-      yvikeys_hist__entry (x_entry, s_wide - 2, 'h');
-      mvprintw (s_bott - s_tall + 1, s_left, " %s ", x_entry);
-      attrset     (0);
-      /*---(middle)----------------------*/
-      yCOLOR_curs ("h_used" );
-      for (i = 0; i < s_lines; ++i) {
-         /*---(content)--------*/
-         rc = 1;
-         if (*s_curr  == NULL)     yvikeys_hist__entry (x_entry, s_wide - 2, ' ');
-         else if (s_first + i < 0) yvikeys_hist__entry (x_entry, s_wide - 2, ' ');
-         else {
-            if      (s_first + i == 0)  rc = 0;
-            else if (s_first + i >  0)  rc = yvikeys_hist__cursor ('>');
-            if (rc == 0)  yvikeys_hist__entry (x_entry, s_wide - 2, 'e');
-            else          yvikeys_hist__entry (x_entry, s_wide - 2, ' ');
-         }
-         DEBUG_HIST   yLOG_delim   ("x_entry"   , x_entry);
-         /*---(color)----------*/
-         if      (rc != 0)   {
-            if ((i % 2) == 0)           yCOLOR_curs ("title"        );
-            else                        yCOLOR_curs ("h_used" );
-         }
-         else if (*s_index == s_now)      yCOLOR_curs ("source"       );
-         else if ((i % 2) == 0)           yCOLOR_curs ("h_current"    );
-         else                             yCOLOR_curs ("map"          );
-         /*---(display)--------*/
-         mvprintw (s_bott - s_tall + 2 + i, s_left, " %s ", x_entry);
-         attrset     (0);
-         /*---(next)-----------*/
+   DEBUG_HIST   yLOG_complex ("values"    , "%3dc %3dl %3dn %3df", *s_count, s_lines, s_now, s_first);
+   DEBUG_HIST   yLOG_complex ("sizes"     , "%3dl %3dw %3dr %3db %3dt %3dt ", s_left, s_wide, s_righ, s_bott, s_tall, s_topp);
+   /*---(header)----------------------*/
+   /*> yCOLOR_curs ("h_used" );                                                       <*/
+   yvikeys_hist__entry (x_entry, s_chars, 'h');
+   yvikeys_hist__show (myVIKEYS.env, -1, x_entry, 0, 'h');
+   /*> mvprintw (s_bott - s_tall + 1, s_left, " %s ", x_entry);                       <* 
+    *> attrset     (0);                                                               <*/
+   /*---(middle)----------------------*/
+   /*> yCOLOR_curs ("h_used" );                                                       <*/
+   for (i = 0; i < s_lines; ++i) {
+      /*---(content)--------*/
+      rc = 1;
+      if (*s_curr  == NULL)     yvikeys_hist__entry (x_entry, s_chars, ' ');
+      else if (s_first + i < 0) yvikeys_hist__entry (x_entry, s_chars, ' ');
+      else {
+         if      (s_first + i == 0)  rc = 0;
+         else if (s_first + i >  0)  rc = yvikeys_hist__cursor ('>');
+         if (rc == 0)  yvikeys_hist__entry (x_entry, s_chars, 'e');
+         else          yvikeys_hist__entry (x_entry, s_chars, ' ');
       }
-      /*---(footer)----------------------*/
-      yCOLOR_curs ("h_used" );
-      yvikeys_hist__entry (x_entry, s_wide - 2, 'f');
-      mvprintw (s_bott, s_left, " %s ", x_entry);
-      attrset     (0);
-      /*---(done)------------------------*/
+      DEBUG_HIST   yLOG_delim   ("x_entry"   , x_entry);
+      /*---(color)----------*/
+      /*> if      (rc != 0)   {                                                       <* 
+       *>    if ((i % 2) == 0)           yCOLOR_curs ("title"        );               <* 
+       *>    else                        yCOLOR_curs ("h_used" );                     <* 
+       *> }                                                                           <* 
+       *> else if (*s_index == s_now)      yCOLOR_curs ("source"       );             <* 
+       *> else if ((i % 2) == 0)           yCOLOR_curs ("h_current"    );             <* 
+       *> else                             yCOLOR_curs ("map"          );             <*/
+      /*---(display)--------*/
+      /*> sprintf (t, "%2d %4d %2d[%s]", i, rc, strlen (x_entry), x_entry);           <*/
+      /*> yvikeys_hist__show (myVIKEYS.env, i, t, rc);                                <*/
+      yvikeys_hist__show (myVIKEYS.env, i, x_entry, rc, ' ');
+      /*> mvprintw (s_bott - s_tall + 2 + i, s_left, " %s ", x_entry);                <* 
+       *> attrset     (0);                                                            <*/
+      /*---(next)-----------*/
    }
+   /*---(footer)----------------------*/
+   yvikeys_hist__entry (x_entry, s_chars, 'f');
+   yvikeys_hist__show (myVIKEYS.env, i, x_entry, 0, 'f');
+   /*> yCOLOR_curs ("h_used" );                                                       <* 
+    *> yvikeys_hist__entry (x_entry, s_chars - 2, 'f');                                <* 
+    *> mvprintw (s_bott, s_left, " %s ", x_entry);                                    <* 
+    *> attrset     (0);                                                               <*/
    /*---(reset)--------------------------*/
    *s_index = x_index;
    *s_curr  = x_curr;

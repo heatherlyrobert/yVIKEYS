@@ -365,8 +365,6 @@ yvikeys_macro_init      (void)
    /*---(update status)------------------*/
    DEBUG_PROG   yLOG_note    ("update status");
    STATUS_init_set   (SMOD_MACRO);
-   /*---(read/write)---------------------*/
-   rc = yPARSE_handler_max (SMOD_MACRO   , "macro"     , 7.3, "cO----------", -1, yvikeys_macro_reader, yvikeys_macro_writer_all, "------------" , "a,keys", "keyboard macros"           );
    /*---(complete)-----------------------*/
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;

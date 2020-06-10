@@ -117,13 +117,12 @@ static FILE    *s_file      = NULL;          /* file pointer                   *
 static char     s_fields    [20][LEN_RECD];
 static int      s_nfield    =    0;
 static int      s_lines     =    0;
-static char     s_fullpath  [LEN_DESC ]   = "(not set)";
-static char     s_fulldesc  [LEN_DESC ]   = "(not set)";
 
 
 static char    *s_valid     = "csLDSif-";
 
 
+char    (*s_handlers) (void);
 char    (*s_prepper)  (void);
 char    (*s_finisher) (void);
 
@@ -209,22 +208,22 @@ yvikeys_file_init               (void)
    /*---(reset globals)------------------*/
    DEBUG_PROG   yLOG_note    ("set defaults");
    myVIKEYS.f_control = '-';
-   strlcpy (myVIKEYS.f_vernum , "----" , LEN_LABEL);
-   strlcpy (myVIKEYS.f_vertxt , "-----", LEN_DESC );
-   strlcpy (myVIKEYS.s_prog  , "-"     , LEN_DESC );
-   strlcpy (myVIKEYS.s_ext   , ""      , LEN_DESC );
-   strlcpy (myVIKEYS.s_vernum, "-.--"  , LEN_DESC );
-   strlcpy (myVIKEYS.s_vertxt, "----"  , LEN_DESC );
-   sprintf (myVIKEYS.f_loc   , "%s/", getcwd (NULL, 0));
+   strlcpy (myVIKEYS.f_vernum  , "----"  , LEN_LABEL);
+   strlcpy (myVIKEYS.f_vertxt  , "-----" , LEN_DESC );
+   strlcpy (myVIKEYS.s_prog    , "-"     , LEN_LABEL);
+   strlcpy (myVIKEYS.s_fullname, "-"     , LEN_DESC );
+   strlcpy (myVIKEYS.s_vernum  , "-.--"  , LEN_LABEL);
+   strlcpy (myVIKEYS.s_vertxt  , "----"  , LEN_DESC );
+   strlcpy (myVIKEYS.s_namesake, ""      , LEN_DESC );
+   strlcpy (myVIKEYS.s_ext     , ""      , LEN_LABEL);
+   strlcpy (myVIKEYS.s_filetype, ""      , LEN_DESC );
+   sprintf (myVIKEYS.f_loc     , "%s/", getcwd (NULL, 0));
    if (strcmp (myVIKEYS.f_loc, "//") == 0)  strlcpy (myVIKEYS.f_loc, "/", LEN_LABEL);
    DEBUG_PROG   yLOG_info    ("f_loc"     , myVIKEYS.f_loc);
-   /*---(yPARSE verbs)-------------------*/
-   rc = yPARSE_handler_max ('·'          , "source"    , 0.1, "OSO---------", -1, NULL          , yvikeys_file_prog_writer   , "------------" , ""                          , "source program versioning" );
-   rc = yPARSE_handler_max ('·'          , "written"   , 0.2, "O-----------", -1, NULL          , yvikeys_file_time_writer   , "------------" , ""                          , "data file save timestamp"  );
-   rc = yPARSE_handler_max ('·'          , "version"   , 0.3, "cSO---------", -1, NULL          , yvikeys_file_vers_writer   , "------------" , ""                          , "data file versioning"      );
    /*---(pointers)-----------------------*/
-   s_prepper  = NULL;
-   s_finisher = NULL;
+   s_handlers  = NULL;
+   s_prepper   = NULL;
+   s_finisher  = NULL;
    /*---(update status)------------------*/
    STATUS_init_set   (FMOD_FILE);
    /*---(complete)-----------------------*/
@@ -233,7 +232,30 @@ yvikeys_file_init               (void)
 }
 
 char
-yVIKEYS_whoami          (char *a_prog, char *a_ext, char *a_vernum, char *a_vertxt, char *a_full, char *a_desc, void *a_prepper, void *a_finisher)
+yvikeys_file_handlers   (void)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rc          =    0;
+   /*---(header)-------------------------*/
+   DEBUG_FILE   yLOG_enter   (__FUNCTION__);
+   /*---(handlers)-----------------------*/
+   rc = yPARSE_handler_max (UMOD_MARK    , "loc_mark"  , 7.1, "cT----------", -1, yvikeys_mark_reader, yvikeys_mark_writer_all, "------------" , "a,label", "map mode location marks");
+   DEBUG_FILE   yLOG_value   ("loc_mark"  , rc);
+   rc = yPARSE_handler_max (UMOD_VISUAL  , "visu_mark" , 7.2, "cTT---------", -1, yvikeys_visu__reader, yvikeys_visu__writer_all, "------------" , "a,beg,end", "map mode visual selections");
+   DEBUG_FILE   yLOG_value   ("visu_mark" , rc);
+   rc = yPARSE_handler_max (SMOD_MACRO   , "macro"     , 7.3, "cO----------", -1, yvikeys_macro_reader, yvikeys_macro_writer_all, "------------" , "a,keys", "keyboard macros"           );
+   DEBUG_FILE   yLOG_value   ("macro"     , rc);
+   rc = yPARSE_handler_max (MODE_COMMAND , "command"   , 7.4, "cO----------", -1, yvikeys_cmds_reader, yvikeys_cmds_writer, "------------" , "a,command-----------------", "command history"           );
+   DEBUG_FILE   yLOG_value   ("command"   , rc);
+   rc = yPARSE_handler_max (MODE_SEARCH  , "search"    , 7.5, "cO----------", -1, yvikeys_srch_reader, yvikeys_srch_writer, "------------" , "a,search"                  , "search history"            );
+   DEBUG_FILE   yLOG_value   ("search"    , rc);
+   /*---(complete)-----------------------*/
+   DEBUG_FILE   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char
+yVIKEYS_whoami          (char *a_prog, char *a_vernum, char *a_vertxt, char *a_full, char *a_namesake, char *a_ext, char *a_filetype, void *a_handlers, void *a_prepper, void *a_finisher)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -279,15 +301,24 @@ yVIKEYS_whoami          (char *a_prog, char *a_ext, char *a_vernum, char *a_vert
    /*---(calling full executable)--------*/
    DEBUG_PROG   yLOG_point   ("a_full"    , a_full);
    --rce;  if (a_full != NULL) {
-      strlcpy (s_fullpath, a_full, LEN_DESC);
-      DEBUG_PROG   yLOG_info    ("s_fullpath", s_fullpath);
+      strlcpy (myVIKEYS.s_fullname, a_full, LEN_DESC);
+      DEBUG_PROG   yLOG_info    ("s_fullname", myVIKEYS.s_fullname);
    }
-   /*---(calling full description)-------*/
-   DEBUG_PROG   yLOG_point   ("a_desc"    , a_desc);
-   --rce;  if (a_desc != NULL) {
-      strlcpy (s_fulldesc, a_desc, LEN_DESC);
-      DEBUG_PROG   yLOG_info    ("s_fulldesc", s_fulldesc);
+   /*---(calling one-line desc)----------*/
+   DEBUG_PROG   yLOG_point   ("a_namesake" , a_namesake);
+   --rce;  if (a_namesake != NULL) {
+      strlcpy (myVIKEYS.s_namesake, a_namesake, LEN_DESC);
+      DEBUG_PROG   yLOG_info    ("s_namesake", myVIKEYS.s_namesake);
    }
+   /*---(calling content)----------------*/
+   DEBUG_PROG   yLOG_point   ("a_filetype", a_filetype);
+   --rce;  if (a_filetype != NULL) {
+      strlcpy (myVIKEYS.s_filetype, a_filetype, LEN_DESC);
+      DEBUG_PROG   yLOG_info    ("s_filetype", myVIKEYS.s_filetype);
+   }
+   /*---(handlers)-----------------------*/
+   DEBUG_PROG   yLOG_point   ("a_handlers", a_handlers);
+   if (a_handlers != NULL)   s_handlers = a_handlers;
    /*---(writer)-------------------------*/
    DEBUG_PROG   yLOG_point   ("a_prepper" , a_prepper);
    if (a_prepper != NULL)   s_prepper = a_prepper;
@@ -579,7 +610,7 @@ yvikeys__file_regex             (char a_type, char *a_ext, char *a_base, char *a
    DEBUG_INPT   yLOG_enter   (__FUNCTION__);
    DEBUG_INPT   yLOG_point   ("a_match"   , a_match);
    if (a_match != NULL)  strlcpy (a_match, "", LEN_RECD);
-   /*---(defense)--------------------s---*/
+   /*---(defense)------------------------*/
    DEBUG_INPT   yLOG_char    ("a_type"    , a_type);
    --rce;  if (strchr ("fd", a_type) == NULL) {
       DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
@@ -1436,14 +1467,19 @@ yvikeys_file_writer     (void)
    }
    /*---(open file)----------------------*/
    DEBUG_INPT  yLOG_info    ("f_title"   , myVIKEYS.f_title);
-   DEBUG_INPT  yLOG_info    ("s_fullpath", s_fullpath);
-   DEBUG_INPT  yLOG_info    ("s_fulldesc", s_fulldesc);
-   rc = yPARSE_open_out (myVIKEYS.f_title, s_fullpath, s_fulldesc);
+   DEBUG_INPT  yLOG_info    ("s_fullname", myVIKEYS.s_fullname);
+   DEBUG_INPT  yLOG_info    ("s_namesake", myVIKEYS.s_namesake);
+   rc = yPARSE_planned (NULL, myVIKEYS.f_title, NULL);
    DEBUG_OUTP   yLOG_value   ("open"      , rc);
    --rce;  if (rc < 0) {
       DEBUG_INPT  yLOG_exit    (__FUNCTION__);
       return rce;
    }
+   /*---(load handlers)------------------*/
+   rc = yvikeys_file_handlers ();
+   if (s_handlers != NULL)  rc = s_handlers ();
+   /*---(header)-------------------------*/
+   rc = yPARSE_header  (myVIKEYS.s_fullname, myVIKEYS.s_vernum, myVIKEYS.s_vertxt, myVIKEYS.s_namesake, myVIKEYS.s_filetype, NULL);
    /*---(intro)--------------------------*/
    rc = yPARSE_write_all ();
    DEBUG_OUTP   yLOG_value   ("yparse"    , rc);
@@ -1547,17 +1583,38 @@ yvikeys_file_reader     (void)
    }
    /*---(open file)----------------------*/
    DEBUG_INPT  yLOG_info    ("f_title"   , myVIKEYS.f_title);
-   rc = yPARSE_open_in (myVIKEYS.f_title);
+   rc = yPARSE_planned (myVIKEYS.f_title, NULL, NULL);
    DEBUG_OUTP   yLOG_value   ("open"      , rc);
+   --rce;  if (rc < 0) {
+      DEBUG_INPT  yLOG_exit    (__FUNCTION__);
+      return rce;
+   }
+   /*---(load handlers)------------------*/
+   rc = yvikeys_file_handlers ();
+   DEBUG_OUTP   yLOG_value   ("handlers"  , rc);
+   --rce;  if (rc < 0) {
+      DEBUG_INPT  yLOG_exit    (__FUNCTION__);
+      return rce;
+   }
+   if (s_handlers != NULL)  rc = s_handlers ();
+   DEBUG_OUTP   yLOG_value   ("locals"    , rc);
+   --rce;  if (rc < 0) {
+      DEBUG_INPT  yLOG_exit    (__FUNCTION__);
+      return rce;
+   }
    /*---(intro)--------------------------*/
-   if (rc >= 0) {
-      rc = yPARSE_read_all ();
-      DEBUG_OUTP   yLOG_value   ("yparse"    , rc);
+   rc = yPARSE_read_all ();
+   DEBUG_OUTP   yLOG_value   ("yparse"    , rc);
+   --rce;  if (rc < 0) {
+      DEBUG_INPT  yLOG_exit    (__FUNCTION__);
+      return rce;
    }
    /*---(close file)---------------------*/
-   if (rc >= 0) {
-      rc = yPARSE_close_in ();
-      DEBUG_OUTP   yLOG_value   ("close"     , rc);
+   rc = yPARSE_close ();
+   DEBUG_OUTP   yLOG_value   ("close"     , rc);
+   --rce;  if (rc < 0) {
+      DEBUG_INPT  yLOG_exit    (__FUNCTION__);
+      return rce;
    }
    /*---(run prepper)--------------------*/
    DEBUG_INPT  yLOG_point   ("s_finisher", s_finisher);

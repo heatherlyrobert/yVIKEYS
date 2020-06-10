@@ -891,19 +891,19 @@ SOURCE__opengl          (tEDIT *a_cur, int a_lef, int a_rig, int a_bot, int a_to
    glColor4f   (0.0, 0.0, 0.0, 1.0);   /* DEBUGGING ONLY */
    glPushMatrix    (); {
       glBegin         (GL_POLYGON); {
-         glVertex3f  (a_lef - 2, a_top + 2, 100.0f);
-         glVertex3f  (a_rig + 2, a_top + 2, 100.0f);
-         glVertex3f  (a_rig + 2, a_bot - 2, 100.0f);
-         glVertex3f  (a_lef - 2, a_bot - 2, 100.0f);
+         glVertex3f  (a_lef - 2, a_top + 2, 260.0f);
+         glVertex3f  (a_rig + 2, a_top + 2, 260.0f);
+         glVertex3f  (a_rig + 2, a_bot - 2, 260.0f);
+         glVertex3f  (a_lef - 2, a_bot - 2, 260.0f);
       } glEnd   ();
    } glPopMatrix   ();
    SOURCE__color (YVIKEYS_OPENGL);
    glPushMatrix    (); {
       glBegin         (GL_POLYGON); {
-         glVertex3f  (a_lef, a_top, 100.0f);
-         glVertex3f  (a_rig, a_top, 100.0f);
-         glVertex3f  (a_rig, a_bot, 100.0f);
-         glVertex3f  (a_lef, a_bot, 100.0f);
+         glVertex3f  (a_lef, a_top, 265.0f);
+         glVertex3f  (a_rig, a_top, 265.0f);
+         glVertex3f  (a_rig, a_bot, 265.0f);
+         glVertex3f  (a_lef, a_bot, 265.0f);
       } glEnd   ();
    } glPopMatrix   ();
    /*---(selection)----------------------*/
@@ -920,10 +920,10 @@ SOURCE__opengl          (tEDIT *a_cur, int a_lef, int a_rig, int a_bot, int a_to
       glColor4f   (0.8, 0.8, 0.8, 1.0);
       glPushMatrix    (); {
          glBegin         (GL_POLYGON); {
-            glVertex3f  (a_lef + x_beg, a_top, 110.0f);
-            glVertex3f  (a_lef + x_end, a_top, 110.0f);
-            glVertex3f  (a_lef + x_end, a_bot, 110.0f);
-            glVertex3f  (a_lef + x_beg, a_bot, 110.0f);
+            glVertex3f  (a_lef + x_beg, a_top, 270.0f);
+            glVertex3f  (a_lef + x_end, a_top, 270.0f);
+            glVertex3f  (a_lef + x_end, a_bot, 270.0f);
+            glVertex3f  (a_lef + x_beg, a_bot, 270.0f);
          } glEnd   ();
       } glPopMatrix   ();
    }
@@ -934,10 +934,10 @@ SOURCE__opengl          (tEDIT *a_cur, int a_lef, int a_rig, int a_bot, int a_to
       glColor4f   (0.8, 0.8, 0.0, 1.0);
       glPushMatrix    (); {
          glBegin         (GL_POLYGON); {
-            glVertex3f  (a_lef + x_beg , a_top, 120.0f);
-            glVertex3f  (a_lef + x_end , a_top, 120.0f);
-            glVertex3f  (a_lef + x_end , a_bot, 120.0f);
-            glVertex3f  (a_lef + x_beg , a_bot, 120.0f);
+            glVertex3f  (a_lef + x_beg , a_top, 280.0f);
+            glVertex3f  (a_lef + x_end , a_top, 280.0f);
+            glVertex3f  (a_lef + x_end , a_bot, 280.0f);
+            glVertex3f  (a_lef + x_beg , a_bot, 280.0f);
          } glEnd   ();
       } glPopMatrix   ();
    }
@@ -961,7 +961,7 @@ SOURCE__opengl          (tEDIT *a_cur, int a_lef, int a_rig, int a_bot, int a_to
    if (a_cur->npos == 0) sprintf (t, "   %c", G_CHAR_NULL);
    else                  sprintf (t, "%4d%c%-*.*s%c"  , a_cur->cpos, c1, a_cur->apos, a_cur->apos, a_cur->contents + a_cur->bpos, c2);
    glPushMatrix    (); {
-      glTranslatef (a_lef, a_bot + 3, 130.0f);
+      glTranslatef (a_lef, a_bot + 1, 290.0f);
       glColor4f   (0.0, 0.0, 0.0, 1.0);
       yFONT_print (myVIKEYS.font, myVIKEYS.point, YF_BOTLEF, t);
    } glPopMatrix   ();
@@ -1063,7 +1063,10 @@ SOURCE_display             (tEDIT *a_cur, char a_mode)
    if (myVIKEYS.env == YVIKEYS_CURSES) {
       SOURCE__curses (a_cur, x_left, x_bott, x_edit);
    } else {
-      SOURCE__opengl (a_cur, x_xmin, x_xmax, x_ymin, x_ymax, x_edit);
+      if (a_mode == YVIKEYS_FLOAT)
+         SOURCE__opengl (a_cur, x_left, x_left + x_wide, x_bott, x_bott + x_tall, x_edit);
+      else
+         SOURCE__opengl (a_cur, x_xmin, x_xmax, x_ymin, x_ymax, x_edit);
    }
    /*---(complete)-----------------------*/
    DEBUG_GRAF   yLOG_exit    (__FUNCTION__);

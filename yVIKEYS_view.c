@@ -150,6 +150,7 @@ static tPARTS  s_parts [MAX_PARTS] = {
    { YVIKEYS_CURSOR  , "cursor"      , OWN_OVERLAY, '-',    0, '-', '-', 0, 0, 0,    0, '-', '-', '-', 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , 0             , 0              , 0, 0, 0, 0, 0, 0,  "cursor display on screen"                           },
    { YVIKEYS_OVERLAY , "overlay"     , OWN_OVERLAY, '-',    0, '-', '-', 0, 0, 0,    0, '-', '-', '-', 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_MIDCEN, YCOLOR_CLEAR   , 0, 0, 0, 0, 0, 0,  "shown over the working screen"                      },
    /*---abbr---------   ---name-----   ---own-----  on   horz--nox--tie-dw-wi-le  vert--noy--tie--und-dt-ta-bo   ori  source, txt  drawer  type---------  ---mgmt-------  ---anchor-----  ---color------- xm xl ym yl zm zl    12345678901234567890123456789012345678901234567890  */
+   { YVIKEYS_NOTES   , "notes"       , OWN_OVERLAY, 'y',    0, '-', '-', 0, 0, 0,    0, '-', '-', '-', 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_TOPLEF, YCOLOR_CLEAR   , 0, 0, 0, 0, 0, 0,  "overlay for interactive notation"                   },
    { YVIKEYS_FLOAT   , "float"       , OWN_OVERLAY, '-',    0, '-', '-', 0, 0, 0,    0, '-', '-', '-', 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_BOTLEF, YCOLOR_CLEAR   , 0, 0, 0, 0, 0, 0,  "shown over the working screen"                      },
    { YVIKEYS_HISTORY , "history"     , OWN_OVERLAY, '-',    0, '-', '-', 0, 0, 0,    0, '-', '-', '-', 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_MIDCEN, YCOLOR_CLEAR   , 0, 0, 0, 0, 0, 0,  "list of command/search history"                     },
    { YVIKEYS_MENUS   , "menus"       , OWN_OVERLAY, 'y',    0, '-', '-', 0, 0, 0,    0, '-', '-', '-', 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_TOPLEF, YCOLOR_CLEAR   , 0, 0, 0, 0, 0, 0,  "interactive menu overlay"                           },
@@ -1177,44 +1178,62 @@ yvikeys_view_reanchor   (char a_part, char a_anchor)
 {
    char        rce         =  -10;
    char        n           =    0;
+   uchar       x_anchor    =  't';
+   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
+   DEBUG_GRAF   yLOG_char    ("a_part"    , a_part);
+   x_anchor = a_anchor;
+   DEBUG_GRAF   yLOG_char    ("a_anchor"  , a_anchor);
    --rce;  switch (a_part) {
    case YVIKEYS_FLOAT   :
-      if (strchr (YVIKEYS_LOC_FLOAT, a_anchor) == NULL) {
+      DEBUG_GRAF   yLOG_info    ("float"     , YVIKEYS_LOC_FLOAT);
+      if (strchr (YVIKEYS_LOC_FLOAT, x_anchor) == NULL) {
+         DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
          return rce;
       }
-      switch (a_anchor) {
-      case 'f' : a_anchor = YVIKEYS_ALLALL;   break;
-      case 'l' : a_anchor = YVIKEYS_MIDLEF;   break;
-      case 'c' : a_anchor = YVIKEYS_MIDCEN;   break;
-      case 'r' : a_anchor = YVIKEYS_MIDRIG;   break;
+      switch (x_anchor) {
+      case 't' : x_anchor = YVIKEYS_TOPCEN;   break;
+      case 'k' : x_anchor = YVIKEYS_UPSCEN;   break;
+      case 'm' : x_anchor = YVIKEYS_MIDCEN;   break;
+      case 'j' : x_anchor = YVIKEYS_LOWCEN;   break;
+      case 'b' : x_anchor = YVIKEYS_BOTCEN;   break;
       }
       break;
    case YVIKEYS_HISTORY :
-      if (strchr (YVIKEYS_LOC_HIST , a_anchor) == NULL) {
+      DEBUG_GRAF   yLOG_info    ("history"   , YVIKEYS_LOC_HIST);
+      if (strchr (YVIKEYS_LOC_HIST , x_anchor) == NULL) {
+         DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
          return rce;
       }
-      switch (a_anchor) {
-      case 't' : a_anchor = YVIKEYS_TOPCEN;   break;
-      case 'k' : a_anchor = YVIKEYS_UPSCEN;   break;
-      case 'm' : a_anchor = YVIKEYS_MIDCEN;   break;
-      case 'j' : a_anchor = YVIKEYS_LOWCEN;   break;
-      case 'b' : a_anchor = YVIKEYS_BOTCEN;   break;
+      switch (x_anchor) {
+      case 'f' : x_anchor = YVIKEYS_ALLALL;   break;
+      case 'l' : x_anchor = YVIKEYS_MIDLEF;   break;
+      case 'c' : x_anchor = YVIKEYS_MIDCEN;   break;
+      case 'r' : x_anchor = YVIKEYS_MIDRIG;   break;
       }
       break;
    case YVIKEYS_MENUS   :
-      if (strchr (YVIKEYS_LOC_MENU , a_anchor) == NULL) {
+      DEBUG_GRAF   yLOG_info    ("menus"     , YVIKEYS_LOC_MENU);
+      if (strchr (YVIKEYS_LOC_MENU , x_anchor) == NULL) {
+         DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
          return rce;
       }
       break;
    default    :
-      if (strchr (YVIKEYS_LOC_NORM , a_anchor) == NULL) {
+      DEBUG_GRAF   yLOG_info    ("normal"    , YVIKEYS_LOC_NORM);
+      if (strchr (YVIKEYS_LOC_NORM , x_anchor) == NULL) {
+         DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
          return rce;
       }
       break;
    }
    n = yvikeys_view__abbr (a_part);
-   --rce;  if (n < 0)  return rce;
-   s_parts [n].anchor = a_anchor;
+   DEBUG_GRAF   yLOG_value   ("n"         , n);
+   --rce;  if (n < 0) {
+      DEBUG_GRAF   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   s_parts [n].anchor = x_anchor;
+   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 

@@ -178,6 +178,7 @@ tMAPPED     g_zmap;
 #define      YVIKEYS_YAXIS       'Y'
 #define      YVIKEYS_HISTORY     'H'
 #define      YVIKEYS_MENUS       'M'
+#define      YVIKEYS_NOTES       'N'
 
 
 
@@ -221,8 +222,8 @@ tMAPPED     g_zmap;
 #define      YVIKEYS_RIGS        "369"
 
 #define      YVIKEYS_LOC_MENU    "0123456789atusedbz"
-#define      YVIKEYS_LOC_FLOAT   "flcr"
-#define      YVIKEYS_LOC_HIST    "tkmjb"
+#define      YVIKEYS_LOC_FLOAT   "tkmjb"
+#define      YVIKEYS_LOC_HIST    "flcr"
 #define      YVIKEYS_LOC_NORM    "0123456789"
 
 
@@ -386,7 +387,7 @@ char        yVIKEYS_srch_found      (char *a_label, int a_buf, int x, int y, int
 char        yVIKEYS_srch_direct     (char *a_search);
 
 /*---(files)----------------*/
-char        yVIKEYS_whoami          (char *a_prog, char *a_ext, char *a_vernum, char *a_vertxt, char *a_full, char *a_desc, void *a_prepper, void *a_finisher);
+char        yVIKEYS_whoami          (char *a_prog, char *a_vernum, char *a_vertxt, char *a_full, char *a_namesake, char *a_ext, char *a_filetype, void *a_handlers, void *a_prepper, void *a_finisher);
 char        yVIKEYS_file_add        (char  a_abbr, void *a_writer, void *a_reader);
 char        yVIKEYS_file_write      (char a_abbr, void *a, void *b, void *c, void *d, void *e, void *f, void *g, void *h, void *i);
 

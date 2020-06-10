@@ -1487,8 +1487,13 @@ yvikeys_menu__place_round  (char a_type)
       s_places [s_nplace].item = x_curr;
       s_places [s_nplace].x    = x_cen + x_pos;
       s_places [s_nplace].xo   = x_off;
-      s_places [s_nplace].y    = x_mid + y_pos;
-      s_places [s_nplace].yo   = y_off;
+      if (myVIKEYS.env == YVIKEYS_OPENGL) {
+         s_places [s_nplace].y    = x_mid + y_pos;
+         s_places [s_nplace].yo   = y_off;
+      } else {
+         s_places [s_nplace].y    = x_mid - y_pos - x_tall + 1;
+         s_places [s_nplace].yo   = -y_off;
+      }
       /*---(next)--------------*/
       x_curr = x_curr->s_next;
       ++s_nplace;
@@ -1548,8 +1553,13 @@ yvikeys_menu__place_cols   (char a_type, int a_level, tLINK *a_curr)
    while (x_curr != NULL) {
       DEBUG_GRAF   yLOG_complex ("x_curr"    , "%c %c %c %-10.10s %c", x_curr->data->top, x_curr->data->mid, x_curr->data->bot, x_curr->data->name, x_curr->active);
       /*---(position)--------------------*/
-      if (x_entry == 0)  y_pos  = x_bott + (x_tall * 0.85) - (x_tall * 0.14 * x_entry);
-      else               y_pos -= y_vert;
+      if (myVIKEYS.env == YVIKEYS_CURSES) {
+         if (x_entry == 0)  y_pos  = x_bott + (x_tall * 0.15);
+         else               y_pos += y_vert;
+      } else {
+         if (x_entry == 0)  y_pos  = x_bott + (x_tall * 0.85) - (x_tall * 0.14 * x_entry);
+         else               y_pos -= y_vert;
+      }
       switch (x_group) {
       case 0 : x_pos = x_left + x_wide * 0.20;   break;
       case 1 : x_pos = x_left + x_wide * 0.58;   break;
@@ -1565,7 +1575,8 @@ yvikeys_menu__place_cols   (char a_type, int a_level, tLINK *a_curr)
       s_places [s_nplace].item = x_curr;
       s_places [s_nplace].x    = x_pos;
       s_places [s_nplace].xo   = x_off;
-      s_places [s_nplace].y    = y_pos;
+      if (myVIKEYS.env == YVIKEYS_OPENGL)  s_places [s_nplace].y    = y_pos;
+      else                                 s_places [s_nplace].y    = y_pos - x_tall + 1;
       s_places [s_nplace].yo   = 0;
       /*---(next)--------------*/
       ++s_nplace;
@@ -1590,7 +1601,7 @@ yvikeys_menu__place_cols   (char a_type, int a_level, tLINK *a_curr)
 static void  o___DRAWING_________o () { return; }
 
 char
-yvikeys_menu__shadow    (char a_type, int a_lef, int a_wide, int a_bot, int a_tall, int z)
+yvikeys_menu_shadow     (char a_type, int a_lef, int a_wide, int a_bot, int a_tall, int z)
 {
    /*---(opengl)-------------------------*/
    if (a_type == YVIKEYS_OPENGL) {
@@ -1608,46 +1619,7 @@ yvikeys_menu__shadow    (char a_type, int a_lef, int a_wide, int a_bot, int a_ta
 }
 
 char
-yvikeys_menu__fill_OLD  (char a_type, int a_len, int a_lvl, int a_lef, int a_wide, int a_bot, int a_tall, int z)
-{
-   /*---(locals)-----------+-----+-----+-*/
-   int         x_edge, y_edge;
-   int         i           =    0;
-   /*---(header)-------------------------*/
-   DEBUG_GRAF   yLOG_note    ("draw menu background");
-   /*---(opengl)-------------------------*/
-   if (a_type == YVIKEYS_OPENGL) {
-      if (a_len != a_lvl) {
-         glColor4f (0.8f, 0.0f, 0.0f, 1.0f);
-      } else {
-         switch (a_lvl) {
-         case  0 :  glColor4f (0.3f, 0.7f, 0.7f, 1.0f);  break;
-         case  1 :  glColor4f (0.7f, 0.5f, 0.3f, 1.0f);  break;
-         case  2 :  glColor4f (0.3f, 0.8f, 0.3f, 1.0f);  break;
-         }
-      }
-      x_edge = (a_wide / 2.0) * 0.03;
-      y_edge = (a_tall / 2.0) * 0.03;
-      glBegin(GL_POLYGON); {
-         glVertex3f (a_lef          + x_edge, a_bot + a_tall - y_edge, z);
-         glVertex3f (a_lef + a_wide - x_edge, a_bot + a_tall - y_edge, z);
-         glVertex3f (a_lef + a_wide - x_edge, a_bot          + y_edge, z);
-         glVertex3f (a_lef          + x_edge, a_bot          + y_edge, z);
-      } glEnd();
-   }
-   /*---(ncurses)------------------------*/
-   else {
-      yCOLOR_curs ("menu"   );
-      for (i = a_bot; i < a_bot + a_tall; ++i) {
-         mvprintw   (i, a_lef, "%*.*s", a_wide, a_wide, "                                                  ");
-      }
-   }
-   /*---(complete)-----------------------*/
-   return 0;
-}
-
-char
-yvikeys_menu__fill      (char a_type, int a_len, int a_lvl, int a_lef, int a_wide, int a_bot, int a_tall, int z)
+yvikeys_menu_fill       (char a_type, int a_len, int a_lvl, int a_lef, int a_wide, int a_bot, int a_tall, int z)
 {
    /*---(locals)-----------+-----+-----+-*/
    int         x_edge, y_edge;
@@ -1658,8 +1630,8 @@ yvikeys_menu__fill      (char a_type, int a_len, int a_lvl, int a_lef, int a_wid
    if (a_type == YVIKEYS_OPENGL) {
       if (a_len != a_lvl)    glColor4f (0.85f, 0.50f, 0.50f, 1.0f);
       else                   glColor4f (0.70f, 0.70f, 0.70f, 1.0f);
-      x_edge = (a_wide / 2.0) * 0.03;
-      y_edge = (a_tall / 2.0) * 0.03;
+      x_edge = 3;
+      y_edge = 3;
       glBegin(GL_POLYGON); {
          glVertex3f (a_lef          + x_edge, a_bot + a_tall - y_edge, z);
          glVertex3f (a_lef + a_wide - x_edge, a_bot + a_tall - y_edge, z);
@@ -1683,7 +1655,8 @@ yvikeys_menu__fill      (char a_type, int a_len, int a_lvl, int a_lef, int a_wid
    }
    /*---(ncurses)------------------------*/
    else {
-      yCOLOR_curs ("menu"   );
+      if (a_len != a_lvl)  yCOLOR_curs ("note_cur");
+      else                 yCOLOR_curs ("note_old");
       for (i = a_bot; i < a_bot + a_tall; ++i) {
          mvprintw   (i, a_lef, "%*.*s", a_wide, a_wide, "                                                  ");
       }
@@ -1693,20 +1666,24 @@ yvikeys_menu__fill      (char a_type, int a_len, int a_lvl, int a_lef, int a_wid
 }
 
 char
-yvikeys_menu__heads     (char a_type, int a_len, int a_lvl, tLINK *a_found, int a_lef, int a_wide, int a_bot, int a_tall, int z)
+yvikeys_menu_heads      (char a_type, int a_len, int a_lvl, void *a_found, int a_lef, int a_wide, int a_bot, int a_tall, int z)
 {
    /*---(locals)-----------+-----+-----+-*/
    int         x_cen, x_mid;
    int         x_edge, y_edge;
    int         x_len       =    0;
    char        t           [LEN_RECD];
+   tLINK      *x_found     = NULL;
    /*---(header)-------------------------*/
    DEBUG_GRAF   yLOG_note    ("draw menu background");
    /*---(prepare)------------------------*/
+   x_found = (tLINK *) a_found;
    switch (a_lvl) {
-   case  0 : strlcpy (t, "main menu", LEN_LABEL); break;
-   case  1 : sprintf (t, "µ%c (%s) sub-menu" , a_found->data->top, a_found->data->name); break;
-   case  2 : sprintf (t, "µ%c%c (%s) options", a_found->data->top, a_found->data->mid, a_found->data->name); break;
+   case  0           : strlcpy (t, "main menu", LEN_DESC); break;
+   case  1           : sprintf (t, "µ%c (%s) sub-menu" , x_found->data->top, x_found->data->name); break;
+   case  2           : sprintf (t, "µ%c%c (%s) options", x_found->data->top, x_found->data->mid, x_found->data->name); break;
+   case MODE_SEARCH  : strlcpy (t, "search history", LEN_DESC); break;
+   case MODE_COMMAND : strlcpy (t, "command history", LEN_DESC); break;
    }
    x_len  = strlen (t);
    x_cen  = a_lef + (a_wide * 0.50);
@@ -1715,8 +1692,8 @@ yvikeys_menu__heads     (char a_type, int a_len, int a_lvl, tLINK *a_found, int 
    if (a_type == YVIKEYS_OPENGL) {
       /*---(labels)-------------------------*/
       glColor4f (0.0, 0.0, 0.0, 1.0);
-      x_edge = (a_wide / 2.0) * 0.05;
-      y_edge = (a_tall / 2.0) * 0.14;
+      x_edge =  5;
+      y_edge = 15;
       /*---(title)--------------------------*/
       glPushMatrix(); {
          glTranslatef (x_cen, a_bot + a_tall - y_edge, z);
@@ -1735,23 +1712,25 @@ yvikeys_menu__heads     (char a_type, int a_len, int a_lvl, tLINK *a_found, int 
       /*---(footer)----------------------*/
       glPushMatrix(); {
          glTranslatef (x_cen, a_bot + y_edge, z);
-         yFONT_print (myVIKEYS.font, myVIKEYS.point, YF_BASCEN, "much wider, flatter, and universal");
+         if (a_lvl >= 0 && a_lvl <= 2) yFONT_print (myVIKEYS.font, myVIKEYS.point, YF_BASCEN, "much wider, flatter, and universal");
       } glPopMatrix();
       /*---(done)------------------------*/
    }
    /*---(ncurses)------------------------*/
    else {
+      if (a_len != a_lvl)  yCOLOR_curs ("note_cur");
+      else                 yCOLOR_curs ("note_old");
       /*---(title)--------------------------*/
-      mvprintw   (a_bot + a_tall, x_mid - (x_len / 2), "%s", t);
+      mvprintw   (a_bot - a_tall + 1, x_cen - (x_len / 2), "%s", t);
       /*---(prog name)-------------------*/
-      mvprintw   (a_bot + a_tall, a_lef + 1, "%s", myVIKEYS.s_prog);
+      mvprintw   (a_bot - a_tall + 1, a_lef + 1, "%s", myVIKEYS.s_prog);
       /*---(version)---------------------*/
       x_len = strlen (myVIKEYS.s_vernum);
-      mvprintw   (a_bot + a_tall, a_lef + a_wide - x_len - 1, "%s", myVIKEYS.s_vernum);
+      mvprintw   (a_bot - a_tall + 1, a_lef + a_wide - x_len - 1, "%s", myVIKEYS.s_vernum);
       /*---(footer)----------------------*/
       strlcpy (t, "much wider, flatter, and universal", LEN_RECD);
       x_len = strlen (t);
-      mvprintw   (a_bot - 1, x_mid - (x_len / 2), "%s", t);
+      if (a_lvl >= 0)  mvprintw   (a_bot, x_cen - (x_len / 2), "%s", t);
       /*---(done)------------------------*/
    }
    return 0;
@@ -1789,10 +1768,10 @@ yvikeys_menu__error     (char a_type, int a_len, int a_lvl, tLINK *a_found, int 
       yCOLOR_curs ("error");
       strlcpy (t, "ERROR KEY", LEN_RECD);
       x_len = strlen (t);
-      mvprintw   (a_bot - 8, x_mid - (x_len / 2), "%s", t);
-      strlcpy (t, "press <esc>", LEN_RECD);
+      mvprintw   (a_bot - 7, x_cen - (x_len / 2), "%s", t);
+      strlcpy (t, "press ¥", LEN_RECD);
       x_len = strlen (t);
-      mvprintw   (a_bot - 7, x_mid - (x_len / 2), "%s", t);
+      mvprintw   (a_bot - 6, x_cen - (x_len / 2), "%s", t);
       /*---(done)------------------------*/
    }
    return 0;
@@ -1811,10 +1790,17 @@ yvikeys_menu__back      (int a_len, int a_level, tLINK *a_found)
    DEBUG_GRAF   yLOG_complex  ("size"      , "%3dl, %3dw, %3db, %3dt", x_left, x_wide, x_bott, x_tall);
    /*---(make background)----------------*/
    s_pt     = myVIKEYS.point;
-   yvikeys_menu__shadow  (myVIKEYS.env, x_left, x_wide, x_bott, x_tall, 300);
-   yvikeys_menu__fill    (myVIKEYS.env, a_len, a_level, x_left, x_wide, x_bott, x_tall, 310);
-   yvikeys_menu__heads   (myVIKEYS.env, a_len, a_level, a_found, x_left, x_wide, x_bott, x_tall, 320);
-   yvikeys_menu__error   (myVIKEYS.env, a_len, a_level, a_found, x_left, x_wide, x_bott, x_tall, 340);
+   if (myVIKEYS.env == YVIKEYS_OPENGL) {
+      yvikeys_menu_shadow   (myVIKEYS.env, x_left, x_wide, x_bott, x_tall, 300);
+      yvikeys_menu_fill     (myVIKEYS.env, a_len, a_level, x_left, x_wide, x_bott, x_tall, 310);
+      yvikeys_menu_heads    (myVIKEYS.env, a_len, a_level, a_found, x_left, x_wide, x_bott, x_tall, 320);
+      yvikeys_menu__error   (myVIKEYS.env, a_len, a_level, a_found, x_left, x_wide, x_bott, x_tall, 340);
+   } else {
+      yvikeys_menu_shadow   (myVIKEYS.env, x_left, x_wide, x_bott - x_tall, x_tall, 300);
+      yvikeys_menu_fill     (myVIKEYS.env, a_len, a_level, x_left, x_wide, x_bott - x_tall + 1, x_tall, 310);
+      yvikeys_menu_heads    (myVIKEYS.env, a_len, a_level, a_found, x_left, x_wide, x_bott, x_tall, 320);
+      yvikeys_menu__error   (myVIKEYS.env, a_len, a_level, a_found, x_left, x_wide, x_bott, x_tall, 340);
+   }
    /*---(complete)-----------------------*/
    DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -1854,6 +1840,12 @@ yvikeys_menu__entry     (char a_type, tLINK *a_item, int a_level, float x, int y
    /*---(header)-------------------------*/
    DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
    DEBUG_GRAF   yLOG_complex ("args"      , "%dl %6.2fx %6.2fy %6.2fz %6.2fox %6.2foy", a_level, x, y, z, a_offx, a_offy);
+   /*---(abbrev)----------------------*/
+   switch (a_level) {
+   case 0  : sprintf (t, "%c", a_item->data->top);   break;
+   case 1  : sprintf (t, "%c", a_item->data->mid);   break;
+   case 2  : sprintf (t, "%c", a_item->data->bot);   break;
+   }
    /*---(opengl)-------------------------*/
    if (a_type == YVIKEYS_OPENGL) {
       glPushMatrix(); {
@@ -1863,12 +1855,6 @@ yvikeys_menu__entry     (char a_type, tLINK *a_item, int a_level, float x, int y
          if (a_offx >  0)  x_align = YF_BASLEF;
          if (a_offx == 0)  x_align = YF_BASCEN;
          if (a_offx <  0)  x_align = YF_BASRIG;
-         /*---(abbrev)----------------------*/
-         switch (a_level) {
-         case 0  : sprintf (t, "%c", a_item->data->top);   break;
-         case 1  : sprintf (t, "%c", a_item->data->mid);   break;
-         case 2  : sprintf (t, "%c", a_item->data->bot);   break;
-         }
          yFONT_print (myVIKEYS.font, myVIKEYS.point, x_align, t);
          /*---(name)------------------------*/
          glTranslatef (a_offx, a_offy, 0.0);
@@ -1896,7 +1882,7 @@ yvikeys_menu__entry     (char a_type, tLINK *a_item, int a_level, float x, int y
       else if (a_offx == 0)  a_offx  -= x_len / 2;
       else if (a_offx <  0)  a_offx  -= x_len - 1;
       x += a_offx;
-      y -= a_offy;
+      y += a_offy;
       /*---(name)---------------------------*/
       DEBUG_GRAF   yLOG_complex ("title"     , "%3dox, %3doy, %3dl, %3dx, %3dy", a_offx, a_offy, x_len, x, y);
       mvprintw   (y, x, "%s", t);
