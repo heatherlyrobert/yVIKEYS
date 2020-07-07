@@ -320,6 +320,11 @@ SOURCE__accept          (void)
       rc = yVIKEYS_cmds_direct (s_cur->contents);
       strlcpy (s_cur->contents, "", LEN_RECD);
       break;
+   case SMOD_HINT    :
+      DEBUG_EDIT   yLOG_note    ("execute hint");
+      rc = yVIKEYS_hint_direct (s_cur->contents);
+      strlcpy (s_cur->contents, "", LEN_RECD);
+      break;
    case MODE_SEARCH  :
       DEBUG_EDIT   yLOG_note    ("execute search");
       rc = yVIKEYS_srch_direct (s_cur->contents);
@@ -344,6 +349,7 @@ SOURCE__reset           (void)
    switch (MODE_curr ()) {
    case MODE_COMMAND :
    case MODE_SEARCH  :
+   case SMOD_HINT    :
       strlcpy (s_cur->original, "", LEN_RECD);
       break;
    }
@@ -561,6 +567,10 @@ SOURCE_start       (char *a_prefix)
    case ':' :
       s_cur = &s_cmd;
       MODE_enter  (MODE_COMMAND);
+      break;
+   case ';' :
+      s_cur = &s_cmd;
+      MODE_enter  (SMOD_HINT);
       break;
    case '/' :
       s_cur = &s_cmd;
@@ -1124,6 +1134,7 @@ SOURCE_float               (void)
       break;
    case MODE_COMMAND :
    case MODE_SEARCH  :
+   case SMOD_HINT    :
       DEBUG_GRAF   yLOG_note    ("mode command/search");
       x_on   = yVIKEYS_view_size     (YVIKEYS_COMMAND, NULL, NULL, NULL, NULL, NULL);
       x_cur  = &s_cmd;
@@ -1136,6 +1147,35 @@ SOURCE_float               (void)
    DEBUG_GRAF   yLOG_char    ("x_on"      , x_on);
    if (x_on != 'y')  SOURCE_display (x_cur, YVIKEYS_FLOAT);
    /*---(complete)--------------------*/
+   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char         /*-> create a shape mask for notes ------------------------------*/
+yVIKEYS_source_mask     (void *a_bounds, void *a_context, int a_left, int a_topp, int a_xmin, int a_ymax)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   Pixmap      *x_bounds;
+   GC          *x_context;
+   char        x_mode      =  '-';
+   int         x_left, x_wide, x_bott, x_tall;
+   /*---(quick out)----------------------*/
+   if (myVIKEYS.env == YVIKEYS_CURSES)    return 0;
+   if      (strchr (MODES_ONELINE, MODE_curr ()) != NULL )      x_mode = MODE_curr ();
+   else if (strchr (MODES_ONELINE, MODE_prev ()) != NULL )      x_mode = MODE_prev ();
+   if (x_mode == '-')   return 0;
+   /*---(header)-------------------------*/
+   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
+   DEBUG_GRAF   yLOG_complex  ("args"      , "%p, %p, %3dl, %3dt, %3dx, %3dy", a_bounds, a_context, a_left, a_topp, a_xmin, a_ymax);
+   /*---(get size)-----------------------*/
+   yVIKEYS_view_size   (YVIKEYS_FLOAT, &x_left, &x_wide, &x_bott, &x_tall, NULL);
+   DEBUG_GRAF   yLOG_complex  ("size"      , "%3dl, %3dw, %3db, %3dt", x_left, x_wide, x_bott, x_tall);
+   /*---(cast)---------------------------*/
+   x_bounds  = (Pixmap *) a_bounds;
+   x_context = (GC *) a_context;
+   /*---(draw)---------------------------*/
+   XFillRectangle (YX_DISP, *x_bounds, *x_context, a_left + (x_left - a_xmin) - 2, a_topp + a_ymax - (x_bott + x_tall) - 2, x_wide + 4, x_tall + 4);
+   /*---(complete)-----------------------*/
    DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
 }

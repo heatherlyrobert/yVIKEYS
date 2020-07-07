@@ -19,8 +19,8 @@
 #define     MODE_SOURCE    'S'
 #define     MODE_COMMAND   ':'
 #define     MODE_SEARCH    '/'
-#define     MODES_ONELINE  "S:/"
-#define     MODES_EDITING  "S:/triw"
+#define     MODES_ONELINE  "S:/;"
+#define     MODES_EDITING  "S:/;triw"
 /*---(sub-modes)-------------------------*/
 #define     SMOD_ERROR     'e'    /* error reporting and actions              */
 #define     SMOD_MREG      'R'    /* register actions                         */
@@ -30,6 +30,7 @@
 #define     UMOD_HISTORY   'H'    /* dislay command/search history            */
 #define     SMOD_BUFFER    ','    /* selecting buffers                        */
 #define     XMOD_FORMAT    '$'    /* content formatting                       */
+#define     XMOD_PALETTE   'p'    /* palette/coloration                       */
 #define     XMOD_UNITS     'K'    /* content units for scaling                */
 #define     XMOD_OBJECT    'o'    /* object formatting                        */
 #define     SMOD_HINT      ';'    /* hint labels                              */
@@ -42,7 +43,6 @@
 #define     UMOD_SRC_REPL  'r'    /* replacing characters in source mode      */
 #define     UMOD_SRC_INPT  'i'    /* direct input of text                     */
 #define     UMOD_WANDER    'w'    /* formula creation by pointing             */
-#define     UMOD_HINTS     'h'    /* hint labels                              */
 #define     SMOD_FILTER    '!'    /* data filtering                           */
 /*---(pseudo)----------------------------*/
 #define     FILE_COLS      'X'    /* x-axis (cols)                            */
@@ -179,6 +179,7 @@ tMAPPED     g_zmap;
 #define      YVIKEYS_HISTORY     'H'
 #define      YVIKEYS_MENUS       'M'
 #define      YVIKEYS_NOTES       'N'
+#define      YVIKEYS_MASK        'Z'
 
 
 
@@ -352,7 +353,7 @@ char        yVIKEYS_hist_marklist   (char *a_list);
 
 char        yVIKEYS_mode            (void);
 char        yVIKEYS_mode_change     (char a_mode, char *a_allow, char *a_mesg);
-char        yVIKEYS_mode_formatter  (void *a_formatter, void *a_uniter);
+char        yVIKEYS_mode_formatter  (void *a_formatter, void *a_uniter, void *a_paletter);
 
 /*---(speed)----------------*/
 /*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
@@ -364,8 +365,8 @@ char        yVIKEYS_scale_brief     (char   *a_text);
 char        yVIKEYS_scale_desc      (char   *a_text  );
 
 
+char        yVIKEYS_progress_config (float a_beg, float a_end, char a_repeat, int a_lines, char *a_unit, char *a_scale, char *a_speed, char a_play);
 char        yVIKEYS_prog_redraw     (void);
-char        yVIKEYS_prog_script     (float a_beg, float  a_end, int    a_lines);
 char        yVIKEYS_prog_cur        (char *a_pos, float *a_sec, float *a_scale, float *a_inc, int *a_line);
 
 /*---(macros)---------------*/
@@ -381,13 +382,21 @@ int         yVIKEYS_menu_active     (uchar *a_path);
 int         yVIKEYS_menu_grey       (uchar *a_path);
 int         yVIKEYS_menu_hide       (uchar *a_path);
 
+char        yVIKEYS_note_mask       (void *a_bounds, void *a_context, int a_left, int a_topp, int a_xmin, int a_ymax);
+char        yVIKEYS_menu_mask       (void *a_bounds, void *a_context, int a_left, int a_topp, int a_xmin, int a_ymax);
+char        yVIKEYS_hist_mask       (void *a_bounds, void *a_context, int a_left, int a_topp, int a_xmin, int a_ymax);
+char        yVIKEYS_source_mask     (void *a_bounds, void *a_context, int a_left, int a_topp, int a_xmin, int a_ymax);
+char        yVIKEYS_progress_mask   (void *a_bounds, void *a_context, int a_wide, int a_tall);
+char        yVIKEYS_masking         (void *a_bounds, void *a_context);
+
 /*---(search)---------------*/
 char        yVIKEYS_srch_config     (void *a_searcher, void *a_clearer);
 char        yVIKEYS_srch_found      (char *a_label, int a_buf, int x, int y, int z);
 char        yVIKEYS_srch_direct     (char *a_search);
+int         yVIKEYS_srch_count      (void);
 
 /*---(files)----------------*/
-char        yVIKEYS_whoami          (char *a_prog, char *a_vernum, char *a_vertxt, char *a_full, char *a_namesake, char *a_ext, char *a_filetype, void *a_handlers, void *a_prepper, void *a_finisher);
+char        yVIKEYS_whoami          (char *a_full, char *a_vernum, char *a_vertxt, char *a_namesake, char *a_ext, char *a_filetype, void *a_handlers, void *a_prepper, void *a_finisher);
 char        yVIKEYS_file_add        (char  a_abbr, void *a_writer, void *a_reader);
 char        yVIKEYS_file_write      (char a_abbr, void *a, void *b, void *c, void *d, void *e, void *f, void *g, void *h, void *i);
 
@@ -399,7 +408,8 @@ char        yVIKEYS_mreg_inside     (int b, int x, int y, int z);
 /*---(unit testing)---------*/
 char        yVIKEYS_unit_reset      (void);
 
-
+char        yVIKEYS_hint_config     (void *a_hinter);
+char        yVIKEYS_hint_direct     (char *a_hint);
 
 #endif
 /*============================----end-of-source---============================*/

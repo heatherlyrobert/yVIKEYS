@@ -713,8 +713,8 @@ yvikeys_sizes_vert__float (tPARTS *p, int a_bott)
    case YVIKEYS_LOWCEN : p->bott = a_bott + s_main_tall * (0.25) - (p->tall * 0.5);  break;
    case YVIKEYS_BOTCEN : p->bott = a_bott + p->tall;  break;
    default    :
-      DEBUG_GRAF   yLOG_note    ("no appropriate float location found");
-      break;
+                         DEBUG_GRAF   yLOG_note    ("no appropriate float location found");
+                         break;
    }
    DEBUG_GRAF   yLOG_complex ("vert_float", "%c, %3da, %3ds, %3dt, %3db", myVIKEYS.loc_float, a_bott, s_main_tall, p->tall, p->bott);
    return 0;
@@ -1090,6 +1090,13 @@ yvikeys_sizes_resize     (cchar a_type)
    yvikeys_view_pointer (YVIKEYS_MAIN, &p, NULL);
    g_xmap.uavail = p->wide;
    g_ymap.uavail = p->tall;
+   /*> if (myVIKEYS.env == YVIKEYS_CURSES) {                                          <* 
+    *>    g_xmap.uavail = p->wide;                                                    <* 
+    *>    g_ymap.uavail = p->tall;                                                    <* 
+    *> } else {                                                                       <* 
+    *>    g_xmap.uavail = p->wide / 15;                                               <* 
+    *>    g_ymap.uavail = p->tall / 15;                                               <* 
+    *> }                                                                              <*/
    yVIKEYS_map_refresh ();
    /*---(complete)-----------------------*/
    DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
@@ -1241,16 +1248,16 @@ yvikeys_sizes_switch     (char *a_name, char *a_opt)
    DEBUG_GRAF   yLOG_char    ("current"   , p->on);
    x_on = p->on;
    if        (strcmp (a_opt, "hide"   ) == 0) {
-      p->on = '-';
+      p->on  = '-';
       x_good = 'y';
    } else if (strcmp (a_opt, "show"   ) == 0) {
-      p->on = 'y';
+      p->on  = 'y';
       x_good = 'y';
    } else if (strcmp (a_opt, "enable" ) == 0) {
-      p->on = 'y';
+      p->on  = 'y';
       x_good = 'y';
    } else if (strcmp (a_opt, "disable") == 0) {
-      p->on = 'X';
+      p->on  = 'X';
       x_good = 'y';
    } else {
       for (i = 0; i < s_noption; ++i) {

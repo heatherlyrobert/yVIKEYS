@@ -1618,6 +1618,32 @@ yvikeys_menu_shadow     (char a_type, int a_lef, int a_wide, int a_bot, int a_ta
    return 0;
 }
 
+char         /*-> create a shape mask for notes ------------------------------*/
+yVIKEYS_menu_mask       (void *a_bounds, void *a_context, int a_left, int a_topp, int a_xmin, int a_ymax)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   Pixmap      *x_bounds;
+   GC          *x_context;
+   int         x_left, x_wide, x_bott, x_tall;
+   /*---(quick out)----------------------*/
+   if (myVIKEYS.env == YVIKEYS_CURSES)    return 0;
+   if (yVIKEYS_mode () != SMOD_MENUS)     return 0;
+   /*---(header)-------------------------*/
+   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
+   DEBUG_GRAF   yLOG_complex  ("args"      , "%p, %p, %3dl, %3dt, %3dx, %3dy", a_bounds, a_context, a_left, a_topp, a_xmin, a_ymax);
+   /*---(get size)-----------------------*/
+   yVIKEYS_view_size   (YVIKEYS_MENUS, &x_left, &x_wide, &x_bott, &x_tall, NULL);
+   DEBUG_GRAF   yLOG_complex  ("size"      , "%3dl, %3dw, %3db, %3dt", x_left, x_wide, x_bott, x_tall);
+   /*---(cast)---------------------------*/
+   x_bounds  = (Pixmap *) a_bounds;
+   x_context = (GC *) a_context;
+   /*---(draw)---------------------------*/
+   XFillRectangle (YX_DISP, *x_bounds, *x_context, a_left + (x_left - a_xmin), a_topp + a_ymax - (x_bott + x_tall), x_wide, x_tall);
+   /*---(complete)-----------------------*/
+   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
 char
 yvikeys_menu_fill       (char a_type, int a_len, int a_lvl, int a_lef, int a_wide, int a_bot, int a_tall, int z)
 {
@@ -1628,8 +1654,10 @@ yvikeys_menu_fill       (char a_type, int a_len, int a_lvl, int a_lef, int a_wid
    DEBUG_GRAF   yLOG_note    ("draw menu background");
    /*---(opengl)-------------------------*/
    if (a_type == YVIKEYS_OPENGL) {
-      if (a_len != a_lvl)    glColor4f (0.85f, 0.50f, 0.50f, 1.0f);
-      else                   glColor4f (0.70f, 0.70f, 0.70f, 1.0f);
+      if      (a_len == 't')      glColor4f (0.85f, 0.85f, 0.97f, 1.0f);
+      else if (a_len == 'n')      glColor4f (0.50f, 0.50f, 0.85f, 1.0f);
+      else if (a_len != a_lvl)    glColor4f (0.85f, 0.50f, 0.50f, 1.0f);
+      else                        glColor4f (0.70f, 0.70f, 0.70f, 1.0f);
       x_edge = 3;
       y_edge = 3;
       glBegin(GL_POLYGON); {
@@ -1638,15 +1666,19 @@ yvikeys_menu_fill       (char a_type, int a_len, int a_lvl, int a_lef, int a_wid
          glVertex3f (a_lef + a_wide - x_edge, a_bot          + y_edge, z);
          glVertex3f (a_lef          + x_edge, a_bot          + y_edge, z);
       } glEnd();
-      if (a_len != a_lvl)    glColor4f (0.87f, 0.52f, 0.52f, 1.0f);
-      else                   glColor4f (0.72f, 0.72f, 0.72f, 1.0f);
+      if      (a_len == 't')      glColor4f (0.88f, 0.88f, 1.00f, 1.0f);
+      else if (a_len == 'n')      glColor4f (0.55f, 0.55f, 0.90f, 1.0f);
+      else if (a_len != a_lvl)    glColor4f (0.87f, 0.52f, 0.52f, 1.0f);
+      else                        glColor4f (0.72f, 0.72f, 0.72f, 1.0f);
       glBegin(GL_POLYGON); {
          glVertex3f (a_lef          + x_edge, a_bot + a_tall - y_edge, z);
          glVertex3f (a_lef + a_wide - x_edge, a_bot + a_tall - y_edge, z);
          glVertex3f (a_lef + (a_wide * 0.50), a_bot + (a_tall * 0.50), z);
       } glEnd();
-      if (a_len != a_lvl)    glColor4f (0.83f, 0.48f, 0.48f, 1.0f);
-      else                   glColor4f (0.68f, 0.68f, 0.68f, 1.0f);
+      if      (a_len == 't')      glColor4f (0.82f, 0.82f, 0.94f, 1.0f);
+      else if (a_len == 'n')      glColor4f (0.45f, 0.45f, 0.80f, 1.0f);
+      else if (a_len != a_lvl)    glColor4f (0.83f, 0.48f, 0.48f, 1.0f);
+      else                        glColor4f (0.68f, 0.68f, 0.68f, 1.0f);
       glBegin(GL_POLYGON); {
          glVertex3f (a_lef          + x_edge, a_bot          + y_edge, z);
          glVertex3f (a_lef + a_wide - x_edge, a_bot          + y_edge, z);

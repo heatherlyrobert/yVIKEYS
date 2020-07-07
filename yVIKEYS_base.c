@@ -92,6 +92,7 @@ yVIKEYS_init         (char a_mode)
    yvikeys_sreg_init    ();
    yvikeys_sundo_init   ();
    yvikeys_mark_init    ();
+   yvikeys_hint_init    ();
    yvikeys_visu_init    ();
    REPEAT_init  ();
    yvikeys_bufs_init    ();
@@ -494,7 +495,7 @@ yvikeys_keys__multi     (int a_pos)
    if (a_pos > 2 && x_mode == UMOD_REPEAT)  x_mode = s_keys_mode [a_pos - 3];
    if (a_pos > 3 && x_mode == UMOD_REPEAT)  x_mode = s_keys_mode [a_pos - 4];
    switch (x_mode) {
-   case MODE_SOURCE  : case MODE_COMMAND : case MODE_SEARCH  :
+   case MODE_SOURCE  : case MODE_COMMAND : case MODE_SEARCH  : case SMOD_HINT  :
       if (strchr (g_multisrc, s_keys_log [a_pos]) != NULL)       return 1;
       break;
    case MODE_MAP     :
@@ -837,11 +838,13 @@ yVIKEYS_main_handle     (uchar a_key)
       case UMOD_SRC_UNDO : rc = BASE__________stub    (x_major , x_key);  break;
       case UMOD_MAP_UNDO : rc = BASE__________stub    (x_major , x_key);  break;
       case MODE_COMMAND  : rc = SOURCE_mode           (x_major , x_key);  break;
+      case SMOD_HINT     : rc = SOURCE_mode           (x_major , x_key);  break;
       case MODE_SEARCH   : rc = SOURCE_mode           (x_major , x_key);  break;
       case UMOD_HISTORY  : rc = yvikeys_hist_umode    (x_major , x_key);  break;
       case UMOD_VISUAL   : rc = yvikeys_visu_umode    (x_major , x_key);  break;
       case SMOD_ERROR    : rc = BASE__________stub    (x_major , x_key);  break;
       case XMOD_FORMAT   : rc = FORMAT_xmode          (x_major , x_key);  break;
+      case XMOD_PALETTE  : rc = PALETTE_xmode         (x_major , x_key);  break;
       case XMOD_UNITS    : rc = UNITS_xmode           (x_major , x_key);  break;
       case SMOD_BUFFER   : rc = yvikeys_bufs_umode    (x_major , x_key);  break;
       case UMOD_WANDER   : rc = yvikeys_map_wander    (x_major , x_key);  break;

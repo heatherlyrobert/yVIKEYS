@@ -67,7 +67,7 @@ char   g_repeat    [LEN_DESC ]   = "123456789";
 char   g_search    [LEN_DESC ]   = "[<>]";
 
 
-static char *s_map_modes = ":/\\,\" vMVm' s=+-#Ff @qQG";
+static char *s_map_modes = ":/;\\,\" vMVm' s=+-#Ff @qQG";
 
 
 
@@ -2224,6 +2224,10 @@ yvikeys__map_mode_chg   (char a_minor)
       SOURCE_start   (":");
       rc = 'a';
       break;
+   case ';'      :
+      SOURCE_start   (";");
+      rc = 'a';
+      break;
    case '\\'     :
       DEBUG_USER   yLOG_note    ("entering menu sub-mode");
       MODE_enter  (SMOD_MENUS   );
@@ -2710,8 +2714,24 @@ yvikeys_bufs_umode  (uchar a_major, uchar a_minor)
       return a_minor;
    } else {
       MODE_exit  ();
-      DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
+      switch (a_minor) {
+      case 't' :  
+         DEBUG_USER   yLOG_note    ("switch to nav/tags");
+         break;
+      case 'p' :  
+         DEBUG_USER   yLOG_note    ("switch to progress");
+         MODE_enter (MODE_PROGRESS);
+         break;
+      case 'c' :  
+         DEBUG_USER   yLOG_note    ("switch to palette");
+         MODE_enter (XMOD_PALETTE);
+         break;
+      default  :
+         DEBUG_USER   yLOG_note    ("unknown, nothing to do");
+         DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
+         return rce;
+         break;
+      }
    }
    /*---(complete)-----------------------*/
    DEBUG_USER   yLOG_exit    (__FUNCTION__);

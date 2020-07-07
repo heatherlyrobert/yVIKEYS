@@ -32,6 +32,10 @@ static int  s_nmark       = 0;
 #define     MARK_IMPORT   'i'
 #define     MARK_AUTO     'a'
 
+
+static char    (*s_hinter)     (char *a_hint) = NULL;
+
+
 char         yvikeys_mark__purge   (char  a_scope);
 char         yvikeys_mark__unset   (char  a_mark);
 char         yvikeys_mark__range   (void);
@@ -926,6 +930,98 @@ yvikeys_mark_smode      (int a_major, int a_minor)
    MODE_exit ();
    DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
    return rce;
+}
+
+
+
+/*====================------------------------------------====================*/
+/*===----                         hint handling                        ----===*/
+/*====================------------------------------------====================*/
+static void  o___HINTS___________o () { return; }
+
+char         /*-> initialize hints -------------------[ shoot  [gz.311.001.01]*/ /*-[00.0000.102.4]-*/ /*-[--.---.---.--]-*/
+yvikeys_hint_init            (void)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   /*---(header)-------------------------*/
+   DEBUG_PROG   yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   --rce;  if (!STATUS_check_prep  (SMOD_HINT)) {
+      DEBUG_PROG   yLOG_note    ("status is not ready for init");
+      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(update status)------------------*/
+   STATUS_init_set   (SMOD_HINT);
+   /*---(complete)-----------------------*/
+   DEBUG_PROG   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char
+yVIKEYS_hint_config     (void *a_hinter)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   /*---(header)-------------------------*/
+   DEBUG_MARK  yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   --rce;  if (!STATUS_check_needs  (SMOD_HINT)) {
+      DEBUG_MARK   yLOG_note    ("init must complete before config");
+      DEBUG_MARK   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(update searcher)----------------*/
+   DEBUG_MARK   yLOG_point   ("a_hinter"  , a_hinter);
+   --rce;  if (a_hinter == NULL) {
+      DEBUG_MARK   yLOG_note    ("without hinter callback, hinting can not function");
+      DEBUG_MARK   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   s_hinter = a_hinter;
+   DEBUG_MARK   yLOG_point   ("s_hinter"  , s_hinter);
+   /*---(update status)------------------*/
+   STATUS_conf_set   (SMOD_HINT, '1');
+   /*---(complete)-----------------------*/
+   DEBUG_MARK   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char
+yVIKEYS_hint_direct     (char *a_hint)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   int         x_len       =    0;
+   /*---(header)-------------------------*/
+   DEBUG_MARK   yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   DEBUG_MARK   yLOG_point   ("a_hint"    , a_hint);
+   --rce;  if (a_hint == NULL) {
+      DEBUG_MARK   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_MARK   yLOG_info    ("a_hint"    , a_hint);
+   x_len = strlen (a_hint);
+   DEBUG_MARK   yLOG_value   ("x_len"     , x_len);
+   /*---(check hinter)-------------------*/
+   DEBUG_MARK   yLOG_point   ("s_hinter"  , s_hinter);
+   --rce;  if (s_hinter == NULL) {
+      DEBUG_MARK   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(execute)------------------------*/
+   rc = s_hinter (a_hint);
+   --rce;  if (rc < 0) {
+      DEBUG_MARK   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(complete)-----------------------*/
+   DEBUG_MARK   yLOG_exit    (__FUNCTION__);
+   return 0;
 }
 
 

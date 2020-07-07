@@ -1269,7 +1269,7 @@ yvikeys_script_read     (void)
    char        rc          =    0;
    uchar       x_recd      [LEN_RECD];
    uchar       x_ready     [LEN_RECD];
-   char        x_len       =    0;
+   int         x_len       =    0;
    /*---(header)-------------------------*/
    DEBUG_SCRP   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
@@ -1290,9 +1290,14 @@ yvikeys_script_read     (void)
       /*---(process line)-------------------*/
       fgets (x_recd, LEN_RECD, s_script);
       ++s_line;
-      if (x_recd [0] <  ' ')          continue;
-      if (x_recd [0] == '#')          continue;
-      DEBUG_SCRP   yLOG_info    ("x_recd"    , x_recd);
+      if (x_recd [0] <  ' ') {
+         DEBUG_SCRP   yLOG_note    ("blank leader, skipping");
+         continue;
+      }
+      if (x_recd [0] == '#') {
+         DEBUG_SCRP   yLOG_note    ("comment marker, skipping");
+         continue;
+      }
       x_len = strlen (x_recd);
       if (x_recd [x_len - 1] == '\n')  x_recd [--x_len] = '\0';
       DEBUG_SCRP   yLOG_info    ("x_recd"    , x_recd);
@@ -1982,7 +1987,7 @@ yvikeys_macro_modeset   (char a_mode)
  *> }                                                                                                                                                                              <*/
 
 char
-yvikeys_macro_estatus        (char *a_list)
+yvikeys_macro_estatus_OLD    (char *a_list)
 {
    char        x_bef       [LEN_RECD] = "";
    char        x_aft       [LEN_RECD] = "";
@@ -2011,7 +2016,101 @@ yvikeys_macro_estatus        (char *a_list)
 }
 
 char
+yvikeys_macro_estatus        (char *a_list)
+{
+   char        x_bef       [LEN_RECD] = "";
+   char        x_aft       [LEN_RECD] = "";
+   int         x_pos       = 0;
+   int         x_rem       = 0;  
+   char        x_dots      [LEN_HUND] = "····+····+····+····+····+····+····+····+····+····+····+····+····+····+····+····+····+····";
+   int         x_len       = 0;
+   uchar       x_ch        = ' ';
+   int         x_wide;
+   int         w;
+   char       *p           = NULL;
+   /*---(header)-------------------------*/
+   DEBUG_SCRP   yLOG_enter   (__FUNCTION__);
+   /*---(get size)-----------------------*/
+   yVIKEYS_view_size   (YVIKEYS_STATUS, NULL, &x_wide, NULL, NULL, NULL);
+   DEBUG_SCRP   yLOG_value   ("x_wide"    , x_wide);
+   if (myVIKEYS.env != YVIKEYS_CURSES)    x_wide /= 7.5;
+   DEBUG_SCRP   yLOG_value   ("x_wide"    , x_wide);
+   w = ((x_wide - 30) / 2);
+   DEBUG_SCRP   yLOG_value   ("w"         , w);
+   x_len = strlen (x_dots);
+   p =  x_dots + x_len - w;
+   /*---(idle version)-------------------*/
+   if (s_ecurr < 0) {
+      snprintf (a_list, LEN_FULL, "macro   %c %c %c -- --- --- %*.*s [*] %*.*s", s_ename, s_ddelay, s_dupdate, w, w, p, w, w, x_dots);
+      DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
+   /*---(position)-----------------------*/
+   x_pos = s_macros [s_ecurr].pos;
+   x_ch  = s_macros [s_ecurr].cur;
+   if (x_ch < 32)  x_ch = '£';
+   /*---(prefix)-------------------------*/
+   if      (x_pos <=  0)  sprintf (x_bef , "%*.*s", w, w, p);
+   else if (x_pos >   w)  sprintf (x_bef , "<%-*.*s", w - 1, w - 1, s_macros [s_ecurr].keys + x_pos - w);
+   else                   sprintf (x_bef , "%*.*s%*.*s"   , w - x_pos, w - x_pos, p, x_pos, x_pos, s_macros [s_ecurr].keys);
+   /*---(suffix)-------------------------*/
+   x_rem = s_macros [s_ecurr].len - s_macros [s_ecurr].pos - 1;
+   if      (x_rem <=  0)  sprintf (x_aft , "%*.*s", w, w, x_dots);
+   else if (x_rem >   w)  sprintf (x_aft , "%-*.*s>", w - 1, w - 1, s_macros [s_ecurr].keys + s_macros [s_ecurr].pos + 1);
+   else                   sprintf (x_aft , "%*.*s%*.*s"   , x_rem, x_rem, s_macros [s_ecurr].keys + x_pos + 1, w - x_rem, w - x_rem, x_dots + x_rem);
+   /*---(concat)-------------------------*/
+   snprintf (a_list, LEN_FULL, "macro   %c %c %c %2d %3d %3d %s [%c] %s", s_ename, s_ddelay, s_dupdate, s_macros [s_ecurr].repeat, x_pos, s_macros [s_ecurr].len, x_bef, x_ch, x_aft);
+   /*---(complete)-----------------------*/
+   DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char
 yvikeys_macro_rstatus        (char *a_list)
+{
+   char        x_dots      [LEN_HUND] = "····+····+····+····+····+····+····+····+····+····+····+····+····+····+····+····+····+····";
+   /*> char        x_dots      [LEN_HUND] = "····´····´····´····´····´····´····´····´····´····´····´····´····´";   <*/
+   int         x_len       = 0;
+   int         x_wide;
+   int         w;
+   /*---(header)-------------------------*/
+   DEBUG_SCRP   yLOG_enter   (__FUNCTION__);
+   /*---(get size)-----------------------*/
+   yVIKEYS_view_size   (YVIKEYS_STATUS, NULL, &x_wide, NULL, NULL, NULL);
+   DEBUG_SCRP   yLOG_value   ("x_wide"    , x_wide);
+   if (myVIKEYS.env != YVIKEYS_CURSES)    x_wide /= 7.5;
+   DEBUG_SCRP   yLOG_value   ("x_wide"    , x_wide);
+   w = x_wide - 15;
+   DEBUG_SCRP   yLOG_value   ("w"         , w);
+   DEBUG_SCRP   yLOG_value   ("s_rcurr"   , s_rcurr);
+   if (s_rcurr < 0) {
+      snprintf (a_list, LEN_FULL, "record  - ---  %*.*s", w, w, x_dots);
+      DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
+   DEBUG_SCRP   yLOG_info    ("s_rkeys"   , s_rkeys);
+   x_len = strlen (s_rkeys) - 1;
+   DEBUG_SCRP   yLOG_value   ("x_len"     , x_len);
+   if (x_len == 0) {
+      snprintf (a_list, LEN_FULL, "record  %c   0  %*.*s", s_rname, w, w, x_dots);
+      DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
+   w -= 3;
+   if (x_len == 1) {
+      snprintf (a_list, LEN_FULL, "record  %c %3d  [%c] %*.*s", s_rname, x_len, s_rkeys [x_len - 1], w - x_len, w - x_len, x_dots + x_len);
+      DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
+   w -= 1;
+   snprintf (a_list, LEN_FULL, "record  %c %3d  %*.*s [%c] %*.*s", s_rname, x_len, x_len - 1, x_len - 1, s_rkeys, s_rkeys [x_len - 1], w - x_len, w - x_len, x_dots + x_len);
+   /*---(complete)-----------------------*/
+   DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char
+yvikeys_macro_rstatus_OLD    (char *a_list)
 {
    char        x_dots      [LEN_HUND] = "····´····´····´····´····´····´····´····´····´····´····´····´····´";
    int         x_len       = 0;
@@ -2148,7 +2247,7 @@ yvikeys_macro_reader    (void)
    char        x_verb      [LEN_LABEL];
    char        x_abbr      =    0;
    int         n           =    0;
-   char        x_keys      [LEN_LABEL];
+   char        x_keys      [LEN_RECD];
    /*---(header)-------------------------*/
    DEBUG_INPT   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
@@ -2453,6 +2552,21 @@ yvikeys_macro_install   (char a_src)
    DEBUG_SCRP   yLOG_value   ("instone"   , rc);
    /*---(complete)-----------------------*/
    DEBUG_SCRP  yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+
+
+/*====================------------------------------------====================*/
+/*===----                       window manager                         ----===*/
+/*====================------------------------------------====================*/
+static void  o___WINDOWS_________o () { return; }
+
+char
+yvikeys_macro_term (uchar *a_string)
+{
+   DEBUG_SCRP   yLOG_note    (__FUNCTION__);
+   DEBUG_SCRP   yLOG_info    ("a_string"  , a_string);
    return 0;
 }
 

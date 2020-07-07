@@ -27,6 +27,7 @@ static char    s_message  [LEN_RECD];
 
 static char    (*s_formatter) (int a_major, int a_minor);
 static char    (*s_uniter)    (int a_major, int a_minor);
+static char    (*s_paletter)  (int a_major, int a_minor);
 
 
 /*===[[ FILE-WIDE VARIABLES ]]================================================*/
@@ -85,6 +86,7 @@ static tMODE_INFO  s_modes [MAX_MODES] = {
    { XMOD_FORMAT  , 'x', 'y', "frm", "format"    , 1, ""  , "5---- p i ----- n ----- r 0--------- d o", "----- - - ----- - ----- - ---------- - -", "content formatting options"                         , "w=mnNwWhHlL  a=<|>[^]{}:' f=iIfeE ,cCaA$sS; oOxXbBzZrR d=0123456789  f=-=_.+!/@qQ~#"     ,    0 },
    { XMOD_UNITS   , 'x', 'y', "unt", "units"     , 1, ""  , "5---- p i ----- n ----- r 0--------- d o", "----- - - ----- - ----- - ---------- - -", "content formatting options"                         , "off -, (+24) Y Z E P T G M K H D . d c m u n p f a z y (-24)"                            ,    0 },
    { XMOD_OBJECT  , 'x', 'y', "obj", "object"    , 1, ""  , "5---- p i ----- n ----- r 0--------- d o", "----- - - ----- - ----- - ---------- - -", "object formatting and sizing options"               , ""                                                                                        ,    0 },
+   { XMOD_PALETTE , 'x', 'y', "pal", "palette"   , 1, ""  , "5---- p i ----- n ----- r 0--------- d o", "----- - - ----- - ----- - ---------- - -", "provides automatic and manual labeling hints"       , ""                                                                                        ,    0 },
    { UMOD_MAP_UNDO, 's', 'y', "mun", "map-undo"  , 1, ""  , "5---- p i ----- n 1---- r 0--------- d o", "----- - - ----- - ----- - ---------- - -", "map level undo and redo"                            , ""                                                                                        ,    0 },
    /*---(source)----------------------------------------*//* prep--- - needs-- conf--- deps-------- -    prep--- - needs-- conf--- deps-------- -*/
    { MODE_SOURCE  , 'M', 'y', "SRC", "source"    , 2, ""  , "5---- p i ----- n 1---- r 0MV------- d o", "----- - - ----- - ----- - ---------- - -", "linewise review of textual content"                 , "hor=0HhlL$bBeEwW  g/z=sh,le  sel=vV\"  pul=yYdDxX  put=pP  chg=rRiIaA  fnd=fnN"          ,    0 },
@@ -94,8 +96,10 @@ static tMODE_INFO  s_modes [MAX_MODES] = {
    { UMOD_WANDER  , 'u', 'y', "wdr", "wander"    , 2, ""  , "5---- p i ----- n ----- r 0--------- d o", "----- - - ----- - ----- - ---------- - -", "formula creation by moving to target cells"         , "modes={ret}{esc}"                                                                        ,    0 },
    { UMOD_SRC_UNDO, 's', 'y', "sun", "src-undo"  , 2, ""  , "5---- p i ----- n ----- r 0--------- d o", "----- - - ----- - ----- - ---------- - -", "source level undo and redo"                         , ""                                                                                        ,    0 },
    /*---(power)-----------------------------------------*//* prep--- - needs-- conf--- deps-------- -    prep--- - needs-- conf--- deps-------- -*/
-   { MODE_COMMAND , 'M', '-', "CMD", "command"   , 3, ""  , "5f--- p i ----- n ----- r 0--------- d o", "----- - - ----- - ----- - ---------- - -", "command line capability for advanced actions"       , ""                                                                                        ,    0 },
-   { MODE_SEARCH  , 'M', '-', "SCH", "search"    , 3, ""  , "5f--- p i ----- n 1---- r 0M-------- d o", "----- - - ----- - ----- - ---------- - -", "search mode to find data and objects"               , ""                                                                                        ,    0 },
+   /*> { MODE_COMMAND , 'M', '-', "CMD", "command"   , 3, ""  , "5f--- p i ----- n ----- r 0--------- d o", "----- - - ----- - ----- - ---------- - -", "command line capability for advanced actions"       , ""                                                                                        ,    0 },   <*/
+   { MODE_COMMAND , 'M', '-', "CMD", "command"   , 3, ""  , "5---- p i ----- n ----- r 0--------- d o", "----- - - ----- - ----- - ---------- - -", "command line capability for advanced actions"       , ""                                                                                        ,    0 },
+   /*> { MODE_SEARCH  , 'M', '-', "SCH", "search"    , 3, ""  , "5f--- p i ----- n 1---- r 0--------- d o", "----- - - ----- - ----- - ---------- - -", "search mode to find data and objects"               , ""                                                                                        ,    0 },   <*/
+   { MODE_SEARCH  , 'M', '-', "SCH", "search"    , 3, ""  , "5---- p i ----- n ----- r 0--------- d o", "----- - - ----- - ----- - ---------- - -", "search mode to find data and objects"               , ""                                                                                        ,    0 },
    { UMOD_HISTORY , 'u', 'y', "his", "history"   , 3, ""  , "5---- p i ----- n ----- r 0-V------- d o", "----- - - ----- - ----- - ---------- - -", "search and command history access"                  , ""                                                                                        ,    0 },
    { SMOD_FILTER  , 's', 'y', "fil", "filter"    , 3, ""  , "5---- p i ----- n ----- r 0--------- d o", "----- - - ----- - ----- - ---------- - -", "process current/selection through external filter"  , "0HhlL$_KkjJG  gz=sh,letk.jb  dxy  !: ~uU /nN oO sS"                                      ,    0 },
    { SMOD_ERROR   , 's', 'y', "err", "errors"    , 3, ""  , "5---- p i ----- n ----- r 0--------- d o", "----- - - ----- - ----- - ---------- - -", "display and action errors"                          , ""                                                                                        ,    0 },
@@ -104,7 +108,7 @@ static tMODE_INFO  s_modes [MAX_MODES] = {
    { MODE_OMNI    , 's', 'y', "OMN", "omni"      , 4, ""  , "5---- p i ----- n ----- r 0--------- d o", "----- - - ----- - ----- - ---------- - -", "omnipotent 3D manipulation mode"                    , "linear=LnhHJjkKIioO  rotate=PpaAYytTRrwW"                                                ,    0 },
    { SMOD_BUFFER  , 's', 'y', "buf", "buffer"    , 4, ""  , "5---- p i ----- n 1---- r M--------- d o", "----- - - ----- - ----- - ---------- - -", "moving and selecting between buffers and windows"   , "select=0-9A-Z   move=jk   panel=abdgpqrtxy   cursor=_[<,>]~   search=/   status=_"       ,    0 },
    { SMOD_MENUS   , 's', 'y', "mnu", "menus"     , 4, ""  , "5---- p i ----- n ----- r 0--------- d o", "----- - - ----- - ----- - ---------- - -", "interactive menu system for accessing commands"     , ""                                                                                        ,    0 },
-   { SMOD_HINT    , 's', 'y', "hnt", "hint"      , 4, ""  , "5---- p i ----- n ----- r 0M-------- d o", "----- - - ----- - ----- - ---------- - -", "provides automatic and manual labeling hints"       , ""                                                                                        ,    0 },
+   { SMOD_HINT    , 'M', 'y', "hnt", "hint"      , 4, ""  , "5---- p i ----- n 1---- r 0M-------- d o", "----- - - ----- - ----- - ---------- - -", "provides automatic and manual labeling hints"       , ""                                                                                        ,    0 },
    { UMOD_REPEAT  , 'u', 'y', "rep", "repeat"    , 4, ""  , "5---- p i ----- n ----- r 0--------- d o", "----- - - ----- - ----- - ---------- - -", "accumulate multiplier"                              , "range 1-99"                                                                              ,    0 },
    /*---(time)------------------------------------------*//* prep--- - needs-- conf--- deps-------- -    prep--- - needs-- conf--- deps-------- -*/
    { MODE_PROGRESS, 'M', 'y', "PRG", "progress"  , 5, ""  , "5---- p i ----- n ----- r 0--------- d o", "----- - - ----- - ----- - ---------- - -", "progress timeline adding time dimension"            , "horz=0LlhH$  vert=_KkjJ~  speed=<>  scale=io  play=,."                                   ,    0 },
@@ -122,7 +126,7 @@ s_modechanges  [MAX_MODES][LEN_TERSE] = {
    { MODE_GOD      , UMOD_REPEAT   , MODE_OMNI     , MODE_PROGRESS , MODE_SOURCE   , MODE_COMMAND  , MODE_SEARCH   , 0             , 0             , 0             , 0             },  /* all other modes */
    /*---(sub/umode/xmode)------------*/
    { MODE_MAP      , UMOD_VISUAL   , SMOD_MREG     , UMOD_MAP_UNDO , SMOD_BUFFER   , UMOD_MARK     , UMOD_MARK     , 0             , 0             , 0             , 0             },
-   { MODE_MAP      , SMOD_MACRO    , XMOD_FORMAT   , XMOD_OBJECT   , SMOD_HINT     , SMOD_MENUS    , 0             , 0             , 0             , 0             , 0             },
+   { MODE_MAP      , SMOD_MACRO    , XMOD_FORMAT   , XMOD_OBJECT   , SMOD_HINT     , SMOD_MENUS    , XMOD_PALETTE  , 0             , 0             , 0             , 0             },
    { MODE_GOD      , SMOD_MACRO    , SMOD_MENUS    , 0             , 0             , 0             , 0             , 0             , 0             , 0             , 0             },
    { MODE_PROGRESS , UMOD_REPEAT   , MODE_COMMAND  , 0             , 0             , 0             , 0             , 0             , 0             , 0             , 0             },
    { MODE_OMNI     , UMOD_REPEAT   , 0             , 0             , 0             , 0             , 0             , 0             , 0             , 0             , 0             },
@@ -130,6 +134,7 @@ s_modechanges  [MAX_MODES][LEN_TERSE] = {
    { MODE_SOURCE   , UMOD_REPEAT   , UMOD_SRC_INPT , UMOD_SRC_REPL , UMOD_SRC_UNDO , SMOD_SREG     , SMOD_MACRO    , UMOD_WANDER   , 0             , 0             , 0             },
    { MODE_COMMAND  , UMOD_REPEAT   , UMOD_SRC_INPT , UMOD_SRC_REPL , UMOD_SRC_UNDO , SMOD_SREG     , UMOD_HISTORY  , 0             , 0             , 0             , 0             },
    { MODE_SEARCH   , UMOD_REPEAT   , UMOD_SRC_INPT , UMOD_SRC_REPL , UMOD_SRC_UNDO , SMOD_SREG     , UMOD_HISTORY  , 0             , 0             , 0             , 0             },
+   { SMOD_HINT     , UMOD_REPEAT   , UMOD_SRC_INPT , UMOD_SRC_REPL , UMOD_SRC_UNDO , 0             , 0             , 0             , 0             , 0             , 0             },
    { UMOD_SRC_INPT , UMOD_WANDER   , 0             , 0             , 0             , 0             , 0             , 0             , 0             , 0             , 0             },
    { UMOD_WANDER   , UMOD_REPEAT   , 0             , 0             , 0             , 0             , 0             , 0             , 0             , 0             , 0             },
    /*---(other)----------------------*/
@@ -175,12 +180,12 @@ MODE__by_abbr           (char a_abbr)
    static int  n           =   -1;
    static char x_abbr      =  '-';
    /*---(header)-------------------------*/
-   DEBUG_PROG_M   yLOG_schar   (a_abbr);
-   DEBUG_PROG_M   yLOG_schar   (x_abbr);
+   DEBUG_MODE   yLOG_schar   (a_abbr);
+   DEBUG_MODE   yLOG_schar   (x_abbr);
    /*---(short-cut)----------------------*/
    if (a_abbr == x_abbr) {
-      DEBUG_PROG_M   yLOG_snote   ("fast");
-      DEBUG_PROG_M   yLOG_sint    (n);
+      DEBUG_MODE   yLOG_snote   ("fast");
+      DEBUG_MODE   yLOG_sint    (n);
       return n;
    }
    /*---(lookup)-------------------------*/
@@ -189,11 +194,11 @@ MODE__by_abbr           (char a_abbr)
       if (s_modes [i].abbr == '-'    )  break;
       if (s_modes [i].abbr != a_abbr)   continue;
       n = i;
-      DEBUG_PROG_M   yLOG_snote   ("found");
+      DEBUG_MODE   yLOG_snote   ("found");
    }
-   if (n <  0)  DEBUG_PROG_M   yLOG_snote   ("FAILED");
+   if (n <  0)  DEBUG_MODE   yLOG_snote   ("FAILED");
    if (n >= 0)  x_abbr = a_abbr;
-   DEBUG_PROG_M   yLOG_sint    (n);
+   DEBUG_MODE   yLOG_sint    (n);
    s_last = n;
    /*---(complete)-----------------------*/
    return n;
@@ -216,7 +221,7 @@ STATUS__check           (char a_abbr, char a_target)
    /*---(check mode)---------------------*/
    x_index  = MODE__by_abbr (a_abbr);
    if (x_index < 0)  {
-      DEBUG_PROG_M   yLOG_snote   ("mode not found");
+      DEBUG_MODE   yLOG_snote   ("mode not found");
       return 0;
    }
    /*---(prepare)------------------------*/
@@ -228,16 +233,16 @@ STATUS__check           (char a_abbr, char a_target)
    case 'o' :  x_loc = S_OPER ;  break;
    }
    /*---(look-up)------------------------*/
-   DEBUG_PROG_M   yLOG_sint    (x_loc);
+   DEBUG_MODE   yLOG_sint    (x_loc);
    x_val = s_modes [x_index].actual [x_loc];
    /*---(check)--------------------------*/
-   DEBUG_PROG_M   yLOG_schar   (a_target);
-   DEBUG_PROG_M   yLOG_schar   (x_val);
+   DEBUG_MODE   yLOG_schar   (a_target);
+   DEBUG_MODE   yLOG_schar   (x_val);
    if (x_val != a_target) {
-      DEBUG_PROG_M   yLOG_snote   ("NOT READY");
+      DEBUG_MODE   yLOG_snote   ("NOT READY");
       return 0;
    }
-   DEBUG_PROG_M   yLOG_snote   ("ready");
+   DEBUG_MODE   yLOG_snote   ("ready");
    /*---(complete)-----------------------*/
    return 1;
 }
@@ -246,9 +251,9 @@ char
 STATUS_check_prep        (char a_abbr)
 {
    char        rc          =    0;
-   DEBUG_PROG_M   yLOG_senter  (__FUNCTION__);
+   DEBUG_MODE   yLOG_senter  (__FUNCTION__);
    rc = STATUS__check  (a_abbr, 'p');
-   DEBUG_PROG_M   yLOG_sexit   (__FUNCTION__);
+   DEBUG_MODE   yLOG_sexit   (__FUNCTION__);
    return rc;
 }
 
@@ -256,10 +261,10 @@ char
 STATUS_check_needs        (char a_abbr)
 {
    char        rc          =    0;
-   DEBUG_PROG_M   yLOG_senter  (__FUNCTION__);
+   DEBUG_MODE   yLOG_senter  (__FUNCTION__);
    if (rc == 0)  rc = STATUS__check  (a_abbr, 'i');
    if (rc >  0)  rc = STATUS__check  (a_abbr, 'n');
-   DEBUG_PROG_M   yLOG_sexit   (__FUNCTION__);
+   DEBUG_MODE   yLOG_sexit   (__FUNCTION__);
    return rc;
 }
 
@@ -267,9 +272,9 @@ char
 STATUS_operational         (char a_abbr)
 {
    char        rc          =    0;
-   DEBUG_PROG_M   yLOG_senter  (__FUNCTION__);
+   DEBUG_MODE   yLOG_senter  (__FUNCTION__);
    rc = STATUS__check  (a_abbr, 'o');
-   DEBUG_PROG_M   yLOG_sexit   (__FUNCTION__);
+   DEBUG_MODE   yLOG_sexit   (__FUNCTION__);
    return rc;
 }
 
@@ -317,11 +322,11 @@ STATUS__filling         (char a_abbr, char a_target)
          if (s_modes [n].expect [x_loc + i] != a_abbr)    continue;
          s_modes [n].actual [x_loc + i] = a_abbr;
          ++c;
-         DEBUG_PROG_M   yLOG_schar   (s_modes [n].abbr);
+         DEBUG_MODE   yLOG_schar   (s_modes [n].abbr);
       }
    }
-   DEBUG_PROG_M   yLOG_snote   ("complete");
-   DEBUG_PROG_M   yLOG_sint    (c);
+   DEBUG_MODE   yLOG_snote   ("complete");
+   DEBUG_MODE   yLOG_sint    (c);
    /*---(complete)-----------------------*/
    return c;
 }
@@ -330,9 +335,9 @@ char
 STATUS__prep_fill       (char a_abbr)
 {
    char        rc          =    0;
-   DEBUG_PROG_M   yLOG_senter  (__FUNCTION__);
+   DEBUG_MODE   yLOG_senter  (__FUNCTION__);
    rc = STATUS__filling  (a_abbr, 'p');
-   DEBUG_PROG_M   yLOG_sexit   (__FUNCTION__);
+   DEBUG_MODE   yLOG_sexit   (__FUNCTION__);
    return rc;
 }
 
@@ -340,9 +345,9 @@ char
 STATUS__need_fill       (char a_abbr)
 {
    char        rc          =    0;
-   DEBUG_PROG_M   yLOG_senter  (__FUNCTION__);
+   DEBUG_MODE   yLOG_senter  (__FUNCTION__);
    rc = STATUS__filling  (a_abbr, 'n');
-   DEBUG_PROG_M   yLOG_sexit   (__FUNCTION__);
+   DEBUG_MODE   yLOG_sexit   (__FUNCTION__);
    return rc;
 }
 
@@ -350,9 +355,9 @@ char
 STATUS__deps_fill       (char a_abbr)
 {
    char        rc          =    0;
-   DEBUG_PROG_M   yLOG_senter  (__FUNCTION__);
+   DEBUG_MODE   yLOG_senter  (__FUNCTION__);
    rc = STATUS__filling  (a_abbr, 'd');
-   DEBUG_PROG_M   yLOG_sexit   (__FUNCTION__);
+   DEBUG_MODE   yLOG_sexit   (__FUNCTION__);
    return rc;
 }
 
@@ -371,19 +376,19 @@ STATUS__conf_verify     (void)
    char        x_actual    [LEN_LABEL] = "";
    char        x_expect    [LEN_LABEL] = "";
    /*---(header)-------------------------*/
-   DEBUG_PROG_M   yLOG_senter  (__FUNCTION__);
+   DEBUG_MODE   yLOG_senter  (__FUNCTION__);
    /*---(check ready)--------------------*/
    n = s_last;
    strlcpy (x_expect, s_modes [n].expect + S_CONF, 5);
    strlcpy (x_actual, s_modes [n].actual + S_CONF, 5);
    if (strcmp (x_expect, x_actual) == 0) {
       s_modes [n].actual [S_READY] = 'r';
-      DEBUG_PROG_M   yLOG_snote   ("marked ready, COMPLETE");
+      DEBUG_MODE   yLOG_snote   ("marked ready, COMPLETE");
    } else {
-      DEBUG_PROG_M   yLOG_snote   ("config not complete");
+      DEBUG_MODE   yLOG_snote   ("config not complete");
    }
    /*---(complete)-----------------------*/
-   DEBUG_PROG_M   yLOG_sexit   (__FUNCTION__);
+   DEBUG_MODE   yLOG_sexit   (__FUNCTION__);
    return 0;
 }
 
@@ -441,11 +446,11 @@ STATUS__updating        (char a_target)
       s_modes [n].actual [x_mark] = a_target;
       ++c;
       ++t;
-      DEBUG_PROG_M   yLOG_schar   (s_modes [n].abbr);
+      DEBUG_MODE   yLOG_schar   (s_modes [n].abbr);
    }
-   DEBUG_PROG_M   yLOG_snote   ("complete");
-   DEBUG_PROG_M   yLOG_sint    (c);
-   DEBUG_PROG_M   yLOG_sint    (t);
+   DEBUG_MODE   yLOG_snote   ("complete");
+   DEBUG_MODE   yLOG_sint    (c);
+   DEBUG_MODE   yLOG_sint    (t);
    /*---(complete)-----------------------*/
    return 0;
 }
@@ -454,9 +459,9 @@ char
 STATUS__prep_checkall   (void)
 {
    char        rc          =    0;
-   DEBUG_PROG_M   yLOG_senter  (__FUNCTION__);
+   DEBUG_MODE   yLOG_senter  (__FUNCTION__);
    rc = STATUS__updating  ('p');
-   DEBUG_PROG_M   yLOG_sexit   (__FUNCTION__);
+   DEBUG_MODE   yLOG_sexit   (__FUNCTION__);
    return rc;
 }
 
@@ -464,9 +469,9 @@ char
 STATUS__need_checkall   (void)
 {
    char        rc          =    0;
-   DEBUG_PROG_M   yLOG_senter  (__FUNCTION__);
+   DEBUG_MODE   yLOG_senter  (__FUNCTION__);
    rc = STATUS__updating  ('n');
-   DEBUG_PROG_M   yLOG_sexit   (__FUNCTION__);
+   DEBUG_MODE   yLOG_sexit   (__FUNCTION__);
    return rc;
 }
 
@@ -474,9 +479,9 @@ char
 STATUS__deps_checkall   (void)
 {
    char        rc          =    0;
-   DEBUG_PROG_M   yLOG_senter  (__FUNCTION__);
+   DEBUG_MODE   yLOG_senter  (__FUNCTION__);
    rc = STATUS__updating  ('d');
-   DEBUG_PROG_M   yLOG_sexit   (__FUNCTION__);
+   DEBUG_MODE   yLOG_sexit   (__FUNCTION__);
    return rc;
 }
 
@@ -484,9 +489,9 @@ char
 STATUS__oper_checkall   (void)
 {
    char        rc          =    0;
-   DEBUG_PROG_M   yLOG_senter  (__FUNCTION__);
+   DEBUG_MODE   yLOG_senter  (__FUNCTION__);
    rc = STATUS__updating  ('o');
-   DEBUG_PROG_M   yLOG_sexit   (__FUNCTION__);
+   DEBUG_MODE   yLOG_sexit   (__FUNCTION__);
    return rc;
 }
 
@@ -729,6 +734,7 @@ MODE_init          (char a_mode)
    /*---(custom functions)---------------*/
    s_formatter = NULL;
    s_uniter    = NULL;
+   s_paletter  = NULL;
    /*---(update status)------------------*/
    STATUS_init_set   (FMOD_MODE);
    /*---(go to default mode)-------------*/
@@ -758,34 +764,54 @@ MODE_enter         (char a_mode)
    int         i           = 0;
    char        x_mode      = '-';
    int         x_index     = -1;
+   /*---(header)-------------------------*/
+   DEBUG_PROG   yLOG_enter   (__FUNCTION__);
    /*---(check for dup)------------------*/
    /*> if (s_mode_stack [s_mode_depth] == a_mode)  return 1;                            <*/
    /*---(validate mode)------------------*/
+   DEBUG_PROG   yLOG_char    ("a_mode"    , a_mode);
    for (i = 0; i < MAX_MODES; ++i) {
       if (s_modes [i].abbr == '-'    )  break;
       if (s_modes [i].abbr != a_mode )  continue;
       ++s_modes  [i].count;
       x_mode  = a_mode;
    }
-   --rce;  if (x_mode  == '-')  return rce;
+   DEBUG_PROG   yLOG_char    ("x_mode"    , x_mode);
+   --rce;  if (x_mode  == '-') {
+      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    /*---(check if allowed)---------------*/
    if (s_mode_depth > 0)  {
       for (i = 0; i < MAX_MODES; ++i) {
-         if (s_modes [i].abbr == '-'    )  break;
+         if (s_modes [i].abbr == '-'    )      break;
          if (s_modes [i].abbr != s_mode_curr)  continue;
          x_index = i;
       }
-      --rce;  if (x_index <   0 )  return rce;
-      --rce;  if (strchr (s_modes [x_index].allow, a_mode) == NULL)  return rce;
+      --rce;  if (x_index <   0 ) {
+         DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+         return rce;
+      }
+      --rce;  if (strchr (s_modes [x_index].allow, a_mode) == NULL) {
+         DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+         return rce;
+      }
    }
+   DEBUG_PROG   yLOG_value   ("x_index"   , x_index);
    /*---(add mode)-----------------------*/
-   --rce;  if (s_mode_depth >= MAX_STACK)   return rce;
+   --rce;  if (s_mode_depth >= MAX_STACK) {
+      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    s_mode_stack [s_mode_depth] = a_mode;
+   DEBUG_PROG   yLOG_complex ("stack"     , "%2d %s", s_mode_depth, s_mode_stack);
    ++s_mode_depth;
    /*---(set global mode)----------------*/
    s_mode_curr = a_mode;
+   DEBUG_PROG   yLOG_char    ("mode_curr" , s_mode_curr);
    yvikeys_mode__update ();
    /*---(complete)-----------------------*/
+   DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -795,15 +821,24 @@ MODE_exit          (void)
    /*---(locals)-----------+-----------+-*/
    char        rce         = -10;
    char        x_mode      = '-';
+   /*---(header)-------------------------*/
+   DEBUG_PROG   yLOG_enter   (__FUNCTION__);
    /*---(check stack)--------------------*/
-   --rce;  if (s_mode_depth <= 1)  return rce;
+   DEBUG_PROG   yLOG_value   ("depth"     , s_mode_depth);
+   --rce;  if (s_mode_depth <= 1) {
+      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    --s_mode_depth;
    s_mode_stack [s_mode_depth] = x_mode;
+   DEBUG_PROG   yLOG_complex ("stack"     , "%2d %s", s_mode_depth, s_mode_stack);
    x_mode = s_mode_stack [s_mode_depth - 1];
    /*---(set global mode)----------------*/
    s_mode_curr = x_mode;
+   DEBUG_PROG   yLOG_char    ("mode_curr" , s_mode_curr);
    yvikeys_mode__update ();
    /*---(complete)-----------------------*/
+   DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -1099,10 +1134,11 @@ REPEAT_group_end        (void)
 static void  o___CUSTOM__________o () { return; }
 
 char
-yVIKEYS_mode_formatter  (void *a_formatter, void *a_uniter)
+yVIKEYS_mode_formatter  (void *a_formatter, void *a_uniter, void *a_paletter)
 {
    s_formatter = a_formatter;
    s_uniter    = a_uniter;
+   s_paletter  = a_paletter;
    return 0;
 }
 
@@ -1171,6 +1207,40 @@ UNITS_xmode             (int a_major, int a_minor)
       rc = rce;
    }
    MODE_exit   ();
+   /*---(complete)-----------------------*/
+   DEBUG_USER   yLOG_value   ("rc"        , rc);
+   DEBUG_USER   yLOG_exit    (__FUNCTION__);
+   return rc;
+}
+
+char         /*-> keys for formatting micro-mode -----[ ------ [gc.MT0.202.C7]*/ /*-[01.0000.112.!]-*/ /*-[--.---.---.--]-*/
+PALETTE_xmode           (int a_major, int a_minor)
+{
+   /*---(locals)-----------+-----------+-*/
+   char        rce         =  -10;
+   char        rc          =   -1;
+   /*---(header)-------------------------*/
+   DEBUG_USER   yLOG_enter   (__FUNCTION__);
+   DEBUG_USER   yLOG_char    ("a_major"   , a_major);
+   DEBUG_USER   yLOG_char    ("a_minor"   , chrvisible (a_minor));
+   /*---(defenses)-----------------------*/
+   DEBUG_USER   yLOG_char    ("mode"      , MODE_curr ());
+   --rce;  if (MODE_not (XMOD_PALETTE)) {
+      DEBUG_USER   yLOG_note    ("not the correct mode");
+      DEBUG_USER   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(check for standard controls)----*/
+   switch (a_minor) {
+   case   G_KEY_RETURN : case   G_KEY_ESCAPE :
+      MODE_exit ();
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return 0;   /* escape  */
+   }
+   /*---(call-out)-----------------------*/
+   DEBUG_USER   yLOG_point   ("paletter"  , s_paletter);
+   if (s_paletter  != NULL)  rc = s_paletter (a_major, a_minor);
+   else                      MODE_exit   ();
    /*---(complete)-----------------------*/
    DEBUG_USER   yLOG_value   ("rc"        , rc);
    DEBUG_USER   yLOG_exit    (__FUNCTION__);

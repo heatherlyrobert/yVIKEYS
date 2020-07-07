@@ -241,6 +241,7 @@ yvikeys__loop_calc   (void)
    else                      myVIKEYS.blocking = '-';
    /*---(progress advance)---------------*/
    myVIKEYS.p_inc  = s_scale_info [myVIKEYS.p_scale].unit / 10.0;
+   /*> myVIKEYS.p_inc  = s_scale_info [myVIKEYS.p_scale].unit;                        <*/
    /*> printf ("x_base   = %f\n", x_base);                                            <*/
    x_base         *= myVIKEYS.loops;
    /*> printf ("x_base   = %f\n", x_base);                                            <*/
@@ -269,18 +270,27 @@ yVIKEYS_prog_redraw   (void)
 }
 
 char
-yVIKEYS_prog_script     (float a_beg, float a_end, int a_lines)
+yVIKEYS_progress_config (float a_beg, float a_end, char a_repeat, int a_lines, char *a_unit, char *a_scale, char *a_speed, char a_play)
 {
-   myVIKEYS.p_beg   = a_beg;
+   /*---(header)-------------------------*/
+   DEBUG_USER   yLOG_enter   (__FUNCTION__);
+   myVIKEYS.p_beg    = a_beg;
    DEBUG_USER   yLOG_double  ("p_beg"     , myVIKEYS.p_beg);
-   myVIKEYS.p_end   = a_end;
+   myVIKEYS.p_end    = a_end;
    DEBUG_USER   yLOG_double  ("p_end"     , myVIKEYS.p_end);
-   myVIKEYS.p_len   = a_end - a_beg;
+   myVIKEYS.p_len    = a_end - a_beg;
    DEBUG_USER   yLOG_double  ("p_len"     , myVIKEYS.p_len);
-   myVIKEYS.p_cur   = a_beg;
+   myVIKEYS.p_cur    = a_beg;
    DEBUG_USER   yLOG_double  ("p_cur"     , myVIKEYS.p_cur);
+   myVIKEYS.p_repeat = a_repeat;
+   DEBUG_USER   yLOG_char    ("p_repeat"  , myVIKEYS.p_repeat);
    myVIKEYS.p_lines = a_lines;
    DEBUG_USER   yLOG_value   ("p_lines"   , myVIKEYS.p_lines);
+   if (a_unit  != NULL)  strlcpy (myVIKEYS.p_unit, a_unit, LEN_TERSE);
+   if (a_scale != NULL)  yvikeys_scale (MODE_PROGRESS, a_scale);
+   if (a_speed != NULL)  yvikeys_speed (MODE_PROGRESS, a_speed);
+   myVIKEYS.p_play = a_play;
+   DEBUG_USER   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -357,8 +367,13 @@ GOD_mode           (char a_major, char a_minor)
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return a_minor;
          break;
-      case ':'      :
+      case ':' :
          SOURCE_start   (":");
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         rc = 'a';
+         break;
+      case ';' :
+         SOURCE_start   (";");
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          rc = 'a';
          break;
@@ -549,6 +564,33 @@ PROGRESS_mode           (char a_major, char a_minor)
    }
    /*---(complete)------------------------------*/
    DEBUG_USER   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char         /*-> create a shape mask for notes ------------------------------*/
+yVIKEYS_progress_mask   (void *a_bounds, void *a_context, int a_wide, int a_tall)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char         rc         =    0;
+   Pixmap      *x_bounds;
+   GC          *x_context;
+   int         x_left, x_wide, x_bott, x_tall;
+   /*---(quick out)----------------------*/
+   if (myVIKEYS.env == YVIKEYS_CURSES)    return 0;
+   /*---(header)-------------------------*/
+   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
+   /*---(get size)-----------------------*/
+   rc = yVIKEYS_view_size   (YVIKEYS_PROGRESS, &x_left, &x_wide, &x_bott, &x_tall, NULL);
+   DEBUG_GRAF   yLOG_complex  ("size"      , "%3dl, %3dw, %3db, %3dt", x_left, x_wide, x_bott, x_tall);
+   /*---(cast)---------------------------*/
+   x_bounds  = (Pixmap *) a_bounds;
+   x_context = (GC *) a_context;
+   /*---(draw)---------------------------*/
+   x_tall *= 0.85;
+   XFillRectangle (YX_DISP, *x_bounds, *x_context, x_left, a_tall - x_bott - x_tall, x_wide, x_tall);
+   XFillRectangle (YX_DISP, *x_bounds, *x_context, x_left + x_wide * 0.40, a_tall - x_bott - x_tall * 2.00, x_wide * 0.20, x_tall * 2.0);
+   /*---(complete)-----------------------*/
+   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -807,6 +849,7 @@ yvikeys_loop_init       (void)
    yvikeys_loop_delay  ("");
    yvikeys_loop_update ("");
    /*---(progress)-----------------------*/
+   strlcpy (myVIKEYS.p_unit, "", LEN_TERSE);
    myVIKEYS.p_play     = '-';
    myVIKEYS.p_pos      = 's';
    myVIKEYS.p_scale    = 0;
@@ -1110,12 +1153,22 @@ yvikeys_loop_prog       (void)
       myVIKEYS.p_cur += myVIKEYS.p_adv;
    }
    if (myVIKEYS.p_cur <  myVIKEYS.p_beg) {
-      myVIKEYS.p_cur  = myVIKEYS.p_beg;
-      myVIKEYS.p_play = '-';
+      if (myVIKEYS.p_repeat == 'y' && myVIKEYS.p_play == 'y') {
+         myVIKEYS.p_cur  = myVIKEYS.p_end;
+         myVIKEYS.p_play = 'y';
+      } else {
+         myVIKEYS.p_cur  = myVIKEYS.p_beg;
+         myVIKEYS.p_play = '-';
+      }
    }
    if (myVIKEYS.p_cur >  myVIKEYS.p_end) {
-      myVIKEYS.p_cur  = myVIKEYS.p_end;
-      myVIKEYS.p_play = '-';
+      if (myVIKEYS.p_repeat == 'y' && myVIKEYS.p_play == 'y') {
+         myVIKEYS.p_cur  = myVIKEYS.p_beg;
+         myVIKEYS.p_play = 'y';
+      } else {
+         myVIKEYS.p_cur  = myVIKEYS.p_end;
+         myVIKEYS.p_play = '-';
+      }
    }
    return 0;
 }

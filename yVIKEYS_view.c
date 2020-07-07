@@ -156,6 +156,7 @@ static tPARTS  s_parts [MAX_PARTS] = {
    { YVIKEYS_MENUS   , "menus"       , OWN_OVERLAY, 'y',    0, '-', '-', 0, 0, 0,    0, '-', '-', '-', 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_TOPLEF, YCOLOR_CLEAR   , 0, 0, 0, 0, 0, 0,  "interactive menu overlay"                           },
    /*---abbr---------   ---name-----   ---own-----  on   horz--nox--tie-dw-wi-le  vert--noy--tie--und-dt-ta-bo   ori  source, txt  drawer  type---------  ---mgmt-------  ---anchor-----  ---color------- xm xl ym yl zm zl    12345678901234567890123456789012345678901234567890  */
    { YVIKEYS_MAIN    , "main"        , OWN_MAIN   , 'y',    4, '-', '-', 0, 0, 0,    4, '-', '-', '-', 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , YVIKEYS_MIDCEN, YCOLOR_GRY     , 0, 0, 0, 0, 0, 0,  "main working area in the middle"                    },
+   { YVIKEYS_MASK    , "mask"        , OWN_OVERLAY, '-',    0, '-', '-', 0, 0, 0,    0, '-', '-', '-', 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , 0             , 0              , 0, 0, 0, 0, 0, 0,  "desktop presentation mask for display"              },
    { YVIKEYS_WINDOW  , "window"      , OWN_DATA   , '-',    0, '-', '-', 0, 0, 0,    0, '-', '-', '-', 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , 0             , 0              , 0, 0, 0, 0, 0, 0,  "full screen width and height"                       },
    /*---abbr---------   ---name-----   ---own-----  on   horz--nox--tie-dw-wi-le  vert--noy--tie--und-dt-ta-bo   ori  source, txt  drawer  type---------  ---mgmt-------  ---anchor-----  ---color------- xm xl ym yl zm zl    12345678901234567890123456789012345678901234567890  */
    { 0               , ""            , 0          , '-',    0, '-', '-', 0, 0, 0,    0, '-', '-', '-', 0, 0, 0,  '-', NULL  , "",  NULL  , YVIKEYS_FLAT , YVIKEYS_AUTO  , 0             , 0              , 0, 0, 0, 0, 0, 0,  ""                                                   },
@@ -1446,6 +1447,7 @@ yvikeys_view__opengl     (char n)
    x_max = s_parts [n].xmin + s_parts [n].xlen;
    y_max = s_parts [n].ymin + s_parts [n].ylen;
    z_max = s_parts [n].zmin + s_parts [n].zlen;
+   DEBUG_GRAF   yLOG_complex ("bounds"    , "x %4d to %4d for %4d, y %4d to %4d for %4d, z %4d to %4d for %4d", s_parts [n].xmin, x_max, s_parts [n].xlen, s_parts [n].ymin, y_max, s_parts [n].ylen, s_parts [n].zmin, z_max, s_parts [n].zlen);
    /*---(setup view)---------------------*/
    DEBUG_GRAF   yLOG_note    ("set up the view");
    glViewport      (s_parts [n].left, s_parts [n].bott, s_parts [n].wide, s_parts [n].tall);
@@ -1458,7 +1460,10 @@ yvikeys_view__opengl     (char n)
    if (s_parts [n].type  == YVIKEYS_FLAT ) {
       DEBUG_GRAF   yLOG_note    ("draw a background for ortho/flat");
       glPushMatrix    (); {
+         DEBUG_GRAF   yLOG_value   ("color"     , s_parts [n].color);
          yVIKEYS_view_color (s_parts [n].color, 1.0);
+         if (s_parts [n].color < 0)
+            glColor4f    (1.00f, 0.50f, 0.50f, 1.0f);
          if (s_parts [n].abbr == YVIKEYS_VERSION && yURG_debugmode () == 'y')
             glColor4f    (1.00f, 0.00f, 0.00f, 1.0f);
          if (s_parts [n].abbr == YVIKEYS_STATUS  && yVIKEYS_error  ())
@@ -1466,10 +1471,10 @@ yvikeys_view__opengl     (char n)
          if (s_parts [n].abbr == YVIKEYS_MODES   && yvikeys_macro_emode () == MACRO_RUN)
             glColor4f    (1.00f, 0.00f, 0.00f, 1.0f);
          glBegin         (GL_POLYGON); {
-            glVertex3f  (s_parts [n].xmin, y_max           , -100.0f);
-            glVertex3f  (x_max           , y_max           , -100.0f);
-            glVertex3f  (x_max           , s_parts [n].ymin, -100.0f);
-            glVertex3f  (s_parts [n].xmin, s_parts [n].ymin, -100.0f);
+            glVertex3f  (s_parts [n].xmin, y_max           , s_parts [n].zmin);
+            glVertex3f  (x_max           , y_max           , s_parts [n].zmin);
+            glVertex3f  (x_max           , s_parts [n].ymin, s_parts [n].zmin);
+            glVertex3f  (s_parts [n].xmin, s_parts [n].ymin, s_parts [n].zmin);
          } glEnd   ();
       } glPopMatrix   ();
    }

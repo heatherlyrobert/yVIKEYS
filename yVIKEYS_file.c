@@ -255,11 +255,12 @@ yvikeys_file_handlers   (void)
 }
 
 char
-yVIKEYS_whoami          (char *a_prog, char *a_vernum, char *a_vertxt, char *a_full, char *a_namesake, char *a_ext, char *a_filetype, void *a_handlers, void *a_prepper, void *a_finisher)
+yVIKEYS_whoami          (char *a_full, char *a_vernum, char *a_vertxt, char *a_namesake, char *a_ext, char *a_filetype, void *a_handlers, void *a_prepper, void *a_finisher)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    char        rc          =    0;
+   char       *p           = NULL;
    /*---(header)-------------------------*/
    DEBUG_PROG   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
@@ -268,24 +269,20 @@ yVIKEYS_whoami          (char *a_prog, char *a_vernum, char *a_vertxt, char *a_f
       DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   /*---(program name)-------------------*/
-   DEBUG_PROG   yLOG_point   ("a_prog"    , a_prog);
-   --rce;  if (a_prog == NULL) {
+   /*---(full executable name)-----------*/
+   DEBUG_PROG   yLOG_point   ("a_full"    , a_full);
+   --rce;  if (a_full == NULL) {
       DEBUG_PROG   yLOG_note    ("requires a program name");
       DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   strlcpy (myVIKEYS.s_prog, a_prog, LEN_LABEL);
+   strlcpy (myVIKEYS.s_fullname, a_full, LEN_DESC);
+   DEBUG_PROG   yLOG_info    ("s_fullname", myVIKEYS.s_fullname);
+   /*---(program name)-------------------*/
+   p = strrchr (a_full, '/');
+   if (p != NULL)   strlcpy (myVIKEYS.s_prog, p + 1 , LEN_LABEL);
+   else             strlcpy (myVIKEYS.s_prog, a_full, LEN_LABEL);
    DEBUG_PROG   yLOG_info    ("s_prog"    , myVIKEYS.s_prog);
-   /*---(default extension)--------------*/
-   DEBUG_PROG   yLOG_point   ("a_ext"     , a_ext);
-   --rce;  if (a_ext == NULL) {
-      DEBUG_PROG   yLOG_note    ("requires a standard file extension");
-      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   strlcpy (myVIKEYS.s_ext, a_ext, LEN_LABEL);
-   DEBUG_PROG   yLOG_info    ("s_ext"     , myVIKEYS.s_ext);
    /*---(calling program version)--------*/
    DEBUG_PROG   yLOG_point   ("a_vernum"  , a_vernum);
    --rce;  if (a_vernum != NULL) {
@@ -298,18 +295,21 @@ yVIKEYS_whoami          (char *a_prog, char *a_vernum, char *a_vertxt, char *a_f
       strlcpy (myVIKEYS.s_vertxt, a_vertxt, LEN_DESC);
       DEBUG_PROG   yLOG_info    ("s_vertxt"  , myVIKEYS.s_vertxt);
    }
-   /*---(calling full executable)--------*/
-   DEBUG_PROG   yLOG_point   ("a_full"    , a_full);
-   --rce;  if (a_full != NULL) {
-      strlcpy (myVIKEYS.s_fullname, a_full, LEN_DESC);
-      DEBUG_PROG   yLOG_info    ("s_fullname", myVIKEYS.s_fullname);
-   }
    /*---(calling one-line desc)----------*/
    DEBUG_PROG   yLOG_point   ("a_namesake" , a_namesake);
    --rce;  if (a_namesake != NULL) {
       strlcpy (myVIKEYS.s_namesake, a_namesake, LEN_DESC);
       DEBUG_PROG   yLOG_info    ("s_namesake", myVIKEYS.s_namesake);
    }
+   /*---(default extension)--------------*/
+   DEBUG_PROG   yLOG_point   ("a_ext"     , a_ext);
+   --rce;  if (a_ext == NULL) {
+      DEBUG_PROG   yLOG_note    ("requires a standard file extension");
+      DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   strlcpy (myVIKEYS.s_ext, a_ext, LEN_LABEL);
+   DEBUG_PROG   yLOG_info    ("s_ext"     , myVIKEYS.s_ext);
    /*---(calling content)----------------*/
    DEBUG_PROG   yLOG_point   ("a_filetype", a_filetype);
    --rce;  if (a_filetype != NULL) {

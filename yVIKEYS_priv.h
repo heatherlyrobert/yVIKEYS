@@ -12,6 +12,11 @@
 #define     P_NICHE     "us (user control)"
 #define     P_PURPOSE   "efficient, versatle, and standard keyboard mini-language"
 
+#define     P_NAME      "yVIKEYS"
+#define     P_FULLNAME  "/usr/local/lib64/libyVIKEYS"
+#define     P_PREFIX    "briareos-hecatoncheires (framework)"
+#define     P_SHORT     "universal keyboard mini-language"
+
 #define     P_NAMESAKE  "briareos-hecatoncheires (hundred-handed)"
 #define     P_HERITAGE  "briareos, the strong-one, is one of the three hecatoncheires" 
 #define     P_IMAGERY   "ugly, impossibly powerful, one-hundred handed, fifty headed giant"
@@ -26,8 +31,8 @@
 
 #define     P_VERMAJOR  "1.X = working for everyday use, features still evolving but stable"
 #define     P_VERMINOR  "1.4 = prepare for demonstrations on web"
-#define     P_VERNUM    "1.4w"
-#define     P_VERTXT    "updated positioning of curses notes, menus, and drawing"
+#define     P_VERNUM    "1.4x"
+#define     P_VERTXT    "added a simple palette/color external mode simplier to format and units"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -51,6 +56,7 @@
 #include    <GL/gl.h>             /* opengl standard primary header           */
 #include    <GL/glx.h>            /* opengl standard X11 integration          */
 #include    <ncurses.h>           /* CURSES mvprintw, refresh, getch, ...     */
+#include    <X11/extensions/shape.h>   /* xwindows shape extension            */
 /*---(custom)----------------------------*/
 #include    <yURG.h>               /* heatherly urgent processing             */
 #include    <yLOG.h>               /* heatherly program logging               */
@@ -78,6 +84,8 @@ typedef struct timespec  tTSPEC;
  *
  */
 /*---(string lengths)-----------------*/
+#define     DEG2RAD  (3.1415927 / 180.0)
+#define     RAD2DEG  (180.0 / 3.1415927)
 
 #define     FILE_CLIP           "/root/z_gehye/vi_clip.txt"
 #define     FILE_REPO           "/home/shared/yVIKEYS/repository.macro"
@@ -136,6 +144,7 @@ struct cSHARED {
    char        blocking;                    /* keyboard input blocks          */
    char        mode_text   [LEN_TERSE];     /* current mode for display       */
    /*---(progress)--------*/
+   char        p_unit      [LEN_TERSE];
    char        p_play;                      /* is progress playing            */
    int         p_scale;                     /* progress bar scale             */
    int         p_speed;                     /* progress bar speed             */
@@ -146,6 +155,7 @@ struct cSHARED {
    float       p_beg;                       /* beg second for timeline play   */
    float       p_end;                       /* end second for timeline play   */
    float       p_len;                       /* length of script               */
+   char        p_repeat;                    /* progress is loop/continuous    */
    int         p_line;                      /* current progress window line   */
    int         p_lines;                     /* progress window lines avail    */
    char        p_debug; 
@@ -408,6 +418,7 @@ int         REPEAT_use              (void);
 char        REPEAT_not              (void);
 char        FORMAT_xmode            (int a_major, int a_minor);
 char        UNITS_xmode             (int a_major, int a_minor);
+char        PALETTE_xmode           (int a_major, int a_minor);
 
 
 char        GOD_mode                (char a_major, char a_minor);
@@ -584,6 +595,9 @@ char        yvikeys_mark_listplus        (char *a_list);
 char        yvikeys_mark_status          (char *a_status);
 char        yvikeys_mark_smode           (int a_major, int a_minor);
 
+/*345678901-12345678901-12345678901-1234-12345678901-12345678901-12345678901-1*/
+char        yvikeys_hint_init            (void);
+
 
 /*---(program)--------------*/
 int         yvikeys_macro__index    (uchar a_abbr);
@@ -651,6 +665,9 @@ char        yvikeys_script_start    (char *a_name);
 char        yvikeys_script_follow   (char *a_name);
 char        yvikeys_script_playback (char *a_name);
 char        yvikeys_script_blitz    (char *a_name);
+
+
+char        yvikeys_macro_term      (uchar *a_string);
 
 
 
@@ -846,6 +863,11 @@ char        yvikeys_layer_show      (void);
 /*---(annotate)-----------------------*/
 char        yvikeys_note_resize     (void);
 char        yvikeys_note__purge     (char a_init);
+char        yvikeys_note__append    (char n, char xr, char yr, char a_size, char *a_text);
+char        yvikeys_note__remove    (char n);
+char        yvikeys_note__totop     (char n);
+char        yvikeys_note__settarg   (char n, char *p);
+char        yvikeys_note__retarg    (char n);
 char        yvikeys_note            (char *a_all);
 char        yVIKEYS_circle          (int x, int y, int r);
 char        yVIKEYS_box             (int x, int y, int w, int h);

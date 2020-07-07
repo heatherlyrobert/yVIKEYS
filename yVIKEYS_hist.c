@@ -721,6 +721,32 @@ yvikeys_hist_show       (void)
    return 0;
 }
 
+char         /*-> create a shape mask for notes ------------------------------*/
+yVIKEYS_hist_mask       (void *a_bounds, void *a_context, int a_left, int a_topp, int a_xmin, int a_ymax)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   Pixmap      *x_bounds;
+   GC          *x_context;
+   int         x_left, x_wide, x_bott, x_tall;
+   /*---(quick out)----------------------*/
+   if (myVIKEYS.env == YVIKEYS_CURSES)    return 0;
+   if (MODE_not (UMOD_HISTORY))           return 0;
+   /*---(header)-------------------------*/
+   DEBUG_GRAF   yLOG_enter   (__FUNCTION__);
+   DEBUG_GRAF   yLOG_complex  ("args"      , "%p, %p, %3dl, %3dt, %3dx, %3dy", a_bounds, a_context, a_left, a_topp, a_xmin, a_ymax);
+   /*---(get size)-----------------------*/
+   yVIKEYS_view_size   (YVIKEYS_HISTORY, &x_left, &x_wide, &x_bott, &x_tall, NULL);
+   DEBUG_GRAF   yLOG_complex  ("size"      , "%3dl, %3dw, %3db, %3dt", x_left, x_wide, x_bott, x_tall);
+   /*---(cast)---------------------------*/
+   x_bounds  = (Pixmap *) a_bounds;
+   x_context = (GC *) a_context;
+   /*---(draw)---------------------------*/
+   XFillRectangle (YX_DISP, *x_bounds, *x_context, a_left + (x_left - a_xmin), a_topp + a_ymax - (x_bott + x_tall), x_wide, x_tall);
+   /*---(complete)-----------------------*/
+   DEBUG_GRAF   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
 
 
 /*====================------------------------------------====================*/
@@ -1227,6 +1253,7 @@ yvikeys_hist_exec       (char a_mode)
    }
    if (s_len == 1 && strcmp (s_current, x_clear) == 0) {
       DEBUG_HIST   yLOG_note    ("request to clear");
+      if (x_clear [0] = MODE_SEARCH)  yvikeys_srch__purge ();
       DEBUG_HIST   yLOG_exit    (__FUNCTION__);
       return 0;
    }
@@ -1294,6 +1321,7 @@ yvikeys_hist_exec       (char a_mode)
       break;
    case MODE_SEARCH  :
       DEBUG_HIST   yLOG_note    ("execute as search");
+      DEBUG_HIST   yLOG_point   ("srcurrent" , s_current);
       rc = yvikeys_srch_exec (s_current, &x_found);
       x_curr->ran    = rc;
       x_curr->found  = x_found;
