@@ -31,8 +31,8 @@
 
 #define     P_VERMAJOR  "1.X = working for everyday use, features still evolving but stable"
 #define     P_VERMINOR  "1.4 = prepare for demonstrations on web"
-#define     P_VERNUM    "1.4x"
-#define     P_VERTXT    "added a simple palette/color external mode simplier to format and units"
+#define     P_VERNUM    "1.4y"
+#define     P_VERTXT    "updates to accept command-line arguments and auto-run scripts"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -120,6 +120,7 @@ struct cSHARED {
    char        s_namesake  [LEN_DESC];      /* program greek name             */
    char        s_ext       [LEN_LABEL];     /* file extention                 */
    char        s_filetype  [LEN_DESC];      /* description of file type       */
+   char        m_script    [LEN_DESC];      /* pre-run script                 */
    /*---(debugging)-------*/
    int         logger;
    long long   last;
@@ -363,6 +364,8 @@ char        yvikeys_keys_keygpos    (void);
 char        yvikeys_keys_repeating  (void);
 char        yvikeys_keys_dump       (FILE *a_file);
 char        yvikeys_keys_repos      (int a_pos);
+char        yvikeys_sendkeys_prep   (void);
+char        SENDKEYS_umode          (uchar a_major, uchar a_minor);
 /*---(dumps)----------------*/
 char        yvikeys_dump_exec       (char *a_what);
 char        yvikeys_dump_write      (cchar *a_recd);
@@ -438,7 +441,7 @@ char        yvikeys__map_move       (int  a_target, tMAPPED *a_map);
 
 char        yvikeys__map_office     (char a_dir, char *a_minor);
 char        yvikeys__map_page       (char a_dir, char *a_minor);
-char        yvikeys_map_mode        (char a_major, char a_minor);
+char        yvikeys_map_mode        (uchar a_major, uchar a_minor);
 char        yvikeys_map_xstatus     (char *a_list);
 char        yvikeys_map_ystatus     (char *a_list);
 char        yvikeys_map_status      (char *a_list);
@@ -730,6 +733,8 @@ void*       yvikeys_menu_found      (uchar *a_path);
 /*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
 
 
+char        yvikeys_prog_play       (void);
+char        yvikeys_prog_stop       (void);
 char        yvikeys_loop_init       (void);
 int         yvikeys_loop_getch      (void);
 char        yvikeys_loop_delay      (char *a_delay);
@@ -739,6 +744,8 @@ char        yvikeys_loop_prog       (void);
 char        yvikeys_loop_sleep      (uchar a_key, char a_draw);
 char        yvikeys_loop_macro      (char a_delay, char a_update);
 char        yvikeys_loop_normal     (void);
+char        yvikeys_loop_blitz      (void);
+char        yvikeys_loop_unblitz    (void);
 char        yvikeys_delay_status    (char *a_list);
 char        yvikeys_prog_status     (char *a_list);
 char        yvikeys_main_status     (char *a_list);

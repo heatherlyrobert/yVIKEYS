@@ -102,6 +102,7 @@ yVIKEYS_init         (char a_mode)
    yvikeys_dump_init    ();
    yvikeys_layer_init   ();
    yvikeys_sizes_init   ();
+   STATUS_init_set   (UMOD_SENDKEYS);
    /*----(globals)-----------------------*/
    myVIKEYS.loud      = '-';
    myVIKEYS.done      = '-';
@@ -705,12 +706,123 @@ yvikeys_keys_repos      (int a_pos)
    s_gpos = a_pos;
 }
 
+static char  s_win   = '.';
+
+char
+yvikeys_sendkeys_prep   (void)
+{
+   s_win = '-';
+   return 0;
+}
+
+char         /*--> process keystrokes in sendkeys mode ---[--------[--------]-*/
+SENDKEYS_umode          (uchar a_major, uchar a_minor)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   uchar       t           [LEN_TERSE] = "";
+   static char x_1st       =  ' ';
+   static char x_2nd       =  ' ';
+   /*---(header)-------------------------*/
+   DEBUG_USER   yLOG_enter   (__FUNCTION__);
+   DEBUG_USER   yLOG_char    ("a_major"   , a_major);
+   DEBUG_USER   yLOG_char    ("a_minor"   , chrvisible (a_minor));
+   /*---(defenses)-----------------------*/
+   DEBUG_USER   yLOG_char    ("mode"      , MODE_curr ());
+   --rce;  if (MODE_not (UMOD_SENDKEYS)) {
+      DEBUG_USER   yLOG_note    ("not the correct mode");
+      MODE_exit  ();
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return rce;
+   }
+   /*---(major mode changes)-------------*/
+   if (a_minor == G_KEY_RETURN || a_minor == G_KEY_ESCAPE) {
+      DEBUG_USER   yLOG_note    ("enter/escape, leave progress mode");
+      MODE_exit  ();
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
+   if (a_minor == '\\') {
+      DEBUG_USER   yLOG_note    ("found a backslash prefix");
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return a_minor;
+   }
+   if (strchr ("гд", a_minor) != NULL) {
+      DEBUG_USER   yLOG_note    ("found a control, alt, hyper, super prefix key");
+      if (x_2nd != ' ')  x_1st = a_minor;
+      else               x_2nd = a_minor;
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
+   /*---(check window)-------------------*/
+   if (s_win == '-') {
+      s_win = a_minor;
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
+   /*---(send key to current win)--------*/
+   if (a_major == '\\')  a_minor = chrslashed (a_minor);
+   if (a_minor == ' ')   a_minor = 'В';
+   DEBUG_USER   yLOG_value   ("a_minor"   , a_minor);
+   if      (x_1st != ' ')  sprintf (t, "%c %c%c%c", s_win, x_1st, x_2nd, a_minor);
+   else if (x_2nd != ' ')  sprintf (t, "%c %c%c"  , s_win, x_2nd, a_minor);
+   else                    sprintf (t, "%c %c"    , s_win, a_minor);
+   DEBUG_USER   yLOG_info    ("t"         , t);
+   rc = yX11_yvikeys_sendkeys   (t);
+   x_1st = x_2nd = ' ';
+   /*---(complete)------------------------------*/
+   DEBUG_USER   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
 
 
 /*====================------------------------------------====================*/
 /*===----                         main loop                            ----===*/
 /*====================------------------------------------====================*/
 static void  o___MAIN____________o () { return; }
+
+char             /* [------] process the command line arguments --------------*/
+yVIKEYS_args       (int a_argc, char *a_argv[])
+{
+   /*---(locals)-----------+-----------+-*/
+   int         i           = 0;             /* loop iterator -- arguments     */
+   char       *a           = NULL;          /* current argument               */
+   int         len         = 0;             /* argument length                */
+   int         x_total     = 0;
+   int         x_args      = 0;
+   /*---(begin)--------------------------*/
+   DEBUG_TOPS   yLOG_enter   (__FUNCTION__);
+   /*---(process)------------------------*/
+   for (i = 1; i < a_argc; ++i) {
+      /*---(read)------------------------*/
+      a   = a_argv [i];
+      len = strlen(a);
+      ++x_total;
+      /*---(filter)----------------------*/
+      if (a[0] == '@')  continue;
+      ++x_args;
+      DEBUG_ARGS  yLOG_complex ("argument"  , "%2d of %2d, %s", i, a_argc, a);
+      /*---(configuration)---------------*/
+      if      (strcmp (a, "--nav"          ) == 0)    yVIKEYS_cmds_direct   (":nav show");
+      else if (strcmp (a, "--nonav"        ) == 0)    yVIKEYS_cmds_direct   (":nav hide");
+      else if (strcmp (a, "--progress"     ) == 0)    yVIKEYS_cmds_direct   (":progress show");
+      else if (strcmp (a, "--noprogress"   ) == 0)    yVIKEYS_cmds_direct   (":progress hide");
+      else if (strcmp (a, "--play"         ) == 0)    yVIKEYS_cmds_direct   (":play");
+      else if (strcmp (a, "--stop"         ) == 0)    yVIKEYS_cmds_direct   (":stop");
+      else if (strcmp (a, "--status"       ) == 0)    yVIKEYS_cmds_direct   (":status show");
+      else if (strcmp (a, "--nostatus"     ) == 0)    yVIKEYS_cmds_direct   (":status hide");
+      else if (strcmp (a, "--script"       ) == 0) {
+         DEBUG_TOPS   yLOG_note    ("found --script option");
+         if (i < a_argc)  strlcpy (myVIKEYS.m_script, a_argv [++i], LEN_DESC);
+      }
+   }
+   DEBUG_TOPS   yLOG_info    ("m_script"  , myVIKEYS.m_script);
+   /*---(complete)-----------------------*/
+   DEBUG_TOPS   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
 
 uchar        /*-> gather main loop keyboard input ----[ ------ [gc.D44.233.C7]*/ /*-[02.0000.111.R]-*/ /*-[--.---.---.--]-*/
 yVIKEYS_main_input      (char a_runmode, uchar a_key)
@@ -852,6 +964,7 @@ yVIKEYS_main_handle     (uchar a_key)
       case UMOD_MARK     : rc = yvikeys_mark_smode    (x_major , x_key);  break;
       case SMOD_MENUS    : rc = yvikeys_menu_smode    (x_major , x_key);  break;
       case SMOD_MACRO    : rc = yvikeys_macro_smode   (x_major , x_key);  break;
+      case UMOD_SENDKEYS : rc = SENDKEYS_umode        (x_major , x_key);  break;
       case UMOD_REPEAT   :                                                break;
       default            : rc = -1;  x_nomode = 'y';                      break;
       }
@@ -961,18 +1074,26 @@ yVIKEYS_main_string  (uchar *a_keys)
 char         /*-> handle main loop for ncurses -------[ ------ [gn.842.232.99]*/ /*-[01.0000.000.!]-*/ /*-[--.---.---.--]-*/
 yVIKEYS_main            (char *a_delay, char *a_update, void *a_altinput ())
 {
-   /*---(locals)-----------+-----------+-*/
-   int         x_loop      = 0;
-   int         x_ch        = ' ';      /* current keystroke                   */
-   uchar       x_key       = ' ';      /* current keystroke                   */
-   char        rc          = 0;
-   char        x_draw      = '-';
-   char        x_group     = '-';
+   /*---(locals)-----------+-----+-----+-*/
+   char        rc          =    0;
+   int         x_loop      =    0;
+   int         x_ch        =  ' ';
+   uchar       x_key       =  ' ';
+   char        x_draw      =  '-';
+   char        x_group     =  '-';
+   char        t           [LEN_DESC]  = "";
    /*---(prepare)------------------------*/
    DEBUG_TOPS   yLOG_note    ("entering main processing loop");
    DEBUG_TOPS   yLOG_break   ();
    yvikeys_loop_set     (a_delay, a_update);
    yVIKEYS_view_all (0.0);
+   /*---(CLA for script)-----------------*/
+   if (strcmp (myVIKEYS.m_script, "") != 0) {
+      sprintf (t, ":script %s", myVIKEYS.m_script);
+      DEBUG_TOPS   yLOG_info    ("t"         , t);
+      rc = yVIKEYS_cmds_direct (t);
+      DEBUG_TOPS   yLOG_value   ("cmds"      , rc);
+   }
    /*---(main-loop)----------------------*/
    while (1) {
       /*---(get input)-------------------*/

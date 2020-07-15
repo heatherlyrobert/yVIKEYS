@@ -168,6 +168,8 @@ static const tCMDS  s_base      [] = {
    { 'b', 'f', "read"            , ""    , yvikeys_file_reader       , ""     , "clear existing contents and open/read new file"              },
    { 'b', 'f', "edit"            , "e"   , yvikeys_file_reader       , ""     , "clear existing contents and open/read new file"              },
    { 'b', 'c', "delay"           , ""    , yvikeys_loop_set          , "ss"   , "adjust the main loop wait and screen update timings"         },
+   { 'b', 'c', "play"            , ""    , yvikeys_prog_play         , ""     , "cause the progress to play"                                  },
+   { 'b', 'c', "stop"            , ""    , yvikeys_prog_stop         , ""     , "cause the progress to stop"                                  },
    { 'b', 'c', "p_scale"         , ""    , yvikeys_scale_prog        , "s"    , "adjust the progress scale"                                   },
    { 'b', 'c', "p_speed"         , ""    , yvikeys_speed_prog        , "s"    , "adjust the progress speed"                                   },
    { 'b', 'e', "mark"            , ""    , yvikeys_mark_direct       , "s"    , ""                                                            },
@@ -226,7 +228,9 @@ static const tCMDS  s_base      [] = {
    /*---(yX11)--------------------------------------------------------------------------------------------------------------------------------*/
    { 'b', 'x', "desktop"         , ""    , yX11_desk_goto            , "c"    , "move between window manager desktops"                        },
    { 'b', 'x', "term"            , ""    , yX11_yvikeys_term         , "a"    , "create a terminal session"                                   },
+   { 'b', 'x', "winname"         , ""    , yX11_yvikeys_name         , "a"    , "name an existing window"                                     },
    { 'b', 'x', "sendkeys"        , ""    , yX11_yvikeys_sendkeys     , "a"    , "sendkeys to a specific window"                               },
+   { 'b', 'x', "blitzkeys"       , ""    , yX11_yvikeys_blitzkeys    , "a"    , "sendkeys to a specific window"                               },
    { 'b', 'x', "winexact"        , ""    , yX11_yvikeys_winexact     , "cciiii", "sendkeys to a specific window"                              },
    { 'b', 'x', "winplace"        , ""    , yX11_yvikeys_winplace     , "a"    , "sendkeys to a specific window"                               },
    { 'b', 'x', "winbring"        , ""    , yX11_yvikeys_winbring     , "c"    , "sendkeys to a specific window"                               },

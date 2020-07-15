@@ -75,10 +75,10 @@ static char    s_ecurr     =   -1;
 static char    s_esave     =  '-';          /* saved mode for menus           */
 static short   s_epos      =   -1;
 
-static char    s_edelay    =  '0';          /* execution delay between steps  */
-static char    s_ddelay    =  '0';          /* debug delay between steps      */
-static char    s_eupdate   =  'n';          /* execution sceen update speed   */
-static char    s_dupdate   =  'n';          /* debug sceen update speed       */
+static char    s_edelay    = MACRO_BLITZ;   /* execution delay between steps  */
+static char    s_ddelay    = MACRO_BLITZ;   /* debug delay between steps      */
+static char    s_eupdate   = MACRO_NORMAL;  /* execution sceen update speed   */
+static char    s_dupdate   = MACRO_NORMAL;  /* debug sceen update speed       */
 static char    s_pause     =    0;
 static char    s_skips     =    0;
 static char    s_blitzing  =  '-';          /* macro blitzing mode º´´´»      */
@@ -339,10 +339,10 @@ yvikeys_macro_init      (void)
    s_emode     = '-';
    s_ename     = '-';
    s_ecurr     =  -1;
-   s_edelay    = '0';
-   s_eupdate   = 'n';
-   s_ddelay    = '0';
-   s_dupdate   = 'n';
+   s_edelay    = MACRO_BLITZ;
+   s_eupdate   = MACRO_NORMAL;
+   s_ddelay    = MACRO_BLITZ;
+   s_dupdate   = MACRO_NORMAL;
    s_pause     =  0;
    s_blitz     = '-';
    s_blitzing  = '-';
@@ -359,6 +359,7 @@ yvikeys_macro_init      (void)
    s_saver  = NULL;
    /*---(clear data)---------------------*/
    yvikeys_macro__purge (MACRO_ALL);
+   strlcpy (myVIKEYS.m_script, "", LEN_DESC);
    /*---(status)-------------------------*/
    /*> yVIKEYS_view_optionX (YVIKEYS_STATUS, "macro"  , yvikeys_macro_estatus , "details of macro playback"                );   <* 
     *> yVIKEYS_view_optionX (YVIKEYS_STATUS, "record" , yvikeys_macro_rstatus , "details of macro recording"               );   <*/
@@ -1697,6 +1698,12 @@ yvikeys_macro_exekey    (void)
          DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
          return G_KEY_SPACE;
       }
+      else if (yVIKEYS_mode () == UMOD_SENDKEYS) {
+         DEBUG_SCRP   yLOG_note    ("found a spacer (·) in sendkeys mode");
+         DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
+         /*> return G_CHAR_STORAGE;                                                   <*/
+         return G_KEY_NOOP;
+      }
       IF_MACRO_RUN {
          DEBUG_SCRP   yLOG_note    ("found a spacer (·) in macro run mode");
          s_skips = myVIKEYS.macro_skip;
@@ -1800,6 +1807,12 @@ yvikeys_macro__exectl   (uchar a_key)
       DEBUG_SCRP   yLOG_note    ("macro spacer (·), fast skip only in run");
       IF_MACRO_RUN  a_key = G_KEY_ACK;
       else          a_key = G_KEY_NOOP;
+      break;
+   case G_CHAR_HALT    :
+      DEBUG_SCRP   yLOG_note    ("halt (³)");
+      yvikeys_macro_set2stop ();
+      DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
+      return -1;
       break;
    default             :
       DEBUG_SCRP   yLOG_note    ("other key, pass through");

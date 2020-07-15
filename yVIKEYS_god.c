@@ -393,6 +393,25 @@ GOD_mode           (char a_major, char a_minor)
    return 0;
 }
 
+char
+yvikeys_prog_play       (void)
+{
+   myVIKEYS.p_play = 'y';
+   if (myVIKEYS.p_adv == 0.0)  yvikeys_speed (MODE_PROGRESS, "+1.00x");
+   yvikeys__loop_calc ();
+   myVIKEYS.p_redraw = 'y';
+   return 0;
+}
+
+char
+yvikeys_prog_stop       (void)
+{
+   myVIKEYS.p_play   = '-';
+   myVIKEYS.p_redraw = '-';
+   yvikeys__loop_calc ();
+   return 0;
+}
+
 char         /*--> process keystrokes in progress mode ---[--------[--------]-*/
 PROGRESS_mode           (char a_major, char a_minor)
 {
@@ -858,10 +877,6 @@ yvikeys_loop_init       (void)
    myVIKEYS.p_inc      = 0.0;
    yvikeys_scale       (MODE_PROGRESS, "0");
    yvikeys_speed       (MODE_PROGRESS, "0");
-   /*---(commands)-----------------------*/
-   /*> yVIKEYS_cmds_addX (YVIKEYS_M_CONFIG, "delay"       , ""    , "ss"   , yvikeys_loop_set     , "adjust the main loop wait and screen update timings"         );   <* 
-    *> yVIKEYS_cmds_addX (YVIKEYS_M_CONFIG, "p_scale"     , ""    , "s"    , yvikeys_scale_prog   , "adjust the progress scale"                                   );   <* 
-    *> yVIKEYS_cmds_addX (YVIKEYS_M_CONFIG, "p_speed"     , ""    , "s"    , yvikeys_speed_prog   , "adjust the progress speed"                                   );   <*/
    /*---(complete)-----------------------*/
    return 0;
 }
@@ -912,15 +927,20 @@ yvikeys_loop_update     (char *a_update)
    int         i           =    0;
    char        x_index     =   -1;
    char        x_max       =   -1;
+   /*---(header)-------------------------*/
+   DEBUG_LOOP   yLOG_senter  (__FUNCTION__);
    /*---(assign prefix)------------------*/
+   DEBUG_LOOP   yLOG_snote   (a_update);
    if (a_update == NULL)   x_prefix = 0;
    else                    x_prefix = a_update [0];
+   DEBUG_LOOP   yLOG_sint    (x_prefix);
    /*---(determine max)------------------*/
    for (i = 0; i < MAX_UPDATE; ++i) {
       if (strcmp (s_update_info [i].terse, "---"   ) == 0)  break;
       ++x_max;
    }
    /*---(find entry in table)------------*/
+   DEBUG_LOOP   yLOG_sint    (s_update);
    switch (x_prefix) {
    case  0  :
       x_index = s_update;
@@ -959,8 +979,11 @@ yvikeys_loop_update     (char *a_update)
       break;
    }
    /*---(set key values)-----------------*/
+   DEBUG_LOOP   yLOG_sint    (x_index);
    s_update        = x_index;
    myVIKEYS.update = s_update_info [x_index].update;
+   DEBUG_LOOP   yLOG_sdouble (myVIKEYS.update);
+   DEBUG_LOOP   yLOG_sexit   (__FUNCTION__);
    /*---(update looping)-----------------*/
    yvikeys__loop_calc   ();
    /*---(complete)-----------------------*/
@@ -976,15 +999,20 @@ yvikeys_loop_delay      (char *a_delay)
    int         i           =    0;
    char        x_index     =   -1;
    char        x_max       =   -1;
+   /*---(header)-------------------------*/
+   DEBUG_LOOP   yLOG_senter  (__FUNCTION__);
    /*---(assign prefix)------------------*/
+   DEBUG_LOOP   yLOG_snote   (a_delay);
    if (a_delay  == NULL)   x_prefix = 0;
    else                    x_prefix = a_delay [0];
+   DEBUG_LOOP   yLOG_sint    (x_prefix);
    /*---(determine max)------------------*/
    for (i = 0; i < MAX_DELAY; ++i) {
       if (strcmp (s_delay_info [i].terse, "---"  ) == 0)  break;
       ++x_max;
    }
    /*---(find entry in table)------------*/
+   DEBUG_LOOP   yLOG_sint    (s_delay);
    switch (x_prefix) {
    case  0  :
       x_index = s_delay;
@@ -1023,12 +1051,54 @@ yvikeys_loop_delay      (char *a_delay)
       break;
    }
    /*---(set key values)-----------------*/
+   DEBUG_LOOP   yLOG_sint    (x_index);
    s_delay         = x_index;
    myVIKEYS.delay  = s_delay_info [x_index].delay;
+   DEBUG_LOOP   yLOG_sdouble (myVIKEYS.delay);
+   DEBUG_LOOP   yLOG_sexit   (__FUNCTION__);
    /*---(update looping)-----------------*/
    yvikeys__loop_calc   ();
    /*---(complete)-----------------------*/
    return rc;
+}
+
+static float   s_blitz_delay   = 0.0;
+static float   s_blitz_update  = 0.0;
+
+char
+yvikeys_loop_blitz      (void)
+{
+   DEBUG_LOOP   yLOG_enter   (__FUNCTION__);
+   DEBUG_LOOP   yLOG_double  ("delay"     , myVIKEYS.delay);
+   if (myVIKEYS.delay <  0.00001) {
+      DEBUG_LOOP   yLOG_note    ("already in blitz, nothing to do");
+      DEBUG_LOOP   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
+   s_blitz_delay   = myVIKEYS.delay;
+   myVIKEYS.delay  =   0.000001;
+   s_blitz_update  = myVIKEYS.update;
+   myVIKEYS.update =   100.000000;
+   yvikeys__loop_calc ();
+   DEBUG_LOOP   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char
+yvikeys_loop_unblitz    (void)
+{
+   DEBUG_LOOP   yLOG_enter   (__FUNCTION__);
+   DEBUG_LOOP   yLOG_double  ("delay"     , myVIKEYS.delay);
+   if (myVIKEYS.delay >= 0.00001) {
+      DEBUG_LOOP   yLOG_note    ("not in blitz, nothing to do");
+      DEBUG_LOOP   yLOG_exit    (__FUNCTION__);
+      return 0;
+   }
+   myVIKEYS.delay  = s_blitz_delay;
+   myVIKEYS.update = s_blitz_update;
+   yvikeys__loop_calc ();
+   DEBUG_LOOP   yLOG_exit    (__FUNCTION__);
+   return 0;
 }
 
 static char   s_save_delay   [LEN_LABEL] = "keys";
@@ -1066,7 +1136,6 @@ yvikeys_loop_normal     (void)
    DEBUG_LOOP   yLOG_sexit   (__FUNCTION__);
    return rc;
 }
-
 
 char
 yvikeys_loop_macro      (char a_delay, char a_update)
@@ -1189,7 +1258,10 @@ yvikeys_loop_sleep      (uchar a_key, char a_draw)
    static long long x_key   =    0;
    static long long x_idle  =    0;
    char        x_type       =  '-';
+   /*---(header)-------------------------*/
+   DEBUG_LOOP   yLOG_enter   (__FUNCTION__);
    /*---(get ending time)----------------*/
+   DEBUG_LOOP   yLOG_complex ("args"      , "%3d, %c, %c, %c blocking", a_key, chrvisible (a_key), a_draw, myVIKEYS.blocking);
    clock_gettime  (CLOCK_MONOTONIC_RAW, &x_dur);
    s_loop_end   = x_dur.tv_sec * NSEC;
    s_loop_end  += x_dur.tv_nsec;
@@ -1208,6 +1280,7 @@ yvikeys_loop_sleep      (uchar a_key, char a_draw)
    /*> s_loop_prev  = s_loop_end;                                                     <*/
    /*---(for timer)----------------------*/
    x_pct    = (s_loop_used / (float) s_loop_targ) * 100.0;
+   DEBUG_LOOP   yLOG_complex ("timing"    , "%10ds, %10dn, %10db, %10dt, %10de, %10du, %10dr, %8.6f", myVIKEYS.secs, myVIKEYS.nsec, s_loop_beg, s_loop_targ, s_loop_end, s_loop_used, s_loop_rem, x_pct);
    /*---(statistics)---------------------*/
    ++x_loops;
    x_total += s_loop_used;
@@ -1230,13 +1303,16 @@ yvikeys_loop_sleep      (uchar a_key, char a_draw)
       break;
    }
    /*> s_avg     = x_total / x_loops;                                                 <*/
+   DEBUG_LOOP   yLOG_complex ("counts"    , "%c, %6dd, %6dk, %6di", x_type, x_draws, x_keys, x_idles);
    /*---(sleeping)-----------------------*/
    if (myVIKEYS.blocking != 'y') {
       x_dur.tv_sec  = s_loop_rem / NSEC;
       x_dur.tv_nsec = s_loop_rem % NSEC;
+      DEBUG_LOOP   yLOG_note    ("nano-sleeping");
       nanosleep      (&x_dur, NULL);
    }
    /*---(complete)-----------------------*/
+   DEBUG_LOOP   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 

@@ -35,6 +35,7 @@
 #define     XMOD_OBJECT    'o'    /* object formatting                        */
 #define     SMOD_HINT      ';'    /* hint labels                              */
 #define     SMOD_MACRO     '@'    /* macro processing                         */
+#define     UMOD_SENDKEYS  'k'    /* sending keys (but pacing them)           */
 #define     SMOD_MENUS     'g'    /* show menu system (gui)                   */
 /*---(micro-modes)-----------------------*/
 #define     UMOD_MARK      '\''   /* location and object marking              */
@@ -268,6 +269,7 @@ tMAPPED     g_zmap;
 extern char yVIKEYS_ver     [500];
 
 /*===[[ FUNCTION PROTOTYPES ]]================================================*/
+/*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
 /*---(debugging)------------*/
 char*       yVIKEYS_version         (void);
 char        yVIKEYS_debug           (char    a_flag  );
@@ -281,6 +283,7 @@ char        yVIKEYS_simple          (cchar *a_title, cchar *a_ver, cchar a_env, 
 int         yVIKEYS_keys_nkey       (void);
 char*       yVIKEYS_keys_last       (void);
 char        yVIKEYS_dump_add        (char *a_name, void *a_provider);
+char        yVIKEYS_args            (int argc, char *argv[]);
 uchar       yVIKEYS_main_input      (char  a_runmode, uchar a_key);
 uchar       yVIKEYS_main_handle     (uchar a_key);
 uchar       yVIKEYS_main_string     (uchar *a_keys);

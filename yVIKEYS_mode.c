@@ -50,7 +50,7 @@ struct cMODE_INFO {
    cchar       terse       [LEN_TERSE];/* short name                          */
    cchar       cat;                    /* category for reporting              */
    /*---(movement)----------*/
-   char        allow       [LEN_LABEL];/* allowed mode transitions            */
+   char        allow       [LEN_DESC]; /* allowed mode transitions            */
    /*---(status)------------*/
    cchar       expect      [LEN_DESC]; /* expected prep and setup             */
    char        actual      [LEN_DESC]; /* actual prep and setup               */
@@ -83,6 +83,7 @@ static tMODE_INFO  s_modes [MAX_MODES] = {
    { SMOD_MREG    , 's', 'y', "reg", "register"  , 1, ""  , "5f--- p i ----- n 1---- r 0M-------- d o", "----- - - ----- - ----- - ---------- - -", "selecting specific registers for data movement"     , "regs=\"a-zA-Z-+0  pull=yYxXdD  -/+=vVcCtTsSfF  push=pPrRmMaAiIoObB  mtce=#?!g"           ,    0 },
    { UMOD_MARK    , 'u', 'y', "mrk", "mark"      , 1, ""  , "5f:-- p i ----- n ----- r 0M-------- d o", "----- - - ----- - ----- - ---------- - -", "object and location marking"                        , "names=a-zA-Z0-9  actions=#!?_  special='[()]  wander=@  range=<>*"                       ,    0 },
    { SMOD_MACRO   , 's', 'y', "mac", "macro"     , 1, ""  , "5f:-- p i ----- n ----- r 0--------- d o", "----- - - ----- - ----- - ---------- - -", "macro recording, execution, and maintenance"        , "run=a-z"                                                                                 ,    0 },
+   { UMOD_SENDKEYS, 'u', 'y', "sky", "sendkeys"  , 1, ""  , "5---- p i ----- n ----- r 0--------- d o", "----- - - ----- - ----- - ---------- - -", "macro recording, execution, and maintenance"        , "run=a-z"                                                                                 ,    0 },
    { XMOD_FORMAT  , 'x', 'y', "frm", "format"    , 1, ""  , "5---- p i ----- n ----- r 0--------- d o", "----- - - ----- - ----- - ---------- - -", "content formatting options"                         , "w=mnNwWhHlL  a=<|>[^]{}:' f=iIfeE ,cCaA$sS; oOxXbBzZrR d=0123456789  f=-=_.+!/@qQ~#"     ,    0 },
    { XMOD_UNITS   , 'x', 'y', "unt", "units"     , 1, ""  , "5---- p i ----- n ----- r 0--------- d o", "----- - - ----- - ----- - ---------- - -", "content formatting options"                         , "off -, (+24) Y Z E P T G M K H D . d c m u n p f a z y (-24)"                            ,    0 },
    { XMOD_OBJECT  , 'x', 'y', "obj", "object"    , 1, ""  , "5---- p i ----- n ----- r 0--------- d o", "----- - - ----- - ----- - ---------- - -", "object formatting and sizing options"               , ""                                                                                        ,    0 },
@@ -125,8 +126,8 @@ s_modechanges  [MAX_MODES][LEN_TERSE] = {
    { MODE_MAP      , UMOD_REPEAT   , MODE_GOD      , MODE_OMNI     , MODE_PROGRESS , MODE_SOURCE   , MODE_COMMAND  , MODE_SEARCH   , 0             , 0             , 0             },  /* all other modes */
    { MODE_GOD      , UMOD_REPEAT   , MODE_OMNI     , MODE_PROGRESS , MODE_SOURCE   , MODE_COMMAND  , MODE_SEARCH   , 0             , 0             , 0             , 0             },  /* all other modes */
    /*---(sub/umode/xmode)------------*/
-   { MODE_MAP      , UMOD_VISUAL   , SMOD_MREG     , UMOD_MAP_UNDO , SMOD_BUFFER   , UMOD_MARK     , UMOD_MARK     , 0             , 0             , 0             , 0             },
-   { MODE_MAP      , SMOD_MACRO    , XMOD_FORMAT   , XMOD_OBJECT   , SMOD_HINT     , SMOD_MENUS    , XMOD_PALETTE  , 0             , 0             , 0             , 0             },
+   { MODE_MAP      , UMOD_VISUAL   , SMOD_MREG     , UMOD_MAP_UNDO , SMOD_BUFFER   , UMOD_MARK     , 0             , 0             , 0             , 0             , 0             },
+   { MODE_MAP      , SMOD_MACRO    , XMOD_FORMAT   , XMOD_OBJECT   , SMOD_HINT     , SMOD_MENUS    , XMOD_PALETTE  , UMOD_SENDKEYS , 0             , 0             , 0             },
    { MODE_GOD      , SMOD_MACRO    , SMOD_MENUS    , 0             , 0             , 0             , 0             , 0             , 0             , 0             , 0             },
    { MODE_PROGRESS , UMOD_REPEAT   , MODE_COMMAND  , 0             , 0             , 0             , 0             , 0             , 0             , 0             , 0             },
    { MODE_OMNI     , UMOD_REPEAT   , 0             , 0             , 0             , 0             , 0             , 0             , 0             , 0             , 0             },
@@ -720,7 +721,7 @@ MODE_init          (char a_mode)
       for (j = 1; j < LEN_TERSE; ++j) {
          if (s_modechanges [i][j] == 0)  break;
          sprintf (t, "%c", s_modechanges [i][j]);
-         strlcat (s_modes [n].allow, t, LEN_LABEL);
+         strlcat (s_modes [n].allow, t, LEN_DESC);
       }
    }
    /*---(clear stack)--------------------*/
@@ -783,15 +784,19 @@ MODE_enter         (char a_mode)
    }
    /*---(check if allowed)---------------*/
    if (s_mode_depth > 0)  {
+      DEBUG_PROG   yLOG_char    ("curr"      , s_mode_curr);
       for (i = 0; i < MAX_MODES; ++i) {
          if (s_modes [i].abbr == '-'    )      break;
          if (s_modes [i].abbr != s_mode_curr)  continue;
          x_index = i;
       }
+      DEBUG_PROG   yLOG_value   ("x_index"   , x_index);
+      DEBUG_PROG   yLOG_info    ("name"      , s_modes [x_index].terse);
       --rce;  if (x_index <   0 ) {
          DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
          return rce;
       }
+      DEBUG_PROG   yLOG_info    ("allow"     , s_modes [x_index].allow);
       --rce;  if (strchr (s_modes [x_index].allow, a_mode) == NULL) {
          DEBUG_PROG   yLOG_exitr   (__FUNCTION__, rce);
          return rce;

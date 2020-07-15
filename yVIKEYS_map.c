@@ -2336,7 +2336,7 @@ yvikeys__map_mode_chg   (char a_minor)
 }
 
 char
-yvikeys_map_mode        (char a_major, char a_minor)
+yvikeys_map_mode        (uchar a_major, uchar a_minor)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -2346,6 +2346,7 @@ yvikeys_map_mode        (char a_major, char a_minor)
    DEBUG_USER   yLOG_enter   (__FUNCTION__);
    DEBUG_USER   yLOG_char    ("a_major"   , a_major);
    DEBUG_USER   yLOG_char    ("a_minor"   , chrvisible (a_minor));
+   DEBUG_USER   yLOG_value   ("a_minor"   , a_minor);
    /*---(defenses)-----------------------*/
    DEBUG_USER   yLOG_char    ("mode"      , MODE_curr ());
    --rce;  if (MODE_not (MODE_MAP    )) {
@@ -2378,6 +2379,18 @@ yvikeys_map_mode        (char a_major, char a_minor)
    --rce;
    if (a_major == ' ') {
       DEBUG_USER   yLOG_note    ("no or empty major");
+      /*---(speed)-----------------------*/
+      if (a_minor == '\t' || a_minor == 9) {
+         DEBUG_USER   yLOG_note    ("MAP MODE BLITZ");
+         yvikeys_loop_blitz ();
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         return 0;
+      } else if (a_minor == '\b' || a_minor == 127) {
+         DEBUG_USER   yLOG_note    ("MAP MODE UNBLITZ");
+         yvikeys_loop_unblitz ();
+         DEBUG_USER   yLOG_exit    (__FUNCTION__);
+         return 0;
+      }
       /*---(repeat)----------------------*/
       if (strchr (g_repeat, a_minor) != 0) {
          DEBUG_USER   yLOG_note    ("repeating");
@@ -2725,6 +2738,11 @@ yvikeys_bufs_umode  (uchar a_major, uchar a_minor)
       case 'c' :  
          DEBUG_USER   yLOG_note    ("switch to palette");
          MODE_enter (XMOD_PALETTE);
+         break;
+      case 'k' :  
+         DEBUG_USER   yLOG_note    ("switch to sendkeys");
+         MODE_enter (UMOD_SENDKEYS);
+         yvikeys_sendkeys_prep ();  /* prepare for new run */
          break;
       default  :
          DEBUG_USER   yLOG_note    ("unknown, nothing to do");
