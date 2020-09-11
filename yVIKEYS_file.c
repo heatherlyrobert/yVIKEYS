@@ -123,8 +123,8 @@ static char    *s_valid     = "csLDSif-";
 
 
 char    (*s_handlers) (void);
-char    (*s_prepper)  (void);
-char    (*s_finisher) (void);
+char    (*s_prepper)  (char a_pass);
+char    (*s_finisher) (char a_pass);
 
 
 
@@ -392,7 +392,7 @@ yvikeys_file_new        (void)
    }
    /*---(run prepper)--------------------*/
    DEBUG_INPT  yLOG_point   ("s_prepper" , s_prepper);
-   if (s_prepper != NULL)  rc = s_prepper ();
+   if (s_prepper != NULL)  rc = s_prepper (0);
    DEBUG_OUTP   yLOG_value   ("prep"      , rc);
    --rce;  if (rc < 0) {
       DEBUG_INPT  yLOG_exit    (__FUNCTION__);
@@ -1457,6 +1457,8 @@ yvikeys_file_writer     (void)
    int         rc          =    0;
    int         i           =    0;
    int         n           =   -1;
+   /*---(stage check)-----------------*/
+   yURG_stage_check (YURG_STAGE_OUTP);
    /*---(header)-------------------------*/
    DEBUG_INPT  yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
@@ -1563,8 +1565,10 @@ yvikeys_file_reader     (void)
    /*---(locals)-----------+-----------+-*/
    char        rce         =  -10;
    int         rc          =    0;
-   int         i           =    0;
-   int         n           =   -1;
+   int         x_pass      =    1;
+   char        x_max       =    1;
+   /*---(stage check)-----------------*/
+   yURG_stage_check (YURG_STAGE_INPT);
    /*---(header)-------------------------*/
    DEBUG_INPT  yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
@@ -1573,56 +1577,62 @@ yvikeys_file_reader     (void)
       DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   /*---(run prepper)--------------------*/
-   DEBUG_INPT  yLOG_point   ("s_prepper" , s_prepper);
-   if (s_prepper != NULL)  rc = s_prepper ();
-   DEBUG_OUTP   yLOG_value   ("prep"      , rc);
-   --rce;  if (rc < 0) {
-      DEBUG_INPT  yLOG_exit    (__FUNCTION__);
-      return rce;
-   }
-   /*---(open file)----------------------*/
-   DEBUG_INPT  yLOG_info    ("f_title"   , myVIKEYS.f_title);
-   rc = yPARSE_planned (myVIKEYS.f_title, NULL, NULL);
-   DEBUG_OUTP   yLOG_value   ("open"      , rc);
-   --rce;  if (rc < 0) {
-      DEBUG_INPT  yLOG_exit    (__FUNCTION__);
-      return rce;
-   }
-   /*---(load handlers)------------------*/
-   rc = yvikeys_file_handlers ();
-   DEBUG_OUTP   yLOG_value   ("handlers"  , rc);
-   --rce;  if (rc < 0) {
-      DEBUG_INPT  yLOG_exit    (__FUNCTION__);
-      return rce;
-   }
-   if (s_handlers != NULL)  rc = s_handlers ();
-   DEBUG_OUTP   yLOG_value   ("locals"    , rc);
-   --rce;  if (rc < 0) {
-      DEBUG_INPT  yLOG_exit    (__FUNCTION__);
-      return rce;
-   }
-   /*---(intro)--------------------------*/
-   rc = yPARSE_read_all ();
-   DEBUG_OUTP   yLOG_value   ("yparse"    , rc);
-   --rce;  if (rc < 0) {
-      DEBUG_INPT  yLOG_exit    (__FUNCTION__);
-      return rce;
-   }
-   /*---(close file)---------------------*/
-   rc = yPARSE_close ();
-   DEBUG_OUTP   yLOG_value   ("close"     , rc);
-   --rce;  if (rc < 0) {
-      DEBUG_INPT  yLOG_exit    (__FUNCTION__);
-      return rce;
-   }
-   /*---(run prepper)--------------------*/
-   DEBUG_INPT  yLOG_point   ("s_finisher", s_finisher);
-   if (s_finisher != NULL)  rc = s_finisher ();
-   DEBUG_OUTP   yLOG_value   ("prep"      , rc);
-   --rce;  if (rc < 0) {
-      DEBUG_INPT  yLOG_exit    (__FUNCTION__);
-      return rce;
+   /*---(multi-pass)---------------------*/
+   while (x_pass <= x_max) {
+      /*---(run prepper)----------*/
+      DEBUG_INPT  yLOG_point   ("s_prepper" , s_prepper);
+      if (s_prepper != NULL)  rc = s_prepper (x_pass);
+      DEBUG_OUTP   yLOG_value   ("prep"      , rc);
+      --rce;  if (rc < 0) {
+         DEBUG_INPT  yLOG_exit    (__FUNCTION__);
+         return rce;
+      }
+      x_max = rc;
+      /*---(open file)------------*/
+      DEBUG_INPT  yLOG_info    ("f_title"   , myVIKEYS.f_title);
+      rc = yPARSE_planned (myVIKEYS.f_title, NULL, NULL);
+      DEBUG_OUTP   yLOG_value   ("open"      , rc);
+      --rce;  if (rc < 0) {
+         DEBUG_INPT  yLOG_exit    (__FUNCTION__);
+         return rce;
+      }
+      /*---(load handlers)--------*/
+      rc = yvikeys_file_handlers ();
+      DEBUG_OUTP   yLOG_value   ("handlers"  , rc);
+      --rce;  if (rc < 0) {
+         DEBUG_INPT  yLOG_exit    (__FUNCTION__);
+         return rce;
+      }
+      if (s_handlers != NULL)  rc = s_handlers ();
+      DEBUG_OUTP   yLOG_value   ("locals"    , rc);
+      --rce;  if (rc < 0) {
+         DEBUG_INPT  yLOG_exit    (__FUNCTION__);
+         return rce;
+      }
+      /*---(intro)----------------*/
+      rc = yPARSE_read_all ();
+      DEBUG_OUTP   yLOG_value   ("yparse"    , rc);
+      --rce;  if (rc < 0) {
+         DEBUG_INPT  yLOG_exit    (__FUNCTION__);
+         return rce;
+      }
+      /*---(close file)-----------*/
+      rc = yPARSE_close ();
+      DEBUG_OUTP   yLOG_value   ("close"     , rc);
+      --rce;  if (rc < 0) {
+         DEBUG_INPT  yLOG_exit    (__FUNCTION__);
+         return rce;
+      }
+      /*---(run finisher)---------*/
+      DEBUG_INPT  yLOG_point   ("s_finisher", s_finisher);
+      if (s_finisher != NULL)  rc = s_finisher (x_pass);
+      DEBUG_OUTP   yLOG_value   ("prep"      , rc);
+      --rce;  if (rc < 0) {
+         DEBUG_INPT  yLOG_exit    (__FUNCTION__);
+         return rce;
+      }
+      /*---(pass done)------------*/
+      ++x_pass;
    }
    /*---(complete)-----------------------*/
    DEBUG_OUTP  yLOG_exit    (__FUNCTION__);

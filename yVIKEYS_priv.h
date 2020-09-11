@@ -31,8 +31,8 @@
 
 #define     P_VERMAJOR  "1.X = working for everyday use, features still evolving but stable"
 #define     P_VERMINOR  "1.4 = prepare for demonstrations on web"
-#define     P_VERNUM    "1.4y"
-#define     P_VERTXT    "updates to accept command-line arguments and auto-run scripts"
+#define     P_VERNUM    "1.4z"
+#define     P_VERTXT    "added yURG stage checks for input reading and output writing"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
