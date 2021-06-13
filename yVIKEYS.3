@@ -274,6 +274,55 @@ supports batch use.  only one argument...
    char*  command    command line as it would have been typed (:)
 
 
+.SH HINTS (sub-mode)
+once the yVIKEYS system is initiated, hinting is relatively simple to implement.
+the source application does 90% of the work, yVIKEYS just routes key sequences
+beginning with ";".
+
+.SS 1) implement a straw-man handler
+handler has the prototype
+.B char handler (char *a_hint)
+which should return 0 on success, or < 0 on failure.
+
+.SS 2) configure in initialization
+call
+.B yVIKEYS_hint_config (<handler>)
+in the program initialization to route all key sequences beginning with ";"
+to the handler.
+
+.SS 3) add hint strings to all required objects
+add LEN_SHORT string to the objects, then use ySTR's 
+.B strlhint (<seq>, <format>, <hint>)
+to generate hints when an object is created.
+
+.SS 4) modify drawing logic to show/hide hints
+use
+.B yVIKEYS_hinting (),
+which returns TRUE if showing, to modify the main window drawing to display
+hints when requested.
+
+.SS 5) add ability to highlight hints (optional)
+either add flags on the data objects or save the current hint, then highlight
+during the draw cycle.
+
+.SS 6) build logic to interpret hint requests
+interpret ";;´´¦" as requesting a specific hint, clearing all others, and use 
+.B yVIKEYS_jump (b, x, y, z)
+to go to hint location.
+
+.SS 7) build function to clear hints
+when handler receives the string ";¦", clear all hints and flags.  also do
+this before setting a new hint.
+
+.SS 8) build hint cursoring (optional)
+if multiple items can be set by a hint, implement logic for ;[ ;< ;. ;> ;]
+movements between these sub-hints.
+
+.SS 9) can call hinting directly (optional)
+hinting can be forced directly by calling
+.B yVIKEYS_hint_direct (<string>)
+to simulate keystrokes.
+
 .SH SEARCH
 
 .B yVIKEYS_srch_init, 

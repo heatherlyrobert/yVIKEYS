@@ -10,29 +10,33 @@
 
 #define     P_FOCUS     "RS (run-time support)"
 #define     P_NICHE     "us (user control)"
+#define     P_SUBJECT   "keyboard mini-language"
 #define     P_PURPOSE   "efficient, versatle, and standard keyboard mini-language"
-
-#define     P_NAME      "yVIKEYS"
-#define     P_FULLNAME  "/usr/local/lib64/libyVIKEYS"
-#define     P_PREFIX    "briareos-hecatoncheires (framework)"
-#define     P_SHORT     "universal keyboard mini-language"
 
 #define     P_NAMESAKE  "briareos-hecatoncheires (hundred-handed)"
 #define     P_HERITAGE  "briareos, the strong-one, is one of the three hecatoncheires" 
 #define     P_IMAGERY   "ugly, impossibly powerful, one-hundred handed, fifty headed giant"
+#define     P_REASON    ""
+
+#define     P_ONELINE   P_NAMESAKE " " P_SUBJECT
+
+#define     P_BASENAME  "yVIKEYS"
+#define     P_FULLNAME  "/usr/local/lib64/libyVIKEYS"
+#define     P_SUFFIX    "htags"
+#define     P_CONTENT   "code navigation file"
 
 #define     P_SYSTEM    "gnu/linux   (powerful, ubiquitous, technical, and hackable)"
 #define     P_LANGUAGE  "ansi-c      (wicked, limitless, universal, and everlasting)"
 #define     P_CODESIZE  "large       (appoximately 10,000 slocl)"
+#define     P_DEPENDS   "none"
 
 #define     P_AUTHOR    "heatherlyrobert"
 #define     P_CREATED   "2010-01"
-#define     P_DEPENDS   "none"
 
-#define     P_VERMAJOR  "1.X = working for everyday use, features still evolving but stable"
-#define     P_VERMINOR  "1.4 = prepare for demonstrations on web"
-#define     P_VERNUM    "1.4z"
-#define     P_VERTXT    "added yURG stage checks for input reading and output writing"
+#define     P_VERMAJOR  "1.-- = working for everyday use, features still evolving but stable"
+#define     P_VERMINOR  "1.5- = updates to support developing application"
+#define     P_VERNUM    "1.5a"
+#define     P_VERTXT    "updated ncurses color handling with yCOLOR improvements"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -317,10 +321,6 @@ typedef     signed char       schar;
 #define     YVIKEYS_OTHER     '-'
 #define     YVIKEYS_FULL      '*'
 
-extern char *gvikeys_upper;
-extern char *gvikeys_lower;
-extern char *gvikeys_number;
-extern char *gvikeys_greek;
 
 
 

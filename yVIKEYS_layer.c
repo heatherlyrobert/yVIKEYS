@@ -103,9 +103,9 @@ yvikeys_layer_init       (void)
    s_curr  = NULL;
    s_count = 0;
    s_index = 0;
-   strlcpy (s_valid, gvikeys_number, MAX_LAYERS);
-   strlcat (s_valid, gvikeys_lower , MAX_LAYERS);
-   strlcat (s_valid, gvikeys_greek , MAX_LAYERS);
+   strlcpy (s_valid, LTRS_NUMBER, MAX_LAYERS);
+   strlcat (s_valid, LTRS_LOWER , MAX_LAYERS);
+   strlcat (s_valid, LTRS_GREEK , MAX_LAYERS);
    s_max = strlen (s_valid);
    for (i = 0; i < s_max; ++i)  s_marks [i] = NULL;
    yvikeys_note__purge ('y');
@@ -1581,8 +1581,8 @@ yvikeys_note_text       (char a_type, char a_len, char a_lvl, char *a_text, int 
       } glPopMatrix();
    }
    else {
-      if (a_len != a_lvl)  yCOLOR_curs ("note_cur");
-      else                 yCOLOR_curs ("note_old");
+      if (a_len != a_lvl)  yCOLOR_curs ("m_curr");
+      else                 yCOLOR_curs ("m_prev");
       strlcpy (t, a_text, LEN_RECD);
       x_edge = 1;
       x_beg  = x_next  = 0;

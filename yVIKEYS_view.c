@@ -1528,22 +1528,22 @@ yvikeys_view__curses     (char n)
       switch (s_parts [n].abbr) {
       case YVIKEYS_TITLE    :
       case YVIKEYS_VERSION  :
-         yCOLOR_curs ("status" );
+         yCOLOR_curs ("w_sbar");
          break;
       case YVIKEYS_COMMAND  :
-         yCOLOR_curs ("command" );
+         yCOLOR_curs ("w_cmds");
          break;
       case YVIKEYS_MODES    :
-         if (yvikeys_macro_emode () == MACRO_RUN)  yCOLOR_curs ("warn" );
-         else                                      yCOLOR_curs ("root" );
+         if (yvikeys_macro_emode () == MACRO_RUN)  yCOLOR_curs ("!_warn");
+         else                                      yCOLOR_curs ("v_root");
          break;
       case YVIKEYS_KEYS     :
       case YVIKEYS_BUFFER   :
-         yCOLOR_curs ("root" );
+         yCOLOR_curs ("v_root");
          break;
       case YVIKEYS_STATUS   :
-         if (yVIKEYS_error ())  yCOLOR_curs ("warn"    );
-         else                   yCOLOR_curs ("status"  );
+         if (yVIKEYS_error ())  yCOLOR_curs ("!_warn");
+         else                   yCOLOR_curs ("w_sbar");
          break;
       }
       /*---(display)-----------*/
@@ -1562,7 +1562,7 @@ yvikeys_view__curses     (char n)
       attrset  (0);
       /*---(done)--------------*/
       if (rc > 0) {
-         yCOLOR_curs ("curr" );
+         yCOLOR_curs ("v_curr");
          mvprintw (s_parts [n].bott, s_parts [n].left + rc, "%c", s_parts [n].text [rc]);
       }
       /*---(done)--------------*/
@@ -1643,21 +1643,21 @@ yvikeys_view__prepare    (char n)
          switch (s_parts [n].abbr) {
          case YVIKEYS_TITLE    :
          case YVIKEYS_VERSION  :
-            yCOLOR_curs ("status" );
+            yCOLOR_curs ("w_sbar");
             break;
          case YVIKEYS_COMMAND  :
-            yCOLOR_curs ("command" );
+            yCOLOR_curs ("w_cmds");
             break;
          case YVIKEYS_MODES    :
-            if (yvikeys_macro_emode () == MACRO_RUN)  yCOLOR_curs ("warn" );
-            else                                      yCOLOR_curs ("root" );
+            if (yvikeys_macro_emode () == MACRO_RUN)  yCOLOR_curs ("!_warn");
+            else                                      yCOLOR_curs ("v_root");
             break;
          case YVIKEYS_KEYS     :
-            yCOLOR_curs ("root" );
+            yCOLOR_curs ("v_root");
             break;
          case YVIKEYS_STATUS   :
-            if (yVIKEYS_error ())  yCOLOR_curs ("warn"    );
-            else                   yCOLOR_curs ("status"  );
+            if (yVIKEYS_error ())  yCOLOR_curs ("!_warn");
+            else                   yCOLOR_curs ("w_sbar");
             break;
          }
          x_len = strlen (s_parts [n].text);

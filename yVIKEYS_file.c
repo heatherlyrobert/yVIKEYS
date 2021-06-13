@@ -537,10 +537,10 @@ yvikeys_vers_version       (char *a_ver)
    /*---(prepare)------------------------*/
    strlcpy  (x_work, a_ver, LEN_LABEL);
    /*---(test chars)---------------------*/
-   --rce;  if (strchr ("abcdefghijklmnopqrstuvwxyz",           x_work [3]) == 0)  return rce;
-   --rce;  if (strchr ("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", x_work [2]) == 0)  return rce;
-   --rce;  if (x_work [1] != '.')                       return rce;
-   --rce;  if (strchr ("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", x_work [0]) == 0)  return rce;
+   --rce;  if (strchr (LTRS_LOWER, x_work [3]) == 0)  return rce;
+   --rce;  if (strchr (LTRS_UPNUM, x_work [2]) == 0)  return rce;
+   --rce;  if (x_work [1] != '.')                     return rce;
+   --rce;  if (strchr (LTRS_UPNUM, x_work [0]) == 0)  return rce;
    /*---(check increase only)------------*/
    --rce;  if (x_work [0] <  myVIKEYS.f_vernum [0])    return rce;
    if (x_work [0] == myVIKEYS.f_vernum [0]) {
@@ -605,7 +605,6 @@ yvikeys__file_regex             (char a_type, char *a_ext, char *a_base, char *a
    int         x_checked   =    0;
    int         x_matches   =    0;
    int         i           =    0;
-   int        *x_valid     = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.";
    /*---(header)-------------------------*/
    DEBUG_INPT   yLOG_enter   (__FUNCTION__);
    DEBUG_INPT   yLOG_point   ("a_match"   , a_match);
@@ -697,7 +696,7 @@ yvikeys__file_regex             (char a_type, char *a_ext, char *a_base, char *a
       }
       /*---(check for bad characters)-------*/
       for (i = 0; i < x_len; ++i) {
-         if (strchr (x_valid, x_file->d_name [i]) != NULL)   continue;
+         if (strchr (LTRS_FILES, x_file->d_name [i]) != NULL)   continue;
          DEBUG_INPT   yLOG_note    ("bad character in target name");
          continue;
       }
@@ -934,7 +933,6 @@ yvikeys__file_namer     (char a_type, char *a_name)
    char        t           [LEN_RECD];
    char       *p           = NULL;
    int         x_len       =    0;
-   int        *x_valid     = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.";
    /*---(header)-------------------------*/
    DEBUG_INPT   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
@@ -1002,7 +1000,7 @@ yvikeys__file_namer     (char a_type, char *a_name)
    /*---(check for fixed name)-----------*/
    else if (x_len > 0) {
       for (i = 0; i < x_len; ++i) {
-         if (strchr (x_valid, p [i]) != NULL)   continue;
+         if (strchr (LTRS_FILES, p [i]) != NULL)   continue;
          DEBUG_INPT   yLOG_note    ("bad character in file name");
          DEBUG_INPT   yLOG_exit    (__FUNCTION__);
          return rce;

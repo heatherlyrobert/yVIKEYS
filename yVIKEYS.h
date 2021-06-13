@@ -413,6 +413,7 @@ char        yVIKEYS_unit_reset      (void);
 
 char        yVIKEYS_hint_config     (void *a_hinter);
 char        yVIKEYS_hint_direct     (char *a_hint);
+char        yVIKEYS_hinting         (void);
 
 #endif
 /*============================----end-of-source---============================*/

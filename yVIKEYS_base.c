@@ -9,10 +9,6 @@
  *
  */
 
-char *gvikeys_lower   = "abcdefghijklmnopqrstuvwxyz";
-char *gvikeys_upper   = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-char *gvikeys_number  = "0123456789";
-char *gvikeys_greek   = "טיךכלםמןנסעףפץצקרשתûü‎‏ÿ";
 
 
 

@@ -34,6 +34,7 @@ static int  s_nmark       = 0;
 
 
 static char    (*s_hinter)     (char *a_hint) = NULL;
+static char    s_hinting     = '-';
 
 
 char         yvikeys_mark__purge   (char  a_scope);
@@ -65,10 +66,10 @@ yvikeys_mark_init            (void)
    }
    /*---(macro abbrev list)--------------*/
    strlcpy (S_MARK_LIST, "'"           , S_MARK_MAX);
-   strlcat (S_MARK_LIST, gvikeys_lower , S_MARK_MAX);
-   strlcat (S_MARK_LIST, gvikeys_upper , S_MARK_MAX);
-   strlcat (S_MARK_LIST, gvikeys_number, S_MARK_MAX);
-   strlcat (S_MARK_LIST, gvikeys_greek , S_MARK_MAX);
+   strlcat (S_MARK_LIST, LTRS_LOWER , S_MARK_MAX);
+   strlcat (S_MARK_LIST, LTRS_UPPER , S_MARK_MAX);
+   strlcat (S_MARK_LIST, LTRS_NUMBER, S_MARK_MAX);
+   strlcat (S_MARK_LIST, LTRS_GREEK , S_MARK_MAX);
    strlcat (S_MARK_LIST, "()"          , S_MARK_MAX);
    DEBUG_PROG   yLOG_info    ("LIST"      , S_MARK_LIST);
    s_nmark = strlen (S_MARK_LIST);
@@ -108,10 +109,10 @@ yvikeys_mark__purge          (char a_scope)
    DEBUG_MARK   yLOG_value   ("nmark"     , s_nmark);
    for (i = 0; i < s_nmark; ++i) {
       x_abbr = S_MARK_LIST [i];
-      if (a_scope == YVIKEYS_UPPER  && strchr (gvikeys_upper , x_abbr) == NULL)  continue;
-      if (a_scope == YVIKEYS_LOWER  && strchr (gvikeys_lower , x_abbr) == NULL)  continue;
-      if (a_scope == YVIKEYS_NUMBER && strchr (gvikeys_number, x_abbr) == NULL)  continue;
-      if (a_scope == YVIKEYS_GREEK  && strchr (gvikeys_greek , x_abbr) == NULL)  continue;
+      if (a_scope == YVIKEYS_UPPER  && strchr (LTRS_UPPER , x_abbr) == NULL)  continue;
+      if (a_scope == YVIKEYS_LOWER  && strchr (LTRS_LOWER , x_abbr) == NULL)  continue;
+      if (a_scope == YVIKEYS_NUMBER && strchr (LTRS_NUMBER, x_abbr) == NULL)  continue;
+      if (a_scope == YVIKEYS_GREEK  && strchr (LTRS_GREEK , x_abbr) == NULL)  continue;
       yvikeys_mark__unset (x_abbr);
    }
    /*---(globals)------------------------*/
@@ -1007,6 +1008,19 @@ yVIKEYS_hint_direct     (char *a_hint)
    DEBUG_MARK   yLOG_info    ("a_hint"    , a_hint);
    x_len = strlen (a_hint);
    DEBUG_MARK   yLOG_value   ("x_len"     , x_len);
+   --rce;  if (a_hint [0] != ';') {
+      DEBUG_MARK   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(simple things)------------------*/
+   switch (a_hint [1]) {
+   case '+'  :
+      s_hinting = 'y';
+      break;
+   case '-'  :
+      s_hinting = '-';
+      break;
+   }
    /*---(check hinter)-------------------*/
    DEBUG_MARK   yLOG_point   ("s_hinter"  , s_hinter);
    --rce;  if (s_hinter == NULL) {
@@ -1023,6 +1037,8 @@ yVIKEYS_hint_direct     (char *a_hint)
    DEBUG_MARK   yLOG_exit    (__FUNCTION__);
    return 0;
 }
+
+char yVIKEYS_hinting (void)  { if (s_hinting == 'y')  return 1;  else return 0; };
 
 
 

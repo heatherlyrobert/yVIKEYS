@@ -142,9 +142,9 @@ yvikeys_sreg__purge     (char a_scope)
    DEBUG_PROG   yLOG_value   ("s_nsreg"   , s_nsreg);
    for (i = 0; i < s_nsreg; ++i) {
       x_abbr = S_SREG_LIST [i];
-      if (a_scope == YVIKEYS_LOWER  && strchr (gvikeys_lower , x_abbr) == NULL)  continue;
-      if (a_scope == YVIKEYS_NUMBER && strchr (gvikeys_number, x_abbr) == NULL)  continue;
-      if (a_scope == YVIKEYS_GREEK  && strchr (gvikeys_greek , x_abbr) == NULL)  continue;
+      if (a_scope == YVIKEYS_LOWER  && strchr (LTRS_LOWER , x_abbr) == NULL)  continue;
+      if (a_scope == YVIKEYS_NUMBER && strchr (LTRS_NUMBER, x_abbr) == NULL)  continue;
+      if (a_scope == YVIKEYS_GREEK  && strchr (LTRS_GREEK , x_abbr) == NULL)  continue;
       yvikeys_sreg__wipeall (a_scope, &s_sreg_info [i]);
    }
    /*---(complete)-----------------------*/
@@ -167,9 +167,9 @@ yvikeys_sreg_init               (void)
    }
    /*---(macro abbrev list)--------------*/
    strlcpy (S_SREG_LIST, "\""          , S_SREG_MAX);
-   strlcat (S_SREG_LIST, gvikeys_lower , S_SREG_MAX);
-   strlcat (S_SREG_LIST, gvikeys_number, S_SREG_MAX);
-   strlcat (S_SREG_LIST, gvikeys_greek , S_SREG_MAX);
+   strlcat (S_SREG_LIST, LTRS_LOWER , S_SREG_MAX);
+   strlcat (S_SREG_LIST, LTRS_NUMBER, S_SREG_MAX);
+   strlcat (S_SREG_LIST, LTRS_GREEK , S_SREG_MAX);
    s_nsreg  = strlen (S_SREG_LIST);
    /*---(registers)----------------------*/
    yvikeys_sreg__purge    (YVIKEYS_FULL);

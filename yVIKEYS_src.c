@@ -806,7 +806,7 @@ SOURCE__color           (char a_display)
    }
    /*---(fast-track command)-------------*/
    if (a_display == YVIKEYS_COMMAND) {
-      if (strchr (":/", MODE_curr ()) == NULL && strchr (":/", MODE_prev ()) == NULL) {
+      if (strchr (":/;", MODE_curr ()) == NULL && strchr (":/;", MODE_prev ()) == NULL) {
          DEBUG_GRAF   yLOG_note    ("command fast track");
          x_code = 'c';
       }
@@ -839,15 +839,15 @@ SOURCE__color           (char a_display)
    if (myVIKEYS.env == YVIKEYS_CURSES) {
       DEBUG_GRAF   yLOG_note    ("assign a ncurses color");
       switch (x_code) {
-      case  'm' :  yCOLOR_curs ("map"    );  break;
-      case  's' :  yCOLOR_curs ("source" );  break;
-      case  'c' :  yCOLOR_curs ("command");  break;
-      case  't' :  yCOLOR_curs ("textreg");  break;
-      case  'r' :  yCOLOR_curs ("replace");  break;
-      case  'i' :  yCOLOR_curs ("input"  );  break;
-      case  'w' :  yCOLOR_curs ("wander" );  break;
-      case  'e' :  yCOLOR_curs ("error"  );  break;
-      default   :  yCOLOR_curs ("map"    );  break;
+      case  'm' :  yCOLOR_curs ("i_maps");  break;
+      case  's' :  yCOLOR_curs ("i_srcs");  break;
+      case  'c' :  yCOLOR_curs ("w_cmds");  break;
+      case  't' :  yCOLOR_curs ("i_treg");  break;
+      case  'r' :  yCOLOR_curs ("i_repl");  break;
+      case  'i' :  yCOLOR_curs ("i_inpt");  break;
+      case  'w' :  yCOLOR_curs ("i_wand");  break;
+      case  'e' :  yCOLOR_curs ("!_errs");  break;
+      default   :  yCOLOR_curs ("i_maps");  break;
       }
    }
    /*---(set opengl color)---------------*/
@@ -1007,13 +1007,13 @@ SOURCE__curses          (tEDIT *a_cur, int a_left, int a_bott, char a_edit)
       if (x_end > a_cur->epos)  x_end = a_cur->epos;
       x_len = x_end - x_beg + 1;
       attrset  (0);
-      yCOLOR_curs ("select" );
+      yCOLOR_curs ("i_sele");
       mvprintw (a_bott, a_left + 5 + x_beg - a_cur->bpos, "%-*.*s", x_len, x_len, a_cur->contents + x_beg);
    }
    /*---(current)------------------------*/
    if (a_edit == 'y' && a_cur->npos > 0) {
       attrset  (0);
-      yCOLOR_curs ("map"    );
+      yCOLOR_curs ("i_maps");
       mvprintw (a_bott, a_left + 5 + a_cur->cpos - a_cur->bpos, "%c", a_cur->contents [a_cur->cpos]);
    }
    /*---(markers)------------------------*/

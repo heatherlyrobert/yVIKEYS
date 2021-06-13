@@ -325,9 +325,9 @@ yvikeys_hist_init       (void)
    /*---(macro abbrev list)--------------*/
    DEBUG_HIST   yLOG_note    ("initialize hist list");
    strlcpy (S_HIST_LIST, ""            , S_HIST_MAX);
-   strlcat (S_HIST_LIST, gvikeys_lower , S_HIST_MAX);
-   /*> strlcat (S_HIST_LIST, gvikeys_upper , S_HIST_MAX);                             <*/
-   strlcat (S_HIST_LIST, gvikeys_greek , S_HIST_MAX);
+   strlcat (S_HIST_LIST, LTRS_LOWER , S_HIST_MAX);
+   /*> strlcat (S_HIST_LIST, LTRS_UPPER , S_HIST_MAX);                             <*/
+   strlcat (S_HIST_LIST, LTRS_GREEK , S_HIST_MAX);
    DEBUG_HIST   yLOG_info    ("LIST"      , S_HIST_LIST);
    /*---(clear history)------------------*/
    DEBUG_HIST   yLOG_note    ("clear all history");
@@ -535,7 +535,7 @@ yvikeys_hist_info       (void)
    /*---(get sizes)----------------------*/
    yvikeys_hist__bounds ();
    if (myVIKEYS.env == YVIKEYS_CURSES) {
-      yCOLOR_curs ("h_used" );
+      yCOLOR_curs ("h_used");
       /*> 1234567890123456789012345678901234::1234567890123456789012345678901234            <*/
       switch (MODE_curr ()) {
       case UMOD_MARK      : strlcpy (x_entry, " -  --label--- --x-- --y-- --z--      -  --label--- --x-- --y-- --z--   ", LEN_RECD);  break;
@@ -546,8 +546,8 @@ yvikeys_hist_info       (void)
       mvprintw (s_bott - s_tall + 1, s_left, "%-*.*s", s_wide, s_wide, x_entry);
       attrset     (0);
       for (i = 0; i < s_lines; ++i) {
-         if ((i % 2) == 0)  yCOLOR_curs ("h_current"    );
-         else               yCOLOR_curs ("map"          );
+         if ((i % 2) == 0)  yCOLOR_curs ("h_curr");
+         else               yCOLOR_curs ("i_maps");
          switch (MODE_curr ()) {
          case UMOD_MARK      : yvikeys_mark_info    (x_entry, i);  break;
          case UMOD_VISUAL    : yvikeys_visu_info    (i, x_entry);  break;
@@ -558,7 +558,7 @@ yvikeys_hist_info       (void)
          attrset     (0);
       }
       attrset     (0);
-      yCOLOR_curs ("h_used" );
+      yCOLOR_curs ("h_used");
       mvprintw (s_bott, s_left             , "%-*.*s", s_wide, s_wide, " ¦ to choose, ¥ to escape ------------------------------------------------------------");
       attrset     (0);
    }
@@ -599,12 +599,12 @@ yvikeys_hist__show      (char a_type, int i, char *a_text, char rc, char a_part)
    int         x_lef, x_rig, x_top, x_bot;
    if (a_type == YVIKEYS_CURSES) {
       if      (rc != 0)   {
-         if ((i % 2) == 0)           yCOLOR_curs ("title"        );
-         else                        yCOLOR_curs ("h_used" );
+         if ((i % 2) == 0)           yCOLOR_curs ("w_titl");
+         else                        yCOLOR_curs ("h_used");
       }
-      else if (*s_index == s_now)      yCOLOR_curs ("source"       );
-      else if ((i % 2) == 0)           yCOLOR_curs ("h_current"    );
-      else                             yCOLOR_curs ("map"          );
+      else if (*s_index == s_now)      yCOLOR_curs ("i_srcs");
+      else if ((i % 2) == 0)           yCOLOR_curs ("h_curr");
+      else                             yCOLOR_curs ("i_maps");
       /*---(display)--------*/
       mvprintw (s_bott - s_tall + 2 + i, s_left, " %s ", a_text);
       attrset     (0);

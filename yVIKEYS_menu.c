@@ -1687,8 +1687,8 @@ yvikeys_menu_fill       (char a_type, int a_len, int a_lvl, int a_lef, int a_wid
    }
    /*---(ncurses)------------------------*/
    else {
-      if (a_len != a_lvl)  yCOLOR_curs ("note_cur");
-      else                 yCOLOR_curs ("note_old");
+      if (a_len != a_lvl)  yCOLOR_curs ("m_curr");
+      else                 yCOLOR_curs ("m_prev");
       for (i = a_bot; i < a_bot + a_tall; ++i) {
          mvprintw   (i, a_lef, "%*.*s", a_wide, a_wide, "                                                  ");
       }
@@ -1750,8 +1750,8 @@ yvikeys_menu_heads      (char a_type, int a_len, int a_lvl, void *a_found, int a
    }
    /*---(ncurses)------------------------*/
    else {
-      if (a_len != a_lvl)  yCOLOR_curs ("note_cur");
-      else                 yCOLOR_curs ("note_old");
+      if (a_len != a_lvl)  yCOLOR_curs ("m_curr");
+      else                 yCOLOR_curs ("m_prev");
       /*---(title)--------------------------*/
       mvprintw   (a_bot - a_tall + 1, x_cen - (x_len / 2), "%s", t);
       /*---(prog name)-------------------*/
@@ -1797,7 +1797,7 @@ yvikeys_menu__error     (char a_type, int a_len, int a_lvl, tLINK *a_found, int 
    /*---(ncurses)------------------------*/
    else {
       /*---(error)-----------------------*/
-      yCOLOR_curs ("error");
+      yCOLOR_curs ("!_errs");
       strlcpy (t, "ERROR KEY", LEN_RECD);
       x_len = strlen (t);
       mvprintw   (a_bot - 7, x_cen - (x_len / 2), "%s", t);

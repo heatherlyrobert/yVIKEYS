@@ -508,14 +508,14 @@ flattening, and shared macro library.
 .B moving and copying macros at command line
    :macro ab¦           copies macro 'b' into macro 'a'
    :macro Ab¦           appends macro 'b' unto end of macro 'a'
-   :macro a>b¦          copies macro to source register 'b'
-   :macro a>¦           copies macro to unnamed source register
-   :macro a<b¦          copies macro from source register 'b'
-   :macro a<¦           copies macro from unnamed source register
-   :macro A<b¦          appends macro from named source register
-   :macro a-¦           exports macro keys to vi_clip.txt
-   :macro a+¦           imports macro keys from vi_clip.txt
-   :macro A+¦           appends keys from vi_clip.txt
+   :macro a>b¦          copies macro 'a' to source register 'b'
+   :macro a>¦           copies macro 'a' to unnamed source register
+   :macro a<b¦          copies macro 'a' from source register 'b'
+   :macro a<¦           copies macro 'a' from unnamed source register
+   :macro A<b¦          appends macro 'a' from named source register
+   :macro a-¦           exports macro 'a' keys to vi_clip.txt
+   :macro a+¦           imports macro 'a' keys from vi_clip.txt
+   :macro A+¦           appends keys 'a' from vi_clip.txt
    :dump macros¦        lists all macros in vi_clip.txt
 
 .B central macro repository
@@ -556,22 +556,31 @@ flattening, and shared macro library.
 .SH HINTS (sub-mode)
 .na
 .SS ---basics-----------------------------------------------------------------
- ;;be        go to location labeled with two-letter mark "be"
+ ;;be¦       go to location labeled with two-letter mark "be"
 .SS ---overview---------------------------------------------------------------
 .B definition (D).  
-hints are two-letter labels, assigned by the application, that act as a
-quick mechanism to identify, access, or move to important locations, items,
-or objects without a pointing device.
+hints are short
+.I labels/nicknames
+to allow efficient keyboard-driven targeting within volumous screen content
+which would otherwise require careful use of a pointing device.
 
 .B source/prototype (S).  
-firefox extension called vimperator which appears to have copied from another
-early firefox extention called "hit-a-hint".  the ability i love is called
-extended hints.
+the firefox extension called vimperator which appears to derive from an earlier
+extention called "hit-a-hint".  the ability i love is called extended hints.
 
-.B value (V).   
-rapid idenfification of locations is critical to idenfitying, navigating,
-and accessing locations, items, or objects in an efficient, accurate, and
-confident way.
+.B core idea (I).  
+generally, two- or three-letter random hints, e.g., aa-zz, are shown next to
+all screen content which can then be specifically referred to by those hints,
+or nicknames.
+
+.B application (A).  
+hints are most useful with a lot of data (30+ items) which are otherwise hard to
+specifically identify.  small groups of data should just use normal cursoring.
+
+.B value (V).  
+totally avoids the slow use of a pointing device or lots of repeat cursor
+movements.  and, no more close misses.  this is a direct movement to a
+specific location.
 
 .B complication (C).  
 this is an uncommon feature.  most users have never had this ability and so
@@ -582,48 +591,50 @@ i will standardize "mostly" on the excellent vimperator extended hints
 interface and make it absolutely universal.  this is a very, very powerful
 feature if adapted everywhere.
 
-.B top requirements to get it right
-   -- very easy, quick, and simple interface
-   -- large set of hints to navigate large data sets
-   -- standard rule-sets for marks to make them universal
-
 .SS ---full capabilities------------------------------------------------------
-.B mark list (62 primary, plus previous and special)
-   aa-aZ      general location hints (often aa-zz)
-   Aa-LZ      compilier, checker, error, feedback hints
-   Ma-ZZ      global search hints
-   [ < > ]    first, prev, next, and last existing hint
+
+.B general mark list (62 primary, plus previous and special)
+   aa - zz   general location hints (default range)
+   * can also be 2b6, water, X, joe, è7, or any other combination
 
 .B invocation of sub-mode
-   ;          identify a mark
-   ¥          exits sub-mode early and forgets action
+   ;         identify a mark
+   ¥         exits sub-mode early and forgets action
 
 .B focusing on hints
-   ;;be       focus on hint "be"
-   ;¥  ;;¥    clear hint focus and show all hints again
-   ;¦  ;;¦    show/hide hints
+   ;+¦       show hint labels next to objects
+   ;-¦       hide object hint labels (default)
+   ;¦        clear current hint selection
+   ;;be¦     focus on hint "be"
 
-.B quick movements
-   ;>         go to the next hint
-   ;[         go to the first hint
+.B if a hint is a group or has multiple parts...
+   ;[¦       go to the first sub-hint
+   ;<¦       go to the previous sub-hint
+   ;.¦       go back to the current sub-hint
+   ;>¦       go to the next sub-hint
+   ;]¦       go to the last sub-hint
 
 .B extended hints actions (potential, future)
-   ;s<cc>     save link destination
-   ;f<cc>     focus and center
-   ;e<cc>     focus and show exploded view
-   ;z<cc>     focus, zoom, and center
-   ;i<cc>     zoom in, and open
-   ;o<cc>     zoom out, and close
-   ;x<cc>     delete
-   ;y<cc>     yank
-   ;p<cc>     paste
-   ;t<cc>     open in another tab
-   ;w<cc>     open in another window
+   ;;´´¦     select and focus
+   ;s´´¦     save link destination
+   ;f´´¦     focus and center
+   ;e´´¦     focus and show exploded view
+   ;z´´¦     focus, zoom, and center
+   ;i´´¦     zoom in, and open
+   ;o´´¦     zoom out, and close
+   ;x´´¦     delete
+   ;y´´¦     yank
+   ;p´´¦     paste
+   ;t´´¦     open in another tab
+   ;w´´¦     open in another window
 
 .B showing and debugging all hints
-   ;?         show hint information window
-   ;!         shows hints as the status line (:status hint)
-   ;_         show/hide hints
+   ;?¦       show hint information window
+   ;!¦       shows hints as the status line (:status hint)
+
+.B overriding to force specific hints ???
+   ;>joe¦    current hint can also be called ¶joe¶
+   ;<joe¦    set back to default
 
 
 
@@ -1611,6 +1622,50 @@ into the data in additional ways.
    :sreg a+¦            imports keys from vi_clip.txt
    :sreg A+¦            appends keys from vi_clip.txt
    :dump sreg¦          lists all registers in vi_clip.txt
+
+.SH STICKY NOTES (command)
+.na
+.SS ---basics-----------------------------------------------------------------
+ :note 22=testing¦
+.SS ---overview---------------------------------------------------------------
+.B definition (D).  
+sticky notes are temporary comment boxes which present on top of other screen
+elements providing commentary.
+
+.B source/prototype (S).  
+simple variable on 3M sticky notes which do not effect what lies beneath them
+in any waya.
+
+.B application (A).  
+primarily used for demonstrations and scripts, but can also be used for short-
+term reminders.
+
+.B value (V).  
+built in presentation scripting support which does not require additional
+software or pre-recorded video.
+
+.B answer (A).  
+i will create simple notes which can be used in every application.
+
+.SS ---full capabilities------------------------------------------------------
+
+.B unique note identifiers
+   notes are known by their current location only
+   relative locations in xy using 1-9 scale, i.e., 23
+   1 is top-left, 5 is middle-center, 9 is bottom-right
+
+.B simple note creation
+   :note 23=testing¦
+     <size>        - (tiny), = (normal), and + (larger) note
+     <text>        characters to be presented, never *@!$~
+
+.B changing existing notes
+   :note 23¦       bring existing note 23 to top/focus
+   :note 23#       delete existing note 23
+   :note -¦        delete all notes
+   :note 23>44     move note 23 to 44, no other changes
+
+.B connector lines
 
 
 
