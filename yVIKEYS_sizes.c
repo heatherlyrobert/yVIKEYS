@@ -91,6 +91,7 @@ tOPTION  s_options [MAX_OPTION ] = {
    { YVIKEYS_STATUS  , "version"      , yvikeys_vers_status    , "current file verion control status, number and text"     },
    { YVIKEYS_STATUS  , "visual"       , yvikeys_mark_status    , "details of visual selection"                },
    { YVIKEYS_STATUS  , "macro"        , yvikeys_macro_estatus  , "details of macro playback"                },
+   { YVIKEYS_STATUS  , "hint"         , yvikeys_hint_status    , "details of hint environment"              },
    { YVIKEYS_STATUS  , "record"       , yvikeys_macro_rstatus  , "details of macro recording"               },
    { YVIKEYS_STATUS  , "sreg"         , yvikeys_sreg_status    , "details of current source register" },
    { YVIKEYS_STATUS  , "sundo"        , yvikeys_sundo_status   , "source editing undo stack" },

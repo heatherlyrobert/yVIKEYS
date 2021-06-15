@@ -35,8 +35,8 @@
 
 #define     P_VERMAJOR  "1.-- = working for everyday use, features still evolving but stable"
 #define     P_VERMINOR  "1.5- = updates to support developing application"
-#define     P_VERNUM    "1.5a"
-#define     P_VERTXT    "updated ncurses color handling with yCOLOR improvements"
+#define     P_VERNUM    "1.5b"
+#define     P_VERTXT    "broke out hint and made dramatic improvements, unit testing"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -71,13 +71,29 @@
 #include    <yGOD.h>               /* heatherly opengl godview                */
 #include    <yPARSE.h>             /* heatherly file reading and writing      */
 #include    <yREGEX.h>             /* heatherly regular expressions           */
+#include    <yDLST_solo.h>         /* heatherly double-doubly linked-list     */
 
 
 
+extern char    (*s_searcher)   (char *a_search);
+extern char    (*s_unsearcher) (int b, int x, int y, int z);
+extern char    (*s_hinter)     (char *a_hint);
+extern char    (*s_unhinter)   (int b, int x, int y, int z);
 
 
 
-typedef struct timespec  tTSPEC;
+typedef   struct timespec  tTSPEC;
+typedef   struct   cFIND   tFIND;
+struct cFIND {
+   char        mode;
+   char       *label;
+   int         b_pos;
+   int         x_pos;
+   int         y_pos;
+   int         z_pos;
+   tFIND      *m_prev;
+   tFIND      *m_next;
+};
 
 
 /*===[[ RATIONAL LIMITS ]]====================================================*/
@@ -578,28 +594,71 @@ char        SRC_INPT_umode             (int  a_major, int  a_minor);
 char        WANDER_smode            (int  a_major, int  a_minor);
 
 
-/*345678901-12345678901-12345678901-1234-12345678901-12345678901-12345678901-1*/
-char        yvikeys_mark_init            (void);
-char        yvikeys_mark__valid          (char a_abbr);
-int         yvikeys_mark__index          (char a_abbr);
-char        yvikeys_mark__abbr           (int  a_index);
-char        yvikeys_mark__find           (char *a_label);
-char        yvikeys_mark__which          (void);
-char        yvikeys_mark__set            (char a_mark);
-char        yvikeys_mark__unset          (char a_mark);
-char        yvikeys_mark__return         (char a_mark);
-char*       yvikeys_mark__unit           (char *a_question, char a_mark);
-char        yvikeys_mark_writer          (int c, char a_abbr);
-char        yvikeys_mark_writer_all      (void);
-char        yvikeys_mark_reader          (void);
-char        yvikeys_mark_direct          (char *a_string);
-char        yvikeys_mark_info            (char *a_entry, int a_index);
-char        yvikeys_mark_listplus        (char *a_list);
-char        yvikeys_mark_status          (char *a_status);
-char        yvikeys_mark_smode           (int a_major, int a_minor);
 
+/*===[[ MARK.C ]]=============================================================*/
+/*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
+/*---(program)--------------*/
+char        yvikeys_mark_init       (void);
+char        yvikeys_mark__purge     (char a_scope);
+/*---(support)--------------*/
+char        yvikeys_mark__valid     (char a_abbr);
+int         yvikeys_mark__index     (char a_abbr);
+/*---(setting)--------------*/
+char        yvikeys_mark__history   (void);
+char        yvikeys_mark__set       (char a_mark);
+char        yvikeys_mark__unset     (char a_mark);
+char        yvikeys_mark__return    (char a_mark);
+/*---(finding)--------------*/
+char        yvikeys_mark__which     (void);
+char        yvikeys_mark__find      (char *a_label);
+/*---(sequence)-------------*/
+char        yvikeys_mark__range     (void);
+char        yvikeys_mark__prev      (void);
+char        yvikeys_mark__next      (void);
+/*---(status)---------------*/
+char        yvikeys_mark_info       (char *a_entry, int a_index);
+char        yvikeys_mark_status     (char *a_status);
+char        yVIKEYS_hint_marklist   (char *a_list);
+char        yvikeys_mark_listplus   (char *a_list);
+/*---(file)-----------------*/
+char        yvikeys_mark_writer     (int c, char a_abbr);
+char        yvikeys_mark_writer_all (void);
+char        yvikeys_mark_reader     (void);
+/*---(command)--------------*/
+char        yvikeys_mark_direct     (char *a_string);
+/*---(mode)-----------------*/
+char        yvikeys_mark_smode      (int a_major, int a_minor);
+/*---(unittest)-------------*/
+char*       yvikeys_mark__unit      (char *a_question, char a_mark);
+/*---(done)-----------------*/
+/*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
+
+
+
+
+/*===[[ MARK.C ]]=============================================================*/
 /*345678901-12345678901-12345678901-1234-12345678901-12345678901-12345678901-1*/
-char        yvikeys_hint_init            (void);
+/*---(program)--------------*/
+char        yvikeys_hint_init       (void);
+char        yVIKEYS_hint_config     (void *a_hinter, void *a_unhinter);
+char        yvikeys_hint_purge      (void);
+char        yvikeys_hint_wrap       (void);
+/*---(search)---------------*/
+char        yvikeys_hint_by_cursor  (char a_move, tFIND **r_curr);
+char        yvikeys_hint_by_index   (int a_index, tFIND **r_curr);
+char        yvikeys_hint_list       (char *a_list);
+int         yvikeys_hint_count      (void);
+char        yvikeys_hint_curr       (char *a_label);
+/*---(execute)--------------*/
+char        yVIKEYS_hint_found      (char *a_label, int b, int x, int y, int z);
+char        yvikeys_hint_direct     (char *a_hint);
+/*---(drawing)--------------*/
+char        yVIKEYS_hinting         (void);
+char        yvikeys_hint_status     (char *a_list);
+/*---(unittest)-------------*/
+char        yvikeys__unit_hinter    (char *a_hint);
+char        yvikeys__unit_unhinter  (int b, int x, int y, int z);
+/*---(done)-----------------*/
 
 
 /*---(program)--------------*/
@@ -696,16 +755,32 @@ char        yvikeys_cmds__writer_all(void);
 /*---(search)---------------*/
 int         SRCH_find_abbr          (char a_abbr);
 char        yvikeys_srch_init       (void);
-char        yvikeys_srch__purge     (void);
+char        yvikeys_srch__purge     (char a_mode);
+char        yvikeys_srch_purge      (void);
+char        yvikeys_tags_purge      (void);
 char        SRCH__exec              (void);
-char        yvikeys_srch_cursor     (char a_move);
+char        yvikeys_srch__found     (char a_mode, char *a_label, int a_buf, int x, int y, int z);
+char        yvikeys_srch__by_cursor (char a_mode, char a_move, void **r_curr);
+char        yvikeys_srch__by_index  (char a_mode, int a_index, tFIND **r_curr);
+char        yvikeys_srch_by_cursor  (char a_move, tFIND **r_curr);
+char        yvikeys_tags_by_cursor  (char a_move, tFIND **r_curr);
+char        yvikeys_srch_by_index   (int a_index, tFIND **r_curr);
+char        yvikeys_tags_by_index   (int a_index, tFIND **r_curr);
 char        yvikeys_srch_exec       (uchar *a_search, int *a_found);
+int         yvikeys_srch__count     (char a_mode);
+char        yvikeys_srch__curr      (char a_mode, char *a_label);
 /*---(unit testing)---------*/
 char        SRCH__unit_null         (void);
 char        SRCH__unit_searcher     (char *a_search);
 char        SRCH__unit_clearer      (char *a_label);
 char*       SRCH__unit              (char *a_question, char a_index);
 char*       MENU__unit              (char *a_question, char *a_path);
+
+
+char        yvikeys__unit_hinter    (char *a_hint);
+char        yvikeys__unit_unhinter  (int b, int x, int y, int z);
+
+
 
 
 char        yvikeys_menu__fix_path  (uchar *a_path, int *a_len, uchar *a_fixed);
@@ -838,9 +913,9 @@ char        yvikeys_hist__write     (int c, char a_mode, char a_abbr);
 char        yvikeys_hist__writer    (char a_mode);
 char        yvikeys_cmds_writer     (void);
 char        yvikeys_srch_writer     (void);
-char        yvikeys_hist__reader    (char a_mode);
-char        yvikeys_cmds_reader     (void);
-char        yvikeys_srch_reader     (void);
+char        yvikeys_hist__reader    (char a_mode, int n, char *a_verb);
+char        yvikeys_cmds_reader     (int n, char *a_verb);
+char        yvikeys_srch_reader     (int n, char *a_verb);
 /*---(display)------------------------*/
 char        yvikeys_hist_limits     (char a_mode, int *a_min, int *a_max);
 char        yvikeys_hist__entry     (uchar *a_entry, int a_max, char a_type);

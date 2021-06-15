@@ -34,6 +34,7 @@
 #define     XMOD_UNITS     'K'    /* content units for scaling                */
 #define     XMOD_OBJECT    'o'    /* object formatting                        */
 #define     SMOD_HINT      ';'    /* hint labels                              */
+#define     SMOD_TAGS      '+'    /* grouping tags                            */
 #define     SMOD_MACRO     '@'    /* macro processing                         */
 #define     UMOD_SENDKEYS  'k'    /* sending keys (but pacing them)           */
 #define     SMOD_MENUS     'g'    /* show menu system (gui)                   */
@@ -286,7 +287,7 @@ char        yVIKEYS_dump_add        (char *a_name, void *a_provider);
 char        yVIKEYS_args            (int argc, char *argv[]);
 uchar       yVIKEYS_main_input      (char  a_runmode, uchar a_key);
 uchar       yVIKEYS_main_handle     (uchar a_key);
-uchar       yVIKEYS_main_string     (uchar *a_keys);
+char        yVIKEYS_main_string     (uchar *a_keys);
 char        yVIKEYS_main            (char *a_delay, char *a_update, void *a_altinput ());
 
 char*       yVIKEYS__unit           (char *a_question, int a_num);
@@ -393,8 +394,9 @@ char        yVIKEYS_progress_mask   (void *a_bounds, void *a_context, int a_wide
 char        yVIKEYS_masking         (void *a_bounds, void *a_context);
 
 /*---(search)---------------*/
-char        yVIKEYS_srch_config     (void *a_searcher, void *a_clearer);
-char        yVIKEYS_srch_found      (char *a_label, int a_buf, int x, int y, int z);
+char        yVIKEYS_srch_config     (void *a_searcher, void *a_unsearcher);
+char        yVIKEYS_srch_found      (char *a_label, int b, int x, int y, int z);
+char        yVIKEYS_tags_found      (char *a_label, int b, int x, int y, int z);
 char        yVIKEYS_srch_direct     (char *a_search);
 int         yVIKEYS_srch_count      (void);
 
@@ -411,9 +413,14 @@ char        yVIKEYS_mreg_inside     (int b, int x, int y, int z);
 /*---(unit testing)---------*/
 char        yVIKEYS_unit_reset      (void);
 
-char        yVIKEYS_hint_config     (void *a_hinter);
-char        yVIKEYS_hint_direct     (char *a_hint);
+char        yVIKEYS_hint_config     (void *a_hinter, void *a_unhinter);
+char        yVIKEYS_hint_found      (char *a_label, int b, int x, int y, int z);
 char        yVIKEYS_hinting         (void);
+
+char        yVIKEYS_tags_config     (void *a_tagger, void *a_untagger);
+char        yVIKEYS_tags_direct     (char *a_tag);
+char        yVIKEYS_tagging         (void);
+
 
 #endif
 /*============================----end-of-source---============================*/

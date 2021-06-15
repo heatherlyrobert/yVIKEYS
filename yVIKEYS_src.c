@@ -322,7 +322,7 @@ SOURCE__accept          (void)
       break;
    case SMOD_HINT    :
       DEBUG_EDIT   yLOG_note    ("execute hint");
-      rc = yVIKEYS_hint_direct (s_cur->contents);
+      rc = yvikeys_hint_direct (s_cur->contents);
       strlcpy (s_cur->contents, "", LEN_RECD);
       break;
    case MODE_SEARCH  :

@@ -835,12 +835,11 @@ char yvikeys_cmds_writer  (void) { return yvikeys_hist__writer (MODE_COMMAND); }
 char yvikeys_srch_writer  (void) { return yvikeys_hist__writer (MODE_SEARCH ); }
 
 char
-yvikeys_hist__reader         (char a_mode)
+yvikeys_hist__reader         (char a_mode, int n, char *a_verb)
 {
    /*---(locals)-----------+-----------+-*/
    char        rce         =  -11;
    char        rc          =    0;
-   char        x_verb      [LEN_LABEL];
    char        x_abbr      =    0;
    char        x_text       [LEN_RECD ];
    /*---(header)-------------------------*/
@@ -854,14 +853,14 @@ yvikeys_hist__reader         (char a_mode)
    /*---(switcher)-----------------------*/
    yvikeys_hist__switcher (a_mode, '-');
    /*---(get verb)-----------------------*/
-   rc = yPARSE_popstr (x_verb);
-   DEBUG_INPT   yLOG_value   ("pop verb"  , rc);
-   DEBUG_INPT   yLOG_info    ("x_verb"    , x_verb);
-   --rce;  if (a_mode == MODE_SEARCH  && strcmp ("search" , x_verb) != 0) {
+   /*> rc = yPARSE_popstr (x_verb);                                                   <*/
+   /*> DEBUG_INPT   yLOG_value   ("pop verb"  , rc);                                  <*/
+   DEBUG_INPT   yLOG_info    ("a_verb"    , a_verb);
+   --rce;  if (a_mode == MODE_SEARCH  && strcmp ("search" , a_verb) != 0) {
       DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   --rce;  if (a_mode == MODE_COMMAND && strcmp ("command", x_verb) != 0) {
+   --rce;  if (a_mode == MODE_COMMAND && strcmp ("command", a_verb) != 0) {
       DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
@@ -894,8 +893,8 @@ yvikeys_hist__reader         (char a_mode)
    return 1;
 }
 
-char yvikeys_cmds_reader (void) { return yvikeys_hist__reader  (MODE_COMMAND); }
-char yvikeys_srch_reader (void) { return yvikeys_hist__reader  (MODE_SEARCH ); }
+char yvikeys_cmds_reader (int n, char *a_verb) { return yvikeys_hist__reader  (MODE_COMMAND, n, a_verb); }
+char yvikeys_srch_reader (int n, char *a_verb) { return yvikeys_hist__reader  (MODE_SEARCH , n, a_verb); }
 
 
 
@@ -1245,7 +1244,7 @@ yvikeys_hist_exec       (char a_mode)
       return 0;
    }
    /*---(clear results)------------------*/
-   if (a_mode == MODE_SEARCH)  yvikeys_srch__purge  ();
+   if (a_mode == MODE_SEARCH)  yvikeys_srch_purge  ();
    if (s_len <= 0) {
       DEBUG_HIST   yLOG_note    ("empty content string, leaving");
       DEBUG_HIST   yLOG_exit    (__FUNCTION__);
@@ -1253,7 +1252,7 @@ yvikeys_hist_exec       (char a_mode)
    }
    if (s_len == 1 && strcmp (s_current, x_clear) == 0) {
       DEBUG_HIST   yLOG_note    ("request to clear");
-      if (x_clear [0] = MODE_SEARCH)  yvikeys_srch__purge ();
+      if (x_clear [0] = MODE_SEARCH)  yvikeys_srch_purge ();
       DEBUG_HIST   yLOG_exit    (__FUNCTION__);
       return 0;
    }

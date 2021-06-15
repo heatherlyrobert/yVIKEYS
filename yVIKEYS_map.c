@@ -2489,7 +2489,7 @@ yvikeys_map_mode        (uchar a_major, uchar a_minor)
          return rc;
       }
       if (strchr (g_search, a_minor) != 0) {
-         rc = yvikeys_srch_cursor (a_minor);
+         rc = yvikeys_srch_by_cursor (a_minor, NULL);
          if (rc >= 0) {
             yvikeys__screen (&g_xmap);
             yvikeys__screen (&g_ymap);

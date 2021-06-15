@@ -152,17 +152,17 @@ common denominator, or choose badass and productive.
 
 .B adding mathmatical charcters
    type \\ first, then one of the latin characters below
-   ß Ý Þ æ    Ë Ì Í    Î Æ Ç È É Ê    À Á Â Ã Ä Å    ¸ ¹ º » ¼ ½
-   / < > ~    # a r    1 2 3 4 x y    5 6 7 8 9 z    ( ) [ ] { }
+   ß Ü Ý Þ ±    Ë Ì Í    Î Æ Ç È É Ê    À Á Â Ã Ä Å    ¸ ¹ º » ¼ ½
+   ~ < > / $    # a r    1 2 3 4 x y    5 6 7 8 9 z    ( ) [ ] { }
 
 .B adding other useful characters
    type \\ first, then one of the latin characters below
-   · ´ Ï    ¢ ¡    Ô Ó Ö Õ    Ð Ñ Ò    ® ¯    å ± ¬    ²
-   s ' @    ? !    j k h l    & | ^    : %    = $ *    <sp>
+   · ´ Ï    ¢ ¡    Ô × Ö Õ    Ð Ñ Ò Ó    ® ¯    ¬    ²
+   s ' @    ? !    j k h l    & | v i    : %    *    <sp>
 
    type \\_ first, then one of the latin characters below
-   × Ø    ° Ù Ú Û Ü ç    à á â ã ä
-   a e    t i p f c o    j k h l m
+   ä à á â ã    Ø Ù    ° ç Û Ú      › ­ ˜     å æ
+   a q x h m    u l    t r f i    e d b s o    [ ]
 
 .SH MAP mode (movements)
 
@@ -561,44 +561,40 @@ flattening, and shared macro library.
 .B definition (D).  
 hints are short
 .I labels/nicknames
-to allow efficient keyboard-driven targeting within volumous screen content
-which would otherwise require careful use of a pointing device.
+for locations allowing efficient keyboard-driven targeting within volumous content.
 
 .B source/prototype (S).  
-the firefox extension called vimperator which appears to derive from an earlier
-extention called "hit-a-hint".  the ability i love is called extended hints.
+my contact was in the firefox extension called vimperator.  the ability i
+love is called extended hints.
 
 .B core idea (I).  
-generally, two- or three-letter random hints, e.g., aa-zz, are shown next to
-all screen content which can then be specifically referred to by those hints,
-or nicknames.
+generally, displaying two- or three-letter random hints, e.g., aa-zz, next to
+all screen content as nicknames.
 
 .B application (A).  
-hints are most useful with a lot of data (30+ items) which are otherwise hard to
-specifically identify.  small groups of data should just use normal cursoring.
+hints are most useful with a lot of data (30+ items) or content is otherwise
+hard to specifically identify.
 
 .B value (V).  
 totally avoids the slow use of a pointing device or lots of repeat cursor
-movements.  and, no more close misses.  this is a direct movement to a
-specific location.
+movements.  no more close misses (apple nightmare).
 
 .B complication (C).  
-this is an uncommon feature.  most users have never had this ability and so
-are are not versed in its use and would likely not understand the value.
+this is an uncommon feature.  it also requires some screen real-estate and
+layout planning.  most folks, forget about it.
 
 .B answer (A).  
 i will standardize "mostly" on the excellent vimperator extended hints
-interface and make it absolutely universal.  this is a very, very powerful
-feature if adapted everywhere.
+interface and make it absolutely universal.
 
 .SS ---full capabilities------------------------------------------------------
 
-.B general mark list (62 primary, plus previous and special)
+.B general hint list (any two or three character combintations)
    aa - zz   general location hints (default range)
    * can also be 2b6, water, X, joe, è7, or any other combination
 
 .B invocation of sub-mode
-   ;         identify a mark
+   ;         enter hint mode
    ¥         exits sub-mode early and forgets action
 
 .B focusing on hints
@@ -613,8 +609,9 @@ feature if adapted everywhere.
    ;.¦       go back to the current sub-hint
    ;>¦       go to the next sub-hint
    ;]¦       go to the last sub-hint
+   ** cursor will bounce at ends to try and be useful
 
-.B extended hints actions (potential, future)
+.B extended hints actions (FUTURE POSSIBILITY)
    ;;´´¦     select and focus
    ;s´´¦     save link destination
    ;f´´¦     focus and center
@@ -628,13 +625,11 @@ feature if adapted everywhere.
    ;t´´¦     open in another tab
    ;w´´¦     open in another window
 
-.B showing and debugging all hints
-   ;?¦       show hint information window
-   ;!¦       shows hints as the status line (:status hint)
-
-.B overriding to force specific hints ???
-   ;>joe¦    current hint can also be called ¶joe¶
-   ;<joe¦    set back to default
+.B creating custom labels (FUTURE POSSIBLITY)
+   ;>joe¦    current position will be called ¶joe¶
+   ;#joe¦    remove the custom label called ¶joe¶
+   ;;;       brings up a list of custom labels
+   ** custom labels are saved with files, just like commands/searches
 
 
 

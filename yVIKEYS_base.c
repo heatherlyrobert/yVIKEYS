@@ -138,6 +138,8 @@ yVIKEYS_wrap         (void)
    DEBUG_PROG   yLOG_note    ("layer done");
    yvikeys_cmds_wrap    ();
    DEBUG_PROG   yLOG_note    ("commands done");
+   yvikeys_hint_wrap ();
+   DEBUG_PROG   yLOG_note    ("hints done");
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
 }
@@ -994,10 +996,10 @@ yVIKEYS_main_handle     (uchar a_key)
    x_savemode = MODE_curr ();
    /*---(complete)-----------------------*/
    DEBUG_LOOP   yLOG_exit    (__FUNCTION__);
-   return 0;
+   return rc;
 }
 
-uchar        /*-> process input string in main loop --[ ------ [ge.C74.153.42]*/ /*-[02.0000.00#.D]-*/ /*-[--.---.---.--]-*/
+char         /*-> process input string in main loop --[ ------ [ge.C74.153.42]*/ /*-[02.0000.00#.D]-*/ /*-[--.---.---.--]-*/
 yVIKEYS_main_string  (uchar *a_keys)
 {
    /*---(locals)-----------+-----------+-*/
@@ -1064,7 +1066,7 @@ yVIKEYS_main_string  (uchar *a_keys)
    DEBUG_LOOP   yLOG_note    ("main loop done");
    /*---(complete)-----------------------*/
    DEBUG_LOOP   yLOG_exit    (__FUNCTION__);
-   return 0;
+   return rc;
 }
 
 char         /*-> handle main loop for ncurses -------[ ------ [gn.842.232.99]*/ /*-[01.0000.000.!]-*/ /*-[--.---.---.--]-*/
