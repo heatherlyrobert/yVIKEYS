@@ -138,6 +138,8 @@ yVIKEYS_wrap         (void)
    DEBUG_PROG   yLOG_note    ("layer done");
    yvikeys_cmds_wrap    ();
    DEBUG_PROG   yLOG_note    ("commands done");
+   yvikeys_srch_wrap ();
+   DEBUG_PROG   yLOG_note    ("search done");
    yvikeys_hint_wrap ();
    DEBUG_PROG   yLOG_note    ("hints done");
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
@@ -1064,6 +1066,7 @@ yVIKEYS_main_string  (uchar *a_keys)
       /*---(done)------------------------*/
    }
    DEBUG_LOOP   yLOG_note    ("main loop done");
+   if (rc >= 0)  rc = 0;
    /*---(complete)-----------------------*/
    DEBUG_LOOP   yLOG_exit    (__FUNCTION__);
    return rc;

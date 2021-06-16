@@ -35,8 +35,8 @@
 
 #define     P_VERMAJOR  "1.-- = working for everyday use, features still evolving but stable"
 #define     P_VERMINOR  "1.5- = updates to support developing application"
-#define     P_VERNUM    "1.5b"
-#define     P_VERTXT    "broke out hint and made dramatic improvements, unit testing"
+#define     P_VERNUM    "1.5d"
+#define     P_VERTXT    "mark logic improved and uses shared logic now, unit testing"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -182,7 +182,6 @@ struct cSHARED {
    char        p_debug; 
    char        p_redraw;                    /* force redraw based on changes  */
    /*---(marks)-----------*/
-   char        mark_show;      /* show temporary marks (y/n)                    */
    char        info_win;
    /*---(font)------------*/
    char        env;                         /* opengl vs ncurses              */
@@ -618,12 +617,12 @@ char        yvikeys_mark__next      (void);
 /*---(status)---------------*/
 char        yvikeys_mark_info       (char *a_entry, int a_index);
 char        yvikeys_mark_status     (char *a_status);
-char        yVIKEYS_hint_marklist   (char *a_list);
+char        yvikeys_mark_marklist   (char *a_list);
 char        yvikeys_mark_listplus   (char *a_list);
 /*---(file)-----------------*/
 char        yvikeys_mark_writer     (int c, char a_abbr);
 char        yvikeys_mark_writer_all (void);
-char        yvikeys_mark_reader     (void);
+char        yvikeys_mark_reader     (int n, char *a_verb);
 /*---(command)--------------*/
 char        yvikeys_mark_direct     (char *a_string);
 /*---(mode)-----------------*/
@@ -752,35 +751,45 @@ char        yvikeys_cmds__parse     (uchar *a_string);
 char        yvikeys_cmds__reader    (void);
 char        yvikeys_cmds__writer    (char a_abbr);
 char        yvikeys_cmds__writer_all(void);
-/*---(search)---------------*/
-int         SRCH_find_abbr          (char a_abbr);
+
+/*---(program)--------------*/
 char        yvikeys_srch_init       (void);
+char        yVIKEYS_srch_config     (void *a_searcher, void *a_unsearcher);
 char        yvikeys_srch__purge     (char a_mode);
 char        yvikeys_srch_purge      (void);
-char        yvikeys_tags_purge      (void);
-char        SRCH__exec              (void);
-char        yvikeys_srch__found     (char a_mode, char *a_label, int a_buf, int x, int y, int z);
+char        yvikeys_srch_wrap       (void);
+/*---(search)---------------*/
 char        yvikeys_srch__by_cursor (char a_mode, char a_move, void **r_curr);
 char        yvikeys_srch__by_index  (char a_mode, int a_index, tFIND **r_curr);
 char        yvikeys_srch_by_cursor  (char a_move, tFIND **r_curr);
-char        yvikeys_tags_by_cursor  (char a_move, tFIND **r_curr);
 char        yvikeys_srch_by_index   (int a_index, tFIND **r_curr);
-char        yvikeys_tags_by_index   (int a_index, tFIND **r_curr);
 char        yvikeys_srch_exec       (uchar *a_search, int *a_found);
 int         yvikeys_srch__count     (char a_mode);
+int         yvikeys_srch_count      (void);
 char        yvikeys_srch__curr      (char a_mode, char *a_label);
+/*---(program)--------------*/
+char        yvikeys_srch_direct     (char *a_search);
+char        yvikeys_srch__found     (char a_mode, char *a_label, int a_buf, int x, int y, int z);
+char        yVIKEYS_srch_found      (char *a_label, int b, int x, int y, int z);
+/*---(files)----------------*/
+char        yvikeys_srch_writer     (void);
+char        yvikeys_srch_reader     (int n, char *a_verb);
+/*---(display)--------------*/
+char        yvikeys_srch_status     (char *a_list);
 /*---(unit testing)---------*/
-char        SRCH__unit_null         (void);
-char        SRCH__unit_searcher     (char *a_search);
-char        SRCH__unit_clearer      (char *a_label);
-char*       SRCH__unit              (char *a_question, char a_index);
-char*       MENU__unit              (char *a_question, char *a_path);
+char        yvikeys__unit_searcher  (char *a_search);
+char        yvikeys__unit_unsearcher(char *a_label);
+char*       yvikeys_srch__unit      (char *a_question, char a_index);
+/*---(done)-----------------*/
 
 
 char        yvikeys__unit_hinter    (char *a_hint);
 char        yvikeys__unit_unhinter  (int b, int x, int y, int z);
 
 
+char        yvikeys_tags_purge      (void);
+char        yvikeys_tags_by_cursor  (char a_move, tFIND **r_curr);
+char        yvikeys_tags_by_index   (int a_index, tFIND **r_curr);
 
 
 char        yvikeys_menu__fix_path  (uchar *a_path, int *a_len, uchar *a_fixed);
@@ -912,10 +921,8 @@ char        yvikeys_hist_exec       (char a_mode);
 char        yvikeys_hist__write     (int c, char a_mode, char a_abbr);
 char        yvikeys_hist__writer    (char a_mode);
 char        yvikeys_cmds_writer     (void);
-char        yvikeys_srch_writer     (void);
 char        yvikeys_hist__reader    (char a_mode, int n, char *a_verb);
 char        yvikeys_cmds_reader     (int n, char *a_verb);
-char        yvikeys_srch_reader     (int n, char *a_verb);
 /*---(display)------------------------*/
 char        yvikeys_hist_limits     (char a_mode, int *a_min, int *a_max);
 char        yvikeys_hist__entry     (uchar *a_entry, int a_max, char a_type);

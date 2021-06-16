@@ -369,21 +369,35 @@ commands which parallel vi/vim's version.
 
 
 
-.SH SEARCH mode
+.SH SEARCH (mode)
 .SS ---basics---------------------------------------------------------
 /´´´¦      perform a regular expression search of diplayed text
 .SS ---overview-------------------------------------------------------
-.B situation (S).  
-using content/attributes to identify an entry/object or related group of them
-is fundamental to almost every application.
+.B definition (D).  
+searches are 
+.I regex-based
+text matching across all applicable content, visible or not, to find matches.
+
+.B source/prototype (S).  
+vim merged the classic posix unix/linux regex searches with interactive
+cursoring to make them useful.
+
+.B application (A).  
+searches are most useful in volumous content that can not be reliably scanned
+in a time-efficent manner.
+
+.B value (V).  
+searches can be quickly performed, honed, repeated, and then cursored to make
+them extraordinarily useful.
 
 .B complication (C).  
-very few applications provide any serious search capability, especially one
-that can navigate and manipulate them.
+most users never perform true searches other than simple wildcards, so this
+regex capability is jetsons to them
 
 .B answer (A).  
-i will standardize on a vim-like search line that uses regular expressions
-and standard input and source modes.
+i will standardize "mostly" on the excellent vim searching and cursoring
+interface and make it absolutely universal.
+
 .SS ---full capabilities----------------------------------------------
 
 .B invoking/exiting the mode
@@ -391,22 +405,20 @@ and standard input and source modes.
    ¦          executes immediately, returns to the prev mode
    ¥          from search (not input), forgets search, exits
 
-.B mode structure
-   source     search acts exactly like source mode (all keys, regs)
-   input      edit keys (IiAaRr) change to input, ¥ returns, ¦ runs
-   history    /// exits input to source, then brings up history
-
 .B basics
    /¦         clear the search findings
    /´´´¦      extended regex search (heatherly variant)
-   /!´´´¦     literal search, no special characters
-   ¥          from input mode, back to source mode
 
 .B map-mode keys to navigate found items
    [          first entry
    <          previous entry                          [vim is n      ]
    >          next entry                              [vim is N      ]
    ]          last entry
+
+.B entering and editing a search (exactly like commands)
+   /          puts the user in standard input mode automatically
+   ¥          brings the user into standard source (editing) mode
+   IiAaRr...  return to standard input mode
 
 .B history
    //¦        re-run the last search executed (same as //0¦)
@@ -418,9 +430,14 @@ and standard input and source modes.
    //¢¦       re-run the search marked as ¢
    /¿u¢¦      unmark search presently marked as ¢
 
-.B input and editing
-   input is done with standard umode, including special characters
-   editing is done with standard mode, including selection, buffers
+.B complex searches (FUTURE POSSIBILITY)
+   /&´´´¦     merges AND phrase with the current search
+   /|´´´¦     merges OR phrase with the current search
+   //&a       merges save search 'a' with current as AND
+   //|b       merges save search 'b' with current as OR
+
+.B complex regex (FUTURE POSSIBILITY)
+   Ð Ô Ñ Õ Ò Ó  instead of just & and |
 
 
 
@@ -598,8 +615,6 @@ interface and make it absolutely universal.
    ¥         exits sub-mode early and forgets action
 
 .B focusing on hints
-   ;+¦       show hint labels next to objects
-   ;-¦       hide object hint labels (default)
    ;¦        clear current hint selection
    ;;be¦     focus on hint "be"
 
@@ -610,6 +625,11 @@ interface and make it absolutely universal.
    ;>¦       go to the next sub-hint
    ;]¦       go to the last sub-hint
    ** cursor will bounce at ends to try and be useful
+
+.B showing and debugging
+   ;+¦       show hint labels next to objects
+   ;-¦       hide object hint labels (default)
+   ;!¦       show hint status on status bar
 
 .B extended hints actions (FUTURE POSSIBILITY)
    ;;´´¦     select and focus
@@ -849,9 +869,10 @@ port from vimperator.
    :mark clear¦    unset all lower case marks
    :mark purge¦    unset all-all marks
 
-.B showing and debugging all marks
+.B showing and debugging
    m! '!      shows marks as the status line (:status mark)
-   m_ '_      show/hide mark visual highlighting
+   m+ '+      show mark visual highlighting
+   m- '-      hide mark visual highlighting
 
 .B limits/warnings
    changes to marks can not be undone (they are simple/quick)

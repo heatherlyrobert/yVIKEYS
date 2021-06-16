@@ -267,6 +267,25 @@ tMAPPED     g_zmap;
 /*---(done)---------------------------*/
 
 
+
+#define     HAS_MARK(a)        a & 1
+#define     SET_MARK(a)        a |= 1
+#define     NOT_MARK(a)        a &= ~1
+
+#define     HAS_HINT(a)        a & 2
+#define     SET_HINT(a)        a |= 2
+#define     NOT_HINT(a)        a &= ~2
+
+#define     HAS_SRCH(a)        a & 4
+#define     SET_SRCH(a)        a |= 4
+#define     NOT_SRCH(a)        a &= ~4
+
+#define     HAS_INCL(a)        a & 8
+#define     SET_INCL(a)        a |= 8
+#define     NOT_INCL(a)        a &= ~8
+
+
+
 extern char yVIKEYS_ver     [500];
 
 /*===[[ FUNCTION PROTOTYPES ]]================================================*/
@@ -397,8 +416,6 @@ char        yVIKEYS_masking         (void *a_bounds, void *a_context);
 char        yVIKEYS_srch_config     (void *a_searcher, void *a_unsearcher);
 char        yVIKEYS_srch_found      (char *a_label, int b, int x, int y, int z);
 char        yVIKEYS_tags_found      (char *a_label, int b, int x, int y, int z);
-char        yVIKEYS_srch_direct     (char *a_search);
-int         yVIKEYS_srch_count      (void);
 
 /*---(files)----------------*/
 char        yVIKEYS_whoami          (char *a_full, char *a_vernum, char *a_vertxt, char *a_namesake, char *a_ext, char *a_filetype, void *a_handlers, void *a_prepper, void *a_finisher);
@@ -416,6 +433,8 @@ char        yVIKEYS_unit_reset      (void);
 char        yVIKEYS_hint_config     (void *a_hinter, void *a_unhinter);
 char        yVIKEYS_hint_found      (char *a_label, int b, int x, int y, int z);
 char        yVIKEYS_hinting         (void);
+
+char        yVIKEYS_marking         (char *a_label);
 
 char        yVIKEYS_tags_config     (void *a_tagger, void *a_untagger);
 char        yVIKEYS_tags_direct     (char *a_tag);

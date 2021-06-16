@@ -327,7 +327,7 @@ SOURCE__accept          (void)
       break;
    case MODE_SEARCH  :
       DEBUG_EDIT   yLOG_note    ("execute search");
-      rc = yVIKEYS_srch_direct (s_cur->contents);
+      rc = yvikeys_srch_direct (s_cur->contents);
       strlcpy (s_cur->contents, "", LEN_RECD);
       break;
    }

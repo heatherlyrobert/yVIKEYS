@@ -832,7 +832,6 @@ yvikeys_hist__writer    (char a_mode)
 }
 
 char yvikeys_cmds_writer  (void) { return yvikeys_hist__writer (MODE_COMMAND); }
-char yvikeys_srch_writer  (void) { return yvikeys_hist__writer (MODE_SEARCH ); }
 
 char
 yvikeys_hist__reader         (char a_mode, int n, char *a_verb)
@@ -894,7 +893,6 @@ yvikeys_hist__reader         (char a_mode, int n, char *a_verb)
 }
 
 char yvikeys_cmds_reader (int n, char *a_verb) { return yvikeys_hist__reader  (MODE_COMMAND, n, a_verb); }
-char yvikeys_srch_reader (int n, char *a_verb) { return yvikeys_hist__reader  (MODE_SEARCH , n, a_verb); }
 
 
 

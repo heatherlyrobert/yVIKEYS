@@ -204,6 +204,12 @@ yvikeys_hint_direct     (char *a_hint)
       s_hinting = '-';
       strlcpy (x_label, "update", LEN_LABEL);
       break;
+  case '!' :
+      DEBUG_USER   yLOG_note    ("use mark status bar");
+      yVIKEYS_cmds_direct (":status hint");
+      DEBUG_MARK   yLOG_exit    (__FUNCTION__);
+      return rc;
+      break;
    case '[' : case '<' : case '.' : case '>' : case ']' :
       rc = yvikeys_hint_by_cursor (a_hint [1], NULL);
       DEBUG_MARK   yLOG_exit    (__FUNCTION__);
@@ -301,47 +307,6 @@ char
 yvikeys__unit_unhinter  (int b, int x, int y, int z)
 {
    return 0;
-}
-
-char*        /*-> unit test accessor -----------------[ light  [us.940.221.74]*/ /*-[02.0000.00#.#]-*/ /*-[--.---.---.--]-*/
-yvikeys_hint__unit           (char *a_question, char a_mark)
-{
-   /*---(locals)-----------+-----------+-*/
-   char        x_list      [LEN_RECD];
-   int         x_index     = 0;
-   /*---(preprare)-----------------------*/
-   strcpy  (yVIKEYS__unit_answer, "MARK             : question not understood");
-   /*---(defense)------------------------*/
-   /*> switch (a_mark) {                                                                                                                                                                                                                                                                               <* 
-    *> case  0   :                                                                                                                                                                                                                                                                                     <* 
-    *>    x_index = 0;  break;                                                                                                                                                                                                                                                                         <* 
-    *> default   :                                                                                                                                                                                                                                                                                     <* 
-    *>    x_index = yvikeys_mark__index (a_mark);                                                                                                                                                                                                                                                      <* 
-    *>    if (x_index < 0) {                                                                                                                                                                                                                                                                           <* 
-    *>       snprintf (yVIKEYS__unit_answer, LEN_RECD, "MARK invalid     : %c not defined", a_mark);                                                                                                                                                                                                   <* 
-    *>    }                                                                                                                                                                                                                                                                                            <* 
-    *> }                                                                                                                                                                                                                                                                                               <* 
-    *> /+---(questions)----------------------+/                                                                                                                                                                                                                                                        <* 
-    *> if      (strcmp (a_question, "list"        )   == 0) {                                                                                                                                                                                                                                          <* 
-    *>    yvikeys_mark_listplus (x_list);                                                                                                                                                                                                                                                              <* 
-    *>    snprintf (yVIKEYS__unit_answer, LEN_RECD, "MARK list        : %-.80s", x_list);                                                                                                                                                                                                              <* 
-    *> }                                                                                                                                                                                                                                                                                               <* 
-    *> else if (strcmp (a_question, "info"        )   == 0) {                                                                                                                                                                                                                                          <* 
-    *>    snprintf (yVIKEYS__unit_answer, LEN_RECD, "MARK info        : %c %c %-12.12s %4db %4dx %4dy %4dz", a_mark, s_mark_info [x_index].source, s_mark_info [x_index].label, s_mark_info [x_index].b_pos, s_mark_info [x_index].x_pos, s_mark_info [x_index].y_pos, s_mark_info [x_index].z_pos);   <* 
-    *> }                                                                                                                                                                                                                                                                                               <* 
-    *> else if (strcmp (a_question, "range"       )   == 0) {                                                                                                                                                                                                                                          <* 
-    *>    snprintf (yVIKEYS__unit_answer, LEN_RECD, "MARK range       : %c to %c", s_mark_head, s_mark_tail);                                                                                                                                                                                          <* 
-    *> }                                                                                                                                                                                                                                                                                               <*/
-   /*> else if (strcmp (a_question, "mark_entry"  )   == 0) {                         <* 
-    *>    MARK_entry (a_mark, x_list);                                                <* 
-    *>    snprintf (yVIKEYS__unit_answer, LEN_RECD, "MARK entry       :%s:", x_list);          <* 
-    *> }                                                                              <*/
-   /*> else if (strcmp (a_question, "mark_status" )   == 0) {                         <* 
-    *>    yvikeys_mark_status (x_list);                                                       <* 
-    *>    snprintf (yVIKEYS__unit_answer, LEN_RECD, "MARK status      :%s:", x_list);          <* 
-    *> }                                                                              <*/
-   /*---(complete)-----------------------*/
-   return yVIKEYS__unit_answer;
 }
 
 

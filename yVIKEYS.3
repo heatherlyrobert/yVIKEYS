@@ -276,52 +276,63 @@ supports batch use.  only one argument...
 
 .SH HINTS (sub-mode)
 once the yVIKEYS system is initiated, hinting is relatively simple to implement.
-the source application does 90% of the work, yVIKEYS just routes key sequences
-beginning with ";".
+the source application must handle drawing the hints, but most other logic
+is handled in the library.
 
-.SS 1) implement a straw-man handler
-handler has the prototype
-.B char handler (char *a_hint)
-which should return 0 on success, or < 0 on failure.
+.SS 1) implement two straw-man handlers...
+both strawmen can be named whatever you wish, but must return 0 if successful
+and < 0 upon failure.
 
-.SS 2) configure in initialization
-call
-.B yVIKEYS_hint_config (<handler>)
-in the program initialization to route all key sequences beginning with ";"
-to the handler.
+.BI "char hinter    (char *" "a_hint" ") { }"
+      this will later be built out to handle hint requests.
 
-.SS 3) add hint strings to all required objects
-add LEN_SHORT string to the objects, then use ySTR's 
+.BI "char unhinter  (int " "b" ", int " "x" ", int " "y" ", int " "z" ") { }"
+      this will later be built out to handle hint clearing.
+
+.SS 2) configure hint handling during initialization
+this will route specific hint requests to your program.  without this step
+all hint requests will be ignored.
+
+.B yVIKEYS_hint_config (hinter, unhinter);
+
+.SS 3) when building objects, add hints so they are stable
+add LEN_SHORT string to the objects, then use ySTR's strlhint to generate
+hints when an object is created.  also add a char field to indicate if
+object is hinted, marked, and or found in search.
+
 .B strlhint (<seq>, <format>, <hint>)
-to generate hints when an object is created.
+
+.B NOT_HINT (<flag>)   this turns off hint
 
 .SS 4) modify drawing logic to show/hide hints
-use
-.B yVIKEYS_hinting (),
-which returns TRUE if showing, to modify the main window drawing to display
-hints when requested.
+library provides a function to use during drawing which will indicate whether
+to show hints.  it returns TRUE is shown, FALSE if hidden.
+
+.B yVIKEYS_hinting ()
 
 .SS 5) add ability to highlight hints (optional)
-either add flags on the data objects or save the current hint, then highlight
-during the draw cycle.
+use flags on the data objects to check, then highlight during the draw cycle.
+yCOLOR library as a specific color assigned.
 
-.SS 6) build logic to interpret hint requests
-interpret ";;´´¦" as requesting a specific hint, clearing all others, and use 
-.B yVIKEYS_jump (b, x, y, z)
-to go to hint location.
+.B HAS_HINT (<flag>)   this returns TRUE if hinted, FALSE if not.
 
-.SS 7) build function to clear hints
-when handler receives the string ";¦", clear all hints and flags.  also do
-this before setting a new hint.
+.SS 6) add hinter logic to interpret hint requests
+interpret ";;´´¦" as requesting a specific hint and then register specific hint
+or hints.
 
-.SS 8) build hint cursoring (optional)
-if multiple items can be set by a hint, implement logic for ;[ ;< ;. ;> ;]
-movements between these sub-hints.
+.B yVIKEYS_hint_found (a_label, b, x, y, z);
 
-.SS 9) can call hinting directly (optional)
-hinting can be forced directly by calling
-.B yVIKEYS_hint_direct (<string>)
-to simulate keystrokes.
+.B SET_HINT (<flag>)   this turns the hint on
+
+.SS 7) add hinter logic to redraw prepared objects
+handle the hint string "update" as request a redraw if pre-prepared drawing
+strings.  this is only necessary if everything is not drawn real-time,
+otherwise, just ignore.
+
+.SS 8) build unhinter logic to clear a hint
+find an object based on the coordinates and then clear the hint flag.
+
+.B NOT_HINT (<flag>)   this turns off hint
 
 .SH SEARCH
 

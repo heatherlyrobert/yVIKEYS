@@ -12,7 +12,7 @@ static char s_mark_pprev  [LEN_LABEL] = "-";
 
 
 
-#define     S_MARK_MAX       150
+#define     S_MARK_MAX       100
 typedef  struct cMARK  tMARK;
 struct cMARK {
    char        label       [LEN_LABEL];
@@ -22,15 +22,17 @@ struct cMARK {
    int         z_pos;
    char        source;
 };
-tMARK       s_mark_info [S_MARK_MAX];
-static char S_MARK_LIST [S_MARK_MAX];
-static int  s_nmark       = 0;
+static tMARK  s_mark_info [S_MARK_MAX];
+static char   S_MARK_LIST [S_MARK_MAX];
+static int    s_nmark       = 0;
 
 
 #define     MARK_NONE     '-'
 #define     MARK_USER     'u'
 #define     MARK_IMPORT   'i'
 #define     MARK_AUTO     'a'
+
+static char s_marking  = '-';
 
 
 
@@ -65,7 +67,7 @@ yvikeys_mark_init            (void)
    /*---(clear)--------------------------*/
    yvikeys_mark__purge  (YVIKEYS_FULL);
    /*---(globals)------------------------*/
-   myVIKEYS.mark_show = '-';
+   s_marking = '-';
    /*> yVIKEYS_cmds_addX (YVIKEYS_M_EDIT  , "mark"        , ""    , "s"    , yvikeys_mark_direct        , "" );   <*/
    /*> yVIKEYS_view_optionX (YVIKEYS_STATUS, "visual" , yvikeys_mark_status  , "details of visual selection"                );   <*/
    /*---(update status)------------------*/
@@ -536,13 +538,27 @@ yvikeys_mark_status     (char *a_status)
    /*---(status)-------------------------*/
    yvikeys_mark_listplus (x_list);
    c = strldcnt (x_list, ':', LEN_RECD);
-   snprintf (a_status, 500, " %c,%c,%c,%c %2d %s ", myVIKEYS.mark_show, s_mark_head, s_mark_prev, s_mark_tail, c, x_list);
+   snprintf (a_status, 500, "marking  %c  %c  %c  %2d  %-5.5s  %-5.5s  %s", s_marking, s_mark_head, s_mark_tail, c, s_mark_curr, s_mark_prev, x_list);
    /*---(complete)-----------------------*/
    return 0;
 }
 
+char
+yVIKEYS_marking         (char *a_label)
+{
+   char        n           =    0;
+   char        c           =  '-';
+   if (s_marking == 'y') {
+      n = yvikeys_mark__find (a_label);
+      if (n < 0)  return 0;
+      c = S_MARK_LIST [n];
+      return c;
+   }
+   return 0;
+}
+
 char         /*-> tbd --------------------------------[ leaf   [ge.540.142.30]*/ /*-[01.0000.103.!]-*/ /*-[--.---.---.--]-*/
-yVIKEYS_hint_marklist   (char *a_list)
+yvikeys_mark_marklist   (char *a_list)
 {
    /*---(locals)-----------+-----------+-*/
    int         i           = 0;
@@ -653,22 +669,20 @@ yvikeys_mark_writer_all (void)
 }
 
 char
-yvikeys_mark_reader     (void)
+yvikeys_mark_reader     (int n, char *a_verb)
 {
    /*---(locals)-----------+-----------+-*/
    char        rce         =  -11;
    char        rc          =    0;
-   char        x_verb      [LEN_LABEL];
    char        x_abbr      =    0;
-   int         n           =    0;
+   int         c           =    0;
    char        x_label     [LEN_LABEL];
    /*---(header)-------------------------*/
    DEBUG_INPT   yLOG_enter   (__FUNCTION__);
+   DEBUG_INPT   yLOG_value   ("n"         , n);
    /*---(get verb)-----------------------*/
-   rc = yPARSE_popstr (x_verb);
-   DEBUG_INPT   yLOG_value   ("pop verb"  , rc);
-   DEBUG_INPT   yLOG_info    ("x_verb"    , x_verb);
-   --rce;  if (strcmp ("loc_mark", x_verb) != 0) {
+   DEBUG_INPT   yLOG_info    ("a_verb"    , a_verb);
+   --rce;  if (strcmp ("loc_mark", a_verb) != 0) {
       DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
@@ -676,9 +690,9 @@ yvikeys_mark_reader     (void)
    rc = yPARSE_popchar (&x_abbr);
    DEBUG_INPT   yLOG_value   ("pop abbr"  , rc);
    DEBUG_INPT   yLOG_char    ("abbr"      , x_abbr);
-   n  = yvikeys_mark__index (x_abbr);
-   DEBUG_INPT   yLOG_char    ("n"         , n);
-   --rce; if (n < 0) { 
+   c  = yvikeys_mark__index (x_abbr);
+   DEBUG_INPT   yLOG_char    ("c"         , c);
+   --rce; if (c < 0) { 
       DEBUG_OUTP   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
@@ -688,14 +702,14 @@ yvikeys_mark_reader     (void)
    DEBUG_INPT   yLOG_info    ("x_label"   , x_label);
    /*---(save)---------------------------*/
    DEBUG_SRCH   yLOG_note    ("saving values");
-   strlcpy (s_mark_info [n].label, x_label, LEN_LABEL);
-   rc = yvikeys_map_locator (s_mark_info [n].label, &s_mark_info [n].b_pos, &s_mark_info [n].x_pos, &s_mark_info [n].y_pos, &s_mark_info [n].z_pos);
+   strlcpy (s_mark_info [c].label, x_label, LEN_LABEL);
+   rc = yvikeys_map_locator (s_mark_info [c].label, &s_mark_info [c].b_pos, &s_mark_info [c].x_pos, &s_mark_info [c].y_pos, &s_mark_info [c].z_pos);
    --rce;  if (rc < 0) {
       yvikeys_mark__unset (x_abbr);
       DEBUG_MARK   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   s_mark_info [n].source = MARK_IMPORT;
+   s_mark_info [c].source = MARK_IMPORT;
    /*---(complete)-----------------------*/
    DEBUG_INPT  yLOG_exit    (__FUNCTION__);
    return 1;
@@ -852,7 +866,7 @@ yvikeys_mark_smode      (int a_major, int a_minor)
     *>    return 0;                                                                   <* 
     *> }                                                                              <*/
    /*---(common quick)-------------------*/
-   --rce;  if (strchr("#_!", a_minor) != NULL) {
+   --rce;  if (strchr("#!+-", a_minor) != NULL) {
       switch (a_minor) {
       case '#' :
          DEBUG_USER   yLOG_note    ("unset mark under cursor");
@@ -864,10 +878,13 @@ yvikeys_mark_smode      (int a_major, int a_minor)
          }
          yvikeys_mark__unset (rc);
          break;
-      case '_' :
-         DEBUG_USER   yLOG_note    ("toggle mark show and hide");
-         if (myVIKEYS.mark_show == 'y')   myVIKEYS.mark_show = '-';
-         else                             myVIKEYS.mark_show = 'y';
+      case '+' :
+         DEBUG_USER   yLOG_note    ("turn marks visible");
+         s_marking = 'y';
+         break;
+      case '-' :
+         DEBUG_USER   yLOG_note    ("turn marks hidden");
+         s_marking = '-';
          break;
       case '!' :
          DEBUG_USER   yLOG_note    ("use mark status bar");
