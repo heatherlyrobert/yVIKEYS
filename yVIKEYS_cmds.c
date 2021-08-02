@@ -101,6 +101,7 @@ static const tTERMS  s_terms [] = {
    { "cs"    , "char, char*"                },
    { "f"     , "float"                      },
    { "cciiii", "char, char, int, int, int, int"},
+   { "iiii"  , "int, int, int, int"         },
    { "-"    , "-"                           },
 };
 static  int s_nterm  = 0;
@@ -141,6 +142,7 @@ struct  cCMDS {
       char        (*cs   ) (char, char*);
       char        (*f    ) (float);
       char        (*cciiii) (char, char, int, int, int, int);
+      char        (*iiii)  (int, int, int, int);
    } f;
    uchar       terms       [LEN_TERSE];     /* type of terms/args             */
    uchar       desc        [LEN_DESC];      /* descriptive label              */
@@ -211,7 +213,7 @@ static const tCMDS  s_base      [] = {
    { 'b', 'v', "grid"            , ""    , yvikeys_sizes_switch      , "Cs"   , "allow control of individual sceen elements"                  },
    { 'b', 'v', "edges"           , ""    , yvikeys_sizes_switch      , "Cs"   , "allow control of individual sceen elements"                  },
    { 'b', 'v', "guides"          , ""    , yvikeys_sizes_switch      , "Cs"   , "allow control of individual sceen elements"                  },
-   { 'b', 'v', "overlay"         , ""    , yvikeys_sizes_switch      , "Cs"   , "allow control of individual sceen elements"                  },
+   { 'b', 'v', "overlay"         , "o"   , yvikeys_sizes_switch      , "Cs"   , "allow control of individual sceen elements"                  },
    { 'b', 'v', "layers"          , ""    , yvikeys_sizes_switch      , "Cs"   , "allow control of individual sceen elements"                  },
    { 'b', 'v', "notes"           , ""    , yvikeys_sizes_switch      , "Cs"   , "allow control of individual sceen elements"                  },
    { 'b', 'v', "mask"            , ""    , yvikeys_sizes_switch      , "Cs"   , "allow control of individual sceen elements"                  },
@@ -223,7 +225,7 @@ static const tCMDS  s_base      [] = {
    { 'b', 'v', "gridoff"         , ""    , VIEW__grid_offset         , "iii"  , ""                                                            },
    { 'b', 'v', "gridsize"        , ""    , VIEW__grid_size           , "iii"  , ""                                                            },
    { 'b', 'v', "layout"          , ""    , yvikeys_sizes_layout      , "s"    , ""                                                            },
-   { 'b', 'v', "layer"           , ""    , yvikeys_layer_action      , "ss"   , ""                                                            },
+   { 'b', 'v', "layer"           , "l"   , yvikeys_layer_action      , "ss"   , ""                                                            },
    { 'b', 'i', "note"            , ""    , yvikeys_note              , "a"    , "manage screen annotations (notes)"                           },
    /*---(yX11)--------------------------------------------------------------------------------------------------------------------------------*/
    { 'b', 'x', "desktop"         , ""    , yX11_desk_goto            , "c"    , "move between window manager desktops"                        },
@@ -237,7 +239,10 @@ static const tCMDS  s_base      [] = {
    { 'b', 'x', "wingoto"         , ""    , yX11_yvikeys_wingoto      , "c"    , "sendkeys to a specific window"                               },
    { 'b', 'x', "winsend"         , ""    , yX11_yvikeys_winsend      , "cc"   , "sendkeys to a specific window"                               },
    { 'b', 'x', "wintake"         , ""    , yX11_yvikeys_wintake      , "cc"   , "sendkeys to a specific window"                               },
-   { 'b', 'x', "winreset"        , ""    , yX11_reset                , ""     , "reset all desktops, windows, and shortcuts"                  },
+   { 'b', 'x', "mydesk"          , ""    , yX11_yvikeys_mydesk       , "c"    , "change position of current window"                          },
+   { 'b', 'x', "myhome"          , ""    , yX11_yvikeys_myhome       , "ii"   , "change position of current window"                          },
+   { 'b', 'x', "mysize"          , ""    , yX11_yvikeys_mysize       , "ii"   , "change size of current window"                              },
+   { 'b', 'x', "mysizer"         , ""    , yX11_yvikeys_mysizer      , "iiii" , "reset all desktops, windows, and shortcuts"                  },
    /*---(done)--------------------------------------------------------------------------------------------------------------------------------*/
    { 0  , 0  , "-"               , ""    , NULL                      , ""     , ""                                                            },
 };
@@ -405,6 +410,7 @@ yvikeys_cmds__launch      (tLINK *a_link)
    case 16 : rc = a_link->data->f.cs     (s_fields [1][0], s_fields [2]);                                   break;
    case 17 : rc = a_link->data->f.f      (atof (s_fields [1]));                                             break;
    case 18 : rc = a_link->data->f.cciiii (s_fields [1][0], s_fields [2][0], atoi (s_fields [3]), atoi (s_fields [4]), atoi (s_fields [5]), atoi (s_fields [6]));  break;
+   case 19 : rc = a_link->data->f.iiii   (atoi (s_fields [1]), atoi (s_fields [2]), atoi (s_fields [3]), atoi (s_fields [4]));  break;
    default : rc = -1;                                                                                       break;
    }
    /*---(complete)-----------------------*/
@@ -668,7 +674,10 @@ yvikeys_cmds__action    (char a_act, uchar *a_name, char *a_rc)
       /*---(check abbr)------------------*/
       if (x_curr->alen > 0 && x_curr->alen == x_len) {
          if (x_curr->data->abbr [0] == a_name [0]) {
-            if (strcmp (x_curr->data->abbr, a_name) == 0) x_found = 'y';
+            if (strcmp (x_curr->data->abbr, a_name) == 0) {
+               x_found = 'y';
+               strcpy (s_fields [0], x_curr->data->name);
+            }
          }
       }
       /*---(check name)------------------*/

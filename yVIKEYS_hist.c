@@ -325,9 +325,9 @@ yvikeys_hist_init       (void)
    /*---(macro abbrev list)--------------*/
    DEBUG_HIST   yLOG_note    ("initialize hist list");
    strlcpy (S_HIST_LIST, ""            , S_HIST_MAX);
-   strlcat (S_HIST_LIST, LTRS_LOWER , S_HIST_MAX);
-   /*> strlcat (S_HIST_LIST, LTRS_UPPER , S_HIST_MAX);                             <*/
-   strlcat (S_HIST_LIST, LTRS_GREEK , S_HIST_MAX);
+   strlcat (S_HIST_LIST, YSTR_LOWER , S_HIST_MAX);
+   /*> strlcat (S_HIST_LIST, YSTR_UPPER , S_HIST_MAX);                             <*/
+   strlcat (S_HIST_LIST, YSTR_GREEK , S_HIST_MAX);
    DEBUG_HIST   yLOG_info    ("LIST"      , S_HIST_LIST);
    /*---(clear history)------------------*/
    DEBUG_HIST   yLOG_note    ("clear all history");

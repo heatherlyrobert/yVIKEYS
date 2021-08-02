@@ -1667,24 +1667,51 @@ i will create simple notes which can be used in every application.
 
 .B unique note identifiers
    notes are known by their current location only
-   relative locations in xy using 1-9 scale, i.e., 23
+   normal locations in xy using 1-9 scale, i.e., 23
    1 is top-left, 5 is middle-center, 9 is bottom-right
+   fine location are (neg) Z-A * a-z (pos)
+ 
+         1      2     3      4     5     6      7     8      9
+         ZYXWVUTSRQPONMLKJIHGFEDCBA-abcdefghijklmnopqrstuvwxyz
+       1z             ·            ·            ·             z1
+        ²   ¬¬¬          ¬¬¬¬¬     ·                          ² 
+       2s             ·  ¬¬¬¬¬     ·            ·             s2
+        ²                          ·                          ² 
+       3m ·  ·  ·  ·  ·  ·  ·  ·  ···  ·  ·  ·  ·  ·  ·  ·  · m3
+        ²                      ¬¬¬¬¬¬¬¬                       ² 
+       4f             ·        ¬¬¬¬¬¬¬¬         ·             f4
+        ²                          ·                          ² 
+       5*·····················································*5
+        ²                          ·                          ² 
+       6F             ·            ·            ·             f6
+        ²                          ·                          ² 
+       7M ·  ·  ·  ·  ·  ·  ·  ·  ···  ·  ·  ·  ·  ·  ·  ·  · m7
+        ²                          ·                          ² 
+       8S             ·            ·            ·             s8
+        ²                          ·                          ² 
+       9Z             ·            ·            ·             Z9
+         ZYXWVUTSRQPONMLKJIHGFEDCBA-abcdefghijklmnopqrstuvwxyz
+         1      2     3      4     5     6      7     8      9
+ 
 
 .B simple note creation
    :note 23=testing¦
      <size>        - (tiny), = (normal), and + (larger) note
      <text>        characters to be presented, never *@!$~
+   :note mP+another testing note example¦
 
 .B changing existing notes
+   :note #¦        delete all notes
    :note 23¦       bring existing note 23 to top/focus
-   :note 23#       delete existing note 23
-   :note -¦        delete all notes
-   :note 23>44     move note 23 to 44, no other changes
+   :note 23#¦      delete existing note 23
+   :note 23>44¦    move note 23 to 44, no other changes
 
 .B connector lines
 
 
-
+.B display
+   :note -¦        hide all notes
+   :note +¦        show all notes
 
 
 

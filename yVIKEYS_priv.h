@@ -35,8 +35,8 @@
 
 #define     P_VERMAJOR  "1.-- = working for everyday use, features still evolving but stable"
 #define     P_VERMINOR  "1.5- = updates to support developing application"
-#define     P_VERNUM    "1.5d"
-#define     P_VERTXT    "mark logic improved and uses shared logic now, unit testing"
+#define     P_VERNUM    "1.5e"
+#define     P_VERTXT    "updateing, improving, and testing note logic to help demo hekate"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -949,10 +949,18 @@ char        yvikeys_layer_action    (uchar *a_name, uchar *a_action);
 /*---(display)------------------------*/
 char        yvikeys_layer_status    (char *a_line);
 char        yvikeys_layer_show      (void);
+/*---(unit_test)----------------------*/
+char        yvikeys_layer__unit_null(void);
+char*       yvikeys_layer__unit     (char *a_question, uchar *a_key);
+
+
+
 /*---(annotate)-----------------------*/
+char        yvikeys_note__size      (char a_type, char n, char xr, char yr, char a_size);
+char        yvikeys_note__append    (char n, char xr, char yr, char a_size, char *a_text);
+
 char        yvikeys_note_resize     (void);
 char        yvikeys_note__purge     (char a_init);
-char        yvikeys_note__append    (char n, char xr, char yr, char a_size, char *a_text);
 char        yvikeys_note__remove    (char n);
 char        yvikeys_note__totop     (char n);
 char        yvikeys_note__settarg   (char n, char *p);
@@ -961,9 +969,8 @@ char        yvikeys_note            (char *a_all);
 char        yVIKEYS_circle          (int x, int y, int r);
 char        yVIKEYS_box             (int x, int y, int w, int h);
 char        yvikeys_note_draw       (void);
-/*---(unit_test)----------------------*/
-char        yvikeys_layer__unit_null(void);
-char*       yvikeys_layer__unit     (char *a_question, uchar *a_key);
+char*       yvikeys_note__unit      (char *a_question, int n);
+
 
 
 /*---(program)------------------------*/

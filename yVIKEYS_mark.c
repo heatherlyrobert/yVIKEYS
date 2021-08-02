@@ -57,10 +57,10 @@ yvikeys_mark_init            (void)
    }
    /*---(macro abbrev list)--------------*/
    strlcpy (S_MARK_LIST, "'"           , S_MARK_MAX);
-   strlcat (S_MARK_LIST, LTRS_LOWER , S_MARK_MAX);
-   strlcat (S_MARK_LIST, LTRS_UPPER , S_MARK_MAX);
-   strlcat (S_MARK_LIST, LTRS_NUMBER, S_MARK_MAX);
-   strlcat (S_MARK_LIST, LTRS_GREEK , S_MARK_MAX);
+   strlcat (S_MARK_LIST, YSTR_LOWER , S_MARK_MAX);
+   strlcat (S_MARK_LIST, YSTR_UPPER , S_MARK_MAX);
+   strlcat (S_MARK_LIST, YSTR_NUMBER, S_MARK_MAX);
+   strlcat (S_MARK_LIST, YSTR_GREEK , S_MARK_MAX);
    strlcat (S_MARK_LIST, "()"          , S_MARK_MAX);
    DEBUG_PROG   yLOG_info    ("LIST"      , S_MARK_LIST);
    s_nmark = strlen (S_MARK_LIST);
@@ -100,10 +100,10 @@ yvikeys_mark__purge          (char a_scope)
    DEBUG_MARK   yLOG_value   ("nmark"     , s_nmark);
    for (i = 0; i < s_nmark; ++i) {
       x_abbr = S_MARK_LIST [i];
-      if (a_scope == YVIKEYS_UPPER  && strchr (LTRS_UPPER , x_abbr) == NULL)  continue;
-      if (a_scope == YVIKEYS_LOWER  && strchr (LTRS_LOWER , x_abbr) == NULL)  continue;
-      if (a_scope == YVIKEYS_NUMBER && strchr (LTRS_NUMBER, x_abbr) == NULL)  continue;
-      if (a_scope == YVIKEYS_GREEK  && strchr (LTRS_GREEK , x_abbr) == NULL)  continue;
+      if (a_scope == YVIKEYS_UPPER  && strchr (YSTR_UPPER , x_abbr) == NULL)  continue;
+      if (a_scope == YVIKEYS_LOWER  && strchr (YSTR_LOWER , x_abbr) == NULL)  continue;
+      if (a_scope == YVIKEYS_NUMBER && strchr (YSTR_NUMBER, x_abbr) == NULL)  continue;
+      if (a_scope == YVIKEYS_GREEK  && strchr (YSTR_GREEK , x_abbr) == NULL)  continue;
       yvikeys_mark__unset (x_abbr);
    }
    /*---(globals)------------------------*/

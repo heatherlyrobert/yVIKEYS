@@ -552,10 +552,10 @@ yvikeys_visu__purge     (char a_scope)
    DEBUG_VISU   yLOG_value   ("nvisu"     , s_nvisu);
    for (i = 0; i < s_nvisu; ++i) {
       x_abbr = S_VISU_LIST [i];
-      if (a_scope == YVIKEYS_UPPER  && strchr (LTRS_UPPER , x_abbr) == NULL)  continue;
-      if (a_scope == YVIKEYS_LOWER  && strchr (LTRS_LOWER , x_abbr) == NULL)  continue;
-      if (a_scope == YVIKEYS_NUMBER && strchr (LTRS_NUMBER, x_abbr) == NULL)  continue;
-      if (a_scope == YVIKEYS_GREEK  && strchr (LTRS_GREEK , x_abbr) == NULL)  continue;
+      if (a_scope == YVIKEYS_UPPER  && strchr (YSTR_UPPER , x_abbr) == NULL)  continue;
+      if (a_scope == YVIKEYS_LOWER  && strchr (YSTR_LOWER , x_abbr) == NULL)  continue;
+      if (a_scope == YVIKEYS_NUMBER && strchr (YSTR_NUMBER, x_abbr) == NULL)  continue;
+      if (a_scope == YVIKEYS_GREEK  && strchr (YSTR_GREEK , x_abbr) == NULL)  continue;
       yvikeys_visu__wipe  (&s_visu_info [i]);
    }
    /*---(globals)------------------------*/
@@ -585,10 +585,10 @@ yvikeys_visu_init       (void)
    }
    /*---(visu abbrev list)---------------*/
    strlcpy (S_VISU_LIST, "'"           , S_VISU_MAX);
-   strlcat (S_VISU_LIST, LTRS_LOWER , S_VISU_MAX);
-   strlcat (S_VISU_LIST, LTRS_UPPER , S_VISU_MAX);
-   strlcat (S_VISU_LIST, LTRS_NUMBER, S_VISU_MAX);
-   strlcat (S_VISU_LIST, LTRS_GREEK , S_VISU_MAX);
+   strlcat (S_VISU_LIST, YSTR_LOWER , S_VISU_MAX);
+   strlcat (S_VISU_LIST, YSTR_UPPER , S_VISU_MAX);
+   strlcat (S_VISU_LIST, YSTR_NUMBER, S_VISU_MAX);
+   strlcat (S_VISU_LIST, YSTR_GREEK , S_VISU_MAX);
    DEBUG_PROG   yLOG_info    ("LIST"      , S_VISU_LIST);
    s_nvisu  = strlen (S_VISU_LIST);
    /*---(clear)--------------------------*/

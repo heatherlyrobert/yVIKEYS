@@ -234,6 +234,7 @@ tMAPPED     g_zmap;
 #define      YVIKEYS_NONE        '-'
 #define      YVIKEYS_OPENGL      'g'
 #define      YVIKEYS_CURSES      'c'
+#define      YVIKEYS_ENVS        "gc"
 
 
 /*> File Edit View Insert fOrmat Buffers Dataset Tools Layers Select Modify Palette Analyze eXecute Config sHOw macRos   <*/

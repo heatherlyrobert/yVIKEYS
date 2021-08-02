@@ -537,10 +537,10 @@ yvikeys_vers_version       (char *a_ver)
    /*---(prepare)------------------------*/
    strlcpy  (x_work, a_ver, LEN_LABEL);
    /*---(test chars)---------------------*/
-   --rce;  if (strchr (LTRS_LOWER, x_work [3]) == 0)  return rce;
-   --rce;  if (strchr (LTRS_UPNUM, x_work [2]) == 0)  return rce;
+   --rce;  if (strchr (YSTR_LOWER, x_work [3]) == 0)  return rce;
+   --rce;  if (strchr (YSTR_UPNUM, x_work [2]) == 0)  return rce;
    --rce;  if (x_work [1] != '.')                     return rce;
-   --rce;  if (strchr (LTRS_UPNUM, x_work [0]) == 0)  return rce;
+   --rce;  if (strchr (YSTR_UPNUM, x_work [0]) == 0)  return rce;
    /*---(check increase only)------------*/
    --rce;  if (x_work [0] <  myVIKEYS.f_vernum [0])    return rce;
    if (x_work [0] == myVIKEYS.f_vernum [0]) {
@@ -688,7 +688,7 @@ yvikeys__file_regex             (char a_type, char *a_ext, char *a_base, char *a
          }
       }
       /*---(filter by name)--------------*/
-      rc = yREGEX_exec (x_file->d_name);
+      rc = yREGEX_filter (x_file->d_name);
       DEBUG_INPT   yLOG_value   ("exec"      , rc);
       if (rc <= 0) {
          DEBUG_INPT   yLOG_note    ("regex failed to match");
@@ -696,7 +696,7 @@ yvikeys__file_regex             (char a_type, char *a_ext, char *a_base, char *a
       }
       /*---(check for bad characters)-------*/
       for (i = 0; i < x_len; ++i) {
-         if (strchr (LTRS_FILES, x_file->d_name [i]) != NULL)   continue;
+         if (strchr (YSTR_FILES, x_file->d_name [i]) != NULL)   continue;
          DEBUG_INPT   yLOG_note    ("bad character in target name");
          continue;
       }
@@ -1000,7 +1000,7 @@ yvikeys__file_namer     (char a_type, char *a_name)
    /*---(check for fixed name)-----------*/
    else if (x_len > 0) {
       for (i = 0; i < x_len; ++i) {
-         if (strchr (LTRS_FILES, p [i]) != NULL)   continue;
+         if (strchr (YSTR_FILES, p [i]) != NULL)   continue;
          DEBUG_INPT   yLOG_note    ("bad character in file name");
          DEBUG_INPT   yLOG_exit    (__FUNCTION__);
          return rce;

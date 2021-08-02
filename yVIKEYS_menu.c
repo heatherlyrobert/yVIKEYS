@@ -1687,8 +1687,9 @@ yvikeys_menu_fill       (char a_type, int a_len, int a_lvl, int a_lef, int a_wid
    }
    /*---(ncurses)------------------------*/
    else {
-      if (a_len != a_lvl)  yCOLOR_curs ("m_curr");
-      else                 yCOLOR_curs ("m_prev");
+      if (a_len <  0)           yCOLOR_curs ("m_main");
+      else if (a_len != a_lvl)  yCOLOR_curs ("m_curr");
+      else                      yCOLOR_curs ("m_prev");
       for (i = a_bot; i < a_bot + a_tall; ++i) {
          mvprintw   (i, a_lef, "%*.*s", a_wide, a_wide, "                                                  ");
       }

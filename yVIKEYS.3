@@ -316,6 +316,10 @@ yCOLOR library as a specific color assigned.
 
 .B HAS_HINT (<flag>)   this returns TRUE if hinted, FALSE if not.
 
+.B yCOLOR_curs ("m_hint");  sets the hint color in ncurses.
+
+.B yCOLOR_opengl ("m_hint");  sets the hint color in opengl.
+
 .SS 6) add hinter logic to interpret hint requests
 interpret ";;´´¦" as requesting a specific hint and then register specific hint
 or hints.
@@ -334,19 +338,86 @@ find an object based on the coordinates and then clear the hint flag.
 
 .B NOT_HINT (<flag>)   this turns off hint
 
-.SH SEARCH
 
-.B yVIKEYS_srch_init, 
+.SH MARKS (sub-mode)
+once the yVIKEYS system is initiated, marking is relatively simple to implement.
+the source application must handle drawing the marks, and advanced mapping must
+be implemented (see mapping).
 
-.B yVIKEYS_srch_found, 
-external programs feed each search result to this function to enable moving
-directly between results.  only one argument...
-   void*  match      pointer to result
+.SS 1) modify drawing logic to show/hide marks
+library provides a function to use during drawing which will indicate whether
+to show marks.  send it the location label, i.g., 0a1 in gyges.  it returns
+the mark character if is shown and current label is marked, < 0 if hidden.
 
-.B yVIKEYS_srch_direct, 
-executes a search without any interactive user input -- useful, simple,
-supports batch use.  only one argument...
-   char*  search     search line as it would have been typed (/)
+.B yVIKEYS_marking (label)
+
+.B yCOLOR_curs ("m_temp");  sets the mark color in ncurses.
+
+.B yCOLOR_opengl ("m_temp");  sets the mark color in opengl.
+
+recommend that the marks are shown in the same spot as hints.  check marks
+first and show if exists as å'aæ. if not a mark, show hint as åaaæ or empty.
+
+.SH SEARCH (mode)
+searching requires more of the host application as it must use yREGEX to
+conduct the search and draw the results.  all else is in the library.
+
+.SS 1) implement two straw-man handlers...
+both strawmen can be named whatever you wish, but must return 0 if successful
+and < 0 upon failure.
+
+.BI "char searcher   (char *" "a_search" ") { }"
+      this will later be built out to handle search requests.
+
+.BI "char unsearcher (int " "b" ", int " "x" ", int " "y" ", int " "z" ") { }"
+      this will later be built out to handle search clearing.
+
+.SS 2) configure search handling during initialization
+this will route specific search requests to your program.  without this step
+all search requests will be ignored.
+
+.B yVIKEYS_srch_config (searcher, unsearcher);
+
+.SS 3) when building objects, add flag field
+add a char field to indicate if object is hinted, marked, and or found
+in search.
+
+.B NOT_SRCH (<flag>)   this turns off found in search
+
+.SS 4) add ability to highlight search finding (optional)
+use flags on the data objects to check, then highlight during the draw cycle.
+yCOLOR library as a specific color assigned.
+
+.B HAS_SRCH (<flag>)   this returns TRUE if found, FALSE if not.
+
+.B yCOLOR_curs ("m_srch");  sets the search color in ncurses.
+
+.B yCOLOR_opengl ("m_srch");  sets the search color in opengl.
+
+.SS 5) add searcher logic to conduct searches
+add yREGEX library to program.  then compile the search.  finally execute
+the search on each data item, marking thoses that match.
+
+.B yREGEX_comp (a_search + 1);
+
+.B yREGEX_exec (<text field>);
+
+.B yVIKEYS_srch_found (a_label, b, x, y, z);
+
+.B SET_SRCH (<flag>)   this turns the search finding on
+
+.SS 6) build unsearcher logic to clear a search finding
+find an object based on the coordinates and then clear the search flag.
+
+.B NOT_SRCH (<flag>)   this turns off search finding
+
+.SH OVERLAY (display)
+overlays are quite easy to implement, and their can be any number of them.
+
+
+
+
+
 
 
 .SH VIEW
