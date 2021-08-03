@@ -1667,6 +1667,7 @@ i will create simple notes which can be used in every application.
 
 .B unique note identifiers
    notes are known by their current location only
+   currently allows for concurrent 20 notes
    normal locations in xy using 1-9 scale, i.e., 23
    1 is top-left, 5 is middle-center, 9 is bottom-right
    fine location are (neg) Z-A * a-z (pos)
@@ -1683,20 +1684,26 @@ i will create simple notes which can be used in every application.
         ²                          ·                          ² 
        5*·····················································*5
         ²                          ·                          ² 
-       6F             ·            ·            ·             f6
+       6F             ·            ·            ·             F6
         ²                          ·                          ² 
-       7M ·  ·  ·  ·  ·  ·  ·  ·  ···  ·  ·  ·  ·  ·  ·  ·  · m7
+       7M ·  ·  ·  ·  ·  ·  ·  ·  ···  ·  ·  ·  ·  ·  ·  ·  · M7
         ²                          ·                          ² 
-       8S             ·            ·            ·             s8
+       8S             ·            ·            ·             S8
         ²                          ·                          ² 
        9Z             ·            ·            ·             Z9
          ZYXWVUTSRQPONMLKJIHGFEDCBA-abcdefghijklmnopqrstuvwxyz
          1      2     3      4     5     6      7     8      9
- 
+
+.B sizes of notes
+   +          large size, 4 lines of 35+ chars
+   =          normal size, 3 lines of 25+ chars
+   -          small, room for one word, 10 chars
+   .          bullet, room for one letter
+   )          title, same as normal, but special coloring
 
 .B simple note creation
    :note 23=testing¦
-     <size>        - (tiny), = (normal), and + (larger) note
+     <size>        . (bullet), - (tiny), = (normal), and + (larger) note
      <text>        characters to be presented, never *@!$~
    :note mP+another testing note example¦
 

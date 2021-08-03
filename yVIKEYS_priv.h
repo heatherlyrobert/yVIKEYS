@@ -35,8 +35,8 @@
 
 #define     P_VERMAJOR  "1.-- = working for everyday use, features still evolving but stable"
 #define     P_VERMINOR  "1.5- = updates to support developing application"
-#define     P_VERNUM    "1.5e"
-#define     P_VERTXT    "updateing, improving, and testing note logic to help demo hekate"
+#define     P_VERNUM    "1.5f"
+#define     P_VERTXT    "notes pretty great in ncurses and happly using in hekate script"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -955,21 +955,34 @@ char*       yvikeys_layer__unit     (char *a_question, uchar *a_key);
 
 
 
-/*---(annotate)-----------------------*/
-char        yvikeys_note__size      (char a_type, char n, char xr, char yr, char a_size);
-char        yvikeys_note__append    (char n, char xr, char yr, char a_size, char *a_text);
-
-char        yvikeys_note_resize     (void);
-char        yvikeys_note__purge     (char a_init);
+/*---(support)------------------------*/
+char        yvikeys_note__clear     (char a_init, char n);
+char        yvikeys_note__find      (char xr, char yr);
+/*---(ordering)-----------------------*/
 char        yvikeys_note__remove    (char n);
 char        yvikeys_note__totop     (char n);
+char        yvikeys_note__move      (char n, char xr, char yr);
+/*---(mass)---------------------------*/
+char        yvikeys_note__purge     (char a_init);
+char        yvikeys_note_resize     (void);
+/*---(content)------------------------*/
+char        yvikeys_note__size      (char a_type, char n, char xr, char yr, char a_size);
+char        yvikeys_note__append    (char n, char xr, char yr, char a_size, char *a_text);
+/*---(driver)-------------------------*/
+char        yvikeys_note            (char *a_all);
+/*---(drawing)------------------------*/
+char        yvikeys_note_target     (int xb, int yb, int xe, int ye, int z);
+char        yvikeys_note_text       (char a_type, char a_len, char a_lvl, char *a_text, int x, int y, int w, int h, int z);
+char        yvikeys_note_draw       (void);
+char        yVIKEYS_note_mask       (void *a_bounds, void *a_context, int a_left, int a_topp, int a_xmin, int a_ymax);
+/*---(unittest)-----------------------*/
+char*       yvikeys_note__unit      (char *a_question, int n);
+
+
 char        yvikeys_note__settarg   (char n, char *p);
 char        yvikeys_note__retarg    (char n);
-char        yvikeys_note            (char *a_all);
 char        yVIKEYS_circle          (int x, int y, int r);
 char        yVIKEYS_box             (int x, int y, int w, int h);
-char        yvikeys_note_draw       (void);
-char*       yvikeys_note__unit      (char *a_question, int n);
 
 
 
