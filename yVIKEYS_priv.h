@@ -35,8 +35,8 @@
 
 #define     P_VERMAJOR  "1.-- = working for everyday use, features still evolving but stable"
 #define     P_VERMINOR  "1.5- = updates to support developing application"
-#define     P_VERNUM    "1.5f"
-#define     P_VERTXT    "notes pretty great in ncurses and happly using in hekate script"
+#define     P_VERNUM    "1.5g"
+#define     P_VERTXT    "macro unit testing back and clean, --script CLA fixed"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -714,7 +714,7 @@ char        yvikeys_macro_list      (int *a_count, char *a_list);
 /*---(file)-----------------*/
 char        yvikeys_macro_writer    (int c, uchar a_abbr);
 char        yvikeys_macro_writer_all(void);
-char        yvikeys_macro_reader    (void);
+char        yvikeys_macro_reader    (int n, char *a_verb);
 int         yvikeys_macro_dump      (FILE *a_file);
 char        yvikeys_macro_flatten   (char a_src, char a_dst);
 char        yvikeys_macro_install   (char a_src);
@@ -726,6 +726,7 @@ char        yvikeys_script_start    (char *a_name);
 char        yvikeys_script_follow   (char *a_name);
 char        yvikeys_script_playback (char *a_name);
 char        yvikeys_script_blitz    (char *a_name);
+char        yvikeys_script_status   (char *a_list);
 
 
 char        yvikeys_macro_term      (uchar *a_string);

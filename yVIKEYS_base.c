@@ -1089,7 +1089,9 @@ yVIKEYS_main            (char *a_delay, char *a_update, void *a_altinput ())
    yvikeys_loop_set     (a_delay, a_update);
    yVIKEYS_view_all (0.0);
    /*---(CLA for script)-----------------*/
+   DEBUG_TOPS   yLOG_info    ("script"    , myVIKEYS.m_script);
    if (strcmp (myVIKEYS.m_script, "") != 0) {
+      DEBUG_TOPS   yLOG_note    ("command line script argument");
       sprintf (t, ":script %s", myVIKEYS.m_script);
       DEBUG_TOPS   yLOG_info    ("t"         , t);
       rc = yVIKEYS_cmds_direct (t);

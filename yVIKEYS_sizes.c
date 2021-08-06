@@ -94,6 +94,7 @@ tOPTION  s_options [MAX_OPTION ] = {
    { YVIKEYS_STATUS  , "hint"         , yvikeys_hint_status    , "details of hint environment"              },
    { YVIKEYS_STATUS  , "search"       , yvikeys_srch_status    , "details of search environment"            },
    { YVIKEYS_STATUS  , "record"       , yvikeys_macro_rstatus  , "details of macro recording"               },
+   { YVIKEYS_STATUS  , "script"       , yvikeys_script_status  , "details of script playback"               },
    { YVIKEYS_STATUS  , "sreg"         , yvikeys_sreg_status    , "details of current source register" },
    { YVIKEYS_STATUS  , "sundo"        , yvikeys_sundo_status   , "source editing undo stack" },
    { YVIKEYS_GRID    , "norm"         , VIEW__grid_normal      , "traditional cross-hatch grid" },

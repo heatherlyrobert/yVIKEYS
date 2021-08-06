@@ -328,11 +328,11 @@ yvikeys_macro_init      (void)
       return rce;
    }
    /*---(macro abbrev list)--------------*/
-   strlcpy (S_MACRO_LIST, ""            , S_MACRO_MAX);
+   strlcpy (S_MACRO_LIST, ""         , S_MACRO_MAX);
    strlcat (S_MACRO_LIST, YSTR_LOWER , S_MACRO_MAX);
    strlcat (S_MACRO_LIST, YSTR_NUMBER, S_MACRO_MAX);
    strlcat (S_MACRO_LIST, YSTR_GREEK , S_MACRO_MAX);
-   strlcat (S_MACRO_LIST, "."           , S_MACRO_MAX);
+   strlcat (S_MACRO_LIST, "."        , S_MACRO_MAX);
    DEBUG_PROG   yLOG_info    ("LIST"      , S_MACRO_LIST);
    s_nmacro = strlen (S_MACRO_LIST);
    /*---(clear exec)---------------------*/
@@ -1257,6 +1257,8 @@ yvikeys_script_open     (char *a_name)
       DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
+   /*---(save name)----------------------*/
+   strlcpy (myVIKEYS.m_script, x_name, LEN_DESC);
    /*---(complete)-----------------------*/
    DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -1361,6 +1363,7 @@ yvikeys_script_close    (void)
    }
    /*---(ground pointer)-----------------*/
    s_script = NULL;
+   strlcpy (myVIKEYS.m_script, "", LEN_DESC);
    /*---(complete)-----------------------*/
    DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -1379,6 +1382,10 @@ yvikeys_script__start   (char *a_name, char a_style)
    if (rc < 0) {
       DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
+   }
+   if (a_style == '!') {
+      yvikeys_sizes_switch ("status", "script");
+      a_style = '.';
    }
    s_style = a_style;
    DEBUG_SCRP   yLOG_char    ("s_style"   , s_style);
@@ -1405,7 +1412,7 @@ yvikeys_script__start   (char *a_name, char a_style)
 }
 
 char yvikeys_script_start    (char *a_name) { return yvikeys_script__start (a_name, '.'); }
-char yvikeys_script_follow   (char *a_name) { return yvikeys_script__start (a_name, '.'); }
+char yvikeys_script_follow   (char *a_name) { return yvikeys_script__start (a_name, '!'); }
 char yvikeys_script_playback (char *a_name) { return yvikeys_script__start (a_name, ','); }
 char yvikeys_script_blitz    (char *a_name) { s_blitz  = 'y';  return yvikeys_script__start (a_name, '.'); }
 
@@ -1811,6 +1818,7 @@ yvikeys_macro__exectl   (uchar a_key)
    case G_CHAR_HALT    :
       DEBUG_SCRP   yLOG_note    ("halt (³)");
       yvikeys_macro_set2stop ();
+      yvikeys_script_close ();
       DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
       return -1;
       break;
@@ -1850,6 +1858,7 @@ yvikeys_macro_exeplay   (uchar a_key)
    case G_KEY_ESCAPE : case G_CHAR_ESCAPE :
       DEBUG_SCRP   yLOG_note    ("escape");
       yvikeys_macro_set2stop ();
+      yvikeys_script_close ();
       DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
       return -1;
       break;
@@ -2054,7 +2063,7 @@ yvikeys_macro_estatus        (char *a_list)
    p =  x_dots + x_len - w;
    /*---(idle version)-------------------*/
    if (s_ecurr < 0) {
-      snprintf (a_list, LEN_FULL, "macro   %c %c %c -- --- --- %*.*s [*] %*.*s", s_ename, s_ddelay, s_dupdate, w, w, p, w, w, x_dots);
+      snprintf (a_list, LEN_FULL, "macro   %c %c %c -- --- --- %*.*s  ¬  %*.*s", s_ename, s_ddelay, s_dupdate, w, w, p, w, w, x_dots);
       DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
       return 0;
    }
@@ -2064,15 +2073,15 @@ yvikeys_macro_estatus        (char *a_list)
    if (x_ch < 32)  x_ch = '£';
    /*---(prefix)-------------------------*/
    if      (x_pos <=  0)  sprintf (x_bef , "%*.*s", w, w, p);
-   else if (x_pos >   w)  sprintf (x_bef , "<%-*.*s", w - 1, w - 1, s_macros [s_ecurr].keys + x_pos - w);
+   else if (x_pos >   w)  sprintf (x_bef , "<%-*.*s", w - 1, w - 1, s_macros [s_ecurr].keys + x_pos - w + 1);
    else                   sprintf (x_bef , "%*.*s%*.*s"   , w - x_pos, w - x_pos, p, x_pos, x_pos, s_macros [s_ecurr].keys);
    /*---(suffix)-------------------------*/
    x_rem = s_macros [s_ecurr].len - s_macros [s_ecurr].pos - 1;
    if      (x_rem <=  0)  sprintf (x_aft , "%*.*s", w, w, x_dots);
-   else if (x_rem >   w)  sprintf (x_aft , "%-*.*s>", w - 1, w - 1, s_macros [s_ecurr].keys + s_macros [s_ecurr].pos + 1);
+   else if (x_rem >   w)  sprintf (x_aft , "%-*.*s>", w - 1, w - 1, s_macros [s_ecurr].keys + x_pos + 1);
    else                   sprintf (x_aft , "%*.*s%*.*s"   , x_rem, x_rem, s_macros [s_ecurr].keys + x_pos + 1, w - x_rem, w - x_rem, x_dots + x_rem);
    /*---(concat)-------------------------*/
-   snprintf (a_list, LEN_FULL, "macro   %c %c %c %2d %3d %3d %s [%c] %s", s_ename, s_ddelay, s_dupdate, s_macros [s_ecurr].repeat, x_pos, s_macros [s_ecurr].len, x_bef, x_ch, x_aft);
+   snprintf (a_list, LEN_FULL, "macro   %c %c %c %2d %3d %3d %s  %c  %s", s_ename, s_ddelay, s_dupdate, s_macros [s_ecurr].repeat, x_pos, s_macros [s_ecurr].len, x_bef, x_ch, x_aft);
    /*---(complete)-----------------------*/
    DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -2123,16 +2132,31 @@ yvikeys_macro_rstatus        (char *a_list)
 }
 
 char
-yvikeys_macro_rstatus_OLD    (char *a_list)
+yvikeys_script_status        (char *a_list)
 {
-   char        x_dots      [LEN_HUND] = "····´····´····´····´····´····´····´····´····´····´····´····´····´";
-   int         x_len       = 0;
-   if (s_rcurr < 0) {
-      snprintf (a_list, LEN_FULL, "record  %c --- %s", s_rname, x_dots);
+   int         x_wide;
+   int         w;
+   char        x_name      [LEN_HUND]  = "";
+   char        x_recd      [LEN_RECD]  = "";
+   int         x_len       =   0;
+   int         n           =   0;
+   /*---(sizing)-------------------------*/
+   yVIKEYS_view_size   (YVIKEYS_STATUS, NULL, &x_wide, NULL, NULL, NULL);
+   DEBUG_SCRP   yLOG_value   ("x_wide"    , x_wide);
+   w = x_wide - 36;
+   DEBUG_SCRP   yLOG_value   ("w"         , w);
+   /*---(not active)---------------------*/
+   n = yvikeys_macro__index ('.');
+   if (s_script == NULL || n < 0) {
+      snprintf (a_list, x_wide, "script   -  -åæ                       -åæ");
       return 0;
    }
-   x_len = s_macros [s_rcurr].len;
-   snprintf (a_list, LEN_FULL, "record  %c %3d %*.*s%*.*s", s_rname, x_len, x_len, x_len, s_rkeys, 65 - x_len, 65 - x_len, x_dots + x_len);
+   /*---(active)-------------------------*/
+   sprintf  (x_name, "%2då%.20sæ", strlen (myVIKEYS.m_script), myVIKEYS.m_script);
+   if (s_macros [n].len > w - 5)  sprintf (x_recd, "%3då%.*s>", s_macros [n].len, w - 5, s_macros [n].keys);
+   else                           sprintf (x_recd, "%3då%.*sæ", s_macros [n].len, w - 5, s_macros [n].keys);
+   snprintf (a_list, LEN_FULL, "script %3d %-24.24s %s", s_line, x_name, x_recd);
+   /*---(complete)-----------------------*/
    return 0;
 }
 
@@ -2252,14 +2276,14 @@ yvikeys_macro_writer_all (void)
 }
 
 char
-yvikeys_macro_reader    (void)
+yvikeys_macro_reader    (int n, char *a_verb)
 {
    /*---(locals)-----------+-----------+-*/
    char        rce         =  -11;
    char        rc          =    0;
    char        x_verb      [LEN_LABEL];
    char        x_abbr      =    0;
-   int         n           =    0;
+   int         m           =    0;
    char        x_keys      [LEN_RECD];
    /*---(header)-------------------------*/
    DEBUG_INPT   yLOG_enter   (__FUNCTION__);
@@ -2269,21 +2293,13 @@ yvikeys_macro_reader    (void)
       DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   /*---(get verb)-----------------------*/
-   rc = yPARSE_popstr (x_verb);
-   DEBUG_INPT   yLOG_value   ("pop verb"  , rc);
-   DEBUG_INPT   yLOG_info    ("x_verb"    , x_verb);
-   --rce;  if (strcmp ("macro", x_verb) != 0) {
-      DEBUG_INPT   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
    /*---(label)--------------------------*/
    rc = yPARSE_popchar (&x_abbr);
    DEBUG_INPT   yLOG_value   ("pop abbr"  , rc);
    DEBUG_INPT   yLOG_char    ("abbr"      , x_abbr);
-   n  = yvikeys_macro__index (x_abbr);
-   DEBUG_INPT   yLOG_char    ("n"         , n);
-   --rce; if (n < 0) {
+   m  = yvikeys_macro__index (x_abbr);
+   DEBUG_INPT   yLOG_char    ("m"         , m);
+   --rce; if (m < 0) {
       DEBUG_OUTP   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
@@ -2295,8 +2311,8 @@ yvikeys_macro_reader    (void)
    DEBUG_INPT   yLOG_note    ("saving values");
    yvikeys_macro__clear (x_abbr);
    if (x_keys [strlen (x_keys) - 1] != '³')   strlcat (x_keys, "³"   , LEN_RECD );
-   s_macros [n].keys = strdup (x_keys);
-   s_macros [n].len  = strlen (x_keys);
+   s_macros [m].keys = strdup (x_keys);
+   s_macros [m].len  = strlen (x_keys);
    if (s_saver != NULL)  s_saver (x_abbr, x_keys);
    /*---(complete)-----------------------*/
    DEBUG_INPT  yLOG_exit    (__FUNCTION__);

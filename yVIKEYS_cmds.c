@@ -228,6 +228,7 @@ static const tCMDS  s_base      [] = {
    { 'b', 'v', "layer"           , "l"   , yvikeys_layer_action      , "ss"   , ""                                                            },
    { 'b', 'i', "note"            , ""    , yvikeys_note              , "a"    , "manage screen annotations (notes)"                           },
    /*---(yX11)--------------------------------------------------------------------------------------------------------------------------------*/
+   { 'b', 'x', "winreset"        , ""    , yX11_reset                , ""     , "move between window manager desktops"                        },
    { 'b', 'x', "desktop"         , ""    , yX11_desk_goto            , "c"    , "move between window manager desktops"                        },
    { 'b', 'x', "term"            , ""    , yX11_yvikeys_term         , "a"    , "create a terminal session"                                   },
    { 'b', 'x', "winname"         , ""    , yX11_yvikeys_name         , "a"    , "name an existing window"                                     },
